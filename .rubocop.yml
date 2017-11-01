@@ -10,6 +10,9 @@ Metrics/BlockLength:
 Style/SafeNavigation:
   Enabled: false
 
+Style/DoubleNegation:
+  Enabled: false
+
 # Bundler/DuplicatedGem:
 #   Enabled: true
 
@@ -17,9 +20,6 @@ Style/SafeNavigation:
 #   Enabled: true
 
 # Lint/AmbiguousBlockAssociation:
-#   Enabled: false
-
-# Style/DoubleNegation:
 #   Enabled: false
 
 # Style/IfUnlessModifier:
