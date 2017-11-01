@@ -1,9 +1,14 @@
 AllCops:
   TargetRubyVersion: 2.4
+  Exclude:
+    - 'elastic-apm.gemspec'
 
-Style/BlockLength:
-Exclude:
-  - 'spec/**/*_spec.rb'
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*_spec.rb'
+
+Style/SafeNavigation:
+  Enabled: false
 
 # Bundler/DuplicatedGem:
 #   Enabled: true

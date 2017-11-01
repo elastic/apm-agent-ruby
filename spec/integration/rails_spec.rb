@@ -4,6 +4,7 @@ require 'spec_helper'
 
 require 'rails'
 require 'action_controller/railtie'
+require 'elastic_apm/integration/railtie'
 
 RSpec.describe 'Rails integration' do
   include Rack::Test::Methods
