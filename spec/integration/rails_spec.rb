@@ -53,4 +53,6 @@ RSpec.describe 'Rails integration' do
     expect(response.body).to eq 'Yes!'
     expect(ElasticAPM.agent.pending_transactions.length).to be 1
   end
+
+  it 'sends stuff to the server'
 end

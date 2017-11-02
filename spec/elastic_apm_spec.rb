@@ -43,8 +43,6 @@ RSpec.describe ElasticAPM do
       it 'sets duration' do
         expect(subject.duration).to eq 500_000_000
       end
-
-      it 'queues transaction'
     end
   end
 end
