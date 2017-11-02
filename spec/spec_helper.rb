@@ -16,8 +16,14 @@ RSpec.configure do |config|
 
   config.around :each, with_agent: true do |example|
     ElasticAPM.start ElasticAPM::Config.new
-    example.run
-    ElasticAPM.stop
+
+    begin
+      example.run
+    ensure
+      # be sure not to bleed transaction onto next example
+      ElasticAPM.agent.current_transaction&.release
+      ElasticAPM.stop
+    end
   end
 
   config.around :each, mock_time: true do |example|

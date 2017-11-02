@@ -10,6 +10,8 @@ module ElasticAPM
           first_instance = Agent.start Config.new
           expect(Agent.instance).to_not be_nil
           expect(Agent.start(Config.new)).to be first_instance
+
+          Agent.stop # clean up
         end
       end
 
@@ -44,11 +46,18 @@ module ElasticAPM
 
             result = subject.transaction('Test') { |t| block_.call(t) }
 
-            expect(block_).to have_received(:call).with(Transaction)
-            expect(result).to be_a Transaction
+            expect(block_).to have_received(:call).with(result)
           end
         end
       end
+
+      describe '#trace' do
+        it 'delegates to current transaction' do
+          expect(subject).to delegate :trace, to: subject.current_transaction
+        end
+      end
     end
+
+    #
   end
 end

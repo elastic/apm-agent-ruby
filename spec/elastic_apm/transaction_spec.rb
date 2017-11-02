@@ -97,9 +97,11 @@ module ElasticAPM
       it 'sets start time' do
         expect(subject.start_time).to eq 694_224_000_100_000_000
       end
+
       it 'knows its parent traces' do
         expect(subject.parents).to eq [transaction.root_trace]
       end
+
       it 'adds trace to traces' do
         expect(transaction.traces).to eq [transaction.root_trace, subject]
       end

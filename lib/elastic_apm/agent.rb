@@ -78,13 +78,13 @@ module ElasticAPM
     end
 
     # rubocop:disable Metrics/MethodLength
-    def transaction(name, type = nil, result = nil)
+    def transaction(*args)
       if (transaction = current_transaction)
         yield transaction if block_given?
         return transaction
       end
 
-      transaction = Transaction.new self, name, type, result
+      transaction = Transaction.new self, *args
 
       self.current_transaction = transaction
       return transaction unless block_given?
@@ -99,5 +99,9 @@ module ElasticAPM
       transaction
     end
     # rubocop:enable Metrics/MethodLength
+
+    def trace(*args, &block)
+      transaction.trace(*args, &block)
+    end
   end
 end

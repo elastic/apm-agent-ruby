@@ -19,29 +19,32 @@ RSpec.describe ElasticAPM do
   context 'when apm is started', :with_agent do
     it { should be_started }
 
-    it do
-      should delegate(
-        :transaction, to: ElasticAPM.agent, args: ['Test', nil, nil]
-      )
-    end
+    describe 'block example', :with_agent, :mock_time do
+      subject do
+        raise 'NO' if ElasticAPM.agent.current_transaction
 
-    xit 'block example', :with_agent, :mock_time do
-      transaction = ElasticAPM.transaction 'Test' do
-        travel 100
-        ElasticAPM.trace 'test1' do
+        ElasticAPM.transaction 'Test' do
           travel 100
-          ElasticAPM.trace 'test1-1' do
+          ElasticAPM.trace 'test1' do
+            travel 100
+            ElasticAPM.trace 'test1-1' do
+              travel 100
+            end
+            ElasticAPM.trace 'test1-2' do
+              travel 100
+            end
             travel 100
           end
-          ElasticAPM.trace 'test1-2' do
-            travel 100
-          end
-          travel 100
-        end
-      end.done(true)
+        end.done(true)
+      end
 
-      expect(transaction).to be_done
-      expect(transaction.duration).to eq 500_000_000
+      it { should be_done }
+
+      it 'sets duration' do
+        expect(subject.duration).to eq 500_000_000
+      end
+
+      it 'queues transaction'
     end
   end
 end

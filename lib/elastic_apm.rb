@@ -34,4 +34,8 @@ module ElasticAPM
   def self.transaction(name, type = nil, result = nil, &block)
     agent.transaction name, type, result, &block
   end
+
+  def self.trace(name, type = nil, extra = nil, &block)
+    agent.trace name, type, extra, &block
+  end
 end
