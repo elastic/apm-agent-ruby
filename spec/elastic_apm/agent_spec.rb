@@ -58,6 +58,20 @@ module ElasticAPM
       end
     end
 
-    #
+    # reporting
+
+    context 'reporting' do
+      subject { Agent.new Config.new }
+
+      describe '#submit_transaction' do
+        it 'adds the transaction to its queue' do
+          mock_transaction = double(Transaction)
+
+          subject.submit_transaction mock_transaction
+
+          expect(subject.pending_transactions).to eq [mock_transaction]
+        end
+      end
+    end
   end
 end

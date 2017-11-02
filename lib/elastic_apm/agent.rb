@@ -103,5 +103,11 @@ module ElasticAPM
     def trace(*args, &block)
       transaction.trace(*args, &block)
     end
+
+    # reporting
+
+    def submit_transaction(transaction)
+      @pending_transactions << transaction
+    end
   end
 end
