@@ -5,7 +5,9 @@ require 'elastic_apm/version'
 require 'elastic_apm/agent'
 require 'elastic_apm/config'
 require 'elastic_apm/middleware'
+require 'elastic_apm/trace'
 require 'elastic_apm/transaction'
+require 'elastic_apm/util'
 
 # ElasticAPM
 module ElasticAPM
@@ -29,7 +31,7 @@ module ElasticAPM
     Agent.instance
   end
 
-  def self.transaction(name, kind = nil, result = nil, &block)
-    agent.transaction name, kind, result, &block
+  def self.transaction(name, type = nil, result = nil, &block)
+    agent.transaction name, type, result, &block
   end
 end

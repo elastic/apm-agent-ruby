@@ -9,7 +9,7 @@ module ElasticAPM
 
     def call(env)
       begin
-        transaction = ElasticAPM.transaction 'Rack', 'rack.request'
+        transaction = ElasticAPM.transaction 'Rack', 'request'
         resp = @app.call env
       ensure
         transaction.release if transaction
