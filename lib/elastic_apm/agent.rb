@@ -50,17 +50,22 @@ module ElasticAPM
 
       @transaction_info = TransactionInfo.new
 
+      @queue = Queue.new
       @pending_transactions = []
     end
 
     attr_reader :pending_transactions
 
     def start
+      boot_worker
+
       self
     end
 
     def stop
-      # stop things
+      kill_worker
+
+      self
     end
 
     at_exit do
@@ -108,6 +113,24 @@ module ElasticAPM
 
     def submit_transaction(transaction)
       @pending_transactions << transaction
+    end
+
+    private
+
+    def boot_worker
+      @worker_thread = Thread.new do
+        Worker.new(@config, @queue).run_forever
+      end
+    end
+
+    def kill_worker
+      @queue << Worker::StopMessage.new
+
+      unless @worker_thread.join(5) # 5 secs
+        raise 'Failed to wait for worker, not all messages sent'
+      end
+
+      @worker_thread = nil
     end
   end
 end

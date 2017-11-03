@@ -47,12 +47,11 @@ RSpec.describe 'Rails integration' do
     @app ||= Rails.application
   end
 
-  it 'traces action and enqueues a transaction' do
+  it 'traces action and sends it to the server', :allow_api_requests do
     response = get '/'
 
     expect(response.body).to eq 'Yes!'
-    expect(ElasticAPM.agent.pending_transactions.length).to be 1
+    # expect(WebMock).to have_requested(:post, %r{/v1/transactions}) #.with(
+    #)
   end
-
-  it 'sends stuff to the server'
 end
