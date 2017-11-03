@@ -13,32 +13,5 @@ Style/SafeNavigation:
 Style/DoubleNegation:
   Enabled: false
 
-# Bundler/DuplicatedGem:
-#   Enabled: true
-
-# Bundler/OrderedGems:
-#   Enabled: true
-
-# Lint/AmbiguousBlockAssociation:
-#   Enabled: false
-
-# Style/IfUnlessModifier:
-#   Enabled: false
-
-# Style/NumericLiterals:
-#   Enabled: false
-
-# Style/LambdaCall:
-#   Enabled: false
-
-# Layout/AlignParameters:
-#   EnforcedStyle: with_fixed_indentation
-
-# Layout/MultilineMethodCallIndentation:
-#   EnforcedStyle: indented
-
-# Metrics/BlockLength:
-#   Enabled: false
-
-# Naming/PredicateName:
-#   Enabled: false
+Naming/PredicateName:
+  Enabled: false

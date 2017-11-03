@@ -5,8 +5,7 @@ require 'spec_helper'
 RSpec.describe ElasticAPM do
   describe 'life cycle' do
     it 'starts and stops the agent' do
-      # expect(ElasticAPM::Agent).to receive(:start) { true }
-      ElasticAPM.start nil
+      ElasticAPM.start ElasticAPM::Config.new
       expect(ElasticAPM::Agent).to be_started
 
       ElasticAPM.stop
@@ -19,7 +18,7 @@ RSpec.describe ElasticAPM do
   context 'when apm is started', :with_agent do
     it { should be_started }
 
-    describe 'block example', :with_agent, :mock_time do
+    describe 'block example', :mock_time do
       subject do
         raise 'NO' if ElasticAPM.agent.current_transaction
 

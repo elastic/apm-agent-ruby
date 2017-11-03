@@ -64,12 +64,27 @@ module ElasticAPM
       subject { Agent.new Config.new }
 
       describe '#submit_transaction' do
-        it 'adds the transaction to its queue' do
-          mock_transaction = double(Transaction)
+        context "when it shouldn't send" do
+          it 'adds the transaction as pending' do
+            mock_transaction = double(Transaction)
 
-          subject.submit_transaction mock_transaction
+            subject.submit_transaction mock_transaction
 
-          expect(subject.pending_transactions).to eq [mock_transaction]
+            expect(subject.pending_transactions.length).to be 1
+            expect(subject.queue.length).to be 0
+          end
+        end
+
+        context 'when it should send' do
+          it 'adds the transaction and flushes pending to the queue' do
+            mock_transaction = double(Transaction)
+
+            allow(subject).to receive(:should_send_transactions?) { true }
+            subject.submit_transaction mock_transaction
+
+            expect(subject.pending_transactions.length).to be 0
+            expect(subject.queue.length).to be 1
+          end
         end
       end
     end

@@ -5,10 +5,16 @@ module ElasticAPM
   # TODO
   class Config
     DEFAULTS = {
-      server: 'http://localhost:8200'
+      logger: Logger.new(STDOUT),
+      server: 'http://localhost:8200',
+
+      transaction_send_interval: 60
     }.freeze
 
+    attr_accessor :logger
     attr_accessor :server
+
+    attr_accessor :transaction_send_interval
 
     def initialize(options = {})
       DEFAULTS.merge(options).each do |key, value|

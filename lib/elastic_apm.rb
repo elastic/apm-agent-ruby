@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'elastic_apm/version'
+require 'elastic_apm/log'
 
 require 'elastic_apm/agent'
 require 'elastic_apm/config'

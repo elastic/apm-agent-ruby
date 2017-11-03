@@ -3,6 +3,8 @@
 module ElasticAPM
   # @api private
   class Agent
+    include Log
+
     KEY = :__elastic_transaction_key
     LOCK = Mutex.new
 
@@ -52,17 +54,22 @@ module ElasticAPM
 
       @queue = Queue.new
       @pending_transactions = []
+      @last_sent_transactions = Time.now.utc
     end
 
-    attr_reader :pending_transactions
+    attr_reader :config, :queue, :pending_transactions
 
     def start
+      info 'Starting agent'
+
       boot_worker
 
       self
     end
 
     def stop
+      info 'Stopping agent'
+
       kill_worker
 
       self
@@ -113,6 +120,13 @@ module ElasticAPM
 
     def submit_transaction(transaction)
       @pending_transactions << transaction
+
+      debug('') do
+        Util.inspect_transaction transaction
+      end
+
+      return unless should_send_transactions?
+      flush_transactions
     end
 
     private
@@ -131,6 +145,25 @@ module ElasticAPM
       end
 
       @worker_thread = nil
+    end
+
+    def should_send_transactions?
+      interval = config.transaction_send_interval
+      return true unless interval
+      Time.now.utc - @last_sent_transactions >= interval
+    end
+
+    def flush_transactions
+      return if @pending_transactions.empty?
+
+      # data = @data_builders.transactions.build(@pending_transactions)
+      data = @pending_transactions.inspect
+      @queue << Worker::Request.new('/v1/transactions', data.inspect)
+
+      @last_sent_transactions = Time.now.utc
+      @pending_transactions = []
+
+      true
     end
   end
 end
