@@ -40,7 +40,7 @@ RSpec.describe ElasticAPM do
       it { should be_done }
 
       it 'sets duration' do
-        expect(subject.duration).to eq 500_000_000
+        expect(subject.duration).to eq 500_000
       end
     end
   end

@@ -2,43 +2,42 @@
 
 module ElasticAPM
   RSpec.describe Trace do
-    describe '#initialize', :mock_time do
-      it 'gets a timestamp' do
-        expect(Trace.new(nil, 'Test').timestamp).to eq Time.now.utc.to_i
-      end
-    end
-
     describe '#start', :mock_time do
-      it 'has a relative and absolute start time' do
-        trace = Trace.new(nil, 'test-1').start 100
+      it 'has a relative and absolute start time', :mock_time do
+        transactionish = Struct.new(:timestamp).new(Util.micros)
 
-        expect(trace.start_time).to eq     694_224_000_000_000_000
-        expect(trace.relative_start).to eq 694_223_999_999_999_900
+        trace = Trace.new(transactionish, nil, 'test-1')
+        travel 100
+        trace.start
+
+        expect(trace.relative_start).to eq 100_000
       end
     end
 
     describe '#done', :mock_time do
-      subject { Trace.new(nil, 'test-1') }
-
-      it { should_not be_done }
-
       it 'sets duration' do
-        subject.start 0
+        transactionish = Struct.new(:timestamp).new(Util.micros)
+        subject = Trace.new(transactionish, nil, 'test-1')
+
+        expect(subject).to_not be_done
+
+        subject.start
         travel 100
         subject.done
 
         expect(subject).to be_done
-        expect(subject.duration).to eq 100_000_000
+        expect(subject.duration).to eq 100_000
       end
     end
 
     describe '#running?' do
-      subject { Trace.new(nil, 'test-1') }
-
       it 'is when started and not done' do
+        transactionish = Struct.new(:timestamp).new(Util.micros)
+        subject = Trace.new(transactionish, nil, 'test-1')
+
         expect(subject).to_not be_running
 
-        subject.start 0
+        subject.start
 
         expect(subject).to be_running
 

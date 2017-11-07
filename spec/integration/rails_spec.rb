@@ -47,7 +47,7 @@ RSpec.describe 'Rails integration' do
     @app ||= Rails.application
   end
 
-  it 'traces action and sends it to the server', :allow_api_requests do
+  it 'traces action and sends it to the server', :allow_api_requests, :mock_time do
     ElasticAPM.agent.config.transaction_send_interval = nil
 
     response = get '/'
@@ -55,7 +55,18 @@ RSpec.describe 'Rails integration' do
     # sleep 1
     expect(response.body).to eq 'Yes!'
     expect(WebMock).to have_requested(:post, %r{/v1/transactions}).with(
-      body: ''
+      body: {
+        transactions: [
+          {
+            id: '945254c5-67a5-417e-8a4e-aa29efcbfb79',
+            name: 'Rack',
+            type: 'request',
+            result: nil,
+            duration: 0,
+            timestamp: '1992-01-01T01:00:00.000+01:00'
+          }
+        ]
+      }.to_json
     )
   end
   it 'works'

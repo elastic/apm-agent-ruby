@@ -7,32 +7,31 @@ module ElasticAPM
 
     def initialize(
       transaction,
+      id,
       name,
       type = DEFAULT_KIND,
-      parents = [],
+      parent = nil,
       extra = nil
     )
       @transaction = transaction
+      @id = id
       @name = name
       @type = type
-      @parents = parents
+      @parent = parent
       @extra = extra
-
-      @timestamp = Util.nearest_minute.to_i
     end
 
     attr_accessor :name, :extra, :type
-    attr_reader :duration, :parents, :relative_start, :start_time, :timestamp
+    attr_reader :id, :duration, :parent, :relative_start
 
-    def start(relative_to)
-      @start_time = Util.nanos
-      @relative_start = start_time - relative_to
+    def start
+      @relative_start = Util.micros - @transaction.timestamp
 
       self
     end
 
-    def done(nanos = Util.nanos)
-      @duration = nanos - start_time
+    def done
+      @duration = Util.micros - @transaction.timestamp - relative_start
 
       self
     end
@@ -42,7 +41,7 @@ module ElasticAPM
     end
 
     def running?
-      start_time && !done?
+      relative_start && !done?
     end
   end
 end

@@ -11,7 +11,7 @@ module ElasticAPM
 
     describe '#ms', mock_time: true do
       it 'returns current µs since unix epoch' do
-        expect(Util.nanos).to eq 694_224_000_000_000_000
+        expect(Util.micros).to eq 694_224_000_000_000
       end
     end
   end

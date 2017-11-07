@@ -9,18 +9,17 @@ module ElasticAPM
       @type = type
       @result = result
 
-      @timestamp = Time.current
+      @timestamp = Util.micros
 
-      @root_trace = Trace.new(self, name, type)
-      @traces = [@root_trace]
+      @traces = []
       @notifications = []
+      @trace_id_ticker = -1
 
-      @start_time = Util.nanos
-      @root_trace.start @start_time
+      yield self if block_given?
     end
 
     attr_accessor :name, :result, :type
-    attr_reader :duration, :root_trace, :start_time, :timestamp, :traces
+    attr_reader :duration, :root_trace, :timestamp, :traces
 
     def release
       @agent.current_transaction = nil
@@ -29,14 +28,13 @@ module ElasticAPM
     def done(result = nil)
       @result = result
 
-      @root_trace.done Util.nanos
-      @duration = @root_trace.duration
+      @duration = Util.micros - @timestamp
 
       self
     end
 
     def done?
-      @root_trace.done?
+      !!@result
     end
 
     def submit(result = nil)
@@ -53,15 +51,12 @@ module ElasticAPM
       traces.select(&:running?)
     end
 
-    # rubocop:disable Metrics/MethodLength
     def trace(name, type = nil, extra = nil)
-      trace = Trace.new self, name, type, running_traces, extra
+      id = @trace_id_ticker += 1
 
-      relative_time = current_offset
-
+      trace = Trace.new self, id, name, type, current_trace, extra
       traces << trace
-
-      trace.start relative_time
+      trace.start
 
       return trace unless block_given?
 
@@ -73,20 +68,11 @@ module ElasticAPM
 
       result
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
 
     def current_trace
-      traces.reverse.find(&:running?)
-    end
-
-    def current_offset
-      if (curr = current_trace)
-        return curr.start_time
-      end
-
-      start_time
+      traces.reverse.lazy.find(&:running?)
     end
   end
 end

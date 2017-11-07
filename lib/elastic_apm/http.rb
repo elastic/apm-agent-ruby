@@ -11,7 +11,9 @@ module ElasticAPM
       @adapter = adapter.new(config)
     end
 
-    def post(path, data)
+    def post(path, payload)
+      data = payload.to_json
+
       request = @adapter.post url_for(path) do |req|
         req['Content-Type'] = CONTENT_TYPE
         req['User-Agent'] = USER_AGENT

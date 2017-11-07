@@ -5,12 +5,11 @@ require 'spec_helper'
 module ElasticAPM
   RSpec.describe Transaction do
     describe '#initialize', :mock_time do
-      it 'has a root trace, timestamp and start time' do
+      it 'has no traces, timestamp and start time' do
         transaction = Transaction.new nil, 'Test'
 
-        expect(transaction.traces.length).to be 1
-        expect(transaction.timestamp).to eq 694_224_000
-        expect(transaction.start_time).to eq 694_224_000_000_000_000
+        expect(transaction.traces.length).to be 0
+        expect(transaction.timestamp).to eq 694_224_000_000_000
       end
     end
 
@@ -25,15 +24,14 @@ module ElasticAPM
     end
 
     describe '#done', :mock_time do
-      it 'it sets result, durations and ends root trace' do
+      it 'it sets result, durations' do
         transaction = Transaction.new nil, 'Test'
 
         travel 100
         transaction.done(200)
 
         expect(transaction.result).to be 200
-        expect(transaction.traces.first).to be_done
-        expect(transaction.duration).to eq 100_000_000
+        expect(transaction.duration).to eq 100_000
       end
     end
 
@@ -69,8 +67,7 @@ module ElasticAPM
         running_trace = transaction.trace 'test2'
         travel 100
 
-        expect(transaction.running_traces)
-          .to eq [transaction.root_trace, running_trace]
+        expect(transaction.running_traces).to eq [running_trace]
       end
     end
 
@@ -94,16 +91,20 @@ module ElasticAPM
       it { should be_done }
       it { should_not be_running }
 
+      it 'gets an id' do
+        expect(subject.id).to be 0
+      end
+
       it 'sets start time' do
-        expect(subject.start_time).to eq 694_224_000_100_000_000
+        expect(subject.relative_start).to eq 100_000
       end
 
       it 'knows its parent traces' do
-        expect(subject.parents).to eq [transaction.root_trace]
+        expect(subject.parent).to be_nil
       end
 
       it 'adds trace to traces' do
-        expect(transaction.traces).to eq [transaction.root_trace, subject]
+        expect(transaction.traces).to eq [subject]
       end
     end
   end

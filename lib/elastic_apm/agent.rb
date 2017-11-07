@@ -160,8 +160,8 @@ module ElasticAPM
     def flush_transactions
       return if @pending_transactions.empty?
 
-      data = @data_builders.transactions.build(@pending_transactions)
-      @queue << Worker::Request.new('/v1/transactions', data.inspect)
+      data = @serializers.transactions.build(@pending_transactions)
+      @queue << Worker::Request.new('/v1/transactions', data)
 
       @last_sent_transactions = Time.now.utc
       @pending_transactions = []

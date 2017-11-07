@@ -6,7 +6,7 @@ module ElasticAPM
       subject { Http.new Config.new }
 
       it 'makes a post request' do
-        subject.post('/v1/transactions', { id: 1 }.to_json)
+        subject.post('/v1/transactions', { id: 1 })
 
         expect(WebMock).to have_requested(:post, %r{/v1/transactions}).with(
           body: '{"id":1}',
