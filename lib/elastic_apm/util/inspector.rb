@@ -6,73 +6,44 @@ module ElasticAPM
     class Inspector
       include Log
 
-      DEFAULTS = {
-        width: 120
-      }.freeze
-
-      SPACE = ' '
-
-      def initialize(config = {})
-        @config = config.reverse_merge(DEFAULTS)
-      end
-
-      def ms(nanos)
-        nanos.to_f / 1_000_000
+      def initialize(width = 110)
+        @width = width
       end
 
       # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-      def transaction(transaction, opts = {})
-        return # TODO
-        w = @config[:width].to_f
-        f = w / ms(transaction.duration)
+      def transaction(transaction)
+        width_factor = @width.to_f / ms(transaction.duration)
 
-        traces = transaction.traces
+        lines = ['=' * @width]
+        lines << "[T] #{transaction.name} " \
+          "- #{transaction.type} (#{ms transaction.duration} ms)"
+        lines << "+#{'-' * (@width - 2)}+"
 
-        traces = traces.each_with_object([]) do |trace, state|
-          descriptions = [
-            "#{trace.name} - #{trace.type}",
-            "transaction:#{transaction.name}"
-          ]
+        transaction.traces.each do |trace|
+          indent = (ms(trace.relative_start) * width_factor).to_i
+          trace_width = ms(trace.duration) * width_factor
 
-          if opts[:include_parents]
-            descriptions << "parents:#{trace.parents.map(&:name).join(',')}"
-          end
+          description = "[#{trace.id}] " \
+            "#{trace.name} - #{trace.type} (#{ms trace.duration} ms)"
+          description_indent = [indent, @width - description.length].min
 
-          descriptions <<
-            "duration:#{ms trace.duration}ms - rel:#{ms trace.relative_start}ms"
+          lines << "#{' ' * description_indent}#{description}"
+          lines << "#{' ' * indent}+#{'-' * [(trace_width - 2), 0].max}+"
+        end
 
-          start_diff = ms(trace.relative_start) - ms(transaction.timestamp)
-          indent = (start_diff.floor * f).to_i
-
-          longest_desc_length = descriptions.map(&:length).max
-          desc_indent = [[indent, w - longest_desc_length].min, 0].max
-
-          lines = descriptions.map do |desc|
-            "#{SPACE * desc_indent}#{desc}"
-          end
-
-          if trace.duration
-            span = (ms(trace.duration) * f).ceil.to_i
-            lines << "#{SPACE * indent}+#{'-' * [(span - 2), 0].max}+"
-          else
-            lines << "#{SPACE * indent}UNFINISHED"
-          end
-
-          state << lines.join("\n")
-        end.join("\n")
-
-        <<-STR.gsub(/^\s{6}/, '')
-        \n#{'=' * w.to_i}
-        #{transaction.name} - type:#{transaction.type} - #{transaction.duration.to_f / 1_000_000}ms
-        +#{'-' * (w.to_i - 2)}+
-          #{traces}
-          STR
+        lines.map { |s| s[0..@width] }.join("\n")
       rescue StandardError => e
         debug e
         debug e.backtrace.join("\n")
         transaction.inspect
       end
       # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+
+      private
+
+      def ms(micros)
+        micros / 1_000
+      end
     end
   end
 end

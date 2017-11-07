@@ -26,7 +26,7 @@ module ElasticAPM
       @instance
     end
 
-    def self.start(config)
+    def self.start(config = {})
       return @instance if @instance
 
       LOCK.synchronize do
@@ -65,7 +65,7 @@ module ElasticAPM
     attr_reader :config, :queue, :pending_transactions
 
     def start
-      info 'Starting agent'
+      debug 'Starting agent'
 
       boot_worker
 
@@ -73,7 +73,7 @@ module ElasticAPM
     end
 
     def stop
-      info 'Stopping agent'
+      debug 'Stopping agent'
 
       kill_worker
 
@@ -126,8 +126,8 @@ module ElasticAPM
     def submit_transaction(transaction)
       @pending_transactions << transaction
 
-      debug('') do
-        Util.inspect_transaction transaction
+      if config.debug_transactions
+        debug('Submitted transaction:') { Util.inspect_transaction transaction }
       end
 
       return unless should_send_transactions?

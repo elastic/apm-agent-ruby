@@ -18,8 +18,8 @@ module ElasticAPM
   # Starts the ElasticAPM Agent
   #
   # @param config [Config] An instance of Config
-  def self.start(config)
-    Agent.start config
+  def self.start(options)
+    Agent.start options
   end
 
   # Stops the ElasticAPM Agent
