@@ -18,6 +18,8 @@ module ElasticAPM
 
   # @api private
   class Inspector
+    include Log
+
     DEFAULTS = {
       width: 120
     }.freeze
@@ -25,7 +27,7 @@ module ElasticAPM
     SPACE = ' '
 
     def initialize(config = {})
-      @config = DEFAULTS.merge(config)
+      @config = config.reverse_merge(DEFAULTS)
     end
 
     def ms(nanos)
@@ -72,15 +74,15 @@ module ElasticAPM
         state << lines.join("\n")
       end.join("\n")
 
-      <<-STR.gsub(/^\s{8}/, '')
+      <<-STR.gsub(/^\s{6}/, '')
       \n#{'=' * w.to_i}
       #{transaction.name} - type:#{transaction.type} - #{transaction.duration.to_f / 1_000_000}ms
       +#{'-' * (w.to_i - 2)}+
         #{traces}
         STR
     rescue StandardError => e
-      puts e
-      puts e.backtrace.join("\n")
+      debug e
+      debug e.backtrace.join("\n")
       transaction.inspect
     end
     # rubocop:enable Metrics/AbcSize, Metrics/MethodLength

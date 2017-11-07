@@ -3,17 +3,15 @@
 module ElasticAPM
   # @api private
   class Transaction
-    ROOT_TRACE_NAME = 'transaction'
-
     def initialize(agent, name, type = 'custom', result = nil)
       @agent = agent
       @name = name
       @type = type
       @result = result
 
-      @timestamp = Util.nearest_minute.to_i
+      @timestamp = Time.current
 
-      @root_trace = Trace.new(self, ROOT_TRACE_NAME, ROOT_TRACE_NAME)
+      @root_trace = Trace.new(self, name, type)
       @traces = [@root_trace]
       @notifications = []
 

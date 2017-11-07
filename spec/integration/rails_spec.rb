@@ -54,9 +54,9 @@ RSpec.describe 'Rails integration' do
 
     # sleep 1
     expect(response.body).to eq 'Yes!'
-    # expect(WebMock).to have_requested(:post, %r{/v1/transactions}).with(
-    #   body: ''
-    # )
+    expect(WebMock).to have_requested(:post, %r{/v1/transactions}).with(
+      body: ''
+    )
   end
   it 'works'
 end

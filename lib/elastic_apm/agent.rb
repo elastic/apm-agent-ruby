@@ -52,6 +52,10 @@ module ElasticAPM
 
       @transaction_info = TransactionInfo.new
 
+      @serializers = Struct.new(:transactions).new(
+        Serializers::Transactions.new(config)
+      )
+
       @queue = Queue.new
       @pending_transactions = []
       @last_sent_transactions = Time.now.utc
@@ -156,8 +160,7 @@ module ElasticAPM
     def flush_transactions
       return if @pending_transactions.empty?
 
-      # data = @data_builders.transactions.build(@pending_transactions)
-      data = @pending_transactions.inspect
+      data = @data_builders.transactions.build(@pending_transactions)
       @queue << Worker::Request.new('/v1/transactions', data.inspect)
 
       @last_sent_transactions = Time.now.utc
