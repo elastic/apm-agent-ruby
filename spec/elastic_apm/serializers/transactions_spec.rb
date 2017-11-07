@@ -9,7 +9,6 @@ module ElasticAPM
         it 'builds a transaction without traces', :mock_time do
           agent = Agent.new Config.new
 
-
           transaction =
             Transaction.new(agent, 'GET /something', 'request') do
               travel 100

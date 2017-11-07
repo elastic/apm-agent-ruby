@@ -2,6 +2,7 @@
 
 module ElasticAPM
   # @api private
+  # rubocop:disable Metrics/ClassLength
   class Agent
     include Log
 
@@ -169,4 +170,5 @@ module ElasticAPM
       true
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

@@ -52,9 +52,7 @@ module ElasticAPM
     end
 
     def trace(name, type = nil, extra = nil)
-      id = @trace_id_ticker += 1
-
-      trace = Trace.new self, id, name, type, current_trace, extra
+      trace = Trace.new self, next_trace_id, name, type, current_trace, extra
       traces << trace
       trace.start
 
@@ -70,6 +68,10 @@ module ElasticAPM
     end
 
     private
+
+    def next_trace_id
+      @trace_id_ticker += 1
+    end
 
     def current_trace
       traces.reverse.lazy.find(&:running?)

@@ -5,6 +5,7 @@ module ElasticAPM
   class Trace
     DEFAULT_KIND = 'custom'
 
+    # rubocop:disable Metrics/ParameterLists
     def initialize(
       transaction,
       id,
@@ -20,6 +21,7 @@ module ElasticAPM
       @parent = parent
       @extra = extra
     end
+    # rubocop:enable Metrics/ParameterLists
 
     attr_accessor :name, :extra, :type
     attr_reader :id, :duration, :parent, :relative_start

@@ -47,7 +47,7 @@ RSpec.describe 'Rails integration' do
     @app ||= Rails.application
   end
 
-  it 'traces action and sends it to the server', :allow_api_requests, :mock_time do
+  it 'traces action and posts it', :allow_api_requests, :mock_time do
     ElasticAPM.agent.config.transaction_send_interval = nil
 
     response = get '/'
