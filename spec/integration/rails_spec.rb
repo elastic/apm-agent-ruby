@@ -20,7 +20,7 @@ RSpec.describe 'Rails integration' do
     class TestApp < Rails::Application
       config.secret_key_base = '__secret_key_base'
 
-      config.logger = Logger.new(STDOUT)
+      config.logger = Logger.new(nil)
       config.logger.level = Logger::DEBUG
 
       config.eager_load = false
@@ -51,6 +51,8 @@ RSpec.describe 'Rails integration' do
     ElasticAPM.agent.config.transaction_send_interval = nil
 
     response = get '/'
+
+    ElasticAPM.stop
 
     # sleep 1
     expect(response.body).to eq 'Yes!'

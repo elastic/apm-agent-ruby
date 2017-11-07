@@ -47,7 +47,7 @@ module ElasticAPM
           queue.push Worker::Request.new('/', { id: 1 }.to_json)
           queue.push Worker::Request.new('/', { id: 2 }.to_json)
 
-          Thread.new { subject.run_forever }.join 0.01
+          Thread.new { subject.run_forever }.join 0.1
 
           expect(FakeHttp.reqs).to eq [['/', '{"id":1}'], ['/', '{"id":2}']]
         end
