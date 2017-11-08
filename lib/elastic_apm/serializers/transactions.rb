@@ -13,7 +13,7 @@ module ElasticAPM
         {
           transactions: transactions.map do |transaction|
             base = {
-              id:  '945254c5-67a5-417e-8a4e-aa29efcbfb79',
+              id: SecureRandom.uuid,
               name: transaction.name,
               type: transaction.type,
               result: transaction.result,

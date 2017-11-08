@@ -15,11 +15,13 @@ module ElasticAPM
       @notifications = []
       @trace_id_ticker = -1
 
+      @notifications = [] # for AS::Notifications
+
       yield self if block_given?
     end
 
     attr_accessor :name, :result, :type
-    attr_reader :duration, :root_trace, :timestamp, :traces
+    attr_reader :duration, :root_trace, :timestamp, :traces, :notifications
 
     def release
       @agent.current_transaction = nil
@@ -34,7 +36,7 @@ module ElasticAPM
     end
 
     def done?
-      !!@result
+      !!(@result && @duration)
     end
 
     def submit(result = nil)
@@ -67,14 +69,14 @@ module ElasticAPM
       result
     end
 
+    def current_trace
+      traces.reverse.lazy.find(&:running?)
+    end
+
     private
 
     def next_trace_id
       @trace_id_ticker += 1
-    end
-
-    def current_trace
-      traces.reverse.lazy.find(&:running?)
     end
   end
 end

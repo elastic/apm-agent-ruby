@@ -16,11 +16,15 @@ RSpec.describe 'Rails integration' do
     end
   end
 
+  def app
+    @app ||= Rails.application
+  end
+
   before :all do
     class TestApp < Rails::Application
       config.secret_key_base = '__secret_key_base'
 
-      config.logger = Logger.new(nil)
+      config.logger = Logger.new(STDOUT)
       config.logger.level = Logger::DEBUG
 
       config.eager_load = false
@@ -43,33 +47,20 @@ RSpec.describe 'Rails integration' do
     Rails.application = nil
   end
 
-  def app
-    @app ||= Rails.application
-  end
+  before { allow(SecureRandom).to receive(:uuid) { '_RANDOM' } }
 
-  it 'traces action and posts it', :allow_api_requests, :mock_time do
-    ElasticAPM.agent.config.transaction_send_interval = nil
+  it 'traces action and posts it', :allow_api_requests do
+    ElasticAPM.agent.config.tap do |config|
+      config.transaction_send_interval = nil
+      config.debug_transactions = true
+    end
 
     response = get '/'
 
-    ElasticAPM.stop
-
     # sleep 1
     expect(response.body).to eq 'Yes!'
-    expect(WebMock).to have_requested(:post, %r{/v1/transactions}).with(
-      body: {
-        transactions: [
-          {
-            id: '945254c5-67a5-417e-8a4e-aa29efcbfb79',
-            name: 'Rack',
-            type: 'request',
-            result: nil,
-            duration: 0,
-            timestamp: '1992-01-01T01:00:00.000+01:00'
-          }
-        ]
-      }.to_json
-    )
+    expect(WebMock).to have_requested(:post, %r{/v1/transactions})
+
+    ElasticAPM.stop
   end
-  it 'works'
 end

@@ -12,6 +12,10 @@ module ElasticAPM
 
       # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
       def transaction(transaction)
+        unless transaction.done?
+          raise ArgumentError, 'Transaction still running'
+        end
+
         width_factor = @width.to_f / ms(transaction.duration)
 
         lines = ['=' * @width]

@@ -3,8 +3,10 @@
 require 'spec_helper'
 
 module ElasticAPM
-  RSpec.describe Middleware, :with_agent do
+  RSpec.describe Middleware do
     it 'surrounds the request in a transaction' do
+      ElasticAPM.start Config.new
+
       mock_transaction = double(Transaction, release: true, submit: true)
       allow(ElasticAPM).to receive(:transaction) { mock_transaction }
 
@@ -14,6 +16,8 @@ module ElasticAPM
       expect(status).to be 200
       expect(mock_transaction).to have_received(:release)
       expect(mock_transaction).to have_received(:submit)
+
+      ElasticAPM.stop
     end
   end
 end

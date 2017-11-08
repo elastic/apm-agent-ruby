@@ -15,7 +15,16 @@ RSpec.describe ElasticAPM do
 
   it { should_not be_started }
 
-  context 'when apm is started', :with_agent do
+  context 'when apm is started' do
+    before do
+      ElasticAPM.start ElasticAPM::Config.new
+    end
+
+    after do
+      ElasticAPM.agent.current_transaction&.release
+      ElasticAPM.stop
+    end
+
     it { should be_started }
 
     describe 'block example', :mock_time do

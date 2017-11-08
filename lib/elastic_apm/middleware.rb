@@ -11,7 +11,7 @@ module ElasticAPM
       begin
         transaction = ElasticAPM.transaction 'Rack', 'request'
         resp = @app.call env
-        transaction.submit
+        transaction.submit resp[0]
       ensure
         transaction.release if transaction
       end

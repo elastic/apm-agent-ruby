@@ -57,6 +57,8 @@ module ElasticAPM
         Serializers::Transactions.new(config)
       )
 
+      @subscriber = Subscriber.new(self)
+
       @queue = Queue.new
       @pending_transactions = []
       @last_sent_transactions = Time.now.utc
@@ -68,6 +70,7 @@ module ElasticAPM
       debug 'Starting agent'
 
       boot_worker
+      @subscriber.register!
 
       self
     end
@@ -75,6 +78,7 @@ module ElasticAPM
     def stop
       debug 'Stopping agent'
 
+      @subscriber.unregister!
       kill_worker
 
       self

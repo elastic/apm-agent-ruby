@@ -4,6 +4,7 @@ module ElasticAPM
   module Serializers
     RSpec.describe Transactions do
       subject { Transactions.new Config.new }
+      before { allow(SecureRandom).to receive(:uuid) { '_RANDOM' } }
 
       describe '#build' do
         it 'builds a transaction without traces', :mock_time do
@@ -17,7 +18,7 @@ module ElasticAPM
           expect(subject.build([transaction])).to eq(
             "transactions": [
               {
-                "id": '945254c5-67a5-417e-8a4e-aa29efcbfb79',
+                "id": '_RANDOM',
                 "name": 'GET /something',
                 "type": 'request',
                 "result": 'success',
@@ -47,7 +48,7 @@ module ElasticAPM
           expect(subject.build([transaction])).to eq(
             transactions: [
               {
-                "id": '945254c5-67a5-417e-8a4e-aa29efcbfb79',
+                "id": '_RANDOM',
                 "name": 'GET /something',
                 "type": 'request',
                 "result": 'success',
