@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# @api private
 module ElasticAPM
   # @api private
   module Normalizers
@@ -57,7 +58,7 @@ module ElasticAPM
     end
   end
 
-  %w[action_controller].each do |lib|
-    require "elastic_apm/normalizers/#{lib}_normalizer"
+  %w[action_controller action_view].each do |lib|
+    require "elastic_apm/normalizers/#{lib}"
   end
 end

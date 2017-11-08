@@ -9,7 +9,9 @@ module ElasticAPM
       server: 'http://localhost:8200',
 
       transaction_send_interval: 60,
-      debug_transactions: false
+      debug_transactions: false,
+
+      view_paths: []
     }.freeze
 
     attr_accessor :logger
@@ -17,6 +19,8 @@ module ElasticAPM
 
     attr_accessor :transaction_send_interval
     attr_accessor :debug_transactions
+
+    attr_accessor :view_paths
 
     def initialize(options = {})
       DEFAULTS.merge(options).each do |key, value|
