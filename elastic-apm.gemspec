@@ -9,15 +9,12 @@ Gem::Specification.new do |spec|
   spec.name          = 'elastic-apm'
   spec.version       = ElasticAPM::VERSION
   spec.authors       = ['Mikkel Malmberg']
-  spec.email         = ['mikkel@brnbw.com']
+  spec.email         = ['mikkel@elastic.co']
 
   spec.summary       = 'The official Elastic APM agent for Ruby'
-  # spec.description   = %q{TODO: Write a longer description or delete this line.}
   spec.homepage      = 'https://github.com/elastic/apm-agent-ruby'
   spec.license       = 'Apache-2.0'
 
-  # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
-  # to allow pushing to a single host or delete this section to allow pushing to any host.
   if spec.respond_to?(:metadata)
     spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
   else
