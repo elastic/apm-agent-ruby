@@ -1,3 +1,10 @@
+GIT
+  remote: https://github.com/guilleiguaran/fakeredis
+  revision: b4317f93e93a9e80e6badc78dfe6ec85e6256cdc
+  specs:
+    fakeredis (0.5.0)
+      redis (>= 3.2, < 5.0)
+
 PATH
   remote: .
   specs:
@@ -105,6 +112,7 @@ GEM
     rainbow (2.2.2)
       rake
     rake (12.2.1)
+    redis (4.0.1)
     rspec (3.7.0)
       rspec-core (~> 3.7.0)
       rspec-expectations (~> 3.7.0)
@@ -153,8 +161,10 @@ PLATFORMS
 
 DEPENDENCIES
   elastic-apm!
+  fakeredis!
   rack-test
   rails
+  redis
   rspec
   rubocop
   timecop

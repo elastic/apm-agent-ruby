@@ -31,7 +31,7 @@ module ElasticAPM
 
         def lookup_adapter
           ::ActiveRecord::Base.connection.adapter_name.downcase
-        rescue ::ActiveRecord::ConnectionNotEstablished
+        rescue StandardError
           nil
         end
       end

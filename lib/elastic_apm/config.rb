@@ -11,6 +11,8 @@ module ElasticAPM
       transaction_send_interval: 60,
       debug_transactions: false,
 
+      enabled_injectors: %w[redis],
+
       view_paths: []
     }.freeze
 
@@ -19,6 +21,8 @@ module ElasticAPM
 
     attr_accessor :transaction_send_interval
     attr_accessor :debug_transactions
+
+    attr_accessor :enabled_injectors
 
     attr_accessor :view_paths
 

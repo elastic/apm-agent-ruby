@@ -3,15 +3,25 @@ AllCops:
   Exclude:
     - 'elastic-apm.gemspec'
 
+Layout/AlignHash:
+  Exclude:
+    - 'Gemfile'
+
+Lint/RescueException:
+  Enabled: false
+
 Metrics/BlockLength:
   Exclude:
     - 'spec/**/*_spec.rb'
+
+Naming/PredicateName:
+  Enabled: false
+
+Style/Alias:
+  Enabled: false
 
 Style/SafeNavigation:
   Enabled: false
 
 Style/DoubleNegation:
-  Enabled: false
-
-Naming/PredicateName:
   Enabled: false

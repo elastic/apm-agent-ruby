@@ -6,7 +6,7 @@ module ElasticAPM
     class Inspector
       include Log
 
-      def initialize(width = 110)
+      def initialize(width = 80)
         @width = width
       end
 

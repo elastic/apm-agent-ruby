@@ -13,3 +13,7 @@ gem 'rspec'
 gem 'rubocop'
 gem 'timecop'
 gem 'webmock'
+
+gem 'fakeredis', require: nil,
+  github: 'guilleiguaran/fakeredis' # needs master right now
+gem 'redis', require: nil

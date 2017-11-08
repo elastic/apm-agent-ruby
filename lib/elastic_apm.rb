@@ -6,6 +6,7 @@ require 'elastic_apm/log'
 require 'elastic_apm/agent'
 require 'elastic_apm/config'
 require 'elastic_apm/http'
+require 'elastic_apm/injectors'
 require 'elastic_apm/middleware'
 require 'elastic_apm/normalizers'
 require 'elastic_apm/serializers/transactions'
@@ -14,6 +15,8 @@ require 'elastic_apm/trace'
 require 'elastic_apm/transaction'
 require 'elastic_apm/util'
 require 'elastic_apm/worker'
+
+require 'elastic_apm/integration/railtie' if defined?(::Rails::Railtie)
 
 # ElasticAPM
 module ElasticAPM

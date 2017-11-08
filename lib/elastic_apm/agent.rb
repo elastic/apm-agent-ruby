@@ -72,6 +72,10 @@ module ElasticAPM
       boot_worker
       @subscriber.register!
 
+      config.enabled_injectors.each do |lib|
+        require "elastic_apm/injectors/#{lib}"
+      end
+
       self
     end
 
@@ -124,8 +128,6 @@ module ElasticAPM
     def trace(*args, &block)
       transaction.trace(*args, &block)
     end
-
-    # reporting
 
     def submit_transaction(transaction)
       @pending_transactions << transaction
