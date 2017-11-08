@@ -8,9 +8,9 @@ module ElasticAPM
       RSpec.describe ProcessActionNormalizer do
         it 'registers for name' do
           normalizers = Normalizers.build(nil)
+          subject = normalizers.for('process_action.action_controller')
 
-          expect(normalizers.for('process_action.action_controller'))
-            .to be_a ProcessActionNormalizer
+          expect(subject).to be_a ProcessActionNormalizer
         end
 
         describe '#normalize' do
