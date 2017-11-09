@@ -7,7 +7,7 @@ require 'support/allow_api_requests'
 require 'support/delegate_matcher'
 require 'support/mock_time'
 
-require 'elastic_apm'
+require 'elastic-apm'
 
 RSpec.configure do |config|
   config.example_status_persistence_file_path = '.rspec_status'

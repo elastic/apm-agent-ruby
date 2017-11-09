@@ -13,7 +13,9 @@ module ElasticAPM
 
       attr_reader :const_name, :require_paths, :injector
 
-      delegate :install, to: :injector
+      def install
+        injector.install
+      end
     end
 
     def self.require_hooks
@@ -44,11 +46,9 @@ module ElasticAPM
     def self.const_defined?(const_name)
       const = ActiveSupport::Inflector.constantize(const_name)
       !!const
+    rescue NameError
+      false
     end
-
-    # def self.hook_into(path)
-    #   return unless (registration = require_hooks[path])
-    # end
   end
 end
 

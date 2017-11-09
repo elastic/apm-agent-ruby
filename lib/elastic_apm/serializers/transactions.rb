@@ -43,11 +43,11 @@ module ElasticAPM
       private
 
       def micros_to_time(micros)
-        Time.at(micros / 1_000_000)
+        Time.at(ms(micros) / 1_000) # rubocop:disable Rails/TimeZone
       end
 
       def ms(micros)
-        micros / 1_000
+        micros.to_f / 1_000
       end
     end
   end

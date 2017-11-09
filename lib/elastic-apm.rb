@@ -16,7 +16,7 @@ require 'elastic_apm/transaction'
 require 'elastic_apm/util'
 require 'elastic_apm/worker'
 
-require 'elastic_apm/integration/railtie' if defined?(::Rails::Railtie)
+require 'elastic_apm/railtie' if defined?(::Rails::Railtie)
 
 # ElasticAPM
 module ElasticAPM

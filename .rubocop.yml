@@ -25,3 +25,6 @@ Style/SafeNavigation:
 
 Style/DoubleNegation:
   Enabled: false
+
+Rails/Delegate:
+  Enabled: false
