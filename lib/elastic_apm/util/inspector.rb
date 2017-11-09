@@ -4,8 +4,6 @@ module ElasticAPM
   module Util
     # @api private
     class Inspector
-      include Log
-
       def initialize(width = 80)
         @width = width
       end
@@ -25,11 +23,21 @@ module ElasticAPM
 
         transaction.traces.each do |trace|
           indent = (ms(trace.relative_start) * width_factor).to_i
-          trace_width = ms(trace.duration) * width_factor
+
+          if trace.duration
+            trace_width = ms(trace.duration) * width_factor
+            duration_desc = ms(trace.duration)
+          else
+            trace_width = width - indent
+            duration_desc = 'RUNNING'
+          end
 
           description = "[#{trace.id}] " \
-            "#{trace.name} - #{trace.type} (#{ms trace.duration} ms)"
-          description_indent = [indent, @width - description.length].min
+            "#{trace.name} - #{trace.type} (#{duration_desc} ms)"
+          description_indent = [
+            0,
+            [indent, @width - description.length].min
+          ].max
 
           lines << "#{' ' * description_indent}#{description}"
           lines << "#{' ' * indent}+#{'-' * [(trace_width - 2), 0].max}+"
@@ -37,9 +45,9 @@ module ElasticAPM
 
         lines.map { |s| s[0..@width] }.join("\n")
       rescue StandardError => e
-        debug e
-        debug e.backtrace.join("\n")
-        transaction.inspect
+        puts e
+        puts e.backtrace.join("\n")
+        nil
       end
       # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 

@@ -70,6 +70,7 @@ module ElasticAPM
       debug 'Starting agent'
 
       boot_worker
+
       @subscriber.register!
 
       config.enabled_injectors.each do |lib|
