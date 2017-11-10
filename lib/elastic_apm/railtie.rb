@@ -7,14 +7,15 @@ module ElasticAPM
     Config::DEFAULTS.each { |option, value| config.elastic_apm[option] = value }
 
     initializer 'elastic_apm.initialize' do |app|
-      file_config = load_config(app)
-      file_config.each do |option, value|
-        app.config.elastic_apm[option] = value
-      end
-
       config = Config.new app.config.elastic_apm do |c|
+        c.app_name = Rails.application.class.parent_name || c.app_name
         c.logger = Rails.logger
         c.view_paths = app.config.paths['app/views'].existent
+      end
+
+      file_config = load_config(app)
+      file_config.each do |option, value|
+        config.send(:"#{option}=", value)
       end
 
       begin

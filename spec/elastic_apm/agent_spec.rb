@@ -79,7 +79,7 @@ module ElasticAPM
           it 'adds the transaction and flushes pending to the queue' do
             transaction = Transaction.new(nil, 'Test-1').done
 
-            allow(subject).to receive(:should_send_transactions?) { true }
+            allow(subject).to receive(:should_flush_transactions?) { true }
             subject.submit_transaction transaction
 
             expect(subject.pending_transactions.length).to be 0

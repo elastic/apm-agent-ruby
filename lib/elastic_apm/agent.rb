@@ -133,11 +133,11 @@ module ElasticAPM
     def submit_transaction(transaction)
       @pending_transactions << transaction
 
-      if config.debug_transactions
+      if config.debug_transactions && transaction.name != 'Rack'
         debug('Submitted transaction:') { Util.inspect_transaction transaction }
       end
 
-      return unless should_send_transactions?
+      return unless should_flush_transactions?
       flush_transactions
     end
 
@@ -163,7 +163,7 @@ module ElasticAPM
       debug 'Killed worker'
     end
 
-    def should_send_transactions?
+    def should_flush_transactions?
       return true unless (interval = config.transaction_send_interval)
       Time.now.utc - @last_sent_transactions >= interval
     end

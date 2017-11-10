@@ -10,9 +10,11 @@ gemspec
 gem 'rack-test'
 gem 'rails'
 gem 'rspec'
+gem 'sinatra'
 gem 'rubocop'
 gem 'timecop'
-gem 'webmock'
+gem 'webmock', require: 'webmock/rspec'
+gem 'pry'
 
 gem 'fakeredis', require: nil,
   github: 'guilleiguaran/fakeredis' # needs master right now

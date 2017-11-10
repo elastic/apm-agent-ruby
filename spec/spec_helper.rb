@@ -3,11 +3,13 @@
 require 'bundler/setup'
 Bundler.require :default
 
-require 'support/allow_api_requests'
 require 'support/delegate_matcher'
 require 'support/mock_time'
+require 'support/with_fake_server'
 
 require 'elastic-apm'
+
+WebMock.enable!
 
 RSpec.configure do |config|
   config.example_status_persistence_file_path = '.rspec_status'

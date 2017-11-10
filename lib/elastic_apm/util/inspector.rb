@@ -54,7 +54,7 @@ module ElasticAPM
       private
 
       def ms(micros)
-        micros / 1_000
+        micros.to_f / 1_000
       end
     end
   end

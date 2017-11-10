@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ElasticAPM
-  RSpec.describe Http, :allow_api_requests do
+  RSpec.describe Http, :with_fake_server do
     describe '#post' do
       subject { Http.new Config.new(app_name: 'app-1') }
 

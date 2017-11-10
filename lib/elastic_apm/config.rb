@@ -7,7 +7,7 @@ module ElasticAPM
   # TODO
   class Config
     DEFAULTS = {
-      app_name: 'ruby-app',
+      app_name: 'ruby',
       server: 'http://localhost:8200',
 
       log_path: '-',
