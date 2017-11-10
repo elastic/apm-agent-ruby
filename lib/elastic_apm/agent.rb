@@ -144,6 +144,8 @@ module ElasticAPM
     private
 
     def boot_worker
+      debug 'Booting worker in thread'
+
       @worker_thread = Thread.new do
         Worker.new(@config, @queue).run_forever
       end
@@ -157,16 +159,19 @@ module ElasticAPM
       end
 
       @worker_thread = nil
+
+      debug 'Killed worker'
     end
 
     def should_send_transactions?
-      interval = config.transaction_send_interval
-      return true unless interval
+      return true unless (interval = config.transaction_send_interval)
       Time.now.utc - @last_sent_transactions >= interval
     end
 
     def flush_transactions
       return if @pending_transactions.empty?
+
+      debug 'Flushing transactions'
 
       data = @serializers.transactions.build(@pending_transactions)
       @queue << Worker::Request.new('/v1/transactions', data)

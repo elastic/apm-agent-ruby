@@ -3,28 +3,54 @@
 module ElasticAPM
   # @api private
   class Http
+    include Log
+
     USER_AGENT = "elastic-apm/ruby #{VERSION}"
     CONTENT_TYPE = 'application/json'
 
     def initialize(config, adapter: HttpAdapter)
       @config = config
       @adapter = adapter.new(config)
+      @app_info = build_app_info(config)
     end
 
-    def post(path, payload)
-      data = payload.to_json
+    attr_reader :config
 
-      request = @adapter.post url_for(path) do |req|
+    def post(path, payload)
+      data = payload.merge(@app_info).to_json
+
+      request = prepare_request path, data
+      response = @adapter.perform request
+
+      status = response.code.to_i
+      return response if status >= 200 && status <= 299
+
+      error "POST returned an unsuccessful status code (#{response.code})"
+      debug response.body
+    end
+
+    private
+
+    def prepare_request(path, data)
+      @adapter.post url_for(path) do |req|
         req['Content-Type'] = CONTENT_TYPE
         req['User-Agent'] = USER_AGENT
         req['Content-Length'] = data.bytesize.to_s
         req.body = data
       end
-
-      @adapter.perform request
     end
 
-    private
+    def build_app_info(config)
+      {
+        app: {
+          name: config.app_name,
+          agent: {
+            name: 'ruby',
+            version: VERSION
+          }
+        }
+      }
+    end
 
     def url_for(path)
       "#{@config.server}#{path}"

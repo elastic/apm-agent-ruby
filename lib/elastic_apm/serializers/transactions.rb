@@ -16,9 +16,9 @@ module ElasticAPM
               id: SecureRandom.uuid,
               name: transaction.name,
               type: transaction.type,
-              result: transaction.result,
+              result: transaction.result.to_s,
               duration: ms(transaction.duration),
-              timestamp: micros_to_time(transaction.timestamp)
+              timestamp: micros_to_time(transaction.timestamp).utc
             }
 
             if transaction.traces.any?

@@ -13,7 +13,7 @@ module ElasticAPM
           transaction =
             Transaction.new(agent, 'GET /something', 'request') do
               travel 100
-            end.submit('success')
+            end.submit(200)
 
           expect(subject.build([transaction])).to eq(
             "transactions": [
@@ -21,7 +21,7 @@ module ElasticAPM
                 "id": '_RANDOM',
                 "name": 'GET /something',
                 "type": 'request',
-                "result": 'success',
+                "result": '200',
                 "duration": 100,
                 "timestamp": Time.utc(1992, 1, 1)
               }
@@ -43,7 +43,7 @@ module ElasticAPM
                 travel 10
               end
               travel 10
-            end.submit('success')
+            end.submit(200)
 
           expect(subject.build([transaction])).to eq(
             transactions: [
@@ -51,7 +51,7 @@ module ElasticAPM
                 "id": '_RANDOM',
                 "name": 'GET /something',
                 "type": 'request',
-                "result": 'success',
+                "result": '200',
                 "duration": 50,
                 "timestamp": Time.utc(1992, 1, 1),
                 "traces": [
