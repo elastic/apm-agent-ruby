@@ -9,7 +9,6 @@ gemspec
 
 gem 'pry'
 gem 'rack-test'
-gem 'rails'
 gem 'rspec'
 gem 'rubocop'
 gem 'sinatra'
@@ -20,3 +19,6 @@ gem 'yard'
 gem 'fakeredis', require: nil,
   github: 'guilleiguaran/fakeredis' # needs master right now
 gem 'redis', require: nil
+
+framework, *version = ENV.fetch('FRAMEWORK', 'rails').split('-')
+gem framework, version.join('-')
