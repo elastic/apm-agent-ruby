@@ -15,6 +15,7 @@ gem 'rubocop'
 gem 'timecop'
 gem 'webmock', require: 'webmock/rspec'
 gem 'pry'
+gem 'yard'
 
 gem 'fakeredis', require: nil,
   github: 'guilleiguaran/fakeredis' # needs master right now
