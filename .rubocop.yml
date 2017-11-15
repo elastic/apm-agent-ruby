@@ -17,7 +17,7 @@ Metrics/BlockLength:
 Naming/PredicateName:
   Enabled: false
 
-Naming/FileName
+Naming/FileName:
   Exclude:
     - 'lib/elastic-apm.rb'
 

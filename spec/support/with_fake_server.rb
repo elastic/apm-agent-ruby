@@ -23,7 +23,8 @@ RSpec.configure do |config|
   end
 
   config.before :each, with_fake_server: true do
-    @request_stub = WebMock.stub_request(:any, /localhost:8200/).to_rack(FakeServer)
+    @request_stub =
+      WebMock.stub_request(:any, /localhost:8200/).to_rack(FakeServer)
     FakeServer.clear!
   end
 end
