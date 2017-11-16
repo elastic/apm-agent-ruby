@@ -6,5 +6,5 @@ cd spec
 docker run \
   -v "$(dirname $(pwd))":/app \
   -w /app \
-  --rm ruby:2.4.1
+  --rm ruby:2.4.1 \
   /bin/bash -c "bundle && rake docs"

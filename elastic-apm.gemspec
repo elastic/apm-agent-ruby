@@ -19,6 +19,8 @@ Gem::Specification.new do |spec|
       'public gem pushes.'
   end
 
+  spec.add_dependency('activesupport', '>= 3.0.0')
+
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
   end

@@ -21,4 +21,5 @@ gem 'fakeredis', require: nil,
 gem 'redis', require: nil
 
 framework, *version = ENV.fetch('FRAMEWORK', 'rails').split('-')
-gem framework, version.join('-')
+version = version.join('-')
+gem framework, version.empty? ? nil : version
