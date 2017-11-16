@@ -39,7 +39,11 @@ if defined? Rails
 
       class PagesController < ActionController::Base
         def index
-          render plain: 'Yes!'
+          if Rails.version.start_with?('4')
+            render text: 'Yes!'
+          else
+            render plain: 'Yes!'
+          end
         end
       end
 

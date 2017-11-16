@@ -1,7 +1,0 @@
-version: '2.1'
-
-services:
-  spec:
-    build:
-      context: .
-      dockerfile: Dockerfile
