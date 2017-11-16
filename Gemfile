@@ -21,4 +21,12 @@ gem 'redis', require: nil
 
 framework, *version = ENV.fetch('FRAMEWORK', 'rails').split('-')
 version = version.join('-')
-gem framework, version.empty? ? nil : version
+
+case version
+when 'master'
+  gem framework, github: "#{framework}/#{framework}"
+when /.+/
+  gem framework, version
+else
+  gem framework
+end

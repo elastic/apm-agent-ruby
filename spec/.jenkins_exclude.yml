@@ -1,2 +1,21 @@
----
 exclude:
+  # Unsupported by Rails
+  - RUBY_VERSION: ruby-2.4.1
+    FRAMEWORK: rails-4.1.16
+  - RUBY_VERSION: ruby-2.4.1
+    FRAMEWORK: rails-4.0.13
+
+  # Only test master on newest ruby
+  - RUBY_VERSION: ruby-2.3.5
+    FRAMEWORK: rails-master
+  - RUBY_VERSION: ruby-2.2.8
+    FRAMEWORK: rails-master
+  - RUBY_VERSION: ruby-2.1.10
+    FRAMEWORK: rails-master
+
+  - RUBY_VERSION: ruby-2.3.5
+    FRAMEWORK: sinatra-master
+  - RUBY_VERSION: ruby-2.2.8
+    FRAMEWORK: sinatra-master
+  - RUBY_VERSION: ruby-2.1.10
+    FRAMEWORK: sinatra-master

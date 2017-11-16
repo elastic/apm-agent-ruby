@@ -2,6 +2,7 @@ AllCops:
   TargetRubyVersion: 2.4
   Exclude:
     - 'elastic-apm.gemspec'
+    - 'vendor/**/*'
 
 Layout/AlignHash:
   Exclude:
