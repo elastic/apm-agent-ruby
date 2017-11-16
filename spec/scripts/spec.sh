@@ -8,7 +8,7 @@ fi
 
 cd spec
 
-docker-compose build --pull --build-arg RUBY_IMAGE=${1/-/:} spec
+docker-compose build --pull --build-arg RUBY_VERSION=${1/-/:} spec
 docker-compose run \
   -e FRAMEWORK=$2 \
   -v "$(dirname $(pwd))":/app \

@@ -1,5 +1,5 @@
-ARG RUBY_IMAGE
-FROM ${RUBY_IMAGE}
+ARG RUBY_VERSION
+FROM ${RUBY_VERSION}
 
 RUN apt-get update -qq && apt-get install -y build-essential libpq-dev nodejs
 RUN gem install bundler
