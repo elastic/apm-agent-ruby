@@ -7,4 +7,4 @@ docker run \
   -v "$(dirname $(pwd))":/app \
   -w /app \
   --rm ruby:2.4.1 \
-  /bin/bash -c "bundle && rake docs"
+  /bin/bash -c "bundle && echo rake docs"

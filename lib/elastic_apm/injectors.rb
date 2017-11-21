@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'active_support/inflector'
+
 module ElasticAPM
   # @api private
   module Injectors

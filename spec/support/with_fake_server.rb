@@ -3,7 +3,7 @@
 require 'json'
 
 RSpec.configure do |config|
-  class FakeServer < Sinatra::Base
+  class FakeServer
     class << self
       attr_reader :requests
 
@@ -12,19 +12,17 @@ RSpec.configure do |config|
       end
     end
 
-    before do
-      content_type 'application/json'
-    end
-
-    post '/v1/transactions' do
+    def call(env)
+      request = Rack::Request.new(env)
       self.class.requests << JSON.parse(request.body.read)
-      '"ok"'
+
+      [200, { 'Content-Type' => 'application/json' }, ['ok']]
     end
   end
 
   config.before :each, with_fake_server: true do
     @request_stub =
-      WebMock.stub_request(:any, /localhost:8200/).to_rack(FakeServer)
+      WebMock.stub_request(:any, /localhost:8200/).to_rack(FakeServer.new)
     FakeServer.clear!
   end
 end

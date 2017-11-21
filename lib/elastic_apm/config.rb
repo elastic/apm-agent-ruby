@@ -16,10 +16,12 @@ module ElasticAPM
       transaction_send_interval: 60,
       debug_transactions: false,
 
-      enabled_injectors: %w[redis],
+      enabled_injectors: %w[],
 
       view_paths: []
     }.freeze
+
+    LOCK = Mutex.new
 
     def initialize(options = nil)
       options = {} if options.nil?
@@ -47,7 +49,10 @@ module ElasticAPM
     attr_accessor :view_paths
 
     def logger
-      @logger ||= build_logger(log_path, log_level)
+      @logger ||=
+        LOCK.synchronize do
+          build_logger(log_path, log_level)
+        end
     end
 
     attr_writer :logger
