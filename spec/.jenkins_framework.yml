@@ -1,2 +1,3 @@
 FRAMEWORK:
   - rails-5.1.4
+  - sinatra-2.0.0

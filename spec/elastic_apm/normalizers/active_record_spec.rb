@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'active_record'
 
 module ElasticAPM
   module Normalizers
@@ -14,6 +13,12 @@ module ElasticAPM
         end
 
         describe '#initialize' do
+          unless defined? ::ActiveRecord::Base
+            class ::ActiveRecord # rubocop:disable Style/ClassAndModuleChildren
+              class Base; end
+            end
+          end
+
           it 'knows the AR adapter' do
             allow(::ActiveRecord::Base)
               .to receive(:connection) { double(adapter_name: 'MySQL') }
@@ -39,13 +44,15 @@ module ElasticAPM
               'WHERE "hotdogs"."topping" = $1 LIMIT 1'
 
             result = normalize_payload(sql: sql)
-            expected = ['SELECT FROM "hotdogs"', 'db.unknown.sql', { sql: sql }]
+            expected =
+              ['SELECT FROM "hotdogs"', 'db.unknown.sql', { sql: sql }]
 
             expect(result).to eq expected
           end
 
           it 'skips cache queries' do
-            result = normalize_payload(name: 'CACHE', sql: 'DROP * FROM users')
+            result =
+              normalize_payload(name: 'CACHE', sql: 'DROP * FROM users')
             expect(result).to be :skip
           end
         end

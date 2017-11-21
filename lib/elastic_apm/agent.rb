@@ -133,7 +133,7 @@ module ElasticAPM
     def submit_transaction(transaction)
       @pending_transactions << transaction
 
-      if config.debug_transactions && transaction.name != 'Rack'
+      if config.debug_transactions
         debug('Submitted transaction:') { Util.inspect_transaction transaction }
       end
 
