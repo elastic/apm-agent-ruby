@@ -16,7 +16,7 @@ module ElasticAPM
       transaction_send_interval: 60,
       debug_transactions: false,
 
-      enabled_injectors: %w[],
+      enabled_injectors: %w[net_http],
 
       view_paths: []
     }.freeze

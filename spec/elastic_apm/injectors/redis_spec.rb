@@ -4,13 +4,16 @@ require 'spec_helper'
 
 require 'redis'
 require 'fakeredis'
+
 require 'elastic_apm/injectors/redis'
 
 module ElasticAPM
   RSpec.describe Injectors::RedisInjector do
     it 'registers' do
-      registration = Injectors.installed['Redis']
-      expect(registration.require_paths).to eq ['redis']
+      registration =
+        Injectors.require_hooks['redis'] || # when missing
+        Injectors.installed['Redis']        # when present
+
       expect(registration.injector).to be_a described_class
     end
 
@@ -20,7 +23,7 @@ module ElasticAPM
 
       transaction = ElasticAPM.transaction 'T' do
         redis.lrange('some:where', 0, -1)
-      end
+      end.submit 200
 
       expect(transaction.traces.length).to be 1
       expect(transaction.traces.last.name).to eq 'lrange'
