@@ -23,7 +23,7 @@ module ElasticAPM
 
       transaction = ElasticAPM.transaction 'T' do
         redis.lrange('some:where', 0, -1)
-      end
+      end.submit 200
 
       expect(transaction.traces.length).to be 1
       expect(transaction.traces.last.name).to eq 'lrange'

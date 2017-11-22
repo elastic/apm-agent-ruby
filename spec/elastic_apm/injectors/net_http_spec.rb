@@ -21,11 +21,11 @@ module ElasticAPM
 
       WebMock.stub_request :get, 'http://example.com:80'
 
-      transaction = ElasticAPM.transaction 'Net::HTTP test'
-
-      Net::HTTP.start('example.com') do |http|
-        http.get '/'
-      end
+      transaction = ElasticAPM.transaction 'Net::HTTP test' do
+        Net::HTTP.start('example.com') do |http|
+          http.get '/'
+        end
+      end.submit 200
 
       expect(WebMock).to have_requested(:get, 'http://example.com')
       expect(transaction.traces.length).to be 1
