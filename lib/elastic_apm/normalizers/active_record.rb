@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'elastic_apm/normalizers/active_record/sql_summarizer'
+require 'elastic_apm/sql_summarizer'
 
 module ElasticAPM
   module Normalizers
