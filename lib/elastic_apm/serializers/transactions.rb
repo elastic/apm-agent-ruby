@@ -18,7 +18,7 @@ module ElasticAPM
               type: transaction.type,
               result: transaction.result.to_s,
               duration: ms(transaction.duration),
-              timestamp: micros_to_time(transaction.timestamp).utc
+              timestamp: micros_to_time(transaction.timestamp).utc.iso8601
             }
 
             if transaction.traces.any?
