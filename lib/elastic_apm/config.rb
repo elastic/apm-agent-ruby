@@ -9,6 +9,7 @@ module ElasticAPM
     DEFAULTS = {
       app_name: 'ruby',
       server: 'http://localhost:8200',
+      secret_token: nil,
 
       log_path: '-',
       log_level: Logger::INFO,
@@ -37,6 +38,7 @@ module ElasticAPM
 
     attr_accessor :app_name
     attr_accessor :server
+    attr_accessor :secret_token
 
     attr_accessor :log_path
     attr_accessor :log_level

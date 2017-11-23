@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'net/http'
+require 'active_support/core_ext/object/blank'
 
 module ElasticAPM
   # @api private
@@ -18,7 +19,7 @@ module ElasticAPM
 
     attr_reader :config
 
-    def post(path, payload)
+    def post(path, payload = {})
       data = payload.merge(@app_info).to_json
 
       request = prepare_request path, data
@@ -38,6 +39,11 @@ module ElasticAPM
         req['Content-Type'] = CONTENT_TYPE
         req['User-Agent'] = USER_AGENT
         req['Content-Length'] = data.bytesize.to_s
+
+        if (token = config.secret_token.presence)
+          req['Authorization'] = "Bearer #{token}"
+        end
+
         req.body = data
       end
     end
