@@ -27,7 +27,7 @@ module ElasticAPM
           alias #{log_method}_without_apm #{log_method}
 
           def #{log_method}(sql, *args, &block)
-            unless ElasticAPM.started? && ElasticAPM.agent.current_transaction
+            unless ElasticAPM.current_transaction
               return #{log_method}_without_apm(sql, *args, &block)
             end
 

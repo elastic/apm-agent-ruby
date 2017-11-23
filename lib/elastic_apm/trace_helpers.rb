@@ -16,6 +16,10 @@ module ElasticAPM
           alias :"__without_apm_#{method}" :"#{method}"
 
           def #{method}(*args, &block)
+            unless ElasticAPM.current_transaction
+              return __without_apm_#{method}(*args, &block)
+            end
+
             ElasticAPM.trace "#{name}", "#{type}" do
               __without_apm_#{method}(*args, &block)
             end
