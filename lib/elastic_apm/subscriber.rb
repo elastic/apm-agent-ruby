@@ -32,7 +32,7 @@ module ElasticAPM
     Notification = Struct.new(:id, :trace)
 
     def start(name, id, payload)
-      debug "AS::Notification#start:#{name}:#{id}"
+      # debug "AS::Notification#start:#{name}:#{id}"
       return unless (transaction = @agent.current_transaction)
 
       normalized = @normalizers.normalize(transaction, name, payload)
@@ -42,8 +42,8 @@ module ElasticAPM
       transaction.notifications << Notification.new(id, trace)
     end
 
-    def finish(name, id, _payload)
-      debug "AS::Notification#finish:#{name}:#{id}"
+    def finish(_name, id, _payload)
+      # debug "AS::Notification#finish:#{name}:#{id}"
       return unless (transaction = @agent.current_transaction)
 
       while (notification = transaction.notifications.pop)

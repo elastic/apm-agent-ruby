@@ -23,7 +23,7 @@ module ElasticAPM
                 "type": 'request',
                 "result": '200',
                 "duration": 100,
-                "timestamp": Time.utc(1992, 1, 1)
+                "timestamp": Time.utc(1992, 1, 1).iso8601
               }
             ]
           )
@@ -53,7 +53,7 @@ module ElasticAPM
                 "type": 'request',
                 "result": '200',
                 "duration": 50,
-                "timestamp": Time.utc(1992, 1, 1),
+                "timestamp": Time.utc(1992, 1, 1).iso8601,
                 "traces": [
                   {
                     id: 0,
