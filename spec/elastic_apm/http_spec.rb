@@ -28,6 +28,20 @@ module ElasticAPM
           }
         )
       end
+
+      it 'includes bearer token if provided' do
+        http = Http.new Config.new(secret_token: 'abc123')
+        http.post('/v1/transactions')
+
+        expect(WebMock).to have_requested(:post, %r{/v1/transactions}).with(
+          headers: {
+            'Content-Type' => Http::CONTENT_TYPE,
+            'User-Agent' => Http::USER_AGENT,
+            'Content-Length' => '65',
+            'Authorization' => 'Bearer abc123'
+          }
+        )
+      end
     end
   end
 end
