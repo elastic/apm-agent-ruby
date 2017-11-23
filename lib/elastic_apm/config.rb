@@ -10,6 +10,8 @@ module ElasticAPM
       app_name: 'ruby',
       server: 'http://localhost:8200',
       secret_token: nil,
+      timeout: 10,
+      open_timeout: 10,
 
       log_path: '-',
       log_level: Logger::INFO,
@@ -39,6 +41,8 @@ module ElasticAPM
     attr_accessor :app_name
     attr_accessor :server
     attr_accessor :secret_token
+    attr_accessor :timeout
+    attr_accessor :open_timeout
 
     attr_accessor :log_path
     attr_accessor :log_level
@@ -55,6 +59,10 @@ module ElasticAPM
         LOCK.synchronize do
           build_logger(log_path, log_level)
         end
+    end
+
+    def use_ssl?
+      server.start_with?('https')
     end
 
     attr_writer :logger
