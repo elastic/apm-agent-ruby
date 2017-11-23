@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'net/http'
-require 'active_support/core_ext/object/blank'
 
 module ElasticAPM
   # @api private
@@ -40,7 +39,7 @@ module ElasticAPM
         req['User-Agent'] = USER_AGENT
         req['Content-Length'] = data.bytesize.to_s
 
-        if (token = config.secret_token.presence)
+        if (token = config.secret_token)
           req['Authorization'] = "Bearer #{token}"
         end
 
