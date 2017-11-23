@@ -36,6 +36,10 @@ module ElasticAPM
     Agent.started?
   end
 
+  def self.current_transaction
+    agent && agent.current_transaction
+  end
+
   def self.agent
     Agent.instance
   end

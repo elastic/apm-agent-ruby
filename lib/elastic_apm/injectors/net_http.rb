@@ -14,7 +14,7 @@ module ElasticAPM
           alias request_without_apm request
 
           def request(req, body = nil, &block)
-            unless ElasticAPM.started? && ElasticAPM.agent.current_transaction
+            unless ElasticAPM.current_transaction
               return request_without_apm(req, body, &block)
             end
 
@@ -36,9 +36,7 @@ module ElasticAPM
             name = "#{method} #{host}"
             type = "ext.net_http.#{method}"
 
-            transaction = ElasticAPM.agent.current_transaction
-
-            transaction.trace name, type, extra do
+            ElasticAPM.trace name, type, extra do
               request_without_apm(req, body, &block)
             end
           end

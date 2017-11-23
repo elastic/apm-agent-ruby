@@ -13,8 +13,7 @@ module ElasticAPM
 
           def dispatch!(*args, &block)
             dispatch_without_apm!(*args, &block).tap do
-              next unless (agent = ElasticAPM::Agent.instance)
-              next unless (transaction = agent.current_transaction)
+              next unless (transaction = ElasticAPM.current_transaction)
               next unless (route = env['sinatra.route'])
 
               transaction.name = route
