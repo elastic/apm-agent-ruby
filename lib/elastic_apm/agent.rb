@@ -3,30 +3,14 @@
 require 'elastic_apm/http'
 require 'elastic_apm/injectors'
 require 'elastic_apm/serializers'
-require 'elastic_apm/subscriber'
-require 'elastic_apm/trace'
-require 'elastic_apm/transaction'
 require 'elastic_apm/worker'
 
 module ElasticAPM
   # @api private
-  # rubocop:disable Metrics/ClassLength
   class Agent
     include Log
 
-    KEY = :__elastic_transaction_key
     LOCK = Mutex.new
-
-    # @api private
-    class TransactionInfo
-      def current
-        Thread.current[KEY]
-      end
-
-      def current=(transaction)
-        Thread.current[KEY] = transaction
-      end
-    end
 
     # life cycle
 
@@ -58,28 +42,23 @@ module ElasticAPM
 
     def initialize(config)
       @config = config
+      @queue = Queue.new
 
-      @transaction_info = TransactionInfo.new
+      @instrumenter = Instrumenter.new(config, self)
 
       @serializers = Struct.new(:transactions).new(
         Serializers::Transactions.new(config)
       )
-
-      @subscriber = Subscriber.new(self)
-
-      @queue = Queue.new
-      @pending_transactions = []
-      @last_sent_transactions = Time.now.utc
     end
 
-    attr_reader :config, :queue, :pending_transactions
+    attr_reader :config, :queue, :instrumenter
 
     def start
       debug 'Starting agent'
 
-      boot_worker
+      @instrumenter.start
 
-      @subscriber.register!
+      boot_worker
 
       config.enabled_injectors.each do |lib|
         require "elastic_apm/injectors/#{lib}"
@@ -91,9 +70,8 @@ module ElasticAPM
     def stop
       debug 'Stopping agent'
 
-      current_transaction&.release
+      @instrumenter.stop
 
-      @subscriber.unregister!
       kill_worker
 
       self
@@ -103,52 +81,23 @@ module ElasticAPM
       stop
     end
 
+    def enqueue_transactions(transactions)
+      data = @serializers.transactions.build(transactions)
+      @queue << Worker::Request.new('/v1/transactions', data)
+    end
+
     # instrumentation
 
     def current_transaction
-      @transaction_info.current
+      instrumenter.current_transaction
     end
 
-    def current_transaction=(transaction)
-      @transaction_info.current = transaction
+    def transaction(*args, &block)
+      instrumenter.transaction(*args, &block)
     end
-
-    # rubocop:disable Metrics/MethodLength
-    def transaction(*args)
-      if (transaction = current_transaction)
-        yield transaction if block_given?
-        return transaction
-      end
-
-      transaction = Transaction.new self, *args
-
-      self.current_transaction = transaction
-      return transaction unless block_given?
-
-      begin
-        yield transaction
-      ensure
-        self.current_transaction = nil
-        transaction.done
-      end
-
-      transaction
-    end
-    # rubocop:enable Metrics/MethodLength
 
     def trace(*args, &block)
-      transaction.trace(*args, &block)
-    end
-
-    def submit_transaction(transaction)
-      @pending_transactions << transaction
-
-      if config.debug_transactions
-        debug('Submitted transaction:') { Util.inspect_transaction transaction }
-      end
-
-      return unless should_flush_transactions?
-      flush_transactions
+      instrumenter.trace(*args, &block)
     end
 
     private
@@ -171,25 +120,6 @@ module ElasticAPM
       @worker_thread = nil
 
       debug 'Killed worker'
-    end
-
-    def should_flush_transactions?
-      return true unless (interval = config.transaction_send_interval)
-      Time.now.utc - @last_sent_transactions >= interval
-    end
-
-    def flush_transactions
-      return if @pending_transactions.empty?
-
-      debug 'Flushing transactions'
-
-      data = @serializers.transactions.build(@pending_transactions)
-      @queue << Worker::Request.new('/v1/transactions', data)
-
-      @last_sent_transactions = Time.now.utc
-      @pending_transactions = []
-
-      true
     end
   end
   # rubocop:enable Metrics/ClassLength

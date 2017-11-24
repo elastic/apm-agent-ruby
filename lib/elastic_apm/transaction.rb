@@ -3,8 +3,8 @@
 module ElasticAPM
   # @api private
   class Transaction
-    def initialize(agent, name, type = 'custom', result = nil)
-      @agent = agent
+    def initialize(instrumenter, name, type = 'custom', result = nil)
+      @instrumenter = instrumenter
       @name = name
       @type = type
       @result = result
@@ -24,7 +24,7 @@ module ElasticAPM
     attr_reader :duration, :root_trace, :timestamp, :traces, :notifications
 
     def release
-      @agent.current_transaction = nil
+      @instrumenter.current_transaction = nil
     end
 
     def done(result = nil)
@@ -44,7 +44,7 @@ module ElasticAPM
 
       release
 
-      @agent.submit_transaction self
+      @instrumenter.submit_transaction self
 
       self
     end
