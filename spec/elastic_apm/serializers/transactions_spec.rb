@@ -8,12 +8,10 @@ module ElasticAPM
 
       describe '#build' do
         it 'builds a transaction without traces', :mock_time do
-          agent = Agent.new Config.new
-
           transaction =
-            Transaction.new(agent, 'GET /something', 'request') do
+            Transaction.new(nil, 'GET /something', 'request') do
               travel 100
-            end.submit(200)
+            end.done 200
 
           expect(subject.build([transaction])).to eq(
             "transactions": [
@@ -30,10 +28,8 @@ module ElasticAPM
         end
 
         it 'builds a transaction with nested traces', :mock_time do
-          agent = Agent.new Config.new
-
           transaction =
-            Transaction.new agent, 'GET /something', 'request' do |t|
+            Transaction.new nil, 'GET /something', 'request' do |t|
               travel 10
               t.trace 'app/views/users.html.erb', 'template' do
                 travel 10
@@ -43,7 +39,7 @@ module ElasticAPM
                 travel 10
               end
               travel 10
-            end.submit(200)
+            end.done 200
 
           expect(subject.build([transaction])).to eq(
             transactions: [

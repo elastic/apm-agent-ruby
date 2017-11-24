@@ -6,6 +6,7 @@ require 'elastic_apm/log'
 # Core
 require 'elastic_apm/agent'
 require 'elastic_apm/config'
+require 'elastic_apm/instrumenter'
 require 'elastic_apm/util'
 
 # Metrics
