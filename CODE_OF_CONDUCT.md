@@ -1,74 +1,47 @@
-# Contributor Covenant Code of Conduct
+Community Code of Conduct
+=========================
 
-## Our Pledge
+The purpose of our Community Code of Conduct is to ensure that all participants in the Elastic community have the best possible experience. We are all here to help each other learn, grow our skillsets and have a good time!
 
-In the interest of fostering an open and welcoming environment, we as
-contributors and maintainers pledge to making participation in our project and
-our community a harassment-free experience for everyone, regardless of age, body
-size, disability, ethnicity, gender identity and expression, level of experience,
-nationality, personal appearance, race, religion, or sexual identity and
-orientation.
+The Elastic Community Code of Conduct covers our behavior as members of the Elastic community, in any forum, mailing list, wiki, web site, code repository, IRC channel, private correspondence, or public meetings.
 
-## Our Standards
+As a worldwide community, diversity is one of our huge strengths, but it can also lead to communication issues and unhappiness. To that end, we have a few ground rules that we ask people to adhere to, to ensure that the Elastic community continues to be an excellent space in which to communicate, collaborate, and contribute.
 
-Examples of behavior that contributes to creating a positive environment
-include:
+This isn't an exhaustive list of things that you can't do. Rather, take it in the spirit in which it's intended — a guide to make it easier to be excellent to each other. We expect it to be followed in spirit as much as in the letter.
 
-* Using welcoming and inclusive language
-* Being respectful of differing viewpoints and experiences
-* Gracefully accepting constructive criticism
-* Focusing on what is best for the community
-* Showing empathy towards other community members
+- Be considerate. Your work will be used by other people, and you in turn will depend on the work of others. Any decision you take will affect users and colleagues, and you should take those consequences into account when making decisions.
+- Be patient. This mostly applies to forums, mailing lists, and code contributions (i.e. asynchronous forms of communication). Communities are often built on volunteer time both from participants and organizers. It is possible that your question or code contribution or suggestion might not receive an immediate response. Be patient and consider the norms of the community. One reminder ping is welcome, many reminder pings in rapid succession are not a good display of patience. Similarly, posting the same question in multiple threads is frowned upon and should not be done.
+- Be respectful. Not all of us will agree all the time, but disagreement is no excuse for poor behavior and poor manners. We might all experience some frustration now and then, but we cannot allow that frustration to turn into a personal attack. It's important to remember that a community where people feel uncomfortable or threatened is not a productive one. We expect members of the Elastic community to be respectful when communicating with other community members, as well as with people outside the Elastic community.
+- Be nice. Everyone in the Elastic community should feel welcome, regardless of their background. Please be courteous, respectful and polite to fellow community members. No offensive comments related to gender, gender identity or expression, sexual orientation, disability, physical appearance, body size, race, religion; no sexual images in public spaces, real or implied violence, intimidation, oppression, stalking, following, harassing photography or recording, sustained disruption of talks or other events, inappropriate physical contact, or unwelcome sexual attention will be tolerated.
+- Communicate effectively. We don't all speak the same language at the same skill level. Clear communication can help to avoid misunderstandings, as can remembering that our interpretations of words can be different depending on our backgrounds. Having context is important. It's better to ask for clarification than to make assumptions. Disagreements, social and technical, are normal, but we expect participants in the project to resolve disagreements constructively — so please avoid flamewars, trolling, personal attacks, and repetitive arguments. Resources for how to most effectively engage with Elastic's various forums for project participation and communication — including forums, IRC, and more — are shown [here](https://www.elastic.co/community).
+- Ask for help when unsure. Nobody is expected to be perfect in this community. Asking questions early avoids many problems later, so questions are encouraged, though they may be directed to the appropriate forum. Those who are asked should be responsive and helpful.
 
-Examples of unacceptable behavior by participants include:
+In addition to this Code of Conduct, all Elastic events are governed by the following policy. All attendees, speakers, sponsors and volunteers, including the event organizing team, are required to follow the following policy. Organizers are expected to enforce this policy throughout the event. We expect cooperation from all participants to help ensure a safe environment for everyone.
 
-* The use of sexualized language or imagery and unwelcome sexual attention or
-advances
-* Trolling, insulting/derogatory comments, and personal or political attacks
-* Public or private harassment
-* Publishing others' private information, such as a physical or electronic
-  address, without explicit permission
-* Other conduct which could reasonably be considered inappropriate in a
-  professional setting
+## Policy
 
-## Our Responsibilities
+Harassment includes offensive verbal comments related to gender, age, sexual orientation, disability, physical appearance, body size, race, religion, sexual images in public spaces, deliberate intimidation, stalking, following, harassing photography or recording, sustained disruption of talks or other events, inappropriate physical contact, and unwelcome sexual attention.
 
-Project maintainers are responsible for clarifying the standards of acceptable
-behavior and are expected to take appropriate and fair corrective action in
-response to any instances of unacceptable behavior.
+Participants asked to stop any harassing behavior are expected to comply immediately. Sponsors are also subject to the anti-harassment policy. In particular, sponsors should not use sexualized images, activities, or other material. Meetup organizing staff and other volunteer organizers should not use sexualized clothing/uniforms/costumes, or otherwise create a sexualized environment.
 
-Project maintainers have the right and responsibility to remove, edit, or
-reject comments, commits, code, wiki edits, issues, and other contributions
-that are not aligned to this Code of Conduct, or to ban temporarily or
-permanently any contributor for other behaviors that they deem inappropriate,
-threatening, offensive, or harmful.
+If a participant engages in harassing behavior, the meetup organizers may take any action they deem appropriate, including warning the offender or expulsion from the event.
 
-## Scope
+If you are being harassed, notice that someone else is being harassed, or have any other concerns, please follow the directions in the "If You Need Help" section, directly below this policy.
 
-This Code of Conduct applies both within project spaces and in public spaces
-when an individual is representing the project or its community. Examples of
-representing a project or community include using an official project e-mail
-address, posting via an official social media account, or acting as an appointed
-representative at an online or offline event. Representation of a project may be
-further defined and clarified by project maintainers.
+Organizers will be happy to help participants contact security or local law enforcement, provide escorts to an alternate location, or otherwise assist those experiencing harassment to feel safe for the duration of the meetup. We value your attendance.
 
-## Enforcement
+We expect participants to follow these rules at our all of our event venues and event-related social events.
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported by contacting the project team. All complaints will be reviewed and
-investigated and will result in a response that is deemed necessary and
-appropriate to the circumstances. The project team is obligated to maintain
-confidentiality with regard to the reporter of an incident. Further details
-of specific enforcement policies may be posted separately.
+## If You Need Help
 
-Project maintainers who do not follow or enforce the Code of Conduct in good
-faith may face temporary or permanent repercussions as determined by other
-members of the project's leadership.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting [codeofconduct@elastic.co](mailto:codeofconduct@elastic.co), to any channel operator in the community IRC channels or to the local organizers of an event. As a company, we take our community's health seriously and want to ensure everyone has a good experience, so please contact us at [codeofconduct@elastic.co](mailto:codeofconduct@elastic.co) if there is an issue so we can help address it.
 
-## Attribution
+If you are attending Elastic{ON} 2017 in San Francisco from March 7-9, we will have extra real-time support available if you'd like to report a Code of Conduct violation — you can contact us at 1 (650) 433-2555.
 
-This Code of Conduct is adapted from the [Contributor Covenant][homepage], version 1.4,
-available at [http://contributor-covenant.org/version/1/4][version]
+The Elastic Community Code of Conduct is licensed under the [Creative Commons Attribution-Share Alike 3.0 license](http://creativecommons.org/licenses/by-sa/3.0/). Our Code of Conduct was inspired by and borrows content from Codes of Conduct of other open source projects, including:
 
-[homepage]: http://contributor-covenant.org
-[version]: http://contributor-covenant.org/version/1/4/
+- [Contributor Covenant](http://contributor-covenant.org/)
+- [The Fedora Project](https://getfedora.org/code-of-conduct)
+- [OpenStack](https://www.openstack.org/legal/community-code-of-conduct/)
+- [Puppet Labs](https://docs.puppetlabs.com/community/community_guidelines.html)
+- [Ubuntu](http://www.ubuntu.com/about/about-ubuntu/conduct)
