@@ -20,6 +20,7 @@ module ElasticAPM
   # Starts the ElasticAPM Agent
   #
   # @param config [Config] An instance of Config
+  # @return [Agent] The resulting [Agent]
   def self.start(config = Config.new)
     Agent.start config
   end
@@ -29,7 +30,7 @@ module ElasticAPM
     Agent.stop
   end
 
-  # Returns whether the agent is currently running
+  # @return [Boolean] Whether there's an [Agent] running
   def self.running?
     Agent.running?
   end
@@ -37,18 +38,37 @@ module ElasticAPM
   ### Metrics
 
   # Returns the currently active transaction (if any)
+  #
+  # @return [Transaction] if any
   def self.current_transaction
     agent&.current_transaction
   end
 
+  # @return [Agent] Currently running [Agent] if any
   def self.agent
     Agent.instance
   end
 
+  # Start a new transaction or return the currently running
+  #
+  # @param name [String] A description of the transaction, eg
+  # `ExamplesController#index`
+  # @param type [String] The kind of the transaction, eg `app.request.get` or
+  # `db.mysql2.query`
+  # @param result [Object] Result of the transaction, eq `200` for a HTTP server
+  # @yield [Transaction] Optional block encapsulating transaction
+  # @return [Transaction] Unless block given
   def self.transaction(name, type = nil, result = nil, &block)
     agent.transaction name, type, result, &block
   end
 
+  # Starts a new trace under the current Transaction
+  #
+  # @param name [String] A description of the trace, eq `SELECT FROM "users"`
+  # @param type [String] The kind of trace, eq `db.mysql2.query`
+  # @param extra [Hash] Extra information about the trace
+  # @yield [Trace] Optional block encapsulating trace
+  # @return [Trace] Unless block given
   def self.trace(name, type = nil, extra = nil, &block)
     agent.trace name, type, extra, &block
   end

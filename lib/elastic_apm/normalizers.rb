@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-# @api private
-module ElasticAPM
+module ElasticAPM # :nodoc:
   # @api private
   module Normalizers
     # @api privagte

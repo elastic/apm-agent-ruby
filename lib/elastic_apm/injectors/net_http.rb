@@ -2,7 +2,6 @@
 
 require 'net/http'
 
-# @api private
 module ElasticAPM
   # @api private
   module Injectors
