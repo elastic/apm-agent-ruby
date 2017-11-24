@@ -1,5 +1,13 @@
 # frozen_string_literal: true
 
+require 'elastic_apm/http'
+require 'elastic_apm/injectors'
+require 'elastic_apm/serializers'
+require 'elastic_apm/subscriber'
+require 'elastic_apm/trace'
+require 'elastic_apm/transaction'
+require 'elastic_apm/worker'
+
 module ElasticAPM
   # @api private
   # rubocop:disable Metrics/ClassLength
@@ -26,7 +34,7 @@ module ElasticAPM
       @instance
     end
 
-    def self.start(config = {})
+    def self.start(config)
       return @instance if @instance
 
       LOCK.synchronize do
@@ -44,7 +52,7 @@ module ElasticAPM
       end
     end
 
-    def self.started?
+    def self.running?
       !!@instance
     end
 
@@ -82,6 +90,8 @@ module ElasticAPM
 
     def stop
       debug 'Stopping agent'
+
+      current_transaction&.release
 
       @subscriber.unregister!
       kill_worker

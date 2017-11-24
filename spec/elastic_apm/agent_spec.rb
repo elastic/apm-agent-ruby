@@ -19,7 +19,16 @@ module ElasticAPM
         it 'kill the running instance' do
           Agent.start Config.new
           Agent.stop
+
           expect(Agent.instance).to be_nil
+        end
+
+        it 'cleans up current transaction' do
+          agent = Agent.start Config.new
+          agent.transaction 'T'
+          Agent.stop
+
+          expect(Thread.current[ElasticAPM::Agent::KEY]).to be_nil
         end
       end
     end

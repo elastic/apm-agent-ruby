@@ -6,51 +6,21 @@ RSpec.describe ElasticAPM do
   describe 'life cycle' do
     it 'starts and stops the agent' do
       ElasticAPM.start ElasticAPM::Config.new
-      expect(ElasticAPM::Agent).to be_started
+      expect(ElasticAPM::Agent).to be_running
 
       ElasticAPM.stop
-      expect(ElasticAPM::Agent).to_not be_started
-    end
-  end
-
-  it { should_not be_started }
-
-  context 'when apm is started' do
-    before do
-      ElasticAPM.start ElasticAPM::Config.new
+      expect(ElasticAPM::Agent).to_not be_running
     end
 
-    after do
-      ElasticAPM.agent.current_transaction&.release
+    it 'has a current_transaction' do
+      ElasticAPM.start
+      ElasticAPM.transaction 'T'
+
+      expect(ElasticAPM.current_transaction).to be_a ElasticAPM::Transaction
+
       ElasticAPM.stop
-    end
 
-    it { should be_started }
-
-    describe 'block example', :mock_time do
-      subject do
-        raise 'NO' if ElasticAPM.agent.current_transaction
-
-        ElasticAPM.transaction 'Test' do
-          travel 100
-          ElasticAPM.trace 'test1' do
-            travel 100
-            ElasticAPM.trace 'test1-1' do
-              travel 100
-            end
-            ElasticAPM.trace 'test1-2' do
-              travel 100
-            end
-            travel 100
-          end
-        end.done(true)
-      end
-
-      it { should be_done }
-
-      it 'sets duration' do
-        expect(subject.duration).to eq 500_000
-      end
+      expect(ElasticAPM.current_transaction).to be nil
     end
   end
 end

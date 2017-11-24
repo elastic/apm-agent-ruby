@@ -3,28 +3,25 @@
 require 'elastic_apm/version'
 require 'elastic_apm/log'
 
+# Core
 require 'elastic_apm/agent'
 require 'elastic_apm/config'
-require 'elastic_apm/http'
-require 'elastic_apm/injectors'
-require 'elastic_apm/middleware'
-require 'elastic_apm/normalizers'
-require 'elastic_apm/serializers/transactions'
-require 'elastic_apm/subscriber'
-require 'elastic_apm/trace'
-require 'elastic_apm/transaction'
 require 'elastic_apm/util'
-require 'elastic_apm/worker'
+
+# Metrics
+require 'elastic_apm/middleware'
 
 require 'elastic_apm/railtie' if defined?(::Rails::Railtie)
 
 # ElasticAPM
 module ElasticAPM
+  ### Life cycle
+
   # Starts the ElasticAPM Agent
   #
   # @param config [Config] An instance of Config
-  def self.start(options)
-    Agent.start options
+  def self.start(config = Config.new)
+    Agent.start config
   end
 
   # Stops the ElasticAPM Agent
@@ -32,12 +29,16 @@ module ElasticAPM
     Agent.stop
   end
 
-  def self.started?
-    Agent.started?
+  # Returns whether the agent is currently running
+  def self.running?
+    Agent.running?
   end
 
+  ### Metrics
+
+  # Returns the currently active transaction (if any)
   def self.current_transaction
-    agent && agent.current_transaction
+    agent&.current_transaction
   end
 
   def self.agent
