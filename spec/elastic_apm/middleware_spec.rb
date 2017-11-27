@@ -19,5 +19,22 @@ module ElasticAPM
 
       ElasticAPM.stop
     end
+
+    it 'catches exceptions' do
+      class MiddlewareTestError < StandardError; end
+
+      allow(ElasticAPM).to receive(:report)
+
+      app = Middleware.new(lambda do |*_|
+        raise MiddlewareTestError, 'Yikes!'
+      end)
+
+      expect do
+        app.call(Rack::MockRequest.env_for('/'))
+      end.to raise_error(MiddlewareTestError)
+
+      expect(ElasticAPM).to have_received(:report)
+        .with(MiddlewareTestError, rack_env: Hash)
+    end
   end
 end

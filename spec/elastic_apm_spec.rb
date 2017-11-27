@@ -11,16 +11,18 @@ RSpec.describe ElasticAPM do
       ElasticAPM.stop
       expect(ElasticAPM::Agent).to_not be_running
     end
+  end
 
-    it 'has a current_transaction' do
-      ElasticAPM.start
-      ElasticAPM.transaction 'T'
+  context 'when running' do
+    before { ElasticAPM.start }
 
-      expect(ElasticAPM.current_transaction).to be_a ElasticAPM::Transaction
+    let(:agent) { ElasticAPM.agent }
 
-      ElasticAPM.stop
+    it { should delegate :current_transaction, to: agent }
+    it { should delegate :transaction, to: agent, args: ['T', nil, nil] }
+    it { should delegate :trace, to: agent, args: ['t', nil, nil] }
+    it { should delegate :report, to: agent, args: ['E', { rack_env: nil }] }
 
-      expect(ElasticAPM.current_transaction).to be nil
-    end
+    after { ElasticAPM.stop }
   end
 end

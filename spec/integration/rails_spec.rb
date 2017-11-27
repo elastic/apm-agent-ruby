@@ -12,6 +12,7 @@ if defined? Rails
     def boot
       RailsTestApp.initialize!
       RailsTestApp.routes.draw do
+        get '/error', to: 'pages#raise_error'
         root to: 'pages#index'
       end
     end
@@ -38,12 +39,18 @@ if defined? Rails
       end
 
       class PagesController < ActionController::Base
+        class FancyError < ::StandardError; end
+
         def index
           if Rails.version.start_with?('4')
             render text: 'Yes!'
           else
             render plain: 'Yes!'
           end
+        end
+
+        def raise_error
+          raise FancyError, "Help! I'm trapped in a specfile!"
         end
       end
 
@@ -60,7 +67,11 @@ if defined? Rails
 
     before { allow(SecureRandom).to receive(:uuid) { '_RANDOM' } }
 
-    it 'traces action and posts it', :with_fake_server do
+    it(
+      'traces action and posts it',
+      :with_fake_server,
+      :allow_leaking_subscriptions
+    ) do
       # test config from Rails.app.config
       expect(ElasticAPM.agent.config.debug_transactions).to be true
 
@@ -76,7 +87,24 @@ if defined? Rails
         .to eq 'PagesController#index'
     end
 
-    after do
+    it(
+      'adds an exception handler and handles exceptions AND posts transaction',
+      :with_fake_server,
+      :allow_leaking_subscriptions
+    ) do
+      response = get '/error'
+      sleep 0.1
+
+      expect(response.status).to be 500
+
+      expect(FakeServer.requests.length).to be 2
+
+      request = FakeServer.requests.first
+      expect(request.dig('errors', 0, 'exception', 'type'))
+        .to eq 'PagesController::FancyError'
+    end
+
+    after :all do
       ElasticAPM.stop
     end
   end

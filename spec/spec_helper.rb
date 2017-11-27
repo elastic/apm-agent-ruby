@@ -28,7 +28,16 @@ RSpec.configure do |config|
       end
   end
 
-  config.after(:each) do
-    raise 'someone leaked subscription' if elastic_subscribers.any?
+  config.after(:each) do |example|
+    if elastic_subscribers.any? &&
+       !example.metadata[:allow_leaking_subscriptions]
+      raise 'someone leaked subscription'
+    end
   end
+end
+
+def actual_exception
+  1 / 0
+rescue => e # rubocop:disable Lint/RescueWithoutErrorClass
+  e
 end
