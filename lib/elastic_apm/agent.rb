@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'elastic_apm/error_builder'
+require 'elastic_apm/error'
 require 'elastic_apm/http'
 require 'elastic_apm/injectors'
 require 'elastic_apm/serializers'
@@ -45,9 +47,11 @@ module ElasticAPM
       @queue = Queue.new
 
       @instrumenter = Instrumenter.new(config, self)
+      @error_builder = ErrorBuilder.new(config)
 
-      @serializers = Struct.new(:transactions).new(
-        Serializers::Transactions.new(config)
+      @serializers = Struct.new(:transactions, :errors).new(
+        Serializers::Transactions.new(config),
+        Serializers::Errors.new(config)
       )
     end
 
@@ -82,8 +86,13 @@ module ElasticAPM
     end
 
     def enqueue_transactions(transactions)
-      data = @serializers.transactions.build(transactions)
+      data = @serializers.transactions.build(Array(transactions))
       @queue << Worker::Request.new('/v1/transactions', data)
+    end
+
+    def enqueue_errors(errors)
+      data = @serializers.errors.build(Array(errors))
+      @queue << Worker::Request.new('/v1/errors', data)
     end
 
     # instrumentation
@@ -98,6 +107,14 @@ module ElasticAPM
 
     def trace(*args, &block)
       instrumenter.trace(*args, &block)
+    end
+
+    # errors
+
+    def report(exception, rack_env: nil)
+      error = @error_builder.build(exception, rack_env: rack_env)
+      enqueue_errors error
+      error
     end
 
     private

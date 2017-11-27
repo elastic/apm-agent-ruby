@@ -25,11 +25,30 @@ module ElasticAPM
       end
     end
 
-    describe 'instrumenter' do
+    context 'instrumenting' do
       subject { Agent.new Config.new }
       it { should delegate :current_transaction, to: subject.instrumenter }
       it { should delegate :transaction, to: subject.instrumenter }
       it { should delegate :trace, to: subject.instrumenter }
+    end
+
+    context 'reporting' do
+      class AgentTestError < StandardError; end
+
+      subject { Agent.new Config.new }
+
+      describe '#report' do
+        it 'queues a request' do
+          exception = AgentTestError.new('Yikes!')
+
+          subject.report(exception)
+
+          expect(subject.queue.length).to be 1
+
+          job = subject.queue.pop
+          expect(job).to be_a Worker::Request
+        end
+      end
     end
 
     describe '#enqueue_transactions' do

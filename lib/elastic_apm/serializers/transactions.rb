@@ -3,11 +3,7 @@
 module ElasticAPM
   module Serializers
     # @api private
-    class Transactions
-      def initialize(config)
-        @config = config
-      end
-
+    class Transactions < Serializer
       # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
       def build(transactions)
         {
@@ -39,16 +35,6 @@ module ElasticAPM
         }
       end
       # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
-
-      private
-
-      def micros_to_time(micros)
-        Time.at(ms(micros) / 1_000)
-      end
-
-      def ms(micros)
-        micros.to_f / 1_000
-      end
     end
   end
 end

@@ -29,6 +29,10 @@ module ElasticAPM
       end
     end
 
+    config.after_initialize do
+      require 'elastic_apm/injectors/action_dispatch'
+    end
+
     private
 
     def load_config(app)

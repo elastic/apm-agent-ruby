@@ -5,7 +5,9 @@ require 'json'
 RSpec.configure do |config|
   class FakeServer
     class << self
-      attr_reader :requests
+      def requests
+        @requests ||= []
+      end
 
       def clear!
         @requests = []
