@@ -2,16 +2,16 @@
 
 module ElasticAPM
   # @api private
-  module TraceHelpers
+  module SpanHelpers
     # @api private
     module ClassMethods
-      def trace_class_method(method, name, type)
-        __trace_method_on(singleton_class, method, name, type)
+      def span_class_method(method, name, type)
+        __span_method_on(singleton_class, method, name, type)
       end
 
       private
 
-      def __trace_method_on(klass, method, name, type)
+      def __span_method_on(klass, method, name, type)
         klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
           alias :"__without_apm_#{method}" :"#{method}"
 
@@ -20,7 +20,7 @@ module ElasticAPM
               return __without_apm_#{method}(*args, &block)
             end
 
-            ElasticAPM.trace "#{name}", "#{type}" do
+            ElasticAPM.span "#{name}", "#{type}" do
               __without_apm_#{method}(*args, &block)
             end
           end

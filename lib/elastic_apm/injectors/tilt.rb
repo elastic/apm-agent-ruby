@@ -14,7 +14,7 @@ module ElasticAPM
           def render(*args, &block)
             name = options[:__elastic_apm_template_name] || 'Unknown template'
 
-            ElasticAPM.trace name, TYPE do
+            ElasticAPM.span name, TYPE do
               render_without_apm(*args, &block)
             end
           end

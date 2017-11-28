@@ -21,32 +21,32 @@ module ElasticAPM
           "- #{transaction.type} (#{ms transaction.duration} ms)"
         lines << "+#{'-' * (@width - 2)}+"
 
-        transaction.traces.each do |trace|
-          indent = (ms(trace.relative_start) * width_factor).to_i
+        transaction.spans.each do |span|
+          indent = (ms(span.relative_start) * width_factor).to_i
 
-          if trace.duration
-            trace_width = ms(trace.duration) * width_factor
-            duration_desc = ms(trace.duration)
+          if span.duration
+            span_width = ms(span.duration) * width_factor
+            duration_desc = ms(span.duration)
           else
-            trace_width = width - indent
+            span_width = width - indent
             duration_desc = 'RUNNING'
           end
 
-          description = "[#{trace.id}] " \
-            "#{trace.name} - #{trace.type} (#{duration_desc} ms)"
+          description = "[#{span.id}] " \
+            "#{span.name} - #{span.type} (#{duration_desc} ms)"
           description_indent = [
             0,
             [indent, @width - description.length].min
           ].max
 
           lines << "#{' ' * description_indent}#{description}"
-          lines << "#{' ' * indent}+#{'-' * [(trace_width - 2), 0].max}+"
+          lines << "#{' ' * indent}+#{'-' * [(span_width - 2), 0].max}+"
         end
 
         lines.map { |s| s[0..@width] }.join("\n")
       rescue StandardError => e
         puts e
-        puts e.backtrace.join("\n")
+        puts e.backspan.join("\n")
         nil
       end
       # rubocop:enable Metrics/AbcSize, Metrics/MethodLength

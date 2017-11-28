@@ -35,7 +35,7 @@ module ElasticAPM
             name = "#{method} #{host}"
             type = "ext.net_http.#{method}"
 
-            ElasticAPM.trace name, type, extra do
+            ElasticAPM.span name, type, extra do
               request_without_apm(req, body, &block)
             end
           end

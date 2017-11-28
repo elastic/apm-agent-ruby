@@ -59,11 +59,11 @@ module ElasticAPM
       end
     end
 
-    describe '#trace' do
+    describe '#span' do
       subject { Instrumenter.new(Config.new, nil) }
 
       it 'delegates to current transaction' do
-        expect(subject).to delegate :trace, to: subject.current_transaction
+        expect(subject).to delegate :span, to: subject.current_transaction
       end
     end
 

@@ -105,8 +105,8 @@ module ElasticAPM
       instrumenter.transaction(*args, &block)
     end
 
-    def trace(*args, &block)
-      instrumenter.trace(*args, &block)
+    def span(*args, &block)
+      instrumenter.span(*args, &block)
     end
 
     # errors

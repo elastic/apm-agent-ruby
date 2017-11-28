@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'elastic_apm/subscriber'
-require 'elastic_apm/trace'
+require 'elastic_apm/span'
 require 'elastic_apm/transaction'
 
 module ElasticAPM
@@ -76,8 +76,8 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/MethodLength
 
-    def trace(*args, &block)
-      transaction.trace(*args, &block)
+    def span(*args, &block)
+      transaction.span(*args, &block)
     end
 
     def submit_transaction(transaction)

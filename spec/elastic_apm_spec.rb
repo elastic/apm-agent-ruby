@@ -20,7 +20,7 @@ RSpec.describe ElasticAPM do
 
     it { should delegate :current_transaction, to: agent }
     it { should delegate :transaction, to: agent, args: ['T', nil, nil] }
-    it { should delegate :trace, to: agent, args: ['t', nil, nil] }
+    it { should delegate :span, to: agent, args: ['t', nil, nil] }
     it { should delegate :report, to: agent, args: ['E', { rack_env: nil }] }
 
     after { ElasticAPM.stop }

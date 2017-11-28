@@ -68,7 +68,7 @@ if defined? Rails
     before { allow(SecureRandom).to receive(:uuid) { '_RANDOM' } }
 
     it(
-      'traces action and posts it',
+      'spans action and posts it',
       :with_fake_server,
       :allow_leaking_subscriptions
     ) do

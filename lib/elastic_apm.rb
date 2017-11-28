@@ -64,15 +64,15 @@ module ElasticAPM
     agent&.transaction name, type, result, &block
   end
 
-  # Starts a new trace under the current Transaction
+  # Starts a new span under the current Transaction
   #
-  # @param name [String] A description of the trace, eq `SELECT FROM "users"`
-  # @param type [String] The kind of trace, eq `db.mysql2.query`
-  # @param extra [Hash] Extra information about the trace
-  # @yield [Trace] Optional block encapsulating trace
-  # @return [Trace] Unless block given
-  def self.trace(name, type = nil, extra = nil, &block)
-    agent&.trace name, type, extra, &block
+  # @param name [String] A description of the span, eq `SELECT FROM "users"`
+  # @param type [String] The kind of span, eq `db.mysql2.query`
+  # @param extra [Hash] Extra information about the span
+  # @yield [Span] Optional block encapsulating span
+  # @return [Span] Unless block given
+  def self.span(name, type = nil, extra = nil, &block)
+    agent&.span name, type, extra, &block
   end
 
   ### Errors

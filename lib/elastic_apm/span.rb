@@ -2,7 +2,7 @@
 
 module ElasticAPM
   # @api private
-  class Trace
+  class Span
     DEFAULT_KIND = 'custom'
 
     # rubocop:disable Metrics/ParameterLists

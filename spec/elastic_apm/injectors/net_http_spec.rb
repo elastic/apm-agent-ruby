@@ -14,7 +14,7 @@ module ElasticAPM
       expect(registration.injector).to be_a described_class
     end
 
-    it 'traces http calls' do
+    it 'spans http calls' do
       ElasticAPM.start Config.new(
         enabled_injectors: %w[net_http]
       )
@@ -28,11 +28,11 @@ module ElasticAPM
       end.submit 200
 
       expect(WebMock).to have_requested(:get, 'http://example.com')
-      expect(transaction.traces.length).to be 1
+      expect(transaction.spans.length).to be 1
 
-      http_trace = transaction.traces.last
-      expect(http_trace.name).to eq 'GET example.com'
-      expect(http_trace.extra).to eq(
+      http_span = transaction.spans.last
+      expect(http_span.name).to eq 'GET example.com'
+      expect(http_span.extra).to eq(
         scheme: 'http',
         port: 80,
         path: '/'
