@@ -14,7 +14,7 @@ module ElasticAPM
       expect(registration.injector).to be_a described_class
     end
 
-    it 'traces calls' do
+    it 'spans calls' do
       db = ::Sequel.sqlite # in-memory
 
       db.create_table :users do
@@ -34,10 +34,10 @@ module ElasticAPM
 
       pp Util::Inspector.new.transaction transaction
 
-      expect(transaction.traces.length).to be 1
+      expect(transaction.spans.length).to be 1
 
-      trace = transaction.traces.first
-      expect(trace.name).to eq 'SELECT FROM `users`'
+      span = transaction.spans.first
+      expect(span.name).to eq 'SELECT FROM `users`'
     end
   end
 end

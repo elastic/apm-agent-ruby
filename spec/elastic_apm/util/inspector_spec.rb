@@ -14,12 +14,12 @@ module ElasticAPM
           expect(subject.transaction(transaction).lines.length).to be 3
         end
 
-        it 'inspects a complex transaction and its traces', :mock_time do
+        it 'inspects a complex transaction and its spans', :mock_time do
           transaction = Transaction.new(nil, 'GET /things', 'request') do |t|
             travel 100
-            t.trace 'app/views/users/index.html.erb', 'template' do
+            t.span 'app/views/users/index.html.erb', 'template' do
               travel 100
-              t.trace('SELECT * FROM users', 'db.query') do
+              t.span('SELECT * FROM users', 'db.query') do
                 travel 100
               end
               travel 100

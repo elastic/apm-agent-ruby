@@ -1,23 +1,23 @@
 # frozen_string_literal: true
 
 module ElasticAPM
-  RSpec.describe Trace do
+  RSpec.describe Span do
     describe '#start', :mock_time do
       it 'has a relative and absolute start time', :mock_time do
         transactionish = Struct.new(:timestamp).new(Util.micros)
 
-        trace = Trace.new(transactionish, nil, 'test-1')
+        span = Span.new(transactionish, nil, 'test-1')
         travel 100
-        trace.start
+        span.start
 
-        expect(trace.relative_start).to eq 100_000
+        expect(span.relative_start).to eq 100_000
       end
     end
 
     describe '#done', :mock_time do
       it 'sets duration' do
         transactionish = Struct.new(:timestamp).new(Util.micros)
-        subject = Trace.new(transactionish, nil, 'test-1')
+        subject = Span.new(transactionish, nil, 'test-1')
 
         expect(subject).to_not be_done
 
@@ -33,7 +33,7 @@ module ElasticAPM
     describe '#running?' do
       it 'is when started and not done' do
         transactionish = Struct.new(:timestamp).new(Util.micros)
-        subject = Trace.new(transactionish, nil, 'test-1')
+        subject = Span.new(transactionish, nil, 'test-1')
 
         expect(subject).to_not be_running
 

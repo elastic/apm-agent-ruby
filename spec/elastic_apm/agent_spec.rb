@@ -29,7 +29,7 @@ module ElasticAPM
       subject { Agent.new Config.new }
       it { should delegate :current_transaction, to: subject.instrumenter }
       it { should delegate :transaction, to: subject.instrumenter }
-      it { should delegate :trace, to: subject.instrumenter }
+      it { should delegate :span, to: subject.instrumenter }
     end
 
     context 'reporting' do

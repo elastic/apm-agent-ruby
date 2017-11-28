@@ -17,15 +17,15 @@ module ElasticAPM
               timestamp: micros_to_time(transaction.timestamp).utc.iso8601
             }
 
-            if transaction.traces.any?
-              base[:traces] = transaction.traces.map do |trace|
+            if transaction.spans.any?
+              base[:spans] = transaction.spans.map do |span|
                 {
-                  id: trace.id,
-                  parent: trace.parent&.id,
-                  name: trace.name,
-                  type: trace.type,
-                  start: ms(trace.relative_start),
-                  duration: ms(trace.duration)
+                  id: span.id,
+                  parent: span.parent&.id,
+                  name: span.name,
+                  type: span.type,
+                  start: ms(span.relative_start),
+                  duration: ms(span.duration)
                 }
               end
             end

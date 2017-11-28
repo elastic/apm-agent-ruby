@@ -17,7 +17,7 @@ module ElasticAPM
       expect(registration.injector).to be_a described_class
     end
 
-    it 'traces queries' do
+    it 'spans queries' do
       redis = ::Redis.new
       ElasticAPM.start Config.new(enabled_injectors: %w[redis])
 
@@ -25,8 +25,8 @@ module ElasticAPM
         redis.lrange('some:where', 0, -1)
       end.submit 200
 
-      expect(transaction.traces.length).to be 1
-      expect(transaction.traces.last.name).to eq 'lrange'
+      expect(transaction.spans.length).to be 1
+      expect(transaction.spans.last.name).to eq 'lrange'
 
       ElasticAPM.stop
     end

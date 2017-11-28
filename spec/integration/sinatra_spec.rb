@@ -59,26 +59,26 @@ if defined?(Sinatra)
       expect(request.dig('transactions', 0, 'name')).to eq 'GET /'
     end
 
-    it 'traces inline templates', :with_fake_server do
+    it 'spans inline templates', :with_fake_server do
       get '/inline'
       sleep 0.1
 
       request = FakeServer.requests.last
-      trace = request.dig('transactions', 0, 'traces', 0)
-      expect(trace['name']).to eq 'Inline erb'
-      expect(trace['type']).to eq 'template.tilt'
+      span = request.dig('transactions', 0, 'spans', 0)
+      expect(span['name']).to eq 'Inline erb'
+      expect(span['type']).to eq 'template.tilt'
     end
 
-    it 'traces templates', :with_fake_server do
+    it 'spans templates', :with_fake_server do
       response = get '/tmpl'
       sleep 0.1
 
       expect(response.body).to eq '1 2 3 hello you'
 
       request = FakeServer.requests.last
-      trace = request.dig('transactions', 0, 'traces', 0)
-      expect(trace['name']).to eq 'index'
-      expect(trace['type']).to eq 'template.tilt'
+      span = request.dig('transactions', 0, 'spans', 0)
+      expect(span['name']).to eq 'index'
+      expect(span['type']).to eq 'template.tilt'
     end
   end
 end

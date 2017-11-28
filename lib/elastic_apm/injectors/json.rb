@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'elastic_apm/trace_helpers'
+require 'elastic_apm/span_helpers'
 
 module ElasticAPM
   # @api private
@@ -9,10 +9,10 @@ module ElasticAPM
     class JSONInjector
       def install
         ::JSON.class_eval do
-          include TraceHelpers
-          trace_class_method :parse, 'JSON#parse', 'json.parse'
-          trace_class_method :parse!, 'JSON#parse!', 'json.parse'
-          trace_class_method :generate, 'JSON#generate', 'json.generate'
+          include SpanHelpers
+          span_class_method :parse, 'JSON#parse', 'json.parse'
+          span_class_method :parse!, 'JSON#parse!', 'json.parse'
+          span_class_method :generate, 'JSON#generate', 'json.generate'
         end
       end
     end

@@ -5,10 +5,10 @@ require 'spec_helper'
 module ElasticAPM
   RSpec.describe Transaction do
     describe '#initialize', :mock_time do
-      it 'has no traces, timestamp and start time' do
+      it 'has no spans, timestamp and start time' do
         transaction = Transaction.new nil, 'Test'
 
-        expect(transaction.traces.length).to be 0
+        expect(transaction.spans.length).to be 0
         expect(transaction.timestamp).to eq 694_224_000_000_000
       end
     end
@@ -56,36 +56,36 @@ module ElasticAPM
       end
     end
 
-    describe '#running_traces', :mock_time do
-      it 'returns running traces' do
+    describe '#running_spans', :mock_time do
+      it 'returns running spans' do
         transaction = Transaction.new nil, 'Test'
 
-        transaction.trace 'test' do
+        transaction.span 'test' do
           travel 100
         end
 
-        running_trace = transaction.trace 'test2'
+        running_span = transaction.span 'test2'
         travel 100
 
-        expect(transaction.running_traces).to eq [running_trace]
+        expect(transaction.running_spans).to eq [running_span]
       end
     end
 
-    describe '#trace', :mock_time do
+    describe '#span', :mock_time do
       let(:transaction) { Transaction.new nil, 'Test' }
       subject do
         transaction
 
         travel 100
 
-        trace = transaction.trace 'test' do |t|
+        span = transaction.span 'test' do |t|
           travel 100
           t
         end
 
         transaction.done
 
-        trace
+        span
       end
 
       it { should be_done }
@@ -99,12 +99,12 @@ module ElasticAPM
         expect(subject.relative_start).to eq 100_000
       end
 
-      it 'knows its parent traces' do
+      it 'knows its parent spans' do
         expect(subject.parent).to be_nil
       end
 
-      it 'adds trace to traces' do
-        expect(transaction.traces).to eq [subject]
+      it 'adds span to spans' do
+        expect(transaction.spans).to eq [subject]
       end
     end
   end

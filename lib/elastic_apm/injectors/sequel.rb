@@ -35,7 +35,7 @@ module ElasticAPM
               summarizer = ElasticAPM::Injectors::SequelInjector.summarizer
               name = summarizer.summarize sql
 
-              ElasticAPM.trace(name, TYPE, sql: sql, &block)
+              ElasticAPM.span(name, TYPE, sql: sql, &block)
             end
           end
         RUBY

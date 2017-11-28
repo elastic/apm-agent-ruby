@@ -31,7 +31,7 @@ module ElasticAPM
     end
 
     describe 'AS::Notifications API' do
-      it 'adds traces from notifications' do
+      it 'adds spans from notifications' do
         agent = Agent.new Config.new
         subject = Subscriber.new agent
         transaction = agent.transaction 'Test'
@@ -42,11 +42,11 @@ module ElasticAPM
             'id-1',
             controller: 'UsersController', action: 'index'
           )
-        end.to change(transaction.traces, :length). by 1
+        end.to change(transaction.spans, :length). by 1
 
-        trace = transaction.current_trace
-        expect(trace).to be_running
-        expect(trace.name).to eq 'UsersController#index'
+        span = transaction.current_span
+        expect(span).to be_running
+        expect(span.name).to eq 'UsersController#index'
 
         subject.finish(
           'process_action.action_controller',
@@ -54,8 +54,8 @@ module ElasticAPM
           nil
         )
 
-        expect(trace).to_not be_running
-        expect(trace).to be_done
+        expect(span).to_not be_running
+        expect(span).to be_done
       end
 
       it 'ignores unknown notifications' do
@@ -65,7 +65,7 @@ module ElasticAPM
 
         expect do
           subject.start('unknown.notification', nil, {})
-        end.to_not change(transaction.traces, :length)
+        end.to_not change(transaction.spans, :length)
       end
     end
   end

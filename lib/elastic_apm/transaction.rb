@@ -11,9 +11,9 @@ module ElasticAPM
 
       @timestamp = Util.micros
 
-      @traces = []
+      @spans = []
       @notifications = []
-      @trace_id_ticker = -1
+      @span_id_ticker = -1
 
       @notifications = [] # for AS::Notifications
 
@@ -21,7 +21,7 @@ module ElasticAPM
     end
 
     attr_accessor :name, :result, :type
-    attr_reader :duration, :root_trace, :timestamp, :traces, :notifications
+    attr_reader :duration, :root_span, :timestamp, :spans, :notifications
 
     def release
       @instrumenter.current_transaction = nil
@@ -49,34 +49,34 @@ module ElasticAPM
       self
     end
 
-    def running_traces
-      traces.select(&:running?)
+    def running_spans
+      spans.select(&:running?)
     end
 
-    def trace(name, type = nil, extra = nil)
-      trace = Trace.new self, next_trace_id, name, type, current_trace, extra
-      traces << trace
-      trace.start
+    def span(name, type = nil, extra = nil)
+      span = Span.new self, next_span_id, name, type, current_span, extra
+      spans << span
+      span.start
 
-      return trace unless block_given?
+      return span unless block_given?
 
       begin
-        result = yield trace
+        result = yield span
       ensure
-        trace.done
+        span.done
       end
 
       result
     end
 
-    def current_trace
-      traces.reverse.lazy.find(&:running?)
+    def current_span
+      spans.reverse.lazy.find(&:running?)
     end
 
     private
 
-    def next_trace_id
-      @trace_id_ticker += 1
+    def next_span_id
+      @span_id_ticker += 1
     end
   end
 end

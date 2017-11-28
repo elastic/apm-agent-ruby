@@ -12,7 +12,7 @@ module ElasticAPM
           def call(command, &block)
             name = command[0]
 
-            ElasticAPM.trace(name.to_s, 'db.redis') do
+            ElasticAPM.span(name.to_s, 'db.redis') do
               call_without_apm(command, &block)
             end
           end

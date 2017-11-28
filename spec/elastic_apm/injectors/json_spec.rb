@@ -13,41 +13,41 @@ module ElasticAPM
       expect(registration.injector).to be_a described_class
     end
 
-    it 'traces #parse' do
+    it 'spans #parse' do
       ElasticAPM.start Config.new(enabled_injectors: %w[json])
 
       transaction = ElasticAPM.transaction 'T' do
         JSON.parse('[{"simply":"the best"}]')
       end.submit 200
 
-      expect(transaction.traces.length).to be 1
-      expect(transaction.traces.last.name).to eq 'JSON#parse'
+      expect(transaction.spans.length).to be 1
+      expect(transaction.spans.last.name).to eq 'JSON#parse'
 
       ElasticAPM.stop
     end
 
-    it 'traces #parse!' do
+    it 'spans #parse!' do
       ElasticAPM.start Config.new(enabled_injectors: %w[json])
 
       transaction = ElasticAPM.transaction 'T' do
         JSON.parse!('[{"simply":"the best"}]')
       end.submit 200
 
-      expect(transaction.traces.length).to be 1
-      expect(transaction.traces.last.name).to eq 'JSON#parse!'
+      expect(transaction.spans.length).to be 1
+      expect(transaction.spans.last.name).to eq 'JSON#parse!'
 
       ElasticAPM.stop
     end
 
-    it 'traces #generate' do
+    it 'spans #generate' do
       ElasticAPM.start Config.new(enabled_injectors: %w[json])
 
       transaction = ElasticAPM.transaction 'T' do
         JSON.generate([{ simply: 'the_best' }])
       end.submit 200
 
-      expect(transaction.traces.length).to be 1
-      expect(transaction.traces.last.name).to eq 'JSON#generate'
+      expect(transaction.spans.length).to be 1
+      expect(transaction.spans.last.name).to eq 'JSON#generate'
 
       ElasticAPM.stop
     end

@@ -30,7 +30,7 @@ module ElasticAPM
 
     # AS::Notifications API
 
-    Notification = Struct.new(:id, :trace)
+    Notification = Struct.new(:id, :span)
 
     def start(name, id, payload)
       # debug "AS::Notification#start:#{name}:#{id}"
@@ -38,9 +38,9 @@ module ElasticAPM
 
       normalized = @normalizers.normalize(transaction, name, payload)
 
-      trace = normalized == :skip ? nil : transaction.trace(*normalized)
+      span = normalized == :skip ? nil : transaction.span(*normalized)
 
-      transaction.notifications << Notification.new(id, trace)
+      transaction.notifications << Notification.new(id, span)
     end
 
     def finish(_name, id, _payload)
@@ -50,8 +50,8 @@ module ElasticAPM
       while (notification = transaction.notifications.pop)
         next unless notification.id == id
 
-        if (trace = notification.trace)
-          trace.done
+        if (span = notification.span)
+          span.done
         end
         return
       end

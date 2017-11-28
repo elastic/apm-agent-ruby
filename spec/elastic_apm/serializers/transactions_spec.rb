@@ -7,7 +7,7 @@ module ElasticAPM
       before { allow(SecureRandom).to receive(:uuid) { '_RANDOM' } }
 
       describe '#build' do
-        it 'builds a transaction without traces', :mock_time do
+        it 'builds a transaction without spans', :mock_time do
           transaction =
             Transaction.new(nil, 'GET /something', 'request') do
               travel 100
@@ -27,13 +27,13 @@ module ElasticAPM
           )
         end
 
-        it 'builds a transaction with nested traces', :mock_time do
+        it 'builds a transaction with nested spans', :mock_time do
           transaction =
             Transaction.new nil, 'GET /something', 'request' do |t|
               travel 10
-              t.trace 'app/views/users.html.erb', 'template' do
+              t.span 'app/views/users.html.erb', 'template' do
                 travel 10
-                t.trace 'SELECT * FROM users', 'db.query' do
+                t.span 'SELECT * FROM users', 'db.query' do
                   travel 10
                 end
                 travel 10
@@ -50,7 +50,7 @@ module ElasticAPM
                 "result": '200',
                 "duration": 50,
                 "timestamp": Time.utc(1992, 1, 1).iso8601,
-                "traces": [
+                "spans": [
                   {
                     id: 0,
                     parent: nil,
