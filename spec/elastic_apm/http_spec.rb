@@ -10,7 +10,7 @@ module ElasticAPM
 
         body = {
           id: 1,
-          app: {
+          service: {
             name: 'app-1',
             agent: {
               name: 'ruby',
@@ -37,7 +37,7 @@ module ElasticAPM
           headers: {
             'Content-Type' => Http::CONTENT_TYPE,
             'User-Agent' => Http::USER_AGENT,
-            'Content-Length' => '65',
+            'Content-Length' => '69',
             'Authorization' => 'Bearer abc123'
           }
         )

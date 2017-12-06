@@ -50,7 +50,7 @@ module ElasticAPM
 
     def build_app_info(config)
       {
-        app: {
+        service: {
           name: config.app_name,
           agent: {
             name: 'ruby',
