@@ -82,7 +82,7 @@ if defined? Rails
       expect(FakeServer.requests.length).to be 1
 
       request = FakeServer.requests.last
-      expect(request.dig('app', 'name')).to eq 'RailsTestApp'
+      expect(request.dig('service', 'name')).to eq 'RailsTestApp'
       expect(request.dig('transactions', 0, 'name'))
         .to eq 'PagesController#index'
     end
