@@ -1,11 +1,11 @@
 FRAMEWORK:
-  - sinatra-1.4.8
-  - sinatra-2.0.0
-  - rails-5.1.4
-  - rails-5.0.6
-  - rails-4.2.10
-  - rails-4.1.16
-  - rails-4.0.13
+  - sinatra-1.4
+  - sinatra-2.0
+  - rails-5.1
+  - rails-5.0
+  - rails-4.2
+  - rails-4.1
+  - rails-4.0
   # - rails-3.2.22
   # - rails-3.1.12
   # - rails-3.0.20

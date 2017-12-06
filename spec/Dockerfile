@@ -1,7 +1,7 @@
 ARG RUBY_VERSION
 FROM ${RUBY_VERSION}
 
-RUN apt-get update -qq && apt-get install -y build-essential libpq-dev
+RUN apt-get update -qq && apt-get install -y build-essential libpq-dev git
 
 RUN for server in $(shuf -e ha.pool.sks-keyservers.net \
   hkp://p80.pool.sks-keyservers.net:80 \

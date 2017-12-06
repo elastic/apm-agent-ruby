@@ -5,16 +5,16 @@ require 'spec_helper'
 module ElasticAPM
   RSpec.describe Worker do
     class FakeHttp
-      def initialize(_config)
-        @@reqs ||= [] # rubocop:disable Style/ClassVars
+      def initialize(_config); end
+
+      class << self
+        def reqs
+          @reqs ||= []
+        end
       end
 
       def post(path, data)
-        @@reqs.push([path, data])
-      end
-
-      def self.reqs
-        @@reqs
+        self.class.reqs.push([path, data])
       end
     end
 

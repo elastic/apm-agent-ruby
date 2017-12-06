@@ -15,7 +15,12 @@ module ElasticAPM
     end
 
     it 'spans calls' do
-      db = ::Sequel.sqlite # in-memory
+      db =
+        if RUBY_PLATFORM == 'java'
+          ::Sequel.connect('jdbc:sqlite::memory:')
+        else
+          ::Sequel.sqlite # in-memory
+        end
 
       db.create_table :users do
         primary_key :id
@@ -31,8 +36,6 @@ module ElasticAPM
       end.submit 200
 
       ElasticAPM.stop
-
-      pp Util::Inspector.new.transaction transaction
 
       expect(transaction.spans.length).to be 1
 
