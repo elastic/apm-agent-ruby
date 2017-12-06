@@ -8,6 +8,7 @@ module ElasticAPM
     include Log
 
     USER_AGENT = "elastic-apm/ruby #{VERSION}"
+    ACCEPT = 'application/json'
     CONTENT_TYPE = 'application/json'
 
     def initialize(config, adapter: HttpAdapter)
@@ -36,6 +37,7 @@ module ElasticAPM
 
     def prepare_request(path, data)
       @adapter.post url_for(path) do |req|
+        req['Accept'] = ACCEPT
         req['Content-Type'] = CONTENT_TYPE
         req['User-Agent'] = USER_AGENT
         req['Content-Length'] = data.bytesize.to_s
