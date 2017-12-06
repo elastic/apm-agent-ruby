@@ -9,29 +9,33 @@ module ElasticAPM
       @config = config
     end
 
-    def build(exception, rack_env: nil)
-      error = Error.new(self, nil)
+    def build(exception, rack_env: nil, handled: true)
+      error = Error.new
 
-      attach_exception error, exception
+      attach_exception error, exception, handled: handled
       attach_rack_env error, rack_env if rack_env
 
       error
     end
 
-    def attach_exception(error, exception)
-      error.exception = Error::Exception.new(
-        "#{exception.class}: #{exception.message}",
-        exception.class.to_s
+    def attach_exception(error, original_exception, handled: true)
+      exception = Error::Exception.new(
+        "#{original_exception.class}: #{original_exception.message}",
+        original_exception.class.to_s,
+        handled: handled
       )
+      exception.module = format_module original_exception
 
-      error.exception.module = format_module exception
+      add_stacktrace error, exception, original_exception
+      error.exception = exception
+    end
 
-      if (stacktrace = Stacktrace.build(@builder, exception))
-        error.exception.stacktrace = stacktrace
-        error.culprit = stacktrace.culprit
-      end
+    def add_stacktrace(error, exception, original_exception)
+      stacktrace = Stacktrace.build(@builder, original_exception)
+      return unless stacktrace
 
-      error
+      exception.stacktrace = stacktrace
+      error.culprit = stacktrace.culprit
     end
 
     def attach_rack_env(error, rack_env)

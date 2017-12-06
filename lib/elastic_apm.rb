@@ -81,8 +81,9 @@ module ElasticAPM
   #
   # @param exception [Exception] The exception
   # @param rack_env [Rack::Env] An optional Rack env
+  # @param handled [Boolean] Whether the exception was rescued
   # @return [Error] An [Error] instance
-  def self.report(exception, rack_env: nil)
-    agent&.report(exception, rack_env: rack_env)
+  def self.report(exception, rack_env: nil, handled: true)
+    agent&.report(exception, rack_env: rack_env, handled: handled)
   end
 end

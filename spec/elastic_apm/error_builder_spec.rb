@@ -11,6 +11,7 @@ module ElasticAPM
       expect(error.timestamp).to eq 694_224_000_000_000
       expect(error.exception.message).to eq 'ZeroDivisionError: divided by 0'
       expect(error.exception.type).to eq 'ZeroDivisionError'
+      expect(error.exception.handled).to be true
     end
 
     it 'attaches a context from Rack' do
