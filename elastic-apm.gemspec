@@ -11,13 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary       = 'The official Elastic APM agent for Ruby'
   spec.homepage      = 'https://github.com/elastic/apm-agent-ruby'
   spec.license       = 'Apache-2.0'
-
-  if spec.respond_to?(:metadata)
-    spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
-  else
-    raise 'RubyGems 2.0 or newer is required to protect against ' \
-      'public gem pushes.'
-  end
+  spec.required_ruby_version = ">= 2.0.0"
 
   spec.add_dependency('activesupport', '>= 3.0.0')
 
