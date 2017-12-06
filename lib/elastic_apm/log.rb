@@ -26,7 +26,7 @@ module ElasticAPM
     end
 
     def log(lvl, msg, *args)
-      formatted_msg = prepend_prefix(format(msg, *args))
+      formatted_msg = prepend_prefix(format(msg.to_s, *args))
 
       return config.logger.send(lvl, formatted_msg) unless block_given?
 

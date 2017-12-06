@@ -25,6 +25,9 @@ Naming/FileName:
 Style/Alias:
   Enabled: false
 
+Style/IfUnlessModifier:
+  Enabled: false
+
 Style/SafeNavigation:
   Enabled: false
 

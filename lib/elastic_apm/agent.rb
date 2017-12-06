@@ -58,7 +58,7 @@ module ElasticAPM
     attr_reader :config, :queue, :instrumenter
 
     def start
-      debug 'Starting agent'
+      debug 'Starting agent reporting to %s', config.server
 
       @instrumenter.start
 

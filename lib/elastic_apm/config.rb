@@ -18,6 +18,7 @@ module ElasticAPM
 
       transaction_send_interval: 60,
       debug_transactions: false,
+      debug_http: false,
 
       enabled_injectors: %w[net_http],
 
@@ -49,6 +50,7 @@ module ElasticAPM
 
     attr_accessor :transaction_send_interval
     attr_accessor :debug_transactions
+    attr_accessor :debug_http
 
     attr_accessor :enabled_injectors
 

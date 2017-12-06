@@ -19,9 +19,10 @@ module ElasticAPM
     attr_reader :config
 
     def post(path, payload = {})
-      data = payload.merge(@app_info).to_json
+      data = payload.merge(@app_info)
+      json = data.to_json
 
-      request = prepare_request path, data
+      request = prepare_request path, json
       response = @adapter.perform request
 
       status = response.code.to_i
@@ -91,6 +92,10 @@ module ElasticAPM
       http.use_ssl = @config.use_ssl?
       http.read_timeout = @config.timeout
       http.open_timeout = @config.open_timeout
+
+      if @config.debug_http
+        http.set_debug_output(@config.logger)
+      end
 
       @http = http
     end
