@@ -22,8 +22,9 @@ module ElasticAPM
         expect(WebMock).to have_requested(:post, %r{/v1/transactions}).with(
           body: body,
           headers: {
-            'Content-Type' => Http::CONTENT_TYPE,
-            'User-Agent' => Http::USER_AGENT,
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+            'User-Agent' => "elastic-apm/ruby #{VERSION}",
             'Content-Length' => body.bytesize.to_s
           }
         )
@@ -34,12 +35,7 @@ module ElasticAPM
         http.post('/v1/transactions')
 
         expect(WebMock).to have_requested(:post, %r{/v1/transactions}).with(
-          headers: {
-            'Content-Type' => Http::CONTENT_TYPE,
-            'User-Agent' => Http::USER_AGENT,
-            'Content-Length' => '69',
-            'Authorization' => 'Bearer abc123'
-          }
+          headers: { 'Authorization' => 'Bearer abc123' }
         )
       end
     end
