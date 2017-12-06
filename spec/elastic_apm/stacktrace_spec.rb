@@ -12,7 +12,7 @@ module ElasticAPM
         # so meta
         last_frame = stacktrace.frames.last
         expect(last_frame.filename).to eq 'spec_helper.rb'
-        expect(last_frame.lineno).to be 40
+        expect(last_frame.lineno).to be_a Integer
         expect(last_frame.abs_path).to_not be_nil
         expect(last_frame.function).to eq '/'
         expect(last_frame.vars).to be_nil
