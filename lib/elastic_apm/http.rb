@@ -54,6 +54,7 @@ module ElasticAPM
       {
         service: {
           name: config.app_name,
+          environment: config.environment,
           agent: {
             name: 'ruby',
             version: VERSION
