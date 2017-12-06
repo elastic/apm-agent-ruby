@@ -16,7 +16,7 @@ module ElasticAPM
       rescue InternalError
         raise # Don't report ElasticAPM errors
       rescue ::Exception => e
-        ElasticAPM.report(e, rack_env: env)
+        ElasticAPM.report(e, rack_env: env, handled: false)
         transaction&.submit(500)
         raise
       ensure

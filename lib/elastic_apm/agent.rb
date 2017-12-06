@@ -111,8 +111,12 @@ module ElasticAPM
 
     # errors
 
-    def report(exception, rack_env: nil)
-      error = @error_builder.build(exception, rack_env: rack_env)
+    def report(exception, rack_env: nil, handled: true)
+      error = @error_builder.build(
+        exception,
+        rack_env: rack_env,
+        handled: handled
+      )
       enqueue_errors error
       error
     end

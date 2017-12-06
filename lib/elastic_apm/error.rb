@@ -7,8 +7,7 @@ require 'elastic_apm/error/context'
 module ElasticAPM
   # @api private
   class Error
-    def initialize(builder, culprit)
-      @builder = builder
+    def initialize(culprit: nil)
       @culprit = culprit
 
       @timestamp = Util.micros

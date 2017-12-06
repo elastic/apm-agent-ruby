@@ -22,7 +22,7 @@ module ElasticAPM
             code: nil,
             attributes: nil,
             stacktrace: error.exception.stacktrace.to_h, # so lazy
-            uncaught: nil
+            unhandled: false
           )
         end
       end

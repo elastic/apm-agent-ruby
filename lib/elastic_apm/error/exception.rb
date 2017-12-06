@@ -4,19 +4,20 @@ module ElasticAPM
   class Error
     # @api private
     class Exception
-      def initialize(message, type = nil)
+      def initialize(message, type = nil, handled: false)
         @message = message
         @type = type
+        @handled = handled
       end
 
       attr_accessor(
-        :message,
-        :type,
-        :module,
-        :code,
         :attributes,
+        :code,
+        :handled,
+        :message,
+        :module,
         :stacktrace,
-        :uncaught
+        :type
       )
     end
   end
