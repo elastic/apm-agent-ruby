@@ -6,7 +6,8 @@ if defined? Rails
   require 'action_controller/railtie'
   require 'elastic_apm/railtie'
 
-  RSpec.describe 'Rails integration' do
+  RSpec.describe 'Rails integration',
+                 :allow_leaking_subscriptions, :with_fake_server do
     include Rack::Test::Methods
 
     def boot
@@ -67,16 +68,12 @@ if defined? Rails
 
     before { allow(SecureRandom).to receive(:uuid) { '_RANDOM' } }
 
-    it(
-      'spans action and posts it',
-      :with_fake_server,
-      :allow_leaking_subscriptions
-    ) do
+    it 'spans action and posts it' do
       # test config from Rails.app.config
       expect(ElasticAPM.agent.config.debug_transactions).to be true
 
       response = get '/'
-      sleep 0.1
+      wait_for_requests_to_finish 1
 
       expect(response.body).to eq 'Yes!'
       expect(FakeServer.requests.length).to be 1
@@ -87,13 +84,10 @@ if defined? Rails
         .to eq 'PagesController#index'
     end
 
-    it(
-      'adds an exception handler and handles exceptions AND posts transaction',
-      :with_fake_server,
-      :allow_leaking_subscriptions
-    ) do
+    it 'adds an exception handler and handles exceptions '\
+      'AND posts transaction' do
       response = get '/error'
-      sleep 0.1
+      wait_for_requests_to_finish 2
 
       expect(response.status).to be 500
 

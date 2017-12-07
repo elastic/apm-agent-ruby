@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
-Bundler.require :default
+Bundler.require :default, 'test'
 
 require 'support/delegate_matcher'
 require 'support/mock_time'
@@ -9,6 +9,9 @@ require 'support/with_fake_server'
 
 require 'elastic-apm'
 
+require 'webmock/rspec'
+
+Thread.abort_on_exception = true
 WebMock.enable!
 
 RSpec.configure do |config|

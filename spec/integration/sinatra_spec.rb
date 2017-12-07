@@ -50,7 +50,7 @@ if defined?(Sinatra)
 
     it 'wraps requests in a transaction named after route', :with_fake_server do
       response = get '/'
-      sleep 0.1
+      wait_for_requests_to_finish 1
 
       expect(response.body).to eq 'Yes!'
       expect(FakeServer.requests.length).to be 1
@@ -61,7 +61,7 @@ if defined?(Sinatra)
 
     it 'spans inline templates', :with_fake_server do
       get '/inline'
-      sleep 0.1
+      wait_for_requests_to_finish 1
 
       request = FakeServer.requests.last
       span = request.dig('transactions', 0, 'spans', 0)
@@ -71,7 +71,7 @@ if defined?(Sinatra)
 
     it 'spans templates', :with_fake_server do
       response = get '/tmpl'
-      sleep 0.1
+      wait_for_requests_to_finish 1
 
       expect(response.body).to eq '1 2 3 hello you'
 

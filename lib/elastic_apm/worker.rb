@@ -40,7 +40,7 @@ module ElasticAPM
     def process(item)
       @adapter.post(item.path, item.payload)
     rescue ::Exception => e
-      fatal "Failed posting: #{e.inspect}"
+      fatal 'Failed posting: %s', e.inspect
       debug e.backtrace.join("\n")
       nil
     end
