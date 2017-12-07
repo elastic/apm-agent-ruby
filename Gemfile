@@ -15,7 +15,7 @@ gem 'rspec'
 gem 'rubocop'
 gem 'sequel'
 gem 'timecop'
-gem 'webmock', require: 'webmock/rspec'
+gem 'webmock'
 gem 'yard'
 
 if RUBY_PLATFORM == 'java'

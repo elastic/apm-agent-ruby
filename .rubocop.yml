@@ -13,7 +13,7 @@ Lint/RescueException:
 
 Metrics/BlockLength:
   Exclude:
-    - 'spec/**/*_spec.rb'
+    - 'spec/**/*.rb'
 
 Naming/PredicateName:
   Enabled: false
