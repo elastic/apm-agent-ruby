@@ -12,6 +12,8 @@ module ElasticAPM
 
       app_name: 'ruby',
       environment: nil,
+      framework_name: nil,
+      framework_version: nil,
 
       log_path: '-',
       log_level: Logger::INFO,
@@ -46,6 +48,8 @@ module ElasticAPM
 
     attr_accessor :app_name
     attr_writer :environment
+    attr_accessor :framework_name
+    attr_accessor :framework_version
 
     attr_accessor :log_path
     attr_accessor :log_level
