@@ -4,6 +4,7 @@ require 'bundler/setup'
 Bundler.require :default, 'test'
 
 require 'support/delegate_matcher'
+require 'support/match_json_schema_matcher'
 require 'support/mock_time'
 require 'support/with_fake_server'
 
@@ -15,6 +16,10 @@ Thread.abort_on_exception = true
 WebMock.enable!
 
 RSpec.configure do |config|
+  unless ENV['INCLUDE_SCHEMA_SPECS']
+    config.filter_run_excluding(type: 'json_schema')
+  end
+
   config.example_status_persistence_file_path = '.rspec_status'
   config.disable_monkey_patching!
   config.backtrace_exclusion_patterns = [%r{/(gems|bundler)/}]

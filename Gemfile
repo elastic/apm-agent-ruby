@@ -8,6 +8,7 @@ gemspec
 
 gem 'fakeredis', require: nil,
   github: 'guilleiguaran/fakeredis' # needs master right now
+gem 'json-schema'
 gem 'pry'
 gem 'rack-test'
 gem 'redis', require: nil

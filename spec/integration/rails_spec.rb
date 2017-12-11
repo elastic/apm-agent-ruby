@@ -27,7 +27,7 @@ if defined? Rails
         config.secret_key_base = '__secret_key_base'
 
         config.logger = Logger.new(nil)
-        config.logger = Logger.new(STDOUT)
+        # config.logger = Logger.new(STDOUT)
         config.logger.level = Logger::DEBUG
 
         config.eager_load = false
@@ -66,36 +66,54 @@ if defined? Rails
       Rails.application = nil
     end
 
-    before { allow(SecureRandom).to receive(:uuid) { '_RANDOM' } }
+    describe 'transactions' do
+      it 'spans action and posts it' do
+        # test config from Rails.app.config
+        expect(ElasticAPM.agent.config.debug_transactions).to be true
 
-    it 'spans action and posts it' do
-      # test config from Rails.app.config
-      expect(ElasticAPM.agent.config.debug_transactions).to be true
+        response = get '/'
+        wait_for_requests_to_finish 1
 
-      response = get '/'
-      wait_for_requests_to_finish 1
+        expect(response.body).to eq 'Yes!'
+        expect(FakeServer.requests.length).to be 1
 
-      expect(response.body).to eq 'Yes!'
-      expect(FakeServer.requests.length).to be 1
+        payload, = FakeServer.requests
+        expect(payload.dig('service', 'name')).to eq 'RailsTestApp'
+        expect(payload.dig('transactions', 0, 'name'))
+          .to eq 'PagesController#index'
+      end
 
-      request = FakeServer.requests.last
-      expect(request.dig('service', 'name')).to eq 'RailsTestApp'
-      expect(request.dig('transactions', 0, 'name'))
-        .to eq 'PagesController#index'
+      it 'validates json schema', type: :json_schema do
+        get '/'
+        wait_for_requests_to_finish 1
+
+        payload, = FakeServer.requests
+        expect(payload).to match_json_schema(:transactions)
+      end
     end
 
-    it 'adds an exception handler and handles exceptions '\
-      'AND posts transaction' do
-      response = get '/error'
-      wait_for_requests_to_finish 2
+    describe 'errors' do
+      it 'adds an exception handler and handles exceptions '\
+        'AND posts transaction' do
+        response = get '/error'
+        wait_for_requests_to_finish 2
 
-      expect(response.status).to be 500
+        expect(response.status).to be 500
 
-      expect(FakeServer.requests.length).to be 2
+        expect(FakeServer.requests.length).to be 2
 
-      request = FakeServer.requests.first
-      expect(request.dig('errors', 0, 'exception', 'type'))
-        .to eq 'PagesController::FancyError'
+        payload, = FakeServer.requests
+        expect(payload.dig('errors', 0, 'exception', 'type'))
+          .to eq 'PagesController::FancyError'
+      end
+
+      it 'validates json schema', type: :json_schema do
+        get '/error'
+        wait_for_requests_to_finish 2
+
+        payload, = FakeServer.requests
+        expect(payload).to match_json_schema(:errors)
+      end
     end
 
     after :all do

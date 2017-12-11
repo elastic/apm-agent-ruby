@@ -17,10 +17,6 @@ class FakeServer
 
     def call(env)
       request = Rack::Request.new(env)
-      puts '#' * 90
-      puts request.inspect
-      puts '#' * 90
-
       requests << JSON.parse(request.body.read)
 
       [200, { 'Content-Type' => 'application/json' }, ['ok']]
