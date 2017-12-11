@@ -37,3 +37,6 @@ run App
 
 at_exit { ElasticAPM.stop }
 ```
+
+[Elastic]: https://elastic.co
+[APM]: https://www.elastic.co/guide/en/apm/server/index.html
