@@ -54,11 +54,10 @@ module ElasticAPM
       end
     end
 
-    describe '#to_h' do
+    describe '#to_a' do
       it 'is a hash' do
-        hsh = Stacktrace.build(nil, actual_exception).to_h
-        expect(hsh).to be_a Hash
-        expect(hsh.keys).to eq [:frames]
+        array = Stacktrace.build(nil, actual_exception).to_a
+        expect(array).to be_a Array
       end
     end
   end

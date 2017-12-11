@@ -17,6 +17,7 @@ docker build --pull --build-arg RUBY_VERSION=${1/-/:} -t spec .
 docker run \
   -e LOCAL_USER_ID=$UID \
   -e FRAMEWORK=$2 \
+  -e INCLUDE_SCHEMA_SPECS=1 \
   -v "$local_vendor_path:$container_vendor_path" \
   -v "$(dirname $(pwd))":/app \
   --rm spec \

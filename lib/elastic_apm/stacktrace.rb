@@ -7,10 +7,9 @@ module ElasticAPM
   class Stacktrace
     def initialize(exception)
       @exception = exception
-      @culprit = nil
     end
 
-    attr_reader :frames, :culprit
+    attr_reader :frames
 
     def self.build(builder, exception)
       return nil unless exception.backtrace
@@ -24,12 +23,10 @@ module ElasticAPM
       @frames = @exception.backtrace.reverse.map do |line|
         build_frame(builder, line)
       end
-
-      @culprit = @frames.last.function
     end
 
-    def to_h
-      { frames: frames.map(&:to_h) }
+    def to_a
+      frames.map(&:to_h)
     end
 
     private

@@ -27,7 +27,7 @@ module ElasticAPM
                 module: '',
                 code: nil,
                 attributes: nil,
-                stacktrace: error.exception.stacktrace.to_h, # so lazy
+                stacktrace: error.exception.stacktrace.to_a, # so lazy
                 unhandled: false
               }
             )

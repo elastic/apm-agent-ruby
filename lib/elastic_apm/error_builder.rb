@@ -35,7 +35,7 @@ module ElasticAPM
       return unless stacktrace
 
       exception.stacktrace = stacktrace
-      error.culprit = stacktrace.culprit
+      error.culprit = stacktrace.frames.last.function
     end
 
     def attach_rack_env(error, rack_env)
