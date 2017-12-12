@@ -43,7 +43,10 @@ module ElasticAPM
     end
 
     def initialize(config)
+      config = Config.new(config) if config.is_a?(Hash)
+
       @config = config
+
       @queue = Queue.new
 
       @instrumenter = Instrumenter.new(config, self)

@@ -10,8 +10,10 @@ module ElasticAPM
       server: 'http://localhost:8200',
       secret_token: nil,
 
-      app_name: 'ruby',
+      app_name: nil,
       environment: nil,
+      framework_name: nil,
+      framework_version: nil,
 
       log_path: '-',
       log_level: Logger::INFO,
@@ -46,6 +48,8 @@ module ElasticAPM
 
     attr_accessor :app_name
     attr_writer :environment
+    attr_accessor :framework_name
+    attr_accessor :framework_version
 
     attr_accessor :log_path
     attr_accessor :log_level
@@ -61,6 +65,35 @@ module ElasticAPM
     attr_accessor :view_paths
 
     attr_writer :logger
+
+    # rubocop:disable Metrics/MethodLength
+    def app=(app)
+      case app_type?(app)
+      when :sinatra
+        self.app_name = app_name || app.to_s
+        self.framework_name = 'Sinatra'
+        self.framework_version = Sinatra::VERSION
+      when :rails
+        self.app_name = app_name || app.class.parent_name
+        self.framework_name = 'Ruby on Rails'
+        self.framework_version = Rails::VERSION::STRING
+        self.logger = Rails.logger
+        self.view_paths = app.config.paths['app/views'].existent
+      end
+    end
+    # rubocop:enable Metrics/MethodLength
+
+    def app_type?(app)
+      if defined?(::Rails) && app.is_a?(Rails::Application)
+        return :rails
+      end
+
+      if app.is_a?(Class) && app.superclass.to_s == 'Sinatra::Base'
+        return :sinatra
+      end
+
+      nil
+    end
 
     def environment
       @environment ||= ENV['RAILS_ENV'] || ENV['RACK_ENV']

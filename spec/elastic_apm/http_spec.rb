@@ -1,23 +1,18 @@
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   RSpec.describe Http, :with_fake_server do
     describe '#post' do
       subject { Http.new Config.new(app_name: 'app-1', environment: 'test') }
 
       it 'makes a post request' do
-        subject.post('/v1/transactions', id: 1)
+        subject.post('/v1/transactions', things: [{ test: true }])
 
         body = {
-          id: 1,
-          service: {
-            name: 'app-1',
-            environment: 'test',
-            agent: {
-              name: 'ruby',
-              version: VERSION
-            }
-          }
+          service: ServiceInfo.build(subject.config),
+          things: [{ test: true }]
         }.to_json
 
         expect(WebMock).to have_requested(:post, %r{/v1/transactions}).with(

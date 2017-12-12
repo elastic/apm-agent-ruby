@@ -2,6 +2,8 @@
 
 require 'net/http'
 
+require 'elastic_apm/service_info'
+
 module ElasticAPM
   # @api private
   class Http
@@ -14,13 +16,13 @@ module ElasticAPM
     def initialize(config, adapter: HttpAdapter)
       @config = config
       @adapter = adapter.new(config)
-      @app_info = build_app_info(config)
+      @service_info = { service: ServiceInfo.build(config) }
     end
 
     attr_reader :config
 
     def post(path, payload = {})
-      data = payload.merge(@app_info)
+      data = @service_info.merge(payload)
       json = data.to_json
 
       request = prepare_request path, json
@@ -48,19 +50,6 @@ module ElasticAPM
 
         req.body = data
       end
-    end
-
-    def build_app_info(config)
-      {
-        service: {
-          name: config.app_name,
-          environment: config.environment,
-          agent: {
-            name: 'ruby',
-            version: VERSION
-          }
-        }
-      }
     end
 
     def url_for(path)
