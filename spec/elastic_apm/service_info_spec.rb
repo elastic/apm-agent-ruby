@@ -9,7 +9,7 @@ module ElasticAPM
 
       it 'builds' do
         should eq(
-          name: 'ruby',
+          name: nil,
           environment: 'test',
           agent: {
             name: 'ruby',

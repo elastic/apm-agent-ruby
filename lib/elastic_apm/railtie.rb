@@ -8,11 +8,7 @@ module ElasticAPM
 
     initializer 'elastic_apm.initialize' do |app|
       config = Config.new app.config.elastic_apm do |c|
-        c.app_name = Rails.application.class.parent_name || c.app_name
-        c.framework_name = 'Ruby on Rails'
-        c.framework_version = Rails::VERSION::STRING
-        c.logger = Rails.logger
-        c.view_paths = app.config.paths['app/views'].existent
+        c.app = app
       end
 
       file_config = load_config(app)

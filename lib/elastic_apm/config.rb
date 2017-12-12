@@ -10,7 +10,7 @@ module ElasticAPM
       server: 'http://localhost:8200',
       secret_token: nil,
 
-      app_name: 'ruby',
+      app_name: nil,
       environment: nil,
       framework_name: nil,
       framework_version: nil,
@@ -66,13 +66,33 @@ module ElasticAPM
 
     attr_writer :logger
 
-    def app=(klass)
-      self.app_name = klass.to_s
+    # rubocop:disable Metrics/MethodLength
+    def app=(app)
+      case app_type?(app)
+      when :sinatra
+        self.app_name = app_name || app.to_s
+        self.framework_name = 'Sinatra'
+        self.framework_version = Sinatra::VERSION
+      when :rails
+        self.app_name = app_name || app.class.parent_name
+        self.framework_name = 'Ruby on Rails'
+        self.framework_version = Rails::VERSION::STRING
+        self.logger = Rails.logger
+        self.view_paths = app.config.paths['app/views'].existent
+      end
+    end
+    # rubocop:enable Metrics/MethodLength
 
-      return unless klass.superclass.to_s == 'Sinatra::Base'
+    def app_type?(app)
+      if defined?(::Rails) && app.is_a?(Rails::Application)
+        return :rails
+      end
 
-      self.framework_name = 'Sinatra'
-      self.framework_version = Sinatra::VERSION
+      if app.is_a?(Class) && app.superclass.to_s == 'Sinatra::Base'
+        return :sinatra
+      end
+
+      nil
     end
 
     def environment
