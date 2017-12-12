@@ -20,7 +20,7 @@ module ElasticAPM
 
       timeout: 10,
       open_timeout: 10,
-      transaction_send_interval: 60,
+      transaction_send_interval: 10,
       debug_transactions: false,
       debug_http: false,
 
