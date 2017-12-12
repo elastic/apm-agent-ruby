@@ -24,7 +24,7 @@ module ElasticAPM
 
       context 'with an empty queue' do
         it 'does not make any requests' do
-          Thread.new { subject.run_forever }.join 0.01
+          Thread.new { subject.run_forever }.join 0.1
           expect(FakeHttp.reqs).to be_empty
         end
       end
@@ -35,7 +35,7 @@ module ElasticAPM
 
           queue.push Worker::StopMessage.new
 
-          thread.join 0.01
+          thread.join 0.1
 
           expect(thread).to_not be_alive
           expect(queue).to be_empty
