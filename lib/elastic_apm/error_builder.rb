@@ -55,7 +55,7 @@ module ElasticAPM
         remote_address: req.ip,
         encrypted: req.scheme == 'https'
       }
-      request.http_version = rack_env['HTTP_VERSION']&.gsub(%r{HTTP/}, nil)
+      request.http_version = rack_env['HTTP_VERSION']&.gsub(%r{HTTP/}, '')
       request.method = req.request_method
       request.url = {
         protocol: req.scheme,
