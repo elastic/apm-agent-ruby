@@ -30,7 +30,7 @@ module ElasticAPM
           name: RUBY_ENGINE,
           version: RUBY_VERSION
         },
-        version: `git rev-parse --verify HEAD`.chomp
+        version: git_sha
       }
 
       if config.framework_name
@@ -46,6 +46,15 @@ module ElasticAPM
 
     def self.build(config)
       new(config).build
+    end
+
+    private
+
+    def git_sha
+      sha = `git rev-parse --verify HEAD 2>&1`.chomp
+      return sha if $?.success? # rubocop:disable Style/SpecialGlobalVars
+
+      nil
     end
   end
 end

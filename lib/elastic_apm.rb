@@ -23,7 +23,7 @@ module ElasticAPM
   #
   # @param config [Config] An instance of Config
   # @return [Agent] The resulting [Agent]
-  def self.start(config = Config.new)
+  def self.start(config = {})
     Agent.start config
   end
 

@@ -66,6 +66,15 @@ module ElasticAPM
 
     attr_writer :logger
 
+    def app=(klass)
+      self.app_name = klass.to_s
+
+      return unless klass.superclass.to_s == 'Sinatra::Base'
+
+      self.framework_name = 'Sinatra'
+      self.framework_version = Sinatra::VERSION
+    end
+
     def environment
       @environment ||= ENV['RAILS_ENV'] || ENV['RACK_ENV']
     end

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'net/http'
+
 require 'elastic_apm/service_info'
 
 module ElasticAPM

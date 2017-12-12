@@ -3,8 +3,10 @@
 require 'spec_helper'
 
 if defined?(Sinatra)
-  RSpec.describe 'Sinatra integration' do
+  RSpec.describe 'Sinatra integration', :with_fake_server do
     include Rack::Test::Methods
+
+    class FancyError < StandardError; end
 
     class SinatraTestApp < ::Sinatra::Base
       disable :show_exceptions
@@ -26,6 +28,10 @@ if defined?(Sinatra)
         @name = 'you'
         erb :index
       end
+
+      get '/error' do
+        raise FancyError, 'Halp!'
+      end
     end
 
     def app
@@ -33,52 +39,79 @@ if defined?(Sinatra)
     end
 
     before do
-      config = ElasticAPM::Config.new(
-        log_level: Logger::DEBUG,
-        log_path: nil, # disable logging
+      ElasticAPM.start(
+        app: SinatraTestApp,
         debug_transactions: true,
         transaction_send_interval: nil,
         enabled_injectors: %w[sinatra]
       )
-
-      ElasticAPM.start config
     end
 
     after do
       ElasticAPM.stop
     end
 
-    it 'wraps requests in a transaction named after route', :with_fake_server do
+    it 'knows Sinatra' do
       response = get '/'
       wait_for_requests_to_finish 1
 
       expect(response.body).to eq 'Yes!'
-      expect(FakeServer.requests.length).to be 1
 
-      request = FakeServer.requests.last
-      expect(request.dig('transactions', 0, 'name')).to eq 'GET /'
+      service = FakeServer.requests.first['service']
+      expect(service.dig('name')).to eq 'SinatraTestApp'
+      expect(service.dig('framework', 'name')).to eq 'Sinatra'
+      expect(service.dig('framework', 'version'))
+        .to match(/\d+\.\d+\.\d+(\.\d+)?/)
     end
 
-    it 'spans inline templates', :with_fake_server do
-      get '/inline'
-      wait_for_requests_to_finish 1
+    describe 'transactions' do
+      it 'wraps requests in a transaction named after route' do
+        get '/'
+        wait_for_requests_to_finish 1
 
-      request = FakeServer.requests.last
-      span = request.dig('transactions', 0, 'spans', 0)
-      expect(span['name']).to eq 'Inline erb'
-      expect(span['type']).to eq 'template.tilt'
+        expect(FakeServer.requests.length).to be 1
+        request = FakeServer.requests.last
+        expect(request.dig('transactions', 0, 'name')).to eq 'GET /'
+      end
+
+      it 'spans inline templates' do
+        get '/inline'
+        wait_for_requests_to_finish 1
+
+        request = FakeServer.requests.last
+        span = request.dig('transactions', 0, 'spans', 0)
+        expect(span['name']).to eq 'Inline erb'
+        expect(span['type']).to eq 'template.tilt'
+      end
+
+      it 'spans templates' do
+        response = get '/tmpl'
+        wait_for_requests_to_finish 1
+
+        expect(response.body).to eq '1 2 3 hello you'
+
+        request = FakeServer.requests.last
+        span = request.dig('transactions', 0, 'spans', 0)
+        expect(span['name']).to eq 'index'
+        expect(span['type']).to eq 'template.tilt'
+      end
     end
 
-    it 'spans templates', :with_fake_server do
-      response = get '/tmpl'
-      wait_for_requests_to_finish 1
+    describe 'errors' do
+      it 'adds an exception handler and handles exceptions '\
+        'AND posts transaction' do
+        begin
+          get '/error'
+        rescue FancyError # rubocop:disable Lint/HandleExceptions
+        end
 
-      expect(response.body).to eq '1 2 3 hello you'
+        wait_for_requests_to_finish 2
 
-      request = FakeServer.requests.last
-      span = request.dig('transactions', 0, 'spans', 0)
-      expect(span['name']).to eq 'index'
-      expect(span['type']).to eq 'template.tilt'
+        expect(FakeServer.requests.length).to be 2
+
+        exception = FakeServer.requests.first.dig('errors', 0, 'exception')
+        expect(exception['type']).to eq 'FancyError'
+      end
     end
   end
 end
