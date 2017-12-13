@@ -65,22 +65,22 @@ module ElasticAPM
 
     attr_writer :logger
 
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def app=(app)
       case app_type?(app)
       when :sinatra
-        self.app_name = app_name || app.to_s
+        self.app_name = format_name(app_name || app.to_s)
         self.framework_name = 'Sinatra'
         self.framework_version = Sinatra::VERSION
       when :rails
-        self.app_name = app_name || app.class.parent_name
+        self.app_name = format_name(app_name || app.class.parent_name)
         self.framework_name = 'Ruby on Rails'
         self.framework_version = Rails::VERSION::STRING
         self.logger = Rails.logger
         self.view_paths = app.config.paths['app/views'].existent
       end
     end
-    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def app_type?(app)
       if defined?(::Rails) && app.is_a?(Rails::Application)
@@ -115,6 +115,10 @@ module ElasticAPM
       logger = Logger.new(path == '-' ? STDOUT : path)
       logger.level = level
       logger
+    end
+
+    def format_name(str)
+      str.gsub('::', '_')
     end
   end
 end
