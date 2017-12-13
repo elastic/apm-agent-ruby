@@ -7,28 +7,19 @@ module ElasticAPM
     describe '#build' do
       subject { described_class.new(Config.new).build }
 
-      it 'builds' do
-        should eq(
-          name: nil,
-          environment: 'test',
-          agent: {
-            name: 'ruby',
-            version: VERSION
-          },
-          argv: ARGV,
-          framework: nil,
-          language: {
-            name: 'ruby',
-            version: RUBY_VERSION
-          },
-          pid: $PID,
-          process_title: $PROGRAM_NAME,
-          runtime: {
-            name: RUBY_ENGINE,
-            version: RUBY_VERSION
-          },
-          version: `git rev-parse --verify HEAD`.chomp
-        )
+      it { should be_a Hash }
+
+      it 'knows the runtime (mri)', unless: RSpec::Support::Ruby.jruby? do
+        expect(subject[:runtime]).to eq(name: 'ruby', version: RUBY_VERSION)
+      end
+
+      it 'knows the runtime (JRuby)', if: RSpec::Support::Ruby.jruby? do
+        expect(subject[:runtime])
+          .to eq(name: 'jruby', version: ENV['JRUBY_VERSION'])
+      end
+
+      it 'has a version from git' do
+        expect(subject[:version]).to eq `git rev-parse --verify HEAD`.chomp
       end
     end
   end

@@ -26,10 +26,7 @@ module ElasticAPM
         },
         pid: $PID,
         process_title: $PROGRAM_NAME,
-        runtime: {
-          name: RUBY_ENGINE,
-          version: RUBY_VERSION
-        },
+        runtime: runtime,
         version: git_sha
       }
 
@@ -55,6 +52,15 @@ module ElasticAPM
       return sha if $?.success? # rubocop:disable Style/SpecialGlobalVars
 
       nil
+    end
+
+    def runtime
+      case RUBY_ENGINE
+      when 'ruby'
+        { name: RUBY_ENGINE, version: RUBY_VERSION }
+      when 'jruby'
+        { name: 'jruby', version: ENV['JRUBY_VERSION'] }
+      end
     end
   end
 end
