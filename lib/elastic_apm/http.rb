@@ -3,6 +3,7 @@
 require 'net/http'
 
 require 'elastic_apm/service_info'
+require 'elastic_apm/system_info'
 
 module ElasticAPM
   # @api private
@@ -16,16 +17,17 @@ module ElasticAPM
     def initialize(config, adapter: HttpAdapter)
       @config = config
       @adapter = adapter.new(config)
-      @service_info = { service: ServiceInfo.build(config) }
+      @base_payload = {
+        service: ServiceInfo.build(config),
+        system: SystemInfo.build(config)
+      }
     end
 
     attr_reader :config
 
     def post(path, payload = {})
-      data = @service_info.merge(payload)
-      json = data.to_json
-
-      request = prepare_request path, json
+      payload.merge! @base_payload
+      request = prepare_request path, payload.to_json
       response = @adapter.perform request
 
       status = response.code.to_i
@@ -33,6 +35,8 @@ module ElasticAPM
 
       error "POST returned an unsuccessful status code (#{response.code})"
       debug response.body
+
+      response
     end
 
     private
