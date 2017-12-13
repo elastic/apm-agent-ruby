@@ -49,7 +49,7 @@ module ElasticAPM
 
       context 'with a block' do
         it 'yields transaction and returns it' do
-          block_ = ->(*args) {}
+          block_ = ->(*args){}
           allow(block_).to receive(:call)
 
           result = subject.transaction('Test') { |t| block_.call(t) }

@@ -23,7 +23,7 @@ module ElasticAPM
             'log_yield'
           end
 
-        ::Sequel::Database.class_eval <<-RUBY
+        ::Sequel::Database.class_eval <<-RUBY, __FILE__, __LINE__ + 1
           alias #{log_method}_without_apm #{log_method}
 
           def #{log_method}(sql, *args, &block)

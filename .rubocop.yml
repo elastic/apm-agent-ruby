@@ -8,6 +8,9 @@ Layout/AlignHash:
   Exclude:
     - 'Gemfile'
 
+Layout/EmptyLinesAroundArguments:
+  Enabled: false
+
 Lint/RescueException:
   Enabled: false
 
@@ -26,6 +29,9 @@ Style/Alias:
   Enabled: false
 
 Style/IfUnlessModifier:
+  Enabled: false
+
+Style/FormatStringToken:
   Enabled: false
 
 Style/SafeNavigation:

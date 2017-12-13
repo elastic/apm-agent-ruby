@@ -4,7 +4,6 @@ require 'logger'
 
 module ElasticAPM
   # @api private
-  # TODO
   class Config
     DEFAULTS = {
       server: 'http://localhost:8200',

@@ -48,6 +48,6 @@ end
 
 def actual_exception
   1 / 0
-rescue => e # rubocop:disable Lint/RescueWithoutErrorClass
+rescue => e # rubocop:disable Style/RescueStandardError
   e
 end
