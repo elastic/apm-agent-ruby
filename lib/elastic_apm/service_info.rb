@@ -59,7 +59,7 @@ module ElasticAPM
       when 'ruby'
         { name: RUBY_ENGINE, version: RUBY_VERSION }
       when 'jruby'
-        { name: 'jruby', version: ENV['JRUBY_VERSION'] }
+        { name: RUBY_ENGINE, version: ENV['JRUBY_VERSION'] }
       end
     end
   end
