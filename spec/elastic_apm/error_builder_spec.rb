@@ -43,15 +43,15 @@ module ElasticAPM
       end
     end
 
-    xcontext 'with a log' do
-      it 'builds an error from a message' do
-        error = subject.build_log 'Things went 💥', caller: caller
+    context 'with a log' do
+      it 'builds an error from a message', :mock_time do
+        error = subject.build_log 'Things went BOOM', backtrace: caller
 
-        pp error
-
-        # expect(error.culprit).to eq 'Things went 💥'
-        expect(error.log.stacktrace).to be_a Array
-        expect(error.log.stacktrace.length).to be_gt_than(0)
+        expect(error.culprit).to eq 'instance_exec'
+        expect(error.log.message).to eq 'Things went BOOM'
+        expect(error.timestamp).to eq 694_224_000_000_000
+        expect(error.log.stacktrace).to be_a Stacktrace
+        expect(error.log.stacktrace.length).to be > 0
       end
     end
   end

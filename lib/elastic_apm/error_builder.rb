@@ -25,9 +25,16 @@ module ElasticAPM
       error
     end
 
-    def get_headers(rack_env)
-      # In Rails < 5 ActionDispatch::Request inherits from Hash
-      rack_env.respond_to?(:headers) ? rack_env.headers : rack_env
+    def build_log(message, backtrace: nil, **attrs)
+      error = Error.new
+      error.log = Error::Log.new(message, **attrs)
+
+      if (stacktrace = Stacktrace.build(config, backtrace))
+        error.log.stacktrace = stacktrace
+        error.culprit = stacktrace.frames.last.function
+      end
+
+      error
     end
   end
 end

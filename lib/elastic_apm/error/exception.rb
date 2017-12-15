@@ -6,11 +6,11 @@ module ElasticAPM
     class Exception
       MOD_SPLIT = '::'
 
-      def initialize(original_exception, **attrs)
+      def initialize(exception, **attrs)
         @message =
-          "#{original_exception.class}: #{original_exception.message}"
-        @type = original_exception.class.to_s
-        @module = format_module original_exception
+          "#{exception.class}: #{exception.message}"
+        @type = exception.class.to_s
+        @module = format_module exception
 
         attrs.each do |key, val|
           send(:"#{key}=", val)

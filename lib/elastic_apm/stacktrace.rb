@@ -25,6 +25,10 @@ module ElasticAPM
       end
     end
 
+    def length
+      frames.length
+    end
+
     def to_a
       frames.map(&:to_h)
     end

@@ -8,6 +8,7 @@ require 'elastic_apm/serializers'
 require 'elastic_apm/worker'
 
 module ElasticAPM
+  # rubocop:disable Metrics/ClassLength
   # @api private
   class Agent
     include Log
@@ -122,7 +123,19 @@ module ElasticAPM
         handled: handled
       )
       enqueue_errors error
-      error
+    end
+
+    def report_message(message, backtrace: nil, **attrs)
+      error = @error_builder.build_log(
+        message,
+        backtrace: backtrace,
+        **attrs
+      )
+      enqueue_errors error
+    end
+
+    def inspect
+      '<ElasticAPM::Agent>'
     end
 
     private

@@ -49,6 +49,17 @@ module ElasticAPM
           expect(job).to be_a Worker::Request
         end
       end
+
+      describe '#report_message' do
+        it 'queues a request' do
+          subject.report_message('Everything went 💥')
+
+          expect(subject.queue.length).to be 1
+
+          job = subject.queue.pop
+          expect(job).to be_a Worker::Request
+        end
+      end
     end
 
     describe '#enqueue_transactions' do
