@@ -96,6 +96,7 @@ module ElasticAPM
     def enqueue_errors(errors)
       data = @serializers.errors.build_all(errors)
       @queue << Worker::Request.new('/v1/errors', data)
+      errors
     end
 
     # instrumentation
@@ -115,7 +116,7 @@ module ElasticAPM
     # errors
 
     def report(exception, rack_env: nil, handled: true)
-      error = @error_builder.build(
+      error = @error_builder.build_exception(
         exception,
         rack_env: rack_env,
         handled: handled
