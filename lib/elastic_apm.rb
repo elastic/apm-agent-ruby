@@ -86,4 +86,8 @@ module ElasticAPM
   def self.report(exception, rack_env: nil, handled: true)
     agent&.report(exception, rack_env: rack_env, handled: handled)
   end
+
+  def self.report_message(message, **attrs)
+    agent&.report_message(message, backtrace: caller, **attrs)
+  end
 end

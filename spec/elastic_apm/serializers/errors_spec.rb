@@ -13,7 +13,9 @@ module ElasticAPM
 
       describe '#build', :mock_time do
         context 'an error with exception' do
-          let(:error) { ErrorBuilder.new(config).build(actual_exception) }
+          let(:error) do
+            ErrorBuilder.new(config).build_exception(actual_exception)
+          end
           subject { builder.build(error) }
 
           it 'builds' do

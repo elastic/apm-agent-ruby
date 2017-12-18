@@ -2,6 +2,7 @@
 
 require 'elastic_apm/stacktrace'
 require 'elastic_apm/error/exception'
+require 'elastic_apm/error/log'
 require 'elastic_apm/error/context'
 
 module ElasticAPM
@@ -14,7 +15,7 @@ module ElasticAPM
       @context = Context.new
     end
 
-    attr_accessor :culprit, :exception
+    attr_accessor :culprit, :exception, :log
     attr_reader :timestamp, :context
   end
 end

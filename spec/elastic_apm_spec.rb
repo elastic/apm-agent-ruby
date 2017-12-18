@@ -27,6 +27,11 @@ RSpec.describe ElasticAPM do
         { rack_env: nil, handled: nil }
       ]
     end
+    it do
+      should delegate :report_message, to: agent, args: [
+        'NOT OK', { backtrace: Array }
+      ]
+    end
 
     after { ElasticAPM.stop }
   end

@@ -5,24 +5,28 @@ require 'elastic_apm/stacktrace/frame'
 module ElasticAPM
   # @api private
   class Stacktrace
-    def initialize(exception)
-      @exception = exception
+    def initialize(backtrace)
+      @backtrace = backtrace
     end
 
     attr_reader :frames
 
-    def self.build(builder, exception)
-      return nil unless exception.backtrace
+    def self.build(builder, backtrace)
+      return nil unless backtrace
 
-      stack = new(exception)
+      stack = new(backtrace)
       stack.build_frames(builder)
       stack
     end
 
     def build_frames(builder)
-      @frames = @exception.backtrace.reverse.map do |line|
+      @frames = @backtrace.reverse.map do |line|
         build_frame(builder, line)
       end
+    end
+
+    def length
+      frames.length
     end
 
     def to_a
