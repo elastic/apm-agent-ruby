@@ -52,8 +52,15 @@ module ElasticAPM
       spans.select(&:running?)
     end
 
-    def span(name, type = nil, extra = nil)
-      span = Span.new self, next_span_id, name, type, current_span, extra
+    def span(name, type = nil, context: nil)
+      span = Span.new(
+        self,
+        next_span_id,
+        name,
+        type,
+        parent: current_span,
+        context: context
+      )
       spans << span
       span.start
 

@@ -26,7 +26,8 @@ module ElasticAPM
             host ||= address
             port ||= 80
 
-            extra = {
+            # TODO: investigate
+            _extra = {
               scheme: scheme,
               port: port,
               path: path
@@ -35,7 +36,7 @@ module ElasticAPM
             name = "#{method} #{host}"
             type = "ext.net_http.#{method}"
 
-            ElasticAPM.span name, type, extra do
+            ElasticAPM.span name, type do
               request_without_apm(req, body, &block)
             end
           end

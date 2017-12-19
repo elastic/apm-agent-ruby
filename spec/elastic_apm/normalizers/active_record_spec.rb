@@ -43,11 +43,10 @@ module ElasticAPM
             sql = 'SELECT  "hotdogs".* FROM "hotdogs" ' \
               'WHERE "hotdogs"."topping" = $1 LIMIT 1'
 
-            result = normalize_payload(sql: sql)
-            expected =
-              ['SELECT FROM "hotdogs"', 'db.unknown.sql', { sql: sql }]
-
-            expect(result).to eq expected
+            name, type, context = normalize_payload(sql: sql)
+            expect(name).to eq 'SELECT FROM "hotdogs"'
+            expect(type).to eq 'db.unknown.sql'
+            expect(context.statement).to eq sql
           end
 
           it 'skips cache queries' do

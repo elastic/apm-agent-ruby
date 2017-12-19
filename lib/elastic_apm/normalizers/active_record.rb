@@ -12,7 +12,7 @@ module ElasticAPM
         def initialize(*args)
           super(*args)
 
-          @type = format('db.%s.sql', lookup_adapter || 'unknown')
+          @type = format('db.%s.sql', lookup_adapter || 'unknown').freeze
           @summarizer = SqlSummarizer.new
         end
 
@@ -20,7 +20,8 @@ module ElasticAPM
           return :skip if %w[SCHEMA CACHE].include?(payload[:name])
 
           name = summarize(payload[:sql]) || payload[:name] || 'SQL'
-          [name, @type, { sql: payload[:sql] }]
+          context = Span::Context.new(statement: payload[:sql])
+          [name, @type, context]
         end
 
         private

@@ -67,11 +67,11 @@ module ElasticAPM
   #
   # @param name [String] A description of the span, eq `SELECT FROM "users"`
   # @param type [String] The kind of span, eq `db.mysql2.query`
-  # @param extra [Hash] Extra information about the span
+  # @param context [Span::Context] Context information about the span
   # @yield [Span] Optional block encapsulating span
   # @return [Span] Unless block given
-  def self.span(name, type = nil, extra = nil, &block)
-    agent && agent.span(name, type, extra, &block)
+  def self.span(name, type = nil, context: nil, &block)
+    agent && agent.span(name, type, context: context, &block)
   end
 
   ### Errors

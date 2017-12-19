@@ -38,7 +38,13 @@ module ElasticAPM
 
       normalized = @normalizers.normalize(transaction, name, payload)
 
-      span = normalized == :skip ? nil : transaction.span(*normalized)
+      span =
+        if normalized == :skip
+          nil
+        else
+          name, type, context = normalized
+          transaction.span(name, type, context: context)
+        end
 
       transaction.notifications << Notification.new(id, span)
     end

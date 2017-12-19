@@ -42,7 +42,8 @@ RSpec.configure do |config|
 
   config.after(:each) do |example|
     if elastic_subscribers.any? &&
-       !example.metadata[:allow_leaking_subscriptions]
+       !example.metadata[:allow_leaking_subscriptions] &&
+       example.execution_result.status == :passed
       raise 'someone leaked subscription'
     end
   end

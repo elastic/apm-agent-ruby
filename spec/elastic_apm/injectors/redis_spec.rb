@@ -26,7 +26,9 @@ module ElasticAPM
       end.submit 200
 
       expect(transaction.spans.length).to be 1
-      expect(transaction.spans.last.name).to eq 'lrange'
+      span = transaction.spans.last
+      expect(span.name).to eq 'LRANGE'
+      expect(span.context.statement).to eq 'LRANGE some:where 0 -1'
 
       ElasticAPM.stop
     end
