@@ -76,9 +76,9 @@ if defined? Rails
       expect(response.body).to eq 'Yes!'
 
       service = FakeServer.requests.first['service']
-      expect(service.dig('name')).to eq 'RailsTestApp'
-      expect(service.dig('framework', 'name')).to eq 'Ruby on Rails'
-      expect(service.dig('framework', 'version'))
+      expect(service['name']).to eq 'RailsTestApp'
+      expect(service['framework']['name']).to eq 'Ruby on Rails'
+      expect(service['framework']['version'])
         .to match(/\d+\.\d+\.\d+(\.\d+)?/)
     end
 
@@ -88,7 +88,7 @@ if defined? Rails
         wait_for_requests_to_finish 1
 
         expect(FakeServer.requests.length).to be 1
-        name = FakeServer.requests.first.dig('transactions', 0, 'name')
+        name = FakeServer.requests.first['transactions'][0]['name']
         expect(name).to eq 'PagesController#index'
       end
 
@@ -110,7 +110,7 @@ if defined? Rails
         expect(response.status).to be 500
         expect(FakeServer.requests.length).to be 2
 
-        exception = FakeServer.requests.first.dig('errors', 0, 'exception')
+        exception = FakeServer.requests.first['errors'][0]['exception']
         expect(exception['type']).to eq 'PagesController::FancyError'
       end
 

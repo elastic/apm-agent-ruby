@@ -16,7 +16,7 @@ module ElasticAPM
           spans: transaction.spans.map do |span|
             {
               id: span.id,
-              parent: span.parent&.id,
+              parent: span.parent && span.parent.id,
               name: span.name,
               type: span.type,
               start: ms(span.relative_start),

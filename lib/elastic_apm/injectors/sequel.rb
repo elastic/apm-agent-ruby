@@ -7,7 +7,7 @@ module ElasticAPM
   module Injectors
     # @api private
     class SequelInjector
-      TYPE = 'db.sequel.sql'
+      TYPE = 'db.sequel.sql'.freeze
 
       def self.summarizer
         @summarizer ||= SqlSummarizer.new

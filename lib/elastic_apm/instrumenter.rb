@@ -41,7 +41,7 @@ module ElasticAPM
     end
 
     def stop
-      current_transaction&.release
+      current_transaction.release if current_transaction
       @subscriber.unregister!
     end
 

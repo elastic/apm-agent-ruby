@@ -58,9 +58,9 @@ if defined?(Sinatra)
       expect(response.body).to eq 'Yes!'
 
       service = FakeServer.requests.first['service']
-      expect(service.dig('name')).to eq 'SinatraTestApp'
-      expect(service.dig('framework', 'name')).to eq 'Sinatra'
-      expect(service.dig('framework', 'version'))
+      expect(service['name']).to eq 'SinatraTestApp'
+      expect(service['framework']['name']).to eq 'Sinatra'
+      expect(service['framework']['version'])
         .to match(/\d+\.\d+\.\d+(\.\d+)?/)
     end
 
@@ -71,7 +71,7 @@ if defined?(Sinatra)
 
         expect(FakeServer.requests.length).to be 1
         request = FakeServer.requests.last
-        expect(request.dig('transactions', 0, 'name')).to eq 'GET /'
+        expect(request['transactions'][0]['name']).to eq 'GET /'
       end
 
       it 'spans inline templates' do
@@ -79,7 +79,7 @@ if defined?(Sinatra)
         wait_for_requests_to_finish 1
 
         request = FakeServer.requests.last
-        span = request.dig('transactions', 0, 'spans', 0)
+        span = request['transactions'][0]['spans'][0]
         expect(span['name']).to eq 'Inline erb'
         expect(span['type']).to eq 'template.tilt'
       end
@@ -91,7 +91,7 @@ if defined?(Sinatra)
         expect(response.body).to eq '1 2 3 hello you'
 
         request = FakeServer.requests.last
-        span = request.dig('transactions', 0, 'spans', 0)
+        span = request['transactions'][0]['spans'][0]
         expect(span['name']).to eq 'index'
         expect(span['type']).to eq 'template.tilt'
       end
@@ -109,7 +109,7 @@ if defined?(Sinatra)
 
         expect(FakeServer.requests.length).to be 2
 
-        exception = FakeServer.requests.first.dig('errors', 0, 'exception')
+        exception = FakeServer.requests.first['errors'][0]['exception']
         expect(exception['type']).to eq 'FancyError'
       end
     end

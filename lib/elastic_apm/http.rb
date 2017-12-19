@@ -10,9 +10,9 @@ module ElasticAPM
   class Http
     include Log
 
-    USER_AGENT = "elastic-apm/ruby #{VERSION}"
-    ACCEPT = 'application/json'
-    CONTENT_TYPE = 'application/json'
+    USER_AGENT = "elastic-apm/ruby #{VERSION}".freeze
+    ACCEPT = 'application/json'.freeze
+    CONTENT_TYPE = 'application/json'.freeze
 
     def initialize(config, adapter: HttpAdapter)
       @config = config
