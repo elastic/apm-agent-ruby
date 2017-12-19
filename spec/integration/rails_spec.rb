@@ -7,16 +7,9 @@ if defined? Rails
   require 'elastic_apm/railtie'
 
   RSpec.describe 'Rails integration',
-                 :allow_leaking_subscriptions, :with_fake_server do
-    include Rack::Test::Methods
+    :allow_leaking_subscriptions, :with_fake_server do
 
-    def boot
-      RailsTestApp.initialize!
-      RailsTestApp.routes.draw do
-        get '/error', to: 'pages#raise_error'
-        root to: 'pages#index'
-      end
-    end
+    include Rack::Test::Methods
 
     def app
       @app ||= Rails.application
@@ -55,7 +48,11 @@ if defined? Rails
         end
       end
 
-      boot
+      RailsTestApp.initialize!
+      RailsTestApp.routes.draw do
+        get '/error', to: 'pages#raise_error'
+        root to: 'pages#index'
+      end
     end
 
     after :all do

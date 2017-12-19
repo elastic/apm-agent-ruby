@@ -22,6 +22,8 @@ RSpec.configure do |config|
     config.filter_run_excluding(type: 'json_schema')
   end
 
+  config.fail_fast = true unless ENV['CI']
+
   config.example_status_persistence_file_path = '.rspec_status'
   config.disable_monkey_patching!
   config.backtrace_exclusion_patterns = [%r{/(gems|bundler)/}]
