@@ -11,6 +11,10 @@ module ElasticAPM
       end
 
       attr_accessor :instance, :statement, :type, :user
+
+      def to_h
+        { instance: instance, statement: statement, type: type, user: user }
+      end
     end
   end
 end

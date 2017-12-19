@@ -20,7 +20,8 @@ module ElasticAPM
               name: span.name,
               type: span.type,
               start: ms(span.relative_start),
-              duration: ms(span.duration)
+              duration: ms(span.duration),
+              context: span.context && { db: span.context.to_h }
             }
           end
         }
