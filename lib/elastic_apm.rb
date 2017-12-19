@@ -57,11 +57,10 @@ module ElasticAPM
   # `ExamplesController#index`
   # @param type [String] The kind of the transaction, eg `app.request.get` or
   # `db.mysql2.query`
-  # @param result [Object] Result of the transaction, eq `200` for a HTTP server
   # @yield [Transaction] Optional block encapsulating transaction
   # @return [Transaction] Unless block given
-  def self.transaction(name, type = nil, result = nil, &block)
-    agent && agent.transaction(name, type, result, &block)
+  def self.transaction(name, type = nil, &block)
+    agent && agent.transaction(name, type, &block)
   end
 
   # Starts a new span under the current Transaction

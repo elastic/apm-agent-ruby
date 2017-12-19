@@ -3,11 +3,10 @@
 module ElasticAPM
   # @api private
   class Transaction
-    def initialize(instrumenter, name, type = 'custom', result = nil)
+    def initialize(instrumenter, name, type = 'custom')
       @instrumenter = instrumenter
       @name = name
       @type = type
-      @result = result
 
       @timestamp = Util.micros
 
