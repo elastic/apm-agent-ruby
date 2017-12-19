@@ -4,7 +4,7 @@ module ElasticAPM
   class Error
     # @api private
     class Exception
-      MOD_SPLIT = '::'
+      MOD_SPLIT = '::'.freeze
 
       def initialize(exception, **attrs)
         @message =

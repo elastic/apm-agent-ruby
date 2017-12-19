@@ -3,7 +3,7 @@
 module ElasticAPM
   # @api private
   class Span
-    DEFAULT_KIND = 'custom'
+    DEFAULT_KIND = 'custom'.freeze
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(

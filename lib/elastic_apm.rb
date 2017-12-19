@@ -48,7 +48,7 @@ module ElasticAPM
   #
   # @return [Transaction] if any
   def self.current_transaction
-    agent&.current_transaction
+    agent && agent.current_transaction
   end
 
   # Start a new transaction or return the currently running
@@ -61,7 +61,7 @@ module ElasticAPM
   # @yield [Transaction] Optional block encapsulating transaction
   # @return [Transaction] Unless block given
   def self.transaction(name, type = nil, result = nil, &block)
-    agent&.transaction name, type, result, &block
+    agent && agent.transaction(name, type, result, &block)
   end
 
   # Starts a new span under the current Transaction
@@ -72,7 +72,7 @@ module ElasticAPM
   # @yield [Span] Optional block encapsulating span
   # @return [Span] Unless block given
   def self.span(name, type = nil, extra = nil, &block)
-    agent&.span name, type, extra, &block
+    agent && agent.span(name, type, extra, &block)
   end
 
   ### Errors
@@ -84,10 +84,10 @@ module ElasticAPM
   # @param handled [Boolean] Whether the exception was rescued
   # @return [Error] An [Error] instance
   def self.report(exception, rack_env: nil, handled: true)
-    agent&.report(exception, rack_env: rack_env, handled: handled)
+    agent && agent.report(exception, rack_env: rack_env, handled: handled)
   end
 
   def self.report_message(message, **attrs)
-    agent&.report_message(message, backtrace: caller, **attrs)
+    agent && agent.report_message(message, backtrace: caller, **attrs)
   end
 end

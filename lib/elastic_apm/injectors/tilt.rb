@@ -5,7 +5,7 @@ module ElasticAPM
   module Injectors
     # @api private
     class TiltInjector
-      TYPE = 'template.tilt'
+      TYPE = 'template.tilt'.freeze
 
       def install
         ::Tilt::Template.class_eval do
