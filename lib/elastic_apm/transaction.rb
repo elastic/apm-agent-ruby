@@ -3,11 +3,10 @@
 module ElasticAPM
   # @api private
   class Transaction
-    def initialize(instrumenter, name, type = 'custom', result = nil)
+    def initialize(instrumenter, name, type = 'custom')
       @instrumenter = instrumenter
       @name = name
       @type = type
-      @result = result
 
       @timestamp = Util.micros
 
@@ -53,8 +52,8 @@ module ElasticAPM
       spans.select(&:running?)
     end
 
-    def span(name, type = nil, extra = nil)
-      span = Span.new self, next_span_id, name, type, current_span, extra
+    def span(name, type = nil, context: nil)
+      span = next_span(name, type, context)
       spans << span
       span.start
 
@@ -77,6 +76,17 @@ module ElasticAPM
 
     def next_span_id
       @span_id_ticker += 1
+    end
+
+    def next_span(name, type, context)
+      Span.new(
+        self,
+        next_span_id,
+        name,
+        type,
+        parent: current_span,
+        context: context
+      )
     end
   end
 end

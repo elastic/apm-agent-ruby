@@ -32,11 +32,6 @@ module ElasticAPM
 
       http_span = transaction.spans.last
       expect(http_span.name).to eq 'GET example.com'
-      expect(http_span.extra).to eq(
-        scheme: 'http',
-        port: 80,
-        path: '/'
-      )
 
       ElasticAPM.stop
     end

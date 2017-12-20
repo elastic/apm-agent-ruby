@@ -4,6 +4,9 @@ AllCops:
     - 'elastic-apm.gemspec'
     - 'vendor/**/*'
 
+Layout/AlignParameters:
+  EnforcedStyle: with_fixed_indentation
+
 Layout/AlignHash:
   Exclude:
     - 'Gemfile'

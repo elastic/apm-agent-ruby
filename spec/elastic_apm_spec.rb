@@ -19,8 +19,10 @@ RSpec.describe ElasticAPM do
     let(:agent) { ElasticAPM.agent }
 
     it { should delegate :current_transaction, to: agent }
-    it { should delegate :transaction, to: agent, args: ['T', nil, nil] }
-    it { should delegate :span, to: agent, args: ['t', nil, nil] }
+    it do
+      should delegate :transaction, to: agent, args: ['T', nil]
+    end
+    it { should delegate :span, to: agent, args: ['t', nil, { context: nil }] }
     it do
       should delegate :report, to: agent, args: [
         'E',

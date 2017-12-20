@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'elastic_apm/span/context'
+
 module ElasticAPM
   # @api private
   class Span
@@ -11,19 +13,19 @@ module ElasticAPM
       id,
       name,
       type = DEFAULT_KIND,
-      parent = nil,
-      extra = nil
+      parent: nil,
+      context: nil
     )
       @transaction = transaction
       @id = id
       @name = name
       @type = type
       @parent = parent
-      @extra = extra
+      @context = context
     end
     # rubocop:enable Metrics/ParameterLists
 
-    attr_accessor :name, :extra, :type
+    attr_accessor :name, :context, :type
     attr_reader :id, :duration, :parent, :relative_start
 
     def start

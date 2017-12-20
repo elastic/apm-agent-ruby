@@ -41,6 +41,8 @@ module ElasticAPM
 
       span = transaction.spans.first
       expect(span.name).to eq 'SELECT FROM `users`'
+      expect(span.context.statement)
+        .to eq "SELECT count(*) AS 'count' FROM `users` LIMIT 1"
     end
   end
 end

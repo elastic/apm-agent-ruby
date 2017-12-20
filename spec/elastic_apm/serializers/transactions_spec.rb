@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   module Serializers
     RSpec.describe Transactions do
@@ -36,7 +38,9 @@ module ElasticAPM
               travel 10
               t.span 'app/views/users.html.erb', 'template' do
                 travel 10
-                t.span 'SELECT * FROM users', 'db.query' do
+                context =
+                  Span::Context.new(statement: 'BO SELECTA', type: 'sql')
+                t.span 'SELECT * FROM users', 'db.sql', context: context do
                   travel 10
                 end
                 travel 10
@@ -62,14 +66,23 @@ module ElasticAPM
                   name: 'app/views/users.html.erb',
                   type: 'template',
                   start: 10,
-                  duration: 30
+                  duration: 30,
+                  context: nil
                 }, {
                   id: 1,
                   parent: 0,
                   name: 'SELECT * FROM users',
-                  type: 'db.query',
+                  type: 'db.sql',
                   start: 20,
-                  duration: 10
+                  duration: 10,
+                  context: {
+                    db: {
+                      instance: nil,
+                      statement: 'BO SELECTA',
+                      type: 'sql',
+                      user: nil
+                    }
+                  }
                 }
               ]
             )

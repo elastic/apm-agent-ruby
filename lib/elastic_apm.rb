@@ -57,22 +57,21 @@ module ElasticAPM
   # `ExamplesController#index`
   # @param type [String] The kind of the transaction, eg `app.request.get` or
   # `db.mysql2.query`
-  # @param result [Object] Result of the transaction, eq `200` for a HTTP server
   # @yield [Transaction] Optional block encapsulating transaction
   # @return [Transaction] Unless block given
-  def self.transaction(name, type = nil, result = nil, &block)
-    agent && agent.transaction(name, type, result, &block)
+  def self.transaction(name, type = nil, &block)
+    agent && agent.transaction(name, type, &block)
   end
 
   # Starts a new span under the current Transaction
   #
   # @param name [String] A description of the span, eq `SELECT FROM "users"`
   # @param type [String] The kind of span, eq `db.mysql2.query`
-  # @param extra [Hash] Extra information about the span
+  # @param context [Span::Context] Context information about the span
   # @yield [Span] Optional block encapsulating span
   # @return [Span] Unless block given
-  def self.span(name, type = nil, extra = nil, &block)
-    agent && agent.span(name, type, extra, &block)
+  def self.span(name, type = nil, context: nil, &block)
+    agent && agent.span(name, type, context: context, &block)
   end
 
   ### Errors

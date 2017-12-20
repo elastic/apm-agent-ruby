@@ -13,33 +13,31 @@ module ElasticAPM
         @summarizer ||= SqlSummarizer.new
       end
 
+      # rubocop:disable Metrics/MethodLength
       def install
         require 'sequel/database/logging'
 
-        log_method =
-          if ::Sequel::Database.method_defined?(:log_connection_yield)
-            'log_connection_yield'
-          else
-            'log_yield'
-          end
+        ::Sequel::Database.class_eval do
+          alias log_connection_yield_without_apm log_connection_yield
 
-        ::Sequel::Database.class_eval <<-RUBY, __FILE__, __LINE__ + 1
-          alias #{log_method}_without_apm #{log_method}
-
-          def #{log_method}(sql, *args, &block)
+          def log_connection_yield(sql, *args, &block)
             unless ElasticAPM.current_transaction
-              return #{log_method}_without_apm(sql, *args, &block)
+              return log_connection_yield_without_apm(sql, *args, &block)
             end
 
-            #{log_method}_without_apm(sql, *args) do
-              summarizer = ElasticAPM::Injectors::SequelInjector.summarizer
-              name = summarizer.summarize sql
+            summarizer = ElasticAPM::Injectors::SequelInjector.summarizer
+            name = summarizer.summarize sql
+            context = Span::Context.new(
+              statement: sql,
+              type: 'sql',
+              user: opts[:user]
+            )
 
-              ElasticAPM.span(name, TYPE, sql: sql, &block)
-            end
+            ElasticAPM.span(name, TYPE, context: context, &block)
           end
-        RUBY
+        end
       end
+      # rubocop:enable Metrics/MethodLength
     end
 
     register 'Sequel', 'sequel', SequelInjector.new

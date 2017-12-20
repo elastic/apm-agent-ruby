@@ -22,6 +22,8 @@ RSpec.configure do |config|
     config.filter_run_excluding(type: 'json_schema')
   end
 
+  config.fail_fast = true unless ENV['CI']
+
   config.example_status_persistence_file_path = '.rspec_status'
   config.disable_monkey_patching!
   config.backtrace_exclusion_patterns = [%r{/(gems|bundler)/}]
@@ -40,7 +42,8 @@ RSpec.configure do |config|
 
   config.after(:each) do |example|
     if elastic_subscribers.any? &&
-       !example.metadata[:allow_leaking_subscriptions]
+       !example.metadata[:allow_leaking_subscriptions] &&
+       example.execution_result.status == :passed
       raise 'someone leaked subscription'
     end
   end
