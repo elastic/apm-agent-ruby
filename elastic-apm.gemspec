@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = 'The official Elastic APM agent for Ruby'
   spec.homepage      = 'https://github.com/elastic/apm-agent-ruby'
-  spec.meta_data     = { "source_code_uri": 'https://github.com/elastic/apm-agent-ruby' }
+  spec.metadata     = { 'source_code_uri' => 'https://github.com/elastic/apm-agent-ruby' }
   spec.license       = 'Apache-2.0'
   spec.required_ruby_version = ">= 2.0.0"
 
