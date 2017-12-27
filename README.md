@@ -1,4 +1,4 @@
-# ElasticAPM
+# ElasticAPM (ALPHA)
 
 This is the official Rubygem for adding [Elastic][]'s [APM][] to your Ruby app.
 
@@ -18,10 +18,13 @@ _Describe configuration using yaml, config, etc_
 
 ### Optional: Configure the agent
 
-```ruby
-Rails.application.configure do |config|
-  config.elastic_apm.server_url = 'http://localhost:8200'
-end
+The suggested way to configure is to create a file `config/elastic_apm.yml` with your config:
+
+```yaml
+# config/elastic_apm.yml
+
+server_url: http://localhost:8200
+secret_token: YOUR_SECRET
 ```
 
 ## Getting started with Sinatra
@@ -39,7 +42,7 @@ end
 
 # Takes optional ElasticAPM::Config values
 ElasticAPM.start(
-  app: MySinatraApp,
+  app: MySinatraApp, # required
   server_url: 'http://localhost:8200'
 )
 
