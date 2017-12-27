@@ -1,4 +1,6 @@
-# ElasticAPM (ALPHA)
+# elastic-apm -- Elastic APM agent for Ruby (ALPHA)
+
+[![Gem](https://img.shields.io/gem/v/formatador.svg?style=flat-square)](https://rubygems.org/gems/elastic-apm)
 
 This is the official Rubygem for adding [Elastic][]'s [APM][] to your Ruby app.
 
@@ -50,6 +52,10 @@ run MySinatraApp
 
 at_exit { ElasticAPM.stop }
 ```
+
+# License
+
+Apache 2.0
 
 [Elastic]: https://elastic.co
 [APM]: https://www.elastic.co/guide/en/apm/server/index.html
