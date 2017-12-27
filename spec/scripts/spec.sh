@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex
+set -e
 
 if [ $# -lt 2 ]; then
   echo "Arguments missing"

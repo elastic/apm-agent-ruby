@@ -4,6 +4,10 @@ exclude:
     FRAMEWORK: rails-4.1
   - RUBY_VERSION: ruby-2.4
     FRAMEWORK: rails-4.0
+  - RUBY_VERSION: ruby-2.5
+    FRAMEWORK: rails-4.1
+  - RUBY_VERSION: ruby-2.5
+    FRAMEWORK: rails-4.0
 
   # Only test master on newest ruby
   - RUBY_VERSION: ruby-2.2
