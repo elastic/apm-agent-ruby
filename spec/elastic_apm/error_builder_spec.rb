@@ -35,7 +35,7 @@ module ElasticAPM
           pathname: '/somewhere/in/there',
           search: 'q=yes',
           hash: nil,
-          raw: '/somewhere/in/there?q=yes'
+          full: 'http://example.org/somewhere/in/there?q=yes'
         )
         expect(request.headers).to eq(
           'Content-Type' => 'application/json'

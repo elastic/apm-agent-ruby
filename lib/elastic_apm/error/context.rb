@@ -6,6 +6,11 @@ module ElasticAPM
     class Context
       # @api private
       class Request
+        SKIPPED_PORTS = {
+          'http' => 80,
+          'https' => 443
+        }.freeze
+
         def initialize
           @socket = {}
           @headers = {}
@@ -13,16 +18,8 @@ module ElasticAPM
           @env = {}
         end
 
-        attr_accessor(
-          :socket,
-          :http_version,
-          :method,
-          :url,
-          :headers,
-          :cookies,
-          :env,
-          :body
-        )
+        attr_accessor :body, :cookies, :env, :headers, :http_version, :method,
+          :socket, :url
 
         # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         def add_rack_env(rack_env)
@@ -43,7 +40,7 @@ module ElasticAPM
             pathname: req.path,
             search: req.query_string,
             hash: nil,
-            raw: req.fullpath
+            full: build_full_url(req)
           }
 
           add_headers(rack_env)
@@ -89,6 +86,16 @@ module ElasticAPM
 
         def camel_key(key)
           key.gsub(/^HTTP_/, '').split('_').map(&:capitalize).join('-')
+        end
+
+        def build_full_url(req)
+          url = "#{req.scheme}://#{req.host}"
+
+          if req.port != SKIPPED_PORTS[req.scheme]
+            url += ":#{req.port}"
+          end
+
+          url + req.fullpath
         end
 
         def get_headers(rack_env)
