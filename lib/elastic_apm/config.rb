@@ -6,7 +6,7 @@ module ElasticAPM
   # @api private
   class Config
     DEFAULTS = {
-      server: 'http://localhost:8200',
+      server_url: 'http://localhost:8200',
       secret_token: nil,
 
       app_name: nil,
@@ -42,7 +42,7 @@ module ElasticAPM
       yield self
     end
 
-    attr_accessor :server
+    attr_accessor :server_url
     attr_accessor :secret_token
 
     attr_accessor :app_name
@@ -106,7 +106,7 @@ module ElasticAPM
     end
 
     def use_ssl?
-      server.start_with?('https')
+      server_url.start_with?('https')
     end
 
     private

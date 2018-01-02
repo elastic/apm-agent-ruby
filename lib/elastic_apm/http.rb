@@ -57,7 +57,7 @@ module ElasticAPM
     end
 
     def url_for(path)
-      "#{@config.server}#{path}"
+      "#{@config.server_url}#{path}"
     end
   end
 
@@ -97,7 +97,7 @@ module ElasticAPM
     end
 
     def server_uri
-      @uri ||= URI(@config.server)
+      @uri ||= URI(@config.server_url)
     end
   end
 end
