@@ -11,6 +11,10 @@ module ElasticAPM
         expect(transaction.spans.length).to be 0
         expect(transaction.timestamp).to eq 694_224_000_000_000
       end
+
+      it 'has a uuid' do
+        expect(Transaction.new(nil, 'Test').id).to_not be_nil
+      end
     end
 
     describe '#release', :mock_time do

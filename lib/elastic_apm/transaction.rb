@@ -4,6 +4,7 @@ module ElasticAPM
   # @api private
   class Transaction
     def initialize(instrumenter, name, type = 'custom')
+      @id = SecureRandom.uuid
       @instrumenter = instrumenter
       @name = name
       @type = type
@@ -19,7 +20,7 @@ module ElasticAPM
       yield self if block_given?
     end
 
-    attr_accessor :name, :result, :type
+    attr_accessor :id, :name, :result, :type
     attr_reader :duration, :root_span, :timestamp, :spans, :notifications
 
     def release

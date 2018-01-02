@@ -7,7 +7,7 @@ module ElasticAPM
       # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
       def build(transaction)
         {
-          id: SecureRandom.uuid,
+          id: transaction.id,
           name: transaction.name,
           type: transaction.type,
           result: transaction.result.to_s,
