@@ -9,6 +9,10 @@ module ElasticAPM
 
       it { expect(subject.timestamp).to_not be nil }
       it { expect(subject.context).to_not be nil }
+
+      it 'has an id' do
+        expect(subject.id).to_not be_nil
+      end
     end
   end
 end

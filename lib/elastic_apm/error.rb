@@ -9,13 +9,14 @@ module ElasticAPM
   # @api private
   class Error
     def initialize(culprit: nil)
+      @id = SecureRandom.uuid
       @culprit = culprit
 
       @timestamp = Util.micros
       @context = Context.new
     end
 
-    attr_accessor :culprit, :exception, :log
+    attr_accessor :id, :culprit, :exception, :log
     attr_reader :timestamp, :context
   end
 end

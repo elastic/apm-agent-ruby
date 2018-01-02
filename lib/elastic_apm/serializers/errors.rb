@@ -6,7 +6,7 @@ module ElasticAPM
     class Errors < Serializer
       def build(error)
         base = {
-          id: SecureRandom.uuid,
+          id: error.id,
           culprit: error.culprit,
           timestamp: micros_to_time(error.timestamp).utc.iso8601
         }
