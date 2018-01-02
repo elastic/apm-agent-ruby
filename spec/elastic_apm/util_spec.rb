@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   RSpec.describe Util do
     describe '.nearest_minute', :mock_time do
