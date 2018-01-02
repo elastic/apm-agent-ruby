@@ -3,6 +3,7 @@
 module ElasticAPM
   # @api private
   class Transaction
+    # rubocop:disable Metrics/MethodLength
     def initialize(instrumenter, name, type = 'custom')
       @id = SecureRandom.uuid
       @instrumenter = instrumenter
@@ -17,11 +18,15 @@ module ElasticAPM
 
       @notifications = [] # for AS::Notifications
 
+      @sampled = true
+
       yield self if block_given?
     end
+    # rubocop:enable Metrics/MethodLength
 
     attr_accessor :id, :name, :result, :type
-    attr_reader :duration, :root_span, :timestamp, :spans, :notifications
+    attr_reader :duration, :root_span, :timestamp, :spans, :notifications,
+      :sampled
 
     def release
       @instrumenter.current_transaction = nil
