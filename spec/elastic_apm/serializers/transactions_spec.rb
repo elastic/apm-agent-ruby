@@ -27,7 +27,8 @@ module ElasticAPM
               "result": '200',
               "duration": 100.0,
               "timestamp": Time.utc(1992, 1, 1).iso8601,
-              "spans": []
+              "spans": [],
+              "sampled": true
             )
           end
         end
@@ -84,7 +85,8 @@ module ElasticAPM
                     }
                   }
                 }
-              ]
+              ],
+              sampled: true
             )
           end
         end

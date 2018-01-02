@@ -23,7 +23,8 @@ module ElasticAPM
               duration: ms(span.duration),
               context: span.context && { db: span.context.to_h }
             }
-          end
+          end,
+          sampled: transaction.sampled
         }
       end
       # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
