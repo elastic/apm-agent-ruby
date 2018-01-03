@@ -14,9 +14,11 @@ module ElasticAPM
 
       @timestamp = Util.micros
       @context = Context.new
+
+      @transaction_id = nil
     end
 
-    attr_accessor :id, :culprit, :exception, :log
+    attr_accessor :id, :culprit, :exception, :log, :transaction_id
     attr_reader :timestamp, :context
   end
 end

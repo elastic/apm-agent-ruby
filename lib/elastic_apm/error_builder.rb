@@ -13,10 +13,8 @@ module ElasticAPM
       error = Error.new
       error.exception = Error::Exception.new(exception, handled: handled)
 
-      if (stacktrace = Stacktrace.build(config, exception.backtrace))
-        error.exception.stacktrace = stacktrace
-        error.culprit = stacktrace.frames.last.function
-      end
+      add_stacktrace error, :exception, exception.backtrace
+      add_transaction_id error
 
       if rack_env
         error.context.request = Error::Context::Request.from_rack_env rack_env
@@ -29,12 +27,30 @@ module ElasticAPM
       error = Error.new
       error.log = Error::Log.new(message, **attrs)
 
-      if (stacktrace = Stacktrace.build(config, backtrace))
-        error.log.stacktrace = stacktrace
-        error.culprit = stacktrace.frames.last.function
-      end
+      add_stacktrace error, :log, backtrace
+      add_transaction_id error
 
       error
+    end
+
+    private
+
+    def add_stacktrace(error, kind, backtrace)
+      return unless (stacktrace = Stacktrace.build(config, backtrace))
+
+      case kind
+      when :exception
+        error.exception.stacktrace = stacktrace
+      when :log
+        error.log.stacktrace = stacktrace
+      end
+
+      error.culprit = stacktrace.frames.last.function
+    end
+
+    def add_transaction_id(error)
+      return unless (transaction = ElasticAPM.current_transaction)
+      error.transaction_id = transaction.id
     end
   end
 end
