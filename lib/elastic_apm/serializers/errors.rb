@@ -32,7 +32,7 @@ module ElasticAPM
           code: exception.code,
           attributes: exception.attributes,
           stacktrace: exception.stacktrace.to_a,
-          unhandled: !exception.handled
+          handled: exception.handled
         }
       end
     end

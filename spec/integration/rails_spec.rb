@@ -109,6 +109,7 @@ if defined? Rails
 
         exception = FakeServer.requests.first['errors'][0]['exception']
         expect(exception['type']).to eq 'PagesController::FancyError'
+        expect(exception['handled']).to eq true
       end
 
       it 'validates json schema', type: :json_schema do
