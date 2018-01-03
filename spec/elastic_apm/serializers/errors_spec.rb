@@ -37,6 +37,14 @@ module ElasticAPM
             )
           end
         end
+
+        context 'an error with a transaction id' do
+          it 'attaches the transaction' do
+            error = Error.new.tap { |e| e.transaction_id = 'abc123' }
+            subject = builder.build(error)
+            expect(subject[:transaction]).to eq(id: 'abc123')
+          end
+        end
       end
     end
   end

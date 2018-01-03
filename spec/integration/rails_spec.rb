@@ -107,7 +107,10 @@ if defined? Rails
         expect(response.status).to be 500
         expect(FakeServer.requests.length).to be 2
 
-        exception = FakeServer.requests.first['errors'][0]['exception']
+        error = FakeServer.requests.first['errors'][0]
+        expect(error['transaction']['id']).to_not be_nil
+
+        exception = error['exception']
         expect(exception['type']).to eq 'PagesController::FancyError'
       end
 
