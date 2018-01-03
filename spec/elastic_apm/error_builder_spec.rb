@@ -26,7 +26,7 @@ module ElasticAPM
         error = subject.build_exception actual_exception, rack_env: env
 
         request = error.context.request
-        expect(request).to be_a(Error::Context::Request)
+        expect(request).to be_a(Context::Request)
         expect(request.method).to eq 'POST'
         expect(request.url).to eq(
           protocol: 'http',

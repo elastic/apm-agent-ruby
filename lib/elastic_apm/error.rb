@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'elastic_apm/stacktrace'
+require 'elastic_apm/context'
 require 'elastic_apm/error/exception'
 require 'elastic_apm/error/log'
-require 'elastic_apm/error/context'
 
 module ElasticAPM
   # @api private

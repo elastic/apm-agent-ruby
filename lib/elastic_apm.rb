@@ -57,10 +57,11 @@ module ElasticAPM
   # `ExamplesController#index`
   # @param type [String] The kind of the transaction, eg `app.request.get` or
   # `db.mysql2.query`
+  # @param rack_env [Rack::Env] An optional Rack env
   # @yield [Transaction] Optional block encapsulating transaction
   # @return [Transaction] Unless block given
-  def self.transaction(name, type = nil, &block)
-    agent && agent.transaction(name, type, &block)
+  def self.transaction(name, type = nil, rack_env: nil, &block)
+    agent && agent.transaction(name, type, rack_env: rack_env, &block)
   end
 
   # Starts a new span under the current Transaction
