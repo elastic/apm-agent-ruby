@@ -19,13 +19,10 @@ module ElasticAPM
           version: VERSION
         },
         framework: nil,
-        argv: ARGV,
         language: {
           name: 'ruby',
           version: RUBY_VERSION
         },
-        pid: $PID,
-        process_title: $PROGRAM_NAME,
         runtime: runtime,
         version: git_sha
       }

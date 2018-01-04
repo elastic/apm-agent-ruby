@@ -4,6 +4,7 @@ require 'net/http'
 
 require 'elastic_apm/service_info'
 require 'elastic_apm/system_info'
+require 'elastic_apm/process_info'
 
 module ElasticAPM
   # @api private
@@ -19,6 +20,7 @@ module ElasticAPM
       @adapter = adapter.new(config)
       @base_payload = {
         service: ServiceInfo.build(config),
+        process: ProcessInfo.build(config),
         system: SystemInfo.build(config)
       }
     end
