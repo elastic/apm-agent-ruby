@@ -80,6 +80,14 @@ module ElasticAPM
       transaction.span(*args, &block)
     end
 
+    def set_tag(key, value)
+      transaction.context.tags[key] = value.to_s
+    end
+
+    def set_custom_context(context)
+      transaction.context.custom.merge!(context)
+    end
+
     def submit_transaction(transaction)
       @pending_transactions << transaction
 
@@ -107,6 +115,12 @@ module ElasticAPM
       @pending_transactions = []
 
       true
+    end
+
+    def inspect
+      '<ElasticAPM::Instrumenter ' \
+        "current_transaction=#{current_transaction.inspect}" \
+        '>'
     end
   end
 end

@@ -30,6 +30,8 @@ module ElasticAPM
       it { should delegate :current_transaction, to: subject.instrumenter }
       it { should delegate :transaction, to: subject.instrumenter }
       it { should delegate :span, to: subject.instrumenter }
+      it { should delegate :set_tag, to: subject.instrumenter }
+      it { should delegate :set_custom_context, to: subject.instrumenter }
     end
 
     context 'reporting' do

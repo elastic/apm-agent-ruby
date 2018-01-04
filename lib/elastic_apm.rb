@@ -61,7 +61,8 @@ module ElasticAPM
   # @yield [Transaction] Optional block encapsulating transaction
   # @return [Transaction] Unless block given
   def self.transaction(name, type = nil, rack_env: nil, &block)
-    agent && agent.transaction(name, type, rack_env: rack_env, &block)
+    return call_through(&block) unless agent
+    agent.transaction(name, type, rack_env: rack_env, &block)
   end
 
   # Starts a new span under the current Transaction
@@ -72,7 +73,8 @@ module ElasticAPM
   # @yield [Span] Optional block encapsulating span
   # @return [Span] Unless block given
   def self.span(name, type = nil, context: nil, &block)
-    agent && agent.span(name, type, context: context, &block)
+    return call_through(&block) unless agent
+    agent.span(name, type, context: context, &block)
   end
 
   ### Errors
@@ -89,5 +91,27 @@ module ElasticAPM
 
   def self.report_message(message, **attrs)
     agent && agent.report_message(message, backtrace: caller, **attrs)
+  end
+
+  ### Context
+
+  def self.set_tag(key, value)
+    agent && agent.set_tag(key, value)
+  end
+
+  def self.set_custom_context(custom)
+    agent && agent.set_custom_context(custom)
+  end
+
+  class << self
+    private
+
+    def call_through
+      unless agent
+        return yield if block_given?
+      end
+
+      nil
+    end
   end
 end

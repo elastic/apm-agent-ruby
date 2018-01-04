@@ -38,7 +38,19 @@ RSpec.describe ElasticAPM do
         'NOT OK', { backtrace: Array }
       ]
     end
+    it { should delegate :set_tag, to: agent, args: [nil, nil] }
+    it { should delegate :set_custom_context, to: agent, args: [nil] }
 
     after { ElasticAPM.stop }
+  end
+
+  context 'when not running' do
+    it 'still yields block' do
+      ran = false
+
+      ElasticAPM.transaction('Test') { ran = true }
+
+      expect(ran).to be true
+    end
   end
 end
