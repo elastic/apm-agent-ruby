@@ -17,7 +17,7 @@ module ElasticAPM
       add_transaction_id error
 
       if rack_env
-        error.context.request = Error::Context::Request.from_rack_env rack_env
+        error.context.request = Context::Request.from_rack_env rack_env
       end
 
       error

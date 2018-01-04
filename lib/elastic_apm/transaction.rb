@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+require 'elastic_apm/context'
+
 module ElasticAPM
   # @api private
   class Transaction
     # rubocop:disable Metrics/MethodLength
-    def initialize(instrumenter, name, type = 'custom')
+    def initialize(instrumenter, name, type = 'custom', rack_env: nil)
       @id = SecureRandom.uuid
       @instrumenter = instrumenter
       @name = name
@@ -18,6 +20,12 @@ module ElasticAPM
 
       @notifications = [] # for AS::Notifications
 
+      @context = Context.new
+
+      if rack_env
+        @context.request = Context::Request.from_rack_env rack_env
+      end
+
       @sampled = true
 
       yield self if block_given?
@@ -25,17 +33,16 @@ module ElasticAPM
     # rubocop:enable Metrics/MethodLength
 
     attr_accessor :id, :name, :result, :type
-    attr_reader :duration, :root_span, :timestamp, :spans, :notifications,
-      :sampled
+    attr_reader :context, :duration, :root_span, :timestamp, :spans,
+      :notifications, :sampled
 
     def release
       @instrumenter.current_transaction = nil
     end
 
     def done(result = nil)
-      @result = result
-
       @duration = Util.micros - @timestamp
+      @result = result
 
       self
     end
@@ -44,8 +51,10 @@ module ElasticAPM
       !!(@result && @duration)
     end
 
-    def submit(result = nil)
-      done result
+    def submit(status = nil, headers: {})
+      done status
+
+      context.response = Context::Response.new(status, headers: headers)
 
       release
 
@@ -76,6 +85,10 @@ module ElasticAPM
 
     def current_span
       spans.reverse.lazy.find(&:running?)
+    end
+
+    def inspect
+      "<ElasticAPM::Transaction id:#{id}>"
     end
 
     private

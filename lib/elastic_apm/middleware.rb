@@ -10,9 +10,11 @@ module ElasticAPM
     # rubocop:disable Metrics/MethodLength
     def call(env)
       begin
-        transaction = ElasticAPM.transaction 'Rack', 'request'
+        transaction = ElasticAPM.transaction 'Rack', 'request', rack_env: env
+
         resp = @app.call env
-        transaction.submit(resp[0]) if transaction
+
+        transaction.submit(resp[0], headers: resp[1]) if transaction
       rescue InternalError
         raise # Don't report ElasticAPM errors
       rescue ::Exception => e
