@@ -41,4 +41,14 @@ RSpec.describe ElasticAPM do
 
     after { ElasticAPM.stop }
   end
+
+  context 'when not running' do
+    it 'still yields block' do
+      ran = false
+
+      ElasticAPM.transaction('Test') { ran = true }
+
+      expect(ran).to be true
+    end
+  end
 end
