@@ -34,6 +34,12 @@ module ElasticAPM
       attr_accessor :status_code, :headers, :headers_sent, :finished
     end
 
-    attr_accessor :request, :response, :user, :tags, :custom
+    attr_accessor :request, :response, :user
+    attr_reader :custom, :tags
+
+    def initialize
+      @custom = {}
+      @tags = {}
+    end
   end
 end

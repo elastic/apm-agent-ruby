@@ -93,6 +93,12 @@ module ElasticAPM
     agent && agent.report_message(message, backtrace: caller, **attrs)
   end
 
+  ### Context
+
+  def self.set_tag(key, value)
+    agent && agent.set_tag(key, value)
+  end
+
   class << self
     private
 

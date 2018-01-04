@@ -114,6 +114,10 @@ module ElasticAPM
       instrumenter.span(*args, &block)
     end
 
+    def set_tag(*args)
+      instrumenter.set_tag(*args)
+    end
+
     # errors
 
     def report(exception, rack_env: nil, handled: true)

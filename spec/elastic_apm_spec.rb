@@ -38,6 +38,7 @@ RSpec.describe ElasticAPM do
         'NOT OK', { backtrace: Array }
       ]
     end
+    it { should delegate :set_tag, to: agent, args: [nil, nil] }
 
     after { ElasticAPM.stop }
   end
