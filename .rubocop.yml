@@ -28,6 +28,9 @@ Naming/FileName:
   Exclude:
     - 'lib/elastic-apm.rb'
 
+Naming/AccessorMethodName:
+  Enabled: false
+
 Style/Alias:
   Enabled: false
 

@@ -80,6 +80,23 @@ module ElasticAPM
       end
     end
 
+    describe '#set_custom_context' do
+      subject { Instrumenter.new(Config.new, nil) }
+
+      it 'sets custom context on transaction' do
+        transaction = subject.transaction 'Test' do |t|
+          subject.set_custom_context(one: 'is in', two: 2, three: false)
+          t
+        end
+
+        expect(transaction.context.custom).to match(
+          one: 'is in',
+          two: 2,
+          three: false
+        )
+      end
+    end
+
     describe '#submit_transaction' do
       context "when it shouldn't send" do
         subject { Instrumenter.new(Config.new, nil) }

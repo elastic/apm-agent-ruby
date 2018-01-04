@@ -114,10 +114,6 @@ module ElasticAPM
       instrumenter.span(*args, &block)
     end
 
-    def set_tag(*args)
-      instrumenter.set_tag(*args)
-    end
-
     # errors
 
     def report(exception, rack_env: nil, handled: true)
@@ -136,6 +132,16 @@ module ElasticAPM
         **attrs
       )
       enqueue_errors error
+    end
+
+    # context
+
+    def set_tag(*args)
+      instrumenter.set_tag(*args)
+    end
+
+    def set_custom_context(*args)
+      instrumenter.set_custom_context(*args)
     end
 
     def inspect

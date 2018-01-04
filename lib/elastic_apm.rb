@@ -99,6 +99,10 @@ module ElasticAPM
     agent && agent.set_tag(key, value)
   end
 
+  def self.set_custom_context(custom)
+    agent && agent.set_custom_context(custom)
+  end
+
   class << self
     private
 
