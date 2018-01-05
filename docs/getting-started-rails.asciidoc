@@ -1,0 +1,13 @@
+[[getting-started-rails]]
+== Getting started with Rails
+
+=== Setup
+
+Add the gem to your `Gemfile`:
+
+[source,ruby]
+----
+gem 'elastic-apm'
+----
+
+This automatically sets up error logging and performance tracking but of course there are knobs to turn if you'd like to. See <<configuration>>.

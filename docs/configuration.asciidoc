@@ -1,0 +1,32 @@
+[[configuration]]
+== Configuration
+
+There are several ways to shape how Elastic APM behaves.
+
+=== Rails
+
+The recommended way to configure Elastic APM for Rails is to create a file `config/elastic_apm.yml` and specify options in there:
+
+[source,yaml]
+----
+---
+server_url: 'http://localhost:8200'
+secret_token: 'very_very_secret'
+----
+
+=== Sinatra and Rack
+
+When using APM with Sinatra and Rack, you should configure it when starting the agent:
+
+[source,ruby]
+----
+ElasticAPM.start(
+  server_url: 'http://localhost:8200',
+  secret_token: 'very_very_secret'
+)
+----
+
+See <<getting-started-rack>>.
+
+NOTE: This part of the documentation is still lacking. For full list of configuration options, see https://github.com/elastic/apm-agent-ruby/blob/master/lib/elastic_apm/config.rb.
+
