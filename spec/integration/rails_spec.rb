@@ -36,21 +36,34 @@ if defined? Rails
         class FancyError < ::StandardError; end
 
         def index
+          render_ok
+        end
+
+        def context
+          ElasticAPM.set_tag :things, 1
+          ElasticAPM.set_custom_context nested: { banana: 'explosion' }
+          render_ok
+        end
+
+        def raise_error
+          raise FancyError, "Help! I'm trapped in a specfile!"
+        end
+
+        private
+
+        def render_ok
           if Rails.version.start_with?('4')
             render text: 'Yes!'
           else
             render plain: 'Yes!'
           end
         end
-
-        def raise_error
-          raise FancyError, "Help! I'm trapped in a specfile!"
-        end
       end
 
       RailsTestApp.initialize!
       RailsTestApp.routes.draw do
         get '/error', to: 'pages#raise_error'
+        get '/tags_and_context', to: 'pages#context'
         root to: 'pages#index'
       end
     end
@@ -87,6 +100,16 @@ if defined? Rails
         expect(FakeServer.requests.length).to be 1
         name = FakeServer.requests.first['transactions'][0]['name']
         expect(name).to eq 'PagesController#index'
+      end
+
+      it 'can set tags and custom context' do
+        get '/tags_and_context'
+        wait_for_requests_to_finish 1
+
+        payload, = FakeServer.requests
+        context = payload['transactions'][0]['context']
+        expect(context['tags']).to eq('things' => '1')
+        expect(context['custom']).to eq('nested' => { 'banana' => 'explosion' })
       end
 
       it 'validates json schema', type: :json_schema do

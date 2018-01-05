@@ -7,18 +7,14 @@ module ElasticAPM
     class Request
       # @api private
       class Socket
+        include NaivelyHashable
+
         def initialize(req)
           @remote_addr = req.ip
           @encrypted = req.scheme == 'https'
         end
 
         attr_reader :remote_addr, :encrypted
-
-        def to_h
-          %i[remote_addr encrypted].each_with_object({}) do |key, h|
-            h[key] = send(key)
-          end
-        end
       end
     end
   end

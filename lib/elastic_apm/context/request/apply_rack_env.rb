@@ -42,6 +42,8 @@ module ElasticAPM
               rack_env.respond_to?(:headers) ? rack_env.headers : rack_env
 
             headers.each_with_object([{}, {}]) do |(key, value), (http, env)|
+              next unless key == key.upcase
+
               if key.start_with?('HTTP_')
                 http[camel_key(key)] = value
               else

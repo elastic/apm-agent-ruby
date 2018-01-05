@@ -31,7 +31,7 @@ module ElasticAPM
         expect(request.url).to eq(
           protocol: 'http',
           hostname: 'example.org',
-          port: 80,
+          port: '80',
           pathname: '/somewhere/in/there',
           search: 'q=yes',
           hash: nil,
