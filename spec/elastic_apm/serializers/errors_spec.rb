@@ -25,6 +25,7 @@ module ElasticAPM
               id: @mock_uuid,
               culprit: '/',
               timestamp: Time.utc(1992, 1, 1).iso8601,
+              context: { custom: {}, tags: {} },
               exception: {
                 message: 'ZeroDivisionError: divided by 0',
                 type: 'ZeroDivisionError',

@@ -24,7 +24,8 @@ module ElasticAPM
               context: span.context && { db: span.context.to_h }
             }
           end,
-          sampled: transaction.sampled
+          sampled: transaction.sampled,
+          context: transaction.context.to_h
         }
       end
       # rubocop:enable Metrics/AbcSize, Metrics/MethodLength

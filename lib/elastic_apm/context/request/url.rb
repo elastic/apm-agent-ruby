@@ -7,6 +7,8 @@ module ElasticAPM
     class Request
       # @api private
       class Url
+        include NaivelyHashable
+
         SKIPPED_PORTS = {
           'http' => 80,
           'https' => 443
@@ -15,7 +17,7 @@ module ElasticAPM
         def initialize(req)
           @protocol = req.scheme
           @hostname = req.host
-          @port = req.port
+          @port = req.port.to_s
           @pathname = req.path
           @search = req.query_string
           @hash = nil
@@ -24,14 +26,6 @@ module ElasticAPM
 
         attr_reader :protocol, :hostname, :port, :pathname, :search, :hash,
           :full
-
-        def to_h
-          %i[
-            protocol hostname port pathname search hash full
-          ].each_with_object({}) do |key, h|
-            h[key] = send(key)
-          end
-        end
 
         private
 

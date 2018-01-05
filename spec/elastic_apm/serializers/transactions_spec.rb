@@ -25,6 +25,7 @@ module ElasticAPM
               "name": 'GET /something',
               "type": 'request',
               "result": '200',
+              "context": { custom: {}, tags: {} },
               "duration": 100.0,
               "timestamp": Time.utc(1992, 1, 1).iso8601,
               "spans": [],
@@ -58,6 +59,7 @@ module ElasticAPM
               "name": 'GET /something',
               "type": 'request',
               "result": '200',
+              "context": { custom: {}, tags: {} },
               "duration": 50,
               "timestamp": Time.utc(1992, 1, 1).iso8601,
               "spans": [
@@ -78,10 +80,8 @@ module ElasticAPM
                   duration: 10,
                   context: {
                     db: {
-                      instance: nil,
                       statement: 'BO SELECTA',
-                      type: 'sql',
-                      user: nil
+                      type: 'sql'
                     }
                   }
                 }

@@ -4,6 +4,7 @@ require 'elastic_apm/version'
 require 'elastic_apm/log'
 
 # Core
+require 'elastic_apm/naively_hashable'
 require 'elastic_apm/agent'
 require 'elastic_apm/config'
 require 'elastic_apm/instrumenter'

@@ -7,8 +7,12 @@ require 'elastic_apm/context/request/apply_rack_env'
 module ElasticAPM
   # @api private
   class Context
+    include NaivelyHashable
+
     # @api private
     class Request
+      include NaivelyHashable
+
       attr_accessor :body, :cookies, :env, :headers, :http_version, :method,
         :socket, :url
 
@@ -19,6 +23,8 @@ module ElasticAPM
 
     # @api private
     class Response
+      include NaivelyHashable
+
       def initialize(
         status_code,
         headers: {},
