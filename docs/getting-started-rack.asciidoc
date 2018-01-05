@@ -1,0 +1,26 @@
+[[getting-started-rack]]
+== Getting started with Rack
+
+[source,ruby]
+----
+# config.ru
+
+require 'sinatra/base'
+
+class MySinatraApp < Sinatra::Base
+  use ElasticAPM::Middleware
+  
+  # ...
+end
+
+# Takes optional ElasticAPM::Config values
+ElasticAPM.start(
+  app: MySinatraApp, # required
+  server_url: 'http://localhost:8200'
+)
+
+run MySinatraApp
+
+at_exit { ElasticAPM.stop }
+----
+
