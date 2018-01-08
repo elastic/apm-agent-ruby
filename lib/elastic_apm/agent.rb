@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'elastic_apm/context_builder'
 require 'elastic_apm/error_builder'
 require 'elastic_apm/error'
 require 'elastic_apm/http'
@@ -51,6 +52,7 @@ module ElasticAPM
       @queue = Queue.new
 
       @instrumenter = Instrumenter.new(config, self)
+      @context_builder = ContextBuilder.new(config)
       @error_builder = ErrorBuilder.new(config)
 
       @serializers = Struct.new(:transactions, :errors).new(
@@ -59,7 +61,7 @@ module ElasticAPM
       )
     end
 
-    attr_reader :config, :queue, :instrumenter
+    attr_reader :config, :queue, :instrumenter, :context_builder
 
     def start
       debug 'Starting agent reporting to %s', config.server_url
@@ -114,12 +116,15 @@ module ElasticAPM
       instrumenter.span(*args, &block)
     end
 
+    def build_context(rack_env)
+      @context_builder.build(rack_env)
+    end
+
     # errors
 
-    def report(exception, rack_env: nil, handled: true)
+    def report(exception, handled: true)
       error = @error_builder.build_exception(
         exception,
-        rack_env: rack_env,
         handled: handled
       )
       enqueue_errors error

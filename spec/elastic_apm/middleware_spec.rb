@@ -31,7 +31,7 @@ module ElasticAPM
       end.to raise_error(MiddlewareTestError)
 
       expect(ElasticAPM).to have_received(:report)
-        .with(MiddlewareTestError, rack_env: Hash, handled: false)
+        .with(MiddlewareTestError, handled: false)
     end
   end
 end

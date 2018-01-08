@@ -9,15 +9,15 @@ module ElasticAPM
 
     attr_reader :config
 
-    def build_exception(exception, rack_env: nil, handled: true)
+    def build_exception(exception, handled: true)
       error = Error.new
       error.exception = Error::Exception.new(exception, handled: handled)
 
       add_stacktrace error, :exception, exception.backtrace
       add_transaction_id error
 
-      if rack_env
-        error.context.request = Context::Request.from_rack_env rack_env
+      if (transaction = ElasticAPM.current_transaction)
+        error.context = transaction.context.dup
       end
 
       error

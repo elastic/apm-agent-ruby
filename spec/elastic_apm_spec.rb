@@ -23,15 +23,12 @@ RSpec.describe ElasticAPM do
       should delegate :transaction, to: agent, args: [
         'T',
         nil,
-        { rack_env: nil }
+        { context: nil }
       ]
     end
     it { should delegate :span, to: agent, args: ['t', nil, { context: nil }] }
     it do
-      should delegate :report, to: agent, args: [
-        'E',
-        { rack_env: nil, handled: nil }
-      ]
+      should delegate :report, to: agent, args: ['E', { handled: nil }]
     end
     it do
       should delegate :report_message, to: agent, args: [

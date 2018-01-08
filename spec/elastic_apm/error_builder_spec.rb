@@ -17,29 +17,25 @@ module ElasticAPM
         expect(error.exception.handled).to be true
       end
 
-      it 'attaches a context from Rack' do
+      it 'inherits context from current transaction' do
         env = Rack::MockRequest.env_for(
           '/somewhere/in/there?q=yes',
           method: 'POST'
         )
         env['HTTP_CONTENT_TYPE'] = 'application/json'
-        error = subject.build_exception actual_exception, rack_env: env
 
-        request = error.context.request
-        expect(request).to be_a(Context::Request)
-        expect(request.method).to eq 'POST'
-        expect(request.url).to eq(
-          protocol: 'http',
-          hostname: 'example.org',
-          port: '80',
-          pathname: '/somewhere/in/there',
-          search: 'q=yes',
-          hash: nil,
-          full: 'http://example.org/somewhere/in/there?q=yes'
-        )
-        expect(request.headers).to eq(
-          'Content-Type' => 'application/json'
-        )
+        ElasticAPM.start
+        context = ElasticAPM.build_context(env)
+
+        ElasticAPM.transaction 'T', 't', context: context do
+          error = subject.build_exception actual_exception
+          request = error.context.request
+
+          expect(request).to be_a(Context::Request)
+          expect(request.method).to eq 'POST'
+        end
+
+        ElasticAPM.stop
       end
     end
 
