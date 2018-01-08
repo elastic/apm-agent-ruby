@@ -1,0 +1,14 @@
+[[custom-instrumentation]]
+=== Custom instrumentation
+
+When installed ElasticAPM will automatically wrap your app's request/responses in transactions and report its errors.
+
+But it is possible to create your own transactions as well as provide spans for any automatic or custom transaction.
+
+See <<api-transaction,`ElasticAPM.transaction`>> and <<api-span,`ElasticAPM.span`>>.
+
+[[injectors]]
+=== Injectors -- automatic integrations with third-party libraries
+
+ElasticAPM has built-in integrations for some popular libraries. Use `config.enabled_injectors` to add or remove specific integrations. See <<configuration,Configuration>>.
+
