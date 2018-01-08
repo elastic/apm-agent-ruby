@@ -1,0 +1,27 @@
+[[context]]
+=== Adding additional context
+
+==== Adding custom context
+
+You can add your own custom, nested JSON-compatible data to the current transaction using `ElasticAPM.add_custom_context(hash)` eg.:
+
+[source,ruby]
+----
+class ThingsController < ApplicationController
+  before_action do
+    ElasticAPM.add_custom_context(company: current_user.company)
+  end
+
+  # ...
+end
+----
+
+==== Adding tags
+
+Tags are special in that they are indexed in your Elasticsearch database and therefore searchable.
+
+[source,ruby]
+----
+ElasticAPM.set_tag(:company_name, 'Acme, Inc.')
+----
+

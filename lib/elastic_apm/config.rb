@@ -78,6 +78,9 @@ module ElasticAPM
         self.framework_version = Rails::VERSION::STRING
         self.logger = Rails.logger
         self.view_paths = app.config.paths['app/views'].existent
+      else
+        # TODO: define custom?
+        self.app_name = 'ruby'
       end
     end
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
