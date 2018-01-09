@@ -4,7 +4,6 @@ require 'elastic_apm/version'
 require 'elastic_apm/log'
 
 # Core
-require 'elastic_apm/naively_hashable'
 require 'elastic_apm/agent'
 require 'elastic_apm/config'
 require 'elastic_apm/context'
@@ -59,7 +58,7 @@ module ElasticAPM
   # `ExamplesController#index`
   # @param type [String] The kind of the transaction, eg `app.request.get` or
   # `db.mysql2.query`
-  # @param context [Context] An optional APM Context env
+  # @param context [Context] An optional [Context]
   # @yield [Transaction] Optional block encapsulating transaction
   # @return [Transaction] Unless block given
   def self.transaction(name, type = nil, context: nil, &block)
@@ -77,6 +76,15 @@ module ElasticAPM
   def self.span(name, type = nil, context: nil, &block)
     return call_through(&block) unless agent
     agent.span(name, type, context: context, &block)
+  end
+
+  # Build a [Context] from a Rack `env`. The context may include information
+  # about the request, response, current user and more
+  #
+  # @param rack_env [Rack::Env] A Rack env
+  # @return [Context] The built context
+  def self.build_context(rack_env)
+    agent && agent.build_context(rack_env)
   end
 
   ### Errors
@@ -98,16 +106,21 @@ module ElasticAPM
     agent && agent.report_message(message, backtrace: caller, **attrs)
   end
 
-  def self.build_context(rack_env)
-    agent && agent.build_context(rack_env)
-  end
-
   ### Context
 
+  # Set a _tag_ value for the current transaction
+  #
+  # @param key [String,Symbol] A key
+  # @param value [Object] A value (will be converted to string)
+  # @return [Object] The given value
   def self.set_tag(key, value)
     agent && agent.set_tag(key, value)
   end
 
+  # Provide further context for the current transaction
+  #
+  # @param custom [Hash] A hash with custom information. Can be nested.
+  # @return [Hash] The current custom context
   def self.set_custom_context(custom)
     agent && agent.set_custom_context(custom)
   end

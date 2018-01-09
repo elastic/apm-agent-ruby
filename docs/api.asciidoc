@@ -105,6 +105,20 @@ Arguments:
 
 Return the span or the return value of the given block.
 
+[float]
+[[api-build-context]]
+==== `ElasticAPM.build_context`
+
+Build a new _Context_ from a Rack `env`.
+
+A context provides information about the current request, response, user and more.
+
+Arguments:
+
+  * `rack_env`: An instance of Rack::Env
+
+Returns the built context.
+
 === Errors
 
 [float]
@@ -112,6 +126,8 @@ Return the span or the return value of the given block.
 ==== `ElasticAPM.report`
 
 Send an `Exception` to Elastic APM.
+
+If reported inside a transaction, the context from that will be added.
 
 [source,ruby]
 ----
@@ -125,7 +141,6 @@ end
 Arguments:
 
   * `exception`: An instance of `Exception`. **Required**.
-  * `rack_env`: An optional Rack `env` to enrich the error with information about the current request.
   * `handled`: Whether the error was _handled_ eg. wasn't rescued and was represented to the user. Default: `true`.
 
 Returns `[ElasticAPM::Error]`.
@@ -136,6 +151,8 @@ Returns `[ElasticAPM::Error]`.
 
 Send a custom message to Elastic APM.
 
+If reported inside a transaction, the context from that will be added.
+
 [source,ruby]
 ----
 ElasticAPM.report_message('This should probably never happen?!')
@@ -144,7 +161,6 @@ ElasticAPM.report_message('This should probably never happen?!')
 Arguments:
 
   * `message`: A custom error string. **Required**.
-  * `rack_env`: An optional Rack `env` to enrich the error with information about the current request.
   * `handled`: Whether the error was _handled_ eg. wasn't rescued and was represented to the user. Default: `true`.
 
 Returns `[ElasticAPM::Error]`.
