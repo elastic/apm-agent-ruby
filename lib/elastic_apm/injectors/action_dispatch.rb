@@ -10,7 +10,7 @@ module ElasticAPM
           alias render_exception_without_apm render_exception
 
           def render_exception(env, exception)
-            ElasticAPM.report(exception, rack_env: env)
+            ElasticAPM.report(exception)
             render_exception_without_apm env, exception
           end
         end

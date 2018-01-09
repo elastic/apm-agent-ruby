@@ -37,9 +37,11 @@ module ElasticAPM
       subject { Instrumenter.new(Config.new, nil) }
 
       it 'returns a new transaction and sets it as current' do
-        transaction = subject.transaction 'Test'
-        expect(transaction).to_not be_nil
+        context = Context.new
+        transaction = subject.transaction 'Test', 't', context: context
+        expect(transaction.id).to be subject.current_transaction.id
         expect(subject.current_transaction).to be transaction
+        expect(transaction.context).to be context
       end
 
       it 'returns the current transaction if present' do
@@ -63,6 +65,7 @@ module ElasticAPM
       subject { Instrumenter.new(Config.new, nil) }
 
       it 'delegates to current transaction' do
+        subject.current_transaction = double(span: true)
         expect(subject).to delegate :span, to: subject.current_transaction
       end
     end

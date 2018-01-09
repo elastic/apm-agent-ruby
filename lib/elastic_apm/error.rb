@@ -18,7 +18,7 @@ module ElasticAPM
       @transaction_id = nil
     end
 
-    attr_accessor :id, :culprit, :exception, :log, :transaction_id
-    attr_reader :timestamp, :context
+    attr_accessor :id, :culprit, :exception, :log, :transaction_id, :context
+    attr_reader :timestamp
   end
 end

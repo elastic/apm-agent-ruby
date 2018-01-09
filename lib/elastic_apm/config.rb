@@ -25,6 +25,11 @@ module ElasticAPM
 
       enabled_injectors: %w[net_http],
 
+      current_user_method: :current_user,
+      current_user_id_method: :id,
+      current_user_email_method: :email,
+      current_user_username_method: :username,
+
       view_paths: []
     }.freeze
 
@@ -62,6 +67,11 @@ module ElasticAPM
     attr_accessor :enabled_injectors
 
     attr_accessor :view_paths
+
+    attr_accessor :current_user_method
+    attr_accessor :current_user_id_method
+    attr_accessor :current_user_email_method
+    attr_accessor :current_user_username_method
 
     attr_writer :logger
 

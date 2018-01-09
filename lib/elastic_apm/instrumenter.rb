@@ -13,6 +13,10 @@ module ElasticAPM
 
     # @api private
     class TransactionInfo
+      def initialize
+        self.current = nil
+      end
+
       def current
         Thread.current[KEY]
       end

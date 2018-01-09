@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
-require 'elastic_apm/context'
-
 module ElasticAPM
   # @api private
   class Transaction
     # rubocop:disable Metrics/MethodLength
-    def initialize(instrumenter, name, type = 'custom', rack_env: nil)
+    def initialize(instrumenter, name, type = 'custom', context: nil)
       @id = SecureRandom.uuid
       @instrumenter = instrumenter
       @name = name
@@ -20,11 +18,7 @@ module ElasticAPM
 
       @notifications = [] # for AS::Notifications
 
-      @context = Context.new
-
-      if rack_env
-        @context.request = Context::Request.from_rack_env rack_env
-      end
+      @context = context || Context.new
 
       @sampled = true
 
