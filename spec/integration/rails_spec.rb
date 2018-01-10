@@ -35,6 +35,10 @@ if defined? Rails
       class PagesController < ActionController::Base
         class FancyError < ::StandardError; end
 
+        before_action do
+          ElasticAPM.set_user(current_user)
+        end
+
         def index
           render_ok
         end
@@ -57,6 +61,12 @@ if defined? Rails
           else
             render plain: 'Yes!'
           end
+        end
+
+        User = Struct.new(:id, :email)
+
+        def current_user
+          @current_user ||= User.new(1, 'person@example.com')
         end
       end
 
@@ -110,6 +120,16 @@ if defined? Rails
         context = payload['transactions'][0]['context']
         expect(context['tags']).to eq('things' => '1')
         expect(context['custom']).to eq('nested' => { 'banana' => 'explosion' })
+      end
+
+      it 'includes user information' do
+        get '/'
+        wait_for_requests_to_finish 1
+
+        context = FakeServer.requests.first['transactions'][0]['context']
+        user = context['user']
+        expect(user['id']).to eq 1
+        expect(user['email']).to eq 'person@example.com'
       end
 
       it 'validates json schema', type: :json_schema do

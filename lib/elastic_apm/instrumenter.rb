@@ -92,6 +92,10 @@ module ElasticAPM
       transaction.context.custom.merge!(context)
     end
 
+    def set_user(user)
+      transaction.context.user = Context::User.new(config, user)
+    end
+
     def submit_transaction(transaction)
       @pending_transactions << transaction
 

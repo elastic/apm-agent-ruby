@@ -32,6 +32,7 @@ module ElasticAPM
       it { should delegate :span, to: subject.instrumenter }
       it { should delegate :set_tag, to: subject.instrumenter }
       it { should delegate :set_custom_context, to: subject.instrumenter }
+      it { should delegate :set_user, to: subject.instrumenter }
     end
 
     context 'reporting' do

@@ -125,6 +125,14 @@ module ElasticAPM
     agent && agent.set_custom_context(custom)
   end
 
+  # Provide a user to the current transaction
+  #
+  # @param user [Object] An object representing a user
+  # @return [Object] Given user
+  def self.set_user(user)
+    agent && agent.set_user(user)
+  end
+
   class << self
     private
 

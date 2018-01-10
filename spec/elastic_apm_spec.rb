@@ -37,6 +37,7 @@ RSpec.describe ElasticAPM do
     end
     it { should delegate :set_tag, to: agent, args: [nil, nil] }
     it { should delegate :set_custom_context, to: agent, args: [nil] }
+    it { should delegate :set_user, to: agent, args: [nil] }
 
     after { ElasticAPM.stop }
   end

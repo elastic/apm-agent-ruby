@@ -21,6 +21,10 @@ Metrics/BlockLength:
   Exclude:
     - 'spec/**/*.rb'
 
+Metrics/ModuleLength:
+  Exclude:
+    - 'spec/**/*.rb'
+
 Naming/PredicateName:
   Enabled: false
 
