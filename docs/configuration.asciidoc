@@ -3,6 +3,7 @@
 
 There are several ways to shape how Elastic APM behaves.
 
+[float]
 === Rails
 
 The recommended way to configure Elastic APM for Rails is to create a file `config/elastic_apm.yml` and specify options in there:
@@ -14,6 +15,7 @@ server_url: 'http://localhost:8200'
 secret_token: 'very_very_secret'
 ----
 
+[float]
 === Sinatra and Rack
 
 When using APM with Sinatra and Rack, you should configure it when starting the agent:

@@ -3,8 +3,6 @@
 module ElasticAPM
   # @api private
   class ContextBuilder
-    CONTROLLER_KEY = 'action_controller.instance'.freeze
-
     def initialize(config)
       @config = config
     end
@@ -13,10 +11,7 @@ module ElasticAPM
 
     def build(rack_env)
       context = Context.new
-
       apply_to_request(context, rack_env)
-      apply_to_user(context, rack_env)
-
       context
     end
 
@@ -39,18 +34,6 @@ module ElasticAPM
       context
     end
     # rubocop:enable Metrics/AbcSize
-
-    def apply_to_user(context, rack_env)
-      return unless (controller = rack_env[CONTROLLER_KEY])
-
-      method = config.current_user_method.to_sym
-      return unless controller.respond_to?(method)
-
-      return unless (record = controller.send method)
-
-      context.user = Context::User.new(config, record)
-      context
-    end
 
     def get_body(req)
       return req.POST if req.form_data?

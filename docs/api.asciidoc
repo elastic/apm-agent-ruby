@@ -44,6 +44,7 @@ Returns whether the ElasticAPM Agent is currently running.
 
 Returns the currently running agent or nil.
 
+[float]
 === Instrumentation
 
 [float]
@@ -119,6 +120,7 @@ Arguments:
 
 Returns the built context.
 
+[float]
 === Errors
 
 [float]
@@ -165,6 +167,7 @@ Arguments:
 
 Returns `[ElasticAPM::Error]`.
 
+[float]
 === Context
 
 [float]
@@ -207,4 +210,16 @@ Arguments:
   * `context`: A hash of JSON-compatible key-values. Can be nested.
 
 Returns current custom context.
+
+[float]
+[[api-set-user]]
+==== `ElasticAPM.set_user`
+
+Add the current user to the current transaction's context.
+
+Arguments:
+
+  * `user`: An object representing the user
+
+Returns the given user
 

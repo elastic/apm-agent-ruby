@@ -32,24 +32,6 @@ module ElasticAPM
           'Content-Type' => 'application/json'
         )
       end
-
-      it 'enriches user' do
-        class Controller
-          ProbablyUser = Struct.new(:id, :email, :username)
-
-          def current_user
-            ProbablyUser.new(1, 'john@example.com', 'leroy')
-          end
-        end
-
-        env = Rack::MockRequest.env_for '/',
-          'action_controller.instance' => Controller.new
-        context = subject.build(env)
-
-        expect(context.user.id).to be 1
-        expect(context.user.email).to eq 'john@example.com'
-        expect(context.user.username).to eq 'leroy'
-      end
     end
   end
 end

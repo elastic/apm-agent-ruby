@@ -100,6 +100,25 @@ module ElasticAPM
       end
     end
 
+    describe '#set_user' do
+      User = Struct.new(:id, :email, :username)
+
+      subject { Instrumenter.new(Config.new, nil) }
+
+      it 'sets user in context' do
+        transaction = subject.transaction 'Test' do |t|
+          subject.set_user(User.new(1, 'a@a', 'abe'))
+          t
+        end
+
+        expect(transaction.context.user.to_h).to match(
+          id: 1,
+          email: 'a@a',
+          username: 'abe'
+        )
+      end
+    end
+
     describe '#submit_transaction' do
       context "when it shouldn't send" do
         subject { Instrumenter.new(Config.new, nil) }

@@ -150,6 +150,10 @@ module ElasticAPM
       instrumenter.set_custom_context(*args)
     end
 
+    def set_user(*args)
+      instrumenter.set_user(*args)
+    end
+
     def inspect
       '<ElasticAPM::Agent>'
     end

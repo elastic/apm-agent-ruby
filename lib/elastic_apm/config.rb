@@ -25,7 +25,6 @@ module ElasticAPM
 
       enabled_injectors: %w[net_http],
 
-      current_user_method: :current_user,
       current_user_id_method: :id,
       current_user_email_method: :email,
       current_user_username_method: :username,
