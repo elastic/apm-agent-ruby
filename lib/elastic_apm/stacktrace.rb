@@ -5,6 +5,8 @@ require 'elastic_apm/stacktrace/frame'
 module ElasticAPM
   # @api private
   class Stacktrace
+    GEMS_REGEX = %r{/gems/}
+
     def initialize(backtrace)
       @backtrace = backtrace
     end
@@ -20,7 +22,7 @@ module ElasticAPM
     end
 
     def build_frames(builder)
-      @frames = @backtrace.reverse.map do |line|
+      @frames = @backtrace.map do |line|
         build_frame(builder, line)
       end
     end
@@ -62,6 +64,7 @@ module ElasticAPM
       frame.function = function
       frame.lineno = lineno.to_i
       frame.build_context 3
+      frame.library_frame = !!(abs_path =~ GEMS_REGEX)
 
       frame
     end
