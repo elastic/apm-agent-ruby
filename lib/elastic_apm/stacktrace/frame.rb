@@ -14,7 +14,7 @@ module ElasticAPM
         :pre_context,
         :context_line,
         :post_context,
-        :in_app,
+        :library_frame,
         :lineno,
         :module,
         :colno

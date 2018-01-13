@@ -11,7 +11,7 @@ module ElasticAPM
           expect(stacktrace.frames).to_not be_empty
 
           # so meta
-          last_frame = stacktrace.frames.last
+          last_frame = stacktrace.frames.first
           expect(last_frame.lineno).to be_a Integer
           expect(last_frame.abs_path).to_not be_nil
           expect(last_frame.function).to eq '/'
@@ -21,6 +21,13 @@ module ElasticAPM
           expect(last_frame.context_line).to match(%r{1 / 0})
           expect(last_frame.post_context.first).to match(/rescue/)
           expect(last_frame.filename).to eq 'spec_helper.rb'
+
+          # library_frame
+          expect(last_frame.library_frame).to be false
+
+          gems_frame = stacktrace.frames[-4]
+
+          expect(gems_frame.library_frame).to be true
         end
       end
 
@@ -38,7 +45,7 @@ module ElasticAPM
           expect(stacktrace.frames).to_not be_empty
 
           # so meta
-          last_frame = stacktrace.frames.last
+          last_frame = stacktrace.frames.first
           expect(last_frame.lineno).to be_a Integer
           expect(last_frame.abs_path).to_not be_nil
           expect(last_frame.function).to eq '/'

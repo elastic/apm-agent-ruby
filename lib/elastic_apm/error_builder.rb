@@ -45,7 +45,7 @@ module ElasticAPM
         error.log.stacktrace = stacktrace
       end
 
-      error.culprit = stacktrace.frames.last.function
+      error.culprit = stacktrace.frames.first.function
     end
 
     def add_transaction_id(error)
