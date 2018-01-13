@@ -1,4 +1,4 @@
-# elastic-apm – Elastic APM agent for Ruby (ALPHA)
+# elastic-apm – Elastic APM agent for Ruby (BETA)
 
 [![Jenkins](https://img.shields.io/jenkins/s/https/apm-ci.elastic.co/job/elastic+apm-agent-ruby+master.svg)](https://apm-ci.elastic.co/job/elastic+apm-agent-ruby+master/) [![Gem](https://img.shields.io/gem/v/formatador.svg?style=flat-square)](https://rubygems.org/gems/elastic-apm)
 
