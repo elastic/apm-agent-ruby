@@ -142,6 +142,20 @@ module ElasticAPM
     agent && agent.set_user(user)
   end
 
+  # Provide a filter to transform payloads before sending them off
+  #
+  # @param key [Symbol] Unique filter key
+  # @param callback [Object, Proc] A filter that responds to #call(payload)
+  # @yield [Hash] A filter. Will be used if provided. Otherwise using `callback`
+  # @return [Bool] true
+  def self.add_filter(key, callback = nil, &block)
+    if callback.nil? && !block_given?
+      raise ArgumentError, '#add_filter needs either `callback\' or a block'
+    end
+
+    agent && agent.add_filter(key, block || callback)
+  end
+
   class << self
     private
 

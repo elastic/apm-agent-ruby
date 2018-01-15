@@ -78,5 +78,15 @@ module ElasticAPM
         expect(job).to be_a Worker::Request
       end
     end
+
+    describe '#add_filter' do
+      subject { Agent.new Config.new }
+
+      it 'may add a filter' do
+        expect do
+          subject.add_filter :key, -> {}
+        end.to change(subject.http.filters, :length).by 1
+      end
+    end
   end
 end

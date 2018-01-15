@@ -18,4 +18,3 @@ module ElasticAPM
 end
 
 require 'elastic_apm/util/inspector'
-require 'elastic_apm/util/inspector'

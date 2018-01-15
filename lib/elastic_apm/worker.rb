@@ -16,9 +16,9 @@ module ElasticAPM
       end
     end
 
-    def initialize(config, queue, http: Http)
+    def initialize(config, queue, adapter)
       @config = config
-      @adapter = http.new(config)
+      @adapter = adapter
       @queue = queue
     end
 

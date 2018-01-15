@@ -20,7 +20,7 @@ module ElasticAPM
         }
       end
 
-      attr_reader :config, :filters
+      attr_reader :config
 
       def add(key, filter)
         @filters[key] = filter
@@ -34,6 +34,10 @@ module ElasticAPM
         @filters.reduce(payload) do |result, (_key, filter)|
           filter.call(result)
         end
+      end
+
+      def length
+        @filters.length
       end
     end
   end

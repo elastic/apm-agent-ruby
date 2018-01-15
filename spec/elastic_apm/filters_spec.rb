@@ -14,7 +14,7 @@ module ElasticAPM
       it 'can add more filters' do
         expect do
           subject.add(:thing, -> {})
-        end.to change(subject.filters, :length).by 1
+        end.to change(subject, :length).by 1
       end
     end
 
@@ -22,7 +22,7 @@ module ElasticAPM
       it 'removes filter by key' do
         expect do
           subject.remove(:secrets)
-        end.to change(subject.filters, :length).by(-1)
+        end.to change(subject, :length).by(-1)
       end
     end
 

@@ -34,6 +34,18 @@ RSpec.describe ElasticAPM do
     it { should delegate :set_custom_context, to: agent, args: [nil] }
     it { should delegate :set_user, to: agent, args: [nil] }
 
+    describe '#add_filter' do
+      it { should delegate :add_filter, to: agent, args: [nil, -> {}] }
+
+      it 'needs either callback or block' do
+        expect { subject.add_filter(:key) }.to raise_error(ArgumentError)
+
+        expect do
+          subject.add_filter(:key) { 'ok' }
+        end.to_not raise_error
+      end
+    end
+
     after { ElasticAPM.stop }
   end
 
