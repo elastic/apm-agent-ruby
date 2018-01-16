@@ -20,7 +20,7 @@ module ElasticAPM
           end
           subject { builder.build(transaction) }
           it 'builds' do
-            should eq(
+            should match(
               "id": @mock_uuid,
               "name": 'GET /something',
               "type": 'request',
@@ -54,7 +54,7 @@ module ElasticAPM
           subject { builder.build(transaction) }
 
           it 'builds' do
-            should eq(
+            should match(
               "id": @mock_uuid,
               "name": 'GET /something',
               "type": 'request',
@@ -70,7 +70,8 @@ module ElasticAPM
                   type: 'template',
                   start: 10,
                   duration: 30,
-                  context: nil
+                  context: nil,
+                  stacktrace: Array
                 }, {
                   id: 1,
                   parent: 0,
@@ -83,7 +84,8 @@ module ElasticAPM
                       statement: 'BO SELECTA',
                       type: 'sql'
                     }
-                  }
+                  },
+                  stacktrace: Array
                 }
               ],
               sampled: true
