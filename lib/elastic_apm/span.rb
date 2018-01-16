@@ -22,14 +22,16 @@ module ElasticAPM
       @type = type
       @parent = parent
       @context = context
+      @stacktrace = nil
     end
     # rubocop:enable Metrics/ParameterLists
 
-    attr_accessor :name, :context, :type
+    attr_accessor :name, :context, :type, :stacktrace
     attr_reader :id, :duration, :parent, :relative_start
 
     def start
       @relative_start = Util.micros - @transaction.timestamp
+      @stacktrace = Stacktrace.build(caller)
 
       self
     end

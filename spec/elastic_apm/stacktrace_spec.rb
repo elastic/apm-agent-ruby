@@ -7,7 +7,7 @@ module ElasticAPM
     describe '.from' do
       context 'mri', unless: RSpec::Support::Ruby.jruby? do
         it 'initializes from a backtrace' do
-          stacktrace = Stacktrace.build(nil, actual_exception.backtrace)
+          stacktrace = Stacktrace.build(actual_exception.backtrace)
           expect(stacktrace.frames).to_not be_empty
 
           # so meta
@@ -41,7 +41,7 @@ module ElasticAPM
         end
 
         it 'initializes from an exception' do
-          stacktrace = Stacktrace.build(nil, actual_exception.backtrace)
+          stacktrace = Stacktrace.build(actual_exception.backtrace)
           expect(stacktrace.frames).to_not be_empty
 
           # so meta
@@ -55,20 +55,20 @@ module ElasticAPM
         end
 
         it 'initializes from a Java exception' do
-          stacktrace = Stacktrace.build(nil, java_exception.backtrace)
+          stacktrace = Stacktrace.build(java_exception.backtrace)
           expect(stacktrace.frames).to_not be_empty
         end
       end
 
       it 'initializes from caller' do
-        stacktrace = Stacktrace.build(nil, caller)
+        stacktrace = Stacktrace.build(caller)
         expect(stacktrace.frames).to_not be_empty
       end
     end
 
     describe '#to_a' do
       it 'is a hash' do
-        array = Stacktrace.build(nil, actual_exception.backtrace).to_a
+        array = Stacktrace.build(actual_exception.backtrace).to_a
         expect(array).to be_a Array
       end
     end

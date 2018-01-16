@@ -20,24 +20,26 @@ module ElasticAPM
         :colno
       )
 
-      # rubocop:disable Metrics/AbcSize
       def build_context(context_line_count)
         return unless abs_path
 
-        file_lines = [nil] + read_lines(abs_path)
+        from = (lineno - context_line_count - 1)
+        to = (lineno + context_line_count)
+        file_lines = read_lines(abs_path, from..to)
 
-        self.context_line = file_lines[lineno]
-        self.pre_context =
-          file_lines[(lineno - context_line_count - 1)...lineno]
-        self.post_context =
-          file_lines[(lineno + 1)..(lineno + context_line_count)]
+        self.context_line = file_lines[context_line_count]
+        self.pre_context  = file_lines.first(context_line_count)
+        self.post_context = file_lines.last(context_line_count)
       end
-      # rubocop:enable Metrics/AbcSize
 
       private
 
-      def read_lines(path)
-        File.readlines(path)
+      def read_lines(path, range)
+        if (cached = LineCache.get(path, range))
+          return cached
+        end
+
+        LineCache.set(path, range, File.readlines(path)[range])
       rescue Errno::ENOENT
         []
       end
