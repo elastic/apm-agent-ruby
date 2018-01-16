@@ -29,9 +29,8 @@ module ElasticAPM
     attr_accessor :name, :context, :type, :stacktrace
     attr_reader :id, :duration, :parent, :relative_start
 
-    def start(backtrace: nil)
+    def start
       @relative_start = Util.micros - @transaction.timestamp
-      @stacktrace = Stacktrace.build(backtrace)
 
       self
     end

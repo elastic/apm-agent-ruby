@@ -36,7 +36,7 @@ module ElasticAPM
     private
 
     def add_stacktrace(error, kind, backtrace)
-      return unless (stacktrace = Stacktrace.build(backtrace))
+      return unless (stacktrace = Stacktrace.build(config, backtrace))
 
       case kind
       when :exception

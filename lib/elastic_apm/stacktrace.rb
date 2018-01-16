@@ -14,17 +14,17 @@ module ElasticAPM
 
     attr_reader :frames
 
-    def self.build(backtrace)
+    def self.build(config, backtrace)
       return nil unless backtrace
 
       stack = new(backtrace)
-      stack.build_frames
+      stack.build_frames(config)
       stack
     end
 
-    def build_frames
+    def build_frames(config)
       @frames = @backtrace.map do |line|
-        build_frame(line)
+        build_frame(config, line)
       end
     end
 
@@ -56,7 +56,7 @@ module ElasticAPM
       [file, number, method, module_name]
     end
 
-    def build_frame(line)
+    def build_frame(config, line)
       abs_path, lineno, function, _module_name = parse_line(line)
 
       frame = Frame.new
@@ -65,7 +65,8 @@ module ElasticAPM
       frame.function = function
       frame.lineno = lineno.to_i
       frame.build_context 3
-      frame.library_frame = !!(abs_path =~ GEMS_REGEX)
+      frame.library_frame =
+        !(abs_path && abs_path.start_with?(config.root_path))
 
       frame
     end

@@ -23,13 +23,14 @@ module ElasticAPM
       debug_transactions: false,
       debug_http: false,
 
-      enabled_injectors: %w[net_http],
+      enabled_injectors: %w[net_http json],
 
       current_user_id_method: :id,
       current_user_email_method: :email,
       current_user_username_method: :username,
 
-      view_paths: []
+      view_paths: [],
+      root_path: Dir.pwd
     }.freeze
 
     LOCK = Mutex.new
@@ -66,6 +67,7 @@ module ElasticAPM
     attr_accessor :enabled_injectors
 
     attr_accessor :view_paths
+    attr_accessor :root_path
 
     attr_accessor :current_user_method
     attr_accessor :current_user_id_method
@@ -81,11 +83,14 @@ module ElasticAPM
         self.app_name = format_name(app_name || app.to_s)
         self.framework_name = 'Sinatra'
         self.framework_version = Sinatra::VERSION
+        self.enabled_injectors += %w[sinatra]
+        self.root_path = Dir.pwd
       when :rails
         self.app_name = format_name(app_name || app.class.parent_name)
         self.framework_name = 'Ruby on Rails'
         self.framework_version = Rails::VERSION::STRING
         self.logger = Rails.logger
+        self.root_path = Rails.root.to_s
         self.view_paths = app.config.paths['app/views'].existent
       else
         # TODO: define custom?

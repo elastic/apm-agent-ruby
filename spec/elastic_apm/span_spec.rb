@@ -6,7 +6,8 @@ module ElasticAPM
   RSpec.describe Span do
     describe '#start', :mock_time do
       it 'has a relative and absolute start time', :mock_time do
-        transactionish = Struct.new(:timestamp).new(Util.micros)
+        transactionish =
+          Struct.new(:timestamp, :instrumenter).new(Util.micros, nil)
 
         span = Span.new(transactionish, nil, 'test-1')
         travel 100
@@ -18,7 +19,8 @@ module ElasticAPM
 
     describe '#done', :mock_time do
       it 'sets duration' do
-        transactionish = Struct.new(:timestamp).new(Util.micros)
+        transactionish =
+          Struct.new(:timestamp, :instrumenter).new(Util.micros, nil)
         subject = Span.new(transactionish, nil, 'test-1')
 
         expect(subject).to_not be_done
@@ -34,7 +36,8 @@ module ElasticAPM
 
     describe '#running?' do
       it 'is when started and not done' do
-        transactionish = Struct.new(:timestamp).new(Util.micros)
+        transactionish =
+          Struct.new(:timestamp, :instrumenter).new(Util.micros, nil)
         subject = Span.new(transactionish, nil, 'test-1')
 
         expect(subject).to_not be_running
