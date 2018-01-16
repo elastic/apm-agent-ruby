@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'elastic_apm/stacktrace/frame'
+require 'elastic_apm/stacktrace/line_cache'
 
 module ElasticAPM
   # @api private
