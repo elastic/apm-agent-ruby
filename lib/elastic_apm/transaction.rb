@@ -61,10 +61,10 @@ module ElasticAPM
       spans.select(&:running?)
     end
 
-    def span(name, type = nil, context: nil)
+    def span(name, type = nil, backtrace: nil, context: nil)
       span = next_span(name, type, context)
       spans << span
-      span.start
+      span.start(backtrace: backtrace)
 
       return span unless block_given?
 

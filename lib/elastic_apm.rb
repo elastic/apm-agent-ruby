@@ -73,9 +73,17 @@ module ElasticAPM
   # @param context [Span::Context] Context information about the span
   # @yield [Span] Optional block encapsulating span
   # @return [Span] Unless block given
-  def self.span(name, type = nil, context: nil, &block)
+  def self.span(name, type = nil, context: nil, include_stacktrace: true,
+    &block)
     return call_through(&block) unless agent
-    agent.span(name, type, context: context, &block)
+
+    agent.span(
+      name,
+      type,
+      context: context,
+      backtrace: include_stacktrace ? caller : nil,
+      &block
+    )
   end
 
   # Build a [Context] from a Rack `env`. The context may include information

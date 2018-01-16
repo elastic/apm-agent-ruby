@@ -8,9 +8,9 @@ module ElasticAPM
   class Subscriber
     include Log
 
-    def initialize(agent)
+    def initialize(config, agent: ElasticAPM)
+      @config = config
       @agent = agent
-      @config = agent.config
       @normalizers = Normalizers.build(config)
     end
 
@@ -43,7 +43,7 @@ module ElasticAPM
           nil
         else
           name, type, context = normalized
-          transaction.span(name, type, context: context)
+          @agent.span(name, type, context: context)
         end
 
       transaction.notifications << Notification.new(id, span)
