@@ -26,12 +26,14 @@ module ElasticAPM
     end
 
     def log(lvl, msg, *args)
+      return unless logger
+
       formatted_msg = prepend_prefix(format(msg.to_s, *args))
 
-      return config.logger.send(lvl, formatted_msg) unless block_given?
+      return logger.send(lvl, formatted_msg) unless block_given?
 
       # TODO: dont evaluate block if level is higher
-      config.logger.send(lvl, "#{formatted_msg}\n#{yield}")
+      logger.send(lvl, "#{formatted_msg}\n#{yield}")
     end
 
     private
@@ -40,8 +42,9 @@ module ElasticAPM
       "#{PREFIX}#{str}"
     end
 
-    def has_logger?
-      respond_to?(:config) && config.logger
+    def logger
+      return false unless (config = instance_variable_get(:@config))
+      config.logger
     end
   end
 end
