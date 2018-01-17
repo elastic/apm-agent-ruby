@@ -16,6 +16,7 @@ module ElasticAPM
 
       log_path: '-',
       log_level: Logger::INFO,
+      logger: nil,
 
       timeout: 10,
       open_timeout: 10,
@@ -45,13 +46,15 @@ module ElasticAPM
       return unless block_given?
 
       yield self
+
+      freeze
     end
 
     attr_accessor :server_url
     attr_accessor :secret_token
 
     attr_accessor :app_name
-    attr_writer :environment
+    attr_reader   :environment
     attr_accessor :framework_name
     attr_accessor :framework_version
 
@@ -74,7 +77,7 @@ module ElasticAPM
     attr_accessor :current_user_email_method
     attr_accessor :current_user_username_method
 
-    attr_writer :logger
+    attr_reader   :logger
 
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def app=(app)
@@ -111,19 +114,16 @@ module ElasticAPM
       nil
     end
 
-    def environment
-      @environment ||= ENV['RAILS_ENV'] || ENV['RACK_ENV']
-    end
-
-    def logger
-      @logger ||=
-        LOCK.synchronize do
-          build_logger(log_path, log_level)
-        end
-    end
-
     def use_ssl?
       server_url.start_with?('https')
+    end
+
+    def environment=(env)
+      @environment = env || ENV['RAILS_ENV'] || ENV['RACK_ENV']
+    end
+
+    def logger=(logger)
+      @logger = logger || build_logger(log_path, log_level)
     end
 
     private
