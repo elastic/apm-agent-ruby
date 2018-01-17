@@ -45,11 +45,13 @@ module ElasticAPM
       !!@instance
     end
 
+    # rubocop:disable Metrics/MethodLength
     def initialize(config)
       config = Config.new(config) if config.is_a?(Hash)
 
       @config = config
 
+      @http = Http.new(config)
       @queue = Queue.new
 
       @instrumenter = Instrumenter.new(config, self)
@@ -61,8 +63,9 @@ module ElasticAPM
         Serializers::Errors.new(config)
       )
     end
+    # rubocop:enable Metrics/MethodLength
 
-    attr_reader :config, :queue, :instrumenter, :context_builder
+    attr_reader :config, :queue, :instrumenter, :context_builder, :http
 
     def start
       debug 'Starting agent reporting to %s', config.server_url
@@ -154,6 +157,10 @@ module ElasticAPM
       instrumenter.set_user(*args)
     end
 
+    def add_filter(key, callback)
+      @http.filters.add(key, callback)
+    end
+
     def inspect
       '<ElasticAPM::Agent>'
     end
@@ -164,7 +171,7 @@ module ElasticAPM
       debug 'Booting worker in thread'
 
       @worker_thread = Thread.new do
-        Worker.new(@config, @queue).run_forever
+        Worker.new(@config, @queue, @http).run_forever
       end
     end
 

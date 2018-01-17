@@ -35,6 +35,19 @@ module ElasticAPM
         expect(payload['system']).to be_a Hash
         expect(payload['service']).to be_a Hash
       end
+
+      it 'filters sensitive data' do
+        subject.post(
+          '/v1/transactions', transactions: [
+            { id: 1, context: { request: { headers: { ApiKey: 'OH NO!' } } } }
+          ]
+        )
+
+        payload, = FakeServer.requests
+        headers =
+          payload.dig('transactions', 0, 'context', 'request', 'headers')
+        expect(headers['ApiKey']).to eq '[FILTERED]'
+      end
     end
   end
 end

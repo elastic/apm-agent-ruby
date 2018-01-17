@@ -5,6 +5,7 @@ require 'net/http'
 require 'elastic_apm/service_info'
 require 'elastic_apm/system_info'
 require 'elastic_apm/process_info'
+require 'elastic_apm/filters'
 
 module ElasticAPM
   # @api private
@@ -23,10 +24,14 @@ module ElasticAPM
         process: ProcessInfo.build(config),
         system: SystemInfo.build(config)
       }
+      @filters = Filters.new(config)
     end
+
+    attr_reader :filters
 
     def post(path, payload = {})
       payload.merge! @base_payload
+      filters.apply(payload)
       request = prepare_request path, payload.to_json
       response = @adapter.perform request
 

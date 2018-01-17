@@ -20,7 +20,7 @@ module ElasticAPM
 
     describe 'a loop' do
       let(:queue) { Queue.new }
-      subject { Worker.new(Config.new, queue, http: FakeHttp) }
+      subject { Worker.new(Config.new, queue, FakeHttp.new(nil)) }
 
       context 'with an empty queue' do
         it 'does not make any requests' do
@@ -47,7 +47,7 @@ module ElasticAPM
           queue.push Worker::Request.new('/', { id: 1 }.to_json)
           queue.push Worker::Request.new('/', { id: 2 }.to_json)
 
-          Thread.new { subject.run_forever }.join 0.1
+          Thread.new { subject.run_forever }.join 0.2
 
           expect(FakeHttp.reqs).to eq [['/', '{"id":1}'], ['/', '{"id":2}']]
         end
