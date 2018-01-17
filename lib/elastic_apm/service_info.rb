@@ -7,13 +7,11 @@ module ElasticAPM
       @config = config
     end
 
-    attr_reader :config
-
     # rubocop:disable Metrics/MethodLength
     def build
       base = {
-        name: config.app_name,
-        environment: config.environment,
+        name: @config.app_name,
+        environment: @config.environment,
         agent: {
           name: 'ruby',
           version: VERSION
@@ -27,10 +25,10 @@ module ElasticAPM
         version: git_sha
       }
 
-      if config.framework_name
+      if @config.framework_name
         base[:framework] = {
-          name: config.framework_name,
-          version: config.framework_version
+          name: @config.framework_name,
+          version: @config.framework_version
         }
       end
 

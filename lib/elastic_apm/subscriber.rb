@@ -14,8 +14,6 @@ module ElasticAPM
       @normalizers = Normalizers.build(config)
     end
 
-    attr_reader :config
-
     def register!
       unregister! if @subscription
 

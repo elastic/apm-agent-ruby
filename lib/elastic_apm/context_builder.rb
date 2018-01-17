@@ -3,11 +3,7 @@
 module ElasticAPM
   # @api private
   class ContextBuilder
-    def initialize(config)
-      @config = config
-    end
-
-    attr_reader :config
+    def initialize(_config); end
 
     def build(rack_env)
       context = Context.new

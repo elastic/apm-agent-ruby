@@ -7,8 +7,6 @@ module ElasticAPM
       @config = config
     end
 
-    attr_reader :config
-
     def build_exception(exception, handled: true)
       error = Error.new
       error.exception = Error::Exception.new(exception, handled: handled)
@@ -36,7 +34,7 @@ module ElasticAPM
     private
 
     def add_stacktrace(error, kind, backtrace)
-      return unless (stacktrace = Stacktrace.build(config, backtrace))
+      return unless (stacktrace = Stacktrace.build(@config, backtrace))
 
       case kind
       when :exception

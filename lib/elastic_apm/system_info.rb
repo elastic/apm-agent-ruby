@@ -3,11 +3,7 @@
 module ElasticAPM
   # @api private
   class SystemInfo
-    def initialize(config)
-      @config = config
-    end
-
-    attr_reader :config
+    def initialize(_config); end
 
     def build
       {

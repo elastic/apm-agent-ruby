@@ -25,8 +25,6 @@ module ElasticAPM
       }
     end
 
-    attr_reader :config
-
     def post(path, payload = {})
       payload.merge! @base_payload
       request = prepare_request path, payload.to_json
@@ -50,7 +48,7 @@ module ElasticAPM
         req['User-Agent'] = USER_AGENT
         req['Content-Length'] = data.bytesize.to_s
 
-        if (token = config.secret_token)
+        if (token = @config.secret_token)
           req['Authorization'] = "Bearer #{token}"
         end
 

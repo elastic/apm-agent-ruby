@@ -22,8 +22,6 @@ module ElasticAPM
       @queue = queue
     end
 
-    attr_reader :config
-
     def run_forever
       loop do
         while (item = @queue.pop)
