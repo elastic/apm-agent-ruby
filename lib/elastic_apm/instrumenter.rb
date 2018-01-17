@@ -32,7 +32,7 @@ module ElasticAPM
 
       @transaction_info = TransactionInfo.new
 
-      @subscriber = subscriber_class.new(self)
+      @subscriber = subscriber_class.new(config)
 
       @pending_transactions = []
       @last_sent_transactions = Time.now.utc

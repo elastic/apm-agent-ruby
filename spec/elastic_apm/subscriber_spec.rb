@@ -32,8 +32,9 @@ module ElasticAPM
 
     describe 'AS::Notifications API' do
       it 'adds spans from notifications' do
-        agent = Agent.new Config.new
-        subject = Subscriber.new agent
+        config = Config.new
+        agent = Agent.new config
+        subject = Subscriber.new config, agent: agent
         transaction = agent.transaction 'Test'
 
         expect do

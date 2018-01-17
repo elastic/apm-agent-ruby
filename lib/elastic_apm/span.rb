@@ -31,7 +31,6 @@ module ElasticAPM
 
     def start
       @relative_start = Util.micros - @transaction.timestamp
-      @stacktrace = Stacktrace.build(caller)
 
       self
     end
