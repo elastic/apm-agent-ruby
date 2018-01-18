@@ -44,7 +44,7 @@ module ElasticAPM
               'WHERE "hotdogs"."topping" = $1 LIMIT 1'
 
             name, type, context = normalize_payload(sql: sql)
-            expect(name).to eq 'SELECT FROM "hotdogs"'
+            expect(name).to eq 'SELECT FROM hotdogs'
             expect(type).to eq 'db.unknown.sql'
             expect(context.statement).to eq sql
           end

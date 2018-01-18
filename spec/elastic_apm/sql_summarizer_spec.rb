@@ -5,7 +5,7 @@ require 'spec_helper'
 module ElasticAPM
   RSpec.describe SqlSummarizer do
     it 'summarizes selects from table' do
-      result = subject.summarize('SELECT * FROM table')
+      result = subject.summarize('SELECT * FROM "table"')
       expect(result).to eq('SELECT FROM table')
     end
 
