@@ -18,7 +18,7 @@ module ElasticAPM
       self.class.cache[sql] ||=
         REGEXES.find do |regex, sig|
           if (match = sql.match(regex))
-            break format("#{sig}#{match[1]}")
+            break format('%s%s'.freeze, sig, match[1].gsub(/["']/, ''))
           end
         end
     end
