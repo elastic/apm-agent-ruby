@@ -3,6 +3,7 @@
 require 'logger'
 
 module ElasticAPM
+  # rubocop:disable Metrics/ClassLength
   # @api private
   class Config
     DEFAULTS = {
@@ -34,16 +35,37 @@ module ElasticAPM
       root_path: Dir.pwd
     }.freeze
 
+    ENV_TO_KEY = {
+      'ELASTIC_APM_APP_NAME' => 'app_name',
+      'ELASTIC_APM_SERVER_URL' => 'server_url',
+      'ELASTIC_APM_SECRET_TOKEN' => 'secret_token'
+    }.freeze
+
+    # rubocop:disable Metrics/MethodLength
     def initialize(options = nil)
       options = {} if options.nil?
 
-      DEFAULTS.merge(options).each do |key, value|
+      # Start with the defaults
+      DEFAULTS.each do |key, value|
+        send("#{key}=", value)
+      end
+
+      # Set options from ENV
+      ENV_TO_KEY.each do |env_key, key|
+        next unless (value = ENV[env_key])
+        send("#{key}=", value)
+      end
+
+      # Set options from arguments
+      options.each do |key, value|
         send("#{key}=", value)
       end
 
       yield self if block_given?
+
       freeze
     end
+    # rubocop:enable Metrics/MethodLength
 
     attr_accessor :server_url
     attr_accessor :secret_token
@@ -133,4 +155,5 @@ module ElasticAPM
       str.gsub('::', '_')
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end
