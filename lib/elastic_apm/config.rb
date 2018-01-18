@@ -34,8 +34,6 @@ module ElasticAPM
       root_path: Dir.pwd
     }.freeze
 
-    LOCK = Mutex.new
-
     def initialize(options = nil)
       options = {} if options.nil?
 
@@ -43,10 +41,7 @@ module ElasticAPM
         send("#{key}=", value)
       end
 
-      return unless block_given?
-
-      yield self
-
+      yield self if block_given?
       freeze
     end
 
