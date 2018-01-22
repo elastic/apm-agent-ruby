@@ -9,8 +9,11 @@ if defined?(Sinatra)
     class FancyError < StandardError; end
 
     class SinatraTestApp < ::Sinatra::Base
+      enable :logging
       disable :show_exceptions
+
       use ElasticAPM::Middleware
+      use Rack::CommonLogger, Logger.new(STDOUT)
 
       get '/' do
         'Yes!'
