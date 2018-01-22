@@ -1,6 +1,7 @@
 [[getting-started-rails]]
 == Getting started with Rails
 
+[float]
 === Setup
 
 Add the gem to your `Gemfile`:
