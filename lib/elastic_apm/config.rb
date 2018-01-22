@@ -62,8 +62,6 @@ module ElasticAPM
       end
 
       yield self if block_given?
-
-      freeze
     end
     # rubocop:enable Metrics/MethodLength
 
