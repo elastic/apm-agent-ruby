@@ -19,8 +19,8 @@ module ElasticAPM
       log_level: Logger::INFO,
       logger: nil,
 
-      timeout: 10,
-      open_timeout: 10,
+      http_timeout: 10,
+      http_open_timeout: 10,
       transaction_send_interval: 10,
       debug_transactions: false,
       debug_http: false,
@@ -78,8 +78,8 @@ module ElasticAPM
     attr_accessor :log_path
     attr_accessor :log_level
 
-    attr_accessor :timeout
-    attr_accessor :open_timeout
+    attr_accessor :http_timeout
+    attr_accessor :http_open_timeout
     attr_accessor :transaction_send_interval
     attr_accessor :debug_transactions
     attr_accessor :debug_http
