@@ -91,8 +91,8 @@ module ElasticAPM
 
       http = Net::HTTP.new server_uri.host, server_uri.port
       http.use_ssl = @config.use_ssl?
-      http.read_timeout = @config.timeout
-      http.open_timeout = @config.open_timeout
+      http.read_timeout = @config.http_timeout
+      http.open_timeout = @config.http_open_timeout
 
       if @config.debug_http
         http.set_debug_output(@config.logger)
