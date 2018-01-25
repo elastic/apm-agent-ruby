@@ -8,9 +8,11 @@ module ElasticAPM
     end
 
     def build
+      pid = $PID || Process.pid
+      return unless pid
       {
         argv: ARGV,
-        pid: $PID,
+        pid: pid,
         title: $PROGRAM_NAME
       }
     end
