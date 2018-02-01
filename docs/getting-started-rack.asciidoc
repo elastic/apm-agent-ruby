@@ -1,8 +1,6 @@
 [[getting-started-rack]]
 == Getting started with Rack
 
-See the example config for a Sinatra application:
-
 [source,ruby]
 ----
 # config.ru
