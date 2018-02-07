@@ -15,6 +15,7 @@ module ElasticAPM
       environment: ENV['RAILS_ENV'] || ENV['RACK_ENV'],
       framework_name: nil,
       framework_version: nil,
+      hostname: nil,
 
       log_path: '-',
       log_level: Logger::INFO,
@@ -44,7 +45,8 @@ module ElasticAPM
       'ELASTIC_APM_SERVICE_VERSION' => 'service_version',
       'ELASTIC_APM_ENVIRONMENT' => 'environment',
       'ELASTIC_APM_FRAMEWORK_NAME' => 'framework_name',
-      'ELASTIC_APM_FRAMEWORK_VERSION' => 'framework_version'
+      'ELASTIC_APM_FRAMEWORK_VERSION' => 'framework_version',
+      'ELASTIC_APM_HOSTNAME' => 'hostname'
     }.freeze
 
     # rubocop:disable Metrics/MethodLength
@@ -79,6 +81,7 @@ module ElasticAPM
     attr_accessor :environment
     attr_accessor :framework_name
     attr_accessor :framework_version
+    attr_accessor :hostname
 
     attr_accessor :log_path
     attr_accessor :log_level
@@ -102,6 +105,7 @@ module ElasticAPM
     attr_reader   :logger
 
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+    # rubocop:disable Metrics/CyclomaticComplexity
     def app=(app)
       case app_type?(app)
       when :sinatra
@@ -122,6 +126,7 @@ module ElasticAPM
         self.service_name = 'ruby'
       end
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def app_type?(app)
