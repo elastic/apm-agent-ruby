@@ -23,7 +23,7 @@ module ElasticAPM
 
       http_timeout: 10,
       http_open_timeout: 10,
-      transaction_send_interval: 10,
+      flush_interval: 10,
       debug_transactions: false,
       debug_http: false,
 
@@ -60,7 +60,9 @@ module ElasticAPM
       'ELASTICS_APM_SOURCE_LINES_ERROR_LIBRARY_FRAMES' =>
         'source_lines_error_library_frames',
       'ELASTICS_APM_SOURCE_LINES_SPAN_LIBRARY_FRAMES' =>
-        'source_lines_span_library_frames'
+        'source_lines_span_library_frames',
+
+      'ELASTIC_APM_FLUSH_INTERVAL' => 'flush_interval'
     }.freeze
 
     # rubocop:disable Metrics/MethodLength
@@ -102,7 +104,7 @@ module ElasticAPM
 
     attr_accessor :http_timeout
     attr_accessor :http_open_timeout
-    attr_accessor :transaction_send_interval
+    attr_accessor :flush_interval
     attr_accessor :debug_transactions
     attr_accessor :debug_http
 

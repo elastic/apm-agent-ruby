@@ -108,7 +108,7 @@ module ElasticAPM
     end
 
     def should_flush_transactions?
-      return true unless (interval = config.transaction_send_interval)
+      return true unless (interval = config.flush_interval)
       Time.now.utc - @last_sent_transactions >= interval
     end
 
