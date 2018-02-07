@@ -10,8 +10,9 @@ module ElasticAPM
       server_url: 'http://localhost:8200',
       secret_token: nil,
 
-      app_name: nil,
-      environment: nil,
+      service_name: nil,
+      service_version: nil,
+      environment: ENV['RAILS_ENV'] || ENV['RACK_ENV'],
       framework_name: nil,
       framework_version: nil,
 
@@ -36,9 +37,14 @@ module ElasticAPM
     }.freeze
 
     ENV_TO_KEY = {
-      'ELASTIC_APM_APP_NAME' => 'app_name',
       'ELASTIC_APM_SERVER_URL' => 'server_url',
-      'ELASTIC_APM_SECRET_TOKEN' => 'secret_token'
+      'ELASTIC_APM_SECRET_TOKEN' => 'secret_token',
+
+      'ELASTIC_APM_SERVICE_NAME' => 'service_name',
+      'ELASTIC_APM_SERVICE_VERSION' => 'service_version',
+      'ELASTIC_APM_ENVIRONMENT' => 'environment',
+      'ELASTIC_APM_FRAMEWORK_NAME' => 'framework_name',
+      'ELASTIC_APM_FRAMEWORK_VERSION' => 'framework_version'
     }.freeze
 
     # rubocop:disable Metrics/MethodLength
@@ -68,8 +74,9 @@ module ElasticAPM
     attr_accessor :server_url
     attr_accessor :secret_token
 
-    attr_accessor :app_name
-    attr_reader   :environment
+    attr_accessor :service_name
+    attr_accessor :service_version
+    attr_accessor :environment
     attr_accessor :framework_name
     attr_accessor :framework_version
 
@@ -98,13 +105,13 @@ module ElasticAPM
     def app=(app)
       case app_type?(app)
       when :sinatra
-        self.app_name = format_name(app_name || app.to_s)
-        self.framework_name = 'Sinatra'
-        self.framework_version = Sinatra::VERSION
+        self.service_name = format_name(service_name || app.to_s)
+        self.framework_name = framework_name || 'Sinatra'
+        self.framework_version = framework_version || Sinatra::VERSION
         self.enabled_injectors += %w[sinatra]
         self.root_path = Dir.pwd
       when :rails
-        self.app_name = format_name(app_name || app.class.parent_name)
+        self.service_name = format_name(service_name || app.class.parent_name)
         self.framework_name = 'Ruby on Rails'
         self.framework_version = Rails::VERSION::STRING
         self.logger = Rails.logger
@@ -112,7 +119,7 @@ module ElasticAPM
         self.view_paths = app.config.paths['app/views'].existent
       else
         # TODO: define custom?
-        self.app_name = 'ruby'
+        self.service_name = 'ruby'
       end
     end
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
@@ -131,10 +138,6 @@ module ElasticAPM
 
     def use_ssl?
       server_url.start_with?('https')
-    end
-
-    def environment=(env)
-      @environment = env || ENV['RAILS_ENV'] || ENV['RACK_ENV']
     end
 
     def logger=(logger)
