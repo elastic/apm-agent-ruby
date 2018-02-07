@@ -21,9 +21,11 @@ module ElasticAPM
       log_level: Logger::INFO,
       logger: nil,
 
+      max_queue_size: 500,
+      flush_interval: 10,
+
       http_timeout: 10,
       http_open_timeout: 10,
-      flush_interval: 10,
       debug_transactions: false,
       debug_http: false,
 
@@ -54,14 +56,15 @@ module ElasticAPM
       'ELASTIC_APM_HOSTNAME' => 'hostname',
 
       'ELASTICS_APM_SOURCE_LINES_ERROR_APP_FRAMES' =>
-        'source_lines_error_app_frames',
+        [:int, 'source_lines_error_app_frames'],
       'ELASTICS_APM_SOURCE_LINES_SPAN_APP_FRAMES' =>
-        'source_lines_span_app_frames',
+        [:int, 'source_lines_span_app_frames'],
       'ELASTICS_APM_SOURCE_LINES_ERROR_LIBRARY_FRAMES' =>
-        'source_lines_error_library_frames',
+        [:int, 'source_lines_error_library_frames'],
       'ELASTICS_APM_SOURCE_LINES_SPAN_LIBRARY_FRAMES' =>
-        'source_lines_span_library_frames',
+        [:int, 'source_lines_span_library_frames'],
 
+      'ELASTIC_APM_MAX_QUEUE_SIZE' => [:int, 'max_queue_size'],
       'ELASTIC_APM_FLUSH_INTERVAL' => 'flush_interval'
     }.freeze
 
@@ -77,7 +80,15 @@ module ElasticAPM
       # Set options from ENV
       ENV_TO_KEY.each do |env_key, key|
         next unless (value = ENV[env_key])
-        send("#{key}=", value)
+
+        type, key = key if key.is_a? Array
+
+        case type
+        when :int
+          send("#{key}=", value.to_i)
+        else
+          send("#{key}=", value)
+        end
       end
 
       # Set options from arguments
@@ -102,9 +113,11 @@ module ElasticAPM
     attr_accessor :log_path
     attr_accessor :log_level
 
+    attr_accessor :max_queue_size
+    attr_accessor :flush_interval
+
     attr_accessor :http_timeout
     attr_accessor :http_open_timeout
-    attr_accessor :flush_interval
     attr_accessor :debug_transactions
     attr_accessor :debug_http
 

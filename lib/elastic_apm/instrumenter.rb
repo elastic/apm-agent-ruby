@@ -108,7 +108,11 @@ module ElasticAPM
     end
 
     def should_flush_transactions?
-      return true unless (interval = config.flush_interval)
+      interval = config.flush_interval
+
+      return true if interval.nil?
+      return true if @pending_transactions.length >= config.max_queue_size
+
       Time.now.utc - @last_sent_transactions >= interval
     end
 

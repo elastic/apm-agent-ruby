@@ -23,6 +23,13 @@ module ElasticAPM
       ENV.delete('ELASTIC_APM_SERVER_URL') # clean up
     end
 
+    it 'converts certain env values to integers' do
+      ENV['ELASTICS_APM_SOURCE_LINES_SPAN_APP_FRAMES'] = '666'
+      config = Config.new
+      expect(config.source_lines_span_app_frames).to be 666
+      ENV.delete('ELASTICS_APM_SOURCE_LINES_SPAN_APP_FRAMES') # clean up
+    end
+
     it 'yields itself to a given block' do
       config = Config.new { |c| c.server_url = 'somewhere-else.com' }
       expect(config.server_url).to eq 'somewhere-else.com'

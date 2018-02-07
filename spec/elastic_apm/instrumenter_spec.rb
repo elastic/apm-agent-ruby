@@ -145,6 +145,18 @@ module ElasticAPM
             .to have_received(:enqueue_transactions).with [transaction]
         end
       end
+
+      context 'when queue has reached max size' do
+        let(:mock_agent) { double(Agent, enqueue_transactions: true) }
+        subject { Instrumenter.new(Config.new(max_queue_size: 1), mock_agent) }
+
+        it 'flushes' do
+          transaction = subject.transaction('Test').done
+          subject.submit_transaction transaction
+          expect(mock_agent)
+            .to have_received(:enqueue_transactions).with [transaction]
+        end
+      end
     end
   end
 end
