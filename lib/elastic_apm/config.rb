@@ -27,6 +27,11 @@ module ElasticAPM
       debug_transactions: false,
       debug_http: false,
 
+      source_lines_error_app_frames: 5,
+      source_lines_span_app_frames: 5,
+      source_lines_error_library_frames: 0,
+      source_lines_span_library_frames: 0,
+
       enabled_injectors: %w[net_http json],
 
       current_user_id_method: :id,
@@ -46,7 +51,16 @@ module ElasticAPM
       'ELASTIC_APM_ENVIRONMENT' => 'environment',
       'ELASTIC_APM_FRAMEWORK_NAME' => 'framework_name',
       'ELASTIC_APM_FRAMEWORK_VERSION' => 'framework_version',
-      'ELASTIC_APM_HOSTNAME' => 'hostname'
+      'ELASTIC_APM_HOSTNAME' => 'hostname',
+
+      'ELASTICS_APM_SOURCE_LINES_ERROR_APP_FRAMES' =>
+        'source_lines_error_app_frames',
+      'ELASTICS_APM_SOURCE_LINES_SPAN_APP_FRAMES' =>
+        'source_lines_span_app_frames',
+      'ELASTICS_APM_SOURCE_LINES_ERROR_LIBRARY_FRAMES' =>
+        'source_lines_error_library_frames',
+      'ELASTICS_APM_SOURCE_LINES_SPAN_LIBRARY_FRAMES' =>
+        'source_lines_span_library_frames'
     }.freeze
 
     # rubocop:disable Metrics/MethodLength
@@ -91,6 +105,11 @@ module ElasticAPM
     attr_accessor :transaction_send_interval
     attr_accessor :debug_transactions
     attr_accessor :debug_http
+
+    attr_accessor :source_lines_error_app_frames
+    attr_accessor :source_lines_span_app_frames
+    attr_accessor :source_lines_error_library_frames
+    attr_accessor :source_lines_span_library_frames
 
     attr_accessor :enabled_injectors
 

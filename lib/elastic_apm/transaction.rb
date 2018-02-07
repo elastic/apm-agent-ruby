@@ -67,7 +67,7 @@ module ElasticAPM
       spans << span
 
       span.stacktrace =
-        backtrace && Stacktrace.build(@instrumenter.config, backtrace)
+        backtrace && Stacktrace.build(@instrumenter.config, backtrace, :span)
 
       span.start
 

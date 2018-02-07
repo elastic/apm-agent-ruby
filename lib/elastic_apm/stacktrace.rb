@@ -14,17 +14,17 @@ module ElasticAPM
 
     attr_reader :frames
 
-    def self.build(config, backtrace)
+    def self.build(config, backtrace, type)
       return nil unless backtrace
 
       stack = new(backtrace)
-      stack.build_frames(config)
+      stack.build_frames(config, type)
       stack
     end
 
-    def build_frames(config)
+    def build_frames(config, type)
       @frames = @backtrace.map do |line|
-        build_frame(config, line)
+        build_frame(config, line, type)
       end
     end
 
@@ -56,20 +56,24 @@ module ElasticAPM
       [file, number, method, module_name]
     end
 
-    def build_frame(config, line)
+    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    def build_frame(config, line, type)
       abs_path, lineno, function, _module_name = parse_line(line)
+      library_frame = !(abs_path && abs_path.start_with?(config.root_path))
 
       frame = Frame.new
       frame.abs_path = abs_path
       frame.filename = strip_load_path(abs_path)
       frame.function = function
       frame.lineno = lineno.to_i
-      frame.build_context 3
-      frame.library_frame =
-        !(abs_path && abs_path.start_with?(config.root_path))
+      frame.library_frame = library_frame
+
+      line_count = context_lines_for(config, type, library_frame: library_frame)
+      frame.build_context line_count
 
       frame
     end
+    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
     def strip_load_path(path)
       return nil unless path
@@ -84,6 +88,11 @@ module ElasticAPM
       return path unless prefix
 
       path[prefix.chomp(File::SEPARATOR).length + 1..-1]
+    end
+
+    def context_lines_for(config, type, library_frame:)
+      key = "source_lines_#{type}_#{library_frame ? 'library' : 'app'}_frames"
+      config.send(key.to_sym)
     end
   end
 end

@@ -5,7 +5,9 @@ require 'spec_helper'
 module ElasticAPM
   RSpec.describe Http, :with_fake_server do
     describe '#post' do
-      subject { Http.new Config.new(service_name: 'app-1', environment: 'test') }
+      subject do
+        Http.new Config.new(service_name: 'app-1', environment: 'test')
+      end
 
       it 'sets the appropriate headers' do
         subject.post('/v1/transactions', things: 1)
