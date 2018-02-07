@@ -160,10 +160,7 @@ module ElasticAPM
     private
 
     def call_through
-      unless agent
-        return yield if block_given?
-      end
-
+      return yield if block_given?
       nil
     end
   end

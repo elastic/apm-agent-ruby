@@ -23,6 +23,7 @@ module ElasticAPM
 
       max_queue_size: 500,
       flush_interval: 10,
+      transaction_sample_rate: 1.0,
 
       http_timeout: 10,
       http_open_timeout: 10,
@@ -65,19 +66,33 @@ module ElasticAPM
         [:int, 'source_lines_span_library_frames'],
 
       'ELASTIC_APM_MAX_QUEUE_SIZE' => [:int, 'max_queue_size'],
-      'ELASTIC_APM_FLUSH_INTERVAL' => 'flush_interval'
+      'ELASTIC_APM_FLUSH_INTERVAL' => 'flush_interval',
+      'ELASTIC_APM_TRANSACTION_SAMPLE_RATE' =>
+        [:float, 'transaction_sample_rate']
     }.freeze
 
-    # rubocop:disable Metrics/MethodLength
     def initialize(options = nil)
       options = {} if options.nil?
 
-      # Start with the defaults
-      DEFAULTS.each do |key, value|
+      set_defaults
+      set_from_env
+
+      # Set options from arguments
+      options.each do |key, value|
         send("#{key}=", value)
       end
 
-      # Set options from ENV
+      yield self if block_given?
+    end
+
+    def set_defaults
+      DEFAULTS.each do |key, value|
+        send("#{key}=", value)
+      end
+    end
+
+    # rubocop:disable Metrics/MethodLength
+    def set_from_env
       ENV_TO_KEY.each do |env_key, key|
         next unless (value = ENV[env_key])
 
@@ -86,17 +101,12 @@ module ElasticAPM
         case type
         when :int
           send("#{key}=", value.to_i)
+        when :float
+          send("#{key}=", value.to_f)
         else
           send("#{key}=", value)
         end
       end
-
-      # Set options from arguments
-      options.each do |key, value|
-        send("#{key}=", value)
-      end
-
-      yield self if block_given?
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -115,6 +125,7 @@ module ElasticAPM
 
     attr_accessor :max_queue_size
     attr_accessor :flush_interval
+    attr_accessor :transaction_sample_rate
 
     attr_accessor :http_timeout
     attr_accessor :http_open_timeout

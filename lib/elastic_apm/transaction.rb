@@ -4,7 +4,13 @@ module ElasticAPM
   # @api private
   class Transaction
     # rubocop:disable Metrics/MethodLength
-    def initialize(instrumenter, name, type = 'custom', context: nil)
+    def initialize(
+      instrumenter,
+      name,
+      type = 'custom',
+      context: nil,
+      sampled: true
+    )
       @id = SecureRandom.uuid
       @instrumenter = instrumenter
       @name = name
@@ -20,7 +26,7 @@ module ElasticAPM
 
       @context = context || Context.new
 
-      @sampled = true
+      @sampled = sampled
 
       yield self if block_given?
     end
@@ -63,6 +69,11 @@ module ElasticAPM
 
     # rubocop:disable Metrics/MethodLength
     def span(name, type = nil, backtrace: nil, context: nil)
+      unless sampled?
+        return yield if block_given?
+        return
+      end
+
       span = next_span(name, type, context)
       spans << span
 
@@ -85,6 +96,10 @@ module ElasticAPM
 
     def current_span
       spans.reverse.lazy.find(&:running?)
+    end
+
+    def sampled?
+      !!sampled
     end
 
     def inspect
