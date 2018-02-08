@@ -56,13 +56,13 @@ module ElasticAPM
       'ELASTIC_APM_FRAMEWORK_VERSION' => 'framework_version',
       'ELASTIC_APM_HOSTNAME' => 'hostname',
 
-      'ELASTICS_APM_SOURCE_LINES_ERROR_APP_FRAMES' =>
+      'ELASTIC_APM_SOURCE_LINES_ERROR_APP_FRAMES' =>
         [:int, 'source_lines_error_app_frames'],
-      'ELASTICS_APM_SOURCE_LINES_SPAN_APP_FRAMES' =>
+      'ELASTIC_APM_SOURCE_LINES_SPAN_APP_FRAMES' =>
         [:int, 'source_lines_span_app_frames'],
-      'ELASTICS_APM_SOURCE_LINES_ERROR_LIBRARY_FRAMES' =>
+      'ELASTIC_APM_SOURCE_LINES_ERROR_LIBRARY_FRAMES' =>
         [:int, 'source_lines_error_library_frames'],
-      'ELASTICS_APM_SOURCE_LINES_SPAN_LIBRARY_FRAMES' =>
+      'ELASTIC_APM_SOURCE_LINES_SPAN_LIBRARY_FRAMES' =>
         [:int, 'source_lines_span_library_frames'],
 
       'ELASTIC_APM_MAX_QUEUE_SIZE' => [:int, 'max_queue_size'],
