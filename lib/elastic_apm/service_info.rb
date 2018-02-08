@@ -22,7 +22,7 @@ module ElasticAPM
           version: RUBY_VERSION
         },
         runtime: runtime,
-        version: @config.service_version || git_sha
+        version: @config.service_version || Util.git_sha
       }
 
       if @config.framework_name
@@ -49,11 +49,6 @@ module ElasticAPM
       when 'jruby'
         { name: RUBY_ENGINE, version: ENV['JRUBY_VERSION'] }
       end
-    end
-
-    def git_sha
-      sha = `git rev-parse --verify HEAD 2>&1`.chomp
-      $?.success? ? sha : nil # rubocop:disable Style/SpecialGlobalVars
     end
   end
 end
