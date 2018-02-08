@@ -76,39 +76,10 @@ module ElasticAPM
 
       set_defaults
       set_from_env
-
-      # Set options from arguments
-      options.each do |key, value|
-        send("#{key}=", value)
-      end
+      set_from_args(options)
 
       yield self if block_given?
     end
-
-    def set_defaults
-      DEFAULTS.each do |key, value|
-        send("#{key}=", value)
-      end
-    end
-
-    # rubocop:disable Metrics/MethodLength
-    def set_from_env
-      ENV_TO_KEY.each do |env_key, key|
-        next unless (value = ENV[env_key])
-
-        type, key = key if key.is_a? Array
-
-        case type
-        when :int
-          send("#{key}=", value.to_i)
-        when :float
-          send("#{key}=", value.to_f)
-        else
-          send("#{key}=", value)
-        end
-      end
-    end
-    # rubocop:enable Metrics/MethodLength
 
     attr_accessor :server_url
     attr_accessor :secret_token
@@ -148,30 +119,17 @@ module ElasticAPM
     attr_accessor :current_user_username_method
 
     attr_reader   :logger
-
-    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
-    # rubocop:disable Metrics/CyclomaticComplexity
     def app=(app)
       case app_type?(app)
       when :sinatra
-        self.service_name = format_name(service_name || app.to_s)
-        self.framework_name = framework_name || 'Sinatra'
-        self.framework_version = framework_version || Sinatra::VERSION
-        self.enabled_injectors += %w[sinatra]
-        self.root_path = Dir.pwd
+        set_sinatra(app)
       when :rails
-        self.service_name = format_name(service_name || app.class.parent_name)
-        self.framework_name = 'Ruby on Rails'
-        self.framework_version = Rails::VERSION::STRING
-        self.logger = Rails.logger
-        self.root_path = Rails.root.to_s
-        self.view_paths = app.config.paths['app/views'].existent
+        set_rails(app)
       else
         # TODO: define custom?
         self.service_name = 'ruby'
       end
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def app_type?(app)
@@ -195,6 +153,54 @@ module ElasticAPM
     end
 
     private
+
+    def set_defaults
+      DEFAULTS.each do |key, value|
+        send("#{key}=", value)
+      end
+    end
+
+    # rubocop:disable Metrics/MethodLength
+    def set_from_env
+      ENV_TO_KEY.each do |env_key, key|
+        next unless (value = ENV[env_key])
+
+        type, key = key if key.is_a? Array
+
+        case type
+        when :int
+          send("#{key}=", value.to_i)
+        when :float
+          send("#{key}=", value.to_f)
+        else
+          send("#{key}=", value)
+        end
+      end
+    end
+    # rubocop:enable Metrics/MethodLength
+
+    def set_from_args(options)
+      options.each do |key, value|
+        send("#{key}=", value)
+      end
+    end
+
+    def set_sinatra(app)
+      self.service_name = format_name(service_name || app.to_s)
+      self.framework_name = framework_name || 'Sinatra'
+      self.framework_version = framework_version || Sinatra::VERSION
+      self.enabled_injectors += %w[sinatra]
+      self.root_path = Dir.pwd
+    end
+
+    def set_rails(app)
+      self.service_name = format_name(service_name || app.class.parent_name)
+      self.framework_name = 'Ruby on Rails'
+      self.framework_version = Rails::VERSION::STRING
+      self.logger = Rails.logger
+      self.root_path = Rails.root.to_s
+      self.view_paths = app.config.paths['app/views'].existent
+    end
 
     def build_logger(path, level)
       logger = Logger.new(path == '-' ? STDOUT : path)
