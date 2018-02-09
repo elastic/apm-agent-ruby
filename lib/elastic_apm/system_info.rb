@@ -3,11 +3,13 @@
 module ElasticAPM
   # @api private
   class SystemInfo
-    def initialize(_config); end
+    def initialize(config)
+      @config = config
+    end
 
     def build
       {
-        hostname: `hostname`,
+        hostname: @config.hostname || `hostname`,
         architecture: platform.cpu,
         platform: platform.os
       }

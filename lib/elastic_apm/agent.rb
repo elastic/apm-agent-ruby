@@ -99,6 +99,7 @@ module ElasticAPM
     def enqueue_transactions(transactions)
       data = @serializers.transactions.build_all(transactions)
       @queue << Worker::Request.new('/v1/transactions', data)
+      transactions
     end
 
     def enqueue_errors(errors)

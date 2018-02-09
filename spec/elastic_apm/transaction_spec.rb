@@ -111,5 +111,24 @@ module ElasticAPM
         expect(transaction.spans).to eq [subject]
       end
     end
+
+    context 'when not sampled' do
+      it "doesn't collect spans, context" do
+        transaction = Transaction.new(nil, 'Test', sampled: false) do |t|
+          t.span 'Things' do
+            'ok'
+          end
+
+          t.span 'Other things' do
+            'also ok'
+          end
+
+          t
+        end
+
+        expect(transaction).to_not be_sampled
+        expect(transaction.spans).to be_empty
+      end
+    end
   end
 end

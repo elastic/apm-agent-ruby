@@ -10,7 +10,7 @@ module ElasticAPM
         mock_class = double(new: mock_subscriber)
 
         instrumenter =
-          Instrumenter.new(nil, nil, subscriber_class: mock_class)
+          Instrumenter.new(Config.new, nil, subscriber_class: mock_class)
 
         instrumenter.start
         expect(mock_subscriber).to have_received(:register!)
@@ -20,7 +20,7 @@ module ElasticAPM
       end
 
       it 'cleans up after itself' do
-        instrumenter = Instrumenter.new(nil, nil)
+        instrumenter = Instrumenter.new(Config.new, nil)
 
         instrumenter.transaction 'T'
 
@@ -144,6 +144,34 @@ module ElasticAPM
           expect(mock_agent)
             .to have_received(:enqueue_transactions).with [transaction]
         end
+      end
+
+      context 'when queue has reached max size' do
+        let(:mock_agent) { double(Agent, enqueue_transactions: true) }
+        subject { Instrumenter.new(Config.new(max_queue_size: 1), mock_agent) }
+
+        it 'flushes' do
+          transaction = subject.transaction('Test').done
+          subject.submit_transaction transaction
+          expect(mock_agent)
+            .to have_received(:enqueue_transactions).with [transaction]
+        end
+      end
+    end
+
+    context 'sampling' do
+      subject do
+        Instrumenter.new(Config.new(transaction_sample_rate: 0.0), nil)
+      end
+
+      it 'skips spans' do
+        transaction = subject.transaction 'Test' do |t|
+          t.span 'many things'
+          t
+        end.done
+
+        expect(transaction).to_not be_sampled
+        expect(transaction.spans).to be_empty
       end
     end
   end

@@ -14,6 +14,11 @@ module ElasticAPM
     def self.inspect_transaction(transaction)
       Inspector.new.transaction transaction
     end
+
+    def self.git_sha
+      sha = `git rev-parse --verify HEAD 2>&1`.chomp
+      $CHILD_STATUS.success? ? sha : nil
+    end
   end
 end
 

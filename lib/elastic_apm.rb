@@ -12,7 +12,6 @@ require 'elastic_apm/instrumenter'
 require 'elastic_apm/internal_error'
 require 'elastic_apm/util'
 
-# Metrics
 require 'elastic_apm/middleware'
 
 require 'elastic_apm/railtie' if defined?(::Rails::Railtie)
@@ -160,10 +159,7 @@ module ElasticAPM
     private
 
     def call_through
-      unless agent
-        return yield if block_given?
-      end
-
+      return yield if block_given?
       nil
     end
   end

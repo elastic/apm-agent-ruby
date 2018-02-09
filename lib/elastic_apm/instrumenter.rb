@@ -64,6 +64,14 @@ module ElasticAPM
         return transaction
       end
 
+      sample = rand <= config.transaction_sample_rate
+
+      if args.last.is_a? Hash
+        args.last[:sampled] = sample
+      else
+        args.push(sampled: sample)
+      end
+
       transaction = Transaction.new self, *args
 
       self.current_transaction = transaction
@@ -108,7 +116,11 @@ module ElasticAPM
     end
 
     def should_flush_transactions?
-      return true unless (interval = config.transaction_send_interval)
+      interval = config.flush_interval
+
+      return true if interval.nil?
+      return true if @pending_transactions.length >= config.max_queue_size
+
       Time.now.utc - @last_sent_transactions >= interval
     end
 

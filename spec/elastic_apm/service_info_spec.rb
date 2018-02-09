@@ -20,7 +20,7 @@ module ElasticAPM
       end
 
       it 'has a version from git' do
-        expect(subject[:version]).to eq `git rev-parse --verify HEAD`.chomp
+        expect(subject[:version]).to match(/[a-z0-9]{16}/) # git sha
       end
     end
   end
