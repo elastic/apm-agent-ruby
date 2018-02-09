@@ -29,6 +29,7 @@ module ElasticAPM
       http_open_timeout: 10,
       debug_transactions: false,
       debug_http: false,
+      verify_server_cert: true,
 
       source_lines_error_app_frames: 5,
       source_lines_span_app_frames: 5,
@@ -68,7 +69,8 @@ module ElasticAPM
       'ELASTIC_APM_MAX_QUEUE_SIZE' => [:int, 'max_queue_size'],
       'ELASTIC_APM_FLUSH_INTERVAL' => 'flush_interval',
       'ELASTIC_APM_TRANSACTION_SAMPLE_RATE' =>
-        [:float, 'transaction_sample_rate']
+        [:float, 'transaction_sample_rate'],
+      'ELASTIC_APM_VERIFY_SERVER_CERT' => [:bool, 'verify_server_cert']
     }.freeze
 
     def initialize(options = nil)
@@ -97,6 +99,7 @@ module ElasticAPM
     attr_accessor :max_queue_size
     attr_accessor :flush_interval
     attr_accessor :transaction_sample_rate
+    attr_accessor :verify_server_cert
 
     attr_accessor :http_timeout
     attr_accessor :http_open_timeout
@@ -119,6 +122,9 @@ module ElasticAPM
     attr_accessor :current_user_username_method
 
     attr_reader   :logger
+
+    alias :verify_server_cert? :verify_server_cert
+
     def app=(app)
       case app_type?(app)
       when :sinatra
@@ -130,7 +136,6 @@ module ElasticAPM
         self.service_name = 'ruby'
       end
     end
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def app_type?(app)
       if defined?(::Rails) && app.is_a?(Rails::Application)
@@ -167,14 +172,15 @@ module ElasticAPM
 
         type, key = key if key.is_a? Array
 
-        case type
-        when :int
-          send("#{key}=", value.to_i)
-        when :float
-          send("#{key}=", value.to_f)
-        else
-          send("#{key}=", value)
-        end
+        value =
+          case type
+          when :int then value.to_i
+          when :float then value.to_f
+          when :bool then !%w[0 false].include?(value.strip.downcase)
+          else value
+          end
+
+        send("#{key}=", value)
       end
     end
     # rubocop:enable Metrics/MethodLength

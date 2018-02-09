@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 module ElasticAPM
-  RSpec.describe Http, :with_fake_server do
-    describe '#post' do
+  RSpec.describe Http do
+    describe '#post', :with_fake_server do
       subject do
         Http.new Config.new(service_name: 'app-1', environment: 'test')
       end
@@ -49,6 +49,15 @@ module ElasticAPM
         headers =
           payload.dig('transactions', 0, 'context', 'request', 'headers')
         expect(headers['ApiKey']).to eq '[FILTERED]'
+      end
+    end
+
+    context 'verifying certs' do
+      it 'explodes on bad cert' do
+        http = Http.new Config.new(server_url: 'https://expired.badssl.com/')
+        WebMock.disable!
+        expect { http.post('/') }.to raise_error(OpenSSL::SSL::SSLError)
+        WebMock.enable!
       end
     end
   end

@@ -24,25 +24,23 @@ module ElasticAPM
     end
 
     it 'converts certain env values to integers' do
-      envs_to_values = [
+      [
         # [ 'NAME', 'VALUE', 'EXPECTED' ]
         ['ELASTIC_APM_SOURCE_LINES_ERROR_APP_FRAMES', '666', 666],
         ['ELASTIC_APM_SOURCE_LINES_SPAN_APP_FRAMES', '666', 666],
         ['ELASTIC_APM_SOURCE_LINES_ERROR_LIBRARY_FRAMES', '666', 666],
         ['ELASTIC_APM_SOURCE_LINES_SPAN_LIBRARY_FRAMES', '666', 666],
-        ['ELASTIC_APM_TRANSACTION_SAMPLE_RATE', '0.5', 0.5]
-      ]
-
-      envs_to_values.each { |(key, val, _)| ENV[key] = val }
-
-      config = Config.new
-
-      envs_to_values.each do |(key, _, val)|
+        ['ELASTIC_APM_TRANSACTION_SAMPLE_RATE', '0.5', 0.5],
+        ['ELASTIC_APM_VERIFY_SERVER_CERT', '1', true],
+        ['ELASTIC_APM_VERIFY_SERVER_CERT', 'true', true],
+        ['ELASTIC_APM_VERIFY_SERVER_CERT', '0', false],
+        ['ELASTIC_APM_VERIFY_SERVER_CERT', 'false', false]
+      ].each do |(key, val, expected)|
+        ENV[key] = val
         setting = key.gsub('ELASTIC_APM_', '').downcase
-        expect(config.send(setting.to_sym)).to eq val
+        expect(Config.new.send(setting.to_sym)).to eq expected
+        ENV.delete(key)
       end
-
-      envs_to_values.each { |(key, *)| ENV.delete(key) }
     end
 
     it 'yields itself to a given block' do
