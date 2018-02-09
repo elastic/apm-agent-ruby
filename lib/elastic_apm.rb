@@ -12,7 +12,6 @@ require 'elastic_apm/instrumenter'
 require 'elastic_apm/internal_error'
 require 'elastic_apm/util'
 
-# Metrics
 require 'elastic_apm/middleware'
 
 require 'elastic_apm/railtie' if defined?(::Rails::Railtie)
