@@ -9,10 +9,9 @@ require 'support/delegate_matcher'
 require 'support/match_json_schema_matcher'
 require 'support/mock_time'
 require 'support/with_fake_server'
+require 'webmock/rspec'
 
 require 'elastic-apm'
-
-require 'webmock/rspec'
 
 Thread.abort_on_exception = true
 WebMock.enable!

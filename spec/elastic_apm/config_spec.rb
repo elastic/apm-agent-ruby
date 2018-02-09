@@ -30,7 +30,8 @@ module ElasticAPM
         ['ELASTIC_APM_SOURCE_LINES_SPAN_APP_FRAMES', '666', 666],
         ['ELASTIC_APM_SOURCE_LINES_ERROR_LIBRARY_FRAMES', '666', 666],
         ['ELASTIC_APM_SOURCE_LINES_SPAN_LIBRARY_FRAMES', '666', 666],
-        ['ELASTIC_APM_TRANSACTION_SAMPLE_RATE', '0.5', 0.5]
+        ['ELASTIC_APM_TRANSACTION_SAMPLE_RATE', '0.5', 0.5],
+        ['ELASTIC_APM_VERIFY_SERVER_CERT', '1', true]
       ]
 
       envs_to_values.each { |(key, val, _)| ENV[key] = val }
