@@ -19,8 +19,8 @@ module ElasticAPM
       @timestamp = Util.micros
 
       @spans = []
-      @notifications = []
       @span_id_ticker = -1
+      @dropped_spans = 0
 
       @notifications = [] # for AS::Notifications
 
@@ -33,8 +33,8 @@ module ElasticAPM
     # rubocop:enable Metrics/MethodLength
 
     attr_accessor :id, :name, :result, :type
-    attr_reader :context, :duration, :root_span, :timestamp, :spans,
-      :notifications, :sampled, :instrumenter
+    attr_reader :context, :duration, :dropped_spans, :root_span, :timestamp,
+      :spans, :notifications, :sampled, :instrumenter
 
     def release
       @instrumenter.current_transaction = nil
@@ -74,13 +74,14 @@ module ElasticAPM
         return
       end
 
-      span = next_span(name, type, context)
-      spans << span
+      if spans.length >= instrumenter.config.transaction_max_spans
+        @dropped_spans += 1
 
-      span.stacktrace =
-        backtrace && Stacktrace.build(@instrumenter.config, backtrace, :span)
+        return yield if block_given?
+        return
+      end
 
-      span.start
+      span = build_and_start_span(name, type, context, backtrace)
 
       return span unless block_given?
 
@@ -93,6 +94,16 @@ module ElasticAPM
       result
     end
     # rubocop:enable Metrics/MethodLength
+
+    def build_and_start_span(name, type, context, backtrace)
+      span = next_span(name, type, context)
+      spans << span
+
+      span.stacktrace =
+        backtrace && Stacktrace.build(@instrumenter.config, backtrace, :span)
+
+      span.start
+    end
 
     def current_span
       spans.reverse.lazy.find(&:running?)
