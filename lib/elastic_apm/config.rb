@@ -24,6 +24,7 @@ module ElasticAPM
       max_queue_size: 500,
       flush_interval: 10,
       transaction_sample_rate: 1.0,
+      transaction_max_spans: 500,
 
       http_timeout: 10,
       http_open_timeout: 10,
@@ -70,7 +71,8 @@ module ElasticAPM
       'ELASTIC_APM_FLUSH_INTERVAL' => 'flush_interval',
       'ELASTIC_APM_TRANSACTION_SAMPLE_RATE' =>
         [:float, 'transaction_sample_rate'],
-      'ELASTIC_APM_VERIFY_SERVER_CERT' => [:bool, 'verify_server_cert']
+      'ELASTIC_APM_VERIFY_SERVER_CERT' => [:bool, 'verify_server_cert'],
+      'ELASTIC_APM_TRANSACTION_MAX_SPANS' => [:int, 'transaction_max_spans']
     }.freeze
 
     def initialize(options = nil)
@@ -99,6 +101,7 @@ module ElasticAPM
     attr_accessor :max_queue_size
     attr_accessor :flush_interval
     attr_accessor :transaction_sample_rate
+    attr_accessor :transaction_max_spans
     attr_accessor :verify_server_cert
 
     attr_accessor :http_timeout

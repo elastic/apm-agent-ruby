@@ -7,7 +7,8 @@ module ElasticAPM
     RSpec.describe Inspector do
       describe '#transaction' do
         it 'inspects a regular transaction', :mock_time do
-          transaction = Transaction.new(nil, 'GET /things', 'request')
+          instrumenter = Instrumenter.new Config.new, nil
+          transaction = Transaction.new(instrumenter, 'GET /things', 'request')
           travel 100
           transaction.done 'success'
 
@@ -15,17 +16,19 @@ module ElasticAPM
         end
 
         it 'inspects a complex transaction and its spans', :mock_time do
-          transaction = Transaction.new(nil, 'GET /things', 'request') do |t|
-            travel 100
-            t.span 'app/views/users/index.html.erb', 'template' do
+          instrumenter = Instrumenter.new Config.new, nil
+          transaction =
+            Transaction.new(instrumenter, 'GET /things', 'request') do |t|
               travel 100
-              t.span('SELECT * FROM users', 'db.query') do
+              t.span 'app/views/users/index.html.erb', 'template' do
+                travel 100
+                t.span('SELECT * FROM users', 'db.query') do
+                  travel 100
+                end
                 travel 100
               end
               travel 100
-            end
-            travel 100
-          end.done 'success'
+            end.done 'success'
 
           expect(subject.transaction(transaction).lines.length).to be 7
         end

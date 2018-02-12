@@ -5,6 +5,7 @@ require 'spec_helper'
 module ElasticAPM
   module Serializers
     RSpec.describe Transactions do
+      let(:instrumenter) { Instrumenter.new Config.new, nil }
       let(:builder) { Transactions.new Config.new }
       before do
         @mock_uuid = SecureRandom.uuid
@@ -14,7 +15,7 @@ module ElasticAPM
       describe '#build', :mock_time do
         context 'a transaction without spans' do
           let(:transaction) do
-            Transaction.new(nil, 'GET /something', 'request') do
+            Transaction.new(instrumenter, 'GET /something', 'request') do
               travel 100
             end.done 200
           end
@@ -36,7 +37,7 @@ module ElasticAPM
 
         context 'a transaction with nested spans' do
           let(:transaction) do
-            Transaction.new nil, 'GET /something', 'request' do |t|
+            Transaction.new(instrumenter, 'GET /something', 'request') do |t|
               travel 10
               t.span 'app/views/users.html.erb', 'template' do
                 travel 10
@@ -90,6 +91,23 @@ module ElasticAPM
               ],
               sampled: true
             )
+          end
+        end
+
+        context 'with dropped spans' do
+          it 'includes count' do
+            config = Config.new transaction_max_spans: 2
+            instrumenter = Instrumenter.new config, nil
+            transaction = Transaction.new instrumenter, 'T' do |t|
+              t.span '1'
+              t.span '2'
+              t.span 'dropped'
+              t
+            end
+
+            result = Transactions.new(config).build(transaction)
+
+            expect(result.dig(:span_count, :dropped, :total)).to be 1
           end
         end
       end

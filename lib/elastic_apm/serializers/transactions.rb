@@ -6,7 +6,7 @@ module ElasticAPM
     class Transactions < Serializer
       # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
       def build(transaction)
-        {
+        base = {
           id: transaction.id,
           name: transaction.name,
           type: transaction.type,
@@ -17,6 +17,12 @@ module ElasticAPM
           sampled: transaction.sampled,
           context: transaction.context.to_h
         }
+
+        if transaction.dropped_spans > 0
+          base[:span_count] = { dropped: { total: transaction.dropped_spans } }
+        end
+
+        base
       end
       # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 

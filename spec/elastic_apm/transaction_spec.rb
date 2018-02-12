@@ -62,7 +62,8 @@ module ElasticAPM
 
     describe '#running_spans', :mock_time do
       it 'returns running spans' do
-        transaction = Transaction.new nil, 'Test'
+        instrumenter = Instrumenter.new Config.new, nil
+        transaction = Transaction.new instrumenter, 'Test'
 
         transaction.span 'test' do
           travel 100
@@ -76,7 +77,8 @@ module ElasticAPM
     end
 
     describe '#span', :mock_time do
-      let(:transaction) { Transaction.new nil, 'Test' }
+      let(:instrumenter) { Instrumenter.new Config.new, nil }
+      let(:transaction) { Transaction.new instrumenter, 'Test' }
       subject do
         transaction
 
@@ -114,20 +116,39 @@ module ElasticAPM
 
     context 'when not sampled' do
       it "doesn't collect spans, context" do
-        transaction = Transaction.new(nil, 'Test', sampled: false) do |t|
-          t.span 'Things' do
-            'ok'
-          end
+        instrumenter = Instrumenter.new Config.new, nil
+        transaction =
+          Transaction.new(instrumenter, 'Test', sampled: false) do |t|
+            t.span 'Things' do
+              'ok'
+            end
 
-          t.span 'Other things' do
-            'also ok'
-          end
+            t.span 'Other things' do
+              'also ok'
+            end
 
-          t
-        end
+            t
+          end
 
         expect(transaction).to_not be_sampled
         expect(transaction.spans).to be_empty
+      end
+    end
+
+    context 'when reaching max span cound' do
+      it 'stops recording spans and bumps dropped count instead' do
+        config = Config.new transaction_max_spans: 2
+        instrumenter = Instrumenter.new config, nil
+        transaction =
+          Transaction.new instrumenter, 'T with too many spans' do |t|
+            t.span 'Thing 1'
+            t.span 'Thing 2'
+            t.span 'Thing 3'
+            t
+          end
+
+        expect(transaction.spans.length).to be 2
+        expect(transaction.dropped_spans).to be 1
       end
     end
   end
