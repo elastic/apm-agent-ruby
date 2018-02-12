@@ -93,6 +93,23 @@ module ElasticAPM
             )
           end
         end
+
+        context 'with dropped spans' do
+          it 'includes count' do
+            config = Config.new transaction_max_spans: 2
+            instrumenter = Instrumenter.new config, nil
+            transaction = Transaction.new instrumenter, 'T' do |t|
+              t.span '1'
+              t.span '2'
+              t.span 'dropped'
+              t
+            end
+
+            result = Transactions.new(config).build(transaction)
+
+            expect(result.dig(:span_count, :dropped, :total)).to be 1
+          end
+        end
       end
     end
   end
