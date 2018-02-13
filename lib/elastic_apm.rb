@@ -62,7 +62,10 @@ module ElasticAPM
   # @yield [Transaction] Optional block encapsulating transaction
   # @return [Transaction] Unless block given
   def self.transaction(name, type = nil, context: nil, &block)
-    return call_through(&block) unless agent
+    unless agent
+      return block_given? ? yield : nil
+    end
+
     agent.transaction(name, type, context: context, &block)
   end
 
@@ -75,7 +78,9 @@ module ElasticAPM
   # @return [Span] Unless block given
   def self.span(name, type = nil, context: nil, include_stacktrace: true,
     &block)
-    return call_through(&block) unless agent
+    unless agent
+      return block_given? ? yield : nil
+    end
 
     agent.span(
       name,
@@ -153,14 +158,5 @@ module ElasticAPM
     end
 
     agent && agent.add_filter(key, block || callback)
-  end
-
-  class << self
-    private
-
-    def call_through
-      return yield if block_given?
-      nil
-    end
   end
 end
