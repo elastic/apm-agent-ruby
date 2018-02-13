@@ -25,6 +25,7 @@ module ElasticAPM
       flush_interval: 10,
       transaction_sample_rate: 1.0,
       transaction_max_spans: 500,
+      filter_exception_types: [],
 
       http_timeout: 10,
       http_open_timeout: 10,
@@ -103,6 +104,7 @@ module ElasticAPM
     attr_accessor :transaction_sample_rate
     attr_accessor :transaction_max_spans
     attr_accessor :verify_server_cert
+    attr_accessor :filter_exception_types
 
     attr_accessor :http_timeout
     attr_accessor :http_open_timeout
