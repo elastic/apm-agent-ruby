@@ -17,7 +17,7 @@ module ElasticAPM
 
     def self.git_sha
       sha = `git rev-parse --verify HEAD 2>&1`.chomp
-      $CHILD_STATUS.success? ? sha : nil
+      $? && $?.success? ? sha : nil # rubocop:disable Style/SpecialGlobalVars
     end
   end
 end
