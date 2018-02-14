@@ -34,12 +34,18 @@ module ElasticAPM
         ['ELASTIC_APM_VERIFY_SERVER_CERT', '1', true],
         ['ELASTIC_APM_VERIFY_SERVER_CERT', 'true', true],
         ['ELASTIC_APM_VERIFY_SERVER_CERT', '0', false],
-        ['ELASTIC_APM_VERIFY_SERVER_CERT', 'false', false]
+        ['ELASTIC_APM_VERIFY_SERVER_CERT', 'false', false],
+        [
+          'ELASTIC_APM_ENABLED_ENVIRONMENTS',
+          'test,production',
+          %w[test production]
+        ]
       ].each do |(key, val, expected)|
+        val_before = ENV[key]
         ENV[key] = val
         setting = key.gsub('ELASTIC_APM_', '').downcase
         expect(Config.new.send(setting.to_sym)).to eq expected
-        ENV.delete(key)
+        val_before ? ENV[key] = val_before : ENV.delete(key)
       end
     end
 

@@ -4,7 +4,6 @@ module ElasticAPM
   # @api private
   class Railtie < Rails::Railtie
     config.elastic_apm = ActiveSupport::OrderedOptions.new
-    Config::DEFAULTS.each { |option, value| config.elastic_apm[option] = value }
 
     initializer 'elastic_apm.initialize' do |app|
       config = Config.new app.config.elastic_apm do |c|

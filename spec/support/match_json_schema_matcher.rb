@@ -14,7 +14,7 @@ RSpec::Matchers.define :match_json_schema do |schema|
       url = SCHEMA_URLS.fetch(schema)
       JSON::Validator.validate!(url, json)
     rescue JSON::Schema::ValidationError
-      pp json
+      puts json.inspect
       raise
     ensure
       WebMock.enable!

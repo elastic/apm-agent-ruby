@@ -23,8 +23,18 @@ module ElasticAPM
       @instance
     end
 
+    # rubocop:disable Metrics/MethodLength
     def self.start(config)
       return @instance if @instance
+
+      config = Config.new(config) if config.is_a?(Hash)
+
+      unless config.enabled_environments.include?(config.environment)
+        config.logger && config.logger.info(
+          format('Not tracking anything in "%s" env', config.environment)
+        )
+        return
+      end
 
       LOCK.synchronize do
         return @instance if @instance
@@ -32,6 +42,7 @@ module ElasticAPM
         @instance = new(config.freeze).start
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def self.stop
       LOCK.synchronize do
@@ -46,10 +57,7 @@ module ElasticAPM
       !!@instance
     end
 
-    # rubocop:disable Metrics/MethodLength
     def initialize(config)
-      config = Config.new(config) if config.is_a?(Hash)
-
       @config = config
 
       @http = Http.new(config)
@@ -64,7 +72,6 @@ module ElasticAPM
         Serializers::Errors.new(config)
       )
     end
-    # rubocop:enable Metrics/MethodLength
 
     attr_reader :config, :queue, :instrumenter, :context_builder, :http
 

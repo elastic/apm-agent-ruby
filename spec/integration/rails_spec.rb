@@ -26,9 +26,7 @@ if defined? Rails
         config.eager_load = false
 
         config.elastic_apm.service_name = 'RailsTestApp'
-        # post transactions right away
         config.elastic_apm.flush_interval = nil
-        # and debug them
         config.elastic_apm.debug_transactions = true
       end
 
