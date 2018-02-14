@@ -51,6 +51,17 @@ module ElasticAPM
           job = subject.queue.pop
           expect(job).to be_a Worker::Request
         end
+
+        it 'ignores filtered exception types' do
+          config =
+            Config.new(filter_exception_types: %w[ElasticAPM::AgentTestError])
+          agent = Agent.new config
+          exception = AgentTestError.new("It's ok!")
+
+          agent.report(exception)
+
+          expect(agent.queue.length).to be 0
+        end
       end
 
       describe '#report_message' do

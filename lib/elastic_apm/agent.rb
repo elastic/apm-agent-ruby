@@ -129,6 +129,8 @@ module ElasticAPM
     # errors
 
     def report(exception, handled: true)
+      return if config.filter_exception_types.include?(exception.class.to_s)
+
       error = @error_builder.build_exception(
         exception,
         handled: handled
