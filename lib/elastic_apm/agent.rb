@@ -23,8 +23,18 @@ module ElasticAPM
       @instance
     end
 
+    # rubocop:disable Metrics/MethodLength
     def self.start(config)
       return @instance if @instance
+
+      config = Config.new(config) if config.is_a?(Hash)
+
+      unless config.enabled_environments.include?(config.environment)
+        config.logger && config.logger.info(
+          format('Not tracking anything in "%s" env', config.environment)
+        )
+        return
+      end
 
       LOCK.synchronize do
         return @instance if @instance
@@ -32,6 +42,7 @@ module ElasticAPM
         @instance = new(config.freeze).start
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def self.stop
       LOCK.synchronize do
@@ -46,10 +57,7 @@ module ElasticAPM
       !!@instance
     end
 
-    # rubocop:disable Metrics/MethodLength
     def initialize(config)
-      config = Config.new(config) if config.is_a?(Hash)
-
       @config = config
 
       @http = Http.new(config)
@@ -64,12 +72,11 @@ module ElasticAPM
         Serializers::Errors.new(config)
       )
     end
-    # rubocop:enable Metrics/MethodLength
 
     attr_reader :config, :queue, :instrumenter, :context_builder, :http
 
     def start
-      debug 'Starting agent reporting to %s', config.server_url
+      debug 'Starting agent, reporting to %s', config.server_url
 
       @instrumenter.start
 
@@ -83,11 +90,11 @@ module ElasticAPM
     end
 
     def stop
-      debug 'Stopping agent'
-
       @instrumenter.stop
 
       kill_worker
+
+      debug 'Stopped successfully'
 
       self
     end
@@ -172,8 +179,6 @@ module ElasticAPM
     private
 
     def boot_worker
-      debug 'Booting worker in thread'
-
       @worker_thread = Thread.new do
         Worker.new(@config, @queue, @http).run_forever
       end
@@ -187,8 +192,6 @@ module ElasticAPM
       end
 
       @worker_thread = nil
-
-      debug 'Killed worker'
     end
   end
   # rubocop:enable Metrics/ClassLength

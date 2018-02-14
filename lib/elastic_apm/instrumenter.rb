@@ -127,7 +127,7 @@ module ElasticAPM
     def flush_transactions
       return if @pending_transactions.empty?
 
-      debug 'Flushing transactions'
+      debug 'Sending %i transactions', @pending_transactions.length
 
       @agent.enqueue_transactions @pending_transactions
 

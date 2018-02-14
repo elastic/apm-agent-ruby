@@ -3,7 +3,7 @@
 module ElasticAPM
   # @api private
   module Log
-    PREFIX = '** [ElasticAPM] '.freeze
+    PREFIX = '[ElasticAPM] '.freeze
 
     def debug(msg, *args, &block)
       log(:debug, msg, *args, &block)

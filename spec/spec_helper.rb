@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
+ENV['ELASTIC_APM_ENABLED_ENVIRONMENTS'] = 'test'
 
 require 'bundler/setup'
 Bundler.require :default, 'test'

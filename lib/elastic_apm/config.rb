@@ -13,6 +13,7 @@ module ElasticAPM
       service_name: nil,
       service_version: nil,
       environment: ENV['RAILS_ENV'] || ENV['RACK_ENV'],
+      enabled_environments: %w[production],
       framework_name: nil,
       framework_version: nil,
       hostname: nil,
@@ -55,6 +56,7 @@ module ElasticAPM
       'ELASTIC_APM_SERVICE_NAME' => 'service_name',
       'ELASTIC_APM_SERVICE_VERSION' => 'service_version',
       'ELASTIC_APM_ENVIRONMENT' => 'environment',
+      'ELASTIC_APM_ENABLED_ENVIRONMENTS' => [:list, 'enabled_environments'],
       'ELASTIC_APM_FRAMEWORK_NAME' => 'framework_name',
       'ELASTIC_APM_FRAMEWORK_VERSION' => 'framework_version',
       'ELASTIC_APM_HOSTNAME' => 'hostname',
@@ -95,6 +97,7 @@ module ElasticAPM
     attr_accessor :framework_name
     attr_accessor :framework_version
     attr_accessor :hostname
+    attr_accessor :enabled_environments
 
     attr_accessor :log_path
     attr_accessor :log_level
@@ -170,7 +173,7 @@ module ElasticAPM
       end
     end
 
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
     def set_from_env
       ENV_TO_KEY.each do |env_key, key|
         next unless (value = ENV[env_key])
@@ -182,13 +185,14 @@ module ElasticAPM
           when :int then value.to_i
           when :float then value.to_f
           when :bool then !%w[0 false].include?(value.strip.downcase)
+          when :list then value.split(/[ ,]/)
           else value
           end
 
         send("#{key}=", value)
       end
     end
-    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength, Metrics/CyclomaticComplexity
 
     def set_from_args(options)
       options.each do |key, value|
