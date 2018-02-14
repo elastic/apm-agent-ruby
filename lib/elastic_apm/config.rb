@@ -39,7 +39,7 @@ module ElasticAPM
       source_lines_error_library_frames: 0,
       source_lines_span_library_frames: 0,
 
-      enabled_injectors: %w[net_http json],
+      enabled_injectors: %w[net_http],
 
       current_user_id_method: :id,
       current_user_email_method: :email,
