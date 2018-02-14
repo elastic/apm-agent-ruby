@@ -80,8 +80,6 @@ module ElasticAPM
 
       @instrumenter.start
 
-      boot_worker
-
       config.enabled_injectors.each do |lib|
         require "elastic_apm/injectors/#{lib}"
       end
@@ -94,8 +92,6 @@ module ElasticAPM
 
       kill_worker
 
-      debug 'Stopped successfully'
-
       self
     end
 
@@ -104,12 +100,16 @@ module ElasticAPM
     end
 
     def enqueue_transactions(transactions)
+      boot_worker unless worker_running?
+
       data = @serializers.transactions.build_all(transactions)
       @queue << Worker::Request.new('/v1/transactions', data)
       transactions
     end
 
     def enqueue_errors(errors)
+      boot_worker unless worker_running?
+
       data = @serializers.errors.build_all(errors)
       @queue << Worker::Request.new('/v1/errors', data)
       errors
@@ -179,6 +179,8 @@ module ElasticAPM
     private
 
     def boot_worker
+      debug 'Booting worker'
+
       @worker_thread = Thread.new do
         Worker.new(@config, @queue, @http).run_forever
       end
@@ -187,11 +189,15 @@ module ElasticAPM
     def kill_worker
       @queue << Worker::StopMessage.new
 
-      unless @worker_thread.join(5) # 5 secs
+      if @worker_thread && !@worker_thread.join(5) # 5 secs
         raise 'Failed to wait for worker, not all messages sent'
       end
 
       @worker_thread = nil
+    end
+
+    def worker_running?
+      @worker_thread && @worker_thread.alive?
     end
   end
   # rubocop:enable Metrics/ClassLength
