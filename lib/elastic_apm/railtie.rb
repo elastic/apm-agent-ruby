@@ -18,7 +18,6 @@ module ElasticAPM
 
       begin
         ElasticAPM.start config
-        Rails.logger.info "#{Log::PREFIX}Running"
 
         app.middleware.insert 0, Middleware
       rescue StandardError => e

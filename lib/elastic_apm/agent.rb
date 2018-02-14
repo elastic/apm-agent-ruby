@@ -69,7 +69,7 @@ module ElasticAPM
     attr_reader :config, :queue, :instrumenter, :context_builder, :http
 
     def start
-      debug 'Starting agent reporting to %s', config.server_url
+      debug 'Starting agent, reporting to %s', config.server_url
 
       @instrumenter.start
 
@@ -83,11 +83,11 @@ module ElasticAPM
     end
 
     def stop
-      debug 'Stopping agent'
-
       @instrumenter.stop
 
       kill_worker
+
+      debug 'Stopped successfully'
 
       self
     end
@@ -172,8 +172,6 @@ module ElasticAPM
     private
 
     def boot_worker
-      debug 'Booting worker in thread'
-
       @worker_thread = Thread.new do
         Worker.new(@config, @queue, @http).run_forever
       end
@@ -187,8 +185,6 @@ module ElasticAPM
       end
 
       @worker_thread = nil
-
-      debug 'Killed worker'
     end
   end
   # rubocop:enable Metrics/ClassLength
