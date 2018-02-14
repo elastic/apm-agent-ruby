@@ -25,6 +25,7 @@ if defined? Rails
 
         config.eager_load = false
 
+        config.elastic_apm.enabled_environments += %w[test]
         config.elastic_apm.service_name = 'RailsTestApp'
         config.elastic_apm.flush_interval = nil
         config.elastic_apm.debug_transactions = true
