@@ -29,6 +29,9 @@ module ElasticAPM
           gems_frame = stacktrace.frames[-4]
 
           expect(gems_frame.library_frame).to be true
+          expect(gems_frame.pre_context).to be_nil
+          expect(gems_frame.context_line).to be_nil
+          expect(gems_frame.post_context).to be_nil
         end
       end
 
