@@ -79,5 +79,26 @@ module ElasticAPM
         expect(array).to be_a Array
       end
     end
+
+    context 'determining lib frames' do
+      [
+        # rubocop:disable Metrics/LineLength
+        [false, "#{Config.new.root_path}/app/controllers/somethings_controller.rb:5:in `render'"],
+        [true, "/Users/someone/.rubies/ruby-2.5.0/lib/ruby/2.5.0/irb/workspace.rb:85:in `eval'"],
+        [true, "/usr/local/lib/ruby/site_ruby/2.5.0/bundler/friendly_errors.rb:122:in `yield'"],
+        [true, "/Users/someone/.gem/ruby/2.5.0/gems/railties-5.1.5/lib/rails.rb:24:in `whatever'"],
+        [true, "/app/vendor/bundle/ruby/2.5.0/bundler/gems/apm-agent-ruby-8135f18735fb/lib/elastic_apm/subscriber.rb:10:in `things'"],
+        [true, "/app/vendor/ruby-2.5.0/lib/ruby/2.5.0/benchmark.rb:10:in `things'"],
+        [true, "org/jruby/RubyBasicObject.java:1728:in `instance_exec'"],
+        [true, "/tmp/vendor/j9.1/jruby/2.3.0/bin/rspec:1:in `<main>'"]
+        # rubocop:enable Metrics/LineLength
+      ].each do |(expected, frame)|
+        it frame[0..80] + '...' do
+          stacktrace = Stacktrace.build(Config.new, [frame], :error)
+          frame, = stacktrace.frames
+          expect(frame.library_frame).to be(expected), frame.inspect
+        end
+      end
+    end
   end
 end
