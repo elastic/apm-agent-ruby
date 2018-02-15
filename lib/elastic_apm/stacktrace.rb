@@ -6,7 +6,11 @@ require 'elastic_apm/stacktrace/line_cache'
 module ElasticAPM
   # @api private
   class Stacktrace
-    GEMS_REGEX = %r{/gems/}
+    JAVA_FORMAT = /^(.+)\.([^\.]+)\(([^\:]+)\:(\d+)\)$/
+    RUBY_FORMAT = /^(.+?):(\d+)(?::in `(.+?)')?$/
+
+    RUBY_VERS_REGEX = %r{ruby[-/](\d+\.)+\d}
+    JRUBY_ORG_REGEX = %r{org/jruby}
 
     def initialize(backtrace)
       @backtrace = backtrace
@@ -38,9 +42,6 @@ module ElasticAPM
 
     private
 
-    JAVA_FORMAT = /^(.+)\.([^\.]+)\(([^\:]+)\:(\d+)\)$/
-    RUBY_FORMAT = /^(.+?):(\d+)(?::in `(.+?)')?$/
-
     def parse_line(line)
       ruby_match = line.match(RUBY_FORMAT)
 
@@ -56,24 +57,38 @@ module ElasticAPM
       [file, number, method, module_name]
     end
 
-    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    def library_frame?(config, abs_path)
+      return false unless abs_path
+
+      if abs_path.start_with?(config.root_path)
+        return true if abs_path.match(config.root_path + '/vendor')
+        return false
+      end
+
+      return true if abs_path.match(RUBY_VERS_REGEX)
+      return true if abs_path.match(JRUBY_ORG_REGEX)
+
+      false
+    end
+
+    # rubocop:disable Metrics/MethodLength
     def build_frame(config, line, type)
       abs_path, lineno, function, _module_name = parse_line(line)
-      library_frame = !(abs_path && abs_path.start_with?(config.root_path))
 
       frame = Frame.new
       frame.abs_path = abs_path
       frame.filename = strip_load_path(abs_path)
       frame.function = function
       frame.lineno = lineno.to_i
-      frame.library_frame = library_frame
+      frame.library_frame = library_frame?(config, abs_path)
 
-      line_count = context_lines_for(config, type, library_frame: library_frame)
+      line_count =
+        context_lines_for(config, type, library_frame: frame.library_frame)
       frame.build_context line_count
 
       frame
     end
-    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength
 
     def strip_load_path(path)
       return nil unless path
