@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'active_support/inflector'
+require 'elastic_apm/util/inflector'
 
 module ElasticAPM
   # @api private
@@ -46,7 +46,7 @@ module ElasticAPM
     end
 
     def self.const_defined?(const_name)
-      const = ActiveSupport::Inflector.constantize(const_name)
+      const = Util::Inflector.constantize(const_name)
       !!const
     rescue NameError
       false
