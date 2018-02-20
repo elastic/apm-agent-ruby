@@ -1,6 +1,7 @@
 FRAMEWORK:
   - sinatra-1.4
   - sinatra-2.0
+  - rails-5.2.rc1
   - rails-5.1
   - rails-5.0
   - rails-4.2
