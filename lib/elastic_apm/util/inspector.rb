@@ -28,7 +28,7 @@ module ElasticAPM
             span_width = ms(span.duration) * width_factor
             duration_desc = ms(span.duration)
           else
-            span_width = width - indent
+            span_width = @width - indent
             duration_desc = 'RUNNING'
           end
 
@@ -46,7 +46,7 @@ module ElasticAPM
         lines.map { |s| s[0..@width] }.join("\n")
       rescue StandardError => e
         puts e
-        puts e.backspan.join("\n")
+        puts e.backtrace.join("\n")
         nil
       end
       # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
