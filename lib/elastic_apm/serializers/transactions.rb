@@ -12,7 +12,7 @@ module ElasticAPM
           type: transaction.type,
           result: transaction.result.to_s,
           duration: ms(transaction.duration),
-          timestamp: micros_to_time(transaction.timestamp).utc.iso8601,
+          timestamp: micros_to_time(transaction.timestamp).utc.iso8601(3),
           spans: transaction.spans.map(&method(:build_span)),
           sampled: transaction.sampled,
           context: transaction.context.to_h

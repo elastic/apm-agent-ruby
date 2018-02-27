@@ -24,7 +24,7 @@ module ElasticAPM
             should eq(
               id: @mock_uuid,
               culprit: '/',
-              timestamp: Time.utc(1992, 1, 1).iso8601,
+              timestamp: Time.utc(1992, 1, 1).iso8601(3),
               context: { custom: {}, tags: {} },
               exception: {
                 message: 'ZeroDivisionError: divided by 0',

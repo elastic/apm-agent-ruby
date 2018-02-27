@@ -28,7 +28,7 @@ module ElasticAPM
               "result": '200',
               "context": { custom: {}, tags: {} },
               "duration": 100.0,
-              "timestamp": Time.utc(1992, 1, 1).iso8601,
+              "timestamp": Time.utc(1992, 1, 1).iso8601(3),
               "spans": [],
               "sampled": true
             )
@@ -62,7 +62,7 @@ module ElasticAPM
               "result": '200',
               "context": { custom: {}, tags: {} },
               "duration": 50,
-              "timestamp": Time.utc(1992, 1, 1).iso8601,
+              "timestamp": Time.utc(1992, 1, 1).iso8601(3),
               "spans": [
                 {
                   id: 0,
