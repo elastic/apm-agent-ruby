@@ -9,7 +9,7 @@ module ElasticAPM
         base = {
           id: error.id,
           culprit: error.culprit,
-          timestamp: micros_to_time(error.timestamp).utc.iso8601,
+          timestamp: micros_to_time(error.timestamp).utc.iso8601(3),
           context: error.context.to_h
         }
 
