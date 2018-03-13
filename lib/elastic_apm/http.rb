@@ -103,7 +103,7 @@ module ElasticAPM
     end
 
     def server_uri
-      @uri ||= URI(@config.server_url)
+      @server_uri ||= URI(@config.server_url)
     end
 
     def verify_mode
