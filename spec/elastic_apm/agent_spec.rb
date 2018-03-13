@@ -35,7 +35,7 @@ module ElasticAPM
       it { should delegate :set_user, to: subject.instrumenter }
     end
 
-    context 'reporting' do
+    context 'reporting', :with_fake_server do
       class AgentTestError < StandardError; end
 
       subject { Agent.new Config.new }
@@ -45,11 +45,9 @@ module ElasticAPM
           exception = AgentTestError.new('Yikes!')
 
           subject.report(exception)
+          wait_for_requests_to_finish 1
 
-          expect(subject.queue.length).to be 1
-
-          job = subject.queue.pop
-          expect(job).to be_a Worker::Request
+          expect(FakeServer.requests.length).to be 1
         end
 
         it 'ignores filtered exception types' do
@@ -60,33 +58,30 @@ module ElasticAPM
 
           agent.report(exception)
 
-          expect(agent.queue.length).to be 0
+          expect(FakeServer.requests.length).to be 0
         end
       end
 
       describe '#report_message' do
         it 'queues a request' do
           subject.report_message('Everything went 💥')
+          wait_for_requests_to_finish 1
 
-          expect(subject.queue.length).to be 1
-
-          job = subject.queue.pop
-          expect(job).to be_a Worker::Request
+          expect(FakeServer.requests.length).to be 1
         end
       end
     end
 
-    describe '#enqueue_transactions' do
+    describe '#enqueue_transactions', :with_fake_server do
       subject { Agent.new Config.new }
 
       it 'enqueues a collection of transactions' do
         transaction = subject.transaction 'T'
 
         subject.enqueue_transactions([transaction])
+        wait_for_requests_to_finish 1
 
-        expect(subject.queue.length).to be 1
-        job = subject.queue.pop
-        expect(job).to be_a Worker::Request
+        expect(FakeServer.requests.length).to be 1
       end
     end
 

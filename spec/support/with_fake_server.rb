@@ -4,11 +4,13 @@ require 'json'
 require 'timeout'
 
 class FakeServer
-  LOCK = Mutex.new
-
   class << self
+    MUTEX = Mutex.new
+
     def requests
-      @requests ||= []
+      return @requests if @requests
+
+      MUTEX.lock { clear! }
     end
 
     def clear!
@@ -26,25 +28,29 @@ end
 
 RSpec.configure do |config|
   config.before :each, :with_fake_server do
+    FakeServer.clear!
+
     @request_stub =
       WebMock.stub_request(:any, /.*/).to_rack(FakeServer)
-    FakeServer.clear!
+  end
+
+  config.after :each, :with_fake_server do
+    WebMock.reset!
   end
 
   # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+  # rubocop:disable Style/MultilineIfModifier
   def wait_for_requests_to_finish(request_count)
     Timeout.timeout(5) do
       loop do
         missing = request_count - FakeServer.requests.length
         next if missing > 0
 
-        if missing < 0
-          puts format(
-            'Expected %d requests. Got %d',
-            request_count,
-            FakeServer.requests.length
-          )
-        end
+        puts format(
+          'Expected %d requests. Got %d',
+          request_count,
+          FakeServer.requests.length
+        )
 
         break true
       end
@@ -53,6 +59,7 @@ RSpec.configure do |config|
     puts format('Died waiting for %d requests', request_count)
     puts "--- Received: ---\n#{FakeServer.requests.inspect}"
     raise
-  end
+  end unless defined?(wait_for_requests_to_finish)
+  # rubocop:enable Style/MultilineIfModifier
   # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 end
