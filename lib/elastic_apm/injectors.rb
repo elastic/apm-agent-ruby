@@ -45,6 +45,18 @@ module ElasticAPM
       end
     end
 
+    def self.hook_into(name)
+      return unless (registration = require_hooks[name])
+      return unless const_defined?(registration.const_name)
+
+      installed[registration.const_name] = registration
+      registration.install
+
+      registration.require_paths.each do |path|
+        require_hooks.delete path
+      end
+    end
+
     def self.const_defined?(const_name)
       const = Util::Inflector.constantize(const_name)
       !!const

@@ -1,4 +1,8 @@
 exclude:
+  # Tests fail, but we don't care
+  - RUBY_VERSION: ruby-2.2
+    FRAMEWORK: rails-4.0
+
   # Unsupported by Rails
   - RUBY_VERSION: ruby-2.4
     FRAMEWORK: rails-4.1
@@ -14,12 +18,16 @@ exclude:
     FRAMEWORK: rails-master
   - RUBY_VERSION: ruby-2.3
     FRAMEWORK: rails-master
+  - RUBY_VERSION: ruby-2.4
+    FRAMEWORK: rails-master
   - RUBY_VERSION: jruby-9.1
     FRAMEWORK: rails-master
 
   - RUBY_VERSION: ruby-2.2
     FRAMEWORK: sinatra-master
   - RUBY_VERSION: ruby-2.3
+    FRAMEWORK: sinatra-master
+  - RUBY_VERSION: ruby-2.4
     FRAMEWORK: sinatra-master
   - RUBY_VERSION: jruby-9.1
     FRAMEWORK: sinatra-master

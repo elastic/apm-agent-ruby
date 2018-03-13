@@ -19,7 +19,7 @@ module ElasticAPM
         enabled_injectors: %w[net_http]
       )
 
-      WebMock.stub_request :get, 'http://example.com:80'
+      WebMock.disable!
 
       transaction = ElasticAPM.transaction 'Net::HTTP test' do
         Net::HTTP.start('example.com') do |http|
@@ -27,7 +27,7 @@ module ElasticAPM
         end
       end.submit 200
 
-      expect(WebMock).to have_requested(:get, 'http://example.com')
+      WebMock.enable!
       expect(transaction.spans.length).to be 1
 
       http_span = transaction.spans.last
