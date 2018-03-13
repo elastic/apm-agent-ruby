@@ -21,4 +21,4 @@ docker run \
   -v "$local_vendor_path:$container_vendor_path" \
   -v "$(dirname $(pwd))":/app \
   --rm apm-agent-ruby:${1} \
-  /bin/bash -c "bundle install --path $container_vendor_path && timeout 5m bundle exec rspec ${3:-spec}"
+  /bin/bash -c "bundle install --path $container_vendor_path && timeout -s9 5m bundle exec rspec ${3:-spec}"
