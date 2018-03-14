@@ -105,7 +105,7 @@ if defined?(Sinatra)
         'AND posts transaction' do
         begin
           get '/error'
-        rescue FancyError # rubocop:disable Lint/HandleExceptions
+        rescue FancyError
         end
 
         wait_for_requests_to_finish 2

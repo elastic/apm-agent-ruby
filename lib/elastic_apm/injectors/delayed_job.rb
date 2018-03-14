@@ -5,6 +5,10 @@ module ElasticAPM
   module Injectors
     # @api private
     class DelayedJobInjector
+      CLASS_SEPARATOR = '.'.freeze
+      METHOD_SEPARATOR = '#'.freeze
+      TYPE = 'Delayed::Job'.freeze
+
       def install
         ::Delayed::Backend::Base.class_eval do
           alias invoke_job_without_apm invoke_job
@@ -18,12 +22,12 @@ module ElasticAPM
 
       def self.invoke_job(job, *args, &block)
         job_name = name_from_payload(job.payload_object)
-        transaction = ElasticAPM.transaction(job_name, 'Delayed::Job')
+        transaction = ElasticAPM.transaction(job_name, TYPE)
         job.invoke_job_without_apm(*args, &block)
-        transaction.submit
+        transaction.submit 'success'
       rescue ::Exception => e
         ElasticAPM.report(e, handled: false)
-        transaction.submit
+        transaction.submit 'error'
         raise
       ensure
         transaction.release if transaction
@@ -51,7 +55,7 @@ module ElasticAPM
       end
 
       def self.name_separator(payload_object)
-        payload_object.object.is_a?(Class) ? '.' : '#'
+        payload_object.object.is_a?(Class) ? CLASS_SEPARATOR : METHOD_SEPARATOR
       end
     end
 

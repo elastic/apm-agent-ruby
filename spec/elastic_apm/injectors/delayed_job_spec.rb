@@ -5,26 +5,6 @@ require 'spec_helper'
 require 'elastic_apm/injectors/delayed_job'
 require 'delayed_job'
 
-class TransactionCapturingJob
-  attr_accessor :transaction
-
-  def perform
-    self.transaction = ElasticAPM.current_transaction
-  end
-end
-
-class MockJobBackend
-  include Delayed::Backend::Base
-
-  def initialize(job)
-    @job = job
-  end
-
-  def payload_object
-    @job
-  end
-end
-
 module ElasticAPM
   RSpec.describe Injectors::DelayedJobInjector do
     it 'registers' do
@@ -35,38 +15,89 @@ module ElasticAPM
       expect(registration.injector).to be_a described_class
     end
 
-    describe 'tracing' do
-      let(:enabled_injectors) { %w[delayed_job] }
-      let(:config) { Config.new(enabled_injectors: enabled_injectors) }
-      let(:mock_job) { TransactionCapturingJob.new }
-      let(:invokable) { mock_job }
+    describe 'transactions' do
+      class TransactionCapturingJob
+        attr_accessor :transaction
+
+        def perform
+          self.transaction = ElasticAPM.current_transaction
+        end
+      end
+
+      class ExplodingJob
+        attr_accessor :transaction
+
+        def perform
+          self.transaction = ElasticAPM.current_transaction
+
+          1 / 0
+        end
+      end
+
+      class MockJobBackend
+        include Delayed::Backend::Base
+
+        def initialize(job)
+          @job = job
+        end
+
+        def payload_object
+          @job
+        end
+      end
+
+      before :all do
+        Delayed::Worker.backend = MockJobBackend
+      end
 
       before do
-        Delayed::Worker.backend = MockJobBackend
-        ElasticAPM.start
-        Delayed::Job.new(invokable).invoke_job
+        ElasticAPM.start Config.new(enabled_injectors: %w[delayed_job])
       end
 
       after do
         ElasticAPM.stop
       end
 
-      subject { mock_job.transaction }
+      it 'instruments class-based job transaction' do
+        job = TransactionCapturingJob.new
 
-      describe 'class-based job transaction' do
-        it { is_expected.not_to be_nil }
-        its(:name) { is_expected.to eq 'TransactionCapturingJob' }
-        its(:type) { is_expected.to eq 'Delayed::Job' }
+        Delayed::Job.new(job).invoke_job
+
+        transaction = job.transaction
+        expect(transaction.name).to eq 'ElasticAPM::TransactionCapturingJob'
+        expect(transaction.type).to eq 'Delayed::Job'
+        expect(transaction.result).to eq 'success'
       end
 
-      describe 'method-based job transaction' do
-        let(:invokable) do
-          Delayed::PerformableMethod.new(mock_job, :perform, [])
-        end
+      it 'instruments method-based job transaction' do
+        job = TransactionCapturingJob.new
+        invokable = Delayed::PerformableMethod.new(job, :perform, [])
 
-        it { is_expected.not_to be_nil }
-        its(:name) { is_expected.to eq 'TransactionCapturingJob#perform' }
-        its(:type) { is_expected.to eq 'Delayed::Job' }
+        Delayed::Job.new(invokable).invoke_job
+
+        transaction = job.transaction
+        expect(transaction.name)
+          .to eq 'ElasticAPM::TransactionCapturingJob#perform'
+        expect(transaction.type).to eq 'Delayed::Job'
+        expect(transaction.result).to eq 'success'
+      end
+
+      it 'reports errors', :with_fake_server do
+        job = ExplodingJob.new
+
+        expect do
+          Delayed::Job.new(job).invoke_job
+        end.to raise_error(ZeroDivisionError)
+
+        transaction = job.transaction
+        expect(transaction.name).to eq 'ElasticAPM::ExplodingJob'
+        expect(transaction.type).to eq 'Delayed::Job'
+        expect(transaction.result).to eq 'error'
+
+        wait_for_requests_to_finish 1
+        expect(FakeServer.requests.length).to be 1
+        type = FakeServer.requests.first.dig('errors', 0, 'exception', 'type')
+        expect(type).to eq 'ZeroDivisionError'
       end
     end
   end
