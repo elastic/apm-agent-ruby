@@ -17,6 +17,9 @@ Layout/EmptyLinesAroundArguments:
 Lint/RescueException:
   Enabled: false
 
+Lint/HandleExceptions:
+  Enabled: false
+
 Metrics/BlockLength:
   Exclude:
     - 'spec/**/*.rb'

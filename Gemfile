@@ -6,6 +6,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 gemspec
 
+gem 'delayed_job'
 gem 'fakeredis', require: nil,
   github: 'guilleiguaran/fakeredis' # needs master right now
 gem 'json-schema'
@@ -13,6 +14,7 @@ gem 'pry'
 gem 'rack-test'
 gem 'redis', require: nil
 gem 'rspec'
+gem 'rspec-its'
 gem 'rubocop'
 gem 'sequel'
 gem 'timecop'

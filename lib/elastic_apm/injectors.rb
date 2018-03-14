@@ -75,7 +75,7 @@ module Kernel
 
     begin
       ElasticAPM::Injectors.hook_into(path)
-    rescue ::Exception # rubocop:disable Lint/HandleExceptions
+    rescue ::Exception
     end
 
     res
