@@ -7,6 +7,8 @@ module ElasticAPM
   # @api private
   class Config
     DEFAULTS = {
+      config_file: 'config/elastic_apm.yml',
+
       server_url: 'http://localhost:8200',
       secret_token: nil,
 
@@ -78,15 +80,17 @@ module ElasticAPM
       'ELASTIC_APM_TRANSACTION_MAX_SPANS' => [:int, 'transaction_max_spans']
     }.freeze
 
-    def initialize(options = nil)
-      options = {} if options.nil?
-
+    def initialize(options = {})
       set_defaults
+
+      set_from_config_file(options[:config_file] || config_file)
       set_from_env
       set_from_args(options)
 
       yield self if block_given?
     end
+
+    attr_accessor :config_file
 
     attr_accessor :server_url
     attr_accessor :secret_token
@@ -167,10 +171,14 @@ module ElasticAPM
 
     private
 
-    def set_defaults
-      DEFAULTS.each do |key, value|
+    def assign(options)
+      options.each do |key, value|
         send("#{key}=", value)
       end
+    end
+
+    def set_defaults
+      assign(DEFAULTS)
     end
 
     # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
@@ -195,9 +203,14 @@ module ElasticAPM
     # rubocop:enable Metrics/MethodLength, Metrics/CyclomaticComplexity
 
     def set_from_args(options)
-      options.each do |key, value|
-        send("#{key}=", value)
-      end
+      assign(options)
+    end
+
+    def set_from_config_file(path)
+      config_path = File.expand_path(path)
+      return unless File.exist?(config_path)
+
+      assign(YAML.load_file(config_path) || {})
     end
 
     def set_sinatra(app)

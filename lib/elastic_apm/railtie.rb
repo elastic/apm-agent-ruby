@@ -7,14 +7,7 @@ module ElasticAPM
     Config::DEFAULTS.each { |option, value| config.elastic_apm[option] = value }
 
     initializer 'elastic_apm.initialize' do |app|
-      config = Config.new app.config.elastic_apm do |c|
-        c.app = app
-      end
-
-      file_config = load_config(app)
-      file_config.each do |option, value|
-        config.send(:"#{option}=", value)
-      end
+      config = app.config.elastic_apm.merge(app: app)
 
       begin
         ElasticAPM.start config
@@ -28,15 +21,6 @@ module ElasticAPM
 
     config.after_initialize do
       require 'elastic_apm/injectors/action_dispatch'
-    end
-
-    private
-
-    def load_config(app)
-      config_path = app.root.join('config', 'elastic_apm.yml')
-      return {} unless File.exist?(config_path)
-
-      YAML.load_file(config_path) || {}
     end
   end
 end

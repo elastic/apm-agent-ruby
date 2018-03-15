@@ -27,7 +27,7 @@ module ElasticAPM
     def self.start(config)
       return @instance if @instance
 
-      config = Config.new(config) if config.is_a?(Hash)
+      config = Config.new(config) unless config.is_a?(Config)
 
       unless config.enabled_environments.include?(config.environment)
         config.logger && config.logger.info(
