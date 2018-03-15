@@ -14,13 +14,16 @@ module ElasticAPM
           context: ElasticAPM.build_context(env)
 
         resp = @app.call env
+        status, headers, = resp
 
-        transaction.submit(resp[0], headers: resp[1]) if transaction
+        if transaction
+          transaction.submit(status, status: status, headers: headers)
+        end
       rescue InternalError
         raise # Don't report ElasticAPM errors
       rescue ::Exception => e
         ElasticAPM.report(e, handled: false)
-        transaction.submit(500) if transaction
+        transaction.submit(500, status: 500) if transaction
         raise
       ensure
         transaction.release if transaction

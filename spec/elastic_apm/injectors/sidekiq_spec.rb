@@ -4,6 +4,7 @@ require 'spec_helper'
 
 require 'elastic_apm/injectors/sidekiq'
 require 'sidekiq'
+require 'sidekiq/manager'
 require 'sidekiq/testing'
 
 module ElasticAPM
@@ -81,6 +82,18 @@ module ElasticAPM
       expect(type).to eq 'ZeroDivisionError'
 
       ElasticAPM.stop
+    end
+
+    it 'starts when sidekiq processors do' do
+      manager = Sidekiq::Manager.new concurrency: 1, queues: ['default']
+      manager.start
+
+      expect(ElasticAPM.agent).to_not be_nil
+
+      manager.quiet
+
+      expect(ElasticAPM.agent).to be_nil
+      expect(manager).to be_stopped
     end
   end
 end

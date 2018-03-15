@@ -12,14 +12,14 @@ module ElasticAPM
       transaction,
       id,
       name,
-      type = DEFAULT_KIND,
+      type = nil,
       parent: nil,
       context: nil
     )
       @transaction = transaction
       @id = id
       @name = name
-      @type = type
+      @type = type || DEFAULT_KIND
       @parent = parent
       @context = context
       @stacktrace = nil

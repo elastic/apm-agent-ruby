@@ -51,10 +51,12 @@ module ElasticAPM
       !!(@result && @duration)
     end
 
-    def submit(status = nil, headers: {})
-      done status
+    def submit(result = nil, status: nil, headers: {})
+      done result
 
-      context.response = Context::Response.new(status, headers: headers)
+      if status
+        context.response = Context::Response.new(status, headers: headers)
+      end
 
       release
 
