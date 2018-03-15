@@ -43,13 +43,13 @@ module ElasticAPM
           alias terminate_without_apm terminate
 
           def start
-            ElasticAPM.start(worker_process: true)
             start_without_apm
+            ElasticAPM.start(worker_process: true, logger: Sidekiq.logger)
           end
 
           def terminate
-            ElasticAPM.stop
             terminate_without_apm
+            ElasticAPM.stop
           end
         end
       end

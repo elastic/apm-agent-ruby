@@ -84,9 +84,9 @@ module ElasticAPM
     def initialize(options = {})
       set_defaults
 
-      set_from_config_file(options[:config_file] || config_file)
-      set_from_env
       set_from_args(options)
+      set_from_env
+      set_from_config_file
 
       yield self if block_given?
     end
@@ -208,11 +208,9 @@ module ElasticAPM
       assign(options)
     end
 
-    def set_from_config_file(path)
-      config_path = File.expand_path(path)
-      return unless File.exist?(config_path)
-
-      assign(YAML.load_file(config_path) || {})
+    def set_from_config_file
+      return unless File.exist?(config_file)
+      assign(YAML.load_file(config_file) || {})
     end
 
     def set_sinatra(app)
@@ -223,11 +221,12 @@ module ElasticAPM
       self.root_path = Dir.pwd
     end
 
-    def set_rails(app)
-      self.service_name = format_name(service_name || app.class.parent_name)
-      self.framework_name = 'Ruby on Rails'
-      self.framework_version = Rails::VERSION::STRING
-      self.logger = Rails.logger
+    def set_rails(app) # rubocop:disable Metrics/AbcSize
+      self.service_name ||= format_name(service_name || app.class.parent_name)
+      self.framework_name ||= 'Ruby on Rails'
+      self.framework_version ||= Rails::VERSION::STRING
+      self.logger ||= Rails.logger
+
       self.root_path = Rails.root.to_s
       self.view_paths = app.config.paths['app/views'].existent
     end
