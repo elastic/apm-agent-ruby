@@ -8,6 +8,7 @@ module ElasticAPM
   class Config
     DEFAULTS = {
       config_file: 'config/elastic_apm.yml',
+      worker_process: false,
 
       server_url: 'http://localhost:8200',
       secret_token: nil,
@@ -91,6 +92,7 @@ module ElasticAPM
     end
 
     attr_accessor :config_file
+    attr_accessor :worker_process
 
     attr_accessor :server_url
     attr_accessor :secret_token
