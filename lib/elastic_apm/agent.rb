@@ -23,16 +23,13 @@ module ElasticAPM
       @instance
     end
 
-    # rubocop:disable Metrics/MethodLength
     def self.start(config)
       return @instance if @instance
 
       config = Config.new(config) unless config.is_a?(Config)
 
       unless config.enabled_environments.include?(config.environment)
-        config.logger && config.logger.info(
-          format('Not tracking anything in "%s" env', config.environment)
-        )
+        puts format('Not tracking anything in "%s" env', config.environment)
         return
       end
 
@@ -42,7 +39,6 @@ module ElasticAPM
         @instance = new(config.freeze).start
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def self.stop
       LOCK.synchronize do

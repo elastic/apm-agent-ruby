@@ -26,12 +26,38 @@ module ElasticAPM
         # rubocop:enable Metrics/MethodLength
       end
 
-      def install
+      def install_middleware
         Sidekiq.configure_server do |config|
           config.server_middleware do |chain|
             chain.add Middleware
           end
         end
+      end
+
+      # rubocop:disable Metrics/MethodLength
+      def install_processor
+        require 'sidekiq/processor'
+
+        Sidekiq::Processor.class_eval do
+          alias start_without_apm start
+          alias terminate_without_apm terminate
+
+          def start
+            ElasticAPM.start(worker_process: true)
+            start_without_apm
+          end
+
+          def terminate
+            ElasticAPM.stop
+            terminate_without_apm
+          end
+        end
+      end
+      # rubocop:enable Metrics/MethodLength
+
+      def install
+        install_processor
+        install_middleware
       end
     end
 
