@@ -85,8 +85,8 @@ module ElasticAPM
       set_defaults
 
       set_from_args(options)
-      set_from_env
       set_from_config_file
+      set_from_env
 
       yield self if block_given?
     end
