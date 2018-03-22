@@ -19,7 +19,7 @@ module ElasticAPM
       ElasticAPM.start(enabled_injectors: %w[elasticsearch])
       WebMock.stub_request(:get, %r{http://localhost:9200/.*})
 
-      client = Elasticsearch::Client.new
+      client = Elasticsearch::Client.new log: false
 
       transaction = ElasticAPM.transaction 'T' do
         client.search q: 'test'

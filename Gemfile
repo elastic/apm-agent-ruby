@@ -6,7 +6,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 gemspec
 
-gem 'delayed_job'
+gem 'delayed_job', github: 'collectiveidea/delayed_job'
 gem 'elasticsearch'
 gem 'fakeredis', require: nil,
   github: 'guilleiguaran/fakeredis' # needs master right now

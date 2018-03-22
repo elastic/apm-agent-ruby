@@ -12,12 +12,12 @@ module ElasticAPM
         ::Elasticsearch::Transport::Client.class_eval do
           alias perform_request_without_apm perform_request
 
-          def perform_request(method, path, params = {}, body = nil)
+          def perform_request(method, path, *args, &block)
             name = format(NAME_FORMAT, method, path)
-            context = Span::Context.new(statement: params)
+            context = Span::Context.new(statement: args[0])
 
             ElasticAPM.span name, TYPE, context: context do
-              perform_request_without_apm(method, path, params, body)
+              perform_request_without_apm(method, path, *args, &block)
             end
           end
         end

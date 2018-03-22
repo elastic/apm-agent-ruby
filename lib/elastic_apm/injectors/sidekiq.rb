@@ -57,12 +57,18 @@ module ElasticAPM
           alias terminate_without_apm terminate
 
           def start
-            start_without_apm
-            ElasticAPM.start(worker_process: true, logger: Sidekiq.logger)
+            result = start_without_apm
+            ElasticAPM.start # might already be running from railtie
+
+            return result unless ElasticAPM.running?
+            ElasticAPM.agent.config.logger = Sidekiq.logger
+
+            result
           end
 
           def terminate
             terminate_without_apm
+
             ElasticAPM.stop
           end
         end

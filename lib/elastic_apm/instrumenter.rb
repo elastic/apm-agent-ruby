@@ -89,19 +89,27 @@ module ElasticAPM
     # rubocop:enable Metrics/MethodLength
 
     def span(*args, &block)
-      transaction.span(*args, &block)
+      unless current_transaction
+        return yield if block_given?
+        return
+      end
+
+      current_transaction.span(*args, &block)
     end
 
     def set_tag(key, value)
-      transaction.context.tags[key] = value.to_s
+      return unless current_transaction
+      current_transaction.context.tags[key] = value.to_s
     end
 
     def set_custom_context(context)
-      transaction.context.custom.merge!(context)
+      return unless current_transaction
+      current_transaction.context.custom.merge!(context)
     end
 
     def set_user(user)
-      transaction.context.user = Context::User.new(config, user)
+      return unless current_transaction
+      current_transaction.context.user = Context::User.new(config, user)
     end
 
     def submit_transaction(transaction)

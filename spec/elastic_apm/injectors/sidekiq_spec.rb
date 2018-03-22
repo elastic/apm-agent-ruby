@@ -3,6 +3,7 @@
 require 'spec_helper'
 
 require 'elastic_apm/injectors/sidekiq'
+
 require 'sidekiq'
 require 'sidekiq/manager'
 require 'sidekiq/testing'

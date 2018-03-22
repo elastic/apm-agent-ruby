@@ -15,6 +15,7 @@ if defined?(Sinatra)
 
     class SinatraTestApp < ::Sinatra::Base
       enable :logging
+      disable :protection
       disable :show_exceptions
 
       use ElasticAPM::Middleware
