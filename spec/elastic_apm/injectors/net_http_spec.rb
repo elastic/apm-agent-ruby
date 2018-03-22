@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'net/http'
 
 require 'elastic_apm/injectors/net_http'
 

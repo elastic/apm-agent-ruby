@@ -39,7 +39,7 @@ module ElasticAPM
       LOCK.synchronize do
         return @instance if @instance
 
-        @instance = new(config.freeze).start
+        @instance = new(config).start
       end
     end
 

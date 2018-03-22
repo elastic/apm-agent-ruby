@@ -39,7 +39,7 @@ module ElasticAPM
       return response if status >= 200 && status <= 299
 
       error "POST returned an unsuccessful status code (#{response.code})"
-      debug response.body
+      error response.body
 
       response
     end

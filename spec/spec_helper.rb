@@ -26,7 +26,7 @@ RSpec.configure do |config|
 
   config.example_status_persistence_file_path = '.rspec_status'
   config.disable_monkey_patching!
-  config.backtrace_exclusion_patterns = [%r{/(gems|bundler)/}]
+  # config.backtrace_exclusion_patterns = [%r{/(gems|bundler)/}]
 
   config.expect_with :rspec do |c|
     c.syntax = :expect

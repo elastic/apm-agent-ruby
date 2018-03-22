@@ -6,7 +6,6 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 gemspec
 
-gem 'delayed_job'
 gem 'elasticsearch'
 gem 'fakeredis', require: nil,
   github: 'guilleiguaran/fakeredis' # needs master right now
@@ -39,3 +38,9 @@ when /.+/
 else
   gem framework
 end
+
+# doesn't work with Rails master, so skip testing
+gem 'delayed_job' unless [framework, version] == %w[rails master]
+
+gem 'rails' if framework == 'sinatra'
+gem 'sinatra' if framework == 'rails'

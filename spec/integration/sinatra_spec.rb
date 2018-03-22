@@ -7,13 +7,20 @@ if defined?(Sinatra)
     include Rack::Test::Methods
 
     class FancyError < StandardError; end
+    class BackwardsCompatibleLogger < Logger
+      def write(*args)
+        self.<<(*args)
+      end
+    end
 
     class SinatraTestApp < ::Sinatra::Base
       enable :logging
+      disable :protection
       disable :show_exceptions
 
       use ElasticAPM::Middleware
-      use Rack::CommonLogger, Logger.new(STDOUT)
+      # use Rack::CommonLogger, BackwardsCompatibleLogger.new(STDOUT)
+      use Rack::CommonLogger, BackwardsCompatibleLogger.new(nil)
 
       get '/' do
         'Yes!'

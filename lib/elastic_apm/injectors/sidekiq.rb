@@ -5,11 +5,14 @@ module ElasticAPM
   module Injectors
     # @api private
     class SidekiqInjector
+      ACTIVE_JOB_WRAPPER =
+        'ActiveJob::QueueAdapters::SidekiqAdapter::JobWrapper'.freeze
+
       # @api private
       class Middleware
         # rubocop:disable Metrics/MethodLength
         def call(_worker, job, queue)
-          name = job['class']
+          name = SidekiqInjector.name_for(job)
           transaction = ElasticAPM.transaction(name, 'Sidekiq')
           ElasticAPM.set_tag(:queue, queue)
 
@@ -24,6 +27,17 @@ module ElasticAPM
           transaction.release if transaction
         end
         # rubocop:enable Metrics/MethodLength
+      end
+
+      def self.name_for(job)
+        klass = job['class']
+
+        case klass
+        when ACTIVE_JOB_WRAPPER
+          job['wrapped']
+        else
+          klass
+        end
       end
 
       def install_middleware
@@ -43,12 +57,18 @@ module ElasticAPM
           alias terminate_without_apm terminate
 
           def start
-            start_without_apm
-            ElasticAPM.start(worker_process: true, logger: Sidekiq.logger)
+            result = start_without_apm
+            ElasticAPM.start # might already be running from railtie
+
+            return result unless ElasticAPM.running?
+            ElasticAPM.agent.config.logger = Sidekiq.logger
+
+            result
           end
 
           def terminate
             terminate_without_apm
+
             ElasticAPM.stop
           end
         end
