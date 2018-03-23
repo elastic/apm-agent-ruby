@@ -42,7 +42,7 @@ module ElasticAPM
       source_lines_error_library_frames: 0,
       source_lines_span_library_frames: 0,
 
-      enabled_injectors: %w[net_http],
+      disabled_injectors: %w[],
 
       current_user_id_method: :id,
       current_user_email_method: :email,
@@ -78,7 +78,9 @@ module ElasticAPM
       'ELASTIC_APM_TRANSACTION_SAMPLE_RATE' =>
         [:float, 'transaction_sample_rate'],
       'ELASTIC_APM_VERIFY_SERVER_CERT' => [:bool, 'verify_server_cert'],
-      'ELASTIC_APM_TRANSACTION_MAX_SPANS' => [:int, 'transaction_max_spans']
+      'ELASTIC_APM_TRANSACTION_MAX_SPANS' => [:int, 'transaction_max_spans'],
+
+      'ELASTIC_APM_DISABLED_INJECTORS' => [:list, 'disabled_injectors']
     }.freeze
 
     def initialize(options = {})
@@ -125,7 +127,7 @@ module ElasticAPM
     attr_accessor :source_lines_error_library_frames
     attr_accessor :source_lines_span_library_frames
 
-    attr_accessor :enabled_injectors
+    attr_accessor :disabled_injectors
 
     attr_accessor :view_paths
     attr_accessor :root_path
@@ -169,6 +171,27 @@ module ElasticAPM
 
     def logger=(logger)
       @logger = logger || build_logger(log_path, log_level)
+    end
+
+    # rubocop:disable Metrics/MethodLength
+    def available_injectors
+      %w[
+        action_dispatch
+        delayed_job
+        elasticsearch
+        json
+        net_http
+        redis
+        sequel
+        sidekiq
+        sinatra
+        tilt
+      ]
+    end
+    # rubocop:enable Metrics/MethodLength
+
+    def enabled_injectors
+      available_injectors - disabled_injectors
     end
 
     private
@@ -217,7 +240,6 @@ module ElasticAPM
       self.service_name = format_name(service_name || app.to_s)
       self.framework_name = framework_name || 'Sinatra'
       self.framework_version = framework_version || Sinatra::VERSION
-      self.enabled_injectors += %w[sinatra]
       self.root_path = Dir.pwd
     end
 

@@ -112,7 +112,10 @@ module ElasticAPM
     end
 
     def inspect
-      "<ElasticAPM::Transaction id:#{id}>"
+      "<ElasticAPM::Transaction id:#{id}" \
+        " name:#{name.inspect}" \
+        " type:#{type.inspect}" \
+        '>'
     end
 
     private

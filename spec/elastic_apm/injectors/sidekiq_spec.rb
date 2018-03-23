@@ -2,11 +2,11 @@
 
 require 'spec_helper'
 
-require 'elastic_apm/injectors/sidekiq'
-
 require 'sidekiq'
 require 'sidekiq/manager'
 require 'sidekiq/testing'
+
+require 'elastic_apm/injectors/sidekiq'
 
 begin
   require 'active_job'
@@ -15,14 +15,6 @@ end
 
 module ElasticAPM
   RSpec.describe Injectors::SidekiqInjector do
-    it 'registers' do
-      registration =
-        Injectors.require_hooks['sidekiq'] ||
-        Injectors.installed['Sidekiq']
-
-      expect(registration.injector).to be_a described_class
-    end
-
     module SaveTransaction
       def self.included(kls)
         class << kls
@@ -87,7 +79,7 @@ module ElasticAPM
 
     context 'with an agent', :with_fake_server do
       around do |example|
-        ElasticAPM.start(enabled_injectors: %w[sidekiq])
+        ElasticAPM.start
         example.run
         ElasticAPM.stop
       end

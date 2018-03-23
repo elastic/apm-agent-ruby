@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'net/http'
-
 module ElasticAPM
   # @api private
   module Injectors
