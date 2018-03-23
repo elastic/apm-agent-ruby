@@ -15,6 +15,10 @@ module ElasticAPM
       it 'has a uuid' do
         expect(Transaction.new(nil, 'Test').id).to_not be_nil
       end
+
+      it 'has a default type' do
+        expect(Transaction.new(nil, 'Test').type).to_not be_nil
+      end
     end
 
     describe '#release', :mock_time do

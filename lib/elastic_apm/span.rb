@@ -5,7 +5,7 @@ require 'elastic_apm/span/context'
 module ElasticAPM
   # @api private
   class Span
-    DEFAULT_KIND = 'custom'.freeze
+    DEFAULT_TYPE = 'custom'.freeze
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(
@@ -19,7 +19,7 @@ module ElasticAPM
       @transaction = transaction
       @id = id
       @name = name
-      @type = type || DEFAULT_KIND
+      @type = type || DEFAULT_TYPE
       @parent = parent
       @context = context
       @stacktrace = nil

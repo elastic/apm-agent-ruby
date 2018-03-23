@@ -3,18 +3,14 @@
 module ElasticAPM
   # @api private
   class Transaction
+    DEFAULT_TYPE = 'custom'.freeze
+
     # rubocop:disable Metrics/MethodLength
-    def initialize(
-      instrumenter,
-      name,
-      type = 'custom',
-      context: nil,
-      sampled: true
-    )
+    def initialize(instrumenter, name, type = nil, context: nil, sampled: true)
       @id = SecureRandom.uuid
       @instrumenter = instrumenter
       @name = name
-      @type = type
+      @type = type || DEFAULT_TYPE
 
       @timestamp = Util.micros
 
