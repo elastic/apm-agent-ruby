@@ -52,8 +52,7 @@ if defined?(Sinatra)
       ElasticAPM.start(
         app: SinatraTestApp,
         debug_transactions: true,
-        flush_interval: nil,
-        enabled_injectors: %w[sinatra]
+        flush_interval: nil
       )
     end
 

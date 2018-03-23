@@ -1,19 +1,10 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'elastic_apm/injectors/sequel'
 require 'sequel'
 
 module ElasticAPM
-  RSpec.describe Injectors::SequelInjector do
-    it 'registers' do
-      registration =
-        Injectors.require_hooks['sequel'] || # when missing
-        Injectors.installed['Sequel']        # with present
-
-      expect(registration.injector).to be_a described_class
-    end
-
+  RSpec.describe 'Injectors::SequelInjector' do
     it 'spans calls' do
       db =
         if RUBY_PLATFORM == 'java'
@@ -29,7 +20,7 @@ module ElasticAPM
 
       db[:users].count # warm up
 
-      ElasticAPM.start Config.new(enabled_injectors: %w[sequel])
+      ElasticAPM.start
 
       transaction = ElasticAPM.transaction 'Sequel test' do
         db[:users].count

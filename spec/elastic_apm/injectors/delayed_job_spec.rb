@@ -2,8 +2,6 @@
 
 require 'spec_helper'
 
-require 'elastic_apm/injectors/delayed_job'
-
 begin
   require 'delayed_job'
 rescue LoadError
@@ -11,15 +9,7 @@ end
 
 if defined?(Delayed::Backend)
   module ElasticAPM
-    RSpec.describe Injectors::DelayedJobInjector do
-      it 'registers' do
-        registration =
-          Injectors.require_hooks['delayed/backend/base'] ||
-          Injectors.installed['Delayed::Backend::Base']
-
-        expect(registration.injector).to be_a described_class
-      end
-
+    RSpec.describe 'Injectors::DelayedJobInjector' do
       describe 'transactions' do
         class TransactionCapturingJob
           attr_accessor :transaction
@@ -56,7 +46,7 @@ if defined?(Delayed::Backend)
         end
 
         before do
-          ElasticAPM.start Config.new(enabled_injectors: %w[delayed_job])
+          ElasticAPM.start
         end
 
         after do

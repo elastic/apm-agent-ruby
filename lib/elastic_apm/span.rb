@@ -48,5 +48,12 @@ module ElasticAPM
     def running?
       relative_start && !done?
     end
+
+    def inspect
+      "<ElasticAPM::Span id:#{id}" \
+        " name:#{name.inspect}" \
+        " type:#{type.inspect}" \
+        '>'
+    end
   end
 end

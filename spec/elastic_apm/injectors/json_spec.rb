@@ -1,20 +1,11 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'elastic_apm/injectors/json'
 
 module ElasticAPM
-  RSpec.describe Injectors::JSONInjector do
-    it 'registers' do
-      registration =
-        Injectors.require_hooks['json'] || # when missing
-        Injectors.installed['JSON']        # when present
-
-      expect(registration.injector).to be_a described_class
-    end
-
+  RSpec.describe 'Injectors::JSONInjector' do
     it 'spans #parse' do
-      ElasticAPM.start Config.new(enabled_injectors: %w[json])
+      ElasticAPM.start
 
       transaction = ElasticAPM.transaction 'T' do
         JSON.parse('[{"simply":"the best"}]')
@@ -27,7 +18,7 @@ module ElasticAPM
     end
 
     it 'spans #parse!' do
-      ElasticAPM.start Config.new(enabled_injectors: %w[json])
+      ElasticAPM.start
 
       transaction = ElasticAPM.transaction 'T' do
         JSON.parse!('[{"simply":"the best"}]')
@@ -40,7 +31,7 @@ module ElasticAPM
     end
 
     it 'spans #generate' do
-      ElasticAPM.start Config.new(enabled_injectors: %w[json])
+      ElasticAPM.start
 
       transaction = ElasticAPM.transaction 'T' do
         JSON.generate([{ simply: 'the_best' }])
