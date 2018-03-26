@@ -42,7 +42,7 @@ module ElasticAPM
           return cached
         end
 
-        LineCache.set(path, range, File.readlines(path)[range])
+        LineCache.set(path, range, File.readlines(path)[range]) || []
       rescue Errno::ENOENT
         []
       end
