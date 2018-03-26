@@ -17,10 +17,10 @@ module ElasticAPM
       end
     end
 
-    register(
-      'ActionDispatch::ShowExceptions',
-      'action_dispatch/show_exception',
-      ActionDispatchInjector.new
-    )
+    # register(
+    #   'ActionDispatch::ShowExceptions',
+    #   'action_dispatch/show_exception',
+    #   ActionDispatchInjector.new
+    # )
   end
 end
