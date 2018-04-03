@@ -1,5 +1,6 @@
 RUBY_VERSION:
-  - ruby-2.5
+  - ruby-2.5.1
+  - ruby-2.5.0
   - ruby-2.4
   - ruby-2.3
   - ruby-2.2
