@@ -1,7 +1,7 @@
 FRAMEWORK:
   - sinatra-1.4
   - sinatra-2.0
-  - rails-5.2.rc1
+  - rails-5.2.rc2
   - rails-5.1
   - rails-5.0
   - rails-4.2
@@ -10,5 +10,5 @@ FRAMEWORK:
   # - rails-3.2.22
   # - rails-3.1.12
   # - rails-3.0.20
-  - rails-master
+  # - rails-master
   - sinatra-master

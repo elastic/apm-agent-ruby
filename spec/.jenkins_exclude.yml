@@ -4,13 +4,23 @@ exclude:
     FRAMEWORK: rails-4.0
 
   # Unsupported by Rails
+  - RUBY_VERSION: ruby-2.2
+    FRAMEWORK: rails-5.2.rc2
+  - RUBY_VERSION: ruby-2.2
+    FRAMEWORK: rails-5.1
+  - RUBY_VERSION: ruby-2.2
+    FRAMEWORK: rails-5.0
   - RUBY_VERSION: ruby-2.4
     FRAMEWORK: rails-4.1
   - RUBY_VERSION: ruby-2.4
     FRAMEWORK: rails-4.0
-  - RUBY_VERSION: ruby-2.5
+  - RUBY_VERSION: ruby-2.5.0
     FRAMEWORK: rails-4.1
-  - RUBY_VERSION: ruby-2.5
+  - RUBY_VERSION: ruby-2.5.0
+    FRAMEWORK: rails-4.0
+  - RUBY_VERSION: ruby-2.5.1
+    FRAMEWORK: rails-4.1
+  - RUBY_VERSION: ruby-2.5.1
     FRAMEWORK: rails-4.0
 
   # Only test master on newest ruby
@@ -20,6 +30,8 @@ exclude:
     FRAMEWORK: rails-master
   - RUBY_VERSION: ruby-2.4
     FRAMEWORK: rails-master
+  - RUBY_VERSION: ruby-2.5.0
+    FRAMEWORK: rails-master
   - RUBY_VERSION: jruby-9.1
     FRAMEWORK: rails-master
 
@@ -28,6 +40,8 @@ exclude:
   - RUBY_VERSION: ruby-2.3
     FRAMEWORK: sinatra-master
   - RUBY_VERSION: ruby-2.4
+    FRAMEWORK: sinatra-master
+  - RUBY_VERSION: ruby-2.5.0
     FRAMEWORK: sinatra-master
   - RUBY_VERSION: jruby-9.1
     FRAMEWORK: sinatra-master

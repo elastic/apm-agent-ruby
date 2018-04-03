@@ -9,7 +9,7 @@ module ElasticAPM
     JAVA_FORMAT = /^(.+)\.([^\.]+)\(([^\:]+)\:(\d+)\)$/
     RUBY_FORMAT = /^(.+?):(\d+)(?::in `(.+?)')?$/
 
-    RUBY_VERS_REGEX = %r{ruby[-/](\d+\.)+\d}
+    RUBY_VERS_REGEX = %r{ruby(/gems)?[-/](\d+\.)+\d}
     JRUBY_ORG_REGEX = %r{org/jruby}
 
     def initialize(backtrace)
@@ -61,7 +61,7 @@ module ElasticAPM
       return false unless abs_path
 
       if abs_path.start_with?(config.root_path)
-        return true if abs_path.match(config.root_path + '/vendor')
+        return true if abs_path.start_with?(config.root_path + '/vendor')
         return false
       end
 
