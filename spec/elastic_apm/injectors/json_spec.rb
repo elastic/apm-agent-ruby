@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 module ElasticAPM
-  RSpec.describe 'Injectors::JSONInjector' do
+  RSpec.describe 'Injectors::JSONInjector', :with_fake_server do
     it 'spans #parse' do
       ElasticAPM.start disabled_injectors: []
 

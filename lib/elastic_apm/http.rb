@@ -38,8 +38,8 @@ module ElasticAPM
       status = response.code.to_i
       return response if status >= 200 && status <= 299
 
-      error "POST returned an unsuccessful status code (#{response.code})"
-      error response.body
+      error 'POST returned an unsuccessful status code (%d)', response.code
+      error "apm-server's response: %s", response.body
 
       response
     end

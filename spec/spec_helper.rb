@@ -7,6 +7,7 @@ require 'bundler/setup'
 Bundler.require :default, 'test'
 
 require 'webmock/rspec'
+WebMock.hide_stubbing_instructions!
 
 require 'support/delegate_matcher'
 require 'support/match_json_schema_matcher'

@@ -33,9 +33,6 @@ module ElasticAPM
       @transaction_info = TransactionInfo.new
 
       @subscriber = subscriber_class.new(config)
-
-      @pending_transactions = []
-      @last_sent_transactions = Time.now.utc
     end
 
     attr_reader :config, :pending_transactions
@@ -64,12 +61,10 @@ module ElasticAPM
         return transaction
       end
 
-      sample = rand <= config.transaction_sample_rate
-
       if args.last.is_a? Hash
-        args.last[:sampled] = sample
+        args.last[:sampled] = random_sample?
       else
-        args.push(sampled: sample)
+        args.push(sampled: random_sample?)
       end
 
       transaction = Transaction.new self, *args
@@ -87,6 +82,10 @@ module ElasticAPM
       transaction
     end
     # rubocop:enable Metrics/MethodLength
+
+    def random_sample?
+      rand <= config.transaction_sample_rate
+    end
 
     def span(*args, &block)
       unless current_transaction
@@ -113,36 +112,10 @@ module ElasticAPM
     end
 
     def submit_transaction(transaction)
-      @pending_transactions << transaction
+      @agent.enqueue_transaction transaction
 
-      if config.debug_transactions
-        debug('Submitted transaction:') { Util.inspect_transaction transaction }
-      end
-
-      return unless should_flush_transactions?
-      flush_transactions
-    end
-
-    def should_flush_transactions?
-      interval = config.flush_interval
-
-      return true if interval.nil?
-      return true if @pending_transactions.length >= config.max_queue_size
-
-      Time.now.utc - @last_sent_transactions >= interval
-    end
-
-    def flush_transactions
-      return if @pending_transactions.empty?
-
-      debug 'Sending %i transactions', @pending_transactions.length
-
-      @agent.enqueue_transactions @pending_transactions
-
-      @last_sent_transactions = Time.now.utc
-      @pending_transactions = []
-
-      true
+      return unless config.debug_transactions
+      debug('Submitted transaction:') { Util.inspect_transaction transaction }
     end
 
     def inspect

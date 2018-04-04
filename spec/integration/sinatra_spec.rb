@@ -118,7 +118,7 @@ if defined?(Sinatra)
 
         expect(FakeServer.requests.length).to be 2
 
-        exception = FakeServer.requests.first['errors'][0]['exception']
+        exception = FakeServer.requests.last['errors'][0]['exception']
         expect(exception['type']).to eq 'FancyError'
       end
     end
