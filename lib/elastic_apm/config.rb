@@ -31,8 +31,8 @@ module ElasticAPM
       transaction_max_spans: 500,
       filter_exception_types: [],
 
-      http_timeout: 10,
-      http_open_timeout: 10,
+      http_read_timeout: 120,
+      http_open_timeout: 60,
       debug_transactions: false,
       debug_http: false,
       verify_server_cert: true,
@@ -117,7 +117,7 @@ module ElasticAPM
     attr_accessor :verify_server_cert
     attr_accessor :filter_exception_types
 
-    attr_accessor :http_timeout
+    attr_accessor :http_read_timeout
     attr_accessor :http_open_timeout
     attr_accessor :debug_transactions
     attr_accessor :debug_http
