@@ -161,7 +161,10 @@ if defined? Rails
         get '/error'
         wait_for_requests_to_finish 2
 
-        payload, = FakeServer.requests
+        # sometimes the transaction gets there first
+        payload = FakeServer.requests.select do |r|
+          r.keys.include? 'errors'
+        end.first
         expect(payload).to match_json_schema(:errors)
       end
     end

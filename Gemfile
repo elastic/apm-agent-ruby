@@ -40,7 +40,7 @@ else
 end
 
 # doesn't work with Rails master, so skip testing
-gem 'delayed_job' unless [framework, version] == %w[rails master]
+gem 'delayed_job' # unless [framework, version] == %w[rails master]
 
 gem 'rails' if framework == 'sinatra'
 gem 'sinatra' if framework == 'rails'

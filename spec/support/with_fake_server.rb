@@ -10,7 +10,11 @@ class FakeServer
     def requests
       return @requests if @requests
 
-      MUTEX.lock { clear! }
+      MUTEX.lock do
+        clear!
+      end
+
+      @requests
     end
 
     def clear!
