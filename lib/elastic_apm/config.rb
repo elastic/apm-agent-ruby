@@ -42,7 +42,7 @@ module ElasticAPM
       source_lines_error_library_frames: 0,
       source_lines_span_library_frames: 0,
 
-      disabled_injectors: %w[],
+      disabled_injectors: %w[json],
 
       current_user_id_method: :id,
       current_user_email_method: :email,
