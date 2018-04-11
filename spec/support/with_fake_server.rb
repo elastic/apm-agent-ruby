@@ -26,7 +26,7 @@ class FakeServer
       body = request.body.read
       encoding = request.env['HTTP_CONTENT_ENCODING']
       if encoding && encoding.match(/deflate/)
-        body = Zlib.inflate(body)
+        body = Zlib::Inflate.inflate(body)
       end
       requests << JSON.parse(body)
 
