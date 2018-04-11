@@ -58,18 +58,21 @@ module ElasticAPM
           req['Authorization'] = "Bearer #{token}"
         end
 
-        if @config.http_compression && data.bytesize > @config.compression_minimum_size
-          deflated = Zlib.deflate data, @config.compression_level
-          puts "Deflating #{data.bytesize} bytes to #{deflated.bytesize} bytes"
+        prepare_request_body! req, data
+      end
+    end
 
-          req['Content-Encoding'] = 'deflate'
-          req['Content-Length'] = deflated.bytesize.to_s
-          req.body = deflated
-        else
-          puts "Not deflating!"
-          req['Content-Length'] = data.bytesize.to_s
-          req.body = data
-        end
+    def prepare_request_body!(req, data)
+      if @config.http_compression &&
+         data.bytesize > @config.compression_minimum_size
+        deflated = Zlib.deflate data, @config.compression_level
+
+        req['Content-Encoding'] = 'deflate'
+        req['Content-Length'] = deflated.bytesize.to_s
+        req.body = deflated
+      else
+        req['Content-Length'] = data.bytesize.to_s
+        req.body = data
       end
     end
 

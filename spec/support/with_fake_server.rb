@@ -24,7 +24,7 @@ class FakeServer
     def call(env)
       request = Rack::Request.new(env)
       body = request.body.read
-      encoding = request.env["HTTP_CONTENT_ENCODING"]
+      encoding = request.env['HTTP_CONTENT_ENCODING']
       if encoding && encoding.match(/deflate/)
         body = Zlib.inflate(body)
       end
