@@ -4,7 +4,7 @@ require 'spec_helper'
 
 module ElasticAPM
   RSpec.describe Middleware do
-    it 'surrounds the request in a transaction' do
+    it 'surrounds the request in a transaction', :with_fake_server do
       ElasticAPM.start
 
       expect(ElasticAPM).to receive(:transaction).and_call_original

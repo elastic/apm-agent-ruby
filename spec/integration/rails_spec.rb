@@ -149,7 +149,7 @@ if defined? Rails
         expect(response.status).to be 500
         expect(FakeServer.requests.length).to be 2
 
-        error = FakeServer.requests.first['errors'][0]
+        error = FakeServer.requests.last['errors'][0]
         expect(error['transaction']['id']).to_not be_nil
 
         exception = error['exception']
@@ -161,7 +161,10 @@ if defined? Rails
         get '/error'
         wait_for_requests_to_finish 2
 
-        payload, = FakeServer.requests
+        # sometimes the transaction gets there first
+        payload = FakeServer.requests.select do |r|
+          r.keys.include? 'errors'
+        end.first
         expect(payload).to match_json_schema(:errors)
       end
     end

@@ -7,7 +7,7 @@ require 'elastic_apm/error'
 require 'elastic_apm/http'
 require 'elastic_apm/injectors'
 require 'elastic_apm/serializers'
-require 'elastic_apm/worker'
+require 'elastic_apm/timed_worker'
 
 module ElasticAPM
   # rubocop:disable Metrics/ClassLength
@@ -59,20 +59,17 @@ module ElasticAPM
     def initialize(config)
       @config = config
 
+      @messages = Queue.new
+      @pending_transactions = Queue.new
       @http = Http.new(config)
-      @queue = Queue.new
 
       @instrumenter = Instrumenter.new(config, self)
       @context_builder = ContextBuilder.new(config)
       @error_builder = ErrorBuilder.new(config)
-
-      @serializers = Struct.new(:transactions, :errors).new(
-        Serializers::Transactions.new(config),
-        Serializers::Errors.new(config)
-      )
     end
 
-    attr_reader :config, :queue, :instrumenter, :context_builder, :http
+    attr_reader :config, :messages, :pending_transactions, :instrumenter,
+      :context_builder, :http
 
     def start
       debug '[%s] Starting agent, reporting to %s', VERSION, config.server_url
@@ -98,20 +95,16 @@ module ElasticAPM
       stop
     end
 
-    def enqueue_transactions(transactions)
+    def enqueue_transaction(transaction)
       boot_worker unless worker_running?
 
-      data = @serializers.transactions.build_all(transactions)
-      @queue << Worker::Request.new('/v1/transactions', data)
-      transactions
+      pending_transactions.push(transaction)
     end
 
-    def enqueue_errors(errors)
+    def enqueue_error(error)
       boot_worker unless worker_running?
 
-      data = @serializers.errors.build_all(errors)
-      @queue << Worker::Request.new('/v1/errors', data)
-      errors
+      messages.push(TimedWorker::ErrorMsg.new(error))
     end
 
     # instrumentation
@@ -141,7 +134,7 @@ module ElasticAPM
         exception,
         handled: handled
       )
-      enqueue_errors error
+      enqueue_error error
     end
 
     def report_message(message, backtrace: nil, **attrs)
@@ -150,7 +143,7 @@ module ElasticAPM
         backtrace: backtrace,
         **attrs
       )
-      enqueue_errors error
+      enqueue_error error
     end
 
     # context
@@ -181,12 +174,17 @@ module ElasticAPM
       debug 'Booting worker'
 
       @worker_thread = Thread.new do
-        Worker.new(@config, @queue, @http).run_forever
+        TimedWorker.new(
+          config,
+          messages,
+          pending_transactions,
+          http
+        ).run_forever
       end
     end
 
     def kill_worker
-      @queue << Worker::StopMessage.new
+      messages << TimedWorker::StopMsg.new
 
       if @worker_thread && !@worker_thread.join(5) # 5 secs
         raise 'Failed to wait for worker, not all messages sent'

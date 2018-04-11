@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'sequel'
 
 module ElasticAPM
-  RSpec.describe 'Injectors::SequelInjector' do
+  RSpec.describe 'Injectors::SequelInjector', :with_fake_server do
     it 'spans calls' do
       db =
         if RUBY_PLATFORM == 'java'

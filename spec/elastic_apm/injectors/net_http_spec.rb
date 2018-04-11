@@ -4,10 +4,10 @@ require 'spec_helper'
 require 'net/http'
 
 module ElasticAPM
-  RSpec.describe 'Injectors::NetHTTPInjector' do
-    it 'spans http calls', :with_fake_server do
-      ElasticAPM.start
+  RSpec.describe 'Injectors::NetHTTPInjector', :with_fake_server do
+    it 'spans http calls' do
       WebMock.stub_request(:get, %r{http://example.com/.*})
+      ElasticAPM.start
 
       transaction = ElasticAPM.transaction 'Net::HTTP test' do
         Net::HTTP.start('example.com') do |http|
@@ -20,8 +20,8 @@ module ElasticAPM
       http_span = transaction.spans.last
       expect(http_span.name).to eq 'GET example.com'
 
-      WebMock.reset!
       ElasticAPM.stop
+      WebMock.reset!
     end
   end
 end

@@ -120,42 +120,12 @@ module ElasticAPM
     end
 
     describe '#submit_transaction' do
-      context "when it shouldn't send" do
-        subject { Instrumenter.new(Config.new, nil) }
-
-        it 'adds the transaction as pending' do
-          transaction = subject.transaction('Test').done
-          subject.submit_transaction transaction
-          expect(subject.pending_transactions.length).to be 1
-        end
-      end
-
-      context 'when it should send' do
-        let(:mock_agent) { double(Agent, enqueue_transactions: true) }
-        subject { Instrumenter.new(Config.new, mock_agent) }
-
-        it 'adds the transaction and flushes pending to the queue' do
-          transaction = subject.transaction('Test').done
-
-          allow(subject).to receive(:should_flush_transactions?) { true }
-          subject.submit_transaction transaction
-
-          expect(subject.pending_transactions.length).to be 0
-          expect(mock_agent)
-            .to have_received(:enqueue_transactions).with [transaction]
-        end
-      end
-
-      context 'when queue has reached max size' do
-        let(:mock_agent) { double(Agent, enqueue_transactions: true) }
-        subject { Instrumenter.new(Config.new(max_queue_size: 1), mock_agent) }
-
-        it 'flushes' do
-          transaction = subject.transaction('Test').done
-          subject.submit_transaction transaction
-          expect(mock_agent)
-            .to have_received(:enqueue_transactions).with [transaction]
-        end
+      it 'enqueues transaction on agent' do
+        mock_agent = double(Agent)
+        transaction = double
+        expect(mock_agent).to receive(:enqueue_transaction).with(transaction)
+        subject = Instrumenter.new(Config.new, mock_agent)
+        subject.submit_transaction transaction
       end
     end
 

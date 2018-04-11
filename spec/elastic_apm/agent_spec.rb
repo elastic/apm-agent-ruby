@@ -39,6 +39,7 @@ module ElasticAPM
       class AgentTestError < StandardError; end
 
       subject { Agent.new Config.new }
+      after { subject.stop }
 
       describe '#report' do
         it 'queues a request' do
@@ -72,17 +73,19 @@ module ElasticAPM
       end
     end
 
-    describe '#enqueue_transactions', :with_fake_server do
-      subject { Agent.new Config.new }
+    describe '#enqueue_transaction', :with_fake_server do
+      subject { Agent.new Config.new(flush_interval: nil) }
 
       it 'enqueues a collection of transactions' do
         transaction = subject.transaction 'T'
 
-        subject.enqueue_transactions([transaction])
+        subject.enqueue_transaction(transaction)
         wait_for_requests_to_finish 1
 
         expect(FakeServer.requests.length).to be 1
       end
+
+      after { subject.stop }
     end
 
     describe '#add_filter' do

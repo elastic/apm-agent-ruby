@@ -6,7 +6,7 @@ require 'redis'
 require 'fakeredis'
 
 module ElasticAPM
-  RSpec.describe 'Injectors::RedisInjector' do
+  RSpec.describe 'Injectors::RedisInjector', :with_fake_server do
     it 'spans queries' do
       redis = ::Redis.new
       ElasticAPM.start

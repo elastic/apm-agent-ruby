@@ -38,8 +38,8 @@ module ElasticAPM
       status = response.code.to_i
       return response if status >= 200 && status <= 299
 
-      error "POST returned an unsuccessful status code (#{response.code})"
-      error response.body
+      error 'POST returned an unsuccessful status code (%d)', response.code
+      error "apm-server's response: %s", response.body
 
       response
     end
@@ -92,7 +92,7 @@ module ElasticAPM
       http = Net::HTTP.new server_uri.host, server_uri.port
       http.use_ssl = @config.use_ssl?
       http.verify_mode = verify_mode
-      http.read_timeout = @config.http_timeout
+      http.read_timeout = @config.http_read_timeout
       http.open_timeout = @config.http_open_timeout
 
       if @config.debug_http

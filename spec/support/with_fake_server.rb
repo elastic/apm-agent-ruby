@@ -10,7 +10,11 @@ class FakeServer
     def requests
       return @requests if @requests
 
-      MUTEX.lock { clear! }
+      MUTEX.lock do
+        clear!
+      end
+
+      @requests
     end
 
     def clear!
@@ -29,7 +33,6 @@ end
 RSpec.configure do |config|
   config.before :each, :with_fake_server do
     FakeServer.clear!
-
     @request_stub = WebMock.stub_request(:any, /.*/).to_rack(FakeServer)
   end
 

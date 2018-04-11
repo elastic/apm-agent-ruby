@@ -14,7 +14,7 @@ rescue LoadError
 end
 
 module ElasticAPM
-  RSpec.describe Injectors::SidekiqInjector do
+  RSpec.describe Injectors::SidekiqInjector, :with_fake_server do
     module SaveTransaction
       def self.included(kls)
         class << kls
@@ -71,18 +71,15 @@ module ElasticAPM
 
       expect(ElasticAPM.agent).to_not be_nil
 
-      manager.quiet
+      manager.stop(Time.now)
 
       expect(ElasticAPM.agent).to be_nil
       expect(manager).to be_stopped
     end
 
-    context 'with an agent', :with_fake_server do
-      around do |example|
-        ElasticAPM.start
-        example.run
-        ElasticAPM.stop
-      end
+    context 'with an agent' do
+      before { ElasticAPM.start }
+      after { ElasticAPM.stop }
 
       it 'instruments jobs' do
         Sidekiq::Testing.inline! do

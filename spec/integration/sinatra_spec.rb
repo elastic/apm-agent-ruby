@@ -19,8 +19,8 @@ if defined?(Sinatra)
       disable :show_exceptions
 
       use ElasticAPM::Middleware
-      # use Rack::CommonLogger, BackwardsCompatibleLogger.new(STDOUT)
       use Rack::CommonLogger, BackwardsCompatibleLogger.new(nil)
+      # use Rack::CommonLogger, BackwardsCompatibleLogger.new(STDOUT)
 
       get '/' do
         'Yes!'
@@ -48,15 +48,11 @@ if defined?(Sinatra)
       SinatraTestApp
     end
 
-    before do
-      ElasticAPM.start(
-        app: SinatraTestApp,
-        debug_transactions: true,
-        flush_interval: nil
-      )
+    before(:all) do
+      ElasticAPM.start(app: SinatraTestApp, flush_interval: nil)
     end
 
-    after do
+    after(:all) do
       ElasticAPM.stop
     end
 
@@ -118,7 +114,7 @@ if defined?(Sinatra)
 
         expect(FakeServer.requests.length).to be 2
 
-        exception = FakeServer.requests.first['errors'][0]['exception']
+        exception = FakeServer.requests.last['errors'][0]['exception']
         expect(exception['type']).to eq 'FancyError'
       end
     end

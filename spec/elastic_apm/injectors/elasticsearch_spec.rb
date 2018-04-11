@@ -5,7 +5,7 @@ require 'spec_helper'
 require 'elasticsearch'
 
 module ElasticAPM
-  RSpec.describe 'Injectors::ElasticsearchInjector' do
+  RSpec.describe 'Injectors::ElasticsearchInjector', :with_fake_server do
     it 'spans requests' do
       ElasticAPM.start
       WebMock.stub_request(:get, %r{http://localhost:9200/.*})
