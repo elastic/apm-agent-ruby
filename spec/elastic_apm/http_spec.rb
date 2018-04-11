@@ -5,9 +5,9 @@ require 'spec_helper'
 module ElasticAPM
   RSpec.describe Http do
     describe '#post', :with_fake_server do
-      subject do
-        Http.new Config.new(service_name: 'app-1', environment: 'test')
-      end
+      let(:config) { { } }
+
+      subject { Http.new Config.new({service_name: 'app-1', environment: 'test'}.merge(config)) }
 
       it 'sets the appropriate headers' do
         subject.post('/v1/transactions', things: 1)
@@ -49,6 +49,41 @@ module ElasticAPM
         headers =
           payload.dig('transactions', 0, 'context', 'request', 'headers')
         expect(headers['ApiKey']).to eq '[FILTERED]'
+      end
+
+      context "compression" do
+        before do
+          subject.post('/v1/transactions', things: 1)
+        end
+
+        context "with payloads under the minimum compression size" do
+          let(:config) {{ compression_minimum_size: 1_024_000 }}
+
+          it "doesn't compress the payload" do
+            expect(WebMock).to_not have_requested(:post, %r{/v1/transactions}).with(
+              headers: { 'Content-Encoding' => 'deflate' }
+            )
+          end
+        end
+
+        context "with payloads over the minimum compression size" do
+          let(:config) {{ compression_minimum_size: 1 }}
+
+          it "compresses the payload" do
+            expect(WebMock).to have_requested(:post, %r{/v1/transactions}).with(
+              headers: { 'Content-Encoding' => 'deflate' }
+            )
+          end
+
+          context "and compression disabled" do
+            let(:config) {{ compression_minimum_size: 1, http_compression: false }}
+            it "doesn't compress the payload" do
+              expect(WebMock).to_not have_requested(:post, %r{/v1/transactions}).with(
+                headers: { 'Content-Encoding' => 'deflate' }
+              )
+            end
+          end
+        end
       end
     end
 

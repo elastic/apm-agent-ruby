@@ -35,6 +35,9 @@ module ElasticAPM
       debug_transactions: false,
       debug_http: false,
       verify_server_cert: true,
+      http_compression: true,
+      compression_minimum_size: 1024 * 5,
+      compression_level: 6,
 
       source_lines_error_app_frames: 5,
       source_lines_span_app_frames: 5,
@@ -119,6 +122,9 @@ module ElasticAPM
     attr_accessor :http_open_timeout
     attr_accessor :debug_transactions
     attr_accessor :debug_http
+    attr_accessor :http_compression
+    attr_accessor :compression_minimum_size
+    attr_accessor :compression_level
 
     attr_accessor :source_lines_error_app_frames
     attr_accessor :source_lines_span_app_frames

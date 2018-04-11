@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'net/http'
+require 'zlib'
 
 require 'elastic_apm/service_info'
 require 'elastic_apm/system_info'
@@ -32,6 +33,7 @@ module ElasticAPM
     def post(path, payload = {})
       payload.merge! @base_payload
       filters.apply(payload)
+
       request = prepare_request path, payload.to_json
       response = @adapter.perform request
 
@@ -51,13 +53,23 @@ module ElasticAPM
         req['Accept'] = ACCEPT
         req['Content-Type'] = CONTENT_TYPE
         req['User-Agent'] = USER_AGENT
-        req['Content-Length'] = data.bytesize.to_s
 
         if (token = @config.secret_token)
           req['Authorization'] = "Bearer #{token}"
         end
 
-        req.body = data
+        if @config.http_compression && data.bytesize > @config.compression_minimum_size
+          deflated = Zlib.deflate data, @config.compression_level
+          puts "Deflating #{data.bytesize} bytes to #{deflated.bytesize} bytes"
+
+          req['Content-Encoding'] = 'deflate'
+          req['Content-Length'] = deflated.bytesize.to_s
+          req.body = deflated
+        else
+          puts "Not deflating!"
+          req['Content-Length'] = data.bytesize.to_s
+          req.body = data
+        end
       end
     end
 
