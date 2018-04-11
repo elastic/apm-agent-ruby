@@ -5,8 +5,13 @@ require 'spec_helper'
 module ElasticAPM
   RSpec.describe Http do
     describe '#post', :with_fake_server do
+      let(:config) { {} }
+
       subject do
-        Http.new Config.new(service_name: 'app-1', environment: 'test')
+        Http.new Config.new({
+          service_name: 'app-1',
+          environment: 'test'
+        }.merge(config))
       end
 
       it 'sets the appropriate headers' do
@@ -49,6 +54,58 @@ module ElasticAPM
         headers =
           payload.dig('transactions', 0, 'context', 'request', 'headers')
         expect(headers['ApiKey']).to eq '[FILTERED]'
+      end
+
+      context 'compression' do
+        before do
+          subject.post('/v1/transactions', things: 1)
+        end
+
+        context 'with payloads under the minimum compression size' do
+          let(:config) do
+            {
+              compression_minimum_size: 1_024_000
+            }
+          end
+
+          it "doesn't compress the payload" do
+            expect(WebMock).to_not have_requested(:post, %r{/v1/transactions})
+              .with(
+                headers: { 'Content-Encoding' => 'deflate' }
+              )
+          end
+        end
+
+        context 'with payloads over the minimum compression size' do
+          let(:config) do
+            {
+              compression_minimum_size: 1
+            }
+          end
+
+          it 'compresses the payload' do
+            expect(WebMock).to have_requested(:post, %r{/v1/transactions})
+              .with(
+                headers: { 'Content-Encoding' => 'deflate' }
+              )
+          end
+
+          context 'and compression disabled' do
+            let(:config) do
+              {
+                compression_minimum_size: 1,
+                http_compression: false
+              }
+            end
+
+            it "doesn't compress the payload" do
+              expect(WebMock).to_not have_requested(:post, %r{/v1/transactions})
+                .with(
+                  headers: { 'Content-Encoding' => 'deflate' }
+                )
+            end
+          end
+        end
       end
     end
 

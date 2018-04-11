@@ -23,7 +23,12 @@ class FakeServer
 
     def call(env)
       request = Rack::Request.new(env)
-      requests << JSON.parse(request.body.read)
+      body = request.body.read
+      encoding = request.env['HTTP_CONTENT_ENCODING']
+      if encoding && encoding.match(/deflate/)
+        body = Zlib::Inflate.inflate(body)
+      end
+      requests << JSON.parse(body)
 
       [200, { 'Content-Type' => 'application/json' }, ['ok']]
     end
