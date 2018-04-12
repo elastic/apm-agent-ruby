@@ -37,8 +37,7 @@ module ElasticAPM
       request = prepare_request path, payload.to_json
       response = @adapter.perform request
 
-      status = response.code.to_i
-      return response if status >= 200 && status <= 299
+      return response if response.is_a?(Net::HTTPSuccess)
 
       error 'POST returned an unsuccessful status code (%d)', response.code
       error "apm-server's response: %s", response.body
