@@ -68,6 +68,8 @@ end
 
 # @api private
 module Kernel
+  private
+
   alias require_without_apm require
 
   def require(path)
