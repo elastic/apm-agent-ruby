@@ -141,13 +141,6 @@ if defined? Rails
     end
 
     describe 'errors' do
-      let(:error_request) do
-        # sometimes the transaction gets there first
-        FakeServer.requests.select do |r|
-          r.keys.include? 'errors'
-        end.first
-      end
-
       it 'adds an exception handler and handles exceptions '\
         'AND posts transaction' do
         response = get '/error'
@@ -156,6 +149,8 @@ if defined? Rails
         expect(response.status).to be 500
         expect(FakeServer.requests.length).to be 2
 
+        error_request =
+          FakeServer.requests.find { |r| r.keys.include? 'errors' }
         error = error_request['errors'][0]
 
         expect(error['transaction']['id']).to_not be_nil
@@ -169,7 +164,8 @@ if defined? Rails
         get '/error'
         wait_for_requests_to_finish 2
 
-        payload = error_request
+        payload =
+          FakeServer.requests.find { |r| r.keys.include? 'errors' }
         expect(payload).to match_json_schema(:errors)
       end
     end
