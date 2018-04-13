@@ -7,8 +7,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 gemspec
 
 gem 'elasticsearch'
-gem 'fakeredis', require: nil,
-  github: 'guilleiguaran/fakeredis' # needs master right now
+gem 'fakeredis', require: nil
 gem 'json-schema'
 gem 'pry'
 gem 'rack-test'
