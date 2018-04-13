@@ -24,13 +24,6 @@ module ElasticAPM
             host ||= address
             port ||= 80
 
-            # TODO: investigate
-            _extra = {
-              scheme: scheme,
-              port: port,
-              path: path
-            }
-
             name = "#{method} #{host}"
             type = "ext.net_http.#{method}"
 
