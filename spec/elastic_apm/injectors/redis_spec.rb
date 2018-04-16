@@ -2,8 +2,7 @@
 
 require 'spec_helper'
 
-require 'redis'
-require 'fakeredis'
+require 'fakeredis/rspec'
 
 module ElasticAPM
   RSpec.describe 'Injectors::RedisInjector', :with_fake_server do
