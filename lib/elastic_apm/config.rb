@@ -184,6 +184,7 @@ module ElasticAPM
         delayed_job
         elasticsearch
         json
+        mongo
         net_http
         redis
         sequel

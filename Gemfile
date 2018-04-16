@@ -9,6 +9,7 @@ gemspec
 gem 'elasticsearch'
 gem 'fakeredis', require: nil
 gem 'json-schema'
+gem 'mongo'
 gem 'pry'
 gem 'rack-test'
 gem 'redis', require: nil
