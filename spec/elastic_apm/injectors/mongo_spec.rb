@@ -8,7 +8,7 @@ module ElasticAPM
 
       client =
         Mongo::Client.new(
-          ['127.0.0.1:27017'],
+          [ENV.fetch('MONGODB_URL', '127.0.0.1:27017')],
           database: 'elastic-apm-test',
           logger: Logger.new(nil)
         )

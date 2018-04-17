@@ -22,16 +22,6 @@ module ElasticAPM
           expect(last_frame.context_line).to match(%r{1 / 0})
           expect(last_frame.post_context.first).to match(/rescue/)
           expect(last_frame.filename).to eq 'spec_helper.rb'
-
-          # library_frame
-          expect(last_frame.library_frame).to be false
-
-          gems_frame = stacktrace.frames[-4]
-
-          expect(gems_frame.library_frame).to be true
-          expect(gems_frame.pre_context).to be_nil
-          expect(gems_frame.context_line).to be_nil
-          expect(gems_frame.post_context).to be_nil
         end
       end
 
