@@ -52,6 +52,11 @@ if defined? Rails
           raise FancyError, "Help! I'm trapped in a specfile!"
         end
 
+        def report_message
+          ElasticAPM.report_message 'Very very message'
+          render_ok
+        end
+
         private
 
         def render_ok
@@ -72,6 +77,7 @@ if defined? Rails
       RailsTestApp.initialize!
       RailsTestApp.routes.draw do
         get '/error', to: 'pages#raise_error'
+        get '/report_message', to: 'pages#report_message'
         get '/tags_and_context', to: 'pages#context'
         root to: 'pages#index'
       end
@@ -166,6 +172,16 @@ if defined? Rails
 
         payload =
           FakeServer.requests.find { |r| r.keys.include? 'errors' }
+        expect(payload).to match_json_schema(:errors)
+      end
+
+      it 'sends messages that validate', type: :json_schema do
+        get '/report_message'
+        wait_for_requests_to_finish 2
+
+        payload =
+          FakeServer.requests.find { |r| r.keys.include? 'errors' }
+        expect(payload.dig('errors', 0, 'log')).to_not be_nil
         expect(payload).to match_json_schema(:errors)
       end
     end

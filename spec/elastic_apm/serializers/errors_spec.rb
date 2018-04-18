@@ -46,6 +46,29 @@ module ElasticAPM
             expect(subject[:transaction]).to eq(id: 'abc123')
           end
         end
+
+        context 'a log message' do
+          it 'builds' do
+            error_log =
+              ErrorBuilder.new(config).build_log('Things')
+
+            result = builder.build(error_log)
+
+            expect(result).to match(
+              id: @mock_uuid,
+              context: { custom: {}, tags: {} },
+              culprit: nil,
+              log: {
+                message: 'Things',
+                level: nil,
+                logger_name: nil,
+                param_message: nil,
+                stacktrace: []
+              },
+              timestamp: Time.utc(1992, 1, 1).iso8601(3)
+            )
+          end
+        end
       end
     end
   end
