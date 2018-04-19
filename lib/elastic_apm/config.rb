@@ -8,7 +8,6 @@ module ElasticAPM
   class Config
     DEFAULTS = {
       config_file: 'config/elastic_apm.yml',
-
       server_url: 'http://localhost:8200',
       secret_token: nil,
 
@@ -22,7 +21,6 @@ module ElasticAPM
 
       log_path: '-',
       log_level: Logger::INFO,
-      logger: nil,
 
       max_queue_size: 500,
       flush_interval: 10,

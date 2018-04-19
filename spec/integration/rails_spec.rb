@@ -4,6 +4,7 @@ require 'spec_helper'
 
 if defined? Rails
   require 'action_controller/railtie'
+  require 'action_mailer/railtie'
   require 'elastic_apm/railtie'
 
   RSpec.describe 'Rails integration',
@@ -25,10 +26,13 @@ if defined? Rails
 
         config.eager_load = false
 
+        config.action_mailer.perform_deliveries = false
+
         config.elastic_apm.enabled_environments += %w[test]
         config.elastic_apm.service_name = 'RailsTestApp'
         config.elastic_apm.flush_interval = nil
         config.elastic_apm.debug_transactions = true
+        config.elastic_apm.http_compression = false
       end
 
       class PagesController < ActionController::Base
@@ -57,6 +61,11 @@ if defined? Rails
           render_ok
         end
 
+        def send_notification
+          NotificationsMailer.ping('someone@example.com', 'Hello').deliver_now
+          render_ok
+        end
+
         private
 
         def render_ok
@@ -74,11 +83,20 @@ if defined? Rails
         end
       end
 
+      class NotificationsMailer < ActionMailer::Base
+        def ping(recipient, subject)
+          mail to: [recipient], subject: subject do |format|
+            format.text { 'Hello you!' }
+          end
+        end
+      end
+
       RailsTestApp.initialize!
       RailsTestApp.routes.draw do
         get '/error', to: 'pages#raise_error'
         get '/report_message', to: 'pages#report_message'
         get '/tags_and_context', to: 'pages#context'
+        get '/send_notification', to: 'pages#send_notification'
         root to: 'pages#index'
       end
     end
@@ -183,6 +201,17 @@ if defined? Rails
           FakeServer.requests.find { |r| r.keys.include? 'errors' }
         expect(payload.dig('errors', 0, 'log')).to_not be_nil
         expect(payload).to match_json_schema(:errors)
+      end
+    end
+
+    describe 'mailers' do
+      it 'spans mails' do
+        get '/send_notification'
+        wait_for_requests_to_finish 1
+
+        payload, = FakeServer.requests
+        name = payload.dig('transactions', 0, 'spans', 1, 'name')
+        expect(name).to eq 'NotificationsMailer#ping'
       end
     end
 
