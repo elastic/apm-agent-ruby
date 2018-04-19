@@ -61,7 +61,7 @@ module ElasticAPM
   # @param context [Context] An optional [Context]
   # @yield [Transaction] Optional block encapsulating transaction
   # @return [Transaction] Unless block given
-  def self.transaction(name, type = nil, context: nil, &block)
+  def self.transaction(name = nil, type = nil, context: nil, &block)
     return (block_given? ? yield : nil) unless agent
 
     agent.transaction(name, type, context: context, &block)

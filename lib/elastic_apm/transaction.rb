@@ -6,7 +6,13 @@ module ElasticAPM
     DEFAULT_TYPE = 'custom'.freeze
 
     # rubocop:disable Metrics/MethodLength
-    def initialize(instrumenter, name, type = nil, context: nil, sampled: true)
+    def initialize(
+      instrumenter,
+      name = nil,
+      type = nil,
+      context: nil,
+      sampled: true
+    )
       @id = SecureRandom.uuid
       @instrumenter = instrumenter
       @name = name

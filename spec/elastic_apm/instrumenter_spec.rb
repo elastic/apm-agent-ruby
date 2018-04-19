@@ -22,7 +22,7 @@ module ElasticAPM
       it 'cleans up after itself' do
         instrumenter = Instrumenter.new(Config.new, nil)
 
-        instrumenter.transaction 'T'
+        instrumenter.transaction
 
         expect(instrumenter.current_transaction).to_not be_nil
 
@@ -39,6 +39,8 @@ module ElasticAPM
       it 'returns a new transaction and sets it as current' do
         context = Context.new
         transaction = subject.transaction 'Test', 't', context: context
+        expect(transaction.name).to eq 'Test'
+        expect(transaction.type).to eq 't'
         expect(transaction.id).to be subject.current_transaction.id
         expect(subject.current_transaction).to be transaction
         expect(transaction.context).to be context
