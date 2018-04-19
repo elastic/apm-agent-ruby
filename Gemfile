@@ -39,8 +39,5 @@ else
   gem framework
 end
 
-# doesn't work with Rails master, so skip testing
-gem 'delayed_job', '~> 4' unless [framework, version] == %w[rails 5.2]
-
 gem 'rails' if framework == 'sinatra'
 gem 'sinatra' if framework == 'rails'
