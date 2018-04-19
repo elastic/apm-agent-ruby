@@ -6,18 +6,18 @@ module ElasticAPM
   RSpec.describe Transaction do
     describe '#initialize', :mock_time do
       it 'has no spans, timestamp and start time' do
-        transaction = Transaction.new nil, 'Test'
+        transaction = Transaction.new nil
 
         expect(transaction.spans.length).to be 0
         expect(transaction.timestamp).to eq 694_224_000_000_000
       end
 
       it 'has a uuid' do
-        expect(Transaction.new(nil, 'Test').id).to_not be_nil
+        expect(Transaction.new(nil).id).to_not be_nil
       end
 
       it 'has a default type' do
-        expect(Transaction.new(nil, 'Test').type).to_not be_nil
+        expect(Transaction.new(nil).type).to_not be_nil
       end
     end
 

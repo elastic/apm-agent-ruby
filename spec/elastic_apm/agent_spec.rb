@@ -77,7 +77,7 @@ module ElasticAPM
       subject { Agent.new Config.new(flush_interval: nil) }
 
       it 'enqueues a collection of transactions' do
-        transaction = subject.transaction 'T'
+        transaction = subject.transaction
 
         subject.enqueue_transaction(transaction)
         wait_for_requests_to_finish 1

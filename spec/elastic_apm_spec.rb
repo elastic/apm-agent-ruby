@@ -53,7 +53,7 @@ RSpec.describe ElasticAPM do
     it 'still yields block' do
       ran = false
 
-      ElasticAPM.transaction('Test') { ran = true }
+      ElasticAPM.transaction { ran = true }
 
       expect(ran).to be true
     end
