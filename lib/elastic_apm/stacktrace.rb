@@ -71,38 +71,45 @@ module ElasticAPM
       false
     end
 
-    # rubocop:disable Metrics/MethodLength
-    def build_frame(config, line, type)
-      abs_path, lineno, function, _module_name = parse_line(line)
-
-      frame = Frame.new
-      frame.abs_path = abs_path
-      frame.filename = strip_load_path(abs_path)
-      frame.function = function
-      frame.lineno = lineno.to_i
-      frame.library_frame = library_frame?(config, abs_path)
-
-      line_count =
-        context_lines_for(config, type, library_frame: frame.library_frame)
-      frame.build_context line_count
-
-      frame
+    class << self
+      attr_accessor :frame_cache
     end
-    # rubocop:enable Metrics/MethodLength
+
+    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    def build_frame(config, line, type)
+      # TODO: Eventually move this to agent 'context'
+      self.class.frame_cache ||= Util::LruCache.new(2048) do |cache, keys|
+        line, type = keys
+        abs_path, lineno, function, _module_name = parse_line(line)
+
+        frame = Frame.new
+        frame.abs_path = abs_path
+        frame.filename = strip_load_path(abs_path)
+        frame.function = function
+        frame.lineno = lineno.to_i
+        frame.library_frame = library_frame?(config, abs_path)
+
+        line_count =
+          context_lines_for(config, type, library_frame: frame.library_frame)
+        frame.build_context line_count
+
+        cache[[line, type]] = frame
+      end
+
+      self.class.frame_cache[[line, type]]
+    end
+    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
     def strip_load_path(path)
-      return nil unless path
+      return nil if path.nil?
 
       prefix =
         $LOAD_PATH
         .map(&:to_s)
         .select { |s| path.start_with?(s) }
-        .sort_by(&:length)
-        .last
+        .max_by(&:length)
 
-      return path unless prefix
-
-      path[prefix.chomp(File::SEPARATOR).length + 1..-1]
+      prefix ? path[prefix.chomp(File::SEPARATOR).length + 1..-1] : path
     end
 
     def context_lines_for(config, type, library_frame:)

@@ -15,5 +15,13 @@ module ElasticAPM
       expect(subject.length).to be 2
       expect(subject.to_a).to match([[:a, 1], [:c, 3]])
     end
+
+    it 'taks a block' do
+      subject = described_class.new do |cache, key|
+        cache[key] = 'missing'
+      end
+
+      expect(subject['other key']).to eq 'missing'
+    end
   end
 end
