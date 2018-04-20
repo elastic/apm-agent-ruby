@@ -9,15 +9,9 @@ module ElasticAPM
     DEFAULTS = {
       config_file: 'config/elastic_apm.yml',
       server_url: 'http://localhost:8200',
-      secret_token: nil,
 
-      service_name: nil,
-      service_version: nil,
       environment: ENV['RAILS_ENV'] || ENV['RACK_ENV'],
       enabled_environments: %w[production],
-      framework_name: nil,
-      framework_version: nil,
-      hostname: nil,
 
       log_path: '-',
       log_level: Logger::INFO,
