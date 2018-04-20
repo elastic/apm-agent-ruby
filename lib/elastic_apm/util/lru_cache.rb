@@ -4,16 +4,21 @@ module ElasticAPM
   module Util
     # @api private
     class LruCache
-      def initialize(max_size = 512)
+      def initialize(max_size = 512, &block)
         @max_size = max_size
-        @data = {}
+        @data = Hash.new(&block)
+        @missing_key_block = block
       end
 
       def [](key)
         found = true
         value = @data.delete(key) { found = false }
 
-        found ? @data[key] = value : nil
+        if found
+          @data[key] = value
+        else
+          @missing_key_block && @missing_key_block.call(self, key)
+        end
       end
 
       def []=(key, val)
