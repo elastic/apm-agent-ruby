@@ -7,17 +7,17 @@ module ElasticAPM
   module Injectors
     # @api private
     class Registration
+      extend Forwardable
+
       def initialize(const_name, require_paths, injector)
         @const_name = const_name
         @require_paths = Array(require_paths)
         @injector = injector
       end
 
-      attr_reader :const_name, :require_paths, :injector
+      attr_reader :const_name, :require_paths
 
-      def install
-        injector.install
-      end
+      def_delegator :@injector, :install
     end
 
     def self.require_hooks
@@ -31,9 +31,9 @@ module ElasticAPM
     def self.register(*args)
       registration = Registration.new(*args)
 
-      if const_defined?(registration.const_name)
-        installed[registration.const_name] = registration
+      if safe_defined?(registration.const_name)
         registration.install
+        installed[registration.const_name] = registration
       else
         register_require_hook registration
       end
@@ -47,7 +47,7 @@ module ElasticAPM
 
     def self.hook_into(name)
       return unless (registration = require_hooks[name])
-      return unless const_defined?(registration.const_name)
+      return unless safe_defined?(registration.const_name)
 
       installed[registration.const_name] = registration
       registration.install
@@ -57,11 +57,8 @@ module ElasticAPM
       end
     end
 
-    def self.const_defined?(const_name)
-      const = Util::Inflector.constantize(const_name)
-      !!const
-    rescue NameError
-      false
+    def self.safe_defined?(const_name)
+      Util::Inflector.safe_constantize(const_name)
     end
   end
 end
@@ -77,7 +74,10 @@ module Kernel
 
     begin
       ElasticAPM::Injectors.hook_into(path)
-    rescue ::Exception
+    rescue ::Exception => e
+      puts "Failed hooking into '#{path}'. Please report this at " \
+        'github.com/elastic/apm-agent-ruby'
+      puts e.backtrace.join("\n")
     end
 
     res
