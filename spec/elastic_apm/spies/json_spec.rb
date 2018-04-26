@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 module ElasticAPM
-  RSpec.describe 'JSON spans', :with_fake_server do
+  RSpec.describe 'Spy: JSON', :with_fake_server do
     it 'spans #parse' do
       ElasticAPM.start disabled_spies: []
 

@@ -2,6 +2,8 @@
 
 require 'spec_helper'
 
+require 'elastic_apm/subscriber'
+
 module ElasticAPM
   RSpec.describe Subscriber do
     describe '#register!' do

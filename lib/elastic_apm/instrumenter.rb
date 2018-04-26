@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'elastic_apm/subscriber'
 require 'elastic_apm/span'
 require 'elastic_apm/transaction'
 
@@ -26,24 +25,26 @@ module ElasticAPM
       end
     end
 
-    def initialize(config, agent, subscriber_class: Subscriber)
+    def initialize(config, agent)
       @config = config
       @agent = agent
 
       @transaction_info = TransactionInfo.new
-
-      @subscriber = subscriber_class.new(config)
     end
 
     attr_reader :config, :pending_transactions
 
     def start
-      @subscriber.register!
     end
 
     def stop
       current_transaction.release if current_transaction
-      @subscriber.unregister!
+      @subscriber.unregister! if @subscriber
+    end
+
+    def subscriber=(subscriber)
+      @subscriber = subscriber
+      @subscriber.register!
     end
 
     def current_transaction

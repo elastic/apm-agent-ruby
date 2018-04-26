@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'elastic_apm/subscriber'
+
 module ElasticAPM
   # @api private
   class Railtie < Rails::Railtie
@@ -10,9 +12,14 @@ module ElasticAPM
       config = app.config.elastic_apm.merge(app: app)
 
       begin
-        ElasticAPM.start config
+        agent = ElasticAPM.start config
 
-        app.middleware.insert 0, Middleware
+        if agent
+          agent.instrumenter.subscriber =
+            ElasticAPM::Subscriber.new(agent.config)
+
+          app.middleware.insert 0, Middleware
+        end
       rescue StandardError => e
         Rails.logger.error "#{Log::PREFIX}Failed to start: #{e.message}"
         Rails.logger.debug e.backtrace.join("\n")
