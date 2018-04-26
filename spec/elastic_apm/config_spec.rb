@@ -59,11 +59,11 @@ module ElasticAPM
       expect(config.server_url).to eq 'somewhere-else.com'
     end
 
-    it 'has injectors and may disable them' do
-      expect(Config.new.available_injectors).to_not be_empty
+    it 'has spies and may disable them' do
+      expect(Config.new.available_spies).to_not be_empty
 
-      config = Config.new disabled_injectors: ['json']
-      expect(config.enabled_injectors).to_not include('json')
+      config = Config.new disabled_spies: ['json']
+      expect(config.enabled_spies).to_not include('json')
     end
   end
 end

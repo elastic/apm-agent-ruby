@@ -4,20 +4,20 @@ require 'elastic_apm/util/inflector'
 
 module ElasticAPM
   # @api private
-  module Injectors
+  module Spies
     # @api private
     class Registration
       extend Forwardable
 
-      def initialize(const_name, require_paths, injector)
+      def initialize(const_name, require_paths, spy)
         @const_name = const_name
         @require_paths = Array(require_paths)
-        @injector = injector
+        @spy = spy
       end
 
       attr_reader :const_name, :require_paths
 
-      def_delegator :@injector, :install
+      def_delegator :@spy, :install
     end
 
     def self.require_hooks
@@ -73,7 +73,7 @@ module Kernel
     res = require_without_apm(path)
 
     begin
-      ElasticAPM::Injectors.hook_into(path)
+      ElasticAPM::Spies.hook_into(path)
     rescue ::Exception => e
       puts "Failed hooking into '#{path}'. Please report this at " \
         'github.com/elastic/apm-agent-ruby'

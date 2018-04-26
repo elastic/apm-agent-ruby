@@ -2,9 +2,9 @@
 
 module ElasticAPM
   # @api private
-  module Injectors
+  module Spies
     # @api private
-    class SidekiqInjector
+    class SidekiqSpy
       ACTIVE_JOB_WRAPPER =
         'ActiveJob::QueueAdapters::SidekiqAdapter::JobWrapper'.freeze
 
@@ -12,7 +12,7 @@ module ElasticAPM
       class Middleware
         # rubocop:disable Metrics/MethodLength
         def call(_worker, job, queue)
-          name = SidekiqInjector.name_for(job)
+          name = SidekiqSpy.name_for(job)
           transaction = ElasticAPM.transaction(name, 'Sidekiq')
           ElasticAPM.set_tag(:queue, queue)
 
@@ -81,6 +81,6 @@ module ElasticAPM
       end
     end
 
-    register 'Sidekiq', 'sidekiq', SidekiqInjector.new
+    register 'Sidekiq', 'sidekiq', SidekiqSpy.new
   end
 end

@@ -2,9 +2,9 @@
 
 module ElasticAPM
   # @api private
-  module Injectors
+  module Spies
     # @api private
-    class MongoInjector
+    class MongoSpy
       def install
         ::Mongo::Monitoring::Global.subscribe(
           ::Mongo::Monitoring::COMMAND,
@@ -52,6 +52,6 @@ module ElasticAPM
       end
     end
 
-    register 'Mongo', 'mongo', MongoInjector.new
+    register 'Mongo', 'mongo', MongoSpy.new
   end
 end
