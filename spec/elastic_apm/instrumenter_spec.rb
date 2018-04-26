@@ -5,20 +5,6 @@ require 'spec_helper'
 module ElasticAPM
   RSpec.describe Instrumenter do
     context 'life cycle' do
-      it 'registers and unregisters' do
-        mock_subscriber = double(Subscriber, register!: true, unregister!: true)
-        mock_class = double(new: mock_subscriber)
-
-        instrumenter =
-          Instrumenter.new(Config.new, nil, subscriber_class: mock_class)
-
-        instrumenter.start
-        expect(mock_subscriber).to have_received(:register!)
-
-        instrumenter.stop
-        expect(mock_subscriber).to have_received(:unregister!)
-      end
-
       it 'cleans up after itself' do
         instrumenter = Instrumenter.new(Config.new, nil)
 

@@ -53,5 +53,8 @@ Style/SafeNavigation:
 Style/DoubleNegation:
   Enabled: false
 
+Style/EmptyMethod:
+  Enabled: false
+
 Rails/Delegate:
   Enabled: false
