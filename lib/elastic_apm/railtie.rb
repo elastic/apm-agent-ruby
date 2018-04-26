@@ -6,6 +6,7 @@ module ElasticAPM
   # @api private
   class Railtie < Rails::Railtie
     config.elastic_apm = ActiveSupport::OrderedOptions.new
+
     Config::DEFAULTS.each { |option, value| config.elastic_apm[option] = value }
 
     initializer 'elastic_apm.initialize' do |app|
@@ -15,8 +16,7 @@ module ElasticAPM
         agent = ElasticAPM.start config
 
         if agent
-          agent.instrumenter.subscriber =
-            ElasticAPM::Subscriber.new(agent.config)
+          agent.instrumenter.subscriber = ElasticAPM::Subscriber.new(agent)
 
           app.middleware.insert 0, Middleware
         end

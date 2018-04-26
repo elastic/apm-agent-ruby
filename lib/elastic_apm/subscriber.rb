@@ -8,10 +8,9 @@ module ElasticAPM
   class Subscriber
     include Log
 
-    def initialize(config, agent: ElasticAPM)
-      @config = config
+    def initialize(agent)
       @agent = agent
-      @normalizers = Normalizers.build(config)
+      @normalizers = Normalizers.build(agent.config)
     end
 
     def register!
