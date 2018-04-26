@@ -2,9 +2,9 @@
 
 module ElasticAPM
   # @api private
-  module Injectors
+  module Spies
     # @api private
-    class TiltInjector
+    class TiltSpy
       TYPE = 'template.tilt'.freeze
 
       def install
@@ -22,6 +22,6 @@ module ElasticAPM
       end
     end
 
-    register 'Tilt::Template', 'tilt/template', TiltInjector.new
+    register 'Tilt::Template', 'tilt/template', TiltSpy.new
   end
 end

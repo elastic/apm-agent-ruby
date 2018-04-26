@@ -4,9 +4,9 @@ require 'elastic_apm/span_helpers'
 
 module ElasticAPM
   # @api private
-  module Injectors
+  module Spies
     # @api private
-    class JSONInjector
+    class JSONSpy
       def install
         ::JSON.class_eval do
           include SpanHelpers
@@ -17,6 +17,6 @@ module ElasticAPM
       end
     end
 
-    register 'JSON', 'json', JSONInjector.new
+    register 'JSON', 'json', JSONSpy.new
   end
 end

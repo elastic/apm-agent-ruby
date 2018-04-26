@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'net/http'
 
 module ElasticAPM
-  RSpec.describe 'Injectors::NetHTTPInjector', :with_fake_server do
+  RSpec.describe 'Spy: NetHTTP', :with_fake_server do
     it 'spans http calls' do
       WebMock.stub_request(:get, %r{http://example.com/.*})
       ElasticAPM.start

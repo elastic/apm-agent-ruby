@@ -2,9 +2,9 @@
 
 module ElasticAPM
   # @api private
-  module Injectors
+  module Spies
     # @api private
-    class SinatraInjector
+    class SinatraSpy
       # rubocop:disable Metrics/MethodLength
       def install
         ::Sinatra::Base.class_eval do
@@ -34,8 +34,8 @@ module ElasticAPM
       # rubocop:enable Metrics/MethodLength
     end
 
-    register 'Sinatra::Base', 'sinatra/base', SinatraInjector.new
+    register 'Sinatra::Base', 'sinatra/base', SinatraSpy.new
 
-    require 'elastic_apm/injectors/tilt'
+    require 'elastic_apm/spies/tilt'
   end
 end

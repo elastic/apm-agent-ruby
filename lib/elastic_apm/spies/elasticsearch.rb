@@ -2,9 +2,9 @@
 
 module ElasticAPM
   # @api private
-  module Injectors
+  module Spies
     # @api private
-    class ElasticsearchInjector
+    class ElasticsearchSpy
       NAME_FORMAT = '%s %s'.freeze
       TYPE = 'db.elasticsearch'.freeze
 
@@ -27,7 +27,7 @@ module ElasticAPM
     register(
       'Elasticsearch::Transport::Client',
       'elasticsearch-transport',
-      ElasticsearchInjector.new
+      ElasticsearchSpy.new
     )
   end
 end

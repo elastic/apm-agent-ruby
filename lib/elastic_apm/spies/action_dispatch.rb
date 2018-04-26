@@ -2,9 +2,9 @@
 
 module ElasticAPM
   # @api private
-  module Injectors
+  module Spies
     # @api private
-    class ActionDispatchInjector
+    class ActionDispatchSpy
       def install
         ::ActionDispatch::ShowExceptions.class_eval do
           alias render_exception_without_apm render_exception
@@ -20,7 +20,7 @@ module ElasticAPM
     register(
       'ActionDispatch::ShowExceptions',
       'action_dispatch/show_exception',
-      ActionDispatchInjector.new
+      ActionDispatchSpy.new
     )
   end
 end

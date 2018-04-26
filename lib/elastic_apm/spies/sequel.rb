@@ -4,9 +4,9 @@ require 'elastic_apm/sql_summarizer'
 
 module ElasticAPM
   # @api private
-  module Injectors
+  module Spies
     # @api private
-    class SequelInjector
+    class SequelSpy
       TYPE = 'db.sequel.sql'.freeze
 
       def self.summarizer
@@ -25,7 +25,7 @@ module ElasticAPM
               return log_connection_yield_without_apm(sql, *args, &block)
             end
 
-            summarizer = ElasticAPM::Injectors::SequelInjector.summarizer
+            summarizer = ElasticAPM::Spies::SequelSpy.summarizer
             name = summarizer.summarize sql
             context = Span::Context.new(
               statement: sql,
@@ -40,6 +40,6 @@ module ElasticAPM
       # rubocop:enable Metrics/MethodLength
     end
 
-    register 'Sequel', 'sequel', SequelInjector.new
+    register 'Sequel', 'sequel', SequelSpy.new
   end
 end

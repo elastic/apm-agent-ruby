@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 module ElasticAPM
-  RSpec.describe 'Injectors::TiltInjector' do
+  RSpec.describe 'Spy: Sinatra' do
     # See Sinatra integration spec
   end
 end

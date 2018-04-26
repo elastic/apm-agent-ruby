@@ -3,9 +3,9 @@
 require 'spec_helper'
 
 module ElasticAPM
-  RSpec.describe 'Injectors::JSONInjector', :with_fake_server do
+  RSpec.describe 'JSON spans', :with_fake_server do
     it 'spans #parse' do
-      ElasticAPM.start disabled_injectors: []
+      ElasticAPM.start disabled_spies: []
 
       transaction = ElasticAPM.transaction 'T' do
         JSON.parse('[{"simply":"the best"}]')
@@ -18,7 +18,7 @@ module ElasticAPM
     end
 
     it 'spans #parse!' do
-      ElasticAPM.start disabled_injectors: []
+      ElasticAPM.start disabled_spies: []
 
       transaction = ElasticAPM.transaction 'T' do
         JSON.parse!('[{"simply":"the best"}]')
@@ -31,7 +31,7 @@ module ElasticAPM
     end
 
     it 'spans #generate' do
-      ElasticAPM.start disabled_injectors: []
+      ElasticAPM.start disabled_spies: []
 
       transaction = ElasticAPM.transaction 'T' do
         JSON.generate([{ simply: 'the_best' }])

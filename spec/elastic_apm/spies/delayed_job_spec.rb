@@ -9,7 +9,7 @@ end
 
 if defined?(Delayed::Backend)
   module ElasticAPM
-    RSpec.describe 'Injectors::DelayedJobInjector' do
+    RSpec.describe 'Spy: DelayedJob' do
       describe 'transactions', :with_fake_server do
         class TransactionCapturingJob
           attr_accessor :transaction

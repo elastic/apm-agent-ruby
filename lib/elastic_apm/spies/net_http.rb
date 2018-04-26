@@ -2,9 +2,9 @@
 
 module ElasticAPM
   # @api private
-  module Injectors
+  module Spies
     # @api private
-    class NetHTTPInjector
+    class NetHTTPSpy
       # rubocop:disable Metrics/MethodLength
       def install
         Net::HTTP.class_eval do
@@ -32,6 +32,6 @@ module ElasticAPM
       # rubocop:enable Metrics/MethodLength
     end
 
-    register 'Net::HTTP', 'net/http', NetHTTPInjector.new
+    register 'Net::HTTP', 'net/http', NetHTTPSpy.new
   end
 end

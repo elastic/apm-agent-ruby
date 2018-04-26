@@ -20,7 +20,7 @@ module ElasticAPM
     end
 
     config.after_initialize do
-      require 'elastic_apm/injectors/action_dispatch'
+      require 'elastic_apm/spies/action_dispatch'
     end
   end
 end

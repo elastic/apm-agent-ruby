@@ -5,7 +5,7 @@ require 'elastic_apm/context_builder'
 require 'elastic_apm/error_builder'
 require 'elastic_apm/error'
 require 'elastic_apm/http'
-require 'elastic_apm/injectors'
+require 'elastic_apm/spies'
 require 'elastic_apm/serializers'
 require 'elastic_apm/timed_worker'
 
@@ -58,12 +58,13 @@ module ElasticAPM
 
     def initialize(config)
       @config = config
+      @http = Http.new(config)
 
       @messages = Queue.new
       @pending_transactions = Queue.new
-      @http = Http.new(config)
 
       @instrumenter = Instrumenter.new(config, self)
+
       @context_builder = ContextBuilder.new(config)
       @error_builder = ErrorBuilder.new(config)
     end
@@ -76,8 +77,8 @@ module ElasticAPM
 
       @instrumenter.start
 
-      config.enabled_injectors.each do |lib|
-        require "elastic_apm/injectors/#{lib}"
+      config.enabled_spies.each do |lib|
+        require "elastic_apm/spies/#{lib}"
       end
 
       self
@@ -94,6 +95,8 @@ module ElasticAPM
     at_exit do
       stop
     end
+
+    # queues
 
     def enqueue_transaction(transaction)
       boot_worker unless worker_running?

@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'mongo'
 
 module ElasticAPM
-  RSpec.describe 'Injectors::MongoInjector' do
+  RSpec.describe 'Spy: MongoDB' do
     it 'instruments calls', :with_fake_server do
       ElasticAPM.start flush_interval: nil
 

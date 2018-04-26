@@ -2,9 +2,9 @@
 
 module ElasticAPM
   # @api private
-  module Injectors
+  module Spies
     # @api private
-    class DelayedJobInjector
+    class DelayedJobSpy
       CLASS_SEPARATOR = '.'.freeze
       METHOD_SEPARATOR = '#'.freeze
       TYPE = 'Delayed::Job'.freeze
@@ -14,7 +14,7 @@ module ElasticAPM
           alias invoke_job_without_apm invoke_job
 
           def invoke_job(*args, &block)
-            ::ElasticAPM::Injectors::DelayedJobInjector
+            ::ElasticAPM::Spies::DelayedJobSpy
               .invoke_job(self, *args, &block)
           end
         end
@@ -62,7 +62,7 @@ module ElasticAPM
     register(
       'Delayed::Backend::Base',
       'delayed/backend/base',
-      DelayedJobInjector.new
+      DelayedJobSpy.new
     )
   end
 end

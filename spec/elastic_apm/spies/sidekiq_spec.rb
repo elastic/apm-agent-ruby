@@ -6,7 +6,7 @@ require 'sidekiq'
 require 'sidekiq/manager'
 require 'sidekiq/testing'
 
-require 'elastic_apm/injectors/sidekiq'
+require 'elastic_apm/spies/sidekiq'
 
 begin
   require 'active_job'
@@ -14,7 +14,7 @@ rescue LoadError
 end
 
 module ElasticAPM
-  RSpec.describe Injectors::SidekiqInjector, :with_fake_server do
+  RSpec.describe 'Sidekiq', :with_fake_server do
     module SaveTransaction
       def self.included(kls)
         class << kls
@@ -59,7 +59,7 @@ module ElasticAPM
 
     before :all do
       Sidekiq::Testing.server_middleware do |chain|
-        chain.add Injectors::SidekiqInjector::Middleware
+        chain.add Spies::SidekiqSpy::Middleware
       end
 
       Sidekiq.logger = Logger.new(nil) # sssshh, we're testing

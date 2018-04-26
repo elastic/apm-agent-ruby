@@ -2,9 +2,9 @@
 
 module ElasticAPM
   # @api private
-  module Injectors
+  module Spies
     # @api private
-    class RedisInjector
+    class RedisSpy
       def install
         ::Redis::Client.class_eval do
           alias call_without_apm call
@@ -22,6 +22,6 @@ module ElasticAPM
       end
     end
 
-    register 'Redis', 'redis', RedisInjector.new
+    register 'Redis', 'redis', RedisSpy.new
   end
 end
