@@ -15,6 +15,13 @@ module ElasticAPM
       expect(status).to be 200
 
       ElasticAPM.stop
+      wait_for_requests_to_finish 1
+
+      payload, = FakeServer.requests
+      expect(payload.dig('transactions', 0, 'result')).to eq 'HTTP 2xx'
+      expect(
+        payload.dig('transactions', 0, 'context', 'response', 'status_code')
+      ).to eq 200
     end
 
     it 'catches exceptions' do
