@@ -17,13 +17,14 @@ module ElasticAPM
         status, headers, = resp
 
         if transaction
-          transaction.submit(status, status: status, headers: headers)
+          result = "HTTP #{status.to_s[0]}xx"
+          transaction.submit(result, status: status, headers: headers)
         end
       rescue InternalError
         raise # Don't report ElasticAPM errors
       rescue ::Exception => e
         ElasticAPM.report(e, handled: false)
-        transaction.submit(500, status: 500) if transaction
+        transaction.submit('HTTP 5xx', status: 500) if transaction
         raise
       ensure
         transaction.release if transaction
