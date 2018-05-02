@@ -19,9 +19,10 @@ if defined? Rails
     before :all do
       class RailsTestApp < Rails::Application
         config.secret_key_base = '__secret_key_base'
+        config.consider_all_requests_local = false
 
         config.logger = Logger.new(nil)
-        # config.logger = Logger.new(STDOUT)
+        config.logger = Logger.new(STDOUT)
         config.logger.level = Logger::DEBUG
 
         config.eager_load = false
@@ -196,6 +197,7 @@ if defined? Rails
       it 'sends messages that validate', type: :json_schema do
         get '/report_message'
         wait_for_requests_to_finish 2
+        sleep 1 if RSpec::Support::Ruby.jruby? # so sorry
 
         payload =
           FakeServer.requests.find { |r| r.keys.include? 'errors' }
