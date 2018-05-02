@@ -3,12 +3,15 @@
 require 'spec_helper'
 
 module ElasticAPM
-  RSpec.describe Stacktrace do
-    describe '.from' do
+  RSpec.describe StacktraceBuilder do
+    let(:agent) { Agent.new Config.new }
+    subject { described_class.new(agent) }
+
+    describe '.build' do
       context 'mri', unless: RSpec::Support::Ruby.jruby? do
-        it 'initializes from a backtrace' do
+        it 'builds from a backtrace' do
           stacktrace =
-            Stacktrace.build(Config.new, actual_exception.backtrace, :error)
+            subject.build(actual_exception.backtrace, type: :error)
           expect(stacktrace.frames).to_not be_empty
 
           # so meta
@@ -34,9 +37,9 @@ module ElasticAPM
           e
         end
 
-        it 'initializes from an exception' do
+        it 'builds from a backtrace' do
           stacktrace =
-            Stacktrace.build(Config.new, actual_exception.backtrace, :error)
+            subject.build(actual_exception.backtrace, type: :error)
           expect(stacktrace.frames).to_not be_empty
 
           # so meta
@@ -49,15 +52,15 @@ module ElasticAPM
           expect(last_frame.filename).to eq 'org/jruby/RubyFixnum.java'
         end
 
-        it 'initializes from a Java exception' do
+        it 'builds from a Java exception' do
           stacktrace =
-            Stacktrace.build(Config.new, java_exception.backtrace, :error)
+            subject.build(java_exception.backtrace, :error)
           expect(stacktrace.frames).to_not be_empty
         end
       end
 
       it 'initializes from caller' do
-        stacktrace = Stacktrace.build(Config.new, caller, :span)
+        stacktrace = subject.build(caller, type: :span)
         expect(stacktrace.frames).to_not be_empty
       end
     end
@@ -65,7 +68,7 @@ module ElasticAPM
     describe '#to_a' do
       it 'is a hash' do
         array =
-          Stacktrace.build(Config.new, actual_exception.backtrace, :error).to_a
+          subject.build(actual_exception.backtrace, type: :error).to_a
         expect(array).to be_a Array
       end
     end
@@ -85,7 +88,7 @@ module ElasticAPM
         # rubocop:enable Metrics/LineLength
       ].each do |(expected, frame)|
         it "is #{expected} for #{frame[0..60] + '...'}" do
-          stacktrace = Stacktrace.build(Config.new, [frame], :error)
+          stacktrace = subject.build([frame], type: :error)
           frame, = stacktrace.frames
           expect(frame.library_frame).to be(expected), frame.inspect
         end

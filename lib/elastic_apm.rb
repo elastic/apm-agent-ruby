@@ -111,8 +111,8 @@ module ElasticAPM
   #
   # @param message [String] The message
   # @return [Error] The generated [Error]
-  def self.report_message(message, **attrs)
-    agent && agent.report_message(message, backtrace: caller, **attrs)
+  def self.report_message(message)
+    agent && agent.report_message(message, backtrace: caller)
   end
 
   ### Context

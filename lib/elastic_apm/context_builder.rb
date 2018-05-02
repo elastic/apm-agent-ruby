@@ -3,7 +3,7 @@
 module ElasticAPM
   # @api private
   class ContextBuilder
-    def initialize(_config); end
+    def initialize(_agent); end
 
     def build(rack_env)
       context = Context.new

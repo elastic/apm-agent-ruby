@@ -4,6 +4,8 @@ require 'spec_helper'
 
 module ElasticAPM
   RSpec.describe Transaction do
+    let(:agent) { Agent.new Config.new }
+
     describe '#initialize', :mock_time do
       it 'has no spans, timestamp and start time' do
         transaction = Transaction.new nil
@@ -66,7 +68,7 @@ module ElasticAPM
 
     describe '#running_spans', :mock_time do
       it 'returns running spans' do
-        instrumenter = Instrumenter.new Config.new, nil
+        instrumenter = Instrumenter.new agent
         transaction = Transaction.new instrumenter, 'Test'
 
         transaction.span 'test' do
@@ -81,7 +83,7 @@ module ElasticAPM
     end
 
     describe '#span', :mock_time do
-      let(:instrumenter) { Instrumenter.new Config.new, nil }
+      let(:instrumenter) { Instrumenter.new(agent) }
       let(:transaction) { Transaction.new instrumenter, 'Test' }
       subject do
         transaction
@@ -120,7 +122,7 @@ module ElasticAPM
 
     context 'when not sampled' do
       it "doesn't collect spans, context" do
-        instrumenter = Instrumenter.new Config.new, nil
+        instrumenter = Instrumenter.new(agent)
         transaction =
           Transaction.new(instrumenter, 'Test', sampled: false) do |t|
             t.span 'Things' do
@@ -142,7 +144,7 @@ module ElasticAPM
     context 'when reaching max span cound' do
       it 'stops recording spans and bumps dropped count instead' do
         config = Config.new transaction_max_spans: 2
-        instrumenter = Instrumenter.new config, nil
+        instrumenter = Instrumenter.new(Agent.new(config))
         transaction =
           Transaction.new instrumenter, 'T with too many spans' do |t|
             t.span 'Thing 1'
