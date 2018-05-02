@@ -54,7 +54,7 @@ module ElasticAPM
 
         it 'builds from a Java exception' do
           stacktrace =
-            subject.build(java_exception.backtrace, :error)
+            subject.build(java_exception.backtrace, type: :error)
           expect(stacktrace.frames).to_not be_empty
         end
       end
