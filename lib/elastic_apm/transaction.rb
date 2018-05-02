@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module ElasticAPM
+  # rubocop:disable Metrics/ClassLength
   # @api private
   class Transaction
     DEFAULT_TYPE = 'custom'.freeze
@@ -103,8 +104,10 @@ module ElasticAPM
       span = next_span(name, type, context)
       spans << span
 
-      span.stacktrace =
-        backtrace && Stacktrace.build(@instrumenter.config, backtrace, :span)
+      if backtrace
+        span.stacktrace =
+          @instrumenter.agent.stacktrace_builder.build(backtrace, type: :span)
+      end
 
       span.start
     end
@@ -141,4 +144,5 @@ module ElasticAPM
       )
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

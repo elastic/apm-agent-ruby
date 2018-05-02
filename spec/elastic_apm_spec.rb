@@ -26,9 +26,10 @@ RSpec.describe ElasticAPM do
     it do
       should delegate :report, to: agent, args: ['E', { handled: nil }]
     end
-    it do
-      should delegate :report_message,
-        to: agent, args: ['NOT OK', { backtrace: Array }]
+    it 'delegates report_message' do
+      expect(agent).to receive(:report_message)
+        .with('NOT OK', backtrace: Array)
+      subject.report_message('NOT OK')
     end
     it { should delegate :set_tag, to: agent, args: [nil, nil] }
     it { should delegate :set_custom_context, to: agent, args: [nil] }

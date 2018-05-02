@@ -25,14 +25,14 @@ module ElasticAPM
       end
     end
 
-    def initialize(config, agent)
-      @config = config
+    def initialize(agent)
       @agent = agent
+      @config = agent.config
 
       @transaction_info = TransactionInfo.new
     end
 
-    attr_reader :config, :pending_transactions
+    attr_reader :agent, :config, :pending_transactions
 
     def start
     end
@@ -113,7 +113,7 @@ module ElasticAPM
     end
 
     def submit_transaction(transaction)
-      @agent.enqueue_transaction transaction
+      agent.enqueue_transaction transaction
 
       return unless config.debug_transactions
       debug('Submitted transaction:') { Util.inspect_transaction transaction }

@@ -6,8 +6,10 @@ module ElasticAPM
   module Serializers
     RSpec.describe Errors do
       let(:config) { Config.new }
+      let(:agent) { Agent.new config }
 
       let(:builder) { Errors.new config }
+
       before do
         @mock_uuid = SecureRandom.uuid
         allow(SecureRandom).to receive(:uuid) { @mock_uuid }
@@ -16,7 +18,7 @@ module ElasticAPM
       describe '#build', :mock_time do
         context 'an error with exception' do
           let(:error) do
-            ErrorBuilder.new(config).build_exception(actual_exception)
+            ErrorBuilder.new(agent).build_exception(actual_exception)
           end
           subject { builder.build(error) }
 
@@ -50,7 +52,7 @@ module ElasticAPM
         context 'a log message' do
           it 'builds' do
             error_log =
-              ErrorBuilder.new(config).build_log('Things')
+              ErrorBuilder.new(agent).build_log('Things')
 
             result = builder.build(error_log)
 

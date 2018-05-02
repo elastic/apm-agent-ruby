@@ -38,11 +38,7 @@ module ElasticAPM
       private
 
       def read_lines(path, range)
-        if (cached = LineCache.get(path, range))
-          return cached
-        end
-
-        LineCache.set(path, range, File.readlines(path)[range]) || []
+        File.readlines(path)[range]
       rescue Errno::ENOENT
         []
       end

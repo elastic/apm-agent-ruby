@@ -79,7 +79,8 @@ module ElasticAPM
       end
 
       def build_error
-        ErrorBuilder.new(Config.new).build_exception(actual_exception)
+        @agent ||= Agent.new(Config.new)
+        ErrorBuilder.new(@agent).build_exception(actual_exception)
       end
     end
   end

@@ -5,8 +5,9 @@ require 'spec_helper'
 module ElasticAPM
   module Serializers
     RSpec.describe Transactions do
-      let(:instrumenter) { Instrumenter.new Config.new, nil }
-      let(:builder) { Transactions.new Config.new }
+      let(:agent) { Agent.new(Config.new) }
+      let(:instrumenter) { Instrumenter.new agent }
+      let(:builder) { Transactions.new agent.config }
       before do
         @mock_uuid = SecureRandom.uuid
         allow(SecureRandom).to receive(:uuid) { @mock_uuid }
@@ -96,8 +97,9 @@ module ElasticAPM
 
         context 'with dropped spans' do
           it 'includes count' do
-            config = Config.new transaction_max_spans: 2
-            instrumenter = Instrumenter.new config, nil
+            config = Config.new(transaction_max_spans: 2)
+            agent = Agent.new(config)
+            instrumenter = Instrumenter.new agent
             transaction = Transaction.new instrumenter, 'T' do |t|
               t.span '1'
               t.span '2'

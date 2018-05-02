@@ -38,8 +38,8 @@ module ElasticAPM
     context 'reporting', :with_fake_server do
       class AgentTestError < StandardError; end
 
-      subject { Agent.new Config.new }
-      after { subject.stop }
+      subject { ElasticAPM.start }
+      after { ElasticAPM.stop }
 
       describe '#report' do
         it 'queues a request' do

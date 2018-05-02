@@ -3,6 +3,7 @@
 require 'elastic_apm/naively_hashable'
 require 'elastic_apm/context_builder'
 require 'elastic_apm/error_builder'
+require 'elastic_apm/stacktrace_builder'
 require 'elastic_apm/error'
 require 'elastic_apm/http'
 require 'elastic_apm/spies'
@@ -63,14 +64,15 @@ module ElasticAPM
       @messages = Queue.new
       @pending_transactions = Queue.new
 
-      @instrumenter = Instrumenter.new(config, self)
+      @instrumenter = Instrumenter.new(self)
 
-      @context_builder = ContextBuilder.new(config)
-      @error_builder = ErrorBuilder.new(config)
+      @context_builder = ContextBuilder.new(self)
+      @error_builder = ErrorBuilder.new(self)
+      @stacktrace_builder = StacktraceBuilder.new(self)
     end
 
     attr_reader :config, :messages, :pending_transactions, :instrumenter,
-      :context_builder, :http
+      :context_builder, :stacktrace_builder, :http
 
     def start
       debug '[%s] Starting agent, reporting to %s', VERSION, config.server_url

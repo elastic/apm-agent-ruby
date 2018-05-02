@@ -3,15 +3,18 @@
 module ElasticAPM
   # @api private
   class ErrorBuilder
-    def initialize(config)
-      @config = config
+    def initialize(agent)
+      @agent = agent
     end
 
     def build_exception(exception, handled: true)
       error = Error.new
       error.exception = Error::Exception.new(exception, handled: handled)
 
-      add_stacktrace error, :exception, exception.backtrace
+      if exception.backtrace
+        add_stacktrace error, :exception, exception.backtrace
+      end
+
       add_transaction_id error
 
       if (transaction = ElasticAPM.current_transaction)
@@ -25,7 +28,10 @@ module ElasticAPM
       error = Error.new
       error.log = Error::Log.new(message, **attrs)
 
-      add_stacktrace error, :log, backtrace
+      if backtrace
+        add_stacktrace error, :log, backtrace
+      end
+
       add_transaction_id error
 
       error
@@ -34,7 +40,9 @@ module ElasticAPM
     private
 
     def add_stacktrace(error, kind, backtrace)
-      return unless (stacktrace = Stacktrace.build(@config, backtrace, :error))
+      stacktrace =
+        @agent.stacktrace_builder.build(backtrace, type: :error)
+      return unless stacktrace
 
       case kind
       when :exception
