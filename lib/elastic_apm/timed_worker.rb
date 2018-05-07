@@ -5,7 +5,7 @@ module ElasticAPM
   class TimedWorker
     include Log
 
-    SLEEP_INTERVAL = 0.1
+    SLEEP_INTERVAL = 0.00001 # 0.1
 
     # @api private
     class StopMsg
@@ -38,6 +38,9 @@ module ElasticAPM
 
     def run_forever
       loop do
+        puts '#' * 90
+        puts "RAN!"
+        puts '#' * 90
         run_once
         sleep SLEEP_INTERVAL
       end
@@ -60,6 +63,11 @@ module ElasticAPM
           post_error msg
         when StopMsg
           should_exit = true
+
+          puts '#' * 90
+          puts 'EXITING'
+          pp pending_transactions
+          puts '#' * 90
 
           # empty collected transactions before exiting
           collect_and_send_transactions

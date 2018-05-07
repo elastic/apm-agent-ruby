@@ -13,10 +13,11 @@ gem 'mongo'
 gem 'pry'
 gem 'rack-test'
 gem 'redis', require: nil
+gem 'resque', require: nil
 gem 'rspec'
 gem 'rubocop'
 gem 'sequel'
-gem 'sidekiq'
+gem 'sidekiq', require: nil
 gem 'timecop'
 gem 'webmock'
 gem 'yard'
