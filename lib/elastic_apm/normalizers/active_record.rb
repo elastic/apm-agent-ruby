@@ -20,7 +20,7 @@ module ElasticAPM
           return :skip if %w[SCHEMA CACHE].include?(payload[:name])
 
           name = summarize(payload[:sql]) || payload[:name] || 'SQL'
-          context = Span::Context.new(statement: payload[:sql])
+          context = Span::Context.new(statement: payload[:sql].to_s)
           [name, @type, context]
         end
 

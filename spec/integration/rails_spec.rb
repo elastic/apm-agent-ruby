@@ -22,7 +22,7 @@ if defined? Rails
         config.consider_all_requests_local = false
 
         config.logger = Logger.new(nil)
-        config.logger = Logger.new(STDOUT)
+        # config.logger = Logger.new(STDOUT)
         config.logger.level = Logger::DEBUG
 
         config.eager_load = false
