@@ -39,15 +39,16 @@ module ElasticAPM
     def run_forever
       loop do
         puts '#' * 90
-        puts "RAN!"
+        puts "RAN! #{pending_transactions.length}"
         puts '#' * 90
         run_once
-        sleep SLEEP_INTERVAL
+        sleep 0.0001 # SLEEP_INTERVAL
       end
     end
 
     def run_once
       collect_and_send_transactions if should_flush_transactions?
+      puts "Should flush?: #{!!should_flush_transactions?}"
       process_messages
     end
 
@@ -84,7 +85,9 @@ module ElasticAPM
     end
 
     def collect_and_send_transactions
+      puts "WANNA SEND"
       return if pending_transactions.empty?
+      puts "!!!!!!! SENDING"
 
       transactions = collect_batched_transactions
 

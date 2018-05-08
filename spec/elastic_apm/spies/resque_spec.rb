@@ -7,11 +7,6 @@ require 'resque'
 
 require 'elastic_apm/spies/resque'
 
-# begin
-#   require 'active_job'
-# rescue LoadError
-# end
-
 module ElasticAPM
   class TestJob
     extend ElasticAPM::Spies::ResqueSpy::Hooks
@@ -19,37 +14,38 @@ module ElasticAPM
     @queue = :default
 
     def self.perform
-      puts '#' * 90
-      puts 'Agent:'
-      pp ElasticAPM.agent
-      puts '#' * 90
       ElasticAPM.span('Things') do
-        puts '#' * 90
-        puts 'you rang?'
-        puts '#' * 90
+        'ok'
       end
     end
   end
 
   RSpec.describe 'Resque', :with_fake_server do
     it 'instruments jobs' do
-      ENV['VERBOSE'] = '1'
+      puts "Thread:#{Thread.current.object_id}"
+
       worker = Resque::Worker.new 'default'
       worker.prepare
       worker.log 'Starting'
 
+      ElasticAPM.start(
+        logger: Logger.new($stdout),
+        debug_transactions: true,
+        flush_interval: nil
+      )
       thread = Thread.new { worker.work 1 }
       Resque.enqueue(TestJob)
 
+      sleep 1
       thread.join 2
 
       expect(ElasticAPM.agent).to_not be_nil
 
-      ElasticAPM.stop
 
       wait_for_requests_to_finish 1
 
       expect(FakeServer.requests.length).to be 1
+      ElasticAPM.stop
     end
   end
 end

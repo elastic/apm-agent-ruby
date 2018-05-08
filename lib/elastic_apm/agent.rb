@@ -103,11 +103,7 @@ module ElasticAPM
     def enqueue_transaction(transaction)
       boot_worker unless worker_running?
 
-      puts '#' * 90
-      puts 'enqueue'
-      pp transaction
-      puts '#' * 90
-
+      puts "Thread:#{Thread.current.object_id}"
       pending_transactions.push(transaction)
     end
 
@@ -195,8 +191,8 @@ module ElasticAPM
     end
 
     def kill_worker
-      puts 'KILL WORKER'
-      puts "Worker running? #{!!worker_running?}"
+      puts "Thread:#{Thread.current.object_id}"
+      puts "Worker running? #{!!worker_running?} Kill it!"
       puts @pending_transactions.length
       messages << TimedWorker::StopMsg.new
 

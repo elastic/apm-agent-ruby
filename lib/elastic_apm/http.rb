@@ -34,6 +34,8 @@ module ElasticAPM
       payload.merge! @base_payload
       filters.apply(payload)
 
+      puts payload.to_json
+
       request = prepare_request path, payload.to_json
       response = @adapter.perform request
 

@@ -14,6 +14,7 @@ module ElasticAPM
 
       def install_fork_hook
         ::Resque.before_first_fork do
+          puts "Thread:#{Thread.current.object_id}"
           ElasticAPM.start(
             logger: Logger.new($stdout),
             debug_transactions: true
