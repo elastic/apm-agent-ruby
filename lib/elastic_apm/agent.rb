@@ -178,7 +178,7 @@ module ElasticAPM
 
     def boot_worker
       debug 'Booting worker'
-      puts "Thread:#{Thread.current.object_id}"
+      puts "Booting Thread:#{Thread.current.object_id}"
 
       @worker_thread = Thread.new do
         TimedWorker.new(
