@@ -75,6 +75,7 @@ module ElasticAPM
       @adapter.post('/v1/errors', payload)
     end
 
+    # rubocop:disable Metrics/MethodLength
     def collect_and_send_transactions
       return if pending_transactions.empty?
 
@@ -89,7 +90,10 @@ module ElasticAPM
         debug e.backtrace.join("\n")
         nil
       end
+
+      @last_sent_transactions = Time.now
     end
+    # rubocop:enable Metrics/MethodLength
 
     def collect_batched_transactions
       batch = []
