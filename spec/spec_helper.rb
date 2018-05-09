@@ -15,6 +15,7 @@ require 'support/mock_time'
 require 'support/with_fake_server'
 
 require 'elastic-apm'
+require 'elastic_apm/subscriber'
 
 Thread.abort_on_exception = true
 

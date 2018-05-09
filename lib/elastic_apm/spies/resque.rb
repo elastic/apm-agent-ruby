@@ -7,15 +7,13 @@ module ElasticAPM
     class ResqueSpy
       def install
         install_fork_hook
-        install_job_hook
+        install_worker_hook
       end
 
       private
 
       def install_fork_hook
         ::Resque.before_first_fork do
-          puts "Thread:#{Thread.current.object_id}"
-          puts ::Resque.logger.inspect
           ElasticAPM.start(
             logger: ::Resque.logger,
             debug_transactions: true
@@ -23,40 +21,46 @@ module ElasticAPM
         end
       end
 
-      def install_job_hook
-        ::Resque::Job.class_eval do
-          alias :payload_class_without_elastic_apm :payload_class
+      # rubocop:disable Metrics/MethodLength
+      def install_worker_hook
+        # rubocop:disable Metrics/BlockLength
+        ::Resque::Worker.class_eval do
+          alias :perform_with_fork_without_elastic_apm :perform_with_fork
+          alias :perform_without_elastic_apm :perform
 
-          def payload_class
-            original = payload_class_without_elastic_apm
-            original.extend(Hooks)
-            original
+          def perform_with_apm
+            transaction = ElasticAPM.transaction 'Job', 'Resque'
+
+            begin
+              yield
+
+              transaction.submit(:success) if transaction
+            rescue Exception => e
+              ElasticAPM.report(e, handled: false)
+              transaction.submit(:error) if transaction
+            ensure
+              transaction.release if transaction
+            end
+            true
+          end
+
+          def perform_with_fork(job, &block)
+            perform_with_apm do
+              perform_with_fork_without_elastic_apm(job, &block)
+            end
+          end
+
+          def perform(job)
+            if fork_per_job?
+              perform_without_elastic_apm(job)
+            else
+              perform_with_apm { perform_without_elastic_apm(job) }
+            end
           end
         end
+        # rubocop:enable Metrics/BlockLength
       end
-
-      # @api private
-      module Hooks
-        TYPE = 'Resque'.freeze
-
-        # rubocop:disable Metrics/MethodLength
-        def around_perform_with_elastic_apm(*_args)
-          transaction = ElasticAPM.transaction 'Job', TYPE
-
-          begin
-            yield
-
-            transaction.submit(:success) if transaction
-          rescue Exception => e
-            ElasticAPM.report(e, handled: false)
-            transaction.submit(:error) if transaction
-            raise
-          ensure
-            transaction.release if transaction
-          end
-        end
-        # rubocop:enable Metrics/MethodLength
-      end
+      # rubocop:enable Metrics/MethodLength
     end
 
     register 'Resque', 'resque', ResqueSpy.new

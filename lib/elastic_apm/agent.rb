@@ -103,7 +103,6 @@ module ElasticAPM
     def enqueue_transaction(transaction)
       boot_worker unless worker_running?
 
-      puts "Thread:#{Thread.current.object_id}"
       pending_transactions.push(transaction)
     end
 
@@ -178,7 +177,6 @@ module ElasticAPM
 
     def boot_worker
       debug 'Booting worker'
-      puts "Booting Thread:#{Thread.current.object_id}"
 
       @worker_thread = Thread.new do
         TimedWorker.new(
@@ -191,9 +189,6 @@ module ElasticAPM
     end
 
     def kill_worker
-      puts "Thread:#{Thread.current.object_id}"
-      puts "Worker running? #{!!worker_running?} Kill it!"
-      puts @pending_transactions.length
       messages << TimedWorker::StopMsg.new
 
       if @worker_thread && !@worker_thread.join(5) # 5 secs

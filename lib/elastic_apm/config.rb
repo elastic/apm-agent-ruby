@@ -179,6 +179,7 @@ module ElasticAPM
         mongo
         net_http
         redis
+        resque
         sequel
         sidekiq
         sinatra
