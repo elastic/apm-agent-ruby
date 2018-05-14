@@ -5,9 +5,27 @@ module ElasticAPM
   module Spies
     # @api private
     class ResqueSpy
+      ACTIVE_JOB_WRAPPER =
+        'ActiveJob::QueueAdapters::ResqueAdapter::JobWrapper'.freeze
+
       def install
         install_fork_hook
         install_worker_hook
+      end
+
+      def self.set_meta(job)
+        return unless (transaction = ElasticAPM.current_transaction)
+
+        if job.payload_class_name == ACTIVE_JOB_WRAPPER
+          args = job.payload['args'].first
+          return unless args
+
+          transaction.name = args['job_class']
+          ElasticAPM.set_tag(:queue, args['queue_name'])
+        else
+          transaction.name = job.payload_class_name
+          ElasticAPM.set_tag(:queue, job.queue)
+        end
       end
 
       private
@@ -15,7 +33,8 @@ module ElasticAPM
       def install_fork_hook
         ::Resque.before_first_fork do
           ElasticAPM.start(
-            logger: ::Resque.logger,
+            # logger: ::Resque.logger,
+            logger: Logger.new($stdout),
             debug_transactions: true
           )
         end
@@ -41,11 +60,14 @@ module ElasticAPM
             ensure
               transaction.release if transaction
             end
+
             true
           end
 
           def perform_with_fork(job, &block)
             perform_with_apm do
+              ResqueSpy.set_meta(job)
+
               perform_with_fork_without_elastic_apm(job, &block)
             end
           end
@@ -54,7 +76,10 @@ module ElasticAPM
             if fork_per_job?
               perform_without_elastic_apm(job)
             else
-              perform_with_apm { perform_without_elastic_apm(job) }
+              perform_with_apm do
+                ResqueSpy.set_meta(job)
+                perform_without_elastic_apm(job)
+              end
             end
           end
         end
