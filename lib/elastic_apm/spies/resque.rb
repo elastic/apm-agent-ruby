@@ -48,7 +48,8 @@ module ElasticAPM
           alias :perform_without_elastic_apm :perform
 
           def perform_with_apm
-            transaction = ElasticAPM.transaction 'Job', 'Resque'
+            transaction = ElasticAPM.transaction nil, 'Resque'
+            pp(ID: transaction.object_id)
 
             begin
               yield

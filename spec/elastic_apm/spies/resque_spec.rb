@@ -17,8 +17,9 @@ module ElasticAPM
     @queue = :default
 
     def self.perform
-      ElasticAPM.current_transaction.span('Things') do |_s|
-        sleep 0.1
+      ElasticAPM.current_transaction.span('Things') do
+        pp(ID: ElasticAPM.current_transaction.object_id)
+        'nested'
       end
 
       'ok'
