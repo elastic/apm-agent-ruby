@@ -58,10 +58,13 @@ module ElasticAPM
 
           def start
             result = start_without_apm
-            ElasticAPM.start # might already be running from railtie
 
-            return result unless ElasticAPM.running?
-            ElasticAPM.agent.config.logger = Sidekiq.logger
+            # Already running from Railtie if Rails
+            if ElasticAPM.running?
+              ElasticAPM.agent.config.logger = Sidekiq.logger
+            else
+              ElasticAPM.start
+            end
 
             result
           end
