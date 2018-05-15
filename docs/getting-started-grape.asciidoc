@@ -1,0 +1,23 @@
+[[getting-started-grape]]
+== Getting started with standalone Grape
+
+[source,ruby]
+----
+# config.ru
+
+require 'elastic_apm/middlewares/grape'
+
+class Api < Grape::API
+  use ElasticAPM::Middlewares::Grape
+
+  # ...
+end
+
+ElasticAPM.start(
+  app: Api,
+  server_url: 'http://localhost:8200'
+  service_name: 'MyApplication'
+)
+
+run Api
+----
