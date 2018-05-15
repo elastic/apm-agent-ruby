@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'elastic_apm/sql_summarizer'
 
 module ElasticAPM
   RSpec.describe SqlSummarizer do
@@ -12,6 +13,11 @@ module ElasticAPM
     it 'summarizes selects from table with columns' do
       result = subject.summarize('SELECT a, b FROM table')
       expect(result).to eq('SELECT FROM table')
+    end
+
+    it 'simplifies advanced selects' do
+      result = subject.summarize("select months.month, count(created_at) from (select DATE '2017-06-09'+(interval '1' month * generate_series(0,11)) as month, DATE '2017-06-10'+(interval '1' month * generate_series(0,11)) as next) months left outer join subscriptions on created_at < month and (soft_destroyed_at IS NULL or soft_destroyed_at >= next) and (suspended_at IS NULL OR suspended_at >= next) group by month order by month desc") # rubocop:disable Metrics/LineLength
+      expect(result).to eq('SQL')
     end
 
     it 'summarizes inserts' do
@@ -31,10 +37,10 @@ module ElasticAPM
       expect(result).to eq('DELETE FROM table')
     end
 
-    it 'is nil when unknown' do
+    it 'is default when unknown' do
       sql = "SELECT CAST(SERVERPROPERTY('ProductVersion') AS varchar)"
       result = subject.summarize(sql)
-      expect(result).to be_nil
+      expect(result).to eq 'SQL'
     end
   end
 end
