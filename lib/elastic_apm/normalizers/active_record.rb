@@ -19,7 +19,7 @@ module ElasticAPM
         def normalize(_transaction, _name, payload)
           return :skip if %w[SCHEMA CACHE].include?(payload[:name])
 
-          name = summarize(payload[:sql]) || payload[:name] || 'SQL'
+          name = summarize(payload[:sql]) || payload[:name]
           context = Span::Context.new(statement: payload[:sql].to_s)
           [name, @type, context]
         end

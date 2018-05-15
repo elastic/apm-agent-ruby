@@ -13,6 +13,9 @@ RSpec::Matchers.define :match_json_schema do |schema|
       WebMock.disable!
       url = SCHEMA_URLS.fetch(schema)
       JSON::Validator.validate!(url, json)
+    rescue JSON::ParserError # jruby sometimes weirds out
+      puts json.inspect
+      raise
     rescue JSON::Schema::ValidationError
       puts json.inspect
       raise
