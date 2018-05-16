@@ -35,6 +35,8 @@ module ElasticAPM
         private
 
         def push_event(event)
+          return unless ElasticAPM.current_transaction
+
           ctx = Span::Context.new(
             instance: event.database_name,
             statement: nil,
@@ -46,6 +48,8 @@ module ElasticAPM
         end
 
         def pop_event(event)
+          return unless ElasticAPM.current_transaction
+
           span = @events[event.operation_id]
           span.done
         end
