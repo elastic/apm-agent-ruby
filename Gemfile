@@ -38,6 +38,3 @@ when /.+/
 else
   gem framework
 end
-
-gem 'rails' if framework == 'sinatra'
-gem 'sinatra' if framework == 'rails'

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'logger'
+require 'yaml'
 
 module ElasticAPM
   # rubocop:disable Metrics/ClassLength

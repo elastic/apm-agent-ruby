@@ -121,4 +121,6 @@ if defined?(Sinatra)
       end
     end
   end
+else
+  puts '[INFO] Skipping Sinatra spec'
 end
