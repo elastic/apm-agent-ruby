@@ -34,6 +34,8 @@ RSpec.configure do |config|
   end
 
   def elastic_subscribers
+    return [] unless defined?(ActiveSupport)
+
     ActiveSupport::Notifications
       .notifier.instance_variable_get(:@subscribers)
       .select do |s|

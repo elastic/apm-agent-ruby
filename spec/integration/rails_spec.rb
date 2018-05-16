@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-if defined? Rails
+if defined?(Rails)
   require 'action_controller/railtie'
   require 'action_mailer/railtie'
   require 'elastic_apm/railtie'
@@ -221,4 +221,6 @@ if defined? Rails
       ElasticAPM.stop
     end
   end
+else
+  puts '[INFO] Skipping Rails spec'
 end
