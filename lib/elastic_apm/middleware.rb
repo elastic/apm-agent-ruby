@@ -10,7 +10,7 @@ module ElasticAPM
     # rubocop:disable Metrics/MethodLength
     def call(env)
       begin
-        transaction = ElasticAPM.transaction 'Rack', 'app',
+        transaction = ElasticAPM.transaction 'Rack', 'request',
           context: ElasticAPM.build_context(env)
 
         resp = @app.call env
