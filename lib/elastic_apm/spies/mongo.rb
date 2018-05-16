@@ -50,8 +50,8 @@ module ElasticAPM
         def pop_event(event)
           return unless ElasticAPM.current_transaction
 
-          span = @events[event.operation_id]
-          span.done
+          span = @events.delete(event.operation_id)
+          span && span.done
         end
       end
     end
