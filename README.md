@@ -1,8 +1,17 @@
-# elastic-apm – Elastic APM agent for Ruby (BETA)
+# elastic-apm
+## Elastic APM agent for ♦️Ruby (🚧 BETA)
 
 [![Jenkins](https://img.shields.io/jenkins/s/https/apm-ci.elastic.co/job/elastic+apm-agent-ruby+master.svg)](https://apm-ci.elastic.co/job/elastic+apm-agent-ruby+master/)
 
-This is the official Rubygem for adding [Elastic][]'s [APM][] to your Ruby app.
+This is the official Rubygem for [Elastic][] [APM][].
+
+💡 We'd love to get feedback and information about you setup – please answer this [☑ short survey](https://goo.gl/forms/LQktvn4rkLWBNSWy1).
+
+---
+
+## Documentation
+
+[Full documentation at Elasti.co](https://www.elastic.co/guide/en/apm/agent/ruby/index.html).
 
 <div>
 <ul>
@@ -21,7 +30,14 @@ This is the official Rubygem for adding [Elastic][]'s [APM][] to your Ruby app.
 </ul>
 </div>
 
-# License
+---
+
+## Getting help
+
+If you find a bug, please [report an issue](https://github.com/elastic/apm-agent-ruby/issues).
+For any other assistance, please open or add to a topic on the [APM discuss forum](https://discuss.elastic.co/c/apm).
+
+## License
 
 Apache 2.0
 
