@@ -55,7 +55,7 @@ module ElasticAPM
     end
 
     def submit(result = nil, status: nil, headers: {})
-      done result
+      done result unless duration
 
       if status
         context.response = Context::Response.new(status, headers: headers)
