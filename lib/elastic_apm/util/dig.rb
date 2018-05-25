@@ -1,4 +1,4 @@
-# Monkeypatch/backport/polyfill Enumerable#dig to Ruby < 2.3
+# Backport Enumerable#dig to Ruby < 2.3
 #
 # Implementation from
 #   https://github.com/Invoca/ruby_dig/blob/master/lib/ruby_dig.rb
