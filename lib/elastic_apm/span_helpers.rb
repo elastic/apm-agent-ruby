@@ -9,9 +9,16 @@ module ElasticAPM
         __span_method_on(singleton_class, method, name, type)
       end
 
+      def span_method(method, name, type)
+        __span_method_on(self, method, name, type)
+      end
+
       private
 
-      def __span_method_on(klass, method, name, type)
+      def __span_method_on(klass, method, name = nil, type = nil)
+        name ||= method.to_s
+        type ||= Span::DEFAULT_TYPE
+
         klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
           alias :"__without_apm_#{method}" :"#{method}"
 

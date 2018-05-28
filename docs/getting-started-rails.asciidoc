@@ -11,4 +11,12 @@ Add the gem to your `Gemfile`:
 gem 'elastic-apm'
 ----
 
+Create a file `config/elastic_apm.yml`:
+
+[source,yaml]
+----
+server_url: http://localhost:8100
+secret_token: ''
+----
+
 This automatically sets up error logging and performance tracking but of course there are knobs to turn if you'd like to. See <<configuration>>.

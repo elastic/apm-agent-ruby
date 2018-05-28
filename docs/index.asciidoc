@@ -4,19 +4,19 @@ endif::[]
 
 = APM Ruby Agent Reference (Beta)
 
+[[introduction]]
 == Introduction
 
 The Elastic APM Ruby Agent sends performance metrics and error logs to an Elastic APM Server.
 
-It has built-in support for <<getting-started-rails,Rails>> and other <<getting-started-rack,Rack-compatible>> applications.
+It has built-in support for <<getting-started-rails,Ruby on Rails>> and other <<getting-started-rack,Rack-compatible>> applications.
 
 This agent is one of several components you need to get started collecting APM data. See also:
 
  * https://www.elastic.co/guide/en/apm/server/current/index.html[APM Server]
- * https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html[Elasticsearch]
 
 [[framework-support]]
-The Elastic APM Ruby Agent officially supports <<getting-started-rails,Rails>> versions 4.x on onwards.
+The Elastic APM Ruby Agent officially supports <<getting-started-rails,Ruby on Rails>> versions 4.x on onwards.
 
 For Sinatra and other Rack compatible frameworks, see <<getting-started-rack,Getting started with Rack>>.
 

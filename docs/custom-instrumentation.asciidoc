@@ -1,14 +1,93 @@
 [[custom-instrumentation]]
 === Custom instrumentation
 
-When installed ElasticAPM will automatically wrap your app's request/responses in transactions and report its errors.
+When <<introduction,installed>> and <<configuration,properly configured>> ElasticAPM will automatically wrap your app's request/responses in
+transactions and report its errors.
+It also wraps each background job if you use Sidekiq or DelayedJob.
 
-But it is possible to create your own transactions as well as provide spans for any automatic or custom transaction.
+But it is possible to create your own transactions as well as provide spans for any
+automatic or custom transaction.
 
-See <<api-transaction,`ElasticAPM.transaction`>> and <<api-span,`ElasticAPM.span`>>.
+See <<api-transaction,`ElasticAPM.transaction`>> and <<api-agent-span,`ElasticAPM.span`>>.
 
-[[injectors]]
-=== Injectors -- automatic integrations with third-party libraries
+[float]
+==== Helpers
 
-ElasticAPM has built-in integrations for some popular libraries. Use `config.enabled_injectors` to add or remove specific integrations. See <<configuration,Configuration>>.
+ElasticAPM includes some nifty helpers if you just want to instrument a regular method.
+
+[source,ruby]
+----
+class ThingsController < ApplicationController
+  include SpanHelpers
+
+  def index
+    @result = do_hard_work
+  end
+
+  private
+
+  def do_hard_work
+    # ...
+  end
+
+  span_method :do_hard_work # takes optional `name` and `type`
+end
+----
+
+[float]
+==== Custom span example
+
+If you are already inside a Transaction (most likely) and you want to intrument
+some work inside it, add a custom span:
+
+[source,ruby]
+----
+class ThingsController < ApplicationController
+  def index
+    @result_of_work = ElasticAPM.span "Heavy work" do
+      do_the_heavy_work
+    end
+  end
+end
+----
+
+[float]
+==== Custom transaction example
+
+If you are **not** inside a Transaction already (eg. outside of your common web application)
+start and manage your own transactions like so:
+
+[source,ruby]
+----
+class Something
+  def do_work
+    transaction = ElasticAPM.transaction 'Something#do_work'
+
+    begin
+      Sequel[:users] # many third party libs will be automatically instrumented
+      transaction.submit('success') if transaction
+    rescue Exception => e
+      ElasticAPM.report(e)
+      transaction.submit('error') if transaction
+      raise
+    ensure
+      transaction.release
+    end
+  end
+end
+----
+
+**Note:** If the agent isn't started beforehand this will do nothing. See <<api-agent-start,ElasticAPM.start>>.
+
+[[spies]]
+=== Spies
+
+[float]
+====  Automatic integrations with third-party libraries
+
+ElasticAPM has built-in integrations for some popular libraries.
+Use `config.disabled_spies` to disable specific integrations.
+
+For a list of available spies, see
+https://github.com/elastic/apm-agent-ruby/blob/1.x/lib/elastic_apm/config.rb#L174-L188[config.rb].
 

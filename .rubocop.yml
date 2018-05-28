@@ -20,6 +20,9 @@ Lint/RescueException:
 Lint/HandleExceptions:
   Enabled: false
 
+Lint/SplatKeywordArguments:
+  Enabled: false
+
 Metrics/BlockLength:
   Exclude:
     - 'spec/**/*.rb'
