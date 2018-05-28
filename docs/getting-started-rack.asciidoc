@@ -1,9 +1,51 @@
 [[getting-started-rack]]
 == Getting started with Rack
 
+Add the gem to your `Gemfile`:
+
+[source,ruby]
+----
+gem 'elastic-apm'
+----
+
+Create a file `config/elastic_apm.yml`:
+
+[source,yaml]
+----
+server_url: http://localhost:8100
+secret_token: ''
+----
+
+Include the middleware, start (and stop) Elastic APM when booting your app:
+
 [source,ruby]
 ----
 # config.ru
+
+app = lambda do |env|
+  [200, {'Content-Type' => 'text/plain'}, ['ok']]
+end
+
+# Wraps all requests in transactions and reports exceptions
+use ElasticAPM::Middleware
+
+# Start an instance of the Agent
+ElasticAPM.start(service_name: 'NothingButRack')
+
+run app
+
+# Gracefully stop the agent when process exits.
+# Makes sure any pending transactions are sent.
+at_exit { ElasticAPM.stop }
+----
+
+[float]
+[[getting-started-sinatra]]
+==== Sinatra example
+
+[source,ruby]
+----
+# Example config.ru
 
 require 'sinatra/base'
 
@@ -14,10 +56,7 @@ class MySinatraApp < Sinatra::Base
 end
 
 # Takes optional ElasticAPM::Config values
-ElasticAPM.start(
-  app: MySinatraApp, # required
-  server_url: 'http://localhost:8200'
-)
+ElasticAPM.start(app: MySinatraApp, ...)
 
 run MySinatraApp
 
