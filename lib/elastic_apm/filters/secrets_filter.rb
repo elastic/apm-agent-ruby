@@ -21,6 +21,7 @@ module ElasticAPM
 
       def initialize(config)
         @config = config
+        @key_filters = KEY_FILTERS + config.custom_key_filters
       end
 
       def call(payload)
@@ -47,7 +48,7 @@ module ElasticAPM
       end
 
       def filter_key?(key)
-        KEY_FILTERS.any? { |regex| key =~ regex }
+        @key_filters.any? { |regex| key =~ regex }
       end
 
       def filter_value?(value)
