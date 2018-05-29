@@ -44,6 +44,8 @@ module ElasticAPM
       current_user_email_method: :email,
       current_user_username_method: :username,
 
+      custom_key_filters: [],
+
       view_paths: [],
       root_path: Dir.pwd
     }.freeze
@@ -71,6 +73,8 @@ module ElasticAPM
         [:int, 'source_lines_error_library_frames'],
       'ELASTIC_APM_SOURCE_LINES_SPAN_LIBRARY_FRAMES' =>
         [:int, 'source_lines_span_library_frames'],
+
+      'ELASTIC_APM_CUSTOM_KEY_FILTERS' => [:list, 'custom_key_filters'],
 
       'ELASTIC_APM_MAX_QUEUE_SIZE' => [:int, 'max_queue_size'],
       'ELASTIC_APM_FLUSH_INTERVAL' => 'flush_interval',
@@ -140,6 +144,8 @@ module ElasticAPM
     attr_accessor :current_user_email_method
     attr_accessor :current_user_username_method
 
+    attr_reader   :custom_key_filters
+
     attr_reader   :logger
 
     alias :disable_environment_warning? :disable_environment_warning
@@ -175,6 +181,10 @@ module ElasticAPM
 
     def logger=(logger)
       @logger = logger || build_logger(log_path, log_level)
+    end
+
+    def custom_key_filters=(filters)
+      @custom_key_filters = Array(filters).map(&Regexp.method(:new))
     end
 
     # rubocop:disable Metrics/MethodLength

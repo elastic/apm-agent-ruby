@@ -44,13 +44,21 @@ module ElasticAPM
           'ELASTIC_APM_ENABLED_ENVIRONMENTS',
           'test,production',
           %w[test production]
-        ]
+        ],
+        ['ELASTIC_APM_CUSTOM_KEY_FILTERS', 'Auth,Other', [/Auth/, /Other/]]
       ].each do |(key, val, expected)|
         val_before = ENV[key]
         ENV[key] = val
         setting = key.gsub('ELASTIC_APM_', '').downcase
         expect(Config.new.send(setting.to_sym)).to eq expected
         val_before ? ENV[key] = val_before : ENV.delete(key)
+      end
+    end
+
+    context 'custom_key_filters' do
+      it 'sets custom_key_filters to array of regexp' do
+        config = Config.new(custom_key_filters: [/Authorization/, 'String'])
+        expect(config.custom_key_filters).to eq [/Authorization/, /String/]
       end
     end
 

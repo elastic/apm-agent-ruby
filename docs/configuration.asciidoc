@@ -329,6 +329,21 @@ Use this option to disable any of these.
 Get an array of enabled spies with `ElasticAPM.agent.config.enabled_spies`.
 
 [float]
+[[config-custom-key-filters]]
+==== `custom_key_filters`
+[options="header"]
+|============
+| Environment                      | `Config` key         | Default | Example
+| `ELASTIC_APM_CUSTOM_KEY_FILTERS` | `custom_key_filters` | `[]`    | `['MyAuthHeader']`
+|============
+
+Elastic APM strips
+https://github.com/elastic/apm-agent-ruby/blob/1.x/lib/elastic_apm/filters/secrets_filter.rb[
+what looks like confidential information] from the request/response headers.
+Use this option to add your own custom header keys to the list of filtered keys.
+
+
+[float]
 [[config-filter-exception-types]]
 ==== `filter_exception_types`
 |============
