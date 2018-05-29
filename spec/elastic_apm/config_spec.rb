@@ -28,7 +28,7 @@ module ElasticAPM
       ENV.delete('ELASTIC_APM_SERVER_URL') # clean up
     end
 
-    it 'converts certain env values to integers' do
+    it 'converts certain env values to Ruby types' do
       [
         # [ 'NAME', 'VALUE', 'EXPECTED' ]
         ['ELASTIC_APM_SOURCE_LINES_ERROR_APP_FRAMES', '666', 666],
