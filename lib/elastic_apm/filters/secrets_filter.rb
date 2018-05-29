@@ -19,6 +19,8 @@ module ElasticAPM
         /^\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}$/ # (probably) credit card number
       ].freeze
 
+      attr_reader :config
+
       def initialize(config)
         @config = config
       end
@@ -47,7 +49,8 @@ module ElasticAPM
       end
 
       def filter_key?(key)
-        KEY_FILTERS.any? { |regex| key =~ regex }
+        KEY_FILTERS.any? { |regex| key =~ regex } ||
+          config.custom_key_filters.any? { |regex| key =~ regex }
       end
 
       def filter_value?(value)

@@ -54,6 +54,18 @@ module ElasticAPM
       end
     end
 
+    context 'custom_key_filters' do
+      it 'sets custom_key_filters' do
+        config = Config.new { |c| c.custom_key_filters = [/Authorization/] }
+        expect(config.custom_key_filters).to eq [/Authorization/]
+      end
+
+      it 'coerces custom_key_filters to regex' do
+        config = Config.new { |c| c.custom_key_filters = ['Authorization'] }
+        expect(config.custom_key_filters).to eq [/Authorization/]
+      end
+    end
+
     it 'yields itself to a given block' do
       config = Config.new { |c| c.server_url = 'somewhere-else.com' }
       expect(config.server_url).to eq 'somewhere-else.com'

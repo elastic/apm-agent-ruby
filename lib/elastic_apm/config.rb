@@ -43,6 +43,8 @@ module ElasticAPM
       current_user_email_method: :email,
       current_user_username_method: :username,
 
+      custom_key_filters: [],
+
       view_paths: [],
       root_path: Dir.pwd
     }.freeze
@@ -134,6 +136,8 @@ module ElasticAPM
     attr_accessor :current_user_email_method
     attr_accessor :current_user_username_method
 
+    attr_reader   :custom_key_filters
+
     attr_reader   :logger
 
     alias :verify_server_cert? :verify_server_cert
@@ -168,6 +172,16 @@ module ElasticAPM
 
     def logger=(logger)
       @logger = logger || build_logger(log_path, log_level)
+    end
+
+    def custom_key_filters=(filters)
+      @custom_key_filters = Array(filters).map do |f|
+        if f.is_a?(Regexp)
+          f
+        else
+          Regexp.new(f.to_s)
+        end
+      end
     end
 
     # rubocop:disable Metrics/MethodLength
