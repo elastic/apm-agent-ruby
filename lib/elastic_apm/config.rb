@@ -13,6 +13,7 @@ module ElasticAPM
 
       environment: ENV['RAILS_ENV'] || ENV['RACK_ENV'],
       enabled_environments: %w[production],
+      disable_environment_warning: false,
 
       log_path: '-',
       log_level: Logger::INFO,
@@ -51,10 +52,13 @@ module ElasticAPM
       'ELASTIC_APM_SERVER_URL' => 'server_url',
       'ELASTIC_APM_SECRET_TOKEN' => 'secret_token',
 
-      'ELASTIC_APM_SERVICE_NAME' => 'service_name',
-      'ELASTIC_APM_SERVICE_VERSION' => 'service_version',
       'ELASTIC_APM_ENVIRONMENT' => 'environment',
       'ELASTIC_APM_ENABLED_ENVIRONMENTS' => [:list, 'enabled_environments'],
+      'ELASTIC_APM_DISABLE_ENVIRONMENT_WARNING' =>
+        [:bool, 'disable_environment_warning'],
+
+      'ELASTIC_APM_SERVICE_NAME' => 'service_name',
+      'ELASTIC_APM_SERVICE_VERSION' => 'service_version',
       'ELASTIC_APM_FRAMEWORK_NAME' => 'framework_name',
       'ELASTIC_APM_FRAMEWORK_VERSION' => 'framework_version',
       'ELASTIC_APM_HOSTNAME' => 'hostname',
@@ -93,13 +97,15 @@ module ElasticAPM
     attr_accessor :server_url
     attr_accessor :secret_token
 
+    attr_accessor :environment
+    attr_accessor :enabled_environments
+    attr_accessor :disable_environment_warning
+
     attr_accessor :service_name
     attr_accessor :service_version
-    attr_accessor :environment
     attr_accessor :framework_name
     attr_accessor :framework_version
     attr_accessor :hostname
-    attr_accessor :enabled_environments
 
     attr_accessor :log_path
     attr_accessor :log_level
@@ -136,6 +142,7 @@ module ElasticAPM
 
     attr_reader   :logger
 
+    alias :disable_environment_warning? :disable_environment_warning
     alias :verify_server_cert? :verify_server_cert
 
     def app=(app)

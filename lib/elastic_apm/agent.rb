@@ -30,10 +30,13 @@ module ElasticAPM
       config = Config.new(config) unless config.is_a?(Config)
 
       unless config.enabled_environments.include?(config.environment)
-        puts format(
-          '%sNot tracking anything in "%s" env',
-          Log::PREFIX, config.environment
-        )
+        unless config.disable_environment_warning?
+          puts format(
+            '%sNot tracking anything in "%s" env',
+            Log::PREFIX, config.environment
+          )
+        end
+
         return
       end
 

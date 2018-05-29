@@ -13,6 +13,16 @@ module ElasticAPM
 
           Agent.stop # clean up
         end
+
+        it 'prints a disabled warning when env not included' do
+          expect($stdout).to receive(:puts)
+          Agent.start Config.new(environment: 'other')
+          Agent.stop
+
+          expect($stdout).to_not receive(:puts)
+          Agent.start Config.new(disable_environment_warning: true)
+          Agent.stop
+        end
       end
 
       describe '.stop' do
