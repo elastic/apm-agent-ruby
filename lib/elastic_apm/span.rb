@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'securerandom'
+
 require 'elastic_apm/span/context'
 
 module ElasticAPM

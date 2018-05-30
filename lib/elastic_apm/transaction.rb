@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'securerandom'
+
 module ElasticAPM
   # rubocop:disable Metrics/ClassLength
   # @api private
