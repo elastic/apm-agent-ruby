@@ -10,15 +10,17 @@ module ElasticAPM
 
       # @api private
       class Middleware
+        TYPE = 'Sidekiq'.freeze
+
         # rubocop:disable Metrics/MethodLength
         def call(_worker, job, queue)
           name = SidekiqSpy.name_for(job)
-          transaction = ElasticAPM.transaction(name, 'Sidekiq')
+          transaction = ElasticAPM.transaction(name, TYPE)
           ElasticAPM.set_tag(:queue, queue)
 
           yield
 
-          transaction.submit('success') if transaction
+          transaction.submit(:success) if transaction
         rescue ::Exception => e
           ElasticAPM.report(e, handled: false)
           transaction.submit(:error) if transaction

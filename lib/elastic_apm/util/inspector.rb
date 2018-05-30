@@ -19,6 +19,7 @@ module ElasticAPM
         lines = ['=' * @width]
         lines << "[T] #{transaction.name} " \
           "- #{transaction.type} (#{ms transaction.duration} ms)"
+        lines << "    #{transaction.id}"
         lines << "+#{'-' * (@width - 2)}+"
 
         transaction.spans.each do |span|

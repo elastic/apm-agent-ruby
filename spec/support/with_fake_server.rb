@@ -11,6 +11,7 @@ class FakeServer
       return @requests if @requests
 
       MUTEX.lock do
+        puts "\t\t-- FAKEST"
         clear!
       end
 

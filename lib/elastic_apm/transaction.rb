@@ -126,6 +126,7 @@ module ElasticAPM
       "<ElasticAPM::Transaction id:#{id}" \
         " name:#{name.inspect}" \
         " type:#{type.inspect}" \
+        " spans:#{spans.count}" \
         '>'
     end
 

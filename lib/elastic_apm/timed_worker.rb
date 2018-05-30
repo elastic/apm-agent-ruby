@@ -5,7 +5,7 @@ module ElasticAPM
   class TimedWorker
     include Log
 
-    SLEEP_INTERVAL = 0.1
+    SLEEP_INTERVAL = 0.00001 # 0.1
 
     # @api private
     class StopMsg
@@ -39,7 +39,7 @@ module ElasticAPM
     def run_forever
       loop do
         run_once
-        sleep SLEEP_INTERVAL
+        sleep 0.0001 # SLEEP_INTERVAL
       end
     end
 
