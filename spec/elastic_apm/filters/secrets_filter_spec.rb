@@ -69,5 +69,40 @@ module ElasticAPM
         }]
       )
     end
+
+    context 'with custom_key_filters' do
+      let(:config) { Config.new(custom_key_filters: [/Authorization/]) }
+      subject { described_class.new(config) }
+
+      it 'removes Authorization header' do
+        payload = {
+          transactions: [{
+            context: {
+              request: {
+                headers: {
+                  Authorization: 'Bearer some',
+                  SomeHeader: 'some'
+                }
+              }
+            }
+          }]
+        }
+
+        subject.call(payload)
+
+        expect(payload).to match(
+          transactions: [{
+            context: {
+              request: {
+                headers: {
+                  Authorization: '[FILTERED]',
+                  SomeHeader: 'some'
+                }
+              }
+            }
+          }]
+        )
+      end
+    end
   end
 end
