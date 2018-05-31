@@ -106,9 +106,8 @@ module ElasticAPM
       span = next_span(name, type, context)
       spans << span
 
-      if backtrace
-        span.stacktrace =
-          @instrumenter.agent.stacktrace_builder.build(backtrace, type: :span)
+      if backtrace && span_frames_min_duration?
+        span.original_backtrace = backtrace
       end
 
       span.start
@@ -144,6 +143,10 @@ module ElasticAPM
         parent: current_span,
         context: context
       )
+    end
+
+    def span_frames_min_duration?
+      @instrumenter.agent.config.span_frames_min_duration != 0
     end
   end
   # rubocop:enable Metrics/ClassLength

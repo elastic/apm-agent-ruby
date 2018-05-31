@@ -239,6 +239,25 @@ WARNING: Especially for spans, collecting source code can have a large impact on
 storage use in your Elasticsearch cluster.
 
 [float]
+[[config-span-frames-min-duration-ms]]
+==== `span_frames_min_duration`
+
+| ============
+| Environment                            | `Config` keys              | Default
+| `ELASTIC_APM_SPAN_FRAMES_MIN_DURATION` | `span_frames_min_duration` | `-1`
+| ============
+
+In its default settings, the APM agent will collect a stack trace with every recorded span.
+While this is very helpful to find the exact place in your code that causes the span,
+collecting this stack trace does have some overhead.
+
+With the default setting, `-1`, stack traces will be collected for all spans.
+Setting it to a positive value, e.g. `5`, will limit stack trace collection to spans
+with durations equal or longer than the given value in milliseconds, e.g. 5 milliseconds.
+
+To disable stack trace collection for spans completely, set the value to 0.
+
+[float]
 [[config-max-queue-size]]
 ==== `max_queue_size`
 
