@@ -37,6 +37,7 @@ module ElasticAPM
       source_lines_span_app_frames: 5,
       source_lines_error_library_frames: 0,
       source_lines_span_library_frames: 0,
+      span_frames_min_duration: -1,
 
       disabled_spies: %w[json],
 
@@ -73,6 +74,8 @@ module ElasticAPM
         [:int, 'source_lines_error_library_frames'],
       'ELASTIC_APM_SOURCE_LINES_SPAN_LIBRARY_FRAMES' =>
         [:int, 'source_lines_span_library_frames'],
+      'ELASTIC_APM_SPAN_FRAMES_MIN_DURATION' =>
+        [:int, 'span_frames_min_duration'],
 
       'ELASTIC_APM_CUSTOM_KEY_FILTERS' => [:list, 'custom_key_filters'],
 
@@ -133,6 +136,7 @@ module ElasticAPM
     attr_accessor :source_lines_span_app_frames
     attr_accessor :source_lines_error_library_frames
     attr_accessor :source_lines_span_library_frames
+    attr_accessor :span_frames_min_duration
 
     attr_accessor :disabled_spies
 

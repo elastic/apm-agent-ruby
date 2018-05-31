@@ -58,6 +58,30 @@ module ElasticAPM
         subject.current_transaction = double(span: true)
         expect(subject).to delegate :span, to: subject.current_transaction
       end
+
+      context 'with span_frames_min_duration' do
+        let(:agent) { Agent.new(Config.new(span_frames_min_duration: 10)) }
+
+        it 'collects stacktraces', :mock_time do
+          t = subject.transaction do
+            travel 100
+
+            subject.span 'Things', backtrace: caller do
+              travel 100
+            end
+
+            travel 100
+
+            subject.span 'Short things', backtrace: caller do
+              travel 5
+            end
+          end.done :ok
+
+          expect(t.spans.length).to be 2
+          expect(t.spans[0].stacktrace).to_not be_nil
+          expect(t.spans[1].stacktrace).to be_nil
+        end
+      end
     end
 
     describe '#set_tag' do
