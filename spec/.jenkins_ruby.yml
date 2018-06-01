@@ -4,3 +4,4 @@ RUBY_VERSION:
   - ruby-2.4
   - ruby-2.3
   - jruby-9.1
+  - jruby-9.2
