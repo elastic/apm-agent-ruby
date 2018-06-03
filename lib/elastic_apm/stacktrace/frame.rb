@@ -26,6 +26,7 @@ module ElasticAPM
 
         padding = (context_line_count - 1) / 2
         from = lineno - padding - 1
+        from = 0 if from < 0
         to = lineno + padding - 1
         file_lines = read_lines(abs_path, from..to)
 
