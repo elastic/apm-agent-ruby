@@ -73,5 +73,30 @@ module ElasticAPM
       config = Config.new disabled_spies: ['json']
       expect(config.enabled_spies).to_not include('json')
     end
+
+    context 'logging' do
+      it "writes to stdout with '-'" do
+        config = Config.new log_path: '-'
+        expect($stdout).to receive(:write).with(/This test ran$/)
+        config.logger.info 'This test ran'
+      end
+
+      it 'can write to a file' do
+        Tempfile.open 'elastic-apm' do |file|
+          config = Config.new log_path: file.path
+          config.logger.info 'This test ran'
+
+          expect(file.read).to match(/This test ran$/)
+        end
+      end
+
+      it 'can be given a logger' do
+        logger = double(Logger)
+        config = Config.new logger: logger
+
+        expect(logger).to receive(:info).with('MockLog')
+        config.logger.info 'MockLog'
+      end
+    end
   end
 end
