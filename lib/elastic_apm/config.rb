@@ -98,7 +98,7 @@ module ElasticAPM
 
       yield self if block_given?
 
-      self.logger = build_logger unless logger
+      build_logger unless logger
     end
 
     attr_accessor :config_file
@@ -118,6 +118,7 @@ module ElasticAPM
 
     attr_accessor :log_path
     attr_accessor :log_level
+    attr_accessor :logger
 
     attr_accessor :max_queue_size
     attr_accessor :flush_interval
@@ -152,8 +153,6 @@ module ElasticAPM
 
     attr_reader   :custom_key_filters
 
-    attr_reader   :logger
-
     alias :disable_environment_warning? :disable_environment_warning
     alias :verify_server_cert? :verify_server_cert
 
@@ -183,14 +182,6 @@ module ElasticAPM
 
     def use_ssl?
       server_url.start_with?('https')
-    end
-
-    def logger=(logger)
-      unless log_path
-        self.log_path = ENV['APM_TESTING'] ? nil : '-'
-      end
-
-      @logger = logger || build_logger
     end
 
     def custom_key_filters=(filters)
@@ -281,7 +272,8 @@ module ElasticAPM
     def build_logger
       logger = Logger.new(log_path == '-' ? $stdout : log_path)
       logger.level = log_level
-      logger
+
+      self.logger = logger
     end
 
     def format_name(str)
