@@ -82,7 +82,7 @@ module ElasticAPM
       end
 
       it 'can write to a file' do
-        file = Tempfile.new
+        file = Tempfile.new 'elastic-apm'
 
         begin
           config = Config.new log_path: file.path
