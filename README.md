@@ -1,7 +1,7 @@
 # elastic-apm
 ## Elastic APM agent for ♦️Ruby (🚧 BETA)
 
-[![Jenkins](https://img.shields.io/jenkins/s/https/apm-ci.elastic.co/job/elastic+apm-agent-ruby+master.svg)](https://apm-ci.elastic.co/job/elastic+apm-agent-ruby+master/)
+[![Jenkins](https://img.shields.io/jenkins/s/https/apm-ci.elastic.co/job/elastic+apm-agent-ruby+master.svg)](https://apm-ci.elastic.co/job/elastic+apm-agent-ruby+master/) [![Gem](https://img.shields.io/gem/v/elastic-apm.svg)](https://rubygems.org/gems/elastic-apm)
 
 This is the official Rubygem for [Elastic][] [APM][].
 
