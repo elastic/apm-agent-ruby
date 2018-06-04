@@ -82,17 +82,11 @@ module ElasticAPM
       end
 
       it 'can write to a file' do
-        file = Tempfile.new 'elastic-apm'
-
-        begin
+        Tempfile.open 'elastic-apm' do |file|
           config = Config.new log_path: file.path
           config.logger.info 'This test ran'
 
-          file.rewind
           expect(file.read).to match(/This test ran$/)
-        ensure
-          file.close
-          file.unlink
         end
       end
 
