@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-
 module ElasticAPM
   RSpec.describe Context do
     it 'initializes with tags and context' do

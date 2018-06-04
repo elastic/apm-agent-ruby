@@ -1,4 +1,4 @@
-require 'spec_helper'
+# frozen_string_literal: true
 
 module ElasticAPM
   RSpec.describe TimedWorker do

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-
 module ElasticAPM
   RSpec.describe StacktraceBuilder do
     let(:agent) { Agent.new Config.new }

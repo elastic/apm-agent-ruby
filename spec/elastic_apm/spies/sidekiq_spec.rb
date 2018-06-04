@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-
 require 'sidekiq'
 require 'sidekiq/manager'
 require 'sidekiq/testing'
