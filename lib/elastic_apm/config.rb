@@ -15,8 +15,8 @@ module ElasticAPM
       enabled_environments: %w[production],
       disable_environment_warning: false,
 
-      log_path: '-',
-      log_level: Logger::INFO,
+      log_path: nil,
+      log_level: Logger::DEBUG,
 
       max_queue_size: 500,
       flush_interval: 10,
@@ -97,6 +97,8 @@ module ElasticAPM
       set_from_env
 
       yield self if block_given?
+
+      self.logger = build_logger unless logger
     end
 
     attr_accessor :config_file
@@ -184,7 +186,11 @@ module ElasticAPM
     end
 
     def logger=(logger)
-      @logger = logger || build_logger(log_path, log_level)
+      unless log_path
+        self.log_path = ENV['APM_TESTING'] ? nil : '-'
+      end
+
+      @logger = logger || build_logger
     end
 
     def custom_key_filters=(filters)
@@ -272,9 +278,9 @@ module ElasticAPM
       self.view_paths = app.config.paths['app/views'].existent
     end
 
-    def build_logger(path, level)
-      logger = Logger.new(path == '-' ? STDOUT : path)
-      logger.level = level
+    def build_logger
+      logger = Logger.new(log_path == '-' ? $stdout : log_path)
+      logger.level = log_level
       logger
     end
 

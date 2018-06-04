@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+ENV['APM_TESTING'] = '1'
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 ENV['ELASTIC_APM_ENABLED_ENVIRONMENTS'] = 'test'
 
