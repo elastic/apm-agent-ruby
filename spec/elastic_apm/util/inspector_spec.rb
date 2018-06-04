@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-
 module ElasticAPM
   module Util
     RSpec.describe Inspector do

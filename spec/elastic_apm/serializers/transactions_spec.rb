@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-
 module ElasticAPM
   module Serializers
     RSpec.describe Transactions do

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-
 module ElasticAPM
   RSpec.describe ErrorBuilder do
     subject { ErrorBuilder.new Agent.new(Config.new) }

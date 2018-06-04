@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-
 module ElasticAPM
   RSpec.describe 'Spy: JSON', :with_fake_server do
     it 'spans #parse' do

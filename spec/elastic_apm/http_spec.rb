@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-
 module ElasticAPM
   RSpec.describe Http do
     describe '#post', :with_fake_server do

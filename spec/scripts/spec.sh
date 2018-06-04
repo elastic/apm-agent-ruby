@@ -31,4 +31,4 @@ RUBY_VERSION=$1 docker-compose run \
   -v "$local_vendor_path:$container_vendor_path" \
   -v "$(dirname $(pwd))":/app \
   --rm ruby_rspec \
-  /bin/bash -c "bundle install --path $container_vendor_path && timeout -s9 5m bundle exec rspec ${3:-spec}"
+  /bin/bash -c "bundle install --path $container_vendor_path && timeout -s9 5m bundle exec rspec -f documentation -f JUnit -o spec/ruby-agent-junit.xml ${3:-spec}"

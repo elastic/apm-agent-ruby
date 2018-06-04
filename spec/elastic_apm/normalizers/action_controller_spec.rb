@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
 require 'elastic_apm/normalizers'
 
 module ElasticAPM

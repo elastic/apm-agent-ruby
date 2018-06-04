@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-
 module ElasticAPM
   RSpec.describe Middleware do
     it 'surrounds the request in a transaction', :with_fake_server do

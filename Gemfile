@@ -20,6 +20,7 @@ gem 'sidekiq'
 gem 'timecop'
 gem 'webmock'
 gem 'yard'
+gem 'yarjuf'
 
 if RUBY_PLATFORM == 'java'
   gem 'jdbc-sqlite3'
