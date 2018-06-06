@@ -115,7 +115,7 @@ if defined?(Sinatra)
         expect(FakeServer.requests.length).to be 2
 
         error_request =
-          FakeServer.requests.find { |r| r.keys.include? 'errors' }
+          FakeServer.requests.find { |r| r.key?('errors') }
         exception = error_request['errors'][0]['exception']
         expect(exception['type']).to eq 'FancyError'
       end
