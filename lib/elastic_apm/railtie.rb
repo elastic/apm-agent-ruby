@@ -10,7 +10,12 @@ module ElasticAPM
     Config::DEFAULTS.each { |option, value| config.elastic_apm[option] = value }
 
     initializer 'elastic_apm.initialize' do |app|
-      config = app.config.elastic_apm.merge(app: app)
+      config = app.config.elastic_apm.merge(app: app).tap do |c|
+        # Prepend Rails.root to log_path if present
+        if c.log_path && !c.log_path.start_with?('/')
+          c.log_path = Rails.root.join(c.log_path)
+        end
+      end
 
       begin
         agent = ElasticAPM.start config
