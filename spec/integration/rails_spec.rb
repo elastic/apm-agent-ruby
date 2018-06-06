@@ -34,6 +34,7 @@ if defined?(Rails)
         config.elastic_apm.flush_interval = nil
         config.elastic_apm.debug_transactions = true
         config.elastic_apm.http_compression = false
+        config.elastic_apm.log_path = 'log/elastic_apm.log'
       end
 
       class PagesController < ActionController::Base
@@ -126,6 +127,11 @@ if defined?(Rails)
         .to match(/\d+\.\d+\.\d+(\.\d+)?/)
     end
 
+    it 'prepends Rails.root to log_path' do
+      final_log_path = ElasticAPM.agent.config.log_path.to_s
+      expect(final_log_path).to eq "#{Rails.root}/log/elastic_apm.log"
+    end
+
     describe 'transactions' do
       it 'spans action and posts it' do
         get '/'
@@ -175,7 +181,7 @@ if defined?(Rails)
         expect(FakeServer.requests.length).to be 2
 
         error_request =
-          FakeServer.requests.find { |r| r.keys.include? 'errors' }
+          FakeServer.requests.find { |r| r.key?('errors') }
         error = error_request['errors'][0]
 
         expect(error['transaction']['id']).to_not be_nil
@@ -190,7 +196,7 @@ if defined?(Rails)
         wait_for_requests_to_finish 2
 
         payload =
-          FakeServer.requests.find { |r| r.keys.include? 'errors' }
+          FakeServer.requests.find { |r| r.key?('errors') }
         expect(payload).to match_json_schema(:errors)
       end
 
@@ -200,7 +206,7 @@ if defined?(Rails)
         sleep 1 if RSpec::Support::Ruby.jruby? # so sorry
 
         payload =
-          FakeServer.requests.find { |r| r.keys.include? 'errors' }
+          FakeServer.requests.find { |r| r.key?('errors') }
         expect(payload.dig('errors', 0, 'log')).to_not be_nil
         expect(payload).to match_json_schema(:errors)
       end
