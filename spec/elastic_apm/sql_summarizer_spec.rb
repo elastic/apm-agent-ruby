@@ -37,9 +37,9 @@ module ElasticAPM
     end
 
     it 'sumarizes transactions' do
-      result = subject.summarize("BEGIN")
+      result = subject.summarize('BEGIN')
       expect(result).to eq('BEGIN')
-      result = subject.summarize("COMMIT")
+      result = subject.summarize('COMMIT')
       expect(result).to eq('COMMIT')
     end
 
