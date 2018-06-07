@@ -9,7 +9,7 @@ module ElasticAPM
 
     def build
       {
-        hostname: @config.hostname || `hostname`,
+        hostname: @config.hostname || `hostname`.chomp,
         architecture: platform.cpu,
         platform: platform.os
       }
