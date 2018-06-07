@@ -98,7 +98,7 @@ module ElasticAPM
 
       yield self if block_given?
 
-      build_logger unless logger
+      build_logger if logger.nil? || log_path
     end
 
     attr_accessor :config_file

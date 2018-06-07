@@ -34,7 +34,7 @@ if defined?(Rails)
         config.elastic_apm.flush_interval = nil
         config.elastic_apm.debug_transactions = true
         config.elastic_apm.http_compression = false
-        config.elastic_apm.log_path = 'log/elastic_apm.log'
+        config.elastic_apm.log_path = 'spec/elastic_apm.log'
       end
 
       class PagesController < ActionController::Base
@@ -129,7 +129,7 @@ if defined?(Rails)
 
     it 'prepends Rails.root to log_path' do
       final_log_path = ElasticAPM.agent.config.log_path.to_s
-      expect(final_log_path).to eq "#{Rails.root}/log/elastic_apm.log"
+      expect(final_log_path).to eq "#{Rails.root}/spec/elastic_apm.log"
     end
 
     describe 'transactions' do
