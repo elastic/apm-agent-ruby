@@ -8,7 +8,7 @@ require 'elastic_apm/error'
 require 'elastic_apm/http'
 require 'elastic_apm/spies'
 require 'elastic_apm/serializers'
-require 'elastic_apm/timed_worker'
+require 'elastic_apm/worker'
 
 module ElasticAPM
   # rubocop:disable Metrics/ClassLength
@@ -107,12 +107,23 @@ module ElasticAPM
       boot_worker unless worker_running?
 
       pending_transactions.push(transaction)
+
+      return unless should_flush_transactions?
+
+      messages.push(Worker::FlushMsg.new)
+    end
+
+    def should_flush_transactions?
+      return true unless config.flush_interval
+      return true if pending_transactions.length >= config.max_queue_size
+
+      false
     end
 
     def enqueue_error(error)
       boot_worker unless worker_running?
 
-      messages.push(TimedWorker::ErrorMsg.new(error))
+      messages.push(Worker::ErrorMsg.new(error))
     end
 
     # instrumentation
@@ -182,7 +193,7 @@ module ElasticAPM
       debug 'Booting worker'
 
       @worker_thread = Thread.new do
-        TimedWorker.new(
+        Worker.new(
           config,
           messages,
           pending_transactions,
@@ -192,7 +203,7 @@ module ElasticAPM
     end
 
     def kill_worker
-      messages << TimedWorker::StopMsg.new
+      messages << Worker::StopMsg.new
 
       if @worker_thread && !@worker_thread.join(5) # 5 secs
         raise 'Failed to wait for worker, not all messages sent'

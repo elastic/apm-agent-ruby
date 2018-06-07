@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
+require 'concurrent/timer_task'
+
 module ElasticAPM
   # @api private
-  class TimedWorker
+  class Worker
     include Log
 
-    SLEEP_INTERVAL = 0.1
+    # @api private
+    class StopMsg; end
 
     # @api private
-    class StopMsg
-    end
+    class FlushMsg; end
 
     # @api private
     class ErrorMsg
@@ -26,8 +28,6 @@ module ElasticAPM
       @pending_transactions = pending_transactions
       @adapter = adapter
 
-      @last_sent_transactions = Time.now.utc
-
       @serializers = Struct.new(:transactions, :errors).new(
         Serializers::Transactions.new(config),
         Serializers::Errors.new(config)
@@ -36,46 +36,43 @@ module ElasticAPM
 
     attr_reader :config, :messages, :pending_transactions
 
-    def run_forever
-      loop do
-        run_once
-        sleep SLEEP_INTERVAL
-      end
-    end
-
-    def run_once
-      collect_and_send_transactions if should_flush_transactions?
-      process_messages
-    end
-
-    private
-
     # rubocop:disable Metrics/MethodLength
-    def process_messages
-      should_exit = false
+    def run_forever
+      @timer_task = build_timer_task.execute
 
-      while (msg = messages.pop(true))
+      while (msg = messages.pop)
         case msg
         when ErrorMsg
           post_error msg
+        when FlushMsg
+          collect_and_send_transactions
         when StopMsg
-          should_exit = true
-
           # empty collected transactions before exiting
           collect_and_send_transactions
+          stop!
         end
       end
-    rescue ThreadError # queue empty
-      Thread.exit if should_exit
     end
     # rubocop:enable Metrics/MethodLength
+
+    private
+
+    def stop!
+      @timer_task && @timer_task.shutdown
+      Thread.exit
+    end
+
+    def build_timer_task
+      Concurrent::TimerTask.new(execution_interval: config.flush_interval) do
+        messages.push(FlushMsg.new)
+      end
+    end
 
     def post_error(msg)
       payload = @serializers.errors.build_all([msg.error])
       @adapter.post('/v1/errors', payload)
     end
 
-    # rubocop:disable Metrics/MethodLength
     def collect_and_send_transactions
       return if pending_transactions.empty?
 
@@ -90,10 +87,7 @@ module ElasticAPM
         debug e.backtrace.join("\n")
         nil
       end
-
-      @last_sent_transactions = Time.now
     end
-    # rubocop:enable Metrics/MethodLength
 
     def collect_batched_transactions
       batch = []
@@ -107,15 +101,6 @@ module ElasticAPM
       end
 
       batch
-    end
-
-    def should_flush_transactions?
-      interval = config.flush_interval
-
-      return true if interval.nil?
-      return true if pending_transactions.length >= config.max_queue_size
-
-      Time.now.utc - @last_sent_transactions >= interval
     end
   end
 end
