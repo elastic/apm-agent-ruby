@@ -12,6 +12,12 @@ module ElasticAPM
           expect(subject[key]).to_not be_nil
         end
       end
+
+      context 'hostname' do
+        it 'has no newline at the end' do
+          expect(subject[:hostname]).not_to match(/\n\z/)
+        end
+      end
     end
   end
 end
