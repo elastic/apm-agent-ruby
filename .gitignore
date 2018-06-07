@@ -12,3 +12,4 @@
 
 Gemfile.lock
 /html_docs/
+spec/elastic_apm.log
