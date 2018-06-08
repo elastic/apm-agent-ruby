@@ -172,6 +172,19 @@ So you can keep in your custom instrumentation code without the agent sending
 anything nor complain.
 
 [float]
+[[config-instrument]]
+==== `instrument`
+[options="header"]
+|============
+| Environment              | `Config` key | Default
+| `ELASTIC_APM_INSTRUMENT` | `instrument` | `true`
+|============
+
+Whether the agent should collect metrics. Use this to disable collecting metrics but keep tracking errors.
+
+When instrumentation is disabled, the instrumentation APIs will do nothing, so you can safely keep you custom instrumentation code while instrumentation is disabled.
+
+[float]
 [[config-framework-name]]
 ==== `framework_name`
 [options="header"]
