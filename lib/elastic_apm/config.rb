@@ -14,6 +14,7 @@ module ElasticAPM
       environment: ENV['RAILS_ENV'] || ENV['RACK_ENV'],
       enabled_environments: %w[production],
       disable_environment_warning: false,
+      instrument: true,
 
       log_path: nil,
       log_level: Logger::DEBUG,
@@ -59,6 +60,7 @@ module ElasticAPM
       'ELASTIC_APM_ENABLED_ENVIRONMENTS' => [:list, 'enabled_environments'],
       'ELASTIC_APM_DISABLE_ENVIRONMENT_WARNING' =>
         [:bool, 'disable_environment_warning'],
+      'ELASTIC_APM_INSTRUMENT' => [:bool, 'instrument'],
 
       'ELASTIC_APM_SERVICE_NAME' => 'service_name',
       'ELASTIC_APM_SERVICE_VERSION' => 'service_version',
@@ -109,6 +111,7 @@ module ElasticAPM
     attr_accessor :environment
     attr_accessor :enabled_environments
     attr_accessor :disable_environment_warning
+    attr_accessor :instrument
 
     attr_accessor :service_name
     attr_accessor :service_version

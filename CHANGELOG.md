@@ -6,6 +6,10 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ## Unreleased
 
+### Added
+
+- Added an option to disable metrics collection ([#145](https://github.com/elastic/apm-agent-ruby/pulls/145))
+
 ### Fixed
 
 - Remove newline on `hostname`

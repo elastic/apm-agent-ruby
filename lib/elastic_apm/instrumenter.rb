@@ -55,8 +55,14 @@ module ElasticAPM
       @transaction_info.current = transaction
     end
 
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def transaction(*args)
+      unless config.instrument
+        yield if block_given?
+        return
+      end
+
       if (transaction = current_transaction)
         yield transaction if block_given?
         return transaction
@@ -82,7 +88,8 @@ module ElasticAPM
 
       transaction
     end
-    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def random_sample?
       rand <= config.transaction_sample_rate

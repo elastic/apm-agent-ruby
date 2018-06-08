@@ -47,6 +47,22 @@ module ElasticAPM
           expect(block_).to have_received(:call).with(result)
         end
       end
+
+      context 'when instrumentation is disabled' do
+        let(:agent) { Agent.new Config.new(instrument: false) }
+        it 'is a noop' do
+          called = false
+
+          transaction = subject.transaction do
+            subject.span 'things' do
+              called = true
+            end
+          end
+
+          expect(transaction).to be_nil
+          expect(called).to be true
+        end
+      end
     end
 
     describe '#span' do
