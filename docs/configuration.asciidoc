@@ -223,6 +223,48 @@ otherwise, the default is `nil`.
 The host name to use when sending error and transaction data to the APM server.
 
 [float]
+[[config-log-path]]
+==== `log_path`
+
+[options="header"]
+|============
+| Environment | `Config` key | Default | Example
+| N/A         | `log_path`   | `nil`   | `log/elastic_apm.log`
+|============
+
+A path to a log file.
+
+By default Elastic APM logs to `stdout` or uses `Rails.log` when used with Rails.
+
+Should support both absolute and relative paths. Just make sure the directory exists.
+
+[float]
+[[config-log-level]]
+==== `log_level`
+
+[options="header"]
+|============
+| Environment | `Config` key | Default
+| N/A         | `log_level`  | `Logger::DEBUG`
+|============
+
+By default Elastic APM logs to `stdout` or uses `Rails.log` when used with Rails.
+
+[float]
+[[config-logger]]
+==== `logger`
+
+[options="header"]
+|============
+| Environment | `Config` key | Default | Example
+| N/A         | `logger`     | Depends | `Logger.new('path/to_file.log')`
+|============
+
+By default Elastic APM logs to `stdout` or uses `Rails.log` when used with Rails.
+
+Use this to provide another logger. Expected to have the same API as Ruby's built-in `Logger`.
+
+[float]
 [[config-source-lines-error-app-frames]]
 ==== `source_lines_error_app_frames`
 [float]
