@@ -228,8 +228,8 @@ The host name to use when sending error and transaction data to the APM server.
 
 [options="header"]
 |============
-| Environment | `Config` key | Default | Example
-| N/A         | `log_path`   | `nil`   | `log/elastic_apm.log`
+| Environment            | `Config` key | Default | Example
+| `ELASTIC_APM_LOG_PATH` | `log_path`   | `nil`   | `log/elastic_apm.log`
 |============
 
 A path to a log file.
@@ -244,8 +244,8 @@ Should support both absolute and relative paths. Just make sure the directory ex
 
 [options="header"]
 |============
-| Environment | `Config` key | Default
-| N/A         | `log_level`  | `Logger::DEBUG`
+| Environment             | `Config` key | Default
+| `ELASTIC_APM_LOG_LEVEL` | `log_level`  | `Logger::DEBUG # => 0`
 |============
 
 By default Elastic APM logs to `stdout` or uses `Rails.log` when used with Rails.
