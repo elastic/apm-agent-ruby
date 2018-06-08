@@ -62,6 +62,9 @@ module ElasticAPM
         [:bool, 'disable_environment_warning'],
       'ELASTIC_APM_INSTRUMENT' => [:bool, 'instrument'],
 
+      'ELASTIC_APM_LOG_PATH' => 'log_path',
+      'ELASTIC_APM_LOG_LEVEL' => [:int, 'log_level'],
+
       'ELASTIC_APM_SERVICE_NAME' => 'service_name',
       'ELASTIC_APM_SERVICE_VERSION' => 'service_version',
       'ELASTIC_APM_FRAMEWORK_NAME' => 'framework_name',

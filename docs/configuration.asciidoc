@@ -172,19 +172,6 @@ So you can keep in your custom instrumentation code without the agent sending
 anything nor complain.
 
 [float]
-[[config-instrument]]
-==== `instrument`
-[options="header"]
-|============
-| Environment              | `Config` key | Default
-| `ELASTIC_APM_INSTRUMENT` | `instrument` | `true`
-|============
-
-Whether the agent should collect metrics. Use this to disable collecting metrics but keep tracking errors.
-
-When instrumentation is disabled, the instrumentation APIs will do nothing, so you can safely keep you custom instrumentation code while instrumentation is disabled.
-
-[float]
 [[config-framework-name]]
 ==== `framework_name`
 [options="header"]
@@ -221,6 +208,48 @@ otherwise, the default is `nil`.
 |============
 
 The host name to use when sending error and transaction data to the APM server.
+
+[float]
+[[config-log-path]]
+==== `log_path`
+
+[options="header"]
+|============
+| Environment            | `Config` key | Default | Example
+| `ELASTIC_APM_LOG_PATH` | `log_path`   | `nil`   | `log/elastic_apm.log`
+|============
+
+A path to a log file.
+
+By default Elastic APM logs to `stdout` or uses `Rails.log` when used with Rails.
+
+Should support both absolute and relative paths. Just make sure the directory exists.
+
+[float]
+[[config-log-level]]
+==== `log_level`
+
+[options="header"]
+|============
+| Environment             | `Config` key | Default
+| `ELASTIC_APM_LOG_LEVEL` | `log_level`  | `Logger::DEBUG # => 0`
+|============
+
+By default Elastic APM logs to `stdout` or uses `Rails.log` when used with Rails.
+
+[float]
+[[config-logger]]
+==== `logger`
+
+[options="header"]
+|============
+| Environment | `Config` key | Default | Example
+| N/A         | `logger`     | Depends | `Logger.new('path/to_file.log')`
+|============
+
+By default Elastic APM logs to `stdout` or uses `Rails.log` when used with Rails.
+
+Use this to provide another logger. Expected to have the same API as Ruby's built-in `Logger`.
 
 [float]
 [[config-source-lines-error-app-frames]]
