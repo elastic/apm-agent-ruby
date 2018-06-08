@@ -30,6 +30,18 @@ module ElasticAPM
         result = subject.apply(things: 1)
         expect(result).to eq({})
       end
+
+      it 'aborts if a filter returns nil' do
+        untouched = double(call: nil)
+
+        subject.add(:niller, ->(_payload) { nil })
+        subject.add(:untouched, untouched)
+
+        result = subject.apply(things: 1)
+
+        expect(result).to be_nil
+        expect(untouched).to_not have_received(:call)
+      end
     end
   end
 end

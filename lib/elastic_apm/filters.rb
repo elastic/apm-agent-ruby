@@ -32,7 +32,9 @@ module ElasticAPM
 
       def apply(payload)
         @filters.reduce(payload) do |result, (_key, filter)|
-          filter.call(result)
+          result = filter.call(result)
+          break if result.nil?
+          result
         end
       end
 

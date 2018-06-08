@@ -12,6 +12,12 @@ module ElasticAPM
         }.merge(config))
       end
 
+      it 'aborts when payload is nil' do
+        subject.filters.add :niller, ->(_payload) { nil }
+        subject.post('/v1/transactions', never_me: 1)
+        expect(WebMock).to_not have_requested(:any, /.*/)
+      end
+
       it 'sets the appropriate headers' do
         subject.post('/v1/transactions', things: 1)
 
@@ -61,46 +67,33 @@ module ElasticAPM
 
         context 'with payloads under the minimum compression size' do
           let(:config) do
-            {
-              compression_minimum_size: 1_024_000
-            }
+            { compression_minimum_size: 1_024_000 }
           end
 
           it "doesn't compress the payload" do
             expect(WebMock).to_not have_requested(:post, %r{/v1/transactions})
-              .with(
-                headers: { 'Content-Encoding' => 'deflate' }
-              )
+              .with(headers: { 'Content-Encoding' => 'deflate' })
           end
         end
 
         context 'with payloads over the minimum compression size' do
           let(:config) do
-            {
-              compression_minimum_size: 1
-            }
+            { compression_minimum_size: 1 }
           end
 
           it 'compresses the payload' do
             expect(WebMock).to have_requested(:post, %r{/v1/transactions})
-              .with(
-                headers: { 'Content-Encoding' => 'deflate' }
-              )
+              .with(headers: { 'Content-Encoding' => 'deflate' })
           end
 
           context 'and compression disabled' do
             let(:config) do
-              {
-                compression_minimum_size: 1,
-                http_compression: false
-              }
+              { compression_minimum_size: 1, http_compression: false }
             end
 
             it "doesn't compress the payload" do
               expect(WebMock).to_not have_requested(:post, %r{/v1/transactions})
-                .with(
-                  headers: { 'Content-Encoding' => 'deflate' }
-                )
+                .with(headers: { 'Content-Encoding' => 'deflate' })
             end
           end
         end

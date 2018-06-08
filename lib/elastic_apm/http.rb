@@ -33,7 +33,9 @@ module ElasticAPM
 
     def post(path, payload = {})
       payload.merge! @base_payload
-      filters.apply(payload)
+
+      payload = filters.apply(payload)
+      return if payload.nil?
 
       request = prepare_request path, payload.to_json
       response = @adapter.perform request
