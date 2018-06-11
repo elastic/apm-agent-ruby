@@ -30,8 +30,8 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/ParameterLists
 
-    attr_accessor :name, :context, :type, :stacktrace, :original_backtrace
-    attr_reader :id, :duration, :parent, :relative_start
+    attr_accessor :name, :type, :original_backtrace
+    attr_reader :id, :context, :stacktrace, :duration, :parent, :relative_start
 
     def start
       @relative_start = Util.micros - @transaction.timestamp
@@ -43,7 +43,7 @@ module ElasticAPM
       @duration = Util.micros - @transaction.timestamp - relative_start
 
       if original_backtrace && long_enough_for_stacktrace?
-        self.stacktrace =
+        @stacktrace =
           @transaction.instrumenter.agent.stacktrace_builder.build(
             original_backtrace, type: :span
           )

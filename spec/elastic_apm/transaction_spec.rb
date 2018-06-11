@@ -64,22 +64,6 @@ module ElasticAPM
       end
     end
 
-    describe '#running_spans', :mock_time do
-      it 'returns running spans' do
-        instrumenter = Instrumenter.new agent
-        transaction = Transaction.new instrumenter, 'Test'
-
-        transaction.span 'test' do
-          travel 100
-        end
-
-        running_span = transaction.span 'test2'
-        travel 100
-
-        expect(transaction.running_spans).to eq [running_span]
-      end
-    end
-
     describe '#span', :mock_time do
       let(:instrumenter) { Instrumenter.new(agent) }
       let(:transaction) { Transaction.new instrumenter, 'Test' }
