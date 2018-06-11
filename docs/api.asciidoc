@@ -277,17 +277,72 @@ end
 [[api-transaction]]
 === Transaction
 
-Things
+`ElasticAPM.transaction` returns a `Transaction` (if the agent is running).
+
+[float]
+==== Properties
+
+- `name`: String
+- `type`: String
+
+[float]
+[[api-transaction-release]]
+==== `#release`
+
+Makes sure the transaction is no longer `ElasticAPM.current_transaction`.
+
+[float]
+[[api-transaction-done]]
+==== `#done(result)`
+
+*Args:*
+
+- `result`: String result of transaction, eg. `success`. Default: `nil`.
+
+Ends the transaction, settings its `duration` to µs since it began and sets its result.
+
+Returns `self`.
+
+[float]
+[[api-transaction-done_]]
+==== `#done?`
+
+Returns whether the transaction is done.
+
+[float]
+[[api-transaction-submit]]
+==== `#submit(result, status:, headers:)`
+
+*Args:*
+
+- `result`: String result of transaction, eg. `success`. Default: `nil`.
+- `status`: HTTP status code (for request transactions). Default: `nil`.
+- `headers`: HTTP headers (for request transactions). Default: `{}`.
+
+Ends transaction with done, adds HTTP request information, releases it and submits
+it to the queue of transactions waiting to be sent to APM Server.
+
+Returns `self`.
+
+[float]
+[[api-transaction-sampled_]]
+==== #sampled?
+
+Whether the transaction is _sampled_ eg. it includes stacktraces for its spans.
 
 [float]
 [[api-span]]
 === Span
 
-Things
+[float]
+==== Properties
+
+- `name`: String
+- `type`: String
 
 [float]
 [[api-context]]
 === Context
 
-Things
+A `Context` provides more information to transactions. Build one with `ElasticAPM.build_context`.
 

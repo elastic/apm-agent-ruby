@@ -3,7 +3,6 @@
 require 'securerandom'
 
 module ElasticAPM
-  # rubocop:disable Metrics/ClassLength
   # @api private
   class Transaction
     DEFAULT_TYPE = 'custom'.freeze
@@ -37,9 +36,9 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/MethodLength
 
-    attr_accessor :id, :name, :result, :type
-    attr_reader :context, :duration, :dropped_spans, :root_span, :timestamp,
-      :spans, :notifications, :sampled, :instrumenter
+    attr_accessor :name, :type
+    attr_reader :id, :context, :duration, :dropped_spans, :root_span,
+      :timestamp, :spans, :result, :notifications, :sampled, :instrumenter
 
     def release
       @instrumenter.current_transaction = nil
@@ -53,7 +52,7 @@ module ElasticAPM
     end
 
     def done?
-      !!(@result && @duration)
+      !!@duration
     end
 
     def submit(result = nil, status: nil, headers: {})
@@ -68,10 +67,6 @@ module ElasticAPM
       @instrumenter.submit_transaction self
 
       self
-    end
-
-    def running_spans
-      spans.select(&:running?)
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -101,17 +96,6 @@ module ElasticAPM
       result
     end
     # rubocop:enable Metrics/MethodLength
-
-    def build_and_start_span(name, type, context, backtrace)
-      span = next_span(name, type, context)
-      spans << span
-
-      if backtrace && span_frames_min_duration?
-        span.original_backtrace = backtrace
-      end
-
-      span.start
-    end
 
     def current_span
       spans.reverse.lazy.find(&:running?)
@@ -148,6 +132,16 @@ module ElasticAPM
     def span_frames_min_duration?
       @instrumenter.agent.config.span_frames_min_duration != 0
     end
+
+    def build_and_start_span(name, type, context, backtrace)
+      span = next_span(name, type, context)
+      spans << span
+
+      if backtrace && span_frames_min_duration?
+        span.original_backtrace = backtrace
+      end
+
+      span.start
+    end
   end
-  # rubocop:enable Metrics/ClassLength
 end
