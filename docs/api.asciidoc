@@ -260,7 +260,7 @@ Arguments:
 
 Return the altered payload.
 
-If `nil` is returned all subsequent filters will be skipped and the psot request cancelled.
+If `nil` is returned all subsequent filters will be skipped and the post request cancelled.
 
 Example:
 
