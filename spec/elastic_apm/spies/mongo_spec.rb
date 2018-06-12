@@ -4,6 +4,11 @@ require 'mongo'
 
 module ElasticAPM
   RSpec.describe 'Spy: MongoDB' do
+    before do
+      `docker-compose -f spec/docker-compose.yml down -v 2>&1`
+      `docker-compose -f spec/docker-compose.yml up -d mongodb 2>&1`
+    end
+
     it 'instruments calls', :with_fake_server do
       ElasticAPM.start flush_interval: nil
 
@@ -11,7 +16,8 @@ module ElasticAPM
         Mongo::Client.new(
           [ENV.fetch('MONGODB_URL', '127.0.0.1:27017')],
           database: 'elastic-apm-test',
-          logger: Logger.new(nil)
+          logger: Logger.new(nil),
+          server_selection_timeout: 5
         )
 
       transaction =
