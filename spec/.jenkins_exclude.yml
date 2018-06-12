@@ -1,7 +1,7 @@
 exclude:
   # Tests fail, but we don't care
-  - RUBY_VERSION: ruby-2.2
-    FRAMEWORK: rails-4.0
+  - RUBY_VERSION: jruby-9.1
+    FRAMEWORK: rails-4.2
 
   # Unsupported by Rails
   - RUBY_VERSION: ruby-2.2
@@ -11,17 +11,6 @@ exclude:
   - RUBY_VERSION: ruby-2.2
     FRAMEWORK: rails-5.0
   - RUBY_VERSION: ruby-2.4
-    FRAMEWORK: rails-4.1
-  - RUBY_VERSION: ruby-2.4
-    FRAMEWORK: rails-4.0
-  - RUBY_VERSION: ruby-2.5.0
-    FRAMEWORK: rails-4.1
-  - RUBY_VERSION: ruby-2.5.0
-    FRAMEWORK: rails-4.0
-  - RUBY_VERSION: ruby-2.5.1
-    FRAMEWORK: rails-4.1
-  - RUBY_VERSION: ruby-2.5.1
-    FRAMEWORK: rails-4.0
 
   # Only test master on newest ruby
   - RUBY_VERSION: ruby-2.2
