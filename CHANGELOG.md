@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 ### Fixed
 
 - Remove newline on `hostname`
+- Fixed ActionMailer spans renaming their transaction
 
 ## 0.7.4 - 2018-06-07
 
