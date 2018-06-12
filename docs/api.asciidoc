@@ -267,9 +267,10 @@ Example:
 [source,ruby]
 ----
 ElasticAPM.add_filter(:filter_pings) do |payload|
-  payload['transactions']&.reject! do |t|
-    t['name'] == 'PingsController#index'
+  payload[:transactions]&.reject! do |t|
+    t[:name] == 'PingsController#index'
   end
+  payload
 end
 ----
 
