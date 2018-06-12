@@ -8,9 +8,8 @@ module ElasticAPM
         register 'process.action_mailer'
         TYPE = 'app.mailer.action'.freeze
 
-        def normalize(transaction, _name, payload)
-          transaction.name = endpoint(payload)
-          [transaction.name, TYPE, nil]
+        def normalize(_transaction, _name, payload)
+          [endpoint(payload), TYPE, nil]
         end
 
         private

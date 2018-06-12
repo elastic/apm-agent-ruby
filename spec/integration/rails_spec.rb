@@ -218,8 +218,10 @@ if defined?(Rails)
         wait_for_requests_to_finish 1
 
         payload, = FakeServer.requests
-        name = payload.dig('transactions', 0, 'spans', 1, 'name')
-        expect(name).to eq 'NotificationsMailer#ping'
+        transaction_name = payload.dig('transactions', 0, 'name')
+        expect(transaction_name).to eq 'PagesController#send_notification'
+        span_name = payload.dig('transactions', 0, 'spans', 1, 'name')
+        expect(span_name).to eq 'NotificationsMailer#ping'
       end
     end
 
