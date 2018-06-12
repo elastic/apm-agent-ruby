@@ -403,6 +403,25 @@ https://github.com/elastic/apm-agent-ruby/blob/1.x/lib/elastic_apm/filters/secre
 what looks like confidential information] from the request/response headers.
 Use this option to add your own custom header keys to the list of filtered keys.
 
+When setting this option via `ENV`, use a comma separated string.
+Eg. `ELASTIC_APM_CUSTOM_KEY_FILTERS="a,b" # => [/a/, /b/]`
+
+[float]
+[[config-custom-ignore-url-patterns]]
+==== `ignore_url_patterns`
+[options="header"]
+|============
+| Environment                       | `Config` key          | Default | Example
+| `ELASTIC_APM_IGNORE_URL_PATTERNS` | `ignore_url_patterns` | `[]`    | `['^/ping', %r{^/admin}]`
+|============
+
+Use this option to ignroe certain URL patterns eg. healthchecks or admin sections.
+
+_Ignoring_ in this context means _don't wrap in a <<api-transaction,Transaction>>_.
+Errors will still be reported.
+
+When setting this option via `ENV`, use a comma separated string.
+Eg. `ELASTIC_APM_IGNORE_URL_PATTERNS="a,b" # => [/a/, /b/]`
 
 [float]
 [[config-filter-exception-types]]

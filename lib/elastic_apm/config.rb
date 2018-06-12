@@ -47,6 +47,7 @@ module ElasticAPM
       current_user_username_method: :username,
 
       custom_key_filters: [],
+      ignore_url_patterns: [],
 
       view_paths: [],
       root_path: Dir.pwd
@@ -83,6 +84,7 @@ module ElasticAPM
         [:int, 'span_frames_min_duration'],
 
       'ELASTIC_APM_CUSTOM_KEY_FILTERS' => [:list, 'custom_key_filters'],
+      'ELASTIC_APM_IGNORE_URL_PATTERNS' => [:list, 'ignore_url_patterns'],
 
       'ELASTIC_APM_MAX_QUEUE_SIZE' => [:int, 'max_queue_size'],
       'ELASTIC_APM_FLUSH_INTERVAL' => 'flush_interval',
@@ -158,6 +160,7 @@ module ElasticAPM
     attr_accessor :current_user_username_method
 
     attr_reader   :custom_key_filters
+    attr_reader   :ignore_url_patterns
 
     alias :disable_environment_warning? :disable_environment_warning
     alias :verify_server_cert? :verify_server_cert
@@ -192,6 +195,10 @@ module ElasticAPM
 
     def custom_key_filters=(filters)
       @custom_key_filters = Array(filters).map(&Regexp.method(:new))
+    end
+
+    def ignore_url_patterns=(strings)
+      @ignore_url_patterns = Array(strings).map(&Regexp.method(:new))
     end
 
     # rubocop:disable Metrics/MethodLength
