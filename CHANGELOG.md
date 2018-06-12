@@ -13,6 +13,10 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 - Added `ENV` version of the logging options ([#146](https://github.com/elastic/apm-agent-ruby/pull/146))
 - Added `config.ignore_url_patterns` ([#151](https://github.com/elastic/apm-agent-ruby/pull/151))
 
+### Changed
+
+- Use concurrent-ruby's TimerTask instead of `Thread#sleep`. Adds dependency on `concurrent-ruby`. ([#141](https://github.com/elastic/apm-agent-ruby/pull/141))
+
 ### Fixed
 
 - Remove newline on `hostname`
