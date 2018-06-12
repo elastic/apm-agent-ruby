@@ -15,6 +15,9 @@ require 'support/match_json_schema_matcher'
 require 'support/mock_time'
 require 'support/with_fake_server'
 
+require 'concurrent'
+Concurrent.use_stdlib_logger(Logger::DEBUG)
+
 require 'elastic-apm'
 
 Thread.abort_on_exception = true
@@ -35,7 +38,9 @@ RSpec.configure do |config|
   end
 
   def elastic_subscribers
-    return [] unless defined?(ActiveSupport)
+    unless defined?(::ActiveSupport) && defined?(ElasticAPM::Subscriber)
+      return []
+    end
 
     ActiveSupport::Notifications
       .notifier.instance_variable_get(:@subscribers)

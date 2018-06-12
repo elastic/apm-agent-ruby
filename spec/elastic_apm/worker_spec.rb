@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 module ElasticAPM
-  RSpec.describe TimedWorker do
+  RSpec.describe Worker do
     describe 'a loop' do
       let(:messages) { Queue.new }
       let(:transactions) { Queue.new }
-      let(:config) { Config.new }
+      let(:config) { Config.new flush_interval: 0.1 }
 
       around do |example|
         @thread = Thread.new do
-          TimedWorker.new(
+          Worker.new(
             config,
             messages,
             transactions,
@@ -29,7 +29,7 @@ module ElasticAPM
         it 'exits thread' do
           expect(@thread).to be_alive
 
-          messages.push(TimedWorker::StopMsg.new)
+          messages.push(Worker::StopMsg.new)
 
           sleep 0.2
 
@@ -41,9 +41,7 @@ module ElasticAPM
         it 'formats payloads and posts to server' do
           transactions.push build_transaction
 
-          sleep 0.1
-
-          travel 10_000
+          sleep 0.2
 
           wait_for_requests_to_finish 1
 
@@ -51,7 +49,7 @@ module ElasticAPM
         end
 
         context 'with a small queue size' do
-          let(:config) { Config.new max_queue_size: 2 }
+          let(:config) { Config.new flush_interval: 0.1, max_queue_size: 2 }
 
           it 'breaks the loop if reaching max queue size' do
             transactions.push build_transaction
@@ -66,7 +64,7 @@ module ElasticAPM
 
       context 'with an error message', :with_fake_server do
         it 'posts to server' do
-          messages.push TimedWorker::ErrorMsg.new(build_error)
+          messages.push Worker::ErrorMsg.new(build_error)
 
           wait_for_requests_to_finish 1
 
@@ -79,7 +77,7 @@ module ElasticAPM
       end
 
       def build_error
-        @agent ||= Agent.new(Config.new)
+        @agent ||= Agent.new(config)
         ErrorBuilder.new(@agent).build_exception(actual_exception)
       end
     end
