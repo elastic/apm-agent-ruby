@@ -4,8 +4,18 @@ require 'mongo'
 
 module ElasticAPM
   RSpec.describe 'Spy: MongoDB' do
-    before do
+    around do |ex|
+      start_mongodb
+      ex.run
+      stop_mongodb
+    end
+
+    def stop_mongodb
       `docker-compose -f spec/docker-compose.yml down -v 2>&1`
+    end
+
+    def start_mongodb
+      stop_mongodb
       `docker-compose -f spec/docker-compose.yml up -d mongodb 2>&1`
     end
 
