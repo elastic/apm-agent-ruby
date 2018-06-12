@@ -35,9 +35,10 @@ if defined?(Rails)
         config.elastic_apm.debug_transactions = true
         config.elastic_apm.http_compression = false
         config.elastic_apm.log_path = 'spec/elastic_apm.log'
+        config.elastic_apm.ignore_url_patterns = '/ping'
       end
 
-      class PagesController < ActionController::Base
+      class ApplicationController < ActionController::Base
         class FancyError < ::StandardError; end
 
         before_action do
@@ -68,6 +69,10 @@ if defined?(Rails)
           render_ok
         end
 
+        def ping
+          render_ok
+        end
+
         private
 
         def render_ok
@@ -95,16 +100,17 @@ if defined?(Rails)
 
       RailsTestApp.initialize!
       RailsTestApp.routes.draw do
-        get '/error', to: 'pages#raise_error'
-        get '/report_message', to: 'pages#report_message'
-        get '/tags_and_context', to: 'pages#context'
-        get '/send_notification', to: 'pages#send_notification'
-        root to: 'pages#index'
+        get '/error', to: 'application#raise_error'
+        get '/report_message', to: 'application#report_message'
+        get '/tags_and_context', to: 'application#context'
+        get '/send_notification', to: 'application#send_notification'
+        get '/ping', to: 'application#ping'
+        root to: 'application#index'
       end
     end
 
     after :all do
-      %i[RailsTestApp PagesController].each do |const|
+      %i[RailsTestApp ApplicationController].each do |const|
         Object.send(:remove_const, const)
       end
 
@@ -139,7 +145,7 @@ if defined?(Rails)
 
         expect(FakeServer.requests.length).to be 1
         name = FakeServer.requests.first['transactions'][0]['name']
-        expect(name).to eq 'PagesController#index'
+        expect(name).to eq 'ApplicationController#index'
       end
 
       it 'can set tags and custom context' do
@@ -160,6 +166,16 @@ if defined?(Rails)
         user = context['user']
         expect(user['id']).to eq 1
         expect(user['email']).to eq 'person@example.com'
+      end
+
+      it 'ignores url patterns' do
+        get '/ping'
+        get '/'
+
+        wait_for_requests_to_finish 1
+        expect(FakeServer.requests.length).to be 1
+        name = FakeServer.requests.first['transactions'][0]['name']
+        expect(name).to eq 'ApplicationController#index'
       end
 
       it 'validates json schema', type: :json_schema do
@@ -187,7 +203,7 @@ if defined?(Rails)
         expect(error['transaction']['id']).to_not be_nil
 
         exception = error['exception']
-        expect(exception['type']).to eq 'PagesController::FancyError'
+        expect(exception['type']).to eq 'ApplicationController::FancyError'
         expect(exception['handled']).to eq true
       end
 
@@ -219,7 +235,7 @@ if defined?(Rails)
 
         payload, = FakeServer.requests
         transaction_name = payload.dig('transactions', 0, 'name')
-        expect(transaction_name).to eq 'PagesController#send_notification'
+        expect(transaction_name).to eq 'ApplicationController#send_notification'
         span_name = payload.dig('transactions', 0, 'spans', 1, 'name')
         expect(span_name).to eq 'NotificationsMailer#ping'
       end
