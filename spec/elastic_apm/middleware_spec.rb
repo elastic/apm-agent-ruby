@@ -22,6 +22,19 @@ module ElasticAPM
       ).to eq 200
     end
 
+    it 'ignores url patterns' do
+      ElasticAPM.start ignore_url_patterns: %w[/ping]
+
+      expect(ElasticAPM).to_not receive(:transaction)
+
+      app = Middleware.new(->(_) { [200, {}, ['ok']] })
+      status, = app.call(Rack::MockRequest.env_for('/ping'))
+
+      expect(status).to be 200
+
+      ElasticAPM.stop
+    end
+
     it 'catches exceptions' do
       class MiddlewareTestError < StandardError; end
 
