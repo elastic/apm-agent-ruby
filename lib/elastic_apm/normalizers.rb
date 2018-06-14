@@ -44,7 +44,7 @@ module ElasticAPM # :nodoc:
       end
 
       def for(name)
-        @normalizers.fetch(name, @default)
+        @normalizers.fetch(name) { @default }
       end
 
       def keys

@@ -39,3 +39,8 @@ when /.+/
 else
   gem framework
 end
+
+group :bench do
+  gem 'ruby-prof'
+  gem 'stackprof', platforms: %i[ruby]
+end
