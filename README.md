@@ -1,9 +1,11 @@
 # elastic-apm
-## Elastic APM agent for ♦️Ruby (🚧 BETA)
+## Elastic APM agent for ♦️Ruby
 
 [![Jenkins](https://img.shields.io/jenkins/s/https/apm-ci.elastic.co/job/elastic+apm-agent-ruby+master.svg)](https://apm-ci.elastic.co/job/elastic+apm-agent-ruby+master/) [![Gem](https://img.shields.io/gem/v/elastic-apm.svg)](https://rubygems.org/gems/elastic-apm)
 
-This is the official Rubygem for [Elastic][] [APM][].
+The official Rubygem for [Elastic][] [APM][].
+
+**🚧 NB:** The current version of the agent is `1.0.0.beta1`. This means we're really close to `1.0.0`. The API is stable and the only remaining thing to do is testing. Thank you if you've already been testing the agent!
 
 💡 We'd love to get feedback and information about you setup – please answer this [☑ short survey](https://goo.gl/forms/LQktvn4rkLWBNSWy1).
 
@@ -13,22 +15,20 @@ This is the official Rubygem for [Elastic][] [APM][].
 
 [Full documentation at Elasti.co](https://www.elastic.co/guide/en/apm/agent/ruby/index.html).
 
-<div>
 <ul>
-<li><a href="https://www.elastic.co/guide/en/apm/agent/ruby/1.x/_introduction.html">Introduction</a></li>
+<li><a href="https://www.elastic.co/guide/en/apm/agent/ruby/1.x/introduction.html">Introduction</a></li>
 <li><a href="https://www.elastic.co/guide/en/apm/agent/ruby/1.x/getting-started-rails.html">Getting started with Rails</a></li>
 <li><a href="https://www.elastic.co/guide/en/apm/agent/ruby/1.x/getting-started-rack.html">Getting started with Rack</a></li>
 <li><a href="https://www.elastic.co/guide/en/apm/agent/ruby/1.x/configuration.html">Configuration</a></li>
-<li class="collapsible">
+<li>
 <a href="https://www.elastic.co/guide/en/apm/agent/ruby/1.x/advanced.html">Advanced Topics</a>
 <ul>
 <li><a href="https://www.elastic.co/guide/en/apm/agent/ruby/1.x/custom-instrumentation.html">Custom instrumentation</a></li>
-<li><a href="https://www.elastic.co/guide/en/apm/agent/ruby/1.x/injectors.html">Injectors — automatic integrations with third-party libraries</a></li>
+<li><a href="https://www.elastic.co/guide/en/apm/agent/ruby/1.x/spies.html">Spies — instrumented libraries</a></li>
 </ul>
 </li>
 <li><a href="https://www.elastic.co/guide/en/apm/agent/ruby/1.x/api.html">Public API</a></li>
 </ul>
-</div>
 
 ---
 
