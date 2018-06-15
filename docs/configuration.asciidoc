@@ -284,10 +284,10 @@ storage use in your Elasticsearch cluster.
 [[config-span-frames-min-duration-ms]]
 ==== `span_frames_min_duration`
 
-| ============
-| Environment                            | `Config` keys              | Default
+|============
+| Environment                            | `Config` key               | Default
 | `ELASTIC_APM_SPAN_FRAMES_MIN_DURATION` | `span_frames_min_duration` | `-1`
-| ============
+|============
 
 In its default settings, the APM agent will collect a stack trace with every recorded span.
 While this is very helpful to find the exact place in your code that causes the span,
