@@ -18,6 +18,14 @@ module ElasticAPM
         expect(WebMock).to_not have_requested(:any, /.*/)
       end
 
+      context 'with disable_send = true' do
+        let(:config) { { disable_send: true } }
+        it "doesn't send" do
+          subject.post('/v1/transactions', never_me: 1)
+          expect(WebMock).to_not have_requested(:any, /.*/)
+        end
+      end
+
       it 'sets the appropriate headers' do
         subject.post('/v1/transactions', things: 1)
 

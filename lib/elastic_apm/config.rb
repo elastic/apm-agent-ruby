@@ -25,6 +25,7 @@ module ElasticAPM
       transaction_max_spans: 500,
       filter_exception_types: [],
 
+      disable_send: false,
       http_read_timeout: 120,
       http_open_timeout: 60,
       debug_transactions: false,
@@ -93,6 +94,7 @@ module ElasticAPM
       'ELASTIC_APM_VERIFY_SERVER_CERT' => [:bool, 'verify_server_cert'],
       'ELASTIC_APM_TRANSACTION_MAX_SPANS' => [:int, 'transaction_max_spans'],
 
+      'ELASTIC_APM_DISABLE_SEND' => [:bool, 'disable_send'],
       'ELASTIC_APM_DISABLED_SPIES' => [:list, 'disabled_spies']
     }.freeze
 
@@ -135,6 +137,7 @@ module ElasticAPM
     attr_accessor :verify_server_cert
     attr_accessor :filter_exception_types
 
+    attr_accessor :disable_send
     attr_accessor :http_read_timeout
     attr_accessor :http_open_timeout
     attr_accessor :debug_transactions
@@ -164,6 +167,7 @@ module ElasticAPM
 
     alias :disable_environment_warning? :disable_environment_warning
     alias :verify_server_cert? :verify_server_cert
+    alias :disable_send? :disable_send
 
     def app=(app)
       case app_type?(app)

@@ -40,6 +40,7 @@ module ElasticAPM
       request = prepare_request path, payload.to_json
       response = @adapter.perform request
 
+      return nil if response == HttpAdapter::DISABLED
       return response if response.is_a?(Net::HTTPSuccess)
 
       error 'POST returned an unsuccessful status code (%d)', response.code
@@ -85,6 +86,8 @@ module ElasticAPM
 
   # @api private
   class HttpAdapter
+    DISABLED = 'disabled'.freeze
+
     def initialize(conf)
       @config = conf
     end
@@ -96,6 +99,8 @@ module ElasticAPM
     end
 
     def perform(req)
+      return DISABLED if @config.disable_send?
+
       http.start do |http|
         http.request req
       end
