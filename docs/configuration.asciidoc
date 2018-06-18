@@ -433,3 +433,13 @@ Eg. `ELASTIC_APM_IGNORE_URL_PATTERNS="a,b" # => [/a/, /b/]`
 
 Use this to filter error tracking for specific error constants.
 
+[float]
+[[config-disable-send]]
+==== `disable_send`
+|============
+| Environment | `Config` key   | Default
+| N/A         | `disable_send` | `false`
+|============
+
+Disables sending payloads to APM Server.
+
