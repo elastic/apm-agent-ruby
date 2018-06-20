@@ -17,7 +17,7 @@ module ElasticAPM
       span, net_span = transaction.spans
 
       expect(span.name).to eq 'GET _search'
-      expect(span.context.statement).to eq(q: 'test')
+      expect(span.context.statement).to eq('{"q":"test"}')
 
       expect(net_span.name).to eq 'GET localhost'
 
