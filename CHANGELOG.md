@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 1.0.0.beta2 (2018-06-21)
 
 ### Added
 
@@ -14,7 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 - Fixed some Elasticsearch spans not validating JSON Schema ([#157](https://github.com/elastic/apm-agent-ruby/pulls/157))
 
-## 1.0.0.beta1
+## 1.0.0.beta1 (2018-06-14)
 
 ## 0.8.0 (2018-06-13)
 
