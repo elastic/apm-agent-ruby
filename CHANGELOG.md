@@ -10,6 +10,10 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 - Added config.disable_send ([#156](https://github.com/elastic/apm-agent-ruby/pulls/156))
 
+### Fixed
+
+- Fixed some Elasticsearch spans not validating JSON Schema ([#157](https://github.com/elastic/apm-agent-ruby/pulls/157))
+
 ## 1.0.0.beta1
 
 ## 0.8.0 (2018-06-13)
