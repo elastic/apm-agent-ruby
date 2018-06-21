@@ -6,7 +6,7 @@ module ElasticAPM
     class Context
       include NaivelyHashable
 
-      def initialize(**args)
+      def initialize(args)
         args.each do |key, val|
           send(:"#{key}=", val)
         end
