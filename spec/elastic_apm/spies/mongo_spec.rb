@@ -22,9 +22,10 @@ module ElasticAPM
     it 'instruments calls', :with_fake_server do
       ElasticAPM.start flush_interval: nil
 
+      url = ENV.fetch('MONGODB_URL') { '127.0.0.1:27017' }
       client =
         Mongo::Client.new(
-          [ENV.fetch('MONGODB_URL', '127.0.0.1:27017')],
+          [url],
           database: 'elastic-apm-test',
           logger: Logger.new(nil),
           server_selection_timeout: 5
