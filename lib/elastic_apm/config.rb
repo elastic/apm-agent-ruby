@@ -39,7 +39,7 @@ module ElasticAPM
       source_lines_span_app_frames: 5,
       source_lines_error_library_frames: 0,
       source_lines_span_library_frames: 0,
-      span_frames_min_duration: -1,
+      span_frames_min_duration: 5,
 
       disabled_spies: %w[json],
 
