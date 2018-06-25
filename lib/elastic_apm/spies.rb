@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'forwardable'
 require 'elastic_apm/util/inflector'
 
 module ElasticAPM
