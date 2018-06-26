@@ -5,11 +5,11 @@ module ElasticAPM
   module SpanHelpers
     # @api private
     module ClassMethods
-      def span_class_method(method, name, type)
+      def span_class_method(method, name = nil, type = nil)
         __span_method_on(singleton_class, method, name, type)
       end
 
-      def span_method(method, name, type)
+      def span_method(method, name = nil, type = nil)
         __span_method_on(self, method, name, type)
       end
 
