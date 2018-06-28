@@ -43,7 +43,7 @@ module ElasticAPM
             type: 'mongodb'.freeze,
             user: nil
           )
-          span = ElasticAPM.span(event.command_name, TYPE, context: ctx)
+          span = ElasticAPM.span(event.command_name.to_s, TYPE, context: ctx)
           @events[event.operation_id] = span
         end
 
