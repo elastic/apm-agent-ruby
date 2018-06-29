@@ -5,21 +5,7 @@
 
 The official Rubygem for [Elastic][] [APM][].
 
-**🚧 NB:** The current version of the agent is `1.0.0.beta1`. This means we're really close to `1.0.0`. The API is stable and the only remaining thing to do is testing. Thank you if you've already been testing the agent!
-
-To test the prerelease:
-
-```sh
-gem install elastic-apm --pre
-```
-
-or in your `Gemfile`:
-
-```ruby
-gem 'elastic-apm', '~> 1.0.0.beta1'
-```
-
-💡 We'd love to get feedback and information about you setup – please answer this [☑ short survey](https://goo.gl/forms/LQktvn4rkLWBNSWy1).
+💡 We'd love to get feedback and information about your setup – please answer this [☑ short survey](https://goo.gl/forms/LQktvn4rkLWBNSWy1).
 
 ---
 
