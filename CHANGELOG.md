@@ -4,23 +4,19 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-
-### Changed
-
-- Set the default `span_frame_min_duration` to 5ms
-
-## 1.0.0.beta2 (2018-06-21)
+## 1.0.0 (2018-06-29)
 
 ### Added
 
 - Added config.disable_send ([#156](https://github.com/elastic/apm-agent-ruby/pulls/156))
 
+### Changed
+
+- Set the default `span_frame_min_duration` to 5ms
+
 ### Fixed
 
 - Fixed some Elasticsearch spans not validating JSON Schema ([#157](https://github.com/elastic/apm-agent-ruby/pulls/157))
-
-## 1.0.0.beta1 (2018-06-14)
 
 ## 0.8.0 (2018-06-13)
 
