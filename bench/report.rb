@@ -15,7 +15,7 @@ if ELASTICSEARCH_URL == ''
 end
 
 CONN = Faraday.new(url: ELASTICSEARCH_URL) do |f|
-  f.response :logger
+  # f.response :logger
   f.adapter Faraday.default_adapter
 end
 
