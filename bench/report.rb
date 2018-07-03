@@ -14,6 +14,17 @@ if ELASTICSEARCH_URL == ''
   exit 1
 end
 
+CONN = Faraday.new(url: ELASTICSEARCH_URL) do |f|
+  f.response :logger
+  f.adapter Faraday.default_adapter
+end
+
+healthcheck = CONN.get('/')
+if healthcheck.status !== 200
+  puts healthcheck.body
+  exit 1
+end
+
 input = STDIN.read.split("\n")
 puts input
 
@@ -42,11 +53,6 @@ payloads = titles.zip(averages, counts).map do |(title, avg, count)|
 end
 
 puts '=== Reporting to ES'
-
-CONN = Faraday.new(url: ELASTICSEARCH_URL) do |f|
-  f.response :logger
-  f.adapter Faraday.default_adapter
-end
 
 payloads.each do |payload|
   result = CONN.post('/benchmark-ruby/_doc') do |req|
