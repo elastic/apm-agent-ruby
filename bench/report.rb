@@ -12,6 +12,8 @@ ELASTICSEARCH_URL = ENV.fetch('CLOUD_ADDR') { '' }.chomp
 if ELASTICSEARCH_URL == ''
   puts 'ELASTICSEARCH_URL missing, exiting ...'
   exit 1
+else
+  puts ELASTICSEARCH_URL.gsub(/:[^\/]+(.*)@/) { |m| ":#{Array.new(m.length - 2).map { '*' }.join}@" }
 end
 
 CONN = Faraday.new(url: ELASTICSEARCH_URL) do |f|
@@ -19,9 +21,9 @@ CONN = Faraday.new(url: ELASTICSEARCH_URL) do |f|
   f.adapter Faraday.default_adapter
 end
 
-healthcheck = CONN.get('/')
-if healthcheck.status !== 200
-  puts healthcheck.body
+healthcheck = CONN.get('/microbenchmark*/_search')
+if healthcheck.status != 200
+  puts healthcheck.body.to_s
   exit 1
 end
 
