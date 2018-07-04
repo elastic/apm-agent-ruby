@@ -13,7 +13,8 @@ if ELASTICSEARCH_URL == ''
   puts 'ELASTICSEARCH_URL missing, exiting ...'
   exit 1
 else
-  puts ELASTICSEARCH_URL.gsub(/:[^\/]+(.*)@/) { |m| ":#{Array.new(m.length - 2).map { '*' }.join}@" }
+  # debug
+  # puts ELASTICSEARCH_URL.gsub(/:[^\/]+(.*)@/) { |m| ":#{Array.new(m.length - 2).map { '*' }.join}@" }
 end
 
 CONN = Faraday.new(url: ELASTICSEARCH_URL) do |f|
