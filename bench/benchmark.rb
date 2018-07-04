@@ -51,7 +51,7 @@ def do_bench(transaction_count: 10, **config)
   end
 end
 
-transaction_count = Integer(ARGV.shift || 10)
+transaction_count = Integer(ARGV.shift || 10_000)
 
 banner 'Default settings'
 do_bench transaction_count: transaction_count
