@@ -22,6 +22,8 @@ gem 'webmock'
 gem 'yard'
 gem 'yarjuf'
 
+gem 'http'
+
 if RUBY_PLATFORM == 'java'
   gem 'jdbc-sqlite3'
 else

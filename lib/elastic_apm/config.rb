@@ -34,6 +34,8 @@ module ElasticAPM
       http_compression: true,
       compression_minimum_size: 1024 * 5,
       compression_level: 6,
+      http_keepalive: false,
+      http_adapter: :NetHttpAdapter,
 
       source_lines_error_app_frames: 5,
       source_lines_span_app_frames: 5,
@@ -145,6 +147,8 @@ module ElasticAPM
     attr_accessor :http_compression
     attr_accessor :compression_minimum_size
     attr_accessor :compression_level
+    attr_accessor :http_keepalive
+    attr_accessor :http_adapter
 
     attr_accessor :source_lines_error_app_frames
     attr_accessor :source_lines_span_app_frames

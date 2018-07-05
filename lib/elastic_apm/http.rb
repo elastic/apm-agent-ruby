@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
-require 'net/http'
 require 'openssl'
-require 'zlib'
 
 require 'elastic_apm/service_info'
 require 'elastic_apm/system_info'
 require 'elastic_apm/process_info'
 require 'elastic_apm/filters'
+
+require_relative 'http_adapters/net_http_adapter'
+require_relative 'http_adapters/http_rb_adapter'
 
 module ElasticAPM
   # @api private
@@ -18,13 +19,13 @@ module ElasticAPM
     ACCEPT = 'application/json'.freeze
     CONTENT_TYPE = 'application/json'.freeze
 
-    def initialize(config, adapter: HttpAdapter)
+    def initialize(config)
       @config = config
-      @adapter = adapter.new(config)
+      @adapter = HttpAdapters.const_get(config.http_adapter.to_sym).new(config)
       @base_payload = {
         service: ServiceInfo.build(config),
         process: ProcessInfo.build(config),
-        system: SystemInfo.build(config)
+        system: SystemInfo.build(config),
       }
       @filters = Filters.new(config)
     end
@@ -37,11 +38,9 @@ module ElasticAPM
       payload = filters.apply(payload)
       return if payload.nil?
 
-      request = prepare_request path, payload.to_json
-      response = @adapter.perform request
-
-      return nil if response == HttpAdapter::DISABLED
-      return response if response.is_a?(Net::HTTPSuccess)
+      response = perform path, payload.to_json
+      return nil if response == ElasticAPM::HttpAdapters::AbstractHttpAdapter::DISABLED
+      return response if response.success?
 
       error 'POST returned an unsuccessful status code (%d)', response.code
       error "apm-server's response: %s", response.body
@@ -51,89 +50,21 @@ module ElasticAPM
 
     private
 
-    def prepare_request(path, data)
-      @adapter.post url_for(path) do |req|
-        req['Accept'] = ACCEPT
-        req['Content-Type'] = CONTENT_TYPE
-        req['User-Agent'] = USER_AGENT
-
-        if (token = @config.secret_token)
-          req['Authorization'] = "Bearer #{token}"
-        end
-
-        prepare_request_body! req, data
+    def perform(path, data)
+      headers = {
+        'Accept' => ACCEPT,
+        'Content-Type' => CONTENT_TYPE,
+        'User-Agent' => USER_AGENT,
+      }
+      if (token = @config.secret_token)
+        headers['Authorization'] = "Bearer #{token}"
       end
-    end
 
-    def prepare_request_body!(req, data)
-      if @config.http_compression &&
-         data.bytesize > @config.compression_minimum_size
-        deflated = Zlib.deflate data, @config.compression_level
-
-        req['Content-Encoding'] = 'deflate'
-        req['Content-Length'] = deflated.bytesize.to_s
-        req.body = deflated
-      else
-        req['Content-Length'] = data.bytesize.to_s
-        req.body = data
-      end
+      @adapter.perform url_for(path), data, headers
     end
 
     def url_for(path)
       "#{@config.server_url}#{path}"
-    end
-  end
-
-  # @api private
-  class HttpAdapter
-    DISABLED = 'disabled'.freeze
-
-    def initialize(conf)
-      @config = conf
-    end
-
-    def post(path)
-      req = Net::HTTP::Post.new path
-      yield req if block_given?
-      req
-    end
-
-    def perform(req)
-      return DISABLED if @config.disable_send?
-
-      http.start do |http|
-        http.request req
-      end
-    end
-
-    private
-
-    def http
-      return @http if @http
-
-      http = Net::HTTP.new server_uri.host, server_uri.port
-      http.use_ssl = @config.use_ssl?
-      http.verify_mode = verify_mode
-      http.read_timeout = @config.http_read_timeout
-      http.open_timeout = @config.http_open_timeout
-
-      if @config.debug_http
-        http.set_debug_output(@config.logger)
-      end
-
-      @http = http
-    end
-
-    def server_uri
-      @server_uri ||= URI(@config.server_url)
-    end
-
-    def verify_mode
-      if @config.use_ssl? && @config.verify_server_cert?
-        OpenSSL::SSL::VERIFY_PEER
-      else
-        OpenSSL::SSL::VERIFY_NONE
-      end
     end
   end
 end
