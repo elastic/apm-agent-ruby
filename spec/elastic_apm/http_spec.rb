@@ -128,8 +128,7 @@ module ElasticAPM
         let(:config) { {http_keepalive: true} }
 
         it "warns that keepalive is not available for the Net::HTTP adapter" do
-          expect($stderr).to receive(:puts).with(/Cannot use keepalive with the Net::HTTP adapter/)
-          subject
+          expect { subject }.to output(/Cannot use keepalive with the Net::HTTP adapter/).to_stderr
         end
       end
     end

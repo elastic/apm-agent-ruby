@@ -1,7 +1,7 @@
-require_relative "./abstract_adapter"
+require_relative './abstract_adapter'
 
 begin
-  require "http"
+  require 'http'
 rescue LoadError
 end
 
@@ -18,8 +18,9 @@ module ElasticAPM
         end
 
         req = client(uri).headers(headers)
-        if @config.http_compression && data.bytesize > @config.compression_minimum_size
-          req = req.use(auto_deflate: {method: :deflate})
+        if @config.http_compression &&
+            data.bytesize > @config.compression_minimum_size
+          req = req.use(auto_deflate: { method: :deflate })
         end
         Response.new req.post(uri, body: data, ssl_context: ctx)
       end
@@ -27,11 +28,7 @@ module ElasticAPM
       private
 
       def client(uri)
-        if @config.http_keepalive
-          @client ||= ::HTTP.persistent(uri)
-        else
-          @client ||= ::HTTP
-        end
+        @client ||= @config.http_keepalive ? ::HTTP.persistent(uri) : ::HTTP
       end
     end
   end
