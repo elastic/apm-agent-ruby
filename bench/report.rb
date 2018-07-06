@@ -36,6 +36,7 @@ counts = input.grep(/^Count: /).map { |a| a.gsub(/^Count: /, '').to_i }
 averages = input.grep(/^avg/).map { |a| a.match(/\((.+)\)/)[1].to_f }
 
 git_sha, git_date, git_msg = `git log -n 1 --pretty="format:%H|||%ai|||%s"`.split('|||')
+git_date ||= Time.new.iso8601
 git_branch = `git branch | grep '\*' | awk '{print $2}'`
 platform = Gem::Platform.local
 
