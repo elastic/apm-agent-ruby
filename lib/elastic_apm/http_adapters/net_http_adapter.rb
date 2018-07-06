@@ -1,4 +1,4 @@
-require_relative './abstract_adapter'
+require 'elastic_apm/http_adapters/abstract_adapter'
 
 require 'zlib'
 require 'net/http'
@@ -7,18 +7,6 @@ module ElasticAPM
   module HttpAdapters
     # @api private
     class NetHttpAdapter < AbstractHttpAdapter
-      def initialize(config)
-        if config.http_keepalive
-          warn format(
-            '%sCannot use keepalive with the Net::HTTP adapter. ' \
-            'Use the HttpRbAdapter for keepalive.',
-            Log::PREFIX
-          )
-        end
-
-        super
-      end
-
       def perform(path, data, headers)
         return DISABLED if @config.disable_send?
 

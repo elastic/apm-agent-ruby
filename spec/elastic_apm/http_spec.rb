@@ -131,14 +131,6 @@ module ElasticAPM
           )
         end
       end
-
-      context 'when keepalive is set' do
-        let(:config) { { http_keepalive: true } }
-
-        it 'warns that keepalive is not available for the Net::HTTP adapter' do
-          expect { subject }.to output(/Cannot use keepalive/).to_stderr
-        end
-      end
     end
 
     context 'with the HttpRbAdapter' do
@@ -160,7 +152,7 @@ module ElasticAPM
         end
 
         context 'when keepalive is set' do
-          let(:config) { { http_keepalive: true } }
+          let(:config) { { http_adapter_options: { keepalive: true } } }
 
           it 'sets the appropriate headers' do
             subject.post('/v1/transactions', things: 1)

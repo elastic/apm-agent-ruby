@@ -7,8 +7,8 @@ require 'elastic_apm/system_info'
 require 'elastic_apm/process_info'
 require 'elastic_apm/filters'
 
-require_relative 'http_adapters/net_http_adapter'
-require_relative 'http_adapters/http_rb_adapter'
+require 'elastic_apm/http_adapters/net_http_adapter'
+require 'elastic_apm/http_adapters/http_rb_adapter'
 
 module ElasticAPM
   # @api private
