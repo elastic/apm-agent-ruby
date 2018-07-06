@@ -2,7 +2,7 @@ module ElasticAPM
   module HttpAdapters
     # @api private
     class AbstractHttpAdapter
-      DISABLED = "disabled".freeze
+      DISABLED = 'disabled'.freeze
 
       def initialize(conf)
         @config = conf

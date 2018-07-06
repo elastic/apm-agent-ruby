@@ -25,7 +25,7 @@ module ElasticAPM
       @base_payload = {
         service: ServiceInfo.build(config),
         process: ProcessInfo.build(config),
-        system: SystemInfo.build(config),
+        system: SystemInfo.build(config)
       }
       @filters = Filters.new(config)
     end
@@ -39,7 +39,7 @@ module ElasticAPM
       return if payload.nil?
 
       response = perform path, payload.to_json
-      return nil if response == ElasticAPM::HttpAdapters::AbstractHttpAdapter::DISABLED
+      return nil if response == HttpAdapters::AbstractHttpAdapter::DISABLED
       return response if response.success?
 
       error 'POST returned an unsuccessful status code (%d)', response.code
@@ -54,7 +54,7 @@ module ElasticAPM
       headers = {
         'Accept' => ACCEPT,
         'Content-Type' => CONTENT_TYPE,
-        'User-Agent' => USER_AGENT,
+        'User-Agent' => USER_AGENT
       }
       if (token = @config.secret_token)
         headers['Authorization'] = "Bearer #{token}"

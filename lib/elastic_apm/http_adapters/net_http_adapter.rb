@@ -8,15 +8,15 @@ module ElasticAPM
     # @api private
     class NetHttpAdapter < AbstractHttpAdapter
       def initialize(config)
-        super
-
         if config.http_keepalive
           warn format(
-            '%sCannot use keepalive with the Net::HTTP adapter. ' +
+            '%sCannot use keepalive with the Net::HTTP adapter. ' \
             'Use the HttpRbAdapter for keepalive.',
             Log::PREFIX
           )
         end
+
+        super
       end
 
       def perform(path, data, headers)
