@@ -36,6 +36,8 @@ counts = input.grep(/^Count: /).map { |a| a.gsub(/^Count: /, '').to_i }
 averages = input.grep(/^avg/).map { |a| a.match(/\((.+)\)/)[1].to_f }
 
 git_sha, git_date, git_msg = `git log -n 1 --pretty="format:%H|||%ai|||%s"`.split('|||')
+git_date ||= Time.new.iso8601
+git_branch = `git branch | grep '\*' | awk '{print $2}'`
 platform = Gem::Platform.local
 
 payloads = titles.zip(averages, counts).map do |(title, avg, count)|
@@ -47,6 +49,7 @@ payloads = titles.zip(averages, counts).map do |(title, avg, count)|
     'git.commit' => git_sha,
     'git.date' => Time.parse(git_date).iso8601,
     'git.subject' => git_msg,
+    'git.branch' => git_branch,
     hostname: `hostname`.chomp,
     engine: RUBY_ENGINE,
     arch: platform.cpu,
