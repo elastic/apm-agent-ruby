@@ -219,6 +219,7 @@ module ElasticAPM
         sidekiq
         sinatra
         tilt
+        rake
       ]
     end
     # rubocop:enable Metrics/MethodLength
