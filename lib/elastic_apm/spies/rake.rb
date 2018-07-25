@@ -1,12 +1,14 @@
 module ElasticAPM
+  # @api private
   module Spies
+    # @api private
     class RakeSpy
       def install
         ::Rake::Task.class_eval do
           alias orig_execute execute
           def execute(*args)
             ElasticAPM.start
-            transaction = ElasticAPM.transaction("Rake::#{name}", "Rake")
+            transaction = ElasticAPM.transaction("Rake::#{name}", 'Rake')
             begin
               orig_execute(*args)
               transaction.submit('success') if transaction
@@ -25,4 +27,3 @@ module ElasticAPM
     register 'Rake::Task', 'rake', RakeSpy.new
   end
 end
-
