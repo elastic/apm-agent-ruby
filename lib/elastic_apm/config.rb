@@ -41,7 +41,7 @@ module ElasticAPM
       source_lines_span_library_frames: 0,
       span_frames_min_duration: 5,
 
-      disabled_spies: %w[json],
+      disabled_spies: %w[json rake],
 
       current_user_id_method: :id,
       current_user_email_method: :email,
