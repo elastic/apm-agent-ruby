@@ -7,27 +7,22 @@ module ElasticAPM
       def initialize(max_size = 512, &block)
         @max_size = max_size
         @data = Hash.new(&block)
-        @missing_key_block = block
+        @mutex = Mutex.new
       end
 
       def [](key)
-        found = true
-        value = @data.delete(key) { found = false }
-
-        if found
-          @data[key] = value
-        else
-          @missing_key_block && @missing_key_block.call(self, key)
+        @mutex.synchronize do
+          val = @data[key]
+          return unless val
+          add(key, val)
+          val
         end
       end
 
       def []=(key, val)
-        @data.delete(key)
-        @data[key] = val
-
-        return unless @data.length > @max_size
-
-        @data.delete(@data.first[0])
+        @mutex.synchronize do
+          add(key, val)
+        end
       end
 
       def length
@@ -36,6 +31,17 @@ module ElasticAPM
 
       def to_a
         @data.to_a
+      end
+
+      private
+
+      def add(key, val)
+        @data.delete(key)
+        @data[key] = val
+
+        return unless @data.length > @max_size
+
+        @data.delete(@data.first[0])
       end
     end
   end
