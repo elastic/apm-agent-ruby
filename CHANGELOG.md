@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+
+## 1.0.1 (2018-07-30)
+
+### Fixed
+
+- Fixed internal LRU cache to be threadsafe ([#178](https://github.com/elastic/apm-agent-ruby/pulls/178))
+
 ## 1.0.0 (2018-06-29)
 
 ### Added
