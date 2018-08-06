@@ -45,9 +45,9 @@ module ElasticAPM
     def runtime
       case RUBY_ENGINE
       when 'ruby'
-        { name: RUBY_ENGINE, version: RUBY_VERSION }
+        { name: RUBY_ENGINE, version: RUBY_VERSION || RUBY_ENGINE_VERSION }
       when 'jruby'
-        { name: RUBY_ENGINE, version: ENV['JRUBY_VERSION'] }
+        { name: RUBY_ENGINE, version: JRUBY_VERSION || RUBY_ENGINE_VERSION }
       end
     end
   end
