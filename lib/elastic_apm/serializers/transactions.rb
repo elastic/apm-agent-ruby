@@ -13,7 +13,7 @@ module ElasticAPM
           result: transaction.result.to_s,
           duration: ms(transaction.duration),
           timestamp: micros_to_time(transaction.timestamp).utc.iso8601(3),
-          spans: transaction.spans.map(&method(:build_span)),
+          spans: transaction.spans.map { |s| build_span(s) },
           sampled: transaction.sampled,
           context: transaction.context.to_h
         }
@@ -27,7 +27,7 @@ module ElasticAPM
       # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
       def build_all(transactions)
-        { transactions: Array(transactions).map(&method(:build)) }
+        { transactions: Array(transactions).map { |t| build(t) } }
       end
 
       private
