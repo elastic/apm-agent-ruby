@@ -30,7 +30,7 @@ module ElasticAPM
       # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
       def build_all(errors)
-        { errors: Array(errors).map(&method(:build)) }
+        { errors: Array(errors).map { |e| build(e) } }
       end
 
       private
