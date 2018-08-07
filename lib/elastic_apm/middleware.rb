@@ -38,7 +38,7 @@ module ElasticAPM
 
     def path_ignored?(env)
       config.ignore_url_patterns.any? do |r|
-        env['PATH_INFO'].match? r
+        env['PATH_INFO'].match r
       end
     end
 
