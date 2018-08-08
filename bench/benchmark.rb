@@ -42,7 +42,11 @@ def do_bench(transaction_count: 10, **config)
   bench = Benchmark.benchmark(CAPTION, 7, FORMAT, 'avg:') do |x|
     benchmarks =
       with_app(config) do |app|
-        10.times.map do |i|
+        # warm-up
+        puts "1 run of warm-up"
+        perform(app, count: transaction_count)
+
+        5.times.map do |i|
           x.report("run[#{i}]") { perform(app, count: transaction_count) }
         end
       end
@@ -51,7 +55,7 @@ def do_bench(transaction_count: 10, **config)
   end
 end
 
-transaction_count = Integer(ARGV.shift || 10_000)
+transaction_count = Integer(ARGV.shift || 100_000)
 
 banner 'Default settings'
 do_bench transaction_count: transaction_count
