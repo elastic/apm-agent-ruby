@@ -132,12 +132,24 @@ module ElasticAPM
       instrumenter.current_transaction
     end
 
-    def transaction(*args, &block)
-      instrumenter.transaction(*args, &block)
+    def transaction(name = nil, type = nil, context: nil, sampled: nil, &block)
+      instrumenter.transaction(
+        name,
+        type,
+        context: context,
+        sampled: sampled,
+        &block
+      )
     end
 
-    def span(*args, &block)
-      instrumenter.span(*args, &block)
+    def span(name, type = nil, backtrace: nil, context: nil, &block)
+      instrumenter.span(
+        name,
+        type,
+        backtrace: backtrace,
+        context: context,
+        &block
+      )
     end
 
     def build_context(rack_env)
@@ -167,16 +179,16 @@ module ElasticAPM
 
     # context
 
-    def set_tag(*args)
-      instrumenter.set_tag(*args)
+    def set_tag(key, value)
+      instrumenter.set_tag(key, value)
     end
 
-    def set_custom_context(*args)
-      instrumenter.set_custom_context(*args)
+    def set_custom_context(context)
+      instrumenter.set_custom_context(context)
     end
 
-    def set_user(*args)
-      instrumenter.set_user(*args)
+    def set_user(user)
+      instrumenter.set_user(user)
     end
 
     def add_filter(key, callback)
