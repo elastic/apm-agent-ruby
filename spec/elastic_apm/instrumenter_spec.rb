@@ -70,7 +70,9 @@ module ElasticAPM
 
       it 'delegates to current transaction' do
         subject.current_transaction = double(span: true)
-        expect(subject).to delegate :span, to: subject.current_transaction
+        expect(subject).to delegate :span,
+          to: subject.current_transaction,
+          args: ['name', nil, { backtrace: nil, context: nil }]
       end
 
       context 'with span_frames_min_duration' do

@@ -55,9 +55,9 @@ module ElasticAPM
       @transaction_info.current = transaction
     end
 
-    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-    def transaction(*args)
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/CyclomaticComplexity
+    def transaction(name = nil, type = nil, context: nil, sampled: nil)
       unless config.instrument
         yield if block_given?
         return
@@ -68,13 +68,10 @@ module ElasticAPM
         return transaction
       end
 
-      if args.last.is_a? Hash
-        args.last[:sampled] = random_sample?
-      else
-        args.push(sampled: random_sample?)
-      end
+      sampled = random_sample? if sampled.nil?
 
-      transaction = Transaction.new self, *args
+      transaction =
+        Transaction.new self, name, type, context: context, sampled: sampled
 
       self.current_transaction = transaction
       return transaction unless block_given?
@@ -88,21 +85,29 @@ module ElasticAPM
 
       transaction
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/MethodLength
 
     def random_sample?
       rand <= config.transaction_sample_rate
     end
 
-    def span(*args, &block)
+    # rubocop:disable Metrics/MethodLength
+    def span(name, type = nil, backtrace: nil, context: nil, &block)
       unless current_transaction
         return yield if block_given?
         return
       end
 
-      current_transaction.span(*args, &block)
+      current_transaction.span(
+        name,
+        type,
+        backtrace: backtrace,
+        context: context,
+        &block
+      )
     end
+    # rubocop:enable Metrics/MethodLength
 
     def set_tag(key, value)
       return unless current_transaction
