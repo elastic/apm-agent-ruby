@@ -13,8 +13,10 @@ if ELASTICSEARCH_URL == ''
   puts 'ELASTICSEARCH_URL missing, exiting ...'
   exit 1
 else
-  # debug
-  # puts ELASTICSEARCH_URL.gsub(/:[^\/]+(.*)@/) { |m| ":#{Array.new(m.length - 2).map { '*' }.join}@" }
+  # DEBUG
+  # puts ELASTICSEARCH_URL.gsub(/:[^\/]+(.*)@/) do |m|
+  #   ":#{Array.new(m.length - 2).map { '*' }.join}@"
+  # end
 end
 
 CONN = Faraday.new(url: ELASTICSEARCH_URL) do |f|
@@ -35,30 +37,31 @@ titles = input.grep(/^===/).map { |t| t.gsub(/^=== /, '') }
 counts = input.grep(/^Count: /).map { |a| a.gsub(/^Count: /, '').to_i }
 averages = input.grep(/^avg/).map { |a| a.match(/\((.+)\)/)[1].to_f }
 
-git_sha, git_date, git_msg = `git log -n 1 --pretty="format:%H|||%ai|||%s"`.split('|||')
-git_date ||= Time.new.iso8601
-git_branch = `git branch | grep '\*' | awk '{print $2}'`
+git_sha, git_msg = `git log -n 1 --pretty="format:%H|||%s"`.split('|||')
+git_date = `git log -n 1 --pretty="format:%ai"`
 platform = Gem::Platform.local
 
 payloads = titles.zip(averages, counts).map do |(title, avg, count)|
+  return nil unless avg
+
   {
     title: title,
     avg: avg,
     transaction_count: count,
     executed_at: Time.new.iso8601,
     'git.commit' => git_sha,
-    'git.date' => Time.parse(git_date).iso8601,
+    'git.date' => git_date && Time.parse(git_date).iso8601,
     'git.subject' => git_msg,
-    'git.branch' => git_branch,
     hostname: `hostname`.chomp,
     engine: RUBY_ENGINE,
     arch: platform.cpu,
     os: platform.os,
-    ruby_version: RUBY_VERSION
+    ruby_version: "#{RUBY_ENGINE == 'jruby' ? 'j' : ''}#{RUBY_VERSION}"
   }
-end
+end.compact
 
 puts '=== Reporting to ES'
+puts payloads.inspect
 
 payloads.each do |payload|
   result = CONN.post('/benchmark-ruby/_doc') do |req|
