@@ -14,9 +14,9 @@ module ElasticAPM
     attr_accessor :request, :response, :user
     attr_reader :custom, :tags
 
-    def initialize
-      @custom = {}
-      @tags = {}
+    def initialize(custom: {}, tags: {})
+      @custom = custom
+      @tags = tags
     end
   end
 end

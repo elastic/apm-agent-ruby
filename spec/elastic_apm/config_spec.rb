@@ -43,7 +43,12 @@ module ElasticAPM
           'test,production',
           %w[test production]
         ],
-        ['ELASTIC_APM_CUSTOM_KEY_FILTERS', 'Auth,Other', [/Auth/, /Other/]]
+        ['ELASTIC_APM_CUSTOM_KEY_FILTERS', 'Auth,Other', [/Auth/, /Other/]],
+        [
+          'ELASTIC_APM_DEFAULT_TAGS',
+          'test=something something&other=ok',
+          { 'test' => 'something something', 'other' => 'ok' }
+        ]
       ].each do |(key, val, expected)|
         val_before = ENV[key]
         ENV[key] = val
