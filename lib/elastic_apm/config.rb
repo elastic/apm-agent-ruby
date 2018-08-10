@@ -41,7 +41,8 @@ module ElasticAPM
       source_lines_span_library_frames: 0,
       span_frames_min_duration: 5,
 
-      disabled_spies: %w[json rake],
+      disabled_spies: %w[json],
+      electable_spies: [],
 
       current_user_id_method: :id,
       current_user_email_method: :email,
@@ -95,7 +96,8 @@ module ElasticAPM
       'ELASTIC_APM_TRANSACTION_MAX_SPANS' => [:int, 'transaction_max_spans'],
 
       'ELASTIC_APM_DISABLE_SEND' => [:bool, 'disable_send'],
-      'ELASTIC_APM_DISABLED_SPIES' => [:list, 'disabled_spies']
+      'ELASTIC_APM_DISABLED_SPIES' => [:list, 'disabled_spies'],
+      'ELASTIC_APM_ELECTABLE_SPIES' => [:list, 'electable_spies']
     }.freeze
 
     def initialize(options = {})
@@ -153,6 +155,7 @@ module ElasticAPM
     attr_accessor :span_frames_min_duration
 
     attr_accessor :disabled_spies
+    attr_accessor :electable_spies
 
     attr_accessor :view_paths
     attr_accessor :root_path
@@ -219,13 +222,12 @@ module ElasticAPM
         sidekiq
         sinatra
         tilt
-        rake
       ]
     end
     # rubocop:enable Metrics/MethodLength
 
     def enabled_spies
-      available_spies - disabled_spies
+      available_spies + electable_spies - disabled_spies
     end
 
     private
