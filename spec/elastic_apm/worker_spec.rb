@@ -3,9 +3,10 @@
 module ElasticAPM
   RSpec.describe Worker do
     describe 'a loop' do
+      let(:config) { Config.new flush_interval: 0.1 }
+      let(:instrumenter) { Instrumenter.new(Agent.new(config)) }
       let(:messages) { Queue.new }
       let(:transactions) { Queue.new }
-      let(:config) { Config.new flush_interval: 0.1 }
 
       around do |example|
         @thread = Thread.new do
@@ -73,7 +74,7 @@ module ElasticAPM
       end
 
       def build_transaction
-        Transaction.new(nil, nil)
+        Transaction.new(instrumenter, nil)
       end
 
       def build_error

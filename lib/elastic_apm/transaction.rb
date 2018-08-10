@@ -29,6 +29,7 @@ module ElasticAPM
       @notifications = [] # for AS::Notifications
 
       @context = context || Context.new
+      @context.tags.merge!(instrumenter.config.default_tags)
 
       @sampled = sampled
 
