@@ -50,7 +50,7 @@ payloads = titles.zip(averages, counts).map do |(title, avg, count)|
     transaction_count: count,
     executed_at: Time.new.iso8601,
     'git.commit' => git_sha,
-    'git.date' => git_date && Time.parse(git_date).iso8601,
+    'git.date' => String(git_date).strip != '' && Time.parse(git_date).iso8601,
     'git.subject' => git_msg,
     hostname: `hostname`.chomp,
     engine: RUBY_ENGINE,
