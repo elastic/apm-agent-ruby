@@ -30,10 +30,10 @@ module ElasticAPM
         end
 
         it 'merges with existing context tags' do
-          context = Context.new(tags: { more: 'ok' })
+          context = Context.new(tags: { test: 'now this', more: 'ok' })
 
           expect(Transaction.new(instrumenter, context: context).context.tags)
-            .to eq(test: 'yes it is', more: 'ok')
+            .to eq(test: 'now this', more: 'ok')
         end
       end
     end
