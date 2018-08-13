@@ -390,6 +390,20 @@ Use this option to disable any of these.
 Get an array of enabled spies with `ElasticAPM.agent.config.enabled_spies`.
 
 [float]
+[[config-default-tags]]
+==== `default_tags`
+
+[options="header"]
+|============
+| Environment                | `Config` key   | Default | Example
+| `ELASTIC_APM_DEFAULT_TAGS` | `default_tags` | `{}`    | `region=us1`
+|============
+
+Add default tags to add to every transaction.
+
+WARNING: Be aware that tags are indexed in Elasticsearch. Using too many unique keys will result in *https://www.elastic.co/blog/found-crash-elasticsearch#mapping-explosion[Mapping explosion]*.
+
+[float]
 [[config-custom-key-filters]]
 ==== `custom_key_filters`
 [options="header"]

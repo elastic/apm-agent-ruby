@@ -208,6 +208,8 @@ Arguments:
 
 Returns the set `value`.
 
+WARNING: Be aware that tags are indexed in Elasticsearch. Using too many unique keys will result in *https://www.elastic.co/blog/found-crash-elasticsearch#mapping-explosion[Mapping explosion]*.
+
 [float]
 [[api-agent-set-custom-context]]
 ==== `ElasticAPM.set_custom_context`
