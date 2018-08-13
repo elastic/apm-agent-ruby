@@ -188,7 +188,7 @@ module ElasticAPM
     end
 
     def app_type?(app)
-      if defined?(::Rails) && app.is_a?(Rails::Application)
+      if defined?(Rails::Application) && app.is_a?(Rails::Application)
         return :rails
       end
 
