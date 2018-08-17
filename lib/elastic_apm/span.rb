@@ -51,6 +51,8 @@ module ElasticAPM
 
       self.original_backtrace = nil # release it
 
+      @transaction.instrumenter.submit_span self # TODO: move this
+
       self
     end
 

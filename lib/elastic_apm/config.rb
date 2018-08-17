@@ -19,9 +19,6 @@ module ElasticAPM
       log_path: nil,
       log_level: Logger::DEBUG,
 
-      max_queue_size: 500, # TODO: deprecate
-      flush_interval: 10, # TODO: deprecate
-
       transaction_sample_rate: 1.0,
       transaction_max_spans: 500,
       filter_exception_types: [],
@@ -99,9 +96,6 @@ module ElasticAPM
       'ELASTIC_APM_API_REQUEST_TIME' => [:int, 'api_request_time'],
       'ELASTIC_APM_API_BUFFER_SIZE' => [:int, 'api_buffer_size'],
 
-      'ELASTIC_APM_MAX_QUEUE_SIZE' => [:int, 'max_queue_size'], # TODO: deprecate
-      'ELASTIC_APM_FLUSH_INTERVAL' => 'flush_interval', # TODO: deprecate
-
       'ELASTIC_APM_TRANSACTION_SAMPLE_RATE' =>
         [:float, 'transaction_sample_rate'],
       'ELASTIC_APM_VERIFY_SERVER_CERT' => [:bool, 'verify_server_cert'],
@@ -144,9 +138,6 @@ module ElasticAPM
     attr_accessor :log_path
     attr_accessor :log_level
     attr_accessor :logger
-
-    attr_accessor :max_queue_size # TODO: deprecate
-    attr_accessor :flush_interval # TODO: deprecate
 
     attr_accessor :api_request_size
     attr_accessor :api_request_time

@@ -48,7 +48,6 @@ module ElasticAPM
     def done(result = nil)
       @duration = Util.micros - @timestamp
       @result = result
-
       self
     end
 
@@ -79,7 +78,6 @@ module ElasticAPM
 
       if spans.length >= instrumenter.config.transaction_max_spans
         @dropped_spans += 1
-
         return yield if block_given?
         return
       end
@@ -108,9 +106,7 @@ module ElasticAPM
 
     def inspect
       "<ElasticAPM::Transaction id:#{id}" \
-        " name:#{name.inspect}" \
-        " type:#{type.inspect}" \
-        '>'
+        " name:#{name.inspect} type:#{type.inspect}>"
     end
 
     private
