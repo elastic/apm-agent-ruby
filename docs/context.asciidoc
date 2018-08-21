@@ -5,13 +5,13 @@
 [float]
 ==== Adding custom context
 
-You can add your own custom, nested JSON-compatible data to the current transaction using `ElasticAPM.add_custom_context(hash)` eg.:
+You can add your own custom, nested JSON-compatible data to the current transaction using `ElasticAPM.set_custom_context(hash)` eg.:
 
 [source,ruby]
 ----
 class ThingsController < ApplicationController
   before_action do
-    ElasticAPM.add_custom_context(company: current_user.company)
+    ElasticAPM.set_custom_context(company: current_user.company)
   end
 
   # ...
