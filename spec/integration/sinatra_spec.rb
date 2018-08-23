@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'sinatra'
 
 if defined?(Sinatra)
-  RSpec.describe 'Sinatra integration', :with_fake_server do
+  RSpec.describe 'Sinatra integration', :mock_intake do
     include Rack::Test::Methods
 
     class FancyError < StandardError; end
@@ -49,7 +50,7 @@ if defined?(Sinatra)
     end
 
     before(:all) do
-      ElasticAPM.start(app: SinatraTestApp, flush_interval: nil)
+      ElasticAPM.start(app: SinatraTestApp, api_request_time: 0.1)
     end
 
     after(:all) do
@@ -62,7 +63,7 @@ if defined?(Sinatra)
 
       expect(response.body).to eq 'Yes!'
 
-      service = FakeServer.requests.first['service']
+      service = MockAPMServer.metadatas.first['service']
       expect(service['name']).to eq 'SinatraTestApp'
       expect(service['framework']['name']).to eq 'Sinatra'
       expect(service['framework']['version'])
@@ -74,17 +75,16 @@ if defined?(Sinatra)
         get '/'
         wait_for_requests_to_finish 1
 
-        expect(FakeServer.requests.length).to be 1
-        request = FakeServer.requests.last
-        expect(request['transactions'][0]['name']).to eq 'GET /'
+        expect(MockAPMServer.requests.length).to be 1
+        transaction = MockAPMServer.transactions.first
+        expect(transaction['name']).to eq 'GET /'
       end
 
       it 'spans inline templates' do
         get '/inline'
         wait_for_requests_to_finish 1
 
-        request = FakeServer.requests.last
-        span = request['transactions'][0]['spans'][0]
+        span = MockAPMServer.spans.last
         expect(span['name']).to eq 'Inline erb'
         expect(span['type']).to eq 'template.tilt'
       end
@@ -95,8 +95,7 @@ if defined?(Sinatra)
 
         expect(response.body).to eq '1 2 3 hello you'
 
-        request = FakeServer.requests.last
-        span = request['transactions'][0]['spans'][0]
+        span = MockAPMServer.spans.last
         expect(span['name']).to eq 'index'
         expect(span['type']).to eq 'template.tilt'
       end
@@ -110,13 +109,13 @@ if defined?(Sinatra)
         rescue FancyError
         end
 
-        wait_for_requests_to_finish 2
+        wait_for_requests_to_finish 1
 
-        expect(FakeServer.requests.length).to be 2
+        expect(MockAPMServer.requests.length).to be 1
 
         error_request =
-          FakeServer.requests.find { |r| r.key?('errors') }
-        exception = error_request['errors'][0]['exception']
+          MockAPMServer.errors.first
+        exception = error_request['exception']
         expect(exception['type']).to eq 'FancyError'
       end
     end

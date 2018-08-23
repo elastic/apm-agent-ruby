@@ -86,7 +86,7 @@ module ElasticAPM
 
     def stop
       @instrumenter.stop
-      @transport.close!
+      @transport.flush
 
       self
     end
@@ -95,7 +95,7 @@ module ElasticAPM
       stop
     end
 
-    # queues
+    # transport
 
     def enqueue_transaction(transaction)
       @transport.submit transaction
@@ -107,6 +107,10 @@ module ElasticAPM
 
     def enqueue_error(error)
       @transport.submit error
+    end
+
+    def flush
+      @transport.flush
     end
 
     # instrumentation

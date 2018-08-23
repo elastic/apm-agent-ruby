@@ -3,10 +3,10 @@
 require 'fakeredis/rspec'
 
 module ElasticAPM
-  RSpec.describe 'Spy: Redis', :with_fake_server do
+  RSpec.describe 'Spy: Redis' do
     it 'spans queries' do
       redis = ::Redis.new
-      ElasticAPM.start
+      ElasticAPM.start disable_send: true
 
       transaction = ElasticAPM.transaction 'T' do
         redis.lrange('some:where', 0, -1)

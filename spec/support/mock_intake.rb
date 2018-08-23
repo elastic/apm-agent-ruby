@@ -5,27 +5,14 @@ require 'timeout'
 
 class MockAPMServer
   class << self
-    def requests
-      @requests ||= []
-    end
-
-    def transactions
-      @transactions ||= []
-    end
-
-    def spans
-      @spans ||= []
-    end
-
-    def errors
-      @errors ||= []
-    end
+    attr_reader :requests, :transactions, :spans, :errors, :metadatas
 
     def clear!
       @requests = []
       @transactions = []
       @spans = []
       @errors = []
+      @metadatas = []
     end
 
     def call(env)
@@ -41,13 +28,17 @@ class MockAPMServer
       [200, { 'Content-Type' => 'application/json' }, ['ok']]
     end
 
+    # rubocop:disable Metrics/AbcSize
     def catalog(obj)
+      pp obj
       case obj.keys.first
+      when 'metadata' then metadatas << obj.values.first
       when 'transaction' then transactions << obj.values.first
       when 'span' then spans << obj.values.first
       when 'error' then errors << obj.values.first
       end
     end
+    # rubocop:enable Metrics/AbcSize
   end
 end
 

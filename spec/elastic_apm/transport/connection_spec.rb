@@ -5,8 +5,7 @@ require 'elastic_apm/transport/connection'
 module ElasticAPM
   module Transport
     RSpec.describe Connection do
-      let(:api_url) { 'http://localhost:4321/v2/intake' }
-      subject { Connection.new api_url }
+      subject { Connection.new Config.new }
 
       describe '#initialize' do
         it { should_not be_connected }
@@ -27,7 +26,7 @@ module ElasticAPM
       end
 
       context 'when given max request time' do
-        subject { described_class.new(api_url, max_request_time: 0.1) }
+        subject { described_class.new(Config.new(api_request_time: 0.1)) }
 
         it 'closes requests when reached' do
           stub = build_stub('{"msg": "time!"}')
@@ -54,7 +53,7 @@ module ElasticAPM
       end
 
       def build_stub(body)
-        WebMock.stub_request(:post, api_url).with(
+        WebMock.stub_request(:post, 'http://localhost:8200/v2/intake').with(
           headers: {
             'Transfer-Encoding' => 'chunked',
             'Content-Type' => 'application/x-ndjson'

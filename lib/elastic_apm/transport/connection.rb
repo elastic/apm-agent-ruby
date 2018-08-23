@@ -2,6 +2,8 @@
 
 require 'concurrent/scheduled_task'
 
+require 'elastic_apm/metadata'
+
 module ElasticAPM
   module Transport
     # @api private
@@ -21,14 +23,14 @@ module ElasticAPM
         'Transfer-Encoding' => 'chunked'
       }.freeze
 
-      def initialize(url, max_request_time: nil, max_request_size: nil)
-        @url = url
+      def initialize(config)
+        @config = config
         @client = HTTP.headers(HEADERS)
+        @url = config.server_url + '/v2/intake'
 
         @mutex = Mutex.new
 
-        @max_request_time = max_request_time
-        @max_request_size = max_request_size
+        @metadata = Metadata.build(config)
 
         @connected = false
       end
@@ -61,15 +63,20 @@ module ElasticAPM
           @mutex.synchronize { @connected = false }
         end
 
-        schedule_closing if @max_request_time
+        schedule_closing if @config.api_request_time
 
         sleep 0.01 until connected?
+
+        write(@metadata)
+
+        self
       end
 
       def schedule_closing
-        @close_task = Concurrent::ScheduledTask.execute(@max_request_time) do
-          close! if connected?
-        end.execute
+        @close_task =
+          Concurrent::ScheduledTask.execute(@config.api_request_time) do
+            close!
+          end
       end
     end
   end
