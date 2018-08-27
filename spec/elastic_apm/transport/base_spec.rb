@@ -18,19 +18,21 @@ module ElasticAPM
           end
 
           subject.submit transaction
+          subject.flush
 
-          subject.close!
-          expect(MockAPMServer.requests.length).to be 1
-          expect(MockAPMServer.transactions.length).to be 1
+          expect(@mock_intake.requests.length).to be 1
+          expect(@mock_intake.transactions.length).to be 1
+
+          agent.stop
         end
 
         it 'starts all requests with a metadata object' do
           subject.post({})
-          subject.close!
+          subject.flush
           subject.post({})
-          subject.close!
-          expect(MockAPMServer.requests.length).to be 2
-          expect(MockAPMServer.metadatas.length).to be 2
+          subject.flush
+          expect(@mock_intake.requests.length).to be 2
+          expect(@mock_intake.metadatas.length).to be 2
         end
 
         it 'filters sensitive data' do

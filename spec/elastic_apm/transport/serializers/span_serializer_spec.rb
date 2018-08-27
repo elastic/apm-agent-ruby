@@ -4,7 +4,7 @@ module ElasticAPM
   module Transport
     module Serializers
       RSpec.describe SpanSerializer do
-        let(:agent) { Agent.new(Config.new) }
+        let(:agent) { Agent.new(Config.new(disable_send: true)) }
         let(:instrumenter) { Instrumenter.new agent }
         let(:builder) { described_class.new agent.config }
 

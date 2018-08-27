@@ -88,8 +88,8 @@ if defined?(Delayed::Backend)
           expect(transaction.result).to eq 'error'
 
           wait_for_requests_to_finish 1
-          expect(MockAPMServer.requests.length).to be 1
-          type = MockAPMServer.errors.first.dig('exception', 'type')
+          expect(@mock_intake.requests.length).to be 1
+          type = @mock_intake.errors.first.dig('exception', 'type')
           expect(type).to eq 'ZeroDivisionError'
         end
       end

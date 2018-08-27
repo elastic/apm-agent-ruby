@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ElasticAPM
-  RSpec.describe 'Spy: JSON' do
+  RSpec.xdescribe 'Spy: JSON' do
     before do
       ElasticAPM.start disabled_spies: [], disable_send: true
     end

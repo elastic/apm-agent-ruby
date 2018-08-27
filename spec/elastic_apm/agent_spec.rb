@@ -65,16 +65,16 @@ module ElasticAPM
       class AgentTestError < StandardError; end
 
       describe '#report' do
-        subject { Agent.new Config.new }
+        subject { Agent.new Config.new(api_request_time: 0.1) }
 
         it 'queues a request' do
           exception = AgentTestError.new('Yikes!')
 
           subject.report(exception)
-          subject.stop
+          subject.flush
 
-          expect(MockAPMServer.requests.length).to be 1
-          expect(MockAPMServer.errors.length).to be 1
+          expect(@mock_intake.requests.length).to be 1
+          expect(@mock_intake.errors.length).to be 1
         end
 
         it 'ignores filtered exception types' do
@@ -87,8 +87,8 @@ module ElasticAPM
           subject.report(exception)
 
           subject.stop
-          expect(MockAPMServer.requests.length).to be 0
-          expect(MockAPMServer.errors.length).to be 0
+          expect(@mock_intake.requests.length).to be 0
+          expect(@mock_intake.errors.length).to be 0
         end
       end
 
@@ -99,8 +99,8 @@ module ElasticAPM
           subject.report_message('Everything went 💥')
 
           subject.stop
-          expect(MockAPMServer.requests.length).to be 1
-          expect(MockAPMServer.errors.length).to be 1
+          expect(@mock_intake.requests.length).to be 1
+          expect(@mock_intake.errors.length).to be 1
         end
       end
     end
@@ -114,8 +114,8 @@ module ElasticAPM
         subject.enqueue_transaction(transaction)
 
         subject.stop
-        expect(MockAPMServer.requests.length).to be 1
-        expect(MockAPMServer.transactions.length).to be 1
+        expect(@mock_intake.requests.length).to be 1
+        expect(@mock_intake.transactions.length).to be 1
       end
     end
 

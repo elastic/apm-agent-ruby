@@ -14,9 +14,9 @@ module ElasticAPM
 
       ElasticAPM.stop
 
-      expect(MockAPMServer.requests.length).to be 1
+      expect(@mock_intake.requests.length).to be 1
 
-      payload = MockAPMServer.transactions.last
+      payload = @mock_intake.transactions.last
       expect(payload['result']).to eq 'HTTP 2xx'
       expect(payload.dig('context', 'response', 'status_code')).to be 200
     end

@@ -33,7 +33,7 @@ module ElasticAPM
 
         wait_for_requests_to_finish 1
 
-        error_payload = MockAPMServer.errors.last
+        error_payload = @mock_intake.errors.last
         request = error_payload.dig('context', 'request')
         expect(request['method']).to eq 'POST'
       end

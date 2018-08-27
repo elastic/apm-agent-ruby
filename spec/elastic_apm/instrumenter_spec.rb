@@ -79,7 +79,12 @@ module ElasticAPM
       end
 
       context 'with span_frames_min_duration' do
-        let(:agent) { Agent.new(Config.new(span_frames_min_duration: 10)) }
+        let(:config) do
+          Config.new(span_frames_min_duration: 10, disable_send: true)
+        end
+        let(:agent) do
+          Agent.new(config)
+        end
 
         it 'collects stacktraces', :mock_time do
           t = subject.transaction do

@@ -41,8 +41,6 @@ else
   gem framework
 end
 
-gem 'sinatra'
-
 group :bench do
   gem 'ruby-prof', platforms: %i[ruby]
   gem 'stackprof', platforms: %i[ruby]

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
+require 'http'
 require 'concurrent/scheduled_task'
+require 'zlib'
 
 require 'elastic_apm/metadata'
 
@@ -9,8 +11,8 @@ module ElasticAPM
     # @api private
     # HTTP.rb calls #rewind the body stream, which IO.pipes don't support
     class ModdedIO < IO
-      def self.pipe(*args)
-        super.tap do |rw|
+      def self.pipe(ext_enc = nil)
+        super(ext_enc).tap do |rw|
           rw[0].define_singleton_method(:rewind) { nil }
         end
       end
@@ -22,23 +24,22 @@ module ElasticAPM
         'Content-Type' => 'application/x-ndjson',
         'Transfer-Encoding' => 'chunked'
       }.freeze
+      GZIP_HEADERS = HEADERS.merge(
+        'Content-Encoding' => 'gzip'
+      ).freeze
 
       def initialize(config)
         @config = config
-        @client = HTTP.headers(HEADERS)
+
+        @client = HTTP.headers(
+          @config.http_compression? ? GZIP_HEADERS : HEADERS
+        )
+
         @url = config.server_url + '/v2/intake'
+        @metadata = Metadata.build(config)
+        @connected = false
 
         @mutex = Mutex.new
-
-        @metadata = Metadata.build(config)
-
-        @connected = false
-      end
-
-      def close!
-        @mutex.synchronize { @wr.close } if connected?
-
-        @conn_thread.join if @conn_thread
       end
 
       def write(str)
@@ -52,16 +53,22 @@ module ElasticAPM
         @mutex.synchronize { @connected }
       end
 
+      def close!
+        @mutex.synchronize { @wr.close } if connected?
+        @conn_thread.join if @conn_thread
+      end
+
       private
 
       def connect!
         @rd, @wr = ModdedIO.pipe
 
-        @conn_thread = Thread.new do
-          @mutex.synchronize { @connected = true }
-          @client.post(@url, body: @rd).flush
-          @mutex.synchronize { @connected = false }
+        if @config.http_compression?
+          @wr.binmode
+          @wr = Zlib::GzipWriter.new(@wr)
         end
+
+        @conn_thread = boot_request_thread
 
         schedule_closing if @config.api_request_time
 
@@ -70,6 +77,14 @@ module ElasticAPM
         write(@metadata)
 
         self
+      end
+
+      def boot_request_thread
+        Thread.new do
+          @mutex.synchronize { @connected = true }
+          @client.post(@url, body: @rd).flush
+          @mutex.synchronize { @connected = false }
+        end
       end
 
       def schedule_closing

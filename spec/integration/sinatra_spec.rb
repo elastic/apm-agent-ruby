@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'sinatra'
 
 if defined?(Sinatra)
   RSpec.describe 'Sinatra integration', :mock_intake do
@@ -50,7 +49,7 @@ if defined?(Sinatra)
     end
 
     before(:all) do
-      ElasticAPM.start(app: SinatraTestApp, api_request_time: 0.1)
+      ElasticAPM.start(app: SinatraTestApp, api_request_time: 0.25)
     end
 
     after(:all) do
@@ -59,11 +58,12 @@ if defined?(Sinatra)
 
     it 'knows Sinatra' do
       response = get '/'
+      ElasticAPM.agent.flush
       wait_for_requests_to_finish 1
 
       expect(response.body).to eq 'Yes!'
 
-      service = MockAPMServer.metadatas.first['service']
+      service = @mock_intake.metadatas.first['service']
       expect(service['name']).to eq 'SinatraTestApp'
       expect(service['framework']['name']).to eq 'Sinatra'
       expect(service['framework']['version'])
@@ -73,10 +73,11 @@ if defined?(Sinatra)
     describe 'transactions' do
       it 'wraps requests in a transaction named after route' do
         get '/'
+        ElasticAPM.agent.flush
         wait_for_requests_to_finish 1
 
-        expect(MockAPMServer.requests.length).to be 1
-        transaction = MockAPMServer.transactions.first
+        expect(@mock_intake.requests.length).to be 1
+        transaction = @mock_intake.transactions.first
         expect(transaction['name']).to eq 'GET /'
       end
 
@@ -84,18 +85,19 @@ if defined?(Sinatra)
         get '/inline'
         wait_for_requests_to_finish 1
 
-        span = MockAPMServer.spans.last
+        span = @mock_intake.spans.last
         expect(span['name']).to eq 'Inline erb'
         expect(span['type']).to eq 'template.tilt'
       end
 
       it 'spans templates' do
         response = get '/tmpl'
+        ElasticAPM.agent.flush
         wait_for_requests_to_finish 1
 
         expect(response.body).to eq '1 2 3 hello you'
 
-        span = MockAPMServer.spans.last
+        span = @mock_intake.spans.last
         expect(span['name']).to eq 'index'
         expect(span['type']).to eq 'template.tilt'
       end
@@ -109,12 +111,13 @@ if defined?(Sinatra)
         rescue FancyError
         end
 
+        ElasticAPM.agent.flush
         wait_for_requests_to_finish 1
 
-        expect(MockAPMServer.requests.length).to be 1
+        expect(@mock_intake.requests.length).to be 1
 
         error_request =
-          MockAPMServer.errors.first
+          @mock_intake.errors.first
         exception = error_request['exception']
         expect(exception['type']).to eq 'FancyError'
       end

@@ -12,7 +12,7 @@ rescue LoadError
 end
 
 module ElasticAPM
-  RSpec.describe 'Sidekiq', :mock_intake do
+  RSpec.describe 'Spy: Sidekiq', :mock_intake do
     module SaveTransaction
       def self.included(kls)
         class << kls
@@ -105,9 +105,9 @@ module ElasticAPM
         ElasticAPM.stop
 
         wait_for_requests_to_finish 1
-        expect(MockAPMServer.requests.length).to be 1
+        expect(@mock_intake.requests.length).to be 1
 
-        error = MockAPMServer.errors.first
+        error = @mock_intake.errors.first
         type = error.dig('exception', 'type')
         expect(type).to eq 'ZeroDivisionError'
       end

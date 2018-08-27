@@ -22,14 +22,14 @@ if defined?(Rails)
         config.consider_all_requests_local = false
 
         config.logger = Logger.new(nil)
-        config.logger = Logger.new(STDOUT)
+        # config.logger = Logger.new(STDOUT)
         config.logger.level = Logger::DEBUG
 
         config.eager_load = false
 
         config.action_mailer.perform_deliveries = false
 
-        config.elastic_apm.api_request_time = 0.1
+        config.elastic_apm.api_request_time = nil
         config.elastic_apm.enabled_environments += %w[test]
         config.elastic_apm.service_name = 'RailsTestApp'
         config.elastic_apm.debug_transactions = true
@@ -122,12 +122,12 @@ if defined?(Rails)
 
       response = get '/'
 
-      ElasticAPM.agent && ElasticAPM.agent.flush
+      ElasticAPM.agent.flush
       wait_for_requests_to_finish 1
 
       expect(response.body).to eq 'Yes!'
 
-      service = MockAPMServer.metadatas.first['service']
+      service = @mock_intake.metadatas.first['service']
       expect(service['name']).to eq 'RailsTestApp'
       expect(service['framework']['name']).to eq 'Ruby on Rails'
       expect(service['framework']['version'])
@@ -146,8 +146,8 @@ if defined?(Rails)
         ElasticAPM.agent.flush
         wait_for_requests_to_finish 1
 
-        expect(MockAPMServer.requests.length).to be 1
-        name = MockAPMServer.transactions.first['name']
+        expect(@mock_intake.requests.length).to be 1
+        name = @mock_intake.transactions.first['name']
         expect(name).to eq 'ApplicationController#index'
       end
 
@@ -157,18 +157,18 @@ if defined?(Rails)
         ElasticAPM.agent.flush
         wait_for_requests_to_finish 1
 
-        context = MockAPMServer.transactions.first['context']
+        context = @mock_intake.transactions.first['context']
         expect(context['tags']).to eq('things' => '1')
         expect(context['custom']).to eq('nested' => { 'banana' => 'explosion' })
       end
 
-      xit 'includes user information' do
+      it 'includes user information' do
         get '/'
 
         ElasticAPM.agent.flush
         wait_for_requests_to_finish 1
 
-        context = MockAPMServer.transactions.first['context']
+        context = @mock_intake.transactions.first['context']
         user = context['user']
         expect(user['id']).to eq 1
         expect(user['email']).to eq 'person@example.com'
@@ -181,8 +181,8 @@ if defined?(Rails)
         ElasticAPM.agent.flush
         wait_for_requests_to_finish 1
 
-        expect(MockAPMServer.requests.length).to be 1
-        name = MockAPMServer.transactions.first['name']
+        expect(@mock_intake.requests.length).to be 1
+        name = @mock_intake.transactions.first['name']
         expect(name).to eq 'ApplicationController#index'
       end
 
@@ -190,8 +190,8 @@ if defined?(Rails)
         get '/'
         wait_for_requests_to_finish 1
 
-        payload, = MockAPMServer.requests
-        expect(payload).to match_json_schema(:transactions)
+        transaction = @mock_intake.transactions.first
+        expect(transaction).to match_json_schema(:transactions)
       end
     end
 
@@ -199,14 +199,14 @@ if defined?(Rails)
       it 'adds an exception handler and handles exceptions '\
         'AND posts transaction' do
         response = get '/error'
-
         ElasticAPM.agent.flush
+
         wait_for_requests_to_finish 1
 
         expect(response.status).to be 500
-        expect(MockAPMServer.requests.length).to be 1
+        expect(@mock_intake.requests.length).to be 1
 
-        error = MockAPMServer.errors.first
+        error = @mock_intake.errors.first
         expect(error['transaction']['id']).to_not be_nil
 
         exception = error['exception']
@@ -219,18 +219,16 @@ if defined?(Rails)
         wait_for_requests_to_finish 2
 
         payload =
-          MockAPMServer.requests.find { |r| r.key?('errors') }
+          @mock_intake.requests.find { |r| r.key?('errors') }
         expect(payload).to match_json_schema(:errors)
       end
 
       it 'sends messages that validate' do
         get '/report_message'
-
-        ElasticAPM.agent && ElasticAPM.agent.flush
+        ElasticAPM.agent.flush
         wait_for_requests_to_finish 1
-        # sleep 1 if RSpec::Support::Ruby.jruby? # so sorry
 
-        error, = MockAPMServer.errors
+        error, = @mock_intake.errors
         expect(error['log']).to be_a Hash
       end
     end
@@ -238,14 +236,13 @@ if defined?(Rails)
     describe 'mailers' do
       it 'spans mails' do
         get '/send_notification'
-
         ElasticAPM.agent.flush
         wait_for_requests_to_finish 1
 
-        transaction, = MockAPMServer.transactions
+        transaction, = @mock_intake.transactions
         expect(transaction['name'])
           .to eq 'ApplicationController#send_notification'
-        span, = MockAPMServer.spans
+        span, = @mock_intake.spans
         expect(span['name']).to eq 'NotificationsMailer#ping'
       end
     end

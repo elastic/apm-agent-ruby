@@ -37,7 +37,7 @@ module ElasticAPM
             end
           end
 
-          xcontext 'with dropped spans' do
+          context 'with dropped spans' do
             it 'includes count' do
               config = Config.new(transaction_max_spans: 2)
               agent = Agent.new(config)
@@ -49,9 +49,11 @@ module ElasticAPM
                 t
               end
 
-              result = Transactions.new(config).build(transaction)
+              result = described_class.new(config).build(transaction)
 
-              expect(result.dig(:span_count, :dropped, :total)).to be 1
+              expect(
+                result.dig(:transaction, :span_count, :dropped, :total)
+              ).to be 1
             end
           end
         end

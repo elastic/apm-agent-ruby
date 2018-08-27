@@ -181,6 +181,7 @@ module ElasticAPM
     alias :disable_environment_warning? :disable_environment_warning
     alias :verify_server_cert? :verify_server_cert
     alias :disable_send? :disable_send
+    alias :http_compression? :http_compression
 
     def app=(app)
       case app_type?(app)

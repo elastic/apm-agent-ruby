@@ -23,10 +23,6 @@ RSpec.configure do |config|
   unless ENV['INCLUDE_SCHEMA_SPECS']
     config.filter_run_excluding(type: 'json_schema')
   end
-  
-  config.before do
-    pp ElasticAPM.agent&.transport&.connection&.connected?
-  end
 
   # config.fail_fast = true unless ENV['CI']
 
@@ -54,6 +50,7 @@ RSpec.configure do |config|
     if elastic_subscribers.any? &&
        !example.metadata[:allow_leaking_subscriptions] &&
        example.execution_result.status == :passed
+
       raise 'someone leaked subscription'
     end
   end

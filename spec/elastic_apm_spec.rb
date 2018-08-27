@@ -34,7 +34,7 @@ RSpec.describe ElasticAPM do
     it { should delegate :set_custom_context, to: agent, args: [nil] }
     it { should delegate :set_user, to: agent, args: [nil] }
 
-    xdescribe '#add_filter' do
+    describe '#add_filter' do
       it { should delegate :add_filter, to: agent, args: [nil, -> {}] }
 
       it 'needs either callback or block' do
