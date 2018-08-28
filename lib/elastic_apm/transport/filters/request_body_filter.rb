@@ -5,7 +5,7 @@ module ElasticAPM
     module Filters
       # @api private
       class RequestBodyFilter
-        FILTERED = '[FILTERED]'.freeze
+        FILTERED = '[FILTERED]'
 
         def initialize(config)
           @config = config

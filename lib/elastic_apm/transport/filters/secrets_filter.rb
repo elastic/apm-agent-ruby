@@ -5,7 +5,7 @@ module ElasticAPM
     module Filters
       # @api private
       class SecretsFilter
-        FILTERED = '[FILTERED]'.freeze
+        FILTERED = '[FILTERED]'
 
         KEY_FILTERS = [
           /passw(or)?d/i,

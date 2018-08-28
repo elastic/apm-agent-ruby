@@ -14,7 +14,7 @@ module ElasticAPM
 
       # @api private
       class Subscriber
-        TYPE = 'db.mongodb.query'.freeze
+        TYPE = 'db.mongodb.query'
 
         def initialize
           @events = {}
@@ -40,7 +40,7 @@ module ElasticAPM
           ctx = Span::Context.new(
             instance: event.database_name,
             statement: nil,
-            type: 'mongodb'.freeze,
+            type: 'mongodb',
             user: nil
           )
           span = ElasticAPM.span(event.command_name.to_s, TYPE, context: ctx)

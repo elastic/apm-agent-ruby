@@ -254,6 +254,7 @@ module ElasticAPM
     end
 
     # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/AbcSize
     def set_from_env
       ENV_TO_KEY.each do |env_key, key|
         next unless (value = ENV[env_key])
@@ -273,6 +274,7 @@ module ElasticAPM
         send("#{key}=", value)
       end
     end
+    # rubocop:enable Metrics/AbcSize
     # rubocop:enable Metrics/MethodLength, Metrics/CyclomaticComplexity
 
     def set_from_args(options)

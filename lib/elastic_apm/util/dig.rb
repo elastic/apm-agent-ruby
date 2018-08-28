@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Backport Enumerable#dig to Ruby < 2.3
 #
 # Implementation from

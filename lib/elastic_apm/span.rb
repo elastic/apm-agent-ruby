@@ -7,7 +7,7 @@ require 'elastic_apm/span/context'
 module ElasticAPM
   # @api private
   class Span
-    DEFAULT_TYPE = 'custom'.freeze
+    DEFAULT_TYPE = 'custom'
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(
@@ -39,6 +39,7 @@ module ElasticAPM
       self
     end
 
+    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def done
       @duration = Util.micros - @transaction.timestamp - relative_start
 
@@ -57,6 +58,7 @@ module ElasticAPM
 
       self
     end
+    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
     def done?
       !!duration

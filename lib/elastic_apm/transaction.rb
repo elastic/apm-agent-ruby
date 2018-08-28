@@ -5,7 +5,7 @@ require 'securerandom'
 module ElasticAPM
   # @api private
   class Transaction
-    DEFAULT_TYPE = 'custom'.freeze
+    DEFAULT_TYPE = 'custom'
 
     # rubocop:disable Metrics/MethodLength
     def initialize(

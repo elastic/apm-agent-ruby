@@ -6,7 +6,7 @@ module ElasticAPM
     # @api private
     class SidekiqSpy
       ACTIVE_JOB_WRAPPER =
-        'ActiveJob::QueueAdapters::SidekiqAdapter::JobWrapper'.freeze
+        'ActiveJob::QueueAdapters::SidekiqAdapter::JobWrapper'
 
       # @api private
       class Middleware
