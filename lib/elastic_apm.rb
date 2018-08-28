@@ -3,7 +3,6 @@
 require 'elastic_apm/version'
 require 'elastic_apm/internal_error'
 require 'elastic_apm/log'
-require 'elastic_apm/util/dig'
 
 # Core
 require 'elastic_apm/agent'
