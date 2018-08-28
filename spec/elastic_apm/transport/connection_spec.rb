@@ -60,7 +60,7 @@ module ElasticAPM
           stub = build_stub(
             headers: { 'Content-Encoding' => 'gzip' }
           ) do |req|
-            metadata, payload = Zlib.gunzip(req.body).split("\n")
+            metadata, payload = gunzip(req.body).split("\n")
 
             expect(metadata).to match('{"metadata":')
             expect(payload).to eq('{}')
@@ -88,6 +88,14 @@ module ElasticAPM
         WebMock
           .stub_request(:post, 'http://localhost:8200/v2/intake')
           .with(**opts, &block)
+      end
+
+      def gunzip(string)
+        sio = StringIO.new(string)
+        gz = Zlib::GzipReader.new(sio, encoding: Encoding::ASCII_8BIT)
+        gz.read
+      ensure
+        gz&.close
       end
     end
   end

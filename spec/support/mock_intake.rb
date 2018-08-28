@@ -32,7 +32,7 @@ class Intake
 
     body =
       if encoding =~ /gzip/
-        Zlib.gunzip(request.body.read)
+        gunzip(request.body.read)
       else
         request.body.read
       end
@@ -46,6 +46,14 @@ class Intake
   # rubocop:enable Metrics/MethodLength
 
   private
+
+  def gunzip(string)
+    sio = StringIO.new(string)
+    gz = Zlib::GzipReader.new(sio, encoding: Encoding::ASCII_8BIT)
+    gz.read
+  ensure
+    gz&.close
+  end
 
   # rubocop:disable Metrics/AbcSize
   def catalog(obj)
