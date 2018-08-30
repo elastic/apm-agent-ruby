@@ -26,7 +26,7 @@ module ElasticAPM
         end
       end
 
-      context 'when given max request time' do
+      context 'max request time' do
         let(:config) { Config.new(api_request_time: 0.1) }
 
         it 'closes requests when reached' do
@@ -53,8 +53,61 @@ module ElasticAPM
         end
       end
 
+      context 'max request size' do
+        let(:config) { Config.new(api_request_size: 5) }
+
+        it 'closes requests when reached' do
+          stub = build_stub do |req|
+            metadata, payload = gunzip(req.body).split("\n")
+
+            expect(metadata).to match('{"metadata":')
+            expect(payload).to eq('{}')
+
+            req
+          end
+
+          subject.write('{}')
+
+          expect(subject).to_not be_connected
+
+          expect(stub).to have_been_requested
+        end
+
+        it "doesn't make a scene if already closed" do
+          build_stub
+
+          subject.write('{}')
+          subject.close!
+
+          expect(subject).to_not be_connected
+
+          sleep 0.2
+          expect(subject).to_not be_connected
+        end
+
+        context 'and gzip off' do
+          let(:config) { Config.new(http_compression: false) }
+          let(:metadata) { Metadata.build(config) }
+
+          before do
+            config.api_request_size = metadata.bytesize + 1
+          end
+
+          it 'closes requests when reached' do
+            stub = build_stub
+
+            subject.write('{}')
+
+            sleep 0.2
+            expect(subject).to_not be_connected
+
+            expect(stub).to have_been_requested
+          end
+        end
+      end
+
       context 'http compression' do
-        let(:config) { Config.new(http_compression: true) }
+        let(:config) { Config.new }
 
         it 'compresses the payload' do
           stub = build_stub(

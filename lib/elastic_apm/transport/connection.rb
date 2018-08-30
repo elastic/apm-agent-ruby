@@ -44,9 +44,19 @@ module ElasticAPM
 
       def write(str)
         connect! unless connected?
-        connect! if @wr.closed?
+        # connect! if @wr.closed?
+
+        if @config.http_compression
+          @bytes_sent = @wr.tell
+        else
+          @bytes_sent += str.bytesize
+        end
 
         @wr.puts(str)
+
+        return unless @bytes_sent >= @config.api_request_size
+
+        close!
       end
 
       def connected?
@@ -62,6 +72,7 @@ module ElasticAPM
 
       def connect!
         @rd, @wr = ModdedIO.pipe
+        @bytes_sent = 0
 
         if @config.http_compression?
           @wr.binmode
