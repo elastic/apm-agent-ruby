@@ -31,11 +31,12 @@ module ElasticAPM
       def initialize(config)
         @config = config
 
+        @url = config.server_url + '/v2/intake'
+
         @client = HTTP.headers(
           @config.http_compression? ? GZIP_HEADERS : HEADERS
-        )
+        ).persistent(@url)
 
-        @url = config.server_url + '/v2/intake'
         @metadata = Metadata.build(config)
         @connected = false
 
@@ -70,6 +71,7 @@ module ElasticAPM
 
       private
 
+      # rubocop:disable Metrics/MethodLength
       def connect!
         @rd, @wr = ModdedIO.pipe
         @bytes_sent = 0
@@ -89,6 +91,7 @@ module ElasticAPM
 
         self
       end
+      # rubocop:enable Metrics/MethodLength
 
       def boot_request_thread
         Thread.new do
