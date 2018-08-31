@@ -44,6 +44,8 @@ module ElasticAPM
       disabled_spies: %w[json],
       enable_rake_task_instrumentation: false,
 
+      default_tags: {},
+
       current_user_id_method: :id,
       current_user_email_method: :email,
       current_user_username_method: :username,
@@ -97,7 +99,10 @@ module ElasticAPM
 
       'ELASTIC_APM_DISABLE_SEND' => [:bool, 'disable_send'],
       'ELASTIC_APM_DISABLED_SPIES' => [:list, 'disabled_spies'],
-      'ELASTIC_APM_ENABLE_RAKE_TASK_INSTRUMENTATION' => [:bool, 'enable_rake_task_instrumentation']
+      'ELASTIC_APM_ENABLE_RAKE_TASK_INSTRUMENTATION' =>
+        [:bool, 'enable_rake_task_instrumentation'],
+
+      'ELASTIC_APM_DEFAULT_TAGS' => [:dict, 'default_tags']
     }.freeze
 
     def initialize(options = {})
@@ -165,6 +170,8 @@ module ElasticAPM
     attr_accessor :current_user_email_method
     attr_accessor :current_user_username_method
 
+    attr_accessor :default_tags
+
     attr_reader   :custom_key_filters
     attr_reader   :ignore_url_patterns
 
@@ -185,7 +192,7 @@ module ElasticAPM
     end
 
     def app_type?(app)
-      if defined?(::Rails) && app.is_a?(Rails::Application)
+      if defined?(Rails::Application) && app.is_a?(Rails::Application)
         return :rails
       end
 
@@ -256,6 +263,7 @@ module ElasticAPM
           when :float then value.to_f
           when :bool then !%w[0 false].include?(value.strip.downcase)
           when :list then value.split(/[ ,]/)
+          when :dict then Hash[value.split('&').map { |kv| kv.split('=') }]
           else value
           end
 

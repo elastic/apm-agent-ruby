@@ -22,4 +22,4 @@ RUBY_VERSION=$1 docker-compose run \
   -v "$local_vendor_path:$container_vendor_path" \
   -v "$(dirname $(pwd))":/app \
   --rm ruby_rspec \
-  /bin/bash -c "bundle install --path $container_vendor_path && timeout 5m bench/benchmark.rb | bench/report.rb"
+  /bin/bash -c "bundle install --path $container_vendor_path && bench/benchmark.rb | bench/report.rb"

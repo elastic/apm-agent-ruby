@@ -36,11 +36,28 @@ module ElasticAPM
     context 'instrumenting' do
       subject { Agent.new Config.new }
       it { should delegate :current_transaction, to: subject.instrumenter }
-      it { should delegate :transaction, to: subject.instrumenter }
-      it { should delegate :span, to: subject.instrumenter }
-      it { should delegate :set_tag, to: subject.instrumenter }
-      it { should delegate :set_custom_context, to: subject.instrumenter }
-      it { should delegate :set_user, to: subject.instrumenter }
+      it do
+        should delegate :transaction,
+          to: subject.instrumenter,
+          args: ['name', 'type', { context: nil, sampled: true }]
+      end
+      it do
+        should delegate :span,
+          to: subject.instrumenter,
+          args: ['name', 'type', { backtrace: nil, context: nil }]
+      end
+      it do
+        should delegate :set_tag,
+          to: subject.instrumenter, args: [:key, 'value']
+      end
+      it do
+        should delegate :set_custom_context,
+          to: subject.instrumenter, args: [{}]
+      end
+      it do
+        should delegate :set_user,
+          to: subject.instrumenter, args: ['user']
+      end
     end
 
     context 'reporting', :with_fake_server do

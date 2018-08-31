@@ -10,7 +10,7 @@ module ElasticAPM
         register 'sql.active_record'
 
         def initialize(*args)
-          super(*args)
+          super
 
           @type = format('db.%s.sql', lookup_adapter || 'unknown').freeze
           @summarizer = SqlSummarizer.new

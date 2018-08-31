@@ -10,7 +10,6 @@ exclude:
     FRAMEWORK: rails-5.1
   - RUBY_VERSION: ruby-2.2
     FRAMEWORK: rails-5.0
-  - RUBY_VERSION: ruby-2.4
 
   # Only test master on newest ruby
   - RUBY_VERSION: ruby-2.2

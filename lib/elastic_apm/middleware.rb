@@ -16,7 +16,8 @@ module ElasticAPM
 
         resp = @app.call env
 
-        submit_transaction(transaction, *resp) if transaction
+        status, headers, body = resp
+        submit_transaction(transaction, status, headers, body) if transaction
       rescue InternalError
         raise # Don't report ElasticAPM errors
       rescue ::Exception => e
@@ -38,7 +39,7 @@ module ElasticAPM
 
     def path_ignored?(env)
       config.ignore_url_patterns.any? do |r|
-        env['PATH_INFO'] =~ r
+        env['PATH_INFO'].match r
       end
     end
 
