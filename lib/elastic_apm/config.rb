@@ -42,6 +42,7 @@ module ElasticAPM
       span_frames_min_duration: 5,
 
       disabled_spies: %w[json],
+      enable_rake_task_instrumentation: false,
 
       default_tags: {},
 
@@ -98,6 +99,8 @@ module ElasticAPM
 
       'ELASTIC_APM_DISABLE_SEND' => [:bool, 'disable_send'],
       'ELASTIC_APM_DISABLED_SPIES' => [:list, 'disabled_spies'],
+      'ELASTIC_APM_ENABLE_RAKE_TASK_INSTRUMENTATION' =>
+        [:bool, 'enable_rake_task_instrumentation'],
 
       'ELASTIC_APM_DEFAULT_TAGS' => [:dict, 'default_tags']
     }.freeze
@@ -157,6 +160,7 @@ module ElasticAPM
     attr_accessor :span_frames_min_duration
 
     attr_accessor :disabled_spies
+    attr_accessor :enable_rake_task_instrumentation
 
     attr_accessor :view_paths
     attr_accessor :root_path
@@ -225,6 +229,7 @@ module ElasticAPM
         sidekiq
         sinatra
         tilt
+        rake
       ]
     end
     # rubocop:enable Metrics/MethodLength
