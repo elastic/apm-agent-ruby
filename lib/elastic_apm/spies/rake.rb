@@ -14,7 +14,7 @@ module ElasticAPM
           def execute(*args)
             agent = ElasticAPM.start
 
-            unless agent && agent.config.instrument_rake?
+            unless agent && agent.config.instrumented_rake_tasks.include?(name)
               return execute_without_apm(*args)
             end
 

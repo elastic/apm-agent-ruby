@@ -42,7 +42,7 @@ module ElasticAPM
       span_frames_min_duration: 5,
 
       disabled_spies: %w[json],
-      instrument_rake: false,
+      instrumented_rake_tasks: [],
 
       default_tags: {},
 
@@ -99,7 +99,8 @@ module ElasticAPM
 
       'ELASTIC_APM_DISABLE_SEND' => [:bool, 'disable_send'],
       'ELASTIC_APM_DISABLED_SPIES' => [:list, 'disabled_spies'],
-      'ELASTIC_APM_INSTRUMENT_RAKE' => [:bool, 'instrument_rake'],
+      'ELASTIC_APM_INSTRUMENTED_RAKE_TASKS' =>
+        [:list, 'instrumented_rake_tasks'],
 
       'ELASTIC_APM_DEFAULT_TAGS' => [:dict, 'default_tags']
     }.freeze
@@ -159,7 +160,7 @@ module ElasticAPM
     attr_accessor :span_frames_min_duration
 
     attr_accessor :disabled_spies
-    attr_accessor :instrument_rake
+    attr_accessor :instrumented_rake_tasks
 
     attr_accessor :view_paths
     attr_accessor :root_path
@@ -176,7 +177,6 @@ module ElasticAPM
 
     alias :disable_environment_warning? :disable_environment_warning
     alias :disable_send? :disable_send
-    alias :instrument_rake? :instrument_rake
     alias :verify_server_cert? :verify_server_cert
 
     def app=(app)

@@ -12,7 +12,7 @@ module ElasticAPM
     end
 
     it 'wraps in transaction when enabled' do
-      ElasticAPM.start(instrument_rake: true)
+      ElasticAPM.start(instrumented_rake_tasks: %w[test_task])
 
       task.invoke
 
