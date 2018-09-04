@@ -390,6 +390,18 @@ Use this option to disable any of these.
 Get an array of enabled spies with `ElasticAPM.agent.config.enabled_spies`.
 
 [float]
+[[config-instrumented-rake-tasks]]
+==== `instrumented_rake_tasks`
+
+[options="header"]
+|============
+| Environment                           | `Config` key              | Default | Example
+| `ELASTIC_APM_INSTRUMENTED_RAKE_TASKS` | `instrumented_rake_tasks` | `[]`    | `['my_task']`
+|============
+
+Elastic APM can instrument your Rake tasks but given that they are used for a multitude of sometimes very different and not always relevant things, this is opt in.
+
+[float]
 [[config-default-tags]]
 ==== `default_tags`
 
