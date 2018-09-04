@@ -12,6 +12,7 @@ module ElasticAPM
         span.start
 
         expect(span.relative_start).to eq 100_000
+        expect(span.timestamp).to eq Util.micros - 100_000
       end
     end
 

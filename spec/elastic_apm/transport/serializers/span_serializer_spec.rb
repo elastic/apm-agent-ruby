@@ -37,6 +37,7 @@ module ElasticAPM
                   context: nil,
                   stacktrace: [],
                   start: 0,
+                  timestamp: @mocked_date,
                   duration: 100
                 }
               )

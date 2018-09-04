@@ -31,10 +31,12 @@ module ElasticAPM
     # rubocop:enable Metrics/ParameterLists
 
     attr_accessor :name, :type, :original_backtrace
-    attr_reader :id, :context, :stacktrace, :duration, :parent, :relative_start
+    attr_reader :id, :context, :stacktrace, :duration, :parent, :relative_start,
+      :timestamp
 
     def start
-      @relative_start = Util.micros - @transaction.timestamp
+      @timestamp = @transaction.timestamp
+      @relative_start = Util.micros - @timestamp
 
       self
     end
