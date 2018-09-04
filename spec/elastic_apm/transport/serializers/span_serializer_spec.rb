@@ -30,7 +30,7 @@ module ElasticAPM
             it 'builds' do
               should match(
                 span: {
-                  id: 0,
+                  id: '0',
                   name: 'SELECT *',
                   type: 'db.query',
                   parent: nil,

@@ -9,7 +9,7 @@ module ElasticAPM
         def build(span)
           {
             span: {
-              id: span.id,
+              id: span.id.to_s,
               parent: span.parent && span.parent.id,
               name: span.name,
               type: span.type,
