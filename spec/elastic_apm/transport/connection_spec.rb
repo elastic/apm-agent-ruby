@@ -2,6 +2,8 @@
 
 require 'elastic_apm/transport/connection'
 
+Thread.report_on_exception = true
+
 module ElasticAPM
   module Transport
     RSpec.describe Connection do
@@ -23,6 +25,20 @@ module ElasticAPM
           expect(subject).to_not be_connected
 
           expect(stub).to have_been_requested
+        end
+      end
+
+      describe 'handling errors' do
+        it 'logs the error' do
+          expect(subject).to receive(:error) # log
+
+          errors = { errors: [{ message: 'real big explosion' }] }
+          stub = build_stub(to_return: { status: 500, body: errors.to_json })
+
+          subject.write('{}')
+          subject.close!
+
+          expect(stub).to have_been_requested.once
         end
       end
 
@@ -52,7 +68,6 @@ module ElasticAPM
           expect(subject).to_not be_connected
         end
       end
-
       context 'max request size' do
         let(:config) { Config.new(api_request_size: 5) }
 
@@ -128,7 +143,8 @@ module ElasticAPM
         end
       end
 
-      def build_stub(body: nil, headers: {}, &block)
+      # rubocop:disable Metrics/MethodLength
+      def build_stub(body: nil, headers: {}, to_return: {}, &block)
         opts = {
           headers: {
             'Transfer-Encoding' => 'chunked',
@@ -141,7 +157,9 @@ module ElasticAPM
         WebMock
           .stub_request(:post, 'http://localhost:8200/v2/intake')
           .with(**opts, &block)
+          .to_return(to_return.merge(status: 202) { |_, old, _| old })
       end
+      # rubocop:enable Metrics/MethodLength
 
       def gunzip(string)
         sio = StringIO.new(string)

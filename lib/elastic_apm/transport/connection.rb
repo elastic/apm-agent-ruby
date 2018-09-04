@@ -9,17 +9,19 @@ require 'elastic_apm/metadata'
 module ElasticAPM
   module Transport
     # @api private
-    # HTTP.rb calls #rewind the body stream, which IO.pipes don't support
-    class ModdedIO < IO
-      def self.pipe(ext_enc = nil)
-        super(ext_enc).tap do |rw|
-          rw[0].define_singleton_method(:rewind) { nil }
+    class Connection
+      include Log
+
+      # @api private
+      # HTTP.rb calls #rewind the body stream which IO.pipes don't support
+      class ModdedIO < IO
+        def self.pipe(ext_enc = nil)
+          super(ext_enc).tap do |rw|
+            rw[0].define_singleton_method(:rewind) { nil }
+          end
         end
       end
-    end
 
-    # @api private
-    class Connection
       HEADERS = {
         'Content-Type' => 'application/x-ndjson',
         'Transfer-Encoding' => 'chunked'
@@ -81,7 +83,7 @@ module ElasticAPM
           @wr = Zlib::GzipWriter.new(@wr)
         end
 
-        @conn_thread = boot_request_thread
+        @conn_thread = perform_request_in_thread
 
         schedule_closing if @config.api_request_time
 
@@ -93,13 +95,24 @@ module ElasticAPM
       end
       # rubocop:enable Metrics/MethodLength
 
-      def boot_request_thread
+      # rubocop:disable Metrics/MethodLength
+      def perform_request_in_thread
         Thread.new do
-          @mutex.synchronize { @connected = true }
-          @client.post(@url, body: @rd).flush
-          @mutex.synchronize { @connected = false }
+          begin
+            @mutex.synchronize { @connected = true }
+            resp = @client.post(@url, body: @rd).flush
+          ensure
+            @mutex.synchronize { @connected = false }
+          end
+
+          unless resp&.status == 202
+            error format("APM Server reponded with an error:\n%s", resp.body)
+          end
+
+          resp
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       def schedule_closing
         @close_task =

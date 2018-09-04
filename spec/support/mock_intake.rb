@@ -23,7 +23,7 @@ class Intake
       catalog obj
     end
 
-    [200, {}, ['ok']]
+    [202, {}, ['ok']]
   end
 
   # rubocop:disable Metrics/MethodLength
