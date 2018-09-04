@@ -2,8 +2,6 @@
 
 require 'elastic_apm/transport/connection'
 
-Thread.report_on_exception = true
-
 module ElasticAPM
   module Transport
     RSpec.describe Connection do

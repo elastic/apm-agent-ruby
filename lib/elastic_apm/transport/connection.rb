@@ -10,6 +10,8 @@ module ElasticAPM
   module Transport
     # @api private
     class Connection
+      class FailedToConnectError < InternalError; end
+
       include Log
 
       # @api private
@@ -40,14 +42,13 @@ module ElasticAPM
         ).persistent(@url)
 
         @metadata = Metadata.build(config)
-        @connected = false
 
         @mutex = Mutex.new
       end
 
+      # rubocop:disable Metrics/MethodLength
       def write(str)
         connect! unless connected?
-        # connect! if @wr.closed?
 
         if @config.http_compression
           @bytes_sent = @wr.tell
@@ -60,7 +61,12 @@ module ElasticAPM
         return unless @bytes_sent >= @config.api_request_size
 
         close!
+      rescue FailedToConnectError => e
+        error format("Couldn't establish connection to APM Server:\n%s", e)
+
+        nil
       end
+      # rubocop:enable Metrics/MethodLength
 
       def connected?
         @mutex.synchronize { @connected }
@@ -68,44 +74,37 @@ module ElasticAPM
 
       def close!
         @mutex.synchronize { @wr.close } if connected?
-        @conn_thread.join if @conn_thread
+        @conn_thread.join 0.1 if @conn_thread
       end
 
       private
 
-      # rubocop:disable Metrics/MethodLength
       def connect!
-        @rd, @wr = ModdedIO.pipe
-        @bytes_sent = 0
+        reset!
 
-        if @config.http_compression?
-          @wr.binmode
-          @wr = Zlib::GzipWriter.new(@wr)
-        end
-
-        @conn_thread = perform_request_in_thread
-
+        enable_compression if @config.http_compression?
+        perform_request_in_thread
+        wait_for_connection
         schedule_closing if @config.api_request_time
-
-        sleep 0.01 until connected?
 
         write(@metadata)
 
-        self
+        true
       end
-      # rubocop:enable Metrics/MethodLength
 
       # rubocop:disable Metrics/MethodLength
       def perform_request_in_thread
-        Thread.new do
+        @conn_thread = Thread.new do
           begin
             @mutex.synchronize { @connected = true }
             resp = @client.post(@url, body: @rd).flush
+          rescue Exception => e
+            @connection_error = e
           ensure
             @mutex.synchronize { @connected = false }
           end
 
-          unless resp&.status == 202
+          if resp && resp.status != 202
             error format("APM Server reponded with an error:\n%s", resp.body)
           end
 
@@ -119,6 +118,30 @@ module ElasticAPM
           Concurrent::ScheduledTask.execute(@config.api_request_time) do
             close!
           end
+      end
+
+      def enable_compression
+        @wr.binmode
+        @wr = Zlib::GzipWriter.new(@wr)
+      end
+
+      def reset!
+        @bytes_sent = 0
+        @connected = false
+        @connection_error = nil
+        @close_task = nil
+        @rd, @wr = ModdedIO.pipe
+      end
+
+      def wait_for_connection
+        until connected?
+          if (exception = @mutex.synchronize { @connection_error })
+            @wr&.close
+            raise FailedToConnectError, exception
+          end
+
+          sleep 0.01
+        end
       end
     end
   end
