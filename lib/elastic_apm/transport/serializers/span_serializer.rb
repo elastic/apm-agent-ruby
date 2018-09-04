@@ -10,6 +10,7 @@ module ElasticAPM
           {
             span: {
               id: span.id.to_s,
+              transaction_id: span.transaction_id,
               parent: span.parent && span.parent.id,
               name: span.name,
               type: span.type,

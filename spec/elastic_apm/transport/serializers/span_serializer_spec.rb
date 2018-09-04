@@ -15,14 +15,16 @@ module ElasticAPM
 
         describe '#build', :mock_time do
           context 'a span' do
-            let(:span) do
-              t = instrumenter.transaction do
+            let :transaction do
+              instrumenter.transaction do
                 instrumenter.span('SELECT *', 'db.query') do
                   travel 100
                 end
               end
+            end
 
-              t.spans.first
+            let :span do
+              transaction.spans.first
             end
 
             subject { builder.build(span) }
@@ -31,6 +33,7 @@ module ElasticAPM
               should match(
                 span: {
                   id: '0',
+                  transaction_id: @mock_uuid,
                   name: 'SELECT *',
                   type: 'db.query',
                   parent: nil,
