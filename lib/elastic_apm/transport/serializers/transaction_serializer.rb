@@ -15,7 +15,8 @@ module ElasticAPM
             duration: ms(transaction.duration),
             timestamp: micros_to_time(transaction.timestamp).utc.iso8601(3),
             sampled: transaction.sampled,
-            context: transaction.context.to_h
+            context: transaction.context.to_h,
+            trace_id: transaction.trace_id
           }
 
           if transaction.dropped_spans > 0

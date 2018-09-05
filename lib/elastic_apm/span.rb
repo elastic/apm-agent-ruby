@@ -26,6 +26,8 @@ module ElasticAPM
       @context = context
       @transaction_id = transaction.id
 
+      @trace_id = transaction.trace_id
+
       @stacktrace = nil
       @original_backtrace = nil
     end
@@ -33,7 +35,7 @@ module ElasticAPM
 
     attr_accessor :name, :type, :original_backtrace
     attr_reader :id, :context, :stacktrace, :duration, :parent, :relative_start,
-      :timestamp, :transaction_id
+      :timestamp, :transaction_id, :trace_id
 
     def start
       @timestamp = @transaction.timestamp

@@ -33,13 +33,16 @@ module ElasticAPM
 
       @sampled = sampled
 
+      @trace_id = SecureRandom.hex(128)
+
       yield self if block_given?
     end
     # rubocop:enable Metrics/MethodLength
 
     attr_accessor :name, :type
     attr_reader :id, :context, :duration, :dropped_spans, :root_span,
-      :timestamp, :spans, :result, :notifications, :sampled, :instrumenter
+      :timestamp, :spans, :result, :notifications, :sampled, :instrumenter,
+      :trace_id
 
     def release
       @instrumenter.current_transaction = nil
