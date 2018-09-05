@@ -12,6 +12,7 @@ gem 'json-schema'
 gem 'mongo'
 gem 'pry'
 gem 'rack-test'
+gem 'rake'
 gem 'redis', require: nil
 gem 'rspec'
 gem 'rubocop'
