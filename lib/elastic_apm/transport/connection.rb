@@ -46,21 +46,20 @@ module ElasticAPM
         @mutex = Mutex.new
       end
 
-      # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       def write(str)
         connect! unless connected?
 
-        debug 'Writing: %s', str
+        bytes =
+          if @config.http_compression
+            @mutex.synchronize { @bytes_sent = @wr.tell }
+          else
+            @mutex.synchronize { @bytes_sent += str.bytesize }
+          end
 
-        if @config.http_compression
-          @bytes_sent = @wr.tell
-        else
-          @bytes_sent += str.bytesize
-        end
+        debug 'Bytes sent during this request: %d', bytes
 
-        debug 'Bytes sent during this request: %d', @bytes_sent
-
-        @wr.puts(str)
+        @mutex.synchronize { @wr.puts(str) }
 
         return unless @bytes_sent >= @config.api_request_size
 
@@ -70,7 +69,7 @@ module ElasticAPM
 
         nil
       end
-      # rubocop:enable Metrics/MethodLength
+      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
       def connected?
         @mutex.synchronize { @connected }

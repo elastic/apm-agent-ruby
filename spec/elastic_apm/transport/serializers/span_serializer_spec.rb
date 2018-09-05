@@ -41,7 +41,8 @@ module ElasticAPM
                   stacktrace: [],
                   start: 0,
                   timestamp: Time.utc(1992, 1, 1).iso8601(3),
-                  duration: 100
+                  duration: 100,
+                  trace_id: span.trace_id
                 }
               )
             end
