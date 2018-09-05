@@ -58,6 +58,7 @@ if defined?(Sinatra)
 
     it 'knows Sinatra' do
       response = get '/'
+
       ElasticAPM.agent.flush
       wait_for_requests_to_finish 1
 
@@ -73,6 +74,7 @@ if defined?(Sinatra)
     describe 'transactions' do
       it 'wraps requests in a transaction named after route' do
         get '/'
+
         ElasticAPM.agent.flush
         wait_for_requests_to_finish 1
 
@@ -83,6 +85,8 @@ if defined?(Sinatra)
 
       it 'spans inline templates' do
         get '/inline'
+
+        ElasticAPM.agent.flush
         wait_for_requests_to_finish 1
 
         span = @mock_intake.spans.last
@@ -92,6 +96,7 @@ if defined?(Sinatra)
 
       it 'spans templates' do
         response = get '/tmpl'
+
         ElasticAPM.agent.flush
         wait_for_requests_to_finish 1
 
