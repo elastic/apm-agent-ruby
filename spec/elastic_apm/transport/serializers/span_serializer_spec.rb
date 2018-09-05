@@ -40,7 +40,7 @@ module ElasticAPM
                   context: nil,
                   stacktrace: [],
                   start: 0,
-                  timestamp: @mocked_date,
+                  timestamp: Time.utc(1992, 1, 1).iso8601(3),
                   duration: 100
                 }
               )
