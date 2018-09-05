@@ -50,11 +50,15 @@ module ElasticAPM
       def write(str)
         connect! unless connected?
 
+        debug 'Writing: %s', str
+
         if @config.http_compression
           @bytes_sent = @wr.tell
         else
           @bytes_sent += str.bytesize
         end
+
+        debug 'Bytes sent during this request: %d', @bytes_sent
 
         @wr.puts(str)
 
@@ -62,7 +66,7 @@ module ElasticAPM
 
         close!
       rescue FailedToConnectError => e
-        error format("Couldn't establish connection to APM Server:\n%s", e)
+        error "Couldn't establish connection to APM Server:\n%p", e
 
         nil
       end
@@ -73,13 +77,19 @@ module ElasticAPM
       end
 
       def close!
-        @mutex.synchronize { @wr.close } if connected?
+        if connected?
+          debug 'Closing request'
+          @mutex.synchronize { @wr.close }
+        end
+
         @conn_thread.join 0.1 if @conn_thread
       end
 
       private
 
       def connect!
+        debug 'Opening new request'
+
         reset!
 
         enable_compression if @config.http_compression?
@@ -105,7 +115,7 @@ module ElasticAPM
           end
 
           if resp && resp.status != 202
-            error format("APM Server reponded with an error:\n%s", resp.body)
+            error "APM Server reponded with an error:\n%p", resp.body.to_s
           end
 
           resp
