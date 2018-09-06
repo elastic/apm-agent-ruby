@@ -3,8 +3,9 @@
 require 'spec_helper'
 
 SCHEMA_URLS = {
-  transactions: 'https://github.com/simitt/apm-server/raw/1276-update-json-spec-v2/docs/spec/transactions/v2_transaction.json',
-  errors: 'https://github.com/simitt/apm-server/raw/1276-update-json-spec-v2/docs/spec/errors/v2_error.json'
+  transactions: 'https://github.com/elastic/apm-server/raw/v2/docs/spec/transactions/v2_transaction.json',
+  spans: 'https://github.com/elastic/apm-server/raw/v2/docs/spec/spans/v2_span.json',
+  errors: 'https://github.com/elastic/apm-server/raw/v2/docs/spec/errors/v2_error.json'
 }.freeze
 
 RSpec::Matchers.define :match_json_schema do |schema|

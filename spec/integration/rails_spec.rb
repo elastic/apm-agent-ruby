@@ -186,12 +186,17 @@ if defined?(Rails)
         expect(name).to eq 'ApplicationController#index'
       end
 
-      xit 'validates json schema', type: :json_schema do
+      it 'validates json schema', type: :json_schema do
         get '/'
+
+        ElasticAPM.agent.flush
         wait_for_requests_to_finish 1
 
         transaction = @mock_intake.transactions.first
         expect(transaction).to match_json_schema(:transactions)
+
+        span = @mock_intake.spans.first
+        expect(span).to match_json_schema(:spans)
       end
     end
 
@@ -214,12 +219,13 @@ if defined?(Rails)
         expect(exception['handled']).to eq true
       end
 
-      xit 'validates json schema', type: :json_schema do
+      it 'validates json schema', type: :json_schema do
         get '/error'
-        wait_for_requests_to_finish 2
 
-        payload =
-          @mock_intake.requests.find { |r| r.key?('errors') }
+        ElasticAPM.agent.flush
+        wait_for_requests_to_finish 1
+
+        payload = @mock_intake.errors.first
         expect(payload).to match_json_schema(:errors)
       end
 
