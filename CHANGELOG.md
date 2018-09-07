@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## 1.0.2 (2018-09-07)
+## 1.1.0 (2018-09-07)
 
 ### Added
 
@@ -14,6 +14,10 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 ### Fixed
 
 - Fallback from missing JRUBY_VERSION ([#180](https://github.com/elastic/apm-agent-ruby/pull/180))
+
+## 1.0.2 (2018-09-07)
+
+Should've been a minor release -- see 1.1.0
 
 ## 1.0.1 (2018-07-30)
 
