@@ -4,8 +4,16 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 1.0.2 (2018-09-07)
 
+### Added
+
+- Rake task instrumentation ([#192](https://github.com/elastic/apm-agent-ruby/pull/192))
+- `default_tags` option ([#183](https://github.com/elastic/apm-agent-ruby/pull/183))
+
+### Fixed
+
+- Fallback from missing JRUBY_VERSION ([#180](https://github.com/elastic/apm-agent-ruby/pull/180))
 
 ## 1.0.1 (2018-07-30)
 
