@@ -24,7 +24,7 @@ module ElasticAPM
       filter_exception_types: [],
 
       # intake v2
-      api_request_size: 786_432,
+      api_request_size: 768_000, # 750 KiB
       api_request_time: 10,
       api_buffer_size: 10,
 
