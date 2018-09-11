@@ -36,8 +36,6 @@ module ElasticAPM
         end
 
         it 'filters sensitive data' do
-          allow(subject.connection).to receive(:write) { true }
-
           subject.post(
             transaction: {
               id: 1,
@@ -45,7 +43,13 @@ module ElasticAPM
             }
           )
 
-          expect(subject.connection).to have_received(:write)
+          subject.flush
+
+          expect(@mock_intake.transactions.length).to be 1
+
+          transaction, = @mock_intake.transactions
+          api_key = transaction['context']['request']['headers']['ApiKey']
+          expect(api_key).to eq '[FILTERED]'
         end
       end
     end
