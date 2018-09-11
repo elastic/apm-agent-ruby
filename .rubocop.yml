@@ -62,3 +62,6 @@ Rails/Delegate:
 
 Style/NumericPredicate:
   Enabled: false
+
+Layout/EmptyLineAfterGuardClause:
+  Enabled: false

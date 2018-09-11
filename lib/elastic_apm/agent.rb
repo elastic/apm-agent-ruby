@@ -70,7 +70,7 @@ module ElasticAPM
     end
 
     attr_reader :config, :transport, :messages, :pending_transactions,
-      :instrumenter, :context_builder, :stacktrace_builder
+      :instrumenter, :context_builder, :stacktrace_builder, :error_builder
 
     def start
       debug '[%s] Starting agent, reporting to %s', VERSION, config.server_url

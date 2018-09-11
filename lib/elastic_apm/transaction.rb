@@ -4,10 +4,10 @@ require 'securerandom'
 
 module ElasticAPM
   # @api private
-  class Transaction
+  class Transaction # rubocop:disable Metrics/ClassLength
     DEFAULT_TYPE = 'custom'
 
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def initialize(
       instrumenter,
       name = nil,
@@ -37,7 +37,7 @@ module ElasticAPM
 
       yield self if block_given?
     end
-    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     attr_accessor :name, :type
     attr_reader :id, :context, :duration, :dropped_spans, :root_span,

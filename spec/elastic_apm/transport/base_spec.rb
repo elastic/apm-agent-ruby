@@ -17,11 +17,16 @@ module ElasticAPM
             end
           end
 
+          error = agent.error_builder.build_exception actual_exception
+
           subject.submit transaction
+          subject.submit error
+
           subject.flush
 
           expect(@mock_intake.requests.length).to be 1
           expect(@mock_intake.transactions.length).to be 1
+          expect(@mock_intake.errors.length).to be 1
 
           agent.stop
         end
