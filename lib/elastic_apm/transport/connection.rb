@@ -9,10 +9,10 @@ require 'elastic_apm/metadata'
 module ElasticAPM
   module Transport
     # @api private
-    class Connection
-      class FailedToConnectError < InternalError; end
-
+    class Connection # rubocop:disable Metrics/ClassLength
       include Log
+
+      class FailedToConnectError < InternalError; end
 
       # @api private
       # HTTP.rb calls #rewind the body stream which IO.pipes don't support
@@ -28,9 +28,7 @@ module ElasticAPM
         'Content-Type' => 'application/x-ndjson',
         'Transfer-Encoding' => 'chunked'
       }.freeze
-      GZIP_HEADERS = HEADERS.merge(
-        'Content-Encoding' => 'gzip'
-      ).freeze
+      GZIP_HEADERS = HEADERS.merge('Content-Encoding' => 'gzip').freeze
 
       def initialize(config)
         @config = config
@@ -46,20 +44,10 @@ module ElasticAPM
         @mutex = Mutex.new
       end
 
-      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       def write(str)
-        connect! unless connected?
+        connect_unless_connected
 
-        bytes =
-          if @config.http_compression
-            @mutex.synchronize { @bytes_sent = @wr.tell }
-          else
-            @mutex.synchronize { @bytes_sent += str.bytesize }
-          end
-
-        debug 'Bytes sent during this request: %d', bytes
-
-        @mutex.synchronize { @wr.puts(str) }
+        @mutex.synchronize { puts(str) }
 
         return unless @bytes_sent >= @config.api_request_size
 
@@ -69,48 +57,58 @@ module ElasticAPM
 
         nil
       end
-      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
       def connected?
         @mutex.synchronize { @connected }
       end
 
       def close!
-        if connected?
-          debug 'Closing request'
-          @mutex.synchronize { @wr.close }
-        end
+        @mutex.synchronize do
+          return unless @connected
 
-        @conn_thread.join 0.1 if @conn_thread
+          debug 'Closing request'
+          @wr.close
+          @conn_thread.join 0.1 if @conn_thread
+        end
       end
 
       private
 
-      def connect!
-        debug 'Opening new request'
+      # rubocop:disable Metrics/MethodLength
+      def connect_unless_connected
+        @mutex.synchronize do
+          return true if @connected
 
-        reset!
+          debug 'Opening new request'
 
-        enable_compression if @config.http_compression?
-        perform_request_in_thread
-        wait_for_connection
-        schedule_closing if @config.api_request_time
+          reset!
 
-        write(@metadata)
+          @rd, @wr = ModdedIO.pipe
 
-        true
+          enable_compression! if @config.http_compression?
+
+          perform_request_in_thread
+          wait_for_connection
+
+          schedule_closing if @config.api_request_time
+
+          puts(@metadata)
+
+          true
+        end
       end
+      # rubocop:enable Metrics/MethodLength
 
       # rubocop:disable Metrics/MethodLength
       def perform_request_in_thread
         @conn_thread = Thread.new do
           begin
-            @mutex.synchronize { @connected = true }
+            @connected = true
             resp = @client.post(@url, body: @rd).flush
           rescue Exception => e
             @connection_error = e
           ensure
-            @mutex.synchronize { @connected = false }
+            @connected = false
           end
 
           if resp && resp.status != 202
@@ -122,14 +120,25 @@ module ElasticAPM
       end
       # rubocop:enable Metrics/MethodLength
 
-      def schedule_closing
-        @close_task =
-          Concurrent::ScheduledTask.execute(@config.api_request_time) do
-            close!
+      def puts(str)
+        bytes =
+          if @config.http_compression
+            @bytes_sent = @wr.tell
+          else
+            @bytes_sent += str.bytesize
           end
+
+        debug 'Bytes sent during this request: %d', bytes
+
+        @wr.puts(str)
       end
 
-      def enable_compression
+      def schedule_closing
+        @close_task =
+          Concurrent::ScheduledTask.execute(@config.api_request_time) { close! }
+      end
+
+      def enable_compression!
         @wr.binmode
         @wr = Zlib::GzipWriter.new(@wr)
       end
@@ -139,12 +148,11 @@ module ElasticAPM
         @connected = false
         @connection_error = nil
         @close_task = nil
-        @rd, @wr = ModdedIO.pipe
       end
 
       def wait_for_connection
-        until connected?
-          if (exception = @mutex.synchronize { @connection_error })
+        until @connected
+          if (exception = @connection_error)
             @wr&.close
             raise FailedToConnectError, exception
           end

@@ -66,6 +66,7 @@ module ElasticAPM
           expect(subject).to_not be_connected
         end
       end
+
       context 'max request size' do
         let(:config) { Config.new(api_request_size: 5) }
 
@@ -138,6 +139,22 @@ module ElasticAPM
           subject.close!
 
           expect(stub).to have_been_requested
+        end
+      end
+
+      context 'thread safety' do
+        let(:config) { Config.new http_compression: false }
+
+        it 'handles threads ok' do
+          stub = build_stub
+
+          (1..32).map do |i|
+            Thread.new { subject.write(%({"thread": #{i}})) }
+          end.each(&:join)
+
+          subject.close!
+
+          expect(stub).to have_been_requested.once
         end
       end
 

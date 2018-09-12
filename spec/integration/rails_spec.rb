@@ -192,6 +192,9 @@ if defined?(Rails)
         ElasticAPM.agent.flush
         wait_for_requests_to_finish 1
 
+        metadata = @mock_intake.metadatas.first
+        expect(metadata).to match_json_schema(:metadatas)
+
         transaction = @mock_intake.transactions.first
         expect(transaction).to match_json_schema(:transactions)
 

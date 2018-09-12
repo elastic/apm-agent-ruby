@@ -19,7 +19,11 @@ class Intake
     request = Rack::Request.new(env)
     @requests << request
 
-    parse_request_body(request).each do |obj|
+    metadata, *rest = parse_request_body(request)
+
+    metadatas << metadata.values.first
+
+    rest.each do |obj|
       catalog obj
     end
 
@@ -55,16 +59,13 @@ class Intake
     gz&.close
   end
 
-  # rubocop:disable Metrics/AbcSize
   def catalog(obj)
     case obj.keys.first
-    when 'metadata' then metadatas << obj.values.first
     when 'transaction' then transactions << obj.values.first
     when 'span' then spans << obj.values.first
     when 'error' then errors << obj.values.first
     end
   end
-  # rubocop:enable Metrics/AbcSize
 end
 
 RSpec.configure do |config|
