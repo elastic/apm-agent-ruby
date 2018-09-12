@@ -47,7 +47,7 @@ module ElasticAPM
       def write(str)
         connect_unless_connected
 
-        @mutex.synchronize { puts(str) }
+        @mutex.synchronize { append(str) }
 
         return unless @bytes_sent >= @config.api_request_size
 
@@ -92,7 +92,7 @@ module ElasticAPM
 
           schedule_closing if @config.api_request_time
 
-          puts(@metadata)
+          append(@metadata)
 
           true
         end
@@ -120,7 +120,7 @@ module ElasticAPM
       end
       # rubocop:enable Metrics/MethodLength
 
-      def puts(str)
+      def append(str)
         bytes =
           if @config.http_compression
             @bytes_sent = @wr.tell
