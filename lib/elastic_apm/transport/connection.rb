@@ -33,7 +33,7 @@ module ElasticAPM
       def initialize(config)
         @config = config
 
-        @url = config.server_url + '/v2/intake'
+        @url = config.server_url + '/intake/v2/events'
 
         @client = HTTP.headers(
           @config.http_compression? ? GZIP_HEADERS : HEADERS

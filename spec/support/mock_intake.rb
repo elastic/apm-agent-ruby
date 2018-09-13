@@ -75,7 +75,7 @@ RSpec.configure do |config|
     @request_stub =
       WebMock.stub_request(
         :any,
-        %r{^http://localhost:8200/v2/intake/?$}
+        %r{^http://localhost:8200/intake/v2/events/?$}
       ).to_rack(@mock_intake)
   end
 

@@ -170,7 +170,7 @@ module ElasticAPM
         opts[:body] = body if body
 
         WebMock
-          .stub_request(:post, 'http://localhost:8200/v2/intake')
+          .stub_request(:post, 'http://localhost:8200/intake/v2/events')
           .with(**opts, &block)
           .to_return(to_return.merge(status: 202) { |_, old, _| old })
       end
