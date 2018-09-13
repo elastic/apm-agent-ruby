@@ -32,7 +32,11 @@ module ElasticAPM
                   "duration": 100.0,
                   "timestamp": Time.utc(1992, 1, 1).iso8601(3),
                   "trace_id": transaction.trace_id,
-                  "sampled": true
+                  "sampled": true,
+                  "span_count": {
+                    "started": 0,
+                    "dropped": 0
+                  }
                 }
               )
             end
@@ -52,9 +56,9 @@ module ElasticAPM
 
               result = described_class.new(config).build(transaction)
 
-              expect(
-                result.dig(:transaction, :span_count, :dropped, :total)
-              ).to be 1
+              span_count = result.dig(:transaction, :span_count)
+              expect(span_count[:started]).to be 3
+              expect(span_count[:dropped]).to be 1
             end
           end
         end

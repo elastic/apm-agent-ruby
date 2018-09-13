@@ -19,11 +19,10 @@ module ElasticAPM
             trace_id: transaction.trace_id
           }
 
-          if transaction.dropped_spans > 0
-            base[:span_count] = {
-              dropped: { total: transaction.dropped_spans }
-            }
-          end
+          base[:span_count] = {
+            started: transaction.started_spans,
+            dropped: transaction.dropped_spans
+          }
 
           { transaction: base }
         end

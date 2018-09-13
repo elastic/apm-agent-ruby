@@ -24,6 +24,8 @@ module ElasticAPM
 
       @spans = []
       @span_id_ticker = -1
+
+      @started_spans = 0
       @dropped_spans = 0
 
       @notifications = [] # for AS::Notifications
@@ -40,9 +42,9 @@ module ElasticAPM
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     attr_accessor :name, :type
-    attr_reader :id, :context, :duration, :dropped_spans, :root_span,
-      :timestamp, :spans, :result, :notifications, :sampled, :instrumenter,
-      :trace_id
+    attr_reader :id, :context, :duration, :started_spans, :dropped_spans,
+      :root_span, :timestamp, :spans, :result, :notifications, :sampled,
+      :instrumenter, :trace_id
 
     def release
       @instrumenter.current_transaction = nil
@@ -78,6 +80,8 @@ module ElasticAPM
         return yield if block_given?
         return
       end
+
+      @started_spans += 1
 
       if spans.length >= instrumenter.config.transaction_max_spans
         @dropped_spans += 1
