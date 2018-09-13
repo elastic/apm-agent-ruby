@@ -6,7 +6,7 @@ require 'elastic_apm/normalizers'
 module ElasticAPM
   # @api private
   class Subscriber
-    include Log
+    include Logging
 
     def initialize(agent)
       @agent = agent
