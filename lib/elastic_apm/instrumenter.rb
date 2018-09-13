@@ -6,7 +6,7 @@ require 'elastic_apm/transaction'
 module ElasticAPM
   # @api private
   class Instrumenter
-    include Log
+    include Logging
 
     TRANSACTION_KEY = :__elastic_transaction_key
 

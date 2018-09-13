@@ -12,7 +12,7 @@ module ElasticAPM
   # rubocop:disable Metrics/ClassLength
   # @api private
   class Agent
-    include Log
+    include Logging
 
     LOCK = Mutex.new
 
@@ -31,7 +31,7 @@ module ElasticAPM
         unless config.disable_environment_warning?
           puts format(
             '%sNot tracking anything in "%s" env',
-            Log::PREFIX, config.environment
+            Logging::PREFIX, config.environment
           )
         end
 

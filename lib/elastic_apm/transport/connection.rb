@@ -10,7 +10,7 @@ module ElasticAPM
   module Transport
     # @api private
     class Connection # rubocop:disable Metrics/ClassLength
-      include Log
+      include Logging
 
       class FailedToConnectError < InternalError; end
 
