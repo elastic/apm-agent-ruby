@@ -26,7 +26,7 @@ module ElasticAPM
           app.middleware.insert 0, Middleware
         end
       rescue StandardError => e
-        Rails.logger.error "#{Log::PREFIX}Failed to start: #{e.message}"
+        Rails.logger.error "#{Logging::PREFIX}Failed to start: #{e.message}"
         Rails.logger.debug e.backtrace.join("\n")
       end
     end

@@ -1,9 +1,19 @@
 # frozen_string_literal: true
 
+require 'logger'
+
 module ElasticAPM
   # @api private
-  module Log
+  module Logging
     PREFIX = '[ElasticAPM] '
+
+    LEVELS = {
+      debug: Logger::DEBUG,
+      info: Logger::INFO,
+      warn: Logger::WARN,
+      error: Logger::ERROR,
+      fatal: Logger::FATAL
+    }.freeze
 
     def debug(msg, *args, &block)
       log(:debug, msg, *args, &block)
@@ -25,26 +35,21 @@ module ElasticAPM
       log(:fatal, msg, *args, &block)
     end
 
+    private
+
     def log(lvl, msg, *args)
-      return unless logger
+      return unless (logger = @config&.logger)
+      return unless LEVELS[lvl] >= (@config&.log_level || 0)
 
       formatted_msg = prepend_prefix(format(msg.to_s, *args))
 
       return logger.send(lvl, formatted_msg) unless block_given?
 
-      # TODO: dont evaluate block if level is higher
       logger.send(lvl, "#{formatted_msg}\n#{yield}")
     end
 
-    private
-
     def prepend_prefix(str)
       "#{PREFIX}#{str}"
-    end
-
-    def logger
-      return false unless (config = instance_variable_get(:@config))
-      config.logger
     end
   end
 end
