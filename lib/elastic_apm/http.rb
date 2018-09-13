@@ -12,7 +12,7 @@ require 'elastic_apm/filters'
 module ElasticAPM
   # @api private
   class Http
-    include Log
+    include Logging
 
     USER_AGENT = "elastic-apm/ruby #{VERSION}"
     ACCEPT = 'application/json'
