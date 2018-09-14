@@ -18,6 +18,58 @@ RSpec.describe ElasticAPM do
 
     let(:agent) { ElasticAPM.agent }
 
+    describe '.start_transaction' do
+      it 'starts a transaction' do
+        transaction = ElasticAPM.start_transaction 'Test'
+        expect(transaction).to be_a ElasticAPM::Transaction
+        expect(transaction.name).to be 'Test'
+      end
+    end
+
+    describe '.end_transaction' do
+      it 'ends current transaction' do
+        transaction = ElasticAPM.start_transaction 'Test'
+        expect(ElasticAPM.current_transaction).to_not be_nil
+
+        ElasticAPM.end_transaction
+        expect(ElasticAPM.current_transaction).to be_nil
+        expect(transaction).to be_done
+      end
+    end
+
+    describe '.with_transaction' do
+      let(:placeholder) { Struct.new(:transaction).new }
+
+      subject do
+        ElasticAPM.with_transaction('Block test') do |transaction|
+          placeholder.transaction = transaction
+
+          'original result'
+        end
+      end
+
+      it 'wraps block in transaction' do
+        subject
+
+        expect(placeholder.transaction).to be_a ElasticAPM::Transaction
+        expect(placeholder.transaction.name).to be 'Block test'
+      end
+
+      it { should be 'original result' }
+    end
+
+    describe 'submit_transaction' do
+      it 'ends and submits current transaction', :mock_intake do
+        ElasticAPM.start_transaction 'Test'
+        ElasticAPM.submit_transaction 'ok'
+
+        ElasticAPM.flush
+
+        transaction = @mock_intake.transactions.first
+        expect(transaction['name']).to eq 'Test'
+      end
+    end
+
     it { should delegate :current_transaction, to: agent }
     it do
       should delegate :transaction,

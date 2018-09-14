@@ -129,6 +129,23 @@ module ElasticAPM
       )
     end
 
+    def start_transaction(name = nil, type = nil, context: nil, sampled: nil)
+      instrumenter.start_transaction(
+        name,
+        type,
+        context: context,
+        sampled: sampled
+      )
+    end
+
+    def end_transaction(result = nil)
+      instrumenter.end_transaction(result)
+    end
+
+    def submit_transaction(result = nil)
+      instrumenter.submit_transaction(result)
+    end
+
     def span(name, type = nil, backtrace: nil, context: nil, &block)
       instrumenter.span(
         name,

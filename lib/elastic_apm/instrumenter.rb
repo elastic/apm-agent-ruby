@@ -86,6 +86,43 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/MethodLength
 
+    def start_transaction(name = nil, type = nil, context: nil, sampled: nil)
+      return nil unless config.instrument?
+
+      if (transaction = current_transaction)
+        raise ExistingTransactionError,
+          "Transactions may not be nested.\nAlready inside #{transaction}"
+      end
+
+      sampled = random_sample? if sampled.nil?
+
+      self.current_transaction =
+        Transaction.new self, name, type, context: context, sampled: sampled
+
+      current_transaction
+    end
+
+    def end_transaction(result = nil, status: nil)
+      return nil unless (transaction = current_transaction)
+
+      self.current_transaction = nil
+
+      transaction.stop
+      transaction.done(result, status: status)
+    end
+
+    def submit_transaction(*args)
+      if args.length == 1 && args.first.is_a?(Transaction)
+        return deprecated_submit_transaction(args.first)
+      end
+
+      transaction = end_transaction(*args)
+      agent.enqueue_transaction transaction
+
+      return unless config.debug_transactions?
+      debug('Submitted transaction:') { Util.inspect_transaction transaction }
+    end
+
     def random_sample?
       rand <= config.transaction_sample_rate
     end
@@ -122,7 +159,7 @@ module ElasticAPM
       current_transaction.context.user = Context::User.new(config, user)
     end
 
-    def submit_transaction(transaction)
+    def deprecated_submit_transaction(transaction)
       agent.enqueue_transaction transaction
 
       return unless config.debug_transactions

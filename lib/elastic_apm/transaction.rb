@@ -50,9 +50,18 @@ module ElasticAPM
       @instrumenter.current_transaction = nil
     end
 
-    def done(result = nil)
+    def stop
       @duration = Util.micros - @timestamp
+    end
+
+    def done(result = nil, status: nil, headers: {})
+      stop
       @result = result
+
+      if status
+        context.response = Context::Response.new(status, headers: headers)
+      end
+
       self
     end
 
@@ -61,11 +70,7 @@ module ElasticAPM
     end
 
     def submit(result = nil, status: nil, headers: {})
-      done result unless duration
-
-      if status
-        context.response = Context::Response.new(status, headers: headers)
-      end
+      done(result, status: status, headers: headers) unless duration
 
       release
 
