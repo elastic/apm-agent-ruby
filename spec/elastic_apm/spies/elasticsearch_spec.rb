@@ -3,9 +3,9 @@
 require 'elasticsearch'
 
 module ElasticAPM
-  RSpec.describe 'Spy: Elasticsearch', :with_fake_server do
+  RSpec.describe 'Spy: Elasticsearch' do
     it 'spans requests' do
-      ElasticAPM.start
+      ElasticAPM.start disable_send: true
       WebMock.stub_request(:get, %r{http://localhost:9200/.*})
 
       client = Elasticsearch::Client.new log: false

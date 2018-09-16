@@ -1,5 +1,5 @@
 AllCops:
-  TargetRubyVersion: 2.2
+  TargetRubyVersion: 2.3
   Exclude:
     - 'elastic-apm.gemspec'
     - 'vendor/**/*'
@@ -58,4 +58,10 @@ Style/EmptyMethod:
   Enabled: false
 
 Rails/Delegate:
+  Enabled: false
+
+Style/NumericPredicate:
+  Enabled: false
+
+Layout/EmptyLineAfterGuardClause:
   Enabled: false

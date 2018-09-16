@@ -1,16 +1,14 @@
 # frozen_string_literal: true
 
 require 'elastic_apm/version'
+require 'elastic_apm/internal_error'
 require 'elastic_apm/log'
-require 'elastic_apm/util/dig'
 
 # Core
 require 'elastic_apm/agent'
 require 'elastic_apm/config'
 require 'elastic_apm/context'
 require 'elastic_apm/instrumenter'
-require 'elastic_apm/internal_error'
-require 'elastic_apm/span_helpers'
 require 'elastic_apm/util'
 
 require 'elastic_apm/middleware'

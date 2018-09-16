@@ -10,10 +10,7 @@ Bundler.require :default, 'test'
 require 'webmock/rspec'
 WebMock.hide_stubbing_instructions!
 
-require 'support/delegate_matcher'
-require 'support/match_json_schema_matcher'
-require 'support/mock_time'
-require 'support/with_fake_server'
+Dir['spec/support/*.rb'].each { |file| require "./#{file}" }
 
 require 'concurrent'
 Concurrent.use_stdlib_logger(Logger::DEBUG)
@@ -27,7 +24,7 @@ RSpec.configure do |config|
     config.filter_run_excluding(type: 'json_schema')
   end
 
-  config.fail_fast = true unless ENV['CI']
+  # config.fail_fast = true unless ENV['CI']
 
   config.example_status_persistence_file_path = '.rspec_status'
   config.disable_monkey_patching!
@@ -53,6 +50,7 @@ RSpec.configure do |config|
     if elastic_subscribers.any? &&
        !example.metadata[:allow_leaking_subscriptions] &&
        example.execution_result.status == :passed
+
       raise 'someone leaked subscription'
     end
   end

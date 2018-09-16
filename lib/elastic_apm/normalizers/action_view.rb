@@ -41,7 +41,7 @@ module ElasticAPM
       # @api private
       class RenderTemplateNormalizer < RenderNormalizer
         register 'render_template.action_view'
-        TYPE = 'template.view'.freeze
+        TYPE = 'template.view'
 
         def normalize(_transaction, _name, payload)
           normalize_render(payload, TYPE)
@@ -51,7 +51,7 @@ module ElasticAPM
       # @api private
       class RenderPartialNormalizer < RenderNormalizer
         register 'render_partial.action_view'
-        TYPE = 'template.view.partial'.freeze
+        TYPE = 'template.view.partial'
 
         def normalize(_transaction, _name, payload)
           normalize_render(payload, TYPE)
@@ -61,7 +61,7 @@ module ElasticAPM
       # @api private
       class RenderCollectionNormalizer < RenderNormalizer
         register 'render_collection.action_view'
-        TYPE = 'template.view.collection'.freeze
+        TYPE = 'template.view.collection'
 
         def normalize(_transaction, _name, payload)
           normalize_render(payload, TYPE)

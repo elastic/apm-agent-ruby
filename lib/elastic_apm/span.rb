@@ -7,7 +7,7 @@ require 'elastic_apm/span/context'
 module ElasticAPM
   # @api private
   class Span
-    DEFAULT_TYPE = 'custom'.freeze
+    DEFAULT_TYPE = 'custom'
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(
@@ -24,6 +24,9 @@ module ElasticAPM
       @type = type || DEFAULT_TYPE
       @parent = parent
       @context = context
+      @transaction_id = transaction.id
+
+      @trace_id = transaction.trace_id
 
       @stacktrace = nil
       @original_backtrace = nil
@@ -31,14 +34,17 @@ module ElasticAPM
     # rubocop:enable Metrics/ParameterLists
 
     attr_accessor :name, :type, :original_backtrace
-    attr_reader :id, :context, :stacktrace, :duration, :parent, :relative_start
+    attr_reader :id, :context, :stacktrace, :duration, :parent, :relative_start,
+      :timestamp, :transaction_id, :trace_id
 
     def start
-      @relative_start = Util.micros - @transaction.timestamp
+      @timestamp = @transaction.timestamp
+      @relative_start = Util.micros - @timestamp
 
       self
     end
 
+    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def done
       @duration = Util.micros - @transaction.timestamp - relative_start
 
@@ -51,8 +57,13 @@ module ElasticAPM
 
       self.original_backtrace = nil # release it
 
+      if @transaction.instrumenter
+        @transaction.instrumenter.submit_span self # TODO: move this
+      end
+
       self
     end
+    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
     def done?
       !!duration

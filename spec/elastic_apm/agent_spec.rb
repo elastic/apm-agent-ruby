@@ -35,6 +35,7 @@ module ElasticAPM
 
     context 'instrumenting' do
       subject { Agent.new Config.new }
+
       it { should delegate :current_transaction, to: subject.instrumenter }
       it do
         should delegate :transaction,
@@ -60,57 +61,62 @@ module ElasticAPM
       end
     end
 
-    context 'reporting', :with_fake_server do
+    context 'reporting', :mock_intake do
       class AgentTestError < StandardError; end
 
-      subject { ElasticAPM.start }
-      after { ElasticAPM.stop }
-
       describe '#report' do
+        subject { Agent.new Config.new(api_request_time: 0.1) }
+
         it 'queues a request' do
           exception = AgentTestError.new('Yikes!')
 
           subject.report(exception)
-          wait_for_requests_to_finish 1
+          subject.flush
 
-          expect(FakeServer.requests.length).to be 1
+          expect(@mock_intake.requests.length).to be 1
+          expect(@mock_intake.errors.length).to be 1
         end
 
         it 'ignores filtered exception types' do
           config =
             Config.new(filter_exception_types: %w[ElasticAPM::AgentTestError])
-          agent = Agent.new config
+          subject = Agent.new config
+
           exception = AgentTestError.new("It's ok!")
 
-          agent.report(exception)
+          subject.report(exception)
 
-          expect(FakeServer.requests.length).to be 0
+          subject.stop
+          expect(@mock_intake.requests.length).to be 0
+          expect(@mock_intake.errors.length).to be 0
         end
       end
 
       describe '#report_message' do
+        subject { Agent.new Config.new }
+
         it 'queues a request' do
           subject.report_message('Everything went 💥')
-          wait_for_requests_to_finish 1
 
-          expect(FakeServer.requests.length).to be 1
+          subject.stop
+          expect(@mock_intake.requests.length).to be 1
+          expect(@mock_intake.errors.length).to be 1
         end
       end
     end
 
-    describe '#enqueue_transaction', :with_fake_server do
-      subject { Agent.new Config.new(flush_interval: nil) }
+    describe '#enqueue_transaction', :mock_intake do
+      subject { Agent.new Config.new }
 
       it 'enqueues a collection of transactions' do
         transaction = subject.transaction
 
         subject.enqueue_transaction(transaction)
-        wait_for_requests_to_finish 1
 
-        expect(FakeServer.requests.length).to be 1
+        subject.stop
+        expect(@mock_intake.requests.length).to be 1
+        expect(@mock_intake.transactions.length).to be 1
       end
-
-      after { subject.stop }
     end
 
     describe '#add_filter' do
@@ -119,7 +125,7 @@ module ElasticAPM
       it 'may add a filter' do
         expect do
           subject.add_filter :key, -> {}
-        end.to change(subject.http.filters, :length).by 1
+        end.to change(subject.transport.filters, :length).by 1
       end
     end
   end

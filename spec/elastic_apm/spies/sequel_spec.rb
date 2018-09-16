@@ -3,7 +3,7 @@
 require 'sequel'
 
 module ElasticAPM
-  RSpec.describe 'Spy: Sequel', :with_fake_server do
+  RSpec.describe 'Spy: Sequel' do
     it 'spans calls' do
       db =
         if RUBY_PLATFORM == 'java'
@@ -19,7 +19,7 @@ module ElasticAPM
 
       db[:users].count # warm up
 
-      ElasticAPM.start
+      ElasticAPM.start disable_send: true
 
       transaction = ElasticAPM.transaction 'Sequel test' do
         db[:users].count

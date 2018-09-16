@@ -5,8 +5,8 @@ require 'elastic_apm/util/lru_cache'
 module ElasticAPM
   # @api private
   class SqlSummarizer
-    DEFAULT = 'SQL'.freeze
-    TABLE_REGEX = %{["'`]?([A-Za-z0-9]+)}.freeze
+    DEFAULT = 'SQL'
+    TABLE_REGEX = %{["'`]?([A-Za-z0-9]+)}
 
     REGEXES = {
       /^BEGIN/i => 'BEGIN',
@@ -17,7 +17,7 @@ module ElasticAPM
       /^DELETE FROM #{TABLE_REGEX}/i => 'DELETE FROM '
     }.freeze
 
-    FORMAT = '%s%s'.freeze
+    FORMAT = '%s%s'
 
     def self.cache
       @cache ||= Util::LruCache.new

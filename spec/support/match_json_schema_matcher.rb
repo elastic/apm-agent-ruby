@@ -3,8 +3,10 @@
 require 'spec_helper'
 
 SCHEMA_URLS = {
-  transactions: 'https://github.com/elastic/apm-server/raw/master/docs/spec/transactions/payload.json',
-  errors: 'https://github.com/elastic/apm-server/raw/master/docs/spec/errors/payload.json'
+  metadatas: 'https://github.com/elastic/apm-server/raw/v2/docs/spec/metadata.json',
+  transactions: 'https://github.com/elastic/apm-server/raw/v2/docs/spec/transactions/v2_transaction.json',
+  spans: 'https://github.com/elastic/apm-server/raw/v2/docs/spec/spans/v2_span.json',
+  errors: 'https://github.com/elastic/apm-server/raw/v2/docs/spec/errors/v2_error.json'
 }.freeze
 
 RSpec::Matchers.define :match_json_schema do |schema|

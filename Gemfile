@@ -15,6 +15,7 @@ gem 'rack-test'
 gem 'rake'
 gem 'redis', require: nil
 gem 'rspec'
+gem 'rspec-its'
 gem 'rubocop'
 gem 'sequel'
 gem 'sidekiq'

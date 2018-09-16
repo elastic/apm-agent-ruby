@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 if defined?(Sinatra)
-  RSpec.describe 'Sinatra integration', :with_fake_server do
+  RSpec.describe 'Sinatra integration', :mock_intake do
     include Rack::Test::Methods
 
     class FancyError < StandardError; end
@@ -49,7 +49,7 @@ if defined?(Sinatra)
     end
 
     before(:all) do
-      ElasticAPM.start(app: SinatraTestApp, flush_interval: nil)
+      ElasticAPM.start(app: SinatraTestApp, api_request_time: 0.25)
     end
 
     after(:all) do
@@ -58,11 +58,13 @@ if defined?(Sinatra)
 
     it 'knows Sinatra' do
       response = get '/'
+
+      ElasticAPM.agent.flush
       wait_for_requests_to_finish 1
 
       expect(response.body).to eq 'Yes!'
 
-      service = FakeServer.requests.first['service']
+      service = @mock_intake.metadatas.first['service']
       expect(service['name']).to eq 'SinatraTestApp'
       expect(service['framework']['name']).to eq 'Sinatra'
       expect(service['framework']['version'])
@@ -72,31 +74,35 @@ if defined?(Sinatra)
     describe 'transactions' do
       it 'wraps requests in a transaction named after route' do
         get '/'
+
+        ElasticAPM.agent.flush
         wait_for_requests_to_finish 1
 
-        expect(FakeServer.requests.length).to be 1
-        request = FakeServer.requests.last
-        expect(request['transactions'][0]['name']).to eq 'GET /'
+        expect(@mock_intake.requests.length).to be 1
+        transaction = @mock_intake.transactions.first
+        expect(transaction['name']).to eq 'GET /'
       end
 
       it 'spans inline templates' do
         get '/inline'
+
+        ElasticAPM.agent.flush
         wait_for_requests_to_finish 1
 
-        request = FakeServer.requests.last
-        span = request['transactions'][0]['spans'][0]
+        span = @mock_intake.spans.last
         expect(span['name']).to eq 'Inline erb'
         expect(span['type']).to eq 'template.tilt'
       end
 
       it 'spans templates' do
         response = get '/tmpl'
+
+        ElasticAPM.agent.flush
         wait_for_requests_to_finish 1
 
         expect(response.body).to eq '1 2 3 hello you'
 
-        request = FakeServer.requests.last
-        span = request['transactions'][0]['spans'][0]
+        span = @mock_intake.spans.last
         expect(span['name']).to eq 'index'
         expect(span['type']).to eq 'template.tilt'
       end
@@ -110,13 +116,14 @@ if defined?(Sinatra)
         rescue FancyError
         end
 
-        wait_for_requests_to_finish 2
+        ElasticAPM.agent.flush
+        wait_for_requests_to_finish 1
 
-        expect(FakeServer.requests.length).to be 2
+        expect(@mock_intake.requests.length).to be 1
 
         error_request =
-          FakeServer.requests.find { |r| r.key?('errors') }
-        exception = error_request['errors'][0]['exception']
+          @mock_intake.errors.first
+        exception = error_request['exception']
         expect(exception['type']).to eq 'FancyError'
       end
     end
