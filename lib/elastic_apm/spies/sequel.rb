@@ -7,7 +7,7 @@ module ElasticAPM
   module Spies
     # @api private
     class SequelSpy
-      TYPE = 'db.sequel.sql'.freeze
+      TYPE = 'db.sequel.sql'
 
       def self.summarizer
         @summarizer ||= SqlSummarizer.new

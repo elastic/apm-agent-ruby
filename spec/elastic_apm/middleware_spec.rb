@@ -2,7 +2,7 @@
 
 module ElasticAPM
   RSpec.describe Middleware do
-    it 'surrounds the request in a transaction', :with_fake_server do
+    it 'surrounds the request in a transaction', :mock_intake do
       ElasticAPM.start
 
       expect(ElasticAPM).to receive(:transaction).and_call_original
@@ -13,13 +13,12 @@ module ElasticAPM
       expect(status).to be 200
 
       ElasticAPM.stop
-      wait_for_requests_to_finish 1
 
-      payload, = FakeServer.requests
-      expect(payload.dig('transactions', 0, 'result')).to eq 'HTTP 2xx'
-      expect(
-        payload.dig('transactions', 0, 'context', 'response', 'status_code')
-      ).to eq 200
+      expect(@mock_intake.requests.length).to be 1
+
+      payload = @mock_intake.transactions.last
+      expect(payload['result']).to eq 'HTTP 2xx'
+      expect(payload.dig('context', 'response', 'status_code')).to be 200
     end
 
     it 'ignores url patterns' do

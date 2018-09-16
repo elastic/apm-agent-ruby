@@ -41,7 +41,7 @@ if enable
 
       describe 'AS::Notifications API' do
         it 'adds spans from notifications' do
-          agent = Agent.new Config.new
+          agent = Agent.new Config.new(disable_send: true)
           subject = Subscriber.new agent
           transaction = agent.transaction 'Test'
 
@@ -68,7 +68,7 @@ if enable
         end
 
         it 'ignores unknown notifications' do
-          agent = Agent.new Config.new
+          agent = Agent.new Config.new(disable_send: true)
           subject = Subscriber.new agent
           transaction = agent.transaction 'Test'
 
