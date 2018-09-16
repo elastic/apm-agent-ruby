@@ -5,9 +5,9 @@ module ElasticAPM
   module Spies
     # @api private
     class DelayedJobSpy
-      CLASS_SEPARATOR = '.'.freeze
-      METHOD_SEPARATOR = '#'.freeze
-      TYPE = 'Delayed::Job'.freeze
+      CLASS_SEPARATOR = '.'
+      METHOD_SEPARATOR = '#'
+      TYPE = 'Delayed::Job'
 
       def install
         ::Delayed::Backend::Base.class_eval do

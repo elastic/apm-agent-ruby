@@ -23,7 +23,7 @@ def perform(app, count: 1000)
     end
   end
 
-  app.serializer.build_all(transactions)
+  # app.serializer.build_all(transactions)
 
   app.stop
 end

@@ -8,7 +8,7 @@ end
 if defined?(Delayed::Backend)
   module ElasticAPM
     RSpec.describe 'Spy: DelayedJob' do
-      describe 'transactions', :with_fake_server do
+      describe 'transactions' do
         class TransactionCapturingJob
           attr_accessor :transaction
 
@@ -75,7 +75,7 @@ if defined?(Delayed::Backend)
           expect(transaction.result).to eq 'success'
         end
 
-        it 'reports errors', :with_fake_server do
+        it 'reports errors', :mock_intake do
           job = ExplodingJob.new
 
           expect do
@@ -88,8 +88,8 @@ if defined?(Delayed::Backend)
           expect(transaction.result).to eq 'error'
 
           wait_for_requests_to_finish 1
-          expect(FakeServer.requests.length).to be 1
-          type = FakeServer.requests.first.dig('errors', 0, 'exception', 'type')
+          expect(@mock_intake.requests.length).to be 1
+          type = @mock_intake.errors.first.dig('exception', 'type')
           expect(type).to eq 'ZeroDivisionError'
         end
       end

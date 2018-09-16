@@ -3,9 +3,12 @@
 module ElasticAPM
   module Util
     RSpec.describe Inspector do
+      let(:config) { Config.new disable_send: true }
+
       describe '#transaction' do
         it 'inspects a regular transaction', :mock_time do
-          instrumenter = Instrumenter.new Agent.new(Config.new)
+          instrumenter =
+            Instrumenter.new Agent.new(config)
           transaction = Transaction.new(instrumenter, 'GET /things', 'request')
           travel 100
           transaction.done 'success'
@@ -14,7 +17,7 @@ module ElasticAPM
         end
 
         it 'inspects a complex transaction and its spans', :mock_time do
-          instrumenter = Instrumenter.new Agent.new(Config.new)
+          instrumenter = Instrumenter.new Agent.new(config)
           transaction =
             Transaction.new(instrumenter, 'GET /things', 'request') do |t|
               travel 100

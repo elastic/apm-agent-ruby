@@ -4,10 +4,10 @@ require 'securerandom'
 
 module ElasticAPM
   # @api private
-  class Transaction
-    DEFAULT_TYPE = 'custom'.freeze
+  class Transaction # rubocop:disable Metrics/ClassLength
+    DEFAULT_TYPE = 'custom'
 
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def initialize(
       instrumenter,
       name = nil,
@@ -24,6 +24,8 @@ module ElasticAPM
 
       @spans = []
       @span_id_ticker = -1
+
+      @started_spans = 0
       @dropped_spans = 0
 
       @notifications = [] # for AS::Notifications
@@ -33,13 +35,16 @@ module ElasticAPM
 
       @sampled = sampled
 
+      @trace_id = SecureRandom.hex(128)
+
       yield self if block_given?
     end
-    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     attr_accessor :name, :type
-    attr_reader :id, :context, :duration, :dropped_spans, :root_span,
-      :timestamp, :spans, :result, :notifications, :sampled, :instrumenter
+    attr_reader :id, :context, :duration, :started_spans, :dropped_spans,
+      :root_span, :timestamp, :spans, :result, :notifications, :sampled,
+      :instrumenter, :trace_id
 
     def release
       @instrumenter.current_transaction = nil
@@ -48,7 +53,6 @@ module ElasticAPM
     def done(result = nil)
       @duration = Util.micros - @timestamp
       @result = result
-
       self
     end
 
@@ -77,9 +81,10 @@ module ElasticAPM
         return
       end
 
+      @started_spans += 1
+
       if spans.length >= instrumenter.config.transaction_max_spans
         @dropped_spans += 1
-
         return yield if block_given?
         return
       end
@@ -108,9 +113,7 @@ module ElasticAPM
 
     def inspect
       "<ElasticAPM::Transaction id:#{id}" \
-        " name:#{name.inspect}" \
-        " type:#{type.inspect}" \
-        '>'
+        " name:#{name.inspect} type:#{type.inspect}>"
     end
 
     private

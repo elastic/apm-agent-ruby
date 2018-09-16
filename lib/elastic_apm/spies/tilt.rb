@@ -5,7 +5,7 @@ module ElasticAPM
   module Spies
     # @api private
     class TiltSpy
-      TYPE = 'template.tilt'.freeze
+      TYPE = 'template.tilt'
 
       def install
         ::Tilt::Template.class_eval do

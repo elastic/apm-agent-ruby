@@ -15,7 +15,8 @@ module ElasticAPM
         instrumenter.stop
 
         expect(instrumenter.current_transaction).to be_nil
-        expect(Thread.current[ElasticAPM::Instrumenter::KEY]).to be_nil
+        thread_key = Thread.current[ElasticAPM::Instrumenter::TRANSACTION_KEY]
+        expect(thread_key).to be_nil
       end
     end
 
@@ -32,19 +33,21 @@ module ElasticAPM
         expect(transaction.context).to be context
       end
 
-      it 'returns the current transaction if present' do
-        transaction = subject.transaction 'Test'
-        expect(subject.transaction('Test')).to eq transaction
+      it 'explodes if called inside other transaction' do
+        subject.transaction 'Test' do
+          expect do
+            subject.transaction('Test')
+          end.to raise_error(ExistingTransactionError)
+        end
       end
 
       context 'with a block' do
         it 'yields transaction and returns it' do
-          block_ = ->(*args) {}
-          allow(block_).to receive(:call)
+          dummy = double(call: true)
 
-          result = subject.transaction('Test') { |t| block_.call(t) }
+          result = subject.transaction('Test', &dummy.method(:call))
 
-          expect(block_).to have_received(:call).with(result)
+          expect(dummy).to have_received(:call).with(result)
         end
       end
 
@@ -76,7 +79,12 @@ module ElasticAPM
       end
 
       context 'with span_frames_min_duration' do
-        let(:agent) { Agent.new(Config.new(span_frames_min_duration: 10)) }
+        let(:config) do
+          Config.new(span_frames_min_duration: 10, disable_send: true)
+        end
+        let(:agent) do
+          Agent.new(config)
+        end
 
         it 'collects stacktraces', :mock_time do
           t = subject.transaction do
@@ -156,6 +164,16 @@ module ElasticAPM
         expect(mock_agent).to receive(:enqueue_transaction).with(transaction)
         subject = Instrumenter.new(mock_agent)
         subject.submit_transaction transaction
+      end
+    end
+
+    describe '#submit_span' do
+      it 'enqueues span on agent' do
+        mock_agent = double(Agent, config: Config.new)
+        span = double
+        expect(mock_agent).to receive(:enqueue_span).with(span)
+        subject = Instrumenter.new(mock_agent)
+        subject.submit_span span
       end
     end
 
