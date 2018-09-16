@@ -2,7 +2,7 @@
 
 module ElasticAPM
   RSpec.describe Transaction do
-    let(:config) { Config.new }
+    let(:config) { Config.new(disable_send: true) }
     let(:instrumenter) { Instrumenter.new Agent.new(config) }
 
     describe '#initialize', :mock_time do

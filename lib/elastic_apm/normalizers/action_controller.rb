@@ -6,7 +6,7 @@ module ElasticAPM
       # @api private
       class ProcessActionNormalizer < Normalizer
         register 'process_action.action_controller'
-        TYPE = 'app.controller.action'.freeze
+        TYPE = 'app.controller.action'
 
         def normalize(transaction, _name, payload)
           transaction.name = endpoint(payload)

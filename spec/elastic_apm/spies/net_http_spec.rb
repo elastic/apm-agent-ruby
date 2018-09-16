@@ -3,10 +3,10 @@
 require 'net/http'
 
 module ElasticAPM
-  RSpec.describe 'Spy: NetHTTP', :with_fake_server do
+  RSpec.describe 'Spy: NetHTTP' do
     it 'spans http calls' do
       WebMock.stub_request(:get, %r{http://example.com/.*})
-      ElasticAPM.start
+      ElasticAPM.start disable_send: true
 
       transaction = ElasticAPM.transaction 'Net::HTTP test' do
         Net::HTTP.start('example.com') do |http|

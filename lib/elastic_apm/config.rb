@@ -19,11 +19,14 @@ module ElasticAPM
       log_path: nil,
       log_level: Logger::DEBUG,
 
-      max_queue_size: 500,
-      flush_interval: 10,
       transaction_sample_rate: 1.0,
       transaction_max_spans: 500,
       filter_exception_types: [],
+
+      # intake v2
+      api_request_size: 768_000, # 750 KiB
+      api_request_time: 10,
+      api_buffer_size: 10,
 
       disable_send: false,
       http_read_timeout: 120,
@@ -90,8 +93,10 @@ module ElasticAPM
       'ELASTIC_APM_CUSTOM_KEY_FILTERS' => [:list, 'custom_key_filters'],
       'ELASTIC_APM_IGNORE_URL_PATTERNS' => [:list, 'ignore_url_patterns'],
 
-      'ELASTIC_APM_MAX_QUEUE_SIZE' => [:int, 'max_queue_size'],
-      'ELASTIC_APM_FLUSH_INTERVAL' => 'flush_interval',
+      'ELASTIC_APM_API_REQUEST_SIZE' => [:int, 'api_request_size'],
+      'ELASTIC_APM_API_REQUEST_TIME' => [:int, 'api_request_time'],
+      'ELASTIC_APM_API_BUFFER_SIZE' => [:int, 'api_buffer_size'],
+
       'ELASTIC_APM_TRANSACTION_SAMPLE_RATE' =>
         [:float, 'transaction_sample_rate'],
       'ELASTIC_APM_VERIFY_SERVER_CERT' => [:bool, 'verify_server_cert'],
@@ -137,8 +142,10 @@ module ElasticAPM
     attr_accessor :log_level
     attr_accessor :logger
 
-    attr_accessor :max_queue_size
-    attr_accessor :flush_interval
+    attr_accessor :api_request_size
+    attr_accessor :api_request_time
+    attr_accessor :api_buffer_size
+
     attr_accessor :transaction_sample_rate
     attr_accessor :transaction_max_spans
     attr_accessor :verify_server_cert
@@ -177,6 +184,7 @@ module ElasticAPM
 
     alias :disable_environment_warning? :disable_environment_warning
     alias :disable_send? :disable_send
+    alias :http_compression? :http_compression
     alias :verify_server_cert? :verify_server_cert
 
     def app=(app)
@@ -251,6 +259,7 @@ module ElasticAPM
     end
 
     # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/AbcSize
     def set_from_env
       ENV_TO_KEY.each do |env_key, key|
         next unless (value = ENV[env_key])
@@ -270,6 +279,7 @@ module ElasticAPM
         send("#{key}=", value)
       end
     end
+    # rubocop:enable Metrics/AbcSize
     # rubocop:enable Metrics/MethodLength, Metrics/CyclomaticComplexity
 
     def set_from_args(options)

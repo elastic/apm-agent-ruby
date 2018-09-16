@@ -19,8 +19,8 @@ module ElasticAPM
       `docker-compose -f spec/docker-compose.yml up -d mongodb 2>&1`
     end
 
-    it 'instruments calls', :with_fake_server do
-      ElasticAPM.start flush_interval: nil
+    it 'instruments calls' do
+      ElasticAPM.start disable_send: true
 
       url = ENV.fetch('MONGODB_URL') { '127.0.0.1:27017' }
       client =
@@ -48,8 +48,6 @@ module ElasticAPM
         statement: nil,
         user: nil
       )
-
-      wait_for_requests_to_finish 1
 
       client.close
 

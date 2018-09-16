@@ -5,8 +5,8 @@ module ElasticAPM
   module Spies
     # @api private
     class ElasticsearchSpy
-      NAME_FORMAT = '%s %s'.freeze
-      TYPE = 'db.elasticsearch'.freeze
+      NAME_FORMAT = '%s %s'
+      TYPE = 'db.elasticsearch'
 
       # rubocop:disable Metrics/MethodLength
       def install
