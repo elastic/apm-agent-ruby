@@ -47,7 +47,9 @@ module ElasticAPM
     end
 
     def stop
-      current_transaction.release if current_transaction
+      self.current_transaction = nil
+      self.current_span = nil
+
       @subscriber.unregister! if @subscriber
     end
 
@@ -82,31 +84,17 @@ module ElasticAPM
       current_transaction
     end
 
-    def end_transaction(result = nil, status: nil)
+    def end_transaction(result = nil)
       return nil unless (transaction = current_transaction)
 
       self.current_transaction = nil
 
       transaction.stop
-      transaction.done(result, status: status)
-    end
+      transaction.done result
 
-    def submit_transaction(*args)
-      if args.length == 1 && args.first.is_a?(Transaction)
-        return deprecated_submit_transaction(args.first)
-      end
-
-      transaction = end_transaction(*args)
       agent.enqueue_transaction transaction
 
-      return transaction unless config.debug_transactions?
-      debug('Submitted transaction:') { Util.inspect_transaction transaction }
-
       transaction
-    end
-
-    def random_sample?
-      rand <= config.transaction_sample_rate
     end
 
     # spans
@@ -123,6 +111,8 @@ module ElasticAPM
     def start_span(name, type = nil, backtrace: nil, context: nil)
       return unless (transaction = current_transaction)
       return unless transaction.sampled?
+
+      transaction.inc_started_spans!
 
       if transaction.max_spans_reached?
         transaction.inc_dropped_spans!
@@ -142,8 +132,6 @@ module ElasticAPM
         span.original_backtrace = backtrace
       end
 
-      transaction.inc_started_spans!
-
       self.current_span = span
 
       span.start
@@ -154,9 +142,10 @@ module ElasticAPM
       return unless (span = current_span)
 
       span.done
-      submit_span span
 
-      self.current_span = nil
+      self.current_span = span.parent
+
+      agent.enqueue_span span
     end
 
     # metadata
@@ -176,16 +165,8 @@ module ElasticAPM
       current_transaction.context.user = Context::User.new(config, user)
     end
 
-    def deprecated_submit_transaction(transaction)
-      # TODO: add deprecation warning to not pass Transaction obj
+    def submit_transaction(transaction)
       agent.enqueue_transaction transaction
-
-      return unless config.debug_transactions
-      debug('Submitted transaction:') { Util.inspect_transaction transaction }
-    end
-
-    def submit_span(span)
-      agent.enqueue_span span
     end
 
     def inspect
@@ -195,6 +176,10 @@ module ElasticAPM
     end
 
     private
+
+    def random_sample?
+      rand <= config.transaction_sample_rate
+    end
 
     def span_frames_min_duration?
       @agent.config.span_frames_min_duration != 0

@@ -19,8 +19,8 @@ module ElasticAPM
       `docker-compose -f spec/docker-compose.yml up -d mongodb 2>&1`
     end
 
-    it 'instruments calls' do
-      ElasticAPM.start disable_send: true
+    it 'instruments calls', :intercept do
+      ElasticAPM.start
 
       url = ENV.fetch('MONGODB_URL') { '127.0.0.1:27017' }
       client =
@@ -31,13 +31,11 @@ module ElasticAPM
           server_selection_timeout: 5
         )
 
-      transaction =
-        ElasticAPM.transaction 'Mongo test' do
-          client.database.collections
-        end.submit 'ok'
+      ElasticAPM.with_transaction 'Mongo test' do
+        client.database.collections
+      end
 
-      expect(transaction.spans.length).to be 1
-      span, = transaction.spans
+      span, = @intercepted.spans
 
       expect(span.name).to eq 'listCollections'
       expect(span.type).to eq 'db.mongodb.query'

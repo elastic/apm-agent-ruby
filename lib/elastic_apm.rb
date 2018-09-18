@@ -104,15 +104,6 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       agent&.end_transaction(result)
     end
 
-    # Ends the current transaction with `result` and submits it for transmitting
-    # to APM Server
-    #
-    # @param result [String] The result of the transaction
-    # @return [Transaction]
-    def submit_transaction(result = nil)
-      agent&.submit_transaction(result)
-    end
-
     # rubocop:disable Metrics/MethodLength
     # Wrap a block in a Transaction, ending it after the block
     #
@@ -206,7 +197,12 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     # @param include_stacktrace [Boolean] Whether or not to capture a stacktrace
     # @yield [Span]
     # @return Result of block
-    def with_span(name, type = nil, context: nil, include_stacktrace: true)
+    def with_span(
+      name,
+      type = nil,
+      context: nil,
+      include_stacktrace: true
+    )
       unless block_given?
         raise ArgumentError,
           'expected a block. Do you want `start_span\' instead?'

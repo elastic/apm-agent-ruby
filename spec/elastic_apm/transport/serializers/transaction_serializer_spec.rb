@@ -4,9 +4,7 @@ module ElasticAPM
   module Transport
     module Serializers
       RSpec.describe TransactionSerializer do
-        let(:agent) { Agent.new(Config.new) }
-        let(:instrumenter) { Instrumenter.new agent }
-        let(:builder) { described_class.new agent.config }
+        let(:builder) { described_class.new Config.new }
 
         before do
           @mock_uuid = SecureRandom.uuid
@@ -14,13 +12,20 @@ module ElasticAPM
         end
 
         describe '#build', :mock_time do
-          context 'a transaction without spans' do
+          context 'a transaction without spans', :intercept do
             let(:transaction) do
-              Transaction.new(instrumenter, 'GET /something', 'request') do
+              ElasticAPM.start
+              ElasticAPM.with_transaction('GET /something', 'request') do |t|
                 travel 100
-              end.done 200
+                t.result = '200'
+              end
+              ElasticAPM.stop
+
+              @intercepted.transactions.first
             end
+
             subject { builder.build(transaction) }
+
             it 'builds' do
               should match(
                 transaction: {
@@ -42,19 +47,18 @@ module ElasticAPM
             end
           end
 
-          context 'with dropped spans' do
+          context 'with dropped spans', :intercept do
             it 'includes count' do
-              config = Config.new(transaction_max_spans: 2)
-              agent = Agent.new(config)
-              instrumenter = Instrumenter.new agent
-              transaction = Transaction.new instrumenter, 'T' do |t|
-                t.span '1'
-                t.span '2'
-                t.span 'dropped'
-                t
+              ElasticAPM.start(transaction_max_spans: 2)
+              ElasticAPM.with_transaction 'T' do
+                ElasticAPM.with_span('1') {}
+                ElasticAPM.with_span('2') {}
+                ElasticAPM.with_span('dropped') {}
               end
+              ElasticAPM.stop
 
-              result = described_class.new(config).build(transaction)
+              transaction = @intercepted.transactions.first
+              result = described_class.new(Config.new).build(transaction)
 
               span_count = result.dig(:transaction, :span_count)
               expect(span_count[:started]).to be 3

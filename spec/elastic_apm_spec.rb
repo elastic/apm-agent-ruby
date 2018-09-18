@@ -26,7 +26,7 @@ RSpec.describe ElasticAPM do
       end
     end
 
-    describe '.end_transaction' do
+    describe '.end_transaction', :mock_intake do
       it 'ends current transaction' do
         transaction = ElasticAPM.start_transaction 'Test'
         expect(ElasticAPM.current_transaction).to_not be_nil
@@ -34,6 +34,11 @@ RSpec.describe ElasticAPM do
         ElasticAPM.end_transaction
         expect(ElasticAPM.current_transaction).to be_nil
         expect(transaction).to be_done
+
+        ElasticAPM.flush
+
+        transaction = @mock_intake.transactions.first
+        expect(transaction['name']).to eq 'Test'
       end
     end
 
@@ -56,18 +61,6 @@ RSpec.describe ElasticAPM do
       end
 
       it { should be 'original result' }
-    end
-
-    describe 'submit_transaction' do
-      it 'ends and submits current transaction', :mock_intake do
-        ElasticAPM.start_transaction 'Test'
-        ElasticAPM.submit_transaction 'ok'
-
-        ElasticAPM.flush
-
-        transaction = @mock_intake.transactions.first
-        expect(transaction['name']).to eq 'Test'
-      end
     end
 
     describe '.start_span' do
@@ -94,23 +87,30 @@ RSpec.describe ElasticAPM do
     end
 
     describe '.with_span' do
-      let(:placeholder) { Struct.new(:span).new }
+      let(:placeholder) { Struct.new(:spans).new([]) }
 
       before { ElasticAPM.start_transaction }
 
       subject do
-        ElasticAPM.with_span('Block test') do |span|
-          placeholder.span = span
+        ElasticAPM.with_span('Block test') do |span1|
+          placeholder.spans << span1
 
-          'original result'
+          ElasticAPM.with_span('All the way down') do |span2|
+            placeholder.spans << span2
+
+            'original result'
+          end
         end
       end
 
       it 'wraps block in span' do
         subject
 
-        expect(placeholder.span).to be_a ElasticAPM::Span
-        expect(placeholder.span.name).to be 'Block test'
+        expect(placeholder.spans.length).to be 2
+        span1, span2 = placeholder.spans
+
+        expect(span1.name).to be 'Block test'
+        expect(span2.name).to be 'All the way down'
       end
 
       it { should be 'original result' }

@@ -43,15 +43,17 @@ module ElasticAPM
             type: 'mongodb',
             user: nil
           )
-          span = ElasticAPM.span(event.command_name.to_s, TYPE, context: ctx)
+          span =
+            ElasticAPM.start_span(event.command_name.to_s, TYPE, context: ctx)
+
           @events[event.operation_id] = span
         end
 
         def pop_event(event)
-          return unless ElasticAPM.current_transaction
-
+          return unless (curr = ElasticAPM.current_span)
           span = @events.delete(event.operation_id)
-          span && span.done
+
+          curr == span && ElasticAPM.end_span
         end
       end
     end

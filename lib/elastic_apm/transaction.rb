@@ -4,7 +4,7 @@ require 'securerandom'
 
 module ElasticAPM
   # @api private
-  class Transaction # rubocop:disable Metrics/ClassLength
+  class Transaction
     DEFAULT_TYPE = 'custom'
 
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
@@ -40,27 +40,18 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
-    attr_accessor :name, :type
+    attr_accessor :name, :type, :result
     attr_reader :id, :context, :duration, :started_spans, :dropped_spans,
-      :root_span, :timestamp, :result, :notifications, :sampled,
-      :instrumenter, :trace_id
-
-    def release
-      @instrumenter.current_transaction = nil
-    end
+      :timestamp, :notifications, :sampled, :instrumenter, :trace_id
 
     def stop
       @duration = Util.micros - @timestamp
     end
 
-    def done(result = nil, status: nil, headers: {})
+    def done(result = nil)
       stop
 
-      @result = result
-
-      if status
-        context.response = Context::Response.new(status, headers: headers)
-      end
+      self.result = result if result
 
       self
     end
@@ -73,14 +64,8 @@ module ElasticAPM
       !!sampled
     end
 
-    def submit(result = nil, status: nil, headers: {})
-      done(result, status: status, headers: headers) unless duration
-
-      release
-
-      @instrumenter.submit_transaction self
-
-      self
+    def add_response(*args)
+      context.response = Context::Response.new(*args)
     end
 
     # spans
@@ -94,7 +79,7 @@ module ElasticAPM
     end
 
     def max_spans_reached?
-      started_spans >= instrumenter.config.transaction_max_spans
+      started_spans > instrumenter.config.transaction_max_spans
     end
 
     def next_span_id

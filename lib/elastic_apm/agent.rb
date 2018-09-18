@@ -97,16 +97,21 @@ module ElasticAPM
 
     # transport
 
+    def enqueue(obj)
+      @transport.submit obj
+    end
+
+    # TODO: Consolidate these?
     def enqueue_transaction(transaction)
-      @transport.submit transaction
+      enqueue transaction
     end
 
     def enqueue_span(span)
-      @transport.submit span
+      enqueue span
     end
 
     def enqueue_error(error)
-      @transport.submit error
+      enqueue error
     end
 
     def flush
@@ -134,10 +139,6 @@ module ElasticAPM
 
     def end_transaction(result = nil)
       instrumenter.end_transaction(result)
-    end
-
-    def submit_transaction(result = nil)
-      instrumenter.submit_transaction(result)
     end
 
     def start_span(name = nil, type = nil, backtrace: nil, context: nil)
