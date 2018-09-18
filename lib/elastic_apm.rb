@@ -47,13 +47,17 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     end
 
     ### Metrics
+
     # Returns the currently active transaction (if any)
     #
-    # @return [Transaction] if any
+    # @return [Transaction] or `nil`
     def current_transaction
       agent&.current_transaction
     end
 
+    # Returns the currently active span (if any)
+    #
+    # @return [Span] or `nil`
     def current_span
       agent&.current_span
     end
@@ -80,19 +84,45 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
 
     deprecate :transaction, :with_transaction
 
+    # Start a new transaction or return the currently running
+    #
+    # @param name [String] A description of the transaction, eg
+    # `ExamplesController#index`
+    # @param type [String] The kind of the transaction, eg `app.request.get` or
+    # `db.mysql2.query`
+    # @param context [Context] An optional [Context]
+    # @return [Transaction]
     def start_transaction(name = nil, type = nil, context: nil)
       agent&.start_transaction(name, type, context: context)
     end
 
+    # Ends the current transaction with `result`
+    #
+    # @param result [String] The result of the transaction
+    # @return [Transaction]
     def end_transaction(result = nil)
       agent&.end_transaction(result)
     end
 
+    # Ends the current transaction with `result` and submits it for transmitting
+    # to APM Server
+    #
+    # @param result [String] The result of the transaction
+    # @return [Transaction]
     def submit_transaction(result = nil)
       agent&.submit_transaction(result)
     end
 
     # rubocop:disable Metrics/MethodLength
+    # Wrap a block in a Transaction, ending it after the block
+    #
+    # @param name [String] A description of the transaction, eg
+    # `ExamplesController#index`
+    # @param type [String] The kind of the transaction, eg `app.request.get` or
+    # `db.mysql2.query`
+    # @param context [Context] An optional [Context]
+    # @yield [Transaction]
+    # @return result of block
     def with_transaction(name = nil, type = nil, context: nil)
       unless block_given?
         raise ArgumentError,
@@ -111,13 +141,14 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     # rubocop:enable Metrics/MethodLength
 
     # rubocop:disable Metrics/MethodLength
-    # Starts a new span under the current Transaction
+    # Start a new span
     #
     # @param name [String] A description of the span, eq `SELECT FROM "users"`
     # @param type [String] The kind of span, eq `db.mysql2.query`
     # @param context [Span::Context] Context information about the span
     # @yield [Span] Optional block encapsulating span
     # @return [Span] Unless block given
+    # @deprecated See `with_span` or `start_span`
     def span(name, type = nil, context: nil, include_stacktrace: true, &block)
       return (block_given? ? yield : nil) unless agent
 
@@ -143,6 +174,13 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
 
     deprecate :span, :with_span
 
+    # Start a new span
+    #
+    # @param name [String] A description of the span, eq `SELECT FROM "users"`
+    # @param type [String] The kind of span, eq `db.mysql2.query`
+    # @param context [Span::Context] Context information about the span
+    # @param include_stacktrace [Boolean] Whether or not to capture a stacktrace
+    # @return [Span]
     def start_span(name, type = nil, context: nil, include_stacktrace: true)
       agent&.start_span(
         name,
@@ -152,11 +190,22 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       )
     end
 
+    # Ends the current span
+    #
+    # @return [Span]
     def end_span
       agent&.end_span
     end
 
     # rubocop:disable Metrics/MethodLength
+    # Wrap a block in a Span, ending it after the block
+    #
+    # @param name [String] A description of the span, eq `SELECT FROM "users"`
+    # @param type [String] The kind of span, eq `db.mysql2.query`
+    # @param context [Span::Context] Context information about the span
+    # @param include_stacktrace [Boolean] Whether or not to capture a stacktrace
+    # @yield [Span]
+    # @return Result of block
     def with_span(name, type = nil, context: nil, include_stacktrace: true)
       unless block_given?
         raise ArgumentError,

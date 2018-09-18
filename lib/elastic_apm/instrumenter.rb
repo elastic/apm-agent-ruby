@@ -99,8 +99,10 @@ module ElasticAPM
       transaction = end_transaction(*args)
       agent.enqueue_transaction transaction
 
-      return unless config.debug_transactions?
+      return transaction unless config.debug_transactions?
       debug('Submitted transaction:') { Util.inspect_transaction transaction }
+
+      transaction
     end
 
     def random_sample?
@@ -117,6 +119,7 @@ module ElasticAPM
       @current.span = span
     end
 
+    # rubocop:disable Metrics/MethodLength
     def start_span(name, type = nil, backtrace: nil, context: nil)
       return unless (transaction = current_transaction)
       return unless transaction.sampled?
@@ -145,6 +148,7 @@ module ElasticAPM
 
       span.start
     end
+    # rubocop:enable Metrics/MethodLength
 
     def end_span
       return unless (span = current_span)
@@ -173,6 +177,7 @@ module ElasticAPM
     end
 
     def deprecated_submit_transaction(transaction)
+      # TODO: add deprecation warning to not pass Transaction obj
       agent.enqueue_transaction transaction
 
       return unless config.debug_transactions
