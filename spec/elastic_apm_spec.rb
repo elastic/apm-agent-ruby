@@ -70,11 +70,54 @@ RSpec.describe ElasticAPM do
       end
     end
 
-    it { should delegate :current_transaction, to: agent }
-    it do
-      should delegate :transaction,
-        to: agent, args: ['T', nil, { context: nil }]
+    describe '.start_span' do
+      it 'starts a span' do
+        ElasticAPM.start_transaction
+
+        span = ElasticAPM.start_span 'Test'
+        expect(span).to be_a ElasticAPM::Span
+        expect(span.name).to be 'Test'
+      end
     end
+
+    describe '.end_span' do
+      it 'ends current span' do
+        ElasticAPM.start_transaction
+
+        span = ElasticAPM.start_span 'Test'
+        expect(ElasticAPM.current_span).to_not be_nil
+
+        ElasticAPM.end_span
+        expect(ElasticAPM.current_span).to be_nil
+        expect(span).to be_done
+      end
+    end
+
+    describe '.with_span' do
+      let(:placeholder) { Struct.new(:span).new }
+
+      before { ElasticAPM.start_transaction }
+
+      subject do
+        ElasticAPM.with_span('Block test') do |span|
+          placeholder.span = span
+
+          'original result'
+        end
+      end
+
+      it 'wraps block in span' do
+        subject
+
+        expect(placeholder.span).to be_a ElasticAPM::Span
+        expect(placeholder.span.name).to be 'Block test'
+      end
+
+      it { should be 'original result' }
+    end
+
+    it { should delegate :current_transaction, to: agent }
+
     it do
       should delegate :report, to: agent, args: ['E', { handled: nil }]
     end
@@ -105,9 +148,38 @@ RSpec.describe ElasticAPM do
     it 'still yields block' do
       ran = false
 
-      ElasticAPM.transaction { ran = true }
+      ElasticAPM.with_transaction { ran = true }
 
       expect(ran).to be true
+    end
+  end
+
+  describe 'DEPRECATED' do
+    before { ElasticAPM.start }
+    after { ElasticAPM.stop }
+
+    before do
+      allow(ElasticAPM).to receive(:warn) { true }
+    end
+
+    describe '.transaction' do
+      it 'redirects to new apis' do
+        expect(ElasticAPM).to receive(:start_transaction) { true }
+        ElasticAPM.transaction
+
+        expect(ElasticAPM).to receive(:with_transaction) { true }
+        ElasticAPM.transaction { 'ok' }
+      end
+    end
+
+    describe '.span' do
+      it 'redirects to new apis' do
+        expect(ElasticAPM).to receive(:start_span) { true }
+        ElasticAPM.span('Name')
+
+        expect(ElasticAPM).to receive(:with_span) { true }
+        ElasticAPM.span('Name') { 'ok' }
+      end
     end
   end
 end

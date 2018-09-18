@@ -17,7 +17,7 @@ require 'elastic_apm/middleware'
 require 'elastic_apm/railtie' if defined?(::Rails::Railtie)
 
 # ElasticAPM
-module ElasticAPM
+module ElasticAPM # rubocop:disable Metrics/ModuleLength
   class << self
     extend ElasticAPM::Deprecations
 
@@ -51,7 +51,11 @@ module ElasticAPM
     #
     # @return [Transaction] if any
     def current_transaction
-      agent && agent.current_transaction
+      agent&.current_transaction
+    end
+
+    def current_span
+      agent&.current_span
     end
 
     # Start a new transaction or return the currently running
@@ -66,7 +70,12 @@ module ElasticAPM
     # @deprecated See `with_transaction` or `start_transaction`
     def transaction(name = nil, type = nil, context: nil, &block)
       return (block_given? ? yield : nil) unless agent
-      agent.transaction(name, type, context: context, &block)
+
+      if block_given?
+        with_transaction(name, type, context: context, &block)
+      else
+        start_transaction(name, type, context: context)
+      end
     end
 
     deprecate :transaction, :with_transaction
@@ -101,10 +110,7 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/MethodLength
 
-    def flush
-      agent&.flush
-    end
-
+    # rubocop:disable Metrics/MethodLength
     # Starts a new span under the current Transaction
     #
     # @param name [String] A description of the span, eq `SELECT FROM "users"`
@@ -115,14 +121,61 @@ module ElasticAPM
     def span(name, type = nil, context: nil, include_stacktrace: true, &block)
       return (block_given? ? yield : nil) unless agent
 
-      agent.span(
+      if block_given?
+        with_span(
+          name,
+          type,
+          context:
+          context,
+          include_stacktrace: include_stacktrace,
+          &block
+        )
+      else
+        start_span(
+          name,
+          type,
+          context: context,
+          include_stacktrace: include_stacktrace
+        )
+      end
+    end
+    # rubocop:enable Metrics/MethodLength
+
+    deprecate :span, :with_span
+
+    def start_span(name, type = nil, context: nil, include_stacktrace: true)
+      agent&.start_span(
         name,
         type,
         context: context,
-        backtrace: include_stacktrace ? caller : nil,
-        &block
+        backtrace: include_stacktrace ? caller : nil
       )
     end
+
+    def end_span
+      agent&.end_span
+    end
+
+    # rubocop:disable Metrics/MethodLength
+    def with_span(name, type = nil, context: nil, include_stacktrace: true)
+      unless block_given?
+        raise ArgumentError,
+          'expected a block. Do you want `start_span\' instead?'
+      end
+
+      return yield nil unless agent
+
+      begin
+        span =
+          start_span(
+            name, type, context: context, include_stacktrace: include_stacktrace
+          )
+        yield span
+      ensure
+        end_span
+      end
+    end
+    # rubocop:enable Metrics/MethodLength
 
     # Build a [Context] from a Rack `env`. The context may include information
     # about the request, response, current user and more
@@ -130,7 +183,7 @@ module ElasticAPM
     # @param rack_env [Rack::Env] A Rack env
     # @return [Context] The built context
     def build_context(rack_env)
-      agent && agent.build_context(rack_env)
+      agent&.build_context(rack_env)
     end
 
     ### Errors
@@ -141,7 +194,7 @@ module ElasticAPM
     # @param handled [Boolean] Whether the exception was rescued
     # @return [Error] The generated [Error]
     def report(exception, handled: true)
-      agent && agent.report(exception, handled: handled)
+      agent&.report(exception, handled: handled)
     end
 
     # Report a custom string error message to APM
@@ -149,7 +202,7 @@ module ElasticAPM
     # @param message [String] The message
     # @return [Error] The generated [Error]
     def report_message(message, **attrs)
-      agent && agent.report_message(message, backtrace: caller, **attrs)
+      agent&.report_message(message, backtrace: caller, **attrs)
     end
 
     ### Context
@@ -160,7 +213,7 @@ module ElasticAPM
     # @param value [Object] A value (will be converted to string)
     # @return [Object] The given value
     def set_tag(key, value)
-      agent && agent.set_tag(key, value)
+      agent&.set_tag(key, value)
     end
 
     # Provide further context for the current transaction
@@ -168,7 +221,7 @@ module ElasticAPM
     # @param custom [Hash] A hash with custom information. Can be nested.
     # @return [Hash] The current custom context
     def set_custom_context(custom)
-      agent && agent.set_custom_context(custom)
+      agent&.set_custom_context(custom)
     end
 
     # Provide a user to the current transaction
@@ -176,7 +229,7 @@ module ElasticAPM
     # @param user [Object] An object representing a user
     # @return [Object] Given user
     def set_user(user)
-      agent && agent.set_user(user)
+      agent&.set_user(user)
     end
 
     # Provide a filter to transform payloads before sending them off
@@ -190,7 +243,11 @@ module ElasticAPM
         raise ArgumentError, '#add_filter needs either `callback\' or a block'
       end
 
-      agent && agent.add_filter(key, block || callback)
+      agent&.add_filter(key, block || callback)
+    end
+
+    def flush
+      agent&.flush
     end
   end
 end

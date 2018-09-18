@@ -22,7 +22,6 @@ module ElasticAPM
 
       @timestamp = Util.micros
 
-      @spans = []
       @span_id_ticker = -1
 
       @started_spans = 0
@@ -43,7 +42,7 @@ module ElasticAPM
 
     attr_accessor :name, :type
     attr_reader :id, :context, :duration, :started_spans, :dropped_spans,
-      :root_span, :timestamp, :spans, :result, :notifications, :sampled,
+      :root_span, :timestamp, :result, :notifications, :sampled,
       :instrumenter, :trace_id
 
     def release
@@ -56,6 +55,7 @@ module ElasticAPM
 
     def done(result = nil, status: nil, headers: {})
       stop
+
       @result = result
 
       if status
@@ -69,6 +69,10 @@ module ElasticAPM
       !!@duration
     end
 
+    def sampled?
+      !!sampled
+    end
+
     def submit(result = nil, status: nil, headers: {})
       done(result, status: status, headers: headers) unless duration
 
@@ -79,78 +83,28 @@ module ElasticAPM
       self
     end
 
-    # rubocop:disable Metrics/MethodLength
-    def span(name, type = nil, backtrace: nil, context: nil)
-      unless sampled?
-        return yield if block_given?
-        return
-      end
+    # spans
 
+    def inc_started_spans!
       @started_spans += 1
-
-      if spans.length >= instrumenter.config.transaction_max_spans
-        @dropped_spans += 1
-        return yield if block_given?
-        return
-      end
-
-      span = build_and_start_span(name, type, context, backtrace)
-
-      return span unless block_given?
-
-      begin
-        result = yield span
-      ensure
-        span.done
-      end
-
-      result
-    end
-    # rubocop:enable Metrics/MethodLength
-
-    def current_span
-      spans.reverse.lazy.find(&:running?)
     end
 
-    def sampled?
-      !!sampled
+    def inc_dropped_spans!
+      @dropped_spans += 1
+    end
+
+    def max_spans_reached?
+      started_spans >= instrumenter.config.transaction_max_spans
+    end
+
+    def next_span_id
+      # TODO: This should follow new id rules
+      @span_id_ticker += 1
     end
 
     def inspect
       "<ElasticAPM::Transaction id:#{id}" \
         " name:#{name.inspect} type:#{type.inspect}>"
-    end
-
-    private
-
-    def next_span_id
-      @span_id_ticker += 1
-    end
-
-    def next_span(name, type, context)
-      Span.new(
-        self,
-        next_span_id,
-        name,
-        type,
-        parent: current_span,
-        context: context
-      )
-    end
-
-    def span_frames_min_duration?
-      @instrumenter.agent.config.span_frames_min_duration != 0
-    end
-
-    def build_and_start_span(name, type, context, backtrace)
-      span = next_span(name, type, context)
-      spans << span
-
-      if backtrace && span_frames_min_duration?
-        span.original_backtrace = backtrace
-      end
-
-      span.start
     end
   end
 end

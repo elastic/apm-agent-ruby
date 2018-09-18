@@ -119,14 +119,8 @@ module ElasticAPM
       instrumenter.current_transaction
     end
 
-    def transaction(name = nil, type = nil, context: nil, sampled: nil, &block)
-      instrumenter.transaction(
-        name,
-        type,
-        context: context,
-        sampled: sampled,
-        &block
-      )
+    def current_span
+      instrumenter.current_span
     end
 
     def start_transaction(name = nil, type = nil, context: nil, sampled: nil)
@@ -146,14 +140,17 @@ module ElasticAPM
       instrumenter.submit_transaction(result)
     end
 
-    def span(name, type = nil, backtrace: nil, context: nil, &block)
-      instrumenter.span(
+    def start_span(name = nil, type = nil, backtrace: nil, context: nil)
+      instrumenter.start_span(
         name,
         type,
         backtrace: backtrace,
-        context: context,
-        &block
+        context: context
       )
+    end
+
+    def end_span
+      instrumenter.end_span
     end
 
     def build_context(rack_env)

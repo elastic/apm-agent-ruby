@@ -9,6 +9,7 @@ module ElasticAPM
     include Logging
 
     TRANSACTION_KEY = :__elastic_transaction_key
+    SPAN_KEY = :__elastic_span_key
 
     # @api private
     class Current
@@ -22,6 +23,14 @@ module ElasticAPM
 
       def transaction=(transaction)
         Thread.current[TRANSACTION_KEY] = transaction
+      end
+
+      def span
+        Thread.current[SPAN_KEY]
+      end
+
+      def span=(span)
+        Thread.current[SPAN_KEY] = span
       end
     end
 
@@ -47,6 +56,8 @@ module ElasticAPM
       @subscriber.register!
     end
 
+    # transactions
+
     def current_transaction
       @current.transaction
     end
@@ -54,37 +65,6 @@ module ElasticAPM
     def current_transaction=(transaction)
       @current.transaction = transaction
     end
-
-    # rubocop:disable Metrics/MethodLength
-    def transaction(name = nil, type = nil, context: nil, sampled: nil)
-      unless config.instrument
-        yield if block_given?
-        return
-      end
-
-      if (transaction = current_transaction)
-        raise ExistingTransactionError,
-          "Transactions may not be nested.\nAlready inside #{transaction}"
-      end
-
-      sampled = random_sample? if sampled.nil?
-
-      transaction =
-        Transaction.new self, name, type, context: context, sampled: sampled
-
-      self.current_transaction = transaction
-      return transaction unless block_given?
-
-      begin
-        yield transaction
-      ensure
-        self.current_transaction = nil
-        transaction.done
-      end
-
-      transaction
-    end
-    # rubocop:enable Metrics/MethodLength
 
     def start_transaction(name = nil, type = nil, context: nil, sampled: nil)
       return nil unless config.instrument?
@@ -127,22 +107,55 @@ module ElasticAPM
       rand <= config.transaction_sample_rate
     end
 
-    # rubocop:disable Metrics/MethodLength
-    def span(name, type = nil, backtrace: nil, context: nil, &block)
-      unless current_transaction
-        return yield if block_given?
+    # spans
+
+    def current_span
+      @current.span
+    end
+
+    def current_span=(span)
+      @current.span = span
+    end
+
+    def start_span(name, type = nil, backtrace: nil, context: nil)
+      return unless (transaction = current_transaction)
+      return unless transaction.sampled?
+
+      if transaction.max_spans_reached?
+        transaction.inc_dropped_spans!
         return
       end
 
-      current_transaction.span(
+      span = Span.new(
+        transaction,
+        transaction.next_span_id,
         name,
         type,
-        backtrace: backtrace,
-        context: context,
-        &block
+        parent: current_span,
+        context: context
       )
+
+      if backtrace && span_frames_min_duration?
+        span.original_backtrace = backtrace
+      end
+
+      transaction.inc_started_spans!
+
+      self.current_span = span
+
+      span.start
     end
-    # rubocop:enable Metrics/MethodLength
+
+    def end_span
+      return unless (span = current_span)
+
+      span.done
+      submit_span span
+
+      self.current_span = nil
+    end
+
+    # metadata
 
     def set_tag(key, value)
       return unless current_transaction
@@ -174,6 +187,12 @@ module ElasticAPM
       '<ElasticAPM::Instrumenter ' \
         "current_transaction=#{current_transaction.inspect}" \
         '>'
+    end
+
+    private
+
+    def span_frames_min_duration?
+      @agent.config.span_frames_min_duration != 0
     end
   end
 end
