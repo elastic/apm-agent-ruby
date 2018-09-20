@@ -196,7 +196,6 @@ module ElasticAPM
       when :rails
         set_rails(app)
       else
-        # TODO: define custom?
         self.service_name = 'ruby'
       end
     end

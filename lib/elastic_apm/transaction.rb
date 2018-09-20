@@ -83,7 +83,6 @@ module ElasticAPM
     end
 
     def next_span_id
-      # TODO: This should follow new id rules
       @span_id_ticker += 1
     end
 

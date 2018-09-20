@@ -92,7 +92,7 @@ module ElasticAPM
       transaction.stop
       transaction.done result
 
-      agent.enqueue_transaction transaction
+      agent.enqueue transaction
 
       transaction
     end
@@ -145,7 +145,7 @@ module ElasticAPM
 
       self.current_span = span.parent
 
-      agent.enqueue_span span
+      agent.enqueue span
     end
 
     # metadata
@@ -166,7 +166,7 @@ module ElasticAPM
     end
 
     def submit_transaction(transaction)
-      agent.enqueue_transaction transaction
+      agent.enqueue transaction
     end
 
     def inspect

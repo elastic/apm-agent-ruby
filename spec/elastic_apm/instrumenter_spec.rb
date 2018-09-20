@@ -119,7 +119,7 @@ module ElasticAPM
 
     describe '#end_transaction', :mock_intake do
       it 'ends and enqueues current transaction' do
-        expect(agent).to receive(:enqueue_transaction)
+        expect(agent).to receive(:enqueue)
 
         transaction = subject.start_transaction
         subject.end_transaction
@@ -133,7 +133,7 @@ module ElasticAPM
         it 'enqueues transaction on agent' do
           mock_agent = double(Agent, config: Config.new)
           transaction = Transaction.new agent
-          expect(mock_agent).to receive(:enqueue_transaction).with(transaction)
+          expect(mock_agent).to receive(:enqueue).with(transaction)
           subject = Instrumenter.new(mock_agent)
           subject.submit_transaction transaction
         end
@@ -142,7 +142,7 @@ module ElasticAPM
 
     describe '#submit_span' do
       it 'enqueues span on agent' do
-        expect(agent).to receive(:enqueue_span)
+        expect(agent).to receive(:enqueue)
 
         subject.start_transaction
         span = subject.start_span 'Span'

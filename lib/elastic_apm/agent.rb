@@ -101,19 +101,6 @@ module ElasticAPM
       @transport.submit obj
     end
 
-    # TODO: Consolidate these?
-    def enqueue_transaction(transaction)
-      enqueue transaction
-    end
-
-    def enqueue_span(span)
-      enqueue span
-    end
-
-    def enqueue_error(error)
-      enqueue error
-    end
-
     def flush
       @transport.flush
     end
@@ -167,7 +154,7 @@ module ElasticAPM
         exception,
         handled: handled
       )
-      enqueue_error error
+      enqueue error
     end
 
     def report_message(message, backtrace: nil, **attrs)
@@ -176,7 +163,7 @@ module ElasticAPM
         backtrace: backtrace,
         **attrs
       )
-      enqueue_error error
+      enqueue error
     end
 
     # context
