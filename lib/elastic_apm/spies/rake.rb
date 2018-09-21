@@ -17,7 +17,8 @@ module ElasticAPM
               return execute_without_apm(*args)
             end
 
-            transaction = ElasticAPM.start_transaction("Rake::Task[#{name}]", 'Rake')
+            transaction =
+              ElasticAPM.start_transaction("Rake::Task[#{name}]", 'Rake')
 
             begin
               result = execute_without_apm(*args)
