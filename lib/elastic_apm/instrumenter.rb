@@ -4,6 +4,7 @@ require 'elastic_apm/span'
 require 'elastic_apm/transaction'
 
 module ElasticAPM
+  # rubocop:disable Metrics/ClassLength
   # @api private
   class Instrumenter
     include Logging
@@ -121,7 +122,6 @@ module ElasticAPM
 
       span = Span.new(
         transaction,
-        transaction.next_span_id,
         name,
         type,
         parent: current_span,
@@ -185,4 +185,5 @@ module ElasticAPM
       @agent.config.span_frames_min_duration != 0
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

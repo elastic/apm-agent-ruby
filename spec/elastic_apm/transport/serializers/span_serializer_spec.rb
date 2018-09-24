@@ -32,17 +32,17 @@ module ElasticAPM
             it 'builds' do
               should match(
                 span: {
-                  id: '0',
-                  transaction_id: @mock_uuid,
+                  id: /.{16}/,
+                  transaction_id: span.transaction_id,
+                  parent_id: span.parent_id,
+                  trace_id: span.trace_id,
                   name: 'SELECT *',
                   type: 'db.query',
-                  parent: nil,
                   context: nil,
                   stacktrace: [],
                   start: 0,
                   timestamp: Time.utc(1992, 1, 1).iso8601(3),
-                  duration: 100,
-                  trace_id: span.trace_id
+                  duration: 100
                 }
               )
             end
