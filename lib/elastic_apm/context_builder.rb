@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module ElasticAPM
+  # TODO: Move to txn.add_request ?
   # @api private
   class ContextBuilder
     def initialize(_agent); end

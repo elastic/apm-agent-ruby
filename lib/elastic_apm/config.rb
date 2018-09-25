@@ -182,9 +182,11 @@ module ElasticAPM
     attr_reader   :custom_key_filters
     attr_reader   :ignore_url_patterns
 
+    alias :debug_transactions? :debug_transactions
     alias :disable_environment_warning? :disable_environment_warning
     alias :disable_send? :disable_send
     alias :http_compression? :http_compression
+    alias :instrument? :instrument
     alias :verify_server_cert? :verify_server_cert
 
     def app=(app)
@@ -194,7 +196,6 @@ module ElasticAPM
       when :rails
         set_rails(app)
       else
-        # TODO: define custom?
         self.service_name = 'ruby'
       end
     end

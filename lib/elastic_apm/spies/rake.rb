@@ -6,7 +6,6 @@ module ElasticAPM
     # @api private
     class RakeSpy
       # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-      # rubocop:disable Metrics/CyclomaticComplexity
       def install
         ::Rake::Task.class_eval do
           alias execute_without_apm execute
@@ -18,19 +17,20 @@ module ElasticAPM
               return execute_without_apm(*args)
             end
 
-            transaction = ElasticAPM.transaction("Rake::Task[#{name}]", 'Rake')
+            transaction =
+              ElasticAPM.start_transaction("Rake::Task[#{name}]", 'Rake')
 
             begin
               result = execute_without_apm(*args)
 
-              transaction.submit('success') if transaction
+              transaction.result = 'success' if transaction
             rescue StandardError => e
-              transaction.submit(:error) if transaction
+              transaction.result = 'error' if transaction
               ElasticAPM.report(e)
 
               raise
             ensure
-              transaction.release if transaction
+              ElasticAPM.end_transaction
               ElasticAPM.stop
             end
 
@@ -38,7 +38,6 @@ module ElasticAPM
           end
         end
       end
-      # rubocop:enable Metrics/CyclomaticComplexity
       # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
     end
     register 'Rake::Task', 'rake', RakeSpy.new

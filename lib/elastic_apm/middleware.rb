@@ -7,34 +7,36 @@ module ElasticAPM
       @app = app
     end
 
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength
     def call(env)
       begin
         if running? && !path_ignored?(env)
-          transaction = build_transaction(env)
+          transaction = start_transaction(env)
         end
 
         resp = @app.call env
-
-        status, headers, body = resp
-        submit_transaction(transaction, status, headers, body) if transaction
       rescue InternalError
         raise # Don't report ElasticAPM errors
       rescue ::Exception => e
         ElasticAPM.report(e, handled: false)
-        transaction.submit('HTTP 5xx', status: 500) if transaction
         raise
       ensure
-        transaction.release if transaction
+        if resp && transaction
+          status, headers, _body = resp
+          transaction.add_response(status, headers: headers)
+        end
+
+        ElasticAPM.end_transaction http_result(status)
       end
 
       resp
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength
 
-    def submit_transaction(transaction, status, headers, _body)
-      result = "HTTP #{status.to_s[0]}xx"
-      transaction.submit(result, status: status, headers: headers)
+    private
+
+    def http_result(status)
+      status && "HTTP #{status.to_s[0]}xx"
     end
 
     def path_ignored?(env)
@@ -43,8 +45,8 @@ module ElasticAPM
       end
     end
 
-    def build_transaction(env)
-      ElasticAPM.transaction 'Rack', 'request',
+    def start_transaction(env)
+      ElasticAPM.start_transaction 'Rack', 'request',
         context: ElasticAPM.build_context(env)
     end
 

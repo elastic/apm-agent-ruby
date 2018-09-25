@@ -2,13 +2,17 @@
 
 module ElasticAPM
   RSpec.describe Instrumenter do
-    let(:agent) { Agent.new(Config.new) }
+    let(:config) { Config.new }
+    let(:agent) { Agent.new(config) }
+    subject { Instrumenter.new(agent) }
+
+    after { agent.flush }
 
     context 'life cycle' do
       it 'cleans up after itself' do
-        instrumenter = Instrumenter.new(agent)
+        instrumenter = subject
 
-        instrumenter.transaction
+        instrumenter.start_transaction
 
         expect(instrumenter.current_transaction).to_not be_nil
 
@@ -20,12 +24,10 @@ module ElasticAPM
       end
     end
 
-    describe '#transaction' do
-      subject { Instrumenter.new(agent) }
-
+    describe '#start_transaction' do
       it 'returns a new transaction and sets it as current' do
         context = Context.new
-        transaction = subject.transaction 'Test', 't', context: context
+        transaction = subject.start_transaction 'Test', 't', context: context
         expect(transaction.name).to eq 'Test'
         expect(transaction.type).to eq 't'
         expect(transaction.id).to be subject.current_transaction.id
@@ -34,101 +36,62 @@ module ElasticAPM
       end
 
       it 'explodes if called inside other transaction' do
-        subject.transaction 'Test' do
-          expect do
-            subject.transaction('Test')
-          end.to raise_error(ExistingTransactionError)
-        end
-      end
+        subject.start_transaction 'Test'
 
-      context 'with a block' do
-        it 'yields transaction and returns it' do
-          dummy = double(call: true)
-
-          result = subject.transaction('Test', &dummy.method(:call))
-
-          expect(dummy).to have_received(:call).with(result)
-        end
+        expect do
+          subject.start_transaction 'Test'
+        end.to raise_error(ExistingTransactionError)
       end
 
       context 'when instrumentation is disabled' do
-        let(:agent) { Agent.new Config.new(instrument: false) }
-        it 'is a noop' do
-          called = false
+        let(:config) { Config.new(instrument: false) }
 
-          transaction = subject.transaction do
-            subject.span 'things' do
-              called = true
-            end
-          end
-
-          expect(transaction).to be_nil
-          expect(called).to be true
+        it 'is nil' do
+          expect(subject.start_transaction).to be_nil
         end
       end
     end
 
     describe '#span' do
-      subject { Instrumenter.new(agent) }
-
-      it 'delegates to current transaction' do
-        subject.current_transaction = double(span: true)
-        expect(subject).to delegate :span,
-          to: subject.current_transaction,
-          args: ['name', nil, { backtrace: nil, context: nil }]
-      end
-
       context 'with span_frames_min_duration' do
         let(:config) do
           Config.new(span_frames_min_duration: 10, disable_send: true)
         end
-        let(:agent) do
-          Agent.new(config)
-        end
 
         it 'collects stacktraces', :mock_time do
-          t = subject.transaction do
-            travel 100
+          subject.start_transaction
 
-            subject.span 'Things', backtrace: caller do
-              travel 100
-            end
+          span1 = subject.start_span 'Things', backtrace: caller
+          travel 100
+          subject.end_span
 
-            travel 100
+          travel 100
 
-            subject.span 'Short things', backtrace: caller do
-              travel 5
-            end
-          end.done :ok
+          span2 = subject.start_span 'Short things', backtrace: caller
+          travel 5
+          subject.end_span
 
-          expect(t.spans.length).to be 2
-          expect(t.spans[0].stacktrace).to_not be_nil
-          expect(t.spans[1].stacktrace).to be_nil
+          subject.end_transaction
+
+          expect(span1.stacktrace).to_not be_nil
+          expect(span2.stacktrace).to be_nil
         end
       end
     end
 
     describe '#set_tag' do
-      subject { Instrumenter.new(agent) }
-
       it 'sets tag on currenct transaction' do
-        transaction = subject.transaction 'Test' do |t|
-          subject.set_tag :things, 'are all good!'
-          t
-        end
+        transaction = subject.start_transaction 'Test'
+        subject.set_tag :things, 'are all good!'
 
         expect(transaction.context.tags).to match(things: 'are all good!')
       end
     end
 
     describe '#set_custom_context' do
-      subject { Instrumenter.new(agent) }
-
       it 'sets custom context on transaction' do
-        transaction = subject.transaction 'Test' do |t|
-          subject.set_custom_context(one: 'is in', two: 2, three: false)
-          t
-        end
+        transaction = subject.start_transaction 'Test'
+        subject.set_custom_context(one: 'is in', two: 2, three: false)
 
         expect(transaction.context.custom).to match(
           one: 'is in',
@@ -141,13 +104,10 @@ module ElasticAPM
     describe '#set_user' do
       User = Struct.new(:id, :email, :username)
 
-      subject { Instrumenter.new(agent) }
-
       it 'sets user in context' do
-        transaction = subject.transaction 'Test' do |t|
-          subject.set_user(User.new(1, 'a@a', 'abe'))
-          t
-        end
+        transaction = subject.start_transaction 'Test'
+        subject.set_user(User.new(1, 'a@a', 'abe'))
+        subject.end_transaction
 
         expect(transaction.context.user.to_h).to match(
           id: 1,
@@ -157,39 +117,52 @@ module ElasticAPM
       end
     end
 
-    describe '#submit_transaction' do
-      it 'enqueues transaction on agent' do
-        mock_agent = double(Agent, config: Config.new)
-        transaction = double
-        expect(mock_agent).to receive(:enqueue_transaction).with(transaction)
-        subject = Instrumenter.new(mock_agent)
-        subject.submit_transaction transaction
+    describe '#end_transaction', :mock_intake do
+      it 'ends and enqueues current transaction' do
+        expect(agent).to receive(:enqueue)
+
+        transaction = subject.start_transaction
+        subject.end_transaction
+
+        expect(transaction).to be_done
+      end
+    end
+
+    describe 'DEPRECATED' do
+      describe '#submit_transaction with a Transaction' do
+        it 'enqueues transaction on agent' do
+          mock_agent = double(Agent, config: Config.new)
+          transaction = Transaction.new agent
+          expect(mock_agent).to receive(:enqueue).with(transaction)
+          subject = Instrumenter.new(mock_agent)
+          subject.submit_transaction transaction
+        end
       end
     end
 
     describe '#submit_span' do
       it 'enqueues span on agent' do
-        mock_agent = double(Agent, config: Config.new)
-        span = double
-        expect(mock_agent).to receive(:enqueue_span).with(span)
-        subject = Instrumenter.new(mock_agent)
-        subject.submit_span span
+        expect(agent).to receive(:enqueue)
+
+        subject.start_transaction
+        span = subject.start_span 'Span'
+
+        subject.end_span
+
+        expect(span).to be_done
       end
     end
 
     context 'sampling' do
-      subject do
-        Instrumenter.new(Agent.new(Config.new(transaction_sample_rate: 0.0)))
-      end
+      let(:config) { Config.new(transaction_sample_rate: 0.0) }
 
       it 'skips spans' do
-        transaction = subject.transaction 'Test' do |t|
-          t.span 'many things'
-          t
-        end.done
+        transaction = subject.start_transaction 'Test'
+        span = subject.start_span 'many things'
+        subject.end_transaction
 
         expect(transaction).to_not be_sampled
-        expect(transaction.spans).to be_empty
+        expect(span).to be_nil
       end
     end
   end

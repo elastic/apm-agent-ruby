@@ -4,20 +4,19 @@ require 'net/http'
 
 module ElasticAPM
   RSpec.describe 'Spy: NetHTTP' do
-    it 'spans http calls' do
+    it 'spans http calls', :intercept do
       WebMock.stub_request(:get, %r{http://example.com/.*})
-      ElasticAPM.start disable_send: true
+      ElasticAPM.start
 
-      transaction = ElasticAPM.transaction 'Net::HTTP test' do
+      ElasticAPM.with_transaction 'Net::HTTP test' do
         Net::HTTP.start('example.com') do |http|
           http.get '/'
         end
-      end.submit
+      end
 
-      expect(transaction.spans.length).to be 1
+      span, = @intercepted.spans
 
-      http_span = transaction.spans.last
-      expect(http_span.name).to eq 'GET example.com'
+      expect(span.name).to eq 'GET example.com'
 
       ElasticAPM.stop
       WebMock.reset!

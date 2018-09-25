@@ -97,16 +97,8 @@ module ElasticAPM
 
     # transport
 
-    def enqueue_transaction(transaction)
-      @transport.submit transaction
-    end
-
-    def enqueue_span(span)
-      @transport.submit span
-    end
-
-    def enqueue_error(error)
-      @transport.submit error
+    def enqueue(obj)
+      @transport.submit obj
     end
 
     def flush
@@ -119,24 +111,34 @@ module ElasticAPM
       instrumenter.current_transaction
     end
 
-    def transaction(name = nil, type = nil, context: nil, sampled: nil, &block)
-      instrumenter.transaction(
+    def current_span
+      instrumenter.current_span
+    end
+
+    def start_transaction(name = nil, type = nil, context: nil, sampled: nil)
+      instrumenter.start_transaction(
         name,
         type,
         context: context,
-        sampled: sampled,
-        &block
+        sampled: sampled
       )
     end
 
-    def span(name, type = nil, backtrace: nil, context: nil, &block)
-      instrumenter.span(
+    def end_transaction(result = nil)
+      instrumenter.end_transaction(result)
+    end
+
+    def start_span(name = nil, type = nil, backtrace: nil, context: nil)
+      instrumenter.start_span(
         name,
         type,
         backtrace: backtrace,
-        context: context,
-        &block
+        context: context
       )
+    end
+
+    def end_span
+      instrumenter.end_span
     end
 
     def build_context(rack_env)
@@ -152,7 +154,7 @@ module ElasticAPM
         exception,
         handled: handled
       )
-      enqueue_error error
+      enqueue error
     end
 
     def report_message(message, backtrace: nil, **attrs)
@@ -161,7 +163,7 @@ module ElasticAPM
         backtrace: backtrace,
         **attrs
       )
-      enqueue_error error
+      enqueue error
     end
 
     # context

@@ -2,6 +2,9 @@
 
 module ElasticAPM
   RSpec.describe Agent do
+    let(:config) { Config.new }
+    subject { Agent.new config }
+
     context 'life cycle' do
       describe '.start' do
         it 'starts an instance and only one' do
@@ -34,30 +37,8 @@ module ElasticAPM
     end
 
     context 'instrumenting' do
-      subject { Agent.new Config.new }
-
-      it { should delegate :current_transaction, to: subject.instrumenter }
-      it do
-        should delegate :transaction,
-          to: subject.instrumenter,
-          args: ['name', 'type', { context: nil, sampled: true }]
-      end
-      it do
-        should delegate :span,
-          to: subject.instrumenter,
-          args: ['name', 'type', { backtrace: nil, context: nil }]
-      end
-      it do
-        should delegate :set_tag,
-          to: subject.instrumenter, args: [:key, 'value']
-      end
-      it do
-        should delegate :set_custom_context,
-          to: subject.instrumenter, args: [{}]
-      end
-      it do
-        should delegate :set_user,
-          to: subject.instrumenter, args: ['user']
+      it 'has an instrumenter' do
+        expect(subject.instrumenter).to be_a Instrumenter
       end
     end
 
@@ -65,8 +46,6 @@ module ElasticAPM
       class AgentTestError < StandardError; end
 
       describe '#report' do
-        subject { Agent.new Config.new(api_request_time: 0.1) }
-
         it 'queues a request' do
           exception = AgentTestError.new('Yikes!')
 
@@ -93,8 +72,6 @@ module ElasticAPM
       end
 
       describe '#report_message' do
-        subject { Agent.new Config.new }
-
         it 'queues a request' do
           subject.report_message('Everything went 💥')
 
@@ -106,12 +83,9 @@ module ElasticAPM
     end
 
     describe '#enqueue_transaction', :mock_intake do
-      subject { Agent.new Config.new }
-
       it 'enqueues a collection of transactions' do
-        transaction = subject.transaction
-
-        subject.enqueue_transaction(transaction)
+        subject.start_transaction
+        subject.end_transaction
 
         subject.stop
         expect(@mock_intake.requests.length).to be 1
@@ -120,8 +94,6 @@ module ElasticAPM
     end
 
     describe '#add_filter' do
-      subject { Agent.new Config.new }
-
       it 'may add a filter' do
         expect do
           subject.add_filter :key, -> {}
