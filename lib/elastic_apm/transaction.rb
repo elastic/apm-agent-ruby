@@ -13,6 +13,7 @@ module ElasticAPM
       name = nil,
       type = nil,
       context: nil,
+      traceparent: nil,
       sampled: true
     )
       @id = SecureRandom.hex(8)
@@ -35,6 +36,7 @@ module ElasticAPM
       @context = context || Context.new
       @context.tags.merge!(instrumenter.config.default_tags) { |_, old, _| old }
 
+      @traceparent = traceparent
       @sampled = sampled
 
       yield self if block_given?

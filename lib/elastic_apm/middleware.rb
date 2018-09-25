@@ -25,7 +25,6 @@ module ElasticAPM
       ensure
         if resp && transaction
           status, headers, _body = resp
-          pp headers
           transaction.add_response(status, headers: headers)
         end
 

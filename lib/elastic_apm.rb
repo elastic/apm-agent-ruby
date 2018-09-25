@@ -92,8 +92,18 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     # `db.mysql2.query`
     # @param context [Context] An optional [Context]
     # @return [Transaction]
-    def start_transaction(name = nil, type = nil, context: nil)
-      agent&.start_transaction(name, type, context: context)
+    def start_transaction(
+      name = nil,
+      type = nil,
+      context: nil,
+      traceparent: nil
+    )
+      agent&.start_transaction(
+        name,
+        type,
+        context: context,
+        traceparent: traceparent
+      )
     end
 
     # Ends the current transaction with `result`
@@ -114,7 +124,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     # @param context [Context] An optional [Context]
     # @yield [Transaction]
     # @return result of block
-    def with_transaction(name = nil, type = nil, context: nil)
+    def with_transaction(name = nil, type = nil, context: nil, traceparent: nil)
       unless block_given?
         raise ArgumentError,
           'expected a block. Do you want `start_transaction\' instead?'
@@ -123,7 +133,13 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       return yield(nil) unless agent
 
       begin
-        transaction = start_transaction(name, type, context: context)
+        transaction =
+          start_transaction(
+            name,
+            type,
+            context: context,
+            traceparent: traceparent
+          )
         yield transaction
       ensure
         end_transaction

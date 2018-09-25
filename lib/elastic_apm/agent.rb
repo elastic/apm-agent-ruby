@@ -115,12 +115,17 @@ module ElasticAPM
       instrumenter.current_span
     end
 
-    def start_transaction(name = nil, type = nil, context: nil, sampled: nil)
+    def start_transaction(
+      name = nil,
+      type = nil,
+      context: nil,
+      traceparent: nil
+    )
       instrumenter.start_transaction(
         name,
         type,
         context: context,
-        sampled: sampled
+        traceparent: traceparent
       )
     end
 

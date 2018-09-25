@@ -69,7 +69,12 @@ module ElasticAPM
       @current.transaction = transaction
     end
 
-    def start_transaction(name = nil, type = nil, context: nil, sampled: nil)
+    def start_transaction(
+      name = nil,
+      type = nil,
+      context: nil,
+      traceparent: nil
+    )
       return nil unless config.instrument?
 
       if (transaction = current_transaction)
@@ -77,10 +82,20 @@ module ElasticAPM
           "Transactions may not be nested.\nAlready inside #{transaction}"
       end
 
-      sampled = random_sample? if sampled.nil?
+      sampled =
+        if traceparent
+          traceparent.requested? || traceparent.recorded?
+        else
+          random_sample?
+        end
 
       self.current_transaction =
-        Transaction.new self, name, type, context: context, sampled: sampled
+        Transaction.new(
+          self, name, type,
+          context: context,
+          traceparent: traceparent,
+          sampled: sampled
+        )
 
       current_transaction
     end

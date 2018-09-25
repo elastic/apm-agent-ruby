@@ -15,5 +15,9 @@ module ElasticAPM
       sha = `git rev-parse --verify HEAD 2>&1`.chomp
       $? && $?.success? ? sha : nil # rubocop:disable Style/SpecialGlobalVars
     end
+
+    def self.hex_to_bit(str)
+      str.hex.to_s(2).rjust(str.size * 4, '0')
+    end
   end
 end
