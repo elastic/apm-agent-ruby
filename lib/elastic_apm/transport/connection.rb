@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'http'
-require 'concurrent/scheduled_task'
+require 'concurrent'
 require 'zlib'
 
 require 'elastic_apm/metadata'
@@ -54,6 +54,7 @@ module ElasticAPM
         close!
       rescue FailedToConnectError => e
         error "Couldn't establish connection to APM Server:\n%p", e
+        close!
 
         nil
       end
@@ -136,7 +137,9 @@ module ElasticAPM
 
       def schedule_closing
         @close_task =
-          Concurrent::ScheduledTask.execute(@config.api_request_time) { close! }
+          Concurrent::ScheduledTask.execute(@config.api_request_time) do
+            close!
+          end
       end
 
       def enable_compression!

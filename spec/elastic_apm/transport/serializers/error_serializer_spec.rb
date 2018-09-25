@@ -26,7 +26,7 @@ module ElasticAPM
                 error: {
                   id: String,
                   culprit: '/',
-                  timestamp: Time.utc(1992, 1, 1).iso8601(3),
+                  timestamp: 694_224_000_000_000,
                   context: { custom: {}, tags: {} },
                   exception: {
                     message: 'ZeroDivisionError: divided by 0',
@@ -37,6 +37,7 @@ module ElasticAPM
                     stacktrace: error.exception.stacktrace.to_a, # so lazy
                     handled: true
                   },
+                  parent_id: nil,
                   trace_id: nil,
                   transaction_id: nil
                 }
@@ -73,9 +74,10 @@ module ElasticAPM
                     param_message: nil,
                     stacktrace: []
                   },
-                  timestamp: Time.utc(1992, 1, 1).iso8601(3),
+                  timestamp: 694_224_000_000_000,
                   trace_id: nil,
-                  transaction_id: nil
+                  transaction_id: nil,
+                  parent_id: nil
                 }
               )
             end

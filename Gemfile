@@ -19,17 +19,15 @@ gem 'fakeredis', require: nil
 gem 'json-schema', require: nil
 gem 'mongo', require: nil
 gem 'rake', require: nil
-# gem 'redis', require: nil
 gem 'sequel', require: nil
 gem 'sidekiq', require: nil
-
 gem 'yard', require: nil
-gem 'yarjuf', require: nil
+gem 'yarjuf'
 
 if RUBY_PLATFORM == 'java'
-  gem 'jdbc-sqlite3', require: nil
+  gem 'jdbc-sqlite3'
 else
-  gem 'sqlite3', require: nil
+  gem 'sqlite3'
 end
 
 framework, *version = ENV.fetch('FRAMEWORK', 'rails').split('-')

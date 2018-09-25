@@ -5,7 +5,7 @@ module ElasticAPM
     module Serializers
       # @api private
       class TransactionSerializer < Serializer
-        # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+        # rubocop:disable Metrics/MethodLength
         def build(transaction)
           {
             transaction: {
@@ -16,8 +16,8 @@ module ElasticAPM
               type: transaction.type,
               result: transaction.result.to_s,
               duration: ms(transaction.duration),
-              timestamp: micros_to_time(transaction.timestamp).utc.iso8601(3),
-              sampled: transaction.sampled,
+              timestamp: transaction.timestamp,
+              sampled: transaction.sampled?,
               context: transaction.context.to_h,
               span_count: {
                 started: transaction.started_spans,
@@ -26,7 +26,7 @@ module ElasticAPM
             }
           }
         end
-        # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+        # rubocop:enable Metrics/MethodLength
       end
     end
   end

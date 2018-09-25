@@ -2,8 +2,8 @@
 
 module ElasticAPM
   RSpec.describe StacktraceBuilder do
-    let(:agent) { Agent.new Config.new }
-    subject { described_class.new(agent) }
+    let(:config) { Config.new }
+    subject { described_class.new(config) }
 
     describe '.build' do
       context 'mri', unless: RSpec::Support::Ruby.jruby? do

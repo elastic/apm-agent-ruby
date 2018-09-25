@@ -6,6 +6,7 @@ ENV['ELASTIC_APM_ENABLED_ENVIRONMENTS'] = 'test'
 
 require 'bundler/setup'
 Bundler.require :default, 'test'
+require 'yarjuf'
 
 require 'webmock/rspec'
 WebMock.hide_stubbing_instructions!

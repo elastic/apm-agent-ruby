@@ -14,10 +14,6 @@ module ElasticAPM
 
         private
 
-        def micros_to_time(micros)
-          Time.at(ms(micros) / 1_000)
-        end
-
         def ms(micros)
           micros.to_f / 1_000
         end

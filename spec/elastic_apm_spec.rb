@@ -33,7 +33,7 @@ RSpec.describe ElasticAPM do
 
         ElasticAPM.end_transaction
         expect(ElasticAPM.current_transaction).to be_nil
-        expect(transaction).to be_done
+        expect(transaction).to be_stopped
 
         ElasticAPM.flush
 
@@ -82,7 +82,7 @@ RSpec.describe ElasticAPM do
 
         ElasticAPM.end_span
         expect(ElasticAPM.current_span).to be_nil
-        expect(span).to be_done
+        expect(span).to be_stopped
       end
     end
 
