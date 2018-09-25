@@ -66,7 +66,7 @@ module ElasticAPM
 
       @context_builder = ContextBuilder.new(self)
       @error_builder = ErrorBuilder.new(self)
-      @stacktrace_builder = StacktraceBuilder.new(self)
+      @stacktrace_builder = StacktraceBuilder.new(config)
     end
 
     attr_reader :config, :transport, :messages, :pending_transactions,
@@ -115,12 +115,17 @@ module ElasticAPM
       instrumenter.current_span
     end
 
-    def start_transaction(name = nil, type = nil, context: nil, sampled: nil)
+    def start_transaction(
+      name = nil,
+      type = nil,
+      context: nil,
+      traceparent: nil
+    )
       instrumenter.start_transaction(
         name,
         type,
         context: context,
-        sampled: sampled
+        traceparent: traceparent
       )
     end
 
