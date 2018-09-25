@@ -4,27 +4,27 @@ module ElasticAPM
   module Transport
     module Serializers
       RSpec.describe SpanSerializer do
-        let(:agent) { Agent.new(Config.new(disable_send: true)) }
-        let(:instrumenter) { Instrumenter.new agent }
-        let(:builder) { described_class.new agent.config }
+        let(:builder) { described_class.new Config.new }
 
         before do
           @mock_uuid = SecureRandom.uuid
           allow(SecureRandom).to receive(:uuid) { @mock_uuid }
         end
 
-        describe '#build', :mock_time do
+        describe '#build', :mock_time, :intercept do
           context 'a span' do
-            let :transaction do
-              instrumenter.transaction do
-                instrumenter.span('SELECT *', 'db.query') do
-                  travel 100
-                end
-              end
-            end
-
             let :span do
-              transaction.spans.first
+              ElasticAPM.start
+              ElasticAPM.with_transaction do
+                ElasticAPM.with_span(
+                  'SELECT *',
+                  'db.query',
+                  include_stacktrace: false
+                ) { travel 100 }
+              end
+              ElasticAPM.stop
+
+              @intercepted.spans.first
             end
 
             subject { builder.build(span) }

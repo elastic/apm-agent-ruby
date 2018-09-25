@@ -4,7 +4,7 @@ require 'securerandom'
 
 module ElasticAPM
   # @api private
-  class Transaction # rubocop:disable Metrics/ClassLength
+  class Transaction
     DEFAULT_TYPE = 'custom'
 
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
@@ -22,7 +22,6 @@ module ElasticAPM
 
       @timestamp = Util.micros
 
-      @spans = []
       @span_id_ticker = -1
 
       @started_spans = 0
@@ -41,18 +40,19 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
-    attr_accessor :name, :type
+    attr_accessor :name, :type, :result
     attr_reader :id, :context, :duration, :started_spans, :dropped_spans,
-      :root_span, :timestamp, :spans, :result, :notifications, :sampled,
-      :instrumenter, :trace_id
+      :timestamp, :notifications, :sampled, :instrumenter, :trace_id
 
-    def release
-      @instrumenter.current_transaction = nil
+    def stop
+      @duration = Util.micros - @timestamp
     end
 
     def done(result = nil)
-      @duration = Util.micros - @timestamp
-      @result = result
+      stop
+
+      self.result = result if result
+
       self
     end
 
@@ -60,92 +60,35 @@ module ElasticAPM
       !!@duration
     end
 
-    def submit(result = nil, status: nil, headers: {})
-      done result unless duration
-
-      if status
-        context.response = Context::Response.new(status, headers: headers)
-      end
-
-      release
-
-      @instrumenter.submit_transaction self
-
-      self
-    end
-
-    # rubocop:disable Metrics/MethodLength
-    def span(name, type = nil, backtrace: nil, context: nil)
-      unless sampled?
-        return yield if block_given?
-        return
-      end
-
-      @started_spans += 1
-
-      if spans.length >= instrumenter.config.transaction_max_spans
-        @dropped_spans += 1
-        return yield if block_given?
-        return
-      end
-
-      span = build_and_start_span(name, type, context, backtrace)
-
-      return span unless block_given?
-
-      begin
-        result = yield span
-      ensure
-        span.done
-      end
-
-      result
-    end
-    # rubocop:enable Metrics/MethodLength
-
-    def current_span
-      spans.reverse.lazy.find(&:running?)
-    end
-
     def sampled?
       !!sampled
     end
 
-    def inspect
-      "<ElasticAPM::Transaction id:#{id}" \
-        " name:#{name.inspect} type:#{type.inspect}>"
+    def add_response(*args)
+      context.response = Context::Response.new(*args)
     end
 
-    private
+    # spans
+
+    def inc_started_spans!
+      @started_spans += 1
+    end
+
+    def inc_dropped_spans!
+      @dropped_spans += 1
+    end
+
+    def max_spans_reached?
+      started_spans > instrumenter.config.transaction_max_spans
+    end
 
     def next_span_id
       @span_id_ticker += 1
     end
 
-    def next_span(name, type, context)
-      Span.new(
-        self,
-        next_span_id,
-        name,
-        type,
-        parent: current_span,
-        context: context
-      )
-    end
-
-    def span_frames_min_duration?
-      @instrumenter.agent.config.span_frames_min_duration != 0
-    end
-
-    def build_and_start_span(name, type, context, backtrace)
-      span = next_span(name, type, context)
-      spans << span
-
-      if backtrace && span_frames_min_duration?
-        span.original_backtrace = backtrace
-      end
-
-      span.start
+    def inspect
+      "<ElasticAPM::Transaction id:#{id}" \
+        " name:#{name.inspect} type:#{type.inspect}>"
     end
   end
 end

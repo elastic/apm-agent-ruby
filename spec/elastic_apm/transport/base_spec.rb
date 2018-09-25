@@ -12,10 +12,8 @@ module ElasticAPM
 
       describe '#submit' do
         it 'takes records and sends them off' do
-          transaction = Transaction.new instrumenter, 'T' do |t|
-            t.span 'span 0' do
-            end
-          end
+          transaction = instrumenter.start_transaction
+          instrumenter.end_transaction
 
           error = agent.error_builder.build_exception actual_exception
 

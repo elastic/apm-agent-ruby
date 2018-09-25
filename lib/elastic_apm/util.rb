@@ -11,15 +11,9 @@ module ElasticAPM
       target.to_i * 1_000_000 + target.usec
     end
 
-    def self.inspect_transaction(transaction)
-      Inspector.new.transaction transaction
-    end
-
     def self.git_sha
       sha = `git rev-parse --verify HEAD 2>&1`.chomp
       $? && $?.success? ? sha : nil # rubocop:disable Style/SpecialGlobalVars
     end
   end
 end
-
-require 'elastic_apm/util/inspector'

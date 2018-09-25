@@ -29,7 +29,6 @@ if defined?(Rails)
 
         config.action_mailer.perform_deliveries = false
 
-        config.elastic_apm.api_request_time = nil
         config.elastic_apm.enabled_environments += %w[test]
         config.elastic_apm.service_name = 'RailsTestApp'
         config.elastic_apm.debug_transactions = true

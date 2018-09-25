@@ -14,7 +14,7 @@ module ElasticAPM
 
             return call_without_apm(command, &block) if command[0] == :auth
 
-            ElasticAPM.span(name.to_s, 'db.redis') do
+            ElasticAPM.with_span(name.to_s, 'db.redis') do
               call_without_apm(command, &block)
             end
           end

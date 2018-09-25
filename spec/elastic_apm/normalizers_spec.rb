@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'spec_helper'
+require 'elastic_apm/subscriber'
+
 module ElasticAPM
   RSpec.describe Normalizers do
     describe 'registration:' do

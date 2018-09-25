@@ -13,18 +13,18 @@ module ElasticAPM
         # rubocop:disable Metrics/MethodLength
         def call(_worker, job, queue)
           name = SidekiqSpy.name_for(job)
-          transaction = ElasticAPM.transaction(name, 'Sidekiq')
+          transaction = ElasticAPM.start_transaction(name, 'Sidekiq')
           ElasticAPM.set_tag(:queue, queue)
 
           yield
 
-          transaction.submit('success') if transaction
+          transaction.done :success if transaction
         rescue ::Exception => e
           ElasticAPM.report(e, handled: false)
-          transaction.submit(:error) if transaction
+          transaction.done :error if transaction
           raise
         ensure
-          transaction.release if transaction
+          ElasticAPM.end_transaction
         end
         # rubocop:enable Metrics/MethodLength
       end

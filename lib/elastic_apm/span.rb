@@ -44,7 +44,6 @@ module ElasticAPM
       self
     end
 
-    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def done
       @duration = Util.micros - @transaction.timestamp - relative_start
 
@@ -57,13 +56,8 @@ module ElasticAPM
 
       self.original_backtrace = nil # release it
 
-      if @transaction.instrumenter
-        @transaction.instrumenter.submit_span self # TODO: move this
-      end
-
       self
     end
-    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
     def done?
       !!duration

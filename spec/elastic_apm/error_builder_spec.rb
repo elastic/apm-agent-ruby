@@ -25,9 +25,9 @@ module ElasticAPM
         ElasticAPM.start
         context = ElasticAPM.build_context(env)
 
-        ElasticAPM.transaction 'T', 't', context: context do
+        ElasticAPM.with_transaction context: context do
           ElasticAPM.report actual_exception
-        end.submit 'ok'
+        end
 
         ElasticAPM.stop
 

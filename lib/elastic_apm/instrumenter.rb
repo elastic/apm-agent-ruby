@@ -9,6 +9,7 @@ module ElasticAPM
     include Logging
 
     TRANSACTION_KEY = :__elastic_transaction_key
+    SPAN_KEY = :__elastic_span_key
 
     # @api private
     class Current
@@ -22,6 +23,14 @@ module ElasticAPM
 
       def transaction=(transaction)
         Thread.current[TRANSACTION_KEY] = transaction
+      end
+
+      def span
+        Thread.current[SPAN_KEY]
+      end
+
+      def span=(span)
+        Thread.current[SPAN_KEY] = span
       end
     end
 
@@ -38,7 +47,9 @@ module ElasticAPM
     end
 
     def stop
-      current_transaction.release if current_transaction
+      self.current_transaction = nil
+      self.current_span = nil
+
       @subscriber.unregister! if @subscriber
     end
 
@@ -46,6 +57,8 @@ module ElasticAPM
       @subscriber = subscriber
       @subscriber.register!
     end
+
+    # transactions
 
     def current_transaction
       @current.transaction
@@ -55,12 +68,8 @@ module ElasticAPM
       @current.transaction = transaction
     end
 
-    # rubocop:disable Metrics/MethodLength
-    def transaction(name = nil, type = nil, context: nil, sampled: nil)
-      unless config.instrument
-        yield if block_given?
-        return
-      end
+    def start_transaction(name = nil, type = nil, context: nil, sampled: nil)
+      return nil unless config.instrument?
 
       if (transaction = current_transaction)
         raise ExistingTransactionError,
@@ -69,43 +78,77 @@ module ElasticAPM
 
       sampled = random_sample? if sampled.nil?
 
-      transaction =
+      self.current_transaction =
         Transaction.new self, name, type, context: context, sampled: sampled
 
-      self.current_transaction = transaction
-      return transaction unless block_given?
+      current_transaction
+    end
 
-      begin
-        yield transaction
-      ensure
-        self.current_transaction = nil
-        transaction.done
-      end
+    def end_transaction(result = nil)
+      return nil unless (transaction = current_transaction)
+
+      self.current_transaction = nil
+
+      transaction.stop
+      transaction.done result
+
+      agent.enqueue transaction
 
       transaction
     end
-    # rubocop:enable Metrics/MethodLength
 
-    def random_sample?
-      rand <= config.transaction_sample_rate
+    # spans
+
+    def current_span
+      @current.span
+    end
+
+    def current_span=(span)
+      @current.span = span
     end
 
     # rubocop:disable Metrics/MethodLength
-    def span(name, type = nil, backtrace: nil, context: nil, &block)
-      unless current_transaction
-        return yield if block_given?
+    def start_span(name, type = nil, backtrace: nil, context: nil)
+      return unless (transaction = current_transaction)
+      return unless transaction.sampled?
+
+      transaction.inc_started_spans!
+
+      if transaction.max_spans_reached?
+        transaction.inc_dropped_spans!
         return
       end
 
-      current_transaction.span(
+      span = Span.new(
+        transaction,
+        transaction.next_span_id,
         name,
         type,
-        backtrace: backtrace,
-        context: context,
-        &block
+        parent: current_span,
+        context: context
       )
+
+      if backtrace && span_frames_min_duration?
+        span.original_backtrace = backtrace
+      end
+
+      self.current_span = span
+
+      span.start
     end
     # rubocop:enable Metrics/MethodLength
+
+    def end_span
+      return unless (span = current_span)
+
+      span.done
+
+      self.current_span = span.parent
+
+      agent.enqueue span
+    end
+
+    # metadata
 
     def set_tag(key, value)
       return unless current_transaction
@@ -123,20 +166,23 @@ module ElasticAPM
     end
 
     def submit_transaction(transaction)
-      agent.enqueue_transaction transaction
-
-      return unless config.debug_transactions
-      debug('Submitted transaction:') { Util.inspect_transaction transaction }
-    end
-
-    def submit_span(span)
-      agent.enqueue_span span
+      agent.enqueue transaction
     end
 
     def inspect
       '<ElasticAPM::Instrumenter ' \
         "current_transaction=#{current_transaction.inspect}" \
         '>'
+    end
+
+    private
+
+    def random_sample?
+      rand <= config.transaction_sample_rate
+    end
+
+    def span_frames_min_duration?
+      @agent.config.span_frames_min_duration != 0
     end
   end
 end
