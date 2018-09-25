@@ -47,5 +47,26 @@ module ElasticAPM
       expect(ElasticAPM).to have_received(:report)
         .with(MiddlewareTestError, handled: false)
     end
+
+    context 'with DT header' do
+      it 'recognizes traceparent' do
+        ElasticAPM.start
+
+        app = Middleware.new(->(_) { [200, {}, ['ok']] })
+
+        status, = app.call(
+          Rack::MockRequest.env_for(
+            '/',
+            'HTTP_ELASTIC_APM_TRACEPARENT' =>
+              '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01'
+          )
+        )
+        expect(status).to be 200
+
+        ElasticAPM.stop
+
+        expect(true).to eq true
+      end
+    end
   end
 end

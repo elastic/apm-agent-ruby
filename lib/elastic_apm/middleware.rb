@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'elastic_apm/traceparent'
+
 module ElasticAPM
   # @api private
   class Middleware
@@ -23,6 +25,7 @@ module ElasticAPM
       ensure
         if resp && transaction
           status, headers, _body = resp
+          pp headers
           transaction.add_response(status, headers: headers)
         end
 
@@ -47,7 +50,13 @@ module ElasticAPM
 
     def start_transaction(env)
       ElasticAPM.start_transaction 'Rack', 'request',
-        context: ElasticAPM.build_context(env)
+        context: ElasticAPM.build_context(env),
+        traceparent: traceparent(env)
+    end
+
+    def traceparent(env)
+      return unless (header = env['HTTP_ELASTIC_APM_TRACEPARENT'])
+      ElasticAPM::Traceparent.new(header)
     end
 
     def running?
