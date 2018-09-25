@@ -18,7 +18,7 @@ module ElasticAPM
               duration: ms(span.duration),
               context: span.context && { db: span.context.to_h },
               stacktrace: span.stacktrace.to_a,
-              timestamp: micros_to_time(span.timestamp).utc.iso8601(3),
+              timestamp: span.timestamp,
               trace_id: span.trace_id
             }
           }

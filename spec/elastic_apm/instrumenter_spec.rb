@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ElasticAPM
-  RSpec.describe Instrumenter do
+  RSpec.describe Instrumenter, :intercept do
     let(:config) { Config.new }
     let(:agent) { Agent.new(config) }
     subject { Instrumenter.new(agent) }
@@ -53,28 +53,25 @@ module ElasticAPM
     end
 
     describe '#span' do
-      context 'with span_frames_min_duration' do
-        let(:config) do
-          Config.new(span_frames_min_duration: 10, disable_send: true)
-        end
-
-        it 'collects stacktraces', :mock_time do
+      context 'collecting stacktrace' do
+        it 'knows when to' do
           subject.start_transaction
 
-          span1 = subject.start_span 'Things', backtrace: caller
-          travel 100
+          span_with_backtrace =
+            subject.start_span 'Things', backtrace: caller
+          expect(span_with_backtrace.original_backtrace).to_not be_nil
           subject.end_span
 
-          travel 100
+          expect(subject.current_span).to be_nil
 
-          span2 = subject.start_span 'Short things', backtrace: caller
-          travel 5
+          span_without_backtrace =
+            subject.start_span 'Short things'
+          expect(span_without_backtrace.original_backtrace).to be_nil
           subject.end_span
+
+          expect(subject.current_span).to be_nil
 
           subject.end_transaction
-
-          expect(span1.stacktrace).to_not be_nil
-          expect(span2.stacktrace).to be_nil
         end
       end
     end
@@ -117,14 +114,14 @@ module ElasticAPM
       end
     end
 
-    describe '#end_transaction', :mock_intake do
+    describe '#end_transaction' do
       it 'ends and enqueues current transaction' do
         expect(agent).to receive(:enqueue)
 
         transaction = subject.start_transaction
         subject.end_transaction
 
-        expect(transaction).to be_done
+        expect(transaction).to be_stopped
       end
     end
 
@@ -142,14 +139,13 @@ module ElasticAPM
 
     describe '#submit_span' do
       it 'enqueues span on agent' do
-        expect(agent).to receive(:enqueue)
+        expect(agent).to receive(:enqueue).with(Span)
 
         subject.start_transaction
         span = subject.start_span 'Span'
-
         subject.end_span
 
-        expect(span).to be_done
+        expect(span).to be_stopped
       end
     end
 

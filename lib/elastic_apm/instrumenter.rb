@@ -69,7 +69,13 @@ module ElasticAPM
       @current.transaction = transaction
     end
 
-    def start_transaction(name = nil, type = nil, context: nil, sampled: nil)
+    # rubocop:disable Metrics/MethodLength
+    def start_transaction(
+      name = nil,
+      type = nil,
+      context: nil,
+      traceparent: nil
+    )
       return nil unless config.instrument?
 
       if (transaction = current_transaction)
@@ -77,13 +83,22 @@ module ElasticAPM
           "Transactions may not be nested.\nAlready inside #{transaction}"
       end
 
-      sampled = random_sample? if sampled.nil?
+      sampled = traceparent ? traceparent.recorded? : random_sample?
 
-      self.current_transaction =
-        Transaction.new self, name, type, context: context, sampled: sampled
+      transaction =
+        Transaction.new(
+          name,
+          type,
+          context: context,
+          traceparent: traceparent,
+          sampled: sampled
+        )
 
-      current_transaction
+      transaction.start
+
+      self.current_transaction = transaction
     end
+    # rubocop:enable Metrics/MethodLength
 
     def end_transaction(result = nil)
       return nil unless (transaction = current_transaction)
@@ -108,23 +123,23 @@ module ElasticAPM
       @current.span = span
     end
 
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
     def start_span(name, type = nil, backtrace: nil, context: nil)
       return unless (transaction = current_transaction)
       return unless transaction.sampled?
 
       transaction.inc_started_spans!
 
-      if transaction.max_spans_reached?
+      if transaction.max_spans_reached?(config)
         transaction.inc_dropped_spans!
         return
       end
 
       span = Span.new(
-        transaction,
         name,
         type,
-        parent: current_span,
+        transaction: transaction,
+        parent: current_span || transaction,
         context: context
       )
 
@@ -136,14 +151,15 @@ module ElasticAPM
 
       span.start
     end
-    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength, Metrics/CyclomaticComplexity
 
     def end_span
       return unless (span = current_span)
 
       span.done
 
-      self.current_span = span.parent
+      self.current_span =
+        span.parent&.is_a?(Span) && span.parent || nil
 
       agent.enqueue span
     end

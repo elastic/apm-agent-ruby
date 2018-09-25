@@ -35,7 +35,7 @@ module ElasticAPM
                   "result": '200',
                   "context": { custom: {}, tags: {} },
                   "duration": 100.0,
-                  "timestamp": Time.utc(1992, 1, 1).iso8601(3),
+                  "timestamp": 694_224_000_000_000,
                   "trace_id": transaction.trace_id,
                   "sampled": true,
                   "span_count": {

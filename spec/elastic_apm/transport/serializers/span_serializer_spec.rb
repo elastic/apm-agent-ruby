@@ -41,7 +41,7 @@ module ElasticAPM
                   context: nil,
                   stacktrace: [],
                   start: 0,
-                  timestamp: Time.utc(1992, 1, 1).iso8601(3),
+                  timestamp: 694_224_000_000_000,
                   duration: 100
                 }
               )
