@@ -22,15 +22,15 @@ module ElasticAPM
 
       def self.invoke_job(job, *args, &block)
         job_name = name_from_payload(job.payload_object)
-        transaction = ElasticAPM.transaction(job_name, TYPE)
+        transaction = ElasticAPM.start_transaction(job_name, TYPE)
         job.invoke_job_without_apm(*args, &block)
-        transaction.submit 'success'
+        transaction.done :success
       rescue ::Exception => e
         ElasticAPM.report(e, handled: false)
-        transaction.submit 'error'
+        transaction.done :error
         raise
       ensure
-        transaction.release if transaction
+        ElasticAPM.end_transaction
       end
 
       def self.name_from_payload(payload_object)

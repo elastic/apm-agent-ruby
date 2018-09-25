@@ -18,7 +18,7 @@ module ElasticAPM
             statement = args[0].is_a?(String) ? args[0] : args[0].to_json
             context = Span::Context.new(statement: statement)
 
-            ElasticAPM.span name, TYPE, context: context do
+            ElasticAPM.with_span name, TYPE, context: context do
               perform_request_without_apm(method, path, *args, &block)
             end
           end

@@ -33,7 +33,7 @@ module ElasticAPM
               user: opts[:user]
             )
 
-            ElasticAPM.span(name, TYPE, context: context, &block)
+            ElasticAPM.with_span(name, TYPE, context: context, &block)
           end
         end
       end

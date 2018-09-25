@@ -13,12 +13,12 @@ if enable
 
   module ElasticAPM
     RSpec.describe Subscriber do
-      describe '#register!' do
-        subject do
-          agent = Agent.new Config.new
-          Subscriber.new(agent)
-        end
+      let(:config) { Config.new }
+      let(:agent) { Agent.new config }
 
+      subject { Subscriber.new(agent) }
+
+      describe '#register!' do
         it 'subscribes to AS::Notifications' do
           expect(ActiveSupport::Notifications)
             .to receive(:subscribe).with(Regexp, subject)
@@ -40,20 +40,16 @@ if enable
       end
 
       describe 'AS::Notifications API' do
-        it 'adds spans from notifications' do
-          agent = Agent.new Config.new(disable_send: true)
-          subject = Subscriber.new agent
-          transaction = agent.transaction 'Test'
+        it 'adds spans from notifications', :intercept do
+          agent.start_transaction 'Test'
 
-          expect do
-            subject.start(
-              'process_action.action_controller',
-              'id-1',
-              controller: 'UsersController', action: 'index'
-            )
-          end.to change(transaction.spans, :length). by 1
+          subject.start(
+            'process_action.action_controller',
+            'id-1',
+            controller: 'UsersController', action: 'index'
+          )
 
-          span = transaction.current_span
+          span = agent.current_span
           expect(span).to be_running
           expect(span.name).to eq 'UsersController#index'
 
@@ -63,6 +59,8 @@ if enable
             nil
           )
 
+          agent.end_transaction
+
           expect(span).to_not be_running
           expect(span).to be_done
         end
@@ -70,11 +68,11 @@ if enable
         it 'ignores unknown notifications' do
           agent = Agent.new Config.new(disable_send: true)
           subject = Subscriber.new agent
-          transaction = agent.transaction 'Test'
+          agent.start_transaction 'Test'
 
           expect do
             subject.start('unknown.notification', nil, {})
-          end.to_not change(transaction.spans, :length)
+          end.to_not change(agent, :current_span)
         end
       end
     end

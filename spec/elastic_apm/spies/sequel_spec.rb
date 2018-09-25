@@ -4,7 +4,7 @@ require 'sequel'
 
 module ElasticAPM
   RSpec.describe 'Spy: Sequel' do
-    it 'spans calls' do
+    it 'spans calls', :intercept do
       db =
         if RUBY_PLATFORM == 'java'
           ::Sequel.connect('jdbc:sqlite::memory:')
@@ -19,17 +19,16 @@ module ElasticAPM
 
       db[:users].count # warm up
 
-      ElasticAPM.start disable_send: true
+      ElasticAPM.start
 
-      transaction = ElasticAPM.transaction 'Sequel test' do
+      ElasticAPM.with_transaction 'Sequel test' do
         db[:users].count
-      end.submit 200
+      end
 
       ElasticAPM.stop
 
-      expect(transaction.spans.length).to be 1
+      span, = @intercepted.spans
 
-      span = transaction.spans.first
       expect(span.name).to eq 'SELECT FROM users'
       expect(span.context.statement)
         .to eq "SELECT count(*) AS 'count' FROM `users` LIMIT 1"
