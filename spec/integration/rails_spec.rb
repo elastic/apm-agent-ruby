@@ -214,7 +214,7 @@ if defined?(Rails)
         expect(@mock_intake.requests.length).to be 1
 
         error = @mock_intake.errors.first
-        expect(error['transaction']['id']).to_not be_nil
+        expect(error['transaction_id']).to_not be_nil
 
         exception = error['exception']
         expect(exception['type']).to eq 'ApplicationController::FancyError'

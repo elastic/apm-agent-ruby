@@ -9,9 +9,9 @@ module ElasticAPM
         def build(span)
           {
             span: {
-              id: span.id.to_s,
+              id: span.id,
               transaction_id: span.transaction_id,
-              parent: span.parent && span.parent.id,
+              parent_id: span.parent_id || span.transaction_id,
               name: span.name,
               type: span.type,
               start: ms(span.relative_start),

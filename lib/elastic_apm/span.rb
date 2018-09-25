@@ -9,36 +9,36 @@ module ElasticAPM
   class Span
     DEFAULT_TYPE = 'custom'
 
-    # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable Metrics/MethodLength
     def initialize(
       transaction,
-      id,
       name,
       type = nil,
       parent: nil,
       context: nil
     )
       @transaction = transaction
-      @id = id
       @name = name
       @type = type || DEFAULT_TYPE
       @parent = parent
       @context = context
+
+      @id = SecureRandom.hex(8)
+      @trace_id = transaction.trace_id
       @transaction_id = transaction.id
 
-      @trace_id = transaction.trace_id
+      @timestamp = @transaction.timestamp
 
       @stacktrace = nil
       @original_backtrace = nil
     end
-    # rubocop:enable Metrics/ParameterLists
+    # rubocop:enable Metrics/MethodLength
 
     attr_accessor :name, :type, :original_backtrace
     attr_reader :id, :context, :stacktrace, :duration, :parent, :relative_start,
       :timestamp, :transaction_id, :trace_id
 
     def start
-      @timestamp = @transaction.timestamp
       @relative_start = Util.micros - @timestamp
 
       self
@@ -65,6 +65,10 @@ module ElasticAPM
 
     def running?
       relative_start && !done?
+    end
+
+    def parent_id
+      parent&.id || @transaction&.id
     end
 
     def inspect
