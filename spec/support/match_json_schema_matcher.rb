@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'json-schema'
 
 SCHEMA_URLS = {
   metadatas: 'https://github.com/elastic/apm-server/raw/v2/docs/spec/metadata.json',

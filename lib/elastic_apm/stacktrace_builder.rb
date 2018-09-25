@@ -12,8 +12,8 @@ module ElasticAPM
     RUBY_VERS_REGEX = %r{ruby(/gems)?[-/](\d+\.)+\d}
     JRUBY_ORG_REGEX = %r{org/jruby}
 
-    def initialize(agent)
-      @config = agent.config
+    def initialize(config)
+      @config = config
       @cache = Util::LruCache.new(2048, &method(:build_frame))
     end
 

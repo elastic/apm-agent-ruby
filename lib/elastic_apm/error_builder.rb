@@ -7,6 +7,7 @@ module ElasticAPM
       @agent = agent
     end
 
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def build_exception(exception, handled: true)
       error = Error.new
       error.exception = Error::Exception.new(exception, handled: handled)
@@ -19,10 +20,14 @@ module ElasticAPM
 
       if (transaction = ElasticAPM.current_transaction)
         error.context = transaction.context.dup
+        error.trace_id = transaction.trace_id
+        error.transaction_id = transaction.id
+        error.parent_id = ElasticAPM.current_span&.id || transaction.id
       end
 
       error
     end
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def build_log(message, backtrace: nil, **attrs)
       error = Error.new

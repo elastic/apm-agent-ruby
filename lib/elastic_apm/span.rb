@@ -9,67 +9,75 @@ module ElasticAPM
   class Span
     DEFAULT_TYPE = 'custom'
 
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/ParameterLists
     def initialize(
-      transaction,
       name,
       type = nil,
+      transaction: nil,
       parent: nil,
-      context: nil
+      context: nil,
+      stacktrace_builder: nil
     )
-      @transaction = transaction
       @name = name
       @type = type || DEFAULT_TYPE
-      @parent = parent
-      @context = context
 
       @id = SecureRandom.hex(8)
-      @trace_id = transaction.trace_id
-      @transaction_id = transaction.id
 
-      @timestamp = @transaction.timestamp
+      self.transaction = transaction
+      self.parent = parent
 
-      @stacktrace = nil
-      @original_backtrace = nil
+      @context = context
+      @stacktrace_builder = stacktrace_builder
     end
-    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/ParameterLists
 
-    attr_accessor :name, :type, :original_backtrace
-    attr_reader :id, :context, :stacktrace, :duration, :parent, :relative_start,
-      :timestamp, :transaction_id, :trace_id
+    attr_accessor :name, :type, :original_backtrace, :parent
+    attr_reader :id, :context, :stacktrace, :duration,
+      :relative_start, :timestamp, :transaction_id, :trace_id
+
+    def transaction=(transaction)
+      @transaction_id = transaction&.id
+      @timestamp = transaction&.timestamp
+      @trace_id = transaction&.trace_id
+    end
+
+    def parent_id
+      @parent&.id
+    end
+
+    # life cycle
 
     def start
-      @relative_start = Util.micros - @timestamp
+      raise 'Transaction needed to start span' unless transaction_id
+
+      @relative_start = Util.micros - timestamp
 
       self
+    end
+
+    def stop
+      @duration = Util.micros - timestamp - relative_start
     end
 
     def done
-      @duration = Util.micros - @transaction.timestamp - relative_start
+      stop
 
-      if original_backtrace && long_enough_for_stacktrace?
-        @stacktrace =
-          @transaction.instrumenter.agent.stacktrace_builder.build(
-            original_backtrace, type: :span
-          )
+      if should_build_stacktrace?
+        build_stacktrace
       end
-
-      self.original_backtrace = nil # release it
 
       self
     end
 
-    def done?
+    def stopped?
       !!duration
     end
 
     def running?
-      relative_start && !done?
+      relative_start && !stopped?
     end
 
-    def parent_id
-      parent&.id || @transaction&.id
-    end
+    # relations
 
     def inspect
       "<ElasticAPM::Span id:#{id}" \
@@ -80,8 +88,17 @@ module ElasticAPM
 
     private
 
+    def should_build_stacktrace?
+      @stacktrace_builder && original_backtrace && long_enough_for_stacktrace?
+    end
+
+    def build_stacktrace
+      @stacktrace = @stacktrace_builder.build(original_backtrace, type: :span)
+      self.original_backtrace = nil # release it
+    end
+
     def long_enough_for_stacktrace?
-      min_duration = @transaction.instrumenter.config.span_frames_min_duration
+      min_duration = @stacktrace_builder.config.span_frames_min_duration
 
       case min_duration
       when -1 then true

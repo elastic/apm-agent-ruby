@@ -11,9 +11,10 @@ module ElasticAPM
             id: error.id,
             transaction_id: error.transaction_id,
             trace_id: error.trace_id,
+            parent_id: error.parent_id,
 
             culprit: error.culprit,
-            timestamp: micros_to_time(error.timestamp).utc.iso8601(3),
+            timestamp: error.timestamp,
             context: error.context.to_h
           }
 
