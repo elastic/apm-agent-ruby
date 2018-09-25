@@ -29,7 +29,7 @@ module ElasticAPM
             it 'builds' do
               should match(
                 transaction: {
-                  "id": @mock_uuid,
+                  "id": /.{16}/,
                   "name": 'GET /something',
                   "type": 'request',
                   "result": '200',
@@ -41,7 +41,8 @@ module ElasticAPM
                   "span_count": {
                     "started": 0,
                     "dropped": 0
-                  }
+                  },
+                  "parent_id": nil
                 }
               )
             end

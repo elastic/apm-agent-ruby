@@ -15,7 +15,10 @@ module ElasticAPM
       context: nil,
       sampled: true
     )
-      @id = SecureRandom.uuid
+      @id = SecureRandom.hex(8)
+      @trace_id = SecureRandom.hex(16)
+      @parent_id = nil
+
       @instrumenter = instrumenter
       @name = name
       @type = type || DEFAULT_TYPE
@@ -34,15 +37,24 @@ module ElasticAPM
 
       @sampled = sampled
 
-      @trace_id = SecureRandom.hex(128)
-
       yield self if block_given?
     end
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     attr_accessor :name, :type, :result
-    attr_reader :id, :context, :duration, :started_spans, :dropped_spans,
-      :timestamp, :notifications, :sampled, :instrumenter, :trace_id
+    attr_reader(
+      :id,
+      :trace_id,
+      :parent_id,
+      :context,
+      :duration,
+      :started_spans,
+      :dropped_spans,
+      :timestamp,
+      :notifications,
+      :sampled,
+      :instrumenter
+    )
 
     def stop
       @duration = Util.micros - @timestamp
@@ -80,10 +92,6 @@ module ElasticAPM
 
     def max_spans_reached?
       started_spans > instrumenter.config.transaction_max_spans
-    end
-
-    def next_span_id
-      @span_id_ticker += 1
     end
 
     def inspect
