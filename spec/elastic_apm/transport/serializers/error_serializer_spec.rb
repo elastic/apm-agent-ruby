@@ -22,9 +22,9 @@ module ElasticAPM
             subject { builder.build(error) }
 
             it 'builds' do
-              should eq(
+              should match(
                 error: {
-                  id: @mock_uuid,
+                  id: String,
                   culprit: '/',
                   timestamp: Time.utc(1992, 1, 1).iso8601(3),
                   context: { custom: {}, tags: {} },
@@ -36,7 +36,9 @@ module ElasticAPM
                     attributes: nil,
                     stacktrace: error.exception.stacktrace.to_a, # so lazy
                     handled: true
-                  }
+                  },
+                  trace_id: nil,
+                  transaction_id: nil
                 }
               )
             end
@@ -48,7 +50,7 @@ module ElasticAPM
                 e.transaction_id = 'abc123'
               end
               subject = builder.build(error)
-              expect(subject[:error][:transaction]).to eq(id: 'abc123')
+              expect(subject[:error][:transaction_id]).to eq 'abc123'
             end
           end
 
@@ -61,7 +63,7 @@ module ElasticAPM
 
               expect(result).to match(
                 error: {
-                  id: @mock_uuid,
+                  id: String,
                   context: { custom: {}, tags: {} },
                   culprit: nil,
                   log: {
@@ -71,7 +73,9 @@ module ElasticAPM
                     param_message: nil,
                     stacktrace: []
                   },
-                  timestamp: Time.utc(1992, 1, 1).iso8601(3)
+                  timestamp: Time.utc(1992, 1, 1).iso8601(3),
+                  trace_id: nil,
+                  transaction_id: nil
                 }
               )
             end

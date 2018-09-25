@@ -6,6 +6,9 @@ if [ $# -lt 1 ]; then
   exit 2
 fi
 
+echo "Disabled for now"
+exit 0
+
 local_vendor_path="$HOME/.cache/ruby-vendor"
 container_vendor_path="/tmp/vendor/${1/ruby-/}"
 

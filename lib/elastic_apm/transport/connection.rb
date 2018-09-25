@@ -112,7 +112,8 @@ module ElasticAPM
           end
 
           if resp && resp.status != 202
-            error "APM Server reponded with an error:\n%p", resp.body.to_s
+            error "APM Server reponded with an error:\n%p",
+              JSON.parse(resp.body.to_s)
           end
 
           resp

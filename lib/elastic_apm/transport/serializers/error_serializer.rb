@@ -5,10 +5,13 @@ module ElasticAPM
     module Serializers
       # @api private
       class ErrorSerializer < Serializer
-        # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+        # rubocop:disable Metrics/MethodLength
         def build(error)
           base = {
             id: error.id,
+            transaction_id: error.transaction_id,
+            trace_id: error.trace_id,
+
             culprit: error.culprit,
             timestamp: micros_to_time(error.timestamp).utc.iso8601(3),
             context: error.context.to_h
@@ -22,13 +25,9 @@ module ElasticAPM
             base[:log] = build_log log
           end
 
-          if (transaction_id = error.transaction_id)
-            base[:transaction] = { id: transaction_id }
-          end
-
           { error: base }
         end
-        # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+        # rubocop:enable Metrics/MethodLength
 
         private
 
