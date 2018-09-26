@@ -55,7 +55,7 @@ module ElasticAPM
 
     def traceparent(env)
       return unless (header = env['HTTP_ELASTIC_APM_TRACEPARENT'])
-      ElasticAPM::Traceparent.new(header)
+      ElasticAPM::Traceparent.parse(header)
     end
 
     def running?

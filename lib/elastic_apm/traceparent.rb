@@ -15,6 +15,7 @@ module ElasticAPM
       end
     end
 
+    # rubocop:disable Metrics/AbcSize
     def self.parse(header)
       new.tap do |t|
         t.header = header
@@ -26,6 +27,7 @@ module ElasticAPM
         t.requested = t.flags[7] == '1'
       end
     end
+    # rubocop:enable Metrics/AbcSize
 
     attr_accessor :header, :version, :trace_id, :span_id, :recorded, :requested,
       :flags

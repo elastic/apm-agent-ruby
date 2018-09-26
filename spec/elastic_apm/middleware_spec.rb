@@ -48,8 +48,23 @@ module ElasticAPM
         .with(MiddlewareTestError, handled: false)
     end
 
+    it 'attaches a new traceparent', :intercept do
+      ElasticAPM.start
+
+      app = Middleware.new(->(_) { [200, {}, ['ok']] })
+
+      status, = app.call(Rack::MockRequest.env_for('/'))
+      expect(status).to be 200
+
+      ElasticAPM.stop
+
+      traceparent = @intercepted.transactions.first.traceparent
+      expect(traceparent).to_not be_nil
+      expect(traceparent).to be_recorded
+    end
+
     context 'with DT header' do
-      it 'recognizes traceparent' do
+      it 'recognizes traceparent', :intercept do
         ElasticAPM.start
 
         app = Middleware.new(->(_) { [200, {}, ['ok']] })
@@ -58,14 +73,19 @@ module ElasticAPM
           Rack::MockRequest.env_for(
             '/',
             'HTTP_ELASTIC_APM_TRACEPARENT' =>
-              '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01'
+              '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-00'
           )
         )
         expect(status).to be 200
 
         ElasticAPM.stop
 
-        expect(true).to eq true
+        traceparent = @intercepted.transactions.first.traceparent
+        expect(traceparent.version).to eq '00'
+        expect(traceparent.trace_id).to eq '0af7651916cd43dd8448eb211c80319c'
+        expect(traceparent.span_id).to eq 'b7ad6b7169203331'
+        expect(traceparent).to_not be_recorded
+        expect(traceparent).to_not be_requested
       end
     end
   end

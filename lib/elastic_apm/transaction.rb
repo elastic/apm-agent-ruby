@@ -36,8 +36,8 @@ module ElasticAPM
       @context = context || Context.new
       @context.tags.merge!(instrumenter.config.default_tags) { |_, old, _| old }
 
-      @traceparent = traceparent
       @sampled = sampled
+      @traceparent = traceparent || Traceparent.from_transaction(self)
 
       yield self if block_given?
     end
@@ -53,6 +53,7 @@ module ElasticAPM
       :started_spans,
       :dropped_spans,
       :timestamp,
+      :traceparent,
       :notifications,
       :sampled,
       :instrumenter
