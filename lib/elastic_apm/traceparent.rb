@@ -34,5 +34,13 @@ module ElasticAPM
 
     alias :recorded? :recorded
     alias :requested? :requested
+
+    def valid?
+      return false unless version == VERSION
+      return false unless trace_id =~ /[^[:xdigit:]]/
+      return false unless span_id =~ /[^[:xdigit:]]/
+
+      true
+    end
   end
 end

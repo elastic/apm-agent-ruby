@@ -59,5 +59,30 @@ module ElasticAPM
         it { should be_recorded }
       end
     end
+
+    describe '#valid?' do
+      subject { described_class.parse header }
+
+      context 'with unknown version' do
+        let(:header) do
+          '01-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-03'
+        end
+        it { should_not be_valid }
+      end
+
+      context 'with non-hex trace id' do
+        let(:header) do
+          '00-Ggf7651916cd43dd8448eb211c80319c-b7ad6b7169203331-03'
+        end
+        it { should_not be_valid }
+      end
+
+      context 'with unknown version' do
+        let(:header) do
+          '00-0af7651916cd43dd8448eb211c80319c-XXad6b7169203331-03'
+        end
+        it { should_not be_valid }
+      end
+    end
   end
 end
