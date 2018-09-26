@@ -1,3 +1,4 @@
+#
 # frozen_string_literal: true
 
 require 'elastic_apm/traceparent'
@@ -55,7 +56,9 @@ module ElasticAPM
 
     def traceparent(env)
       return unless (header = env['HTTP_ELASTIC_APM_TRACEPARENT'])
-      ElasticAPM::Traceparent.parse(header)
+      Traceparent.parse(header)
+    rescue Traceparent::InvalidTraceparentHeader
+      nil
     end
 
     def running?

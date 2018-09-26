@@ -30,6 +30,14 @@ module ElasticAPM
         its(:flags) { should eq '00000000' }
       end
 
+      context 'with a blank header' do
+        let(:header) { '' }
+        it do
+          expect { subject }
+            .to raise_error(Traceparent::InvalidTraceparentHeader)
+        end
+      end
+
       context 'when neithed requested not recorded' do
         it { should_not be_recorded }
         it { should_not be_requested }
@@ -63,25 +71,41 @@ module ElasticAPM
     describe '#valid?' do
       subject { described_class.parse header }
 
+      context 'with a valid header' do
+        let(:header) do
+          '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-03'
+        end
+        it { expect { subject }.to_not raise_error }
+      end
+
       context 'with unknown version' do
         let(:header) do
           '01-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-03'
         end
-        it { should_not be_valid }
+        it do
+          expect { subject }
+            .to raise_error(Traceparent::InvalidTraceparentHeader)
+        end
       end
 
       context 'with non-hex trace id' do
         let(:header) do
           '00-Ggf7651916cd43dd8448eb211c80319c-b7ad6b7169203331-03'
         end
-        it { should_not be_valid }
+        it do
+          expect { subject }
+            .to raise_error(Traceparent::InvalidTraceparentHeader)
+        end
       end
 
       context 'with unknown version' do
         let(:header) do
           '00-0af7651916cd43dd8448eb211c80319c-XXad6b7169203331-03'
         end
-        it { should_not be_valid }
+        it do
+          expect { subject }
+            .to raise_error(Traceparent::InvalidTraceparentHeader)
+        end
       end
     end
   end
