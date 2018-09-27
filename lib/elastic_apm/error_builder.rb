@@ -19,6 +19,8 @@ module ElasticAPM
 
       if (transaction = ElasticAPM.current_transaction)
         error.context = transaction.context.dup
+        error.trace_id = transaction.trace_id
+        error.parent_id = transaction.id
       end
 
       error

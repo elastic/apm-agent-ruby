@@ -13,9 +13,12 @@ module ElasticAPM
       (?<flags>\d{2})
     /x
 
+    def initialize
+      @version = VERSION
+    end
+
     def self.from_transaction(transaction)
       new.tap do |t|
-        t.version = VERSION
         t.trace_id = SecureRandom.hex(16)
         t.span_id = transaction.id
         t.recorded = transaction.sampled?
@@ -23,7 +26,6 @@ module ElasticAPM
       end
     end
 
-    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def self.parse(header)
       unless (parts = REGEX.match(header))
         raise InvalidTraceparentHeader
@@ -34,16 +36,31 @@ module ElasticAPM
           Array(parts).tap do |values|
             values[-1] = Util.hex_to_bit(values[-1])
           end
-        t.recorded = t.flags[6] == '1'
-        t.requested = t.flags[7] == '1'
       end
     end
-    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
-    attr_accessor :header, :version, :trace_id, :span_id, :recorded, :requested,
-      :flags
+    attr_accessor :header, :version, :trace_id, :span_id, :recorded, :requested
 
     alias :recorded? :recorded
     alias :requested? :requested
+
+    def flags=(flags)
+      @flags = flags
+
+      self.recorded = flags[6] == '1'
+      self.requested = flags[7] == '1'
+    end
+
+    def flags
+      format('000000%d%d', recorded? ? 1 : 0, requested? ? 1 : 0)
+    end
+
+    def hex_flags
+      format('%02x', flags.to_i(2))
+    end
+
+    def to_s
+      format('%s-%s-%s-%s', version, trace_id, span_id, hex_flags)
+    end
   end
 end
