@@ -53,28 +53,21 @@ module ElasticAPM
     end
 
     describe '#span' do
-      context 'with span_frames_min_duration' do
-        let(:config) do
-          Config.new(span_frames_min_duration: 10, disable_send: true)
-        end
-
-        it 'collects stacktraces', :mock_time do
+      context 'collecting stacktrace', :intercept do
+        it 'knows when to' do
           subject.start_transaction
 
-          span1 = subject.start_span 'Things', backtrace: caller
-          travel 100
-          subject.end_span
+          span_with_backtrace =
+            subject.start_span 'Things', backtrace: caller
+          expect(span_with_backtrace.original_backtrace).to_not be_nil
+          span_with_backtrace.done
 
-          travel 100
-
-          span2 = subject.start_span 'Short things', backtrace: caller
-          travel 5
-          subject.end_span
+          span_without_backtrace =
+            subject.start_span 'Short things'
+          expect(span_without_backtrace.original_backtrace).to be_nil
+          span_without_backtrace.done
 
           subject.end_transaction
-
-          expect(span1.stacktrace).to_not be_nil
-          expect(span2.stacktrace).to be_nil
         end
       end
     end

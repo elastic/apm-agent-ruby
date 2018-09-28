@@ -19,5 +19,9 @@ module ElasticAPM
     def self.hex_to_bit(str)
       str.hex.to_s(2).rjust(str.size * 4, '0')
     end
+
+    def self.reverse_merge!(first, second)
+      first.merge!(second) { |_, old, _| old }
+    end
   end
 end

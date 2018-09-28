@@ -7,80 +7,67 @@ module ElasticAPM
   class Transaction
     DEFAULT_TYPE = 'custom'
 
-    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+    # rubocop:disable Metrics/ParameterLists
     def initialize(
-      instrumenter,
       name = nil,
       type = nil,
+      sampled: true,
       context: nil,
-      traceparent: nil,
-      sampled: true
+      tags: nil,
+      traceparent: nil
     )
-      @id = SecureRandom.hex(8)
-      @trace_id = SecureRandom.hex(16)
-      @parent_id = nil
-
-      @instrumenter = instrumenter
       @name = name
       @type = type || DEFAULT_TYPE
 
-      @timestamp = Util.micros
+      @sampled = sampled
 
-      @span_id_ticker = -1
+      @context = context || Context.new # TODO: Lazy generate this?
+      Util.reverse_merge!(@context.tags, tags) if tags
+
+      @id = SecureRandom.hex(8)
+      @traceparent = traceparent || Traceparent.from_transaction(self)
 
       @started_spans = 0
       @dropped_spans = 0
 
       @notifications = [] # for AS::Notifications
-
-      @context = context || Context.new
-      @context.tags.merge!(instrumenter.config.default_tags) { |_, old, _| old }
-
-      @sampled = sampled
-      @traceparent = traceparent || Traceparent.from_transaction(self)
-
-      yield self if block_given?
     end
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+    # rubocop:enable Metrics/ParameterLists
 
     attr_accessor :name, :type, :result
-    attr_reader(
-      :id,
-      :trace_id,
-      :parent_id,
-      :context,
-      :duration,
-      :started_spans,
-      :dropped_spans,
-      :timestamp,
-      :traceparent,
-      :notifications,
-      :sampled,
-      :instrumenter
-    )
+
+    attr_reader :id, :context, :duration, :started_spans, :dropped_spans,
+      :timestamp, :traceparent, :notifications
+
+    def sampled?
+      @sampled
+    end
+
+    def stopped?
+      !!duration
+    end
+
+    def trace_id
+      traceparent&.trace_id
+    end
+
+    # life cycle
+
+    def start
+      @timestamp = Util.micros
+      self
+    end
 
     def stop
-      @duration = Util.micros - @timestamp
+      raise 'Transaction not yet start' unless timestamp
+      @duration = Util.micros - timestamp
+      self
     end
 
     def done(result = nil)
       stop
-
       self.result = result if result
-
       self
-    end
-
-    def done?
-      !!@duration
-    end
-
-    def sampled?
-      !!sampled
-    end
-
-    def add_response(*args)
-      context.response = Context::Response.new(*args)
     end
 
     # spans
@@ -93,8 +80,14 @@ module ElasticAPM
       @dropped_spans += 1
     end
 
-    def max_spans_reached?
-      started_spans > instrumenter.config.transaction_max_spans
+    def max_spans_reached?(config)
+      started_spans > config.transaction_max_spans
+    end
+
+    # context
+
+    def add_response(*args)
+      context.response = Context::Response.new(*args)
     end
 
     def inspect

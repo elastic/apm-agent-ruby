@@ -69,6 +69,7 @@ module ElasticAPM
       @current.transaction = transaction
     end
 
+    # rubocop:disable Metrics/MethodLength
     def start_transaction(
       name = nil,
       type = nil,
@@ -89,16 +90,20 @@ module ElasticAPM
           random_sample?
         end
 
-      self.current_transaction =
+      transaction =
         Transaction.new(
-          self, name, type,
+          name,
+          type,
           context: context,
           traceparent: traceparent,
           sampled: sampled
         )
 
-      current_transaction
+      transaction.start
+
+      self.current_transaction = transaction
     end
+    # rubocop:enable Metrics/MethodLength
 
     def end_transaction(result = nil)
       return nil unless (transaction = current_transaction)
@@ -130,16 +135,16 @@ module ElasticAPM
 
       transaction.inc_started_spans!
 
-      if transaction.max_spans_reached?
+      if transaction.max_spans_reached?(config)
         transaction.inc_dropped_spans!
         return
       end
 
       span = Span.new(
-        transaction,
         name,
         type,
-        parent: current_span,
+        transaction: transaction,
+        parent: current_span || transaction,
         context: context
       )
 
@@ -158,7 +163,7 @@ module ElasticAPM
 
       span.done
 
-      self.current_span = span.parent
+      self.current_span = span.parent if span.parent&.is_a?(Span)
 
       agent.enqueue span
     end

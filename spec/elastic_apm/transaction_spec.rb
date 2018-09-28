@@ -1,50 +1,92 @@
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   RSpec.describe Transaction do
-    let(:config) { Config.new(disable_send: true) }
-    let(:instrumenter) { Instrumenter.new Agent.new(config) }
-
     describe '#initialize', :mock_time do
-      it 'has no spans, timestamp and start time' do
-        transaction = Transaction.new instrumenter
-        expect(transaction.timestamp).to eq 694_224_000_000_000
-      end
+      its(:id) { should_not be_nil }
+      its(:type) { should be 'custom' }
+      it { should be_sampled }
+      its(:traceparent) { should be_a Traceparent }
+      its(:context) { should be_a Context }
+      its(:started_spans) { should be 0 }
+      its(:dropped_spans) { should be 0 }
+      its(:notifications) { should be_empty }
+      its(:trace_id) { should be subject.traceparent.trace_id }
 
-      it 'has a uuid' do
-        expect(Transaction.new(instrumenter).id).to_not be_nil
-      end
-
-      it 'has a default type' do
-        expect(Transaction.new(instrumenter).type).to_not be_nil
-      end
-
-      context 'with default tags' do
-        let(:config) { Config.new(default_tags: { test: 'yes it is' }) }
-
-        it 'adds defaults tags' do
-          expect(Transaction.new(instrumenter).context.tags)
-            .to eq(test: 'yes it is')
+      context 'with tags from context and args' do
+        it 'merges tags' do
+          context = Context.new(tags: { context: 'yes' })
+          subject = described_class.new(tags: { args: 'yes' }, context: context)
+          expect(subject.context.tags).to match(args: 'yes', context: 'yes')
         end
+      end
+    end
 
-        it 'merges with existing context tags' do
-          context = Context.new(tags: { test: 'now this', more: 'ok' })
+    describe '#start', :mock_time do
+      it 'sets timestamp' do
+        expect(subject.start.timestamp).to be Util.micros(@mocked_date)
+      end
+    end
 
-          expect(Transaction.new(instrumenter, context: context).context.tags)
-            .to eq(test: 'now this', more: 'ok')
-        end
+    describe '#stop', :mock_time do
+      it 'sets duration' do
+        subject.start
+        travel 100
+        expect(subject.stop.duration).to eq 100_000
+        expect(subject).to be_stopped
       end
     end
 
     describe '#done', :mock_time do
       it 'it sets result, durations' do
-        transaction = Transaction.new instrumenter, 'Test'
-
+        subject.start
         travel 100
-        transaction.done(200)
+        subject.done('HTTP 200')
 
-        expect(transaction.result).to be 200
-        expect(transaction.duration).to eq 100_000
+        expect(subject).to be_stopped
+        expect(subject.duration).to be 100_000
+        expect(subject.result).to be 'HTTP 200'
+      end
+    end
+
+    describe '#inc_started_spans!' do
+      it 'increments count' do
+        expect { subject.inc_started_spans! }
+          .to change(subject, :started_spans).by 1
+      end
+    end
+
+    describe '#inc_dropped_spans!' do
+      it 'increments count' do
+        expect { subject.inc_dropped_spans! }
+          .to change(subject, :dropped_spans).by 1
+      end
+    end
+
+    describe '#max_spans_reached?' do
+      let(:config) { Config.new(transaction_max_spans: 3) }
+
+      subject { described_class.new }
+
+      let(:result) { subject.max_spans_reached? config }
+
+      context 'when below max' do
+        it { expect(result).to be false }
+      end
+
+      context 'when maximum reached' do
+        before { 4.times { subject.inc_started_spans! } }
+        it { expect(result).to be true }
+      end
+    end
+
+    describe '#add_response' do
+      it 'adds http response to context' do
+        subject.add_response(200, headers: { 'Ok' => 'yes' })
+        expect(subject.context.response.status_code).to be 200
+        expect(subject.context.response.headers).to match('Ok' => 'yes')
       end
     end
   end
