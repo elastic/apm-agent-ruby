@@ -37,6 +37,7 @@ module ElasticAPM
                     stacktrace: error.exception.stacktrace.to_a, # so lazy
                     handled: true
                   },
+                  parent_id: nil,
                   trace_id: nil,
                   transaction_id: nil
                 }
@@ -75,7 +76,8 @@ module ElasticAPM
                   },
                   timestamp: Time.utc(1992, 1, 1).iso8601(3),
                   trace_id: nil,
-                  transaction_id: nil
+                  transaction_id: nil,
+                  parent_id: nil
                 }
               )
             end

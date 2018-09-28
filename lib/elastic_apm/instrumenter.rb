@@ -163,7 +163,8 @@ module ElasticAPM
 
       span.done
 
-      self.current_span = span.parent if span.parent&.is_a?(Span)
+      self.current_span =
+        span.parent&.is_a?(Span) && span.parent || nil
 
       agent.enqueue span
     end

@@ -62,7 +62,7 @@ if enable
           agent.end_transaction
 
           expect(span).to_not be_running
-          expect(span).to be_done
+          expect(span).to be_stopped
         end
 
         it 'ignores unknown notifications' do

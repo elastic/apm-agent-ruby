@@ -17,7 +17,7 @@ module ElasticAPM
               result: transaction.result.to_s,
               duration: ms(transaction.duration),
               timestamp: micros_to_time(transaction.timestamp).utc.iso8601(3),
-              sampled: transaction.sampled,
+              sampled: transaction.sampled?,
               context: transaction.context.to_h,
               span_count: {
                 started: transaction.started_spans,

@@ -66,7 +66,7 @@ module ElasticAPM
 
       @context_builder = ContextBuilder.new(self)
       @error_builder = ErrorBuilder.new(self)
-      @stacktrace_builder = StacktraceBuilder.new(self)
+      @stacktrace_builder = StacktraceBuilder.new(config)
     end
 
     attr_reader :config, :transport, :messages, :pending_transactions,

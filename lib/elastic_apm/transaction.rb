@@ -25,7 +25,13 @@ module ElasticAPM
       Util.reverse_merge!(@context.tags, tags) if tags
 
       @id = SecureRandom.hex(8)
-      @traceparent = traceparent || Traceparent.from_transaction(self)
+
+      if traceparent
+        @traceparent = traceparent
+        @parent_id = traceparent.span_id
+      else
+        @traceparent = Traceparent.from_transaction(self)
+      end
 
       @started_spans = 0
       @dropped_spans = 0
@@ -37,7 +43,7 @@ module ElasticAPM
     attr_accessor :name, :type, :result
 
     attr_reader :id, :context, :duration, :started_spans, :dropped_spans,
-      :timestamp, :traceparent, :notifications
+      :timestamp, :traceparent, :notifications, :parent_id
 
     def sampled?
       @sampled
