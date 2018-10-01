@@ -9,6 +9,7 @@ module ElasticAPM
   class Span
     DEFAULT_TYPE = 'custom'
 
+    # rubocop:disable Metrics/ParameterLists
     def initialize(
       name,
       type = nil,
@@ -28,6 +29,7 @@ module ElasticAPM
       @context = context
       @stacktrace_builder = stacktrace_builder
     end
+    # rubocop:enable Metrics/ParameterLists
 
     attr_accessor :name, :type, :original_backtrace, :parent
     attr_reader :id, :context, :stacktrace, :duration,

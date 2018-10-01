@@ -7,7 +7,7 @@ module ElasticAPM
   class Transaction
     DEFAULT_TYPE = 'custom'
 
-    # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
     def initialize(
       name = nil,
       type = nil,
@@ -38,7 +38,7 @@ module ElasticAPM
 
       @notifications = [] # for AS::Notifications
     end
-    # rubocop:enable Metrics/ParameterLists
+    # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
 
     attr_accessor :name, :type, :result
 

@@ -7,6 +7,7 @@ module ElasticAPM
       @agent = agent
     end
 
+    # rubocop:disable Metrics/MethodLength
     def build_exception(exception, handled: true)
       error = Error.new
       error.exception = Error::Exception.new(exception, handled: handled)
@@ -25,6 +26,7 @@ module ElasticAPM
 
       error
     end
+    # rubocop:enable Metrics/MethodLength
 
     def build_log(message, backtrace: nil, **attrs)
       error = Error.new

@@ -128,7 +128,7 @@ module ElasticAPM
       @current.span = span
     end
 
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
     def start_span(name, type = nil, backtrace: nil, context: nil)
       return unless (transaction = current_transaction)
       return unless transaction.sampled?
@@ -156,7 +156,7 @@ module ElasticAPM
 
       span.start
     end
-    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength, Metrics/CyclomaticComplexity
 
     def end_span
       return unless (span = current_span)
