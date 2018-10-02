@@ -6,28 +6,30 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 gemspec
 
-gem 'elasticsearch'
-gem 'fakeredis', require: nil
-gem 'json-schema'
-gem 'mongo'
 gem 'pry'
 gem 'rack-test'
-gem 'rake'
-gem 'redis', require: nil
 gem 'rspec'
 gem 'rspec-its'
-gem 'rubocop'
-gem 'sequel'
-gem 'sidekiq'
+gem 'rubocop', require: nil
 gem 'timecop'
 gem 'webmock'
-gem 'yard'
-gem 'yarjuf'
+
+gem 'elasticsearch', require: nil
+gem 'fakeredis', require: nil
+gem 'json-schema', require: nil
+gem 'mongo', require: nil
+gem 'rake', require: nil
+# gem 'redis', require: nil
+gem 'sequel', require: nil
+gem 'sidekiq', require: nil
+
+gem 'yard', require: nil
+gem 'yarjuf', require: nil
 
 if RUBY_PLATFORM == 'java'
-  gem 'jdbc-sqlite3'
+  gem 'jdbc-sqlite3', require: nil
 else
-  gem 'sqlite3'
+  gem 'sqlite3', require: nil
 end
 
 framework, *version = ENV.fetch('FRAMEWORK', 'rails').split('-')
@@ -43,6 +45,6 @@ else
 end
 
 group :bench do
-  gem 'ruby-prof', platforms: %i[ruby]
-  gem 'stackprof', platforms: %i[ruby]
+  gem 'ruby-prof', require: nil, platforms: %i[ruby]
+  gem 'stackprof', require: nil, platforms: %i[ruby]
 end
