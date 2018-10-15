@@ -17,7 +17,7 @@ module ElasticAPM
       instrument: true,
 
       log_path: nil,
-      log_level: Logger::DEBUG,
+      log_level: Logger::INFO,
 
       transaction_sample_rate: 1.0,
       transaction_max_spans: 500,
