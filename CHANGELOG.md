@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+- Add support for [HTTP.rb](https://github.com/httprb/http)
+
 ## 1.1.0 (2018-09-07)
 
 ### Added
