@@ -230,6 +230,7 @@ module ElasticAPM
         action_dispatch
         delayed_job
         elasticsearch
+        http
         json
         mongo
         net_http
