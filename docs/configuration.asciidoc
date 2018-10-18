@@ -154,9 +154,13 @@ e.g. "production" or "staging".
 
 Defaults to `ENV['RAILS_ENV'] || ENV['RACK_ENV']`.
 
+NOTE: Kibana will not differentiate between different environments. To avoid
+mixing data from multiple environments, consider appending the environment to
+`service_name`.
+
 [float]
 [[config-enabled-environments]]
-==== `enabled-environments`
+==== `enabled_environments`
 
 [options="header"]
 |============
