@@ -72,7 +72,7 @@ module ElasticAPM
     describe '#done', :mock_time do
       let(:transaction) { Transaction.new }
       let(:duration) { 100 }
-      let(:span_frames_min_duration) { 5 }
+      let(:span_frames_min_duration) { '5ms' }
       let(:config) do
         Config.new(span_frames_min_duration: span_frames_min_duration)
       end
@@ -98,13 +98,13 @@ module ElasticAPM
       its(:stacktrace) { should be_a Stacktrace }
 
       context 'when shorter than min for stacktrace' do
-        let(:span_frames_min_duration) { 1000 }
+        let(:span_frames_min_duration) { '1s' }
         its(:stacktrace) { should be_nil }
       end
 
       context 'when short, but min duration is off' do
         let(:duration) { 0 }
-        let(:span_frames_min_duration) { -1 }
+        let(:span_frames_min_duration) { '-1' }
         its(:stacktrace) { should be_a Stacktrace }
       end
     end

@@ -87,14 +87,13 @@ module ElasticAPM
         [:int, 'source_lines_error_library_frames'],
       'ELASTIC_APM_SOURCE_LINES_SPAN_LIBRARY_FRAMES' =>
         [:int, 'source_lines_span_library_frames'],
-      'ELASTIC_APM_SPAN_FRAMES_MIN_DURATION' =>
-        [:int, 'span_frames_min_duration'],
+      'ELASTIC_APM_SPAN_FRAMES_MIN_DURATION' => 'span_frames_min_duration',
 
       'ELASTIC_APM_CUSTOM_KEY_FILTERS' => [:list, 'custom_key_filters'],
       'ELASTIC_APM_IGNORE_URL_PATTERNS' => [:list, 'ignore_url_patterns'],
 
       'ELASTIC_APM_API_REQUEST_SIZE' => [:int, 'api_request_size'],
-      'ELASTIC_APM_API_REQUEST_TIME' => [:int, 'api_request_time'],
+      'ELASTIC_APM_API_REQUEST_TIME' => 'api_request_time',
       'ELASTIC_APM_API_BUFFER_SIZE' => [:int, 'api_buffer_size'],
 
       'ELASTIC_APM_TRANSACTION_SAMPLE_RATE' =>
@@ -110,12 +109,16 @@ module ElasticAPM
       'ELASTIC_APM_DEFAULT_TAGS' => [:dict, 'default_tags']
     }.freeze
 
+    TIME_KEYS = %i[api_request_time span_frames_min_duration].freeze
+
     def initialize(options = {})
       set_defaults
 
       set_from_args(options)
       set_from_config_file
       set_from_env
+
+      normalize_times
 
       yield self if block_given?
 
@@ -320,6 +323,26 @@ module ElasticAPM
     def format_name(str)
       str.gsub('::', '_')
     end
+
+    TIME_MULTIPLIERS = { 'ms' => 0.001, 'm' => 60 }.freeze
+    TIME_DEFAULT_UNITS = { span_frames_min_duration: 'ms' }.freeze
+
+    # rubocop:disable Metrics/AbcSize
+    def normalize_times
+      TIME_KEYS.each do |key|
+        value = send(key.to_s)
+
+        _, negative, amount, unit =
+          /^(-)?(\d+)(m|ms|s)?$/.match(value.to_s).to_a
+
+        unit ||= TIME_DEFAULT_UNITS.fetch(key, 's')
+        in_minutes = TIME_MULTIPLIERS.fetch(unit, 1) * amount.to_i
+        in_minutes = 0 - in_minutes if negative
+
+        send("#{key}=", in_minutes)
+      end
+    end
+    # rubocop:enable Metrics/AbcSize
   end
   # rubocop:enable Metrics/ClassLength
 end
