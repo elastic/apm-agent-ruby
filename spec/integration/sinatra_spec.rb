@@ -49,7 +49,7 @@ if defined?(Sinatra)
     end
 
     before(:all) do
-      ElasticAPM.start(app: SinatraTestApp, api_request_time: 0.25)
+      ElasticAPM.start(app: SinatraTestApp)
     end
 
     after(:all) do
