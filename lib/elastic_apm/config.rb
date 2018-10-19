@@ -334,7 +334,7 @@ module ElasticAPM
 
     def normalize_durations
       DURATION_KEYS.each do |key|
-        value = send(key)
+        value = send(key).to_s
         default_unit = DURATION_DEFAULT_UNITS.fetch(key, 's')
         duration = Duration.parse(value, default_unit: default_unit)
         send("#{key}=", duration.minutes)
@@ -343,7 +343,7 @@ module ElasticAPM
 
     def normalize_sizes
       SIZE_KEYS.each do |key|
-        value = send(key)
+        value = send(key).to_s
         default_unit = SIZE_DEFAULT_UNITS.fetch(key, 'b')
         size = Size.parse(value, default_unit: default_unit)
         send("#{key}=", size.bytes)
