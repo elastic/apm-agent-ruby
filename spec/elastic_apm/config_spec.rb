@@ -79,6 +79,17 @@ module ElasticAPM
       end
     end
 
+    describe 'byte units' do
+      context 'with a unit' do
+        subject { Config.new(api_request_size: '500kb') }
+        its(:api_request_size) { should eq 500 * 1024 }
+      end
+      context 'without a unit' do
+        subject { Config.new(api_request_size: '1') }
+        its(:api_request_size) { should eq 1024 }
+      end
+    end
+
     context 'custom_key_filters' do
       it 'sets custom_key_filters to array of regexp' do
         config = Config.new(custom_key_filters: [/Authorization/, 'String'])

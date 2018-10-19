@@ -3,6 +3,9 @@
 require 'logger'
 require 'yaml'
 
+require 'elastic_apm/config/duration'
+require 'elastic_apm/config/size'
+
 module ElasticAPM
   # rubocop:disable Metrics/ClassLength
   # @api private
@@ -24,8 +27,8 @@ module ElasticAPM
       filter_exception_types: [],
 
       # intake v2
-      api_request_size: 768_000, # 750 KiB
-      api_request_time: 10,
+      api_request_size: '750kb',
+      api_request_time: '10s',
       api_buffer_size: 10,
 
       disable_send: false,
@@ -42,7 +45,7 @@ module ElasticAPM
       source_lines_span_app_frames: 5,
       source_lines_error_library_frames: 0,
       source_lines_span_library_frames: 0,
-      span_frames_min_duration: 5,
+      span_frames_min_duration: '5ms',
 
       disabled_spies: %w[json],
       instrumented_rake_tasks: [],
@@ -109,7 +112,11 @@ module ElasticAPM
       'ELASTIC_APM_DEFAULT_TAGS' => [:dict, 'default_tags']
     }.freeze
 
-    TIME_KEYS = %i[api_request_time span_frames_min_duration].freeze
+    DURATION_KEYS = %i[api_request_time span_frames_min_duration].freeze
+    DURATION_DEFAULT_UNITS = { span_frames_min_duration: 'ms' }.freeze
+
+    SIZE_KEYS = %i[api_request_size].freeze
+    SIZE_DEFAULT_UNITS = { api_request_size: 'kb' }.freeze
 
     def initialize(options = {})
       set_defaults
@@ -118,7 +125,8 @@ module ElasticAPM
       set_from_config_file
       set_from_env
 
-      normalize_times
+      normalize_durations
+      normalize_sizes
 
       yield self if block_given?
 
@@ -324,25 +332,23 @@ module ElasticAPM
       str.gsub('::', '_')
     end
 
-    TIME_MULTIPLIERS = { 'ms' => 0.001, 'm' => 60 }.freeze
-    TIME_DEFAULT_UNITS = { span_frames_min_duration: 'ms' }.freeze
-
-    # rubocop:disable Metrics/AbcSize
-    def normalize_times
-      TIME_KEYS.each do |key|
-        value = send(key.to_s)
-
-        _, negative, amount, unit =
-          /^(-)?(\d+)(m|ms|s)?$/.match(value.to_s).to_a
-
-        unit ||= TIME_DEFAULT_UNITS.fetch(key, 's')
-        in_minutes = TIME_MULTIPLIERS.fetch(unit, 1) * amount.to_i
-        in_minutes = 0 - in_minutes if negative
-
-        send("#{key}=", in_minutes)
+    def normalize_durations
+      DURATION_KEYS.each do |key|
+        value = send(key)
+        default_unit = DURATION_DEFAULT_UNITS.fetch(key, 's')
+        duration = Duration.parse(value, default_unit: default_unit)
+        send("#{key}=", duration.minutes)
       end
     end
-    # rubocop:enable Metrics/AbcSize
+
+    def normalize_sizes
+      SIZE_KEYS.each do |key|
+        value = send(key)
+        default_unit = SIZE_DEFAULT_UNITS.fetch(key, 'b')
+        size = Size.parse(value, default_unit: default_unit)
+        send("#{key}=", size.bytes)
+      end
+    end
   end
   # rubocop:enable Metrics/ClassLength
 end
