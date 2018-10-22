@@ -35,7 +35,7 @@ end
 [float]
 ==== Custom span example
 
-If you are already inside a Transaction (most likely) and you want to intrument
+If you are already inside a Transaction (most likely) and you want to instrument
 some work inside it, add a custom span:
 
 [source,ruby]
