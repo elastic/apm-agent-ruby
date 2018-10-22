@@ -16,6 +16,7 @@ module ElasticAPM
     class Current
       def initialize
         self.transaction = nil
+        self.span = nil
       end
 
       def transaction
