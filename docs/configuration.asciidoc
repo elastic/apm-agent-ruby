@@ -56,7 +56,7 @@ Some options can be set with `ENV` variables and all of them may be set in
 your source code.
 
 When setting values for lists using `ENV` variables, strings are split by comma
-eg `ELASTIC_APM_ENBALED_ENVIRONMENTS=development,production`.
+eg `ELASTIC_APM_ENABLED_ENVIRONMENTS=development,production`.
 
 [float]
 [[config-config-file]]
@@ -124,7 +124,7 @@ If you're using Ruby on Rails this will default to your app's name.
 If you're using Sinatra it will default to the name of your app's class.
 
 NOTE: The service name must conform to this regular expression: `^[a-zA-Z0-9 _-]+$`.
-In less regexy terms: Your service name must only contain characters from the ASCII
+In layman's terms: Your service name must only contain characters from the ASCII
 alphabet, numbers, dashes, underscores and spaces.
 
 [float]
@@ -166,7 +166,7 @@ Defaults to `ENV['RAILS_ENV'] || ENV['RACK_ENV']`.
 
 Specify which environments to enable APM in.
 
-If the current envrironment isn't included, the agent will effectively be a _noop_
+If the current environment isn't included, the agent will effectively be a _noop_
 and do nothing.
 So you can keep in your custom instrumentation code without the agent sending
 anything nor complain.
@@ -441,7 +441,7 @@ Eg. `ELASTIC_APM_CUSTOM_KEY_FILTERS="a,b" # => [/a/, /b/]`
 | `ELASTIC_APM_IGNORE_URL_PATTERNS` | `ignore_url_patterns` | `[]`    | `['^/ping', %r{^/admin}]`
 |============
 
-Use this option to ignroe certain URL patterns eg. healthchecks or admin sections.
+Use this option to ignore certain URL patterns eg. healthchecks or admin sections.
 
 _Ignoring_ in this context means _don't wrap in a <<api-transaction,Transaction>>_.
 Errors will still be reported.
