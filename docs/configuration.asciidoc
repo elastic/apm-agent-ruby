@@ -293,17 +293,13 @@ storage use in your Elasticsearch cluster.
 | `ELASTIC_APM_SPAN_FRAMES_MIN_DURATION` | `span_frames_min_duration` | `"5ms"`
 |============
 
-Use this to disable stacktrace collection for spans with a duration shorter
+Use this to disable stacktrace frame collection for spans with a duration shorter
 than or equal to the given amount of milleseconds.
 
 The default is `"5ms"`.
 
-Set it to `-1` to disable the feature and collect stack traces for all spans.
-Setting it to a positive value, e.g. `"5ms"`, will limit stack trace collection
-to spans with durations equal or longer than the given value in milliseconds,
-e.g. 5 milliseconds.
-
-To disable stack trace collection for spans completely, set the value to `0`.
+Set it to `-1` to collect stack traces for all spans.
+Set it to `0` to disable stack trace collection for all spans.
 
 It has to be provided in *<<config-format-duration, duration format>>*.
 
@@ -315,15 +311,11 @@ It has to be provided in *<<config-format-duration, duration format>>*.
 | `ELASTIC_APM_API_REQUEST_TIME` | `api_request_time` | `"10s"`
 |============
 
-Maximum queue time of the request buffer before sending the request to the
-APM Server.
-A lower value will increase the load on your APM server,
-while a higher value can increase the memory pressure of your app.
-A higher value also impacts the time until data is indexed and searchable in
-Elasticsearch.
+Maximum duration of a single streaming request to APM Server before opening
+a new one.
 
-This setting is useful to limit memory consumption if you experience a sudden
-spike of traffic.
+APM Server has its own limit of 30 seconds before it will close requests.
+
 It has to be provided in *<<config-format-duration, duration format>>*.
 
 [float]
@@ -334,12 +326,9 @@ It has to be provided in *<<config-format-duration, duration format>>*.
 | `ELASTIC_APM_API_REQUEST_SIZE` | `api_request_size` | `"750kb"`
 |============
 
-Maximum queue length of the request buffer before sending the request to the APM server.
-A lower value will increase the load on your APM server,
-while a higher value can increase the memory pressure of your app.
-A higher value also impacts the time until data is indexed and searchable in Elasticsearch.
+Maximum amount of bytes sent over one request to APM Server. When reached the agent
+will open a new request.
 
-This setting is useful to limit memory consumption if you experience a sudden spike of traffic.
 It has to be provided in *<<config-format-size, size format>>*.
 
 [float]
@@ -524,7 +513,7 @@ These need to be provided in a specific format.
 ==== Duration format
 
 The _duration_ format is used for options like timeouts.
-The unit is provided as suffix directly after the number, without and separation by whitespace.
+The unit is provided as suffix directly after the number, without any separation by whitespace.
 
 *Example*: `"5ms"`
 
@@ -539,7 +528,7 @@ The unit is provided as suffix directly after the number, without and separation
 ==== Size format
 
 The _size_ format is used for options like maximum buffer sizes.
-The unit is provided as suffix directly after the number, without and separation by whitespace.
+The unit is provided as suffix directly after the number, without any separation by whitespace.
 
 
 *Example*: `10kb`

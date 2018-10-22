@@ -337,7 +337,7 @@ module ElasticAPM
         value = send(key).to_s
         default_unit = DURATION_DEFAULT_UNITS.fetch(key, 's')
         duration = Duration.parse(value, default_unit: default_unit)
-        send("#{key}=", duration.minutes)
+        send("#{key}=", duration.seconds)
       end
     end
 
