@@ -3,6 +3,9 @@
 require 'logger'
 require 'yaml'
 
+require 'elastic_apm/config/duration'
+require 'elastic_apm/config/size'
+
 module ElasticAPM
   # rubocop:disable Metrics/ClassLength
   # @api private
@@ -24,8 +27,8 @@ module ElasticAPM
       filter_exception_types: [],
 
       # intake v2
-      api_request_size: 768_000, # 750 KiB
-      api_request_time: 10,
+      api_request_size: '750kb',
+      api_request_time: '10s',
       api_buffer_size: 10,
 
       disable_send: false,
@@ -42,7 +45,7 @@ module ElasticAPM
       source_lines_span_app_frames: 5,
       source_lines_error_library_frames: 0,
       source_lines_span_library_frames: 0,
-      span_frames_min_duration: 5,
+      span_frames_min_duration: '5ms',
 
       disabled_spies: %w[json],
       instrumented_rake_tasks: [],
@@ -87,14 +90,13 @@ module ElasticAPM
         [:int, 'source_lines_error_library_frames'],
       'ELASTIC_APM_SOURCE_LINES_SPAN_LIBRARY_FRAMES' =>
         [:int, 'source_lines_span_library_frames'],
-      'ELASTIC_APM_SPAN_FRAMES_MIN_DURATION' =>
-        [:int, 'span_frames_min_duration'],
+      'ELASTIC_APM_SPAN_FRAMES_MIN_DURATION' => 'span_frames_min_duration',
 
       'ELASTIC_APM_CUSTOM_KEY_FILTERS' => [:list, 'custom_key_filters'],
       'ELASTIC_APM_IGNORE_URL_PATTERNS' => [:list, 'ignore_url_patterns'],
 
       'ELASTIC_APM_API_REQUEST_SIZE' => [:int, 'api_request_size'],
-      'ELASTIC_APM_API_REQUEST_TIME' => [:int, 'api_request_time'],
+      'ELASTIC_APM_API_REQUEST_TIME' => 'api_request_time',
       'ELASTIC_APM_API_BUFFER_SIZE' => [:int, 'api_buffer_size'],
 
       'ELASTIC_APM_TRANSACTION_SAMPLE_RATE' =>
@@ -110,12 +112,21 @@ module ElasticAPM
       'ELASTIC_APM_DEFAULT_TAGS' => [:dict, 'default_tags']
     }.freeze
 
+    DURATION_KEYS = %i[api_request_time span_frames_min_duration].freeze
+    DURATION_DEFAULT_UNITS = { span_frames_min_duration: 'ms' }.freeze
+
+    SIZE_KEYS = %i[api_request_size].freeze
+    SIZE_DEFAULT_UNITS = { api_request_size: 'kb' }.freeze
+
     def initialize(options = {})
       set_defaults
 
       set_from_args(options)
       set_from_config_file
       set_from_env
+
+      normalize_durations
+      normalize_sizes
 
       yield self if block_given?
 
@@ -164,7 +175,9 @@ module ElasticAPM
     attr_accessor :source_lines_span_app_frames
     attr_accessor :source_lines_error_library_frames
     attr_accessor :source_lines_span_library_frames
-    attr_accessor :span_frames_min_duration
+
+    attr_reader :span_frames_min_duration
+    attr_reader :span_frames_min_duration_us
 
     attr_accessor :disabled_spies
     attr_accessor :instrumented_rake_tasks
@@ -248,6 +261,11 @@ module ElasticAPM
       available_spies - disabled_spies
     end
 
+    def span_frames_min_duration=(duration)
+      @span_frames_min_duration = duration
+      @span_frames_min_duration_us = duration * 1_000_000
+    end
+
     private
 
     def assign(options)
@@ -319,6 +337,24 @@ module ElasticAPM
 
     def format_name(str)
       str.gsub('::', '_')
+    end
+
+    def normalize_durations
+      DURATION_KEYS.each do |key|
+        value = send(key).to_s
+        default_unit = DURATION_DEFAULT_UNITS.fetch(key, 's')
+        duration = Duration.parse(value, default_unit: default_unit)
+        send("#{key}=", duration.seconds)
+      end
+    end
+
+    def normalize_sizes
+      SIZE_KEYS.each do |key|
+        value = send(key).to_s
+        default_unit = SIZE_DEFAULT_UNITS.fetch(key, 'b')
+        size = Size.parse(value, default_unit: default_unit)
+        send("#{key}=", size.bytes)
+      end
     end
   end
   # rubocop:enable Metrics/ClassLength
