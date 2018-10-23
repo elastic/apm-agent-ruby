@@ -31,7 +31,6 @@ if defined?(Rails)
 
         config.elastic_apm.enabled_environments += %w[test]
         config.elastic_apm.service_name = 'RailsTestApp'
-        config.elastic_apm.debug_transactions = true
         config.elastic_apm.log_path = 'spec/elastic_apm.log'
         config.elastic_apm.ignore_url_patterns = '/ping'
       end
@@ -116,9 +115,6 @@ if defined?(Rails)
     end
 
     it 'knows Rails' do
-      # test config from Rails.app.config
-      expect(ElasticAPM.agent.config.debug_transactions).to be true
-
       response = get '/'
 
       ElasticAPM.agent.flush
