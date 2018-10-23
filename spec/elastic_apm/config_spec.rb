@@ -148,5 +148,17 @@ module ElasticAPM
         config.logger.info 'MockLog'
       end
     end
+
+    describe 'deprecations' do
+      it 'warns about removed options' do
+        expect(subject).to receive(:warn).with(/has been removed/)
+        subject.flush_interval = 123
+      end
+
+      it "doesn't intercept unlisted, missing methods" do
+        expect { subject.very_missing_method = 123 }
+          .to raise_error(NoMethodError)
+      end
+    end
   end
 end

@@ -12,52 +12,40 @@ module ElasticAPM
   class Config
     DEFAULTS = {
       config_file: 'config/elastic_apm.yml',
+
       server_url: 'http://localhost:8200',
 
-      environment: ENV['RAILS_ENV'] || ENV['RACK_ENV'],
-      enabled_environments: %w[production],
       disable_environment_warning: false,
+      enabled_environments: %w[production],
+      environment: ENV['RAILS_ENV'] || ENV['RACK_ENV'],
       instrument: true,
 
-      log_path: nil,
       log_level: Logger::INFO,
+      log_path: nil,
 
-      transaction_sample_rate: 1.0,
-      transaction_max_spans: 500,
-      filter_exception_types: [],
-
-      # intake v2
       api_request_size: '750kb',
       api_request_time: '10s',
       api_buffer_size: 10,
-
       disable_send: false,
-      http_read_timeout: 120,
-      http_open_timeout: 60,
-      debug_transactions: false,
-      debug_http: false,
       verify_server_cert: true,
       http_compression: true,
-      compression_minimum_size: 1024 * 5,
-      compression_level: 6,
 
+      current_user_email_method: :email,
+      current_user_id_method: :id,
+      current_user_username_method: :username,
+      custom_key_filters: [],
+      default_tags: {},
+      disabled_spies: %w[json],
+      filter_exception_types: [],
+      ignore_url_patterns: [],
+      instrumented_rake_tasks: [],
       source_lines_error_app_frames: 5,
-      source_lines_span_app_frames: 5,
       source_lines_error_library_frames: 0,
+      source_lines_span_app_frames: 5,
       source_lines_span_library_frames: 0,
       span_frames_min_duration: '5ms',
-
-      disabled_spies: %w[json],
-      instrumented_rake_tasks: [],
-
-      default_tags: {},
-
-      current_user_id_method: :id,
-      current_user_email_method: :email,
-      current_user_username_method: :username,
-
-      custom_key_filters: [],
-      ignore_url_patterns: [],
+      transaction_max_spans: 500,
+      transaction_sample_rate: 1.0,
 
       view_paths: [],
       root_path: Dir.pwd
@@ -76,40 +64,35 @@ module ElasticAPM
       'ELASTIC_APM_LOG_PATH' => 'log_path',
       'ELASTIC_APM_LOG_LEVEL' => [:int, 'log_level'],
 
-      'ELASTIC_APM_SERVICE_NAME' => 'service_name',
-      'ELASTIC_APM_SERVICE_VERSION' => 'service_version',
+      'ELASTIC_APM_API_BUFFER_SIZE' => [:int, 'api_buffer_size'],
+      'ELASTIC_APM_API_REQUEST_SIZE' => [:int, 'api_request_size'],
+      'ELASTIC_APM_API_REQUEST_TIME' => 'api_request_time',
+      'ELASTIC_APM_DISABLE_SEND' => [:bool, 'disable_send'],
+      'ELASTIC_APM_VERIFY_SERVER_CERT' => [:bool, 'verify_server_cert'],
+
+      'ELASTIC_APM_CUSTOM_KEY_FILTERS' => [:list, 'custom_key_filters'],
+      'ELASTIC_APM_DEFAULT_TAGS' => [:dict, 'default_tags'],
+      'ELASTIC_APM_DISABLED_SPIES' => [:list, 'disabled_spies'],
       'ELASTIC_APM_FRAMEWORK_NAME' => 'framework_name',
       'ELASTIC_APM_FRAMEWORK_VERSION' => 'framework_version',
       'ELASTIC_APM_HOSTNAME' => 'hostname',
-
+      'ELASTIC_APM_IGNORE_URL_PATTERNS' => [:list, 'ignore_url_patterns'],
+      'ELASTIC_APM_INSTRUMENTED_RAKE_TASKS' =>
+        [:list, 'instrumented_rake_tasks'],
+      'ELASTIC_APM_SERVICE_NAME' => 'service_name',
+      'ELASTIC_APM_SERVICE_VERSION' => 'service_version',
       'ELASTIC_APM_SOURCE_LINES_ERROR_APP_FRAMES' =>
         [:int, 'source_lines_error_app_frames'],
-      'ELASTIC_APM_SOURCE_LINES_SPAN_APP_FRAMES' =>
-        [:int, 'source_lines_span_app_frames'],
       'ELASTIC_APM_SOURCE_LINES_ERROR_LIBRARY_FRAMES' =>
         [:int, 'source_lines_error_library_frames'],
+      'ELASTIC_APM_SOURCE_LINES_SPAN_APP_FRAMES' =>
+        [:int, 'source_lines_span_app_frames'],
       'ELASTIC_APM_SOURCE_LINES_SPAN_LIBRARY_FRAMES' =>
         [:int, 'source_lines_span_library_frames'],
       'ELASTIC_APM_SPAN_FRAMES_MIN_DURATION' => 'span_frames_min_duration',
-
-      'ELASTIC_APM_CUSTOM_KEY_FILTERS' => [:list, 'custom_key_filters'],
-      'ELASTIC_APM_IGNORE_URL_PATTERNS' => [:list, 'ignore_url_patterns'],
-
-      'ELASTIC_APM_API_REQUEST_SIZE' => [:int, 'api_request_size'],
-      'ELASTIC_APM_API_REQUEST_TIME' => 'api_request_time',
-      'ELASTIC_APM_API_BUFFER_SIZE' => [:int, 'api_buffer_size'],
-
-      'ELASTIC_APM_TRANSACTION_SAMPLE_RATE' =>
-        [:float, 'transaction_sample_rate'],
-      'ELASTIC_APM_VERIFY_SERVER_CERT' => [:bool, 'verify_server_cert'],
       'ELASTIC_APM_TRANSACTION_MAX_SPANS' => [:int, 'transaction_max_spans'],
-
-      'ELASTIC_APM_DISABLE_SEND' => [:bool, 'disable_send'],
-      'ELASTIC_APM_DISABLED_SPIES' => [:list, 'disabled_spies'],
-      'ELASTIC_APM_INSTRUMENTED_RAKE_TASKS' =>
-        [:list, 'instrumented_rake_tasks'],
-
-      'ELASTIC_APM_DEFAULT_TAGS' => [:dict, 'default_tags']
+      'ELASTIC_APM_TRANSACTION_SAMPLE_RATE' =>
+        [:float, 'transaction_sample_rate']
     }.freeze
 
     DURATION_KEYS = %i[api_request_time span_frames_min_duration].freeze
@@ -138,64 +121,50 @@ module ElasticAPM
     attr_accessor :server_url
     attr_accessor :secret_token
 
-    attr_accessor :environment
-    attr_accessor :enabled_environments
     attr_accessor :disable_environment_warning
+    attr_accessor :enabled_environments
+    attr_accessor :environment
     attr_accessor :instrument
 
-    attr_accessor :service_name
-    attr_accessor :service_version
     attr_accessor :framework_name
     attr_accessor :framework_version
     attr_accessor :hostname
+    attr_accessor :service_name
+    attr_accessor :service_version
 
-    attr_accessor :log_path
     attr_accessor :log_level
+    attr_accessor :log_path
     attr_accessor :logger
 
+    attr_accessor :api_buffer_size
     attr_accessor :api_request_size
     attr_accessor :api_request_time
-    attr_accessor :api_buffer_size
-
-    attr_accessor :transaction_sample_rate
-    attr_accessor :transaction_max_spans
-    attr_accessor :verify_server_cert
-    attr_accessor :filter_exception_types
-
     attr_accessor :disable_send
-    attr_accessor :http_read_timeout
-    attr_accessor :http_open_timeout
-    attr_accessor :debug_transactions
-    attr_accessor :debug_http
     attr_accessor :http_compression
-    attr_accessor :compression_minimum_size
-    attr_accessor :compression_level
-
-    attr_accessor :source_lines_error_app_frames
-    attr_accessor :source_lines_span_app_frames
-    attr_accessor :source_lines_error_library_frames
-    attr_accessor :source_lines_span_library_frames
-
-    attr_reader :span_frames_min_duration
-    attr_reader :span_frames_min_duration_us
-
-    attr_accessor :disabled_spies
-    attr_accessor :instrumented_rake_tasks
-
-    attr_accessor :view_paths
-    attr_accessor :root_path
+    attr_accessor :verify_server_cert
 
     attr_accessor :current_user_method
     attr_accessor :current_user_id_method
     attr_accessor :current_user_email_method
     attr_accessor :current_user_username_method
-
     attr_accessor :default_tags
-
+    attr_accessor :disabled_spies
+    attr_accessor :filter_exception_types
+    attr_accessor :instrumented_rake_tasks
+    attr_accessor :source_lines_error_app_frames
+    attr_accessor :source_lines_error_library_frames
+    attr_accessor :source_lines_span_app_frames
+    attr_accessor :source_lines_span_library_frames
+    attr_accessor :transaction_max_spans
+    attr_accessor :transaction_sample_rate
     attr_reader   :custom_key_filters
     attr_reader   :ignore_url_patterns
+    attr_reader   :span_frames_min_duration
+    attr_reader   :span_frames_min_duration_us
 
-    alias :debug_transactions? :debug_transactions
+    attr_accessor :view_paths
+    attr_accessor :root_path
+
     alias :disable_environment_warning? :disable_environment_warning
     alias :disable_send? :disable_send
     alias :http_compression? :http_compression
@@ -264,6 +233,25 @@ module ElasticAPM
     def span_frames_min_duration=(duration)
       @span_frames_min_duration = duration
       @span_frames_min_duration_us = duration * 1_000_000
+    end
+
+    DEPRECATED_OPTIONS = %i[
+      compression_level=
+      compression_minimum_size=
+      debug_http=
+      debug_transactions=
+      flush_interval=
+      http_open_timeout=
+      http_read_timeout=
+    ].freeze
+
+    def respond_to_missing?(name)
+      DEPRECATED_OPTIONS.include? name
+    end
+
+    def method_missing(name, *args)
+      return super unless DEPRECATED_OPTIONS.include?(name)
+      warn "The option `#{name}' has been removed."
     end
 
     private
