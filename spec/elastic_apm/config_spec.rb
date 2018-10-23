@@ -58,6 +58,38 @@ module ElasticAPM
       end
     end
 
+    context 'duration units' do
+      subject do
+        Config.new(
+          api_request_time: '1m',
+          span_frames_min_duration: '10ms'
+        )
+      end
+
+      its(:api_request_time) { should eq 60 }
+      its(:span_frames_min_duration) { should eq 0.010 }
+
+      context 'when no unit' do
+        it 'uses default unit' do
+          expect(Config.new(api_request_time: '4').api_request_time).to eq 4
+          expect(
+            Config.new(span_frames_min_duration: '5').span_frames_min_duration
+          ).to eq 0.005
+        end
+      end
+    end
+
+    describe 'byte units' do
+      context 'with a unit' do
+        subject { Config.new(api_request_size: '500kb') }
+        its(:api_request_size) { should eq 500 * 1024 }
+      end
+      context 'without a unit' do
+        subject { Config.new(api_request_size: '1') }
+        its(:api_request_size) { should eq 1024 }
+      end
+    end
+
     context 'custom_key_filters' do
       it 'sets custom_key_filters to array of regexp' do
         config = Config.new(custom_key_filters: [/Authorization/, 'String'])

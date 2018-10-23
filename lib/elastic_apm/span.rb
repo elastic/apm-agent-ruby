@@ -98,13 +98,13 @@ module ElasticAPM
     end
 
     def long_enough_for_stacktrace?
-      min_duration = @stacktrace_builder.config.span_frames_min_duration
+      min_duration =
+        @stacktrace_builder.config.span_frames_min_duration_us
 
-      case min_duration
-      when -1 then true
-      when 0 then false
-      else duration / 1000 >= min_duration
-      end
+      return true if min_duration < 0
+      return false if min_duration == 0
+
+      duration >= min_duration
     end
   end
 end

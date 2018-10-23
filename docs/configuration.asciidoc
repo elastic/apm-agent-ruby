@@ -290,18 +290,46 @@ storage use in your Elasticsearch cluster.
 
 |============
 | Environment                            | `Config` key               | Default
-| `ELASTIC_APM_SPAN_FRAMES_MIN_DURATION` | `span_frames_min_duration` | `5`
+| `ELASTIC_APM_SPAN_FRAMES_MIN_DURATION` | `span_frames_min_duration` | `"5ms"`
 |============
 
-Use this to disable stacktrace collection for spans with a duration shorter than or equal to the given amount of milleseconds.
+Use this to disable stacktrace frame collection for spans with a duration shorter
+than or equal to the given amount of milleseconds.
 
-The default is 5ms.
+The default is `"5ms"`.
 
-Set it to `-1` to disable the feature and collect stack traces for all spans.
-Setting it to a positive value, e.g. `5`, will limit stack trace collection to spans
-with durations equal or longer than the given value in milliseconds, e.g. 5 milliseconds.
+Set it to `-1` to collect stack traces for all spans.
+Set it to `0` to disable stack trace collection for all spans.
 
-To disable stack trace collection for spans completely, set the value to `0`.
+It has to be provided in *<<config-format-duration, duration format>>*.
+
+[float]
+[[config-api-request-time]]
+==== `api_request_time`
+|============
+| Environment                    | `Config` key       | Default
+| `ELASTIC_APM_API_REQUEST_TIME` | `api_request_time` | `"10s"`
+|============
+
+Maximum duration of a single streaming request to APM Server before opening
+a new one.
+
+APM Server has its own limit of 30 seconds before it will close requests.
+
+It has to be provided in *<<config-format-duration, duration format>>*.
+
+[float]
+[[config-api-request-size]]
+==== `api_request_size`
+|============
+| Environment                    | `Config` key       | Default
+| `ELASTIC_APM_API_REQUEST_SIZE` | `api_request_size` | `"750kb"`
+|============
+
+Maximum amount of bytes sent over one request to APM Server. When reached the agent
+will open a new request.
+
+It has to be provided in *<<config-format-size, size format>>*.
 
 [float]
 [[config-max-queue-size]]
@@ -473,3 +501,43 @@ Use this to filter error tracking for specific error constants.
 
 Disables sending payloads to APM Server.
 
+[float]
+[[config-formats]]
+=== Configuration formats
+
+Some options require a unit, either duration or size.
+These need to be provided in a specific format.
+
+[float]
+[[config-format-duration]]
+==== Duration format
+
+The _duration_ format is used for options like timeouts.
+The unit is provided as suffix directly after the number, without any separation by whitespace.
+
+*Example*: `"5ms"`
+
+*Supported units*
+
+ * `ms` (milliseconds)
+ * `s` (seconds)
+ * `m` (minutes)
+
+[float]
+[[config-format-size]]
+==== Size format
+
+The _size_ format is used for options like maximum buffer sizes.
+The unit is provided as suffix directly after the number, without any separation by whitespace.
+
+
+*Example*: `10kb`
+
+*Supported units*:
+
+ * `b` (bytes)
+ * `kb` (kilobytes)
+ * `mb` (megabytes)
+ * `gb` (gigabytes)
+
+NOTE: we use the power-of-two sizing convention, e.g. `1 kilobyte == 1024 bytes`

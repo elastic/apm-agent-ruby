@@ -41,7 +41,7 @@ module ElasticAPM
       end
 
       context 'max request time' do
-        let(:config) { Config.new(api_request_time: 0.1) }
+        let(:config) { Config.new(api_request_time: '100ms') }
 
         it 'closes requests when reached' do
           stub = build_stub
@@ -68,7 +68,7 @@ module ElasticAPM
       end
 
       context 'max request size' do
-        let(:config) { Config.new(api_request_size: 5) }
+        let(:config) { Config.new(api_request_size: '5b') }
 
         it 'closes requests when reached' do
           stub = build_stub do |req|
