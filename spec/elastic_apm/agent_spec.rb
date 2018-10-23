@@ -5,6 +5,14 @@ module ElasticAPM
     let(:config) { Config.new }
     subject { Agent.new config }
 
+    describe '#initialize' do
+      its(:transport) { should be_a Transport::Base }
+      its(:instrumenter) { should be_a Instrumenter }
+      its(:stacktrace_builder) { should be_a StacktraceBuilder }
+      its(:context_builder) { should be_a ContextBuilder }
+      its(:error_builder) { should be_a ErrorBuilder }
+    end
+
     context 'life cycle' do
       describe '.start' do
         it 'starts an instance and only one' do
@@ -37,59 +45,53 @@ module ElasticAPM
     end
 
     context 'instrumenting' do
-      it 'has an instrumenter' do
-        expect(subject.instrumenter).to be_a Instrumenter
+      let(:instrumenter) { subject.instrumenter }
+
+      it 'should delegate methods to instrumenter' do
+        {
+          current_transaction: nil,
+          current_span: nil,
+          start_transaction: [nil, nil, { context: nil, traceparent: nil }],
+          end_transaction: [nil],
+          start_span: [nil, nil, { backtrace: nil, context: nil }],
+          end_span: nil,
+          set_tag: [nil, nil],
+          set_custom_context: [nil],
+          set_user: [nil]
+        }.each do |name, args|
+          expect(subject).to delegate(name, to: instrumenter, args: args)
+        end
       end
     end
 
-    context 'reporting', :mock_intake do
-      class AgentTestError < StandardError; end
-
+    context 'reporting', :intercept do
       describe '#report' do
         it 'queues a request' do
-          exception = AgentTestError.new('Yikes!')
-
-          subject.report(exception)
-          subject.flush
-
-          expect(@mock_intake.requests.length).to be 1
-          expect(@mock_intake.errors.length).to be 1
+          expect { subject.report(actual_exception) }
+            .to change(@intercepted.errors, :length).by 1
         end
 
-        it 'ignores filtered exception types' do
-          config =
+        context 'with filtered exception types' do
+          class AgentTestError < StandardError; end
+
+          let(:config) do
             Config.new(filter_exception_types: %w[ElasticAPM::AgentTestError])
-          subject = Agent.new config
+          end
 
-          exception = AgentTestError.new("It's ok!")
+          it 'ignores exception' do
+            exception = AgentTestError.new("It's ok!")
 
-          subject.report(exception)
-
-          subject.stop
-          expect(@mock_intake.requests.length).to be 0
-          expect(@mock_intake.errors.length).to be 0
+            expect { subject.report(exception) }
+              .to change(@intercepted.errors, :length).by 0
+          end
         end
       end
 
-      describe '#report_message' do
+      describe '#report_message', :intercept do
         it 'queues a request' do
-          subject.report_message('Everything went 💥')
-
-          subject.stop
-          expect(@mock_intake.requests.length).to be 1
-          expect(@mock_intake.errors.length).to be 1
+          expect { subject.report_message('Everything went 💥') }
+            .to change(@intercepted.errors, :length).by 1
         end
-      end
-    end
-
-    describe '#enqueue_transaction', :mock_intake do
-      it 'enqueues a collection of transactions' do
-        subject.start_transaction
-        subject.end_transaction
-
-        subject.stop
-        expect(@mock_intake.requests.length).to be 1
-        expect(@mock_intake.transactions.length).to be 1
       end
     end
 

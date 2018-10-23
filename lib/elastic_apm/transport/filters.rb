@@ -14,14 +14,11 @@ module ElasticAPM
       # @api private
       class Container
         def initialize(config)
-          @config = config
           @filters = {
             request_body: RequestBodyFilter.new(config),
             secrets: SecretsFilter.new(config)
           }
         end
-
-        attr_reader :config
 
         def add(key, filter)
           @filters[key] = filter
@@ -31,7 +28,7 @@ module ElasticAPM
           @filters.delete(key)
         end
 
-        def apply(payload)
+        def apply!(payload)
           @filters.reduce(payload) do |result, (_key, filter)|
             result = filter.call(result)
             break if result.nil?

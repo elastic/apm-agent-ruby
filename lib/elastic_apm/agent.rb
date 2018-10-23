@@ -60,22 +60,23 @@ module ElasticAPM
 
     def initialize(config)
       @config = config
+
       @transport = Transport::Base.new(config)
+      @instrumenter = Instrumenter.new(config) { |event| enqueue event }
 
-      @instrumenter = Instrumenter.new(self)
-
+      @stacktrace_builder = StacktraceBuilder.new(config)
       @context_builder = ContextBuilder.new(self)
       @error_builder = ErrorBuilder.new(self)
-      @stacktrace_builder = StacktraceBuilder.new(config)
     end
 
-    attr_reader :config, :transport, :messages, :pending_transactions,
-      :instrumenter, :context_builder, :stacktrace_builder, :error_builder
+    attr_reader :config, :transport, :instrumenter,
+      :stacktrace_builder, :context_builder, :error_builder
 
     def start
       debug '[%s] Starting agent, reporting to %s', VERSION, config.server_url
 
-      @instrumenter.start
+      transport.start
+      instrumenter.start
 
       config.enabled_spies.each do |lib|
         require "elastic_apm/spies/#{lib}"
@@ -85,8 +86,10 @@ module ElasticAPM
     end
 
     def stop
-      @instrumenter.stop
-      @transport.flush
+      debug 'Stopping agent'
+
+      instrumenter.stop
+      transport.stop
 
       self
     end
@@ -98,11 +101,7 @@ module ElasticAPM
     # transport
 
     def enqueue(obj)
-      @transport.submit obj
-    end
-
-    def flush
-      @transport.flush
+      transport.submit obj
     end
 
     # instrumentation
@@ -146,6 +145,18 @@ module ElasticAPM
       instrumenter.end_span
     end
 
+    def set_tag(key, value)
+      instrumenter.set_tag(key, value)
+    end
+
+    def set_custom_context(context)
+      instrumenter.set_custom_context(context)
+    end
+
+    def set_user(user)
+      instrumenter.set_user(user)
+    end
+
     def build_context(rack_env)
       @context_builder.build(rack_env)
     end
@@ -171,26 +182,10 @@ module ElasticAPM
       enqueue error
     end
 
-    # context
-
-    def set_tag(key, value)
-      instrumenter.set_tag(key, value)
-    end
-
-    def set_custom_context(context)
-      instrumenter.set_custom_context(context)
-    end
-
-    def set_user(user)
-      instrumenter.set_user(user)
-    end
+    # filters
 
     def add_filter(key, callback)
-      @transport.filters.add(key, callback)
-    end
-
-    def inspect
-      '<ElasticAPM::Agent>'
+      transport.add_filter(key, callback)
     end
   end
   # rubocop:enable Metrics/ClassLength

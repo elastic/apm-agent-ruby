@@ -15,7 +15,7 @@ module ElasticAPM
         expect(error.exception.handled).to be true
       end
 
-      it 'inherits context from current transaction', :mock_intake do
+      it 'inherits context from current transaction', :intercept do
         env = Rack::MockRequest.env_for(
           '/somewhere/in/there?q=yes',
           method: 'POST'
@@ -31,11 +31,9 @@ module ElasticAPM
 
         ElasticAPM.stop
 
-        wait_for_requests_to_finish 1
-
-        error_payload = @mock_intake.errors.last
-        request = error_payload.dig('context', 'request')
-        expect(request['method']).to eq 'POST'
+        error = @intercepted.errors.last
+        request = error.context.request
+        expect(request.method).to eq 'POST'
       end
     end
 

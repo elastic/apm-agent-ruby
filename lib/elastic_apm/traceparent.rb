@@ -6,7 +6,7 @@ module ElasticAPM
     class InvalidTraceparentHeader < StandardError; end
 
     VERSION = '00'
-    HEX_REGEX = /[^[:xdigit:]]/
+    HEX_REGEX = /[^[:xdigit:]]/.freeze
 
     def initialize
       @version = VERSION

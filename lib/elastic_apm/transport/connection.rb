@@ -51,10 +51,10 @@ module ElasticAPM
 
         return unless @bytes_sent >= @config.api_request_size
 
-        close!
+        flush
       rescue FailedToConnectError => e
         error "Couldn't establish connection to APM Server:\n%p", e
-        close!
+        flush
 
         nil
       end
@@ -63,13 +63,13 @@ module ElasticAPM
         @mutex.synchronize { @connected }
       end
 
-      def close!
+      def flush
         @mutex.synchronize do
           return unless @connected
 
           debug 'Closing request'
           @wr.close
-          @conn_thread.join 0.1 if @conn_thread
+          @conn_thread.join 5 if @conn_thread
         end
       end
 
@@ -112,7 +112,9 @@ module ElasticAPM
             @connected = false
           end
 
-          if resp && resp.status != 202
+          if resp&.status == 202
+            debug 'APM Server responded with status 202'
+          elsif resp
             error "APM Server reponded with an error:\n%p",
               JSON.parse(resp.body.to_s)
           end
@@ -138,7 +140,7 @@ module ElasticAPM
       def schedule_closing
         @close_task =
           Concurrent::ScheduledTask.execute(@config.api_request_time) do
-            close!
+            flush
           end
       end
 

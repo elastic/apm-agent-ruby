@@ -49,7 +49,7 @@ if defined?(Sinatra)
     end
 
     before(:all) do
-      ElasticAPM.start(app: SinatraTestApp)
+      ElasticAPM.start(app: SinatraTestApp, api_request_time: '250ms')
     end
 
     after(:all) do
@@ -59,8 +59,7 @@ if defined?(Sinatra)
     it 'knows Sinatra' do
       response = get '/'
 
-      ElasticAPM.agent.flush
-      wait_for_requests_to_finish 1
+      wait_for metadatas: 1
 
       expect(response.body).to eq 'Yes!'
 
@@ -75,8 +74,7 @@ if defined?(Sinatra)
       it 'wraps requests in a transaction named after route' do
         get '/'
 
-        ElasticAPM.agent.flush
-        wait_for_requests_to_finish 1
+        wait_for transactions: 1
 
         expect(@mock_intake.requests.length).to be 1
         transaction = @mock_intake.transactions.first
@@ -86,8 +84,7 @@ if defined?(Sinatra)
       it 'spans inline templates' do
         get '/inline'
 
-        ElasticAPM.agent.flush
-        wait_for_requests_to_finish 1
+        wait_for transactions: 1, spans: 1
 
         span = @mock_intake.spans.last
         expect(span['name']).to eq 'Inline erb'
@@ -97,8 +94,7 @@ if defined?(Sinatra)
       it 'spans templates' do
         response = get '/tmpl'
 
-        ElasticAPM.agent.flush
-        wait_for_requests_to_finish 1
+        wait_for transactions: 1, spans: 1
 
         expect(response.body).to eq '1 2 3 hello you'
 
@@ -109,15 +105,13 @@ if defined?(Sinatra)
     end
 
     describe 'errors' do
-      it 'adds an exception handler and handles exceptions '\
-        'AND posts transaction' do
+      it 'adds an exception handler and posts transaction' do
         begin
           get '/error'
         rescue FancyError
         end
 
-        ElasticAPM.agent.flush
-        wait_for_requests_to_finish 1
+        wait_for errors: 1, transactions: 1
 
         expect(@mock_intake.requests.length).to be 1
 

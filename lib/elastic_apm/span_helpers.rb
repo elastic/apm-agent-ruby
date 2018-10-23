@@ -27,7 +27,7 @@ module ElasticAPM
               return __without_apm_#{method}(*args, &block)
             end
 
-            ElasticAPM.span "#{name}", "#{type}" do
+            ElasticAPM.with_span "#{name}", "#{type}" do
               __without_apm_#{method}(*args, &block)
             end
           end

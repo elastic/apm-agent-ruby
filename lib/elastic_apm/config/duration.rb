@@ -5,7 +5,7 @@ module ElasticAPM
     # @api private
     class Duration
       MULTIPLIERS = { 'ms' => 0.001, 'm' => 60 }.freeze
-      REGEX = /^(-)?(\d+)(m|ms|s)?$/i
+      REGEX = /^(-)?(\d+)(m|ms|s)?$/i.freeze
 
       def initialize(seconds)
         @seconds = seconds

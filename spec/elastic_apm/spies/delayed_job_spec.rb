@@ -2,96 +2,81 @@
 
 begin
   require 'delayed_job'
+  require 'delayed/performable_mailer' # or the Rails spec explodes
 rescue LoadError
 end
 
 if defined?(Delayed::Backend)
   module ElasticAPM
-    RSpec.describe 'Spy: DelayedJob' do
-      describe 'transactions' do
-        class TransactionCapturingJob
-          attr_accessor :transaction
+    RSpec.describe 'Spy: DelayedJob', :intercept do
+      class TestJob
+        def perform
+        end
+      end
 
-          def perform
-            self.transaction = ElasticAPM.current_transaction
-          end
+      class ExplodingJob
+        def perform
+          1 / 0
+        end
+      end
+
+      class MockJobBackend
+        include Delayed::Backend::Base
+
+        def initialize(job)
+          @job = job
         end
 
-        class ExplodingJob
-          attr_accessor :transaction
-
-          def perform
-            self.transaction = ElasticAPM.current_transaction
-
-            1 / 0
-          end
+        def payload_object
+          @job
         end
+      end
 
-        class MockJobBackend
-          include Delayed::Backend::Base
+      before :all do
+        Delayed::Worker.backend = MockJobBackend
+      end
 
-          def initialize(job)
-            @job = job
-          end
+      before { ElasticAPM.start }
+      after { ElasticAPM.stop }
 
-          def payload_object
-            @job
-          end
-        end
+      it 'instruments class-based job transaction' do
+        job = TestJob.new
 
-        before :all do
-          Delayed::Worker.backend = MockJobBackend
-        end
+        Delayed::Job.new(job).invoke_job
 
-        before do
-          ElasticAPM.start
-        end
+        transaction, = @intercepted.transactions
+        expect(transaction.name).to eq 'ElasticAPM::TestJob'
+        expect(transaction.type).to eq 'Delayed::Job'
+        expect(transaction.result).to eq 'success'
+      end
 
-        after do
-          ElasticAPM.stop
-        end
+      it 'instruments method-based job transaction' do
+        job = TestJob.new
+        invokable = Delayed::PerformableMethod.new(job, :perform, [])
 
-        it 'instruments class-based job transaction' do
-          job = TransactionCapturingJob.new
+        Delayed::Job.new(invokable).invoke_job
 
+        transaction, = @intercepted.transactions
+        expect(transaction.name)
+          .to eq 'ElasticAPM::TestJob#perform'
+        expect(transaction.type).to eq 'Delayed::Job'
+        expect(transaction.result).to eq 'success'
+      end
+
+      it 'reports errors' do
+        job = ExplodingJob.new
+
+        expect do
           Delayed::Job.new(job).invoke_job
+        end.to raise_error(ZeroDivisionError)
 
-          transaction = job.transaction
-          expect(transaction.name).to eq 'ElasticAPM::TransactionCapturingJob'
-          expect(transaction.type).to eq 'Delayed::Job'
-          expect(transaction.result).to eq 'success'
-        end
+        transaction, = @intercepted.transactions
+        expect(transaction.name).to eq 'ElasticAPM::ExplodingJob'
+        expect(transaction.type).to eq 'Delayed::Job'
+        expect(transaction.result).to eq 'error'
 
-        it 'instruments method-based job transaction' do
-          job = TransactionCapturingJob.new
-          invokable = Delayed::PerformableMethod.new(job, :perform, [])
-
-          Delayed::Job.new(invokable).invoke_job
-
-          transaction = job.transaction
-          expect(transaction.name)
-            .to eq 'ElasticAPM::TransactionCapturingJob#perform'
-          expect(transaction.type).to eq 'Delayed::Job'
-          expect(transaction.result).to eq 'success'
-        end
-
-        it 'reports errors', :mock_intake do
-          job = ExplodingJob.new
-
-          expect do
-            Delayed::Job.new(job).invoke_job
-          end.to raise_error(ZeroDivisionError)
-
-          transaction = job.transaction
-          expect(transaction.name).to eq 'ElasticAPM::ExplodingJob'
-          expect(transaction.type).to eq 'Delayed::Job'
-          expect(transaction.result).to eq 'error'
-
-          wait_for_requests_to_finish 1
-          expect(@mock_intake.requests.length).to be 1
-          type = @mock_intake.errors.first.dig('exception', 'type')
-          expect(type).to eq 'ZeroDivisionError'
-        end
+        error, = @intercepted.errors
+        expect(error.exception.type).to eq 'ZeroDivisionError'
       end
     end
   end

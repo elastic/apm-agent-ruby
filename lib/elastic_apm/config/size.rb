@@ -9,7 +9,7 @@ module ElasticAPM
         'mb' => 1024 * 1_000,
         'gb' => 1024 * 100_000
       }.freeze
-      REGEX = /^(\d+)(b|kb|mb|gb)?$/i
+      REGEX = /^(\d+)(b|kb|mb|gb)?$/i.freeze
 
       def initialize(bytes)
         @bytes = bytes
