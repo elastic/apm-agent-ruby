@@ -175,7 +175,9 @@ module ElasticAPM
     attr_accessor :source_lines_span_app_frames
     attr_accessor :source_lines_error_library_frames
     attr_accessor :source_lines_span_library_frames
-    attr_accessor :span_frames_min_duration
+
+    attr_reader :span_frames_min_duration
+    attr_reader :span_frames_min_duration_us
 
     attr_accessor :disabled_spies
     attr_accessor :instrumented_rake_tasks
@@ -257,6 +259,11 @@ module ElasticAPM
 
     def enabled_spies
       available_spies - disabled_spies
+    end
+
+    def span_frames_min_duration=(duration)
+      @span_frames_min_duration = duration
+      @span_frames_min_duration_us = duration * 1_000_000
     end
 
     private
