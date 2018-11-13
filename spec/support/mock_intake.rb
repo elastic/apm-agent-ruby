@@ -30,12 +30,9 @@ class Intake
     [202, {}, ['ok']]
   end
 
-  # rubocop:disable Metrics/MethodLength
   def parse_request_body(request)
-    encoding = request.env['HTTP_CONTENT_ENCODING']
-
     body =
-      if encoding =~ /gzip/
+      if request.env['HTTP_CONTENT_ENCODING'] =~ /gzip/
         gunzip(request.body.read)
       else
         request.body.read
@@ -43,11 +40,8 @@ class Intake
 
     body
       .split("\n")
-      .map do |json|
-        JSON.parse(json)
-      end
+      .map { |json| JSON.parse(json) }
   end
-  # rubocop:enable Metrics/MethodLength
 
   private
 
@@ -85,29 +79,45 @@ RSpec.configure do |config|
   end
 
   # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-  def wait_for_requests_to_finish(request_count)
+  def wait_for(expected)
     raise 'No request stub – did you forget :mock_intake?' unless @request_stub
 
     Timeout.timeout(5) do
       loop do
-        missing = request_count - @mock_intake.requests.length
+        sleep 0.01
+
+        missing = expected.reduce(0) do |total, (kind, count)|
+          total + (count - @mock_intake.send(kind).length)
+        end
+
         next if missing > 0
 
         unless missing == 0
           puts format(
-            'Expected %d requests. Got %d',
-            request_count,
-            @mock_intake.requests.length
+            'Expected %s. Got %s',
+            expected,
+            missing
           )
+          print_received
         end
 
         break true
       end
     end
   rescue Timeout::Error
-    puts format('Died waiting for %d requests', request_count)
-    puts "--- Received: ---\n#{@mock_intake.requests.inspect}"
+    puts format('Died waiting for %s', expected)
+    puts '--- Received: ---'
+    print_received
     raise
   end
   # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+
+  def print_received
+    pp(
+      transactions: @mock_intake.transactions.map { |o| o['name'] },
+      spans: @mock_intake.spans.map { |o| o['name'] },
+      errors: @mock_intake.errors.map { |o| o['culprit'] },
+      metadatas: @mock_intake.metadatas.count
+    )
+  end
 end

@@ -6,11 +6,11 @@ require 'elastic_apm/util/lru_cache'
 module ElasticAPM
   # @api private
   class StacktraceBuilder
-    JAVA_FORMAT = /^(.+)\.([^\.]+)\(([^\:]+)\:(\d+)\)$/
-    RUBY_FORMAT = /^(.+?):(\d+)(?::in `(.+?)')?$/
+    JAVA_FORMAT = /^(.+)\.([^\.]+)\(([^\:]+)\:(\d+)\)$/.freeze
+    RUBY_FORMAT = /^(.+?):(\d+)(?::in `(.+?)')?$/.freeze
 
-    RUBY_VERS_REGEX = %r{ruby(/gems)?[-/](\d+\.)+\d}
-    JRUBY_ORG_REGEX = %r{org/jruby}
+    RUBY_VERS_REGEX = %r{ruby(/gems)?[-/](\d+\.)+\d}.freeze
+    JRUBY_ORG_REGEX = %r{org/jruby}.freeze
 
     def initialize(config)
       @config = config

@@ -1,60 +1,98 @@
 # frozen_string_literal: true
 
 require 'elastic_apm/transport/connection'
+require 'elastic_apm/transport/worker'
+
 require 'elastic_apm/transport/serializers'
 require 'elastic_apm/transport/filters'
 
-require 'elastic_apm/metadata/service_info'
-require 'elastic_apm/metadata/system_info'
-require 'elastic_apm/metadata/process_info'
-
 module ElasticAPM
   module Transport
-    class UnrecognizedResource < InternalError; end
-
     # @api private
     class Base
+      include Logging
+
       def initialize(config)
         @config = config
+        @queue = SizedQueue.new(config.api_buffer_size)
+        @pool = Concurrent::FixedThreadPool.new(config.pool_size)
+        @workers = []
 
-        @connection = Connection.new(config)
-
-        @serializers = Struct.new(:transaction, :span, :error).new(
-          Serializers::TransactionSerializer.new(config),
-          Serializers::SpanSerializer.new(config),
-          Serializers::ErrorSerializer.new(config)
-        )
-
+        @serializers = Serializers.new(config)
         @filters = Filters.new(config)
       end
 
-      attr_reader :config, :filters, :connection
+      attr_reader :config, :queue, :workers, :filters
+
+      def start
+        ensure_worker_count
+      end
+
+      def stop
+        stop_workers
+      end
+
+      def submit(resource)
+        queue.push(resource, true)
+        info '>' * queue.length
+
+        ensure_worker_count
+      rescue ThreadError
+        warn 'Queue is full (%i items), skipping…', config.api_buffer_size
+        nil
+      end
+
+      def add_filter(key, callback)
+        @filters.add(key, callback)
+      end
+
+      private
+
+      def ensure_worker_count
+        missing = config.pool_size - @workers.length
+        return unless missing > 0
+
+        info 'Booting %i workers', missing
+        missing.times { boot_worker }
+      end
 
       # rubocop:disable Metrics/MethodLength
-      def submit(resource)
-        serialized =
-          case resource
-          when Transaction
-            @serializers.transaction.build(resource)
-          when Span
-            @serializers.span.build(resource)
-          when Error
-            @serializers.error.build(resource)
-          else
-            raise UnrecognizedResource
-          end
+      def boot_worker
+        worker = Worker.new(
+          config,
+          queue,
+          serializers: @serializers,
+          filters: @filters
+        )
 
-        post serialized
+        @workers.push worker
+
+        @pool.post do
+          worker.work_forever
+          @workers.delete(worker)
+        end
       end
       # rubocop:enable Metrics/MethodLength
 
-      def post(payload)
-        @filters.apply payload
-        @connection.write(payload.to_json) unless config.disable_send?
+      def stop_workers
+        return unless @pool.running?
+
+        debug 'Stopping workers'
+        send_stop_messages
+
+        debug 'Shutting down pool'
+        @pool.shutdown
+
+        return if @pool.wait_for_termination(5)
+
+        warn "Worker pool didn't close in 5 secs, killing ..."
+        @pool.kill
       end
 
-      def flush
-        @connection.close!
+      def send_stop_messages
+        @workers.each { queue.push(Worker::StopMessage.new, true) }
+      rescue ThreadError
+        warn 'Cannot push stop messages to worker queue as it is full'
       end
     end
   end

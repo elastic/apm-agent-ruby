@@ -24,10 +24,10 @@ module ElasticAPM
         job_name = name_from_payload(job.payload_object)
         transaction = ElasticAPM.start_transaction(job_name, TYPE)
         job.invoke_job_without_apm(*args, &block)
-        transaction.done :success
+        transaction.done 'success'
       rescue ::Exception => e
         ElasticAPM.report(e, handled: false)
-        transaction.done :error
+        transaction.done 'error'
         raise
       ensure
         ElasticAPM.end_transaction

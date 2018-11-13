@@ -20,12 +20,15 @@ module ElasticAPM
       environment: ENV['RAILS_ENV'] || ENV['RACK_ENV'],
       instrument: true,
 
-      log_level: Logger::INFO,
+      log_level: Logger::DEBUG,
       log_path: nil,
 
       api_request_size: '750kb',
       api_request_time: '10s',
-      api_buffer_size: 10,
+      api_buffer_size: 256,
+
+      pool_size: 1,
+
       disable_send: false,
       verify_server_cert: true,
       http_compression: true,
@@ -70,6 +73,8 @@ module ElasticAPM
       'ELASTIC_APM_DISABLE_SEND' => [:bool, 'disable_send'],
       'ELASTIC_APM_VERIFY_SERVER_CERT' => [:bool, 'verify_server_cert'],
 
+      'ELASTIC_APM_POOL_SIZE' => [:int, 'pool_size'],
+
       'ELASTIC_APM_CUSTOM_KEY_FILTERS' => [:list, 'custom_key_filters'],
       'ELASTIC_APM_DEFAULT_TAGS' => [:dict, 'default_tags'],
       'ELASTIC_APM_DISABLED_SPIES' => [:list, 'disabled_spies'],
@@ -113,7 +118,7 @@ module ElasticAPM
 
       yield self if block_given?
 
-      build_logger if logger.nil? || log_path
+      build_logger if logger.nil?
     end
 
     attr_accessor :config_file
@@ -139,6 +144,7 @@ module ElasticAPM
     attr_accessor :api_buffer_size
     attr_accessor :api_request_size
     attr_accessor :api_request_time
+    attr_accessor :pool_size
     attr_accessor :disable_send
     attr_accessor :http_compression
     attr_accessor :verify_server_cert
@@ -317,7 +323,7 @@ module ElasticAPM
     end
 
     def build_logger
-      logger = Logger.new(log_path == '-' ? $stdout : log_path)
+      logger = Logger.new(log_path == '-' ? STDOUT : log_path)
       logger.level = log_level
 
       self.logger = logger

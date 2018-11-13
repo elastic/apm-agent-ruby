@@ -26,7 +26,7 @@ RSpec.describe ElasticAPM do
       end
     end
 
-    describe '.end_transaction', :mock_intake do
+    describe '.end_transaction', :intercept do
       it 'ends current transaction' do
         transaction = ElasticAPM.start_transaction 'Test'
         expect(ElasticAPM.current_transaction).to_not be_nil
@@ -35,10 +35,8 @@ RSpec.describe ElasticAPM do
         expect(ElasticAPM.current_transaction).to be_nil
         expect(transaction).to be_stopped
 
-        ElasticAPM.flush
-
-        transaction = @mock_intake.transactions.first
-        expect(transaction['name']).to eq 'Test'
+        transaction, = @intercepted.transactions
+        expect(transaction.name).to eq 'Test'
       end
     end
 

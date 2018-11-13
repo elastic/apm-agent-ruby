@@ -25,10 +25,10 @@ module ElasticAPM
         end
       end
 
-      describe '#apply' do
+      describe '#apply!' do
         it 'applies all filters to payload' do
           subject.add(:purger, ->(_payload) { {} })
-          result = subject.apply(things: 1)
+          result = subject.apply!(things: 1)
           expect(result).to eq({})
         end
 
@@ -38,7 +38,7 @@ module ElasticAPM
           subject.add(:niller, ->(_payload) { nil })
           subject.add(:untouched, untouched)
 
-          result = subject.apply(things: 1)
+          result = subject.apply!(things: 1)
 
           expect(result).to be_nil
           expect(untouched).to_not have_received(:call)

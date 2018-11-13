@@ -36,19 +36,22 @@ module ElasticAPM
       end
     end
 
-    def initialize(agent)
-      @agent = agent
-      @config = agent.config
+    def initialize(config, &enqueue)
+      @config = config
+      @enqueue = enqueue
 
       @current = Current.new
     end
 
-    attr_reader :agent, :config, :pending_transactions
+    attr_reader :config, :enqueue
 
     def start
+      debug 'Starting instrumenter'
     end
 
     def stop
+      debug 'Stopping instrumenter'
+
       self.current_transaction = nil
       self.current_span = nil
 
@@ -106,10 +109,9 @@ module ElasticAPM
 
       self.current_transaction = nil
 
-      transaction.stop
       transaction.done result
 
-      agent.enqueue transaction
+      enqueue.call transaction
 
       transaction
     end
@@ -162,7 +164,9 @@ module ElasticAPM
       self.current_span =
         span.parent&.is_a?(Span) && span.parent || nil
 
-      agent.enqueue span
+      enqueue.call span
+
+      span
     end
 
     # metadata
@@ -182,10 +186,6 @@ module ElasticAPM
       current_transaction.context.user = Context::User.new(config, user)
     end
 
-    def submit_transaction(transaction)
-      agent.enqueue transaction
-    end
-
     def inspect
       '<ElasticAPM::Instrumenter ' \
         "current_transaction=#{current_transaction.inspect}" \
@@ -199,7 +199,7 @@ module ElasticAPM
     end
 
     def span_frames_min_duration?
-      @agent.config.span_frames_min_duration != 0
+      config.span_frames_min_duration != 0
     end
   end
   # rubocop:enable Metrics/ClassLength
