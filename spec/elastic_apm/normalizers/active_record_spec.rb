@@ -46,7 +46,7 @@ module ElasticAPM
             name, type, context = normalize_payload(sql: sql)
             expect(name).to eq 'SELECT FROM hotdogs'
             expect(type).to eq 'db.unknown.sql'
-            expect(context.statement).to eq sql
+            expect(context.db.statement).to eq sql
           end
 
           it 'skips cache queries' do

@@ -6,13 +6,40 @@ module ElasticAPM
     class Context
       include NaivelyHashable
 
-      def initialize(args)
-        args.each do |key, val|
-          send(:"#{key}=", val)
-        end
+      def initialize(sync: true, db: nil, http: nil)
+        @sync = sync
+        @db = db && Db.new(db)
+        @http = http && Http.new(http)
       end
 
-      attr_accessor :instance, :statement, :type, :user
+      attr_accessor :sync, :db, :http
+
+      # @api private
+      class Db
+        include NaivelyHashable
+
+        def initialize(instance: nil, statement: nil, type: nil, user: nil)
+          @instance = instance
+          @statement = statement
+          @type = type
+          @user = user
+        end
+
+        attr_accessor :instance, :statement, :type, :user
+      end
+
+      # @api private
+      class Http
+        include NaivelyHashable
+
+        def initialize(url: nil, status_code: nil, method: nil)
+          @url = url
+          @status_code = status_code
+          @method = method
+        end
+
+        attr_accessor :url, :status_code, :method
+      end
     end
   end
 end
