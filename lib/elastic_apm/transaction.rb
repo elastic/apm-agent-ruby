@@ -76,6 +76,11 @@ module ElasticAPM
       self
     end
 
+    def ensure_parent_id
+      @parent_id ||= SecureRandom.hex(8)
+      @parent_id
+    end
+
     # spans
 
     def inc_started_spans!

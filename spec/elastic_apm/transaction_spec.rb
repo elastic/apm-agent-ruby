@@ -51,6 +51,26 @@ module ElasticAPM
       end
     end
 
+    describe '#ensure_parent_id' do
+      it 'sets and returns a new parent id if missing' do
+        parent_id = subject.ensure_parent_id
+
+        expect(subject.parent_id).to_not be_nil
+        expect(subject.parent_id).to be parent_id
+      end
+
+      it 'keeps and returns current if set' do
+        traceparent = Traceparent.new
+        traceparent.span_id = 'things'
+        subject = Transaction.new traceparent: traceparent
+
+        parent_id = subject.ensure_parent_id
+
+        expect(parent_id).to be 'things'
+        expect(subject.parent_id).to be 'things'
+      end
+    end
+
     describe '#inc_started_spans!' do
       it 'increments count' do
         expect { subject.inc_started_spans! }
