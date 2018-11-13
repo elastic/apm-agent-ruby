@@ -202,6 +202,19 @@ module ElasticAPM
 
         expect(transaction.context.tags).to match(things: 'are all good!')
       end
+
+      it 'de-dots keys' do
+        transaction = subject.start_transaction 'Test'
+        subject.set_tag 'th.ings', 'are all good!'
+        subject.set_tag 'thi"ngs', 'are all good!'
+        subject.set_tag 'thin*gs', 'are all good!'
+
+        expect(transaction.context.tags).to match(
+          th_ings: 'are all good!',
+          thi_ngs: 'are all good!',
+          thin_gs: 'are all good!'
+        )
+      end
     end
 
     describe '#set_custom_context' do
