@@ -31,7 +31,6 @@ include::./configuration.asciidoc[]
 == Advanced Topics
 include::./context.asciidoc[]
 include::./custom-instrumentation.asciidoc[]
-include::./troubleshooting.asciidoc[]
 
 include::./api.asciidoc[]
 
