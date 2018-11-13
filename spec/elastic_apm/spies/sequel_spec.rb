@@ -31,7 +31,7 @@ module ElasticAPM
       span, = @intercepted.spans
 
       expect(span.name).to eq 'SELECT FROM users'
-      expect(span.context.statement)
+      expect(span.context.db.statement)
         .to eq "SELECT count(*) AS 'count' FROM `users` LIMIT 1"
     end
   end

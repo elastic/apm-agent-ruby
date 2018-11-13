@@ -4,47 +4,55 @@ module ElasticAPM
   module Transport
     module Serializers
       RSpec.describe SpanSerializer do
-        let(:builder) { described_class.new Config.new }
+        subject { described_class.new Config.new }
 
-        before do
-          @mock_uuid = SecureRandom.uuid
-          allow(SecureRandom).to receive(:uuid) { @mock_uuid }
-        end
+        describe '#build', :mock_time do
+          let(:transaction) { Transaction.new.start }
+          let :span do
+            Span.new('Span', transaction: transaction).tap do |span|
+              span.start
+              travel 100
+              span.stop
+            end
+          end
 
-        describe '#build', :mock_time, :intercept do
-          context 'a span' do
-            let :span do
-              ElasticAPM.start
-              ElasticAPM.with_transaction do
-                ElasticAPM.with_span(
-                  'SELECT *',
-                  'db.query',
-                  include_stacktrace: false
-                ) { travel 100 }
-              end
-              ElasticAPM.stop
+          let(:result) { subject.build(span) }
 
-              @intercepted.spans.first
+          it 'builds' do
+            expect(result).to match(
+              span: {
+                id: /.{16}/,
+                transaction_id: span.transaction_id,
+                parent_id: span.parent_id,
+                trace_id: span.trace_id,
+                name: 'Span',
+                type: 'custom',
+                context: nil,
+                stacktrace: [],
+                start: 0,
+                timestamp: 694_224_000_000_000,
+                duration: 100
+              }
+            )
+          end
+
+          context 'with a context' do
+            let(:span) do
+              Span.new(
+                'Span',
+                context: Span::Context.new(
+                  sync: false,
+                  db: { statement: 'asd' },
+                  http: { url: 'dsa' }
+                )
+              )
             end
 
-            subject { builder.build(span) }
-
-            it 'builds' do
-              should match(
-                span: {
-                  id: /.{16}/,
-                  transaction_id: span.transaction_id,
-                  parent_id: span.parent_id,
-                  trace_id: span.trace_id,
-                  name: 'SELECT *',
-                  type: 'db.query',
-                  context: nil,
-                  stacktrace: [],
-                  start: 0,
-                  timestamp: 694_224_000_000_000,
-                  duration: 100
-                }
-              )
+            it 'adds context object' do
+              expect(result.dig(:span, :context, :db, :statement))
+                .to be 'asd'
+              expect(result.dig(:span, :context, :http, :url))
+                .to be 'dsa'
             end
           end
         end

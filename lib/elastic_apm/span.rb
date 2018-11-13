@@ -42,7 +42,7 @@ module ElasticAPM
     end
 
     def parent_id
-      @parent&.id
+      @parent&.id || transaction_id
     end
 
     # life cycle

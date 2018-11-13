@@ -3,9 +3,26 @@
 module ElasticAPM
   RSpec.describe Span::Context do
     describe 'initialize' do
-      it 'sets values from keyword args' do
-        context = described_class.new(statement: 'BO SELECTA')
-        expect(context.statement).to eq 'BO SELECTA'
+      context 'with no args' do
+        its(:sync) { should be true }
+        its(:db) { should be nil }
+        its(:http) { should be nil }
+      end
+
+      context 'with db' do
+        subject { described_class.new db: { statement: 'asd' } }
+
+        it 'adds a db object' do
+          expect(subject.db.statement).to be 'asd'
+        end
+      end
+
+      context 'with http' do
+        subject { described_class.new http: { url: 'asd' } }
+
+        it 'adds a http object' do
+          expect(subject.http.url).to be 'asd'
+        end
       end
     end
   end

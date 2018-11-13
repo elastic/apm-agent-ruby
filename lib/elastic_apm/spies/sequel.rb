@@ -13,6 +13,12 @@ module ElasticAPM
         @summarizer ||= SqlSummarizer.new
       end
 
+      def self.build_context(sql, opts)
+        Span::Context.new(
+          db: { statement: sql, type: 'sql', user: opts[:user] }
+        )
+      end
+
       # rubocop:disable Metrics/MethodLength
       def install
         require 'sequel/database/logging'
@@ -27,11 +33,7 @@ module ElasticAPM
 
             summarizer = ElasticAPM::Spies::SequelSpy.summarizer
             name = summarizer.summarize sql
-            context = Span::Context.new(
-              statement: sql,
-              type: 'sql',
-              user: opts[:user]
-            )
+            context = ElasticAPM::Spies::SequelSpy.build_context(sql, opts)
 
             ElasticAPM.with_span(name, TYPE, context: context, &block)
           end
