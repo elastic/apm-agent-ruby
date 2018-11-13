@@ -4,55 +4,59 @@ require 'spec_helper'
 
 module ElasticAPM
   module Transport
-    RSpec.describe Base, :mock_intake do
-      let(:agent) { Agent.new Config.new }
-      let(:instrumenter) { Instrumenter.new agent }
+    RSpec.describe Base do
+      let(:config) { Config.new }
 
-      subject { described_class.new agent.config }
+      subject { described_class.new config }
+
+      describe '#initialize' do
+        its(:queue) { should be_a Queue }
+      end
+
+      describe '#start' do
+        let(:config) { Config.new(pool_size: 2) }
+
+        it 'boots workers' do
+          subject.start
+          expect(subject.workers.length).to be 2
+          subject.stop
+        end
+      end
+
+      describe '#stop' do
+        let(:config) { Config.new(pool_size: 2) }
+
+        it 'stops all workers' do
+          subject.start
+          subject.stop
+          expect(subject.workers.length).to be 0
+        end
+      end
 
       describe '#submit' do
-        it 'takes records and sends them off' do
-          transaction = instrumenter.start_transaction
-          instrumenter.end_transaction
-
-          error = agent.error_builder.build_exception actual_exception
-
-          subject.submit transaction
-          subject.submit error
-
-          subject.flush
-
-          expect(@mock_intake.requests.length).to be 1
-          expect(@mock_intake.transactions.length).to be 1
-          expect(@mock_intake.errors.length).to be 1
-
-          agent.stop
+        before do
+          # Avoid emptying the queue
+          allow(subject).to receive(:ensure_worker_count) { true }
         end
 
-        it 'starts all requests with a metadata object' do
-          subject.post({})
-          subject.flush
-          subject.post({})
-          subject.flush
-          expect(@mock_intake.requests.length).to be 2
-          expect(@mock_intake.metadatas.length).to be 2
+        it 'adds stuff to the queue' do
+          subject.submit Transaction.new
+          expect(subject.queue.length).to be 1
         end
 
-        it 'filters sensitive data' do
-          subject.post(
-            transaction: {
-              id: 1,
-              context: { request: { headers: { ApiKey: 'OH NO!' } } }
-            }
-          )
+        context 'when queue is full' do
+          let(:config) { Config.new(api_buffer_size: 5) }
 
-          subject.flush
+          it 'skips if queue is full' do
+            5.times { subject.submit Transaction.new }
 
-          expect(@mock_intake.transactions.length).to be 1
+            expect(config.logger).to receive(:warn)
 
-          transaction, = @mock_intake.transactions
-          api_key = transaction['context']['request']['headers']['ApiKey']
-          expect(api_key).to eq '[FILTERED]'
+            expect { subject.submit Transaction.new }
+              .to_not raise_error
+
+            expect(subject.queue.length).to be 5
+          end
         end
       end
     end

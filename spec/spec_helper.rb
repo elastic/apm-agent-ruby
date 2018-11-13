@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-ENV['APM_TESTING'] = '1'
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 ENV['ELASTIC_APM_ENABLED_ENVIRONMENTS'] = 'test'
 
@@ -13,11 +12,9 @@ WebMock.hide_stubbing_instructions!
 
 Dir['spec/support/*.rb'].each { |file| require "./#{file}" }
 
-require 'concurrent'
-Concurrent.use_stdlib_logger(Logger::DEBUG)
-
 require 'elastic-apm'
 
+Concurrent.use_stdlib_logger(Logger::DEBUG)
 Thread.abort_on_exception = true
 
 RSpec.configure do |config|
@@ -25,11 +22,8 @@ RSpec.configure do |config|
     config.filter_run_excluding(type: 'json_schema')
   end
 
-  # config.fail_fast = true unless ENV['CI']
-
   config.example_status_persistence_file_path = '.rspec_status'
   config.disable_monkey_patching!
-  # config.backtrace_exclusion_patterns = [%r{/(gems|bundler)/}]
 
   config.expect_with :rspec do |c|
     c.syntax = :expect

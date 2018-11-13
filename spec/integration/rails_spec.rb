@@ -29,9 +29,12 @@ if defined?(Rails)
 
         config.action_mailer.perform_deliveries = false
 
+        config.elastic_apm.api_request_time = '100ms'
+        config.elastic_apm.pool_size = Concurrent.processor_count
         config.elastic_apm.enabled_environments += %w[test]
         config.elastic_apm.service_name = 'RailsTestApp'
         config.elastic_apm.log_path = 'spec/elastic_apm.log'
+        config.elastic_apm.log_level = Logger::DEBUG
         config.elastic_apm.ignore_url_patterns = '/ping'
       end
 
@@ -115,12 +118,13 @@ if defined?(Rails)
     end
 
     it 'knows Rails' do
-      response = get '/'
+      responses = Array.new(10).map { get '/' }
 
-      ElasticAPM.agent.flush
-      wait_for_requests_to_finish 1
+      wait_for transactions: 10
 
-      expect(response.body).to eq 'Yes!'
+      expect(responses.last.body).to eq 'Yes!'
+      expect(@mock_intake.metadatas.length >= 1).to be true
+      expect(@mock_intake.transactions.length).to be 10
 
       service = @mock_intake.metadatas.first['service']
       expect(service['name']).to eq 'RailsTestApp'
@@ -138,10 +142,8 @@ if defined?(Rails)
       it 'spans action and posts it' do
         get '/'
 
-        ElasticAPM.agent.flush
-        wait_for_requests_to_finish 1
+        wait_for transactions: 1
 
-        expect(@mock_intake.requests.length).to be 1
         name = @mock_intake.transactions.first['name']
         expect(name).to eq 'ApplicationController#index'
       end
@@ -149,8 +151,7 @@ if defined?(Rails)
       it 'can set tags and custom context' do
         get '/tags_and_context'
 
-        ElasticAPM.agent.flush
-        wait_for_requests_to_finish 1
+        wait_for transactions: 1
 
         context = @mock_intake.transactions.first['context']
         expect(context['tags']).to eq('things' => '1')
@@ -160,8 +161,7 @@ if defined?(Rails)
       it 'includes user information' do
         get '/'
 
-        ElasticAPM.agent.flush
-        wait_for_requests_to_finish 1
+        wait_for transactions: 1
 
         context = @mock_intake.transactions.first['context']
         user = context['user']
@@ -173,10 +173,8 @@ if defined?(Rails)
         get '/ping'
         get '/'
 
-        ElasticAPM.agent.flush
-        wait_for_requests_to_finish 1
+        wait_for transactions: 1
 
-        expect(@mock_intake.requests.length).to be 1
         name = @mock_intake.transactions.first['name']
         expect(name).to eq 'ApplicationController#index'
       end
@@ -184,8 +182,7 @@ if defined?(Rails)
       it 'validates json schema', type: :json_schema do
         get '/'
 
-        ElasticAPM.agent.flush
-        wait_for_requests_to_finish 1
+        wait_for transactions: 1
 
         metadata = @mock_intake.metadatas.first
         expect(metadata).to match_json_schema(:metadatas)
@@ -199,15 +196,12 @@ if defined?(Rails)
     end
 
     describe 'errors' do
-      it 'adds an exception handler and handles exceptions '\
-        'AND posts transaction' do
+      it 'handles exceptions and posts transaction' do
         response = get '/error'
-        ElasticAPM.agent.flush
 
-        wait_for_requests_to_finish 1
+        wait_for transactions: 1, errors: 1
 
         expect(response.status).to be 500
-        expect(@mock_intake.requests.length).to be 1
 
         error = @mock_intake.errors.first
         expect(error['transaction_id']).to_not be_nil
@@ -220,8 +214,7 @@ if defined?(Rails)
       it 'validates json schema', type: :json_schema do
         get '/error'
 
-        ElasticAPM.agent.flush
-        wait_for_requests_to_finish 1
+        wait_for transactions: 1, errors: 1
 
         payload = @mock_intake.errors.first
         expect(payload).to match_json_schema(:errors)
@@ -229,8 +222,8 @@ if defined?(Rails)
 
       it 'sends messages that validate' do
         get '/report_message'
-        ElasticAPM.agent.flush
-        wait_for_requests_to_finish 1
+
+        wait_for transactions: 1, errors: 1
 
         error, = @mock_intake.errors
         expect(error['log']).to be_a Hash
@@ -240,14 +233,16 @@ if defined?(Rails)
     describe 'mailers' do
       it 'spans mails' do
         get '/send_notification'
-        ElasticAPM.agent.flush
-        wait_for_requests_to_finish 1
+
+        wait_for transactions: 1, spans: 3
 
         transaction, = @mock_intake.transactions
         expect(transaction['name'])
           .to eq 'ApplicationController#send_notification'
-        span, = @mock_intake.spans
-        expect(span['name']).to eq 'NotificationsMailer#ping'
+        span = @mock_intake.spans.find do |payload|
+          payload['name'] == 'NotificationsMailer#ping'
+        end
+        expect(span).to_not be_nil
       end
     end
 

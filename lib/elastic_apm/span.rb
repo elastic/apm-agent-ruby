@@ -73,8 +73,12 @@ module ElasticAPM
       !!duration
     end
 
+    def started?
+      !!relative_start
+    end
+
     def running?
-      relative_start && !stopped?
+      started? && !stopped?
     end
 
     # relations

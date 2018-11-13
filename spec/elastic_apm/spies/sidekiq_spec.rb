@@ -54,7 +54,7 @@ module ElasticAPM
 
       expect(ElasticAPM.agent).to_not be_nil
 
-      manager.stop(Time.now)
+      manager.stop(::Process.clock_gettime(::Process::CLOCK_MONOTONIC))
 
       expect(ElasticAPM.agent).to be_nil
       expect(manager).to be_stopped

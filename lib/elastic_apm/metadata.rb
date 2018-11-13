@@ -12,7 +12,7 @@ module ElasticAPM
         metadata: {
           service: Metadata::ServiceInfo.build(config),
           process: Metadata::ProcessInfo.build(config),
-          system:  Metadata::SystemInfo.build(config)
+          system: Metadata::SystemInfo.build(config)
         }
       }.to_json
     end

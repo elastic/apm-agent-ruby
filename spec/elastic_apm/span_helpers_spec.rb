@@ -3,7 +3,7 @@
 require 'elastic_apm/span_helpers'
 
 module ElasticAPM
-  RSpec.xdescribe SpanHelpers do
+  RSpec.describe SpanHelpers do
     class Thing
       include ElasticAPM::SpanHelpers
 
@@ -18,7 +18,7 @@ module ElasticAPM
       span_class_method :do_all_things
     end
 
-    context 'on class methods' do
+    context 'on class methods', :intercept do
       it 'wraps in a span' do
         ElasticAPM.start
 
@@ -26,27 +26,27 @@ module ElasticAPM
           Thing.do_all_things
         end
 
-        expect(transaction.spans.length).to be 1
-        expect(transaction.spans.last.name).to eq 'do_all_things'
-
         ElasticAPM.stop
+
+        expect(@intercepted.spans.length).to be 1
+        expect(@intercepted.spans.last.name).to eq 'do_all_things'
       end
     end
 
-    context 'on instance methods' do
+    context 'on instance methods', :intercept do
       it 'wraps in a span' do
         thing = Thing.new
 
-        ElasticAPM.start disable_send: true
+        ElasticAPM.start
 
-        transaction = ElasticAPM.transaction do
+        ElasticAPM.with_transaction do
           thing.do_the_thing
-        end.done
-
-        expect(transaction.spans.length).to be 1
-        expect(transaction.spans.last.name).to eq 'do_the_thing'
+        end
 
         ElasticAPM.stop
+
+        expect(@intercepted.spans.length).to be 1
+        expect(@intercepted.spans.last.name).to eq 'do_the_thing'
       end
     end
   end
