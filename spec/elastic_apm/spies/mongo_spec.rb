@@ -40,7 +40,7 @@ module ElasticAPM
       expect(span.name).to eq 'listCollections'
       expect(span.type).to eq 'db.mongodb.query'
       expect(span.duration).to_not be_nil
-      expect(span.context.to_h).to eq(
+      expect(span.context.db.to_h).to eq(
         instance: 'elastic-apm-test',
         type: 'mongodb',
         statement: nil,
