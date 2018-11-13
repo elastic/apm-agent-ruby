@@ -173,6 +173,8 @@ module ElasticAPM
 
     def set_tag(key, value)
       return unless current_transaction
+
+      key = key.to_s.gsub(/[\."\*]/, '_').to_sym
       current_transaction.context.tags[key] = value.to_s
     end
 
