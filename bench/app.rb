@@ -20,7 +20,6 @@ class App
     @config = ElasticAPM::Config.new(
       {
         environment: 'bench',
-        enabled_environments: ['bench'],
         disable_send: true
       }.merge(config)
     )
