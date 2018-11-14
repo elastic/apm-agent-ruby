@@ -159,23 +159,6 @@ mixing data from multiple environments, consider appending the environment to
 `service_name`.
 
 [float]
-[[config-enabled-environments]]
-==== `enabled_environments`
-
-[options="header"]
-|============
-| Environment                        | `Config` key           | Default
-| `ELASTIC_APM_ENABLED_ENVIRONMENTS` | `enabled_environments` | `['production']`
-|============
-
-Specify which environments to enable APM in.
-
-If the current environment isn't included, the agent will effectively be a _noop_
-and do nothing.
-So you can keep in your custom instrumentation code without the agent sending
-anything nor complain.
-
-[float]
 [[config-framework-name]]
 ==== `framework_name`
 [options="header"]

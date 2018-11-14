@@ -31,7 +31,6 @@ if defined?(Rails)
 
         config.elastic_apm.api_request_time = '100ms'
         config.elastic_apm.pool_size = Concurrent.processor_count
-        config.elastic_apm.enabled_environments += %w[test]
         config.elastic_apm.service_name = 'RailsTestApp'
         config.elastic_apm.log_path = 'spec/elastic_apm.log'
         config.elastic_apm.log_level = Logger::DEBUG
