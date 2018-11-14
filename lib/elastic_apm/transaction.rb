@@ -5,6 +5,8 @@ require 'securerandom'
 module ElasticAPM
   # @api private
   class Transaction
+    extend Deprecations
+
     DEFAULT_TYPE = 'custom'
 
     # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
@@ -52,6 +54,12 @@ module ElasticAPM
     def stopped?
       !!duration
     end
+
+    def done?
+      stopped?
+    end
+
+    deprecate :done?, :stopped?
 
     def trace_id
       traceparent&.trace_id

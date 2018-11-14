@@ -84,7 +84,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
 
     deprecate :transaction, :with_transaction
 
-    # Start a new transaction or return the currently running
+    # Start a new transaction
     #
     # @param name [String] A description of the transaction, eg
     # `ExamplesController#index`
@@ -305,10 +305,6 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       end
 
       agent&.add_filter(key, block || callback)
-    end
-
-    def flush
-      agent&.flush
     end
   end
 end

@@ -15,31 +15,25 @@ module ElasticAPM
 
       server_url: 'http://localhost:8200',
 
-      environment: ENV['RAILS_ENV'] || ENV['RACK_ENV'],
-      instrument: true,
-
-      log_level: Logger::DEBUG,
-      log_path: nil,
-
+      api_buffer_size: 256,
       api_request_size: '750kb',
       api_request_time: '10s',
-      api_buffer_size: 256,
-
-      pool_size: 1,
-
-      disable_send: false,
-      verify_server_cert: true,
-      http_compression: true,
-
       current_user_email_method: :email,
       current_user_id_method: :id,
       current_user_username_method: :username,
       custom_key_filters: [],
       default_tags: {},
+      disable_send: false,
       disabled_spies: %w[json],
+      environment: ENV['RAILS_ENV'] || ENV['RACK_ENV'],
       filter_exception_types: [],
+      http_compression: true,
       ignore_url_patterns: [],
+      instrument: true,
       instrumented_rake_tasks: [],
+      log_level: Logger::DEBUG,
+      log_path: nil,
+      pool_size: 1,
       source_lines_error_app_frames: 5,
       source_lines_error_library_frames: 0,
       source_lines_span_app_frames: 5,
@@ -47,6 +41,7 @@ module ElasticAPM
       span_frames_min_duration: '5ms',
       transaction_max_spans: 500,
       transaction_sample_rate: 1.0,
+      verify_server_cert: true,
 
       view_paths: [],
       root_path: Dir.pwd
@@ -56,29 +51,24 @@ module ElasticAPM
       'ELASTIC_APM_SERVER_URL' => 'server_url',
       'ELASTIC_APM_SECRET_TOKEN' => 'secret_token',
 
-      'ELASTIC_APM_ENVIRONMENT' => 'environment',
-      'ELASTIC_APM_INSTRUMENT' => [:bool, 'instrument'],
-
-      'ELASTIC_APM_LOG_PATH' => 'log_path',
-      'ELASTIC_APM_LOG_LEVEL' => [:int, 'log_level'],
-
       'ELASTIC_APM_API_BUFFER_SIZE' => [:int, 'api_buffer_size'],
       'ELASTIC_APM_API_REQUEST_SIZE' => [:int, 'api_request_size'],
       'ELASTIC_APM_API_REQUEST_TIME' => 'api_request_time',
-      'ELASTIC_APM_DISABLE_SEND' => [:bool, 'disable_send'],
-      'ELASTIC_APM_VERIFY_SERVER_CERT' => [:bool, 'verify_server_cert'],
-
-      'ELASTIC_APM_POOL_SIZE' => [:int, 'pool_size'],
-
       'ELASTIC_APM_CUSTOM_KEY_FILTERS' => [:list, 'custom_key_filters'],
       'ELASTIC_APM_DEFAULT_TAGS' => [:dict, 'default_tags'],
       'ELASTIC_APM_DISABLED_SPIES' => [:list, 'disabled_spies'],
+      'ELASTIC_APM_DISABLE_SEND' => [:bool, 'disable_send'],
+      'ELASTIC_APM_ENVIRONMENT' => 'environment',
       'ELASTIC_APM_FRAMEWORK_NAME' => 'framework_name',
       'ELASTIC_APM_FRAMEWORK_VERSION' => 'framework_version',
       'ELASTIC_APM_HOSTNAME' => 'hostname',
       'ELASTIC_APM_IGNORE_URL_PATTERNS' => [:list, 'ignore_url_patterns'],
+      'ELASTIC_APM_INSTRUMENT' => [:bool, 'instrument'],
       'ELASTIC_APM_INSTRUMENTED_RAKE_TASKS' =>
         [:list, 'instrumented_rake_tasks'],
+      'ELASTIC_APM_LOG_LEVEL' => [:int, 'log_level'],
+      'ELASTIC_APM_LOG_PATH' => 'log_path',
+      'ELASTIC_APM_POOL_SIZE' => [:int, 'pool_size'],
       'ELASTIC_APM_SERVICE_NAME' => 'service_name',
       'ELASTIC_APM_SERVICE_VERSION' => 'service_version',
       'ELASTIC_APM_SOURCE_LINES_ERROR_APP_FRAMES' =>
@@ -92,7 +82,8 @@ module ElasticAPM
       'ELASTIC_APM_SPAN_FRAMES_MIN_DURATION' => 'span_frames_min_duration',
       'ELASTIC_APM_TRANSACTION_MAX_SPANS' => [:int, 'transaction_max_spans'],
       'ELASTIC_APM_TRANSACTION_SAMPLE_RATE' =>
-        [:float, 'transaction_sample_rate']
+        [:float, 'transaction_sample_rate'],
+      'ELASTIC_APM_VERIFY_SERVER_CERT' => [:bool, 'verify_server_cert']
     }.freeze
 
     DURATION_KEYS = %i[api_request_time span_frames_min_duration].freeze
@@ -121,41 +112,38 @@ module ElasticAPM
     attr_accessor :server_url
     attr_accessor :secret_token
 
-    attr_accessor :environment
-    attr_accessor :instrument
-
-    attr_accessor :framework_name
-    attr_accessor :framework_version
-    attr_accessor :hostname
-    attr_accessor :service_name
-    attr_accessor :service_version
-
-    attr_accessor :log_level
-    attr_accessor :log_path
-    attr_accessor :logger
-
     attr_accessor :api_buffer_size
     attr_accessor :api_request_size
     attr_accessor :api_request_time
-    attr_accessor :pool_size
-    attr_accessor :disable_send
-    attr_accessor :http_compression
-    attr_accessor :verify_server_cert
-
-    attr_accessor :current_user_method
-    attr_accessor :current_user_id_method
     attr_accessor :current_user_email_method
+    attr_accessor :current_user_id_method
+    attr_accessor :current_user_method
     attr_accessor :current_user_username_method
     attr_accessor :default_tags
+    attr_accessor :disable_send
     attr_accessor :disabled_spies
+    attr_accessor :environment
     attr_accessor :filter_exception_types
+    attr_accessor :framework_name
+    attr_accessor :framework_version
+    attr_accessor :hostname
+    attr_accessor :http_compression
+    attr_accessor :instrument
     attr_accessor :instrumented_rake_tasks
+    attr_accessor :log_level
+    attr_accessor :log_path
+    attr_accessor :logger
+    attr_accessor :pool_size
+    attr_accessor :service_name
+    attr_accessor :service_version
     attr_accessor :source_lines_error_app_frames
     attr_accessor :source_lines_error_library_frames
     attr_accessor :source_lines_span_app_frames
     attr_accessor :source_lines_span_library_frames
     attr_accessor :transaction_max_spans
     attr_accessor :transaction_sample_rate
+    attr_accessor :verify_server_cert
+
     attr_reader   :custom_key_filters
     attr_reader   :ignore_url_patterns
     attr_reader   :span_frames_min_duration
