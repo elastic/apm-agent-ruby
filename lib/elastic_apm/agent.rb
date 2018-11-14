@@ -62,7 +62,7 @@ module ElasticAPM
       :stacktrace_builder, :context_builder, :error_builder
 
     def start
-      debug '[%s] Starting agent, reporting to %s', VERSION, config.server_url
+      info '[%s] Starting agent, reporting to %s', VERSION, config.server_url
 
       transport.start
       instrumenter.start
