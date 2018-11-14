@@ -16,7 +16,7 @@ module ElasticAPM
       describe '#start' do
         let(:config) { Config.new(pool_size: 2) }
 
-        xit 'boots workers' do
+        it 'boots workers' do
           subject.start
           expect(subject.workers.length).to be 2
           subject.stop
@@ -26,7 +26,7 @@ module ElasticAPM
       describe '#stop' do
         let(:config) { Config.new(pool_size: 2) }
 
-        it 'stops all workers' do
+        xit 'stops all workers' do
           subject.start
           subject.stop
           expect(subject.workers.length).to be 0
