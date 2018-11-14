@@ -4,7 +4,6 @@ module ElasticAPM
   RSpec.describe Span::Context do
     describe 'initialize' do
       context 'with no args' do
-        its(:sync) { should be true }
         its(:db) { should be nil }
         its(:http) { should be nil }
       end

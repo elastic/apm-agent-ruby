@@ -41,7 +41,6 @@ module ElasticAPM
               Span.new(
                 'Span',
                 context: Span::Context.new(
-                  sync: false,
                   db: { statement: 'asd' },
                   http: { url: 'dsa' }
                 )
