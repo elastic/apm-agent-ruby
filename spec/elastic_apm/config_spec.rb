@@ -38,11 +38,7 @@ module ElasticAPM
         ['ELASTIC_APM_VERIFY_SERVER_CERT', 'true', true],
         ['ELASTIC_APM_VERIFY_SERVER_CERT', '0', false],
         ['ELASTIC_APM_VERIFY_SERVER_CERT', 'false', false],
-        [
-          'ELASTIC_APM_ENABLED_ENVIRONMENTS',
-          'test,production',
-          %w[test production]
-        ],
+        ['ELASTIC_APM_DISABLED_SPIES', 'json,http', %w[json http]],
         ['ELASTIC_APM_CUSTOM_KEY_FILTERS', 'Auth,Other', [/Auth/, /Other/]],
         [
           'ELASTIC_APM_DEFAULT_TAGS',

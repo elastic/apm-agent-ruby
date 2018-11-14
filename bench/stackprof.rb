@@ -8,7 +8,7 @@ require 'stackprof'
 require 'rack/test'
 require 'elastic-apm'
 
-ElasticAPM.start environment: 'bench', enabled_environments: ['bench']
+ElasticAPM.start environment: 'bench'
 
 env = Rack::MockRequest.env_for('/')
 

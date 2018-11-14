@@ -15,8 +15,6 @@ module ElasticAPM
 
       server_url: 'http://localhost:8200',
 
-      disable_environment_warning: false,
-      enabled_environments: %w[production],
       environment: ENV['RAILS_ENV'] || ENV['RACK_ENV'],
       instrument: true,
 
@@ -59,9 +57,6 @@ module ElasticAPM
       'ELASTIC_APM_SECRET_TOKEN' => 'secret_token',
 
       'ELASTIC_APM_ENVIRONMENT' => 'environment',
-      'ELASTIC_APM_ENABLED_ENVIRONMENTS' => [:list, 'enabled_environments'],
-      'ELASTIC_APM_DISABLE_ENVIRONMENT_WARNING' =>
-        [:bool, 'disable_environment_warning'],
       'ELASTIC_APM_INSTRUMENT' => [:bool, 'instrument'],
 
       'ELASTIC_APM_LOG_PATH' => 'log_path',
@@ -126,8 +121,6 @@ module ElasticAPM
     attr_accessor :server_url
     attr_accessor :secret_token
 
-    attr_accessor :disable_environment_warning
-    attr_accessor :enabled_environments
     attr_accessor :environment
     attr_accessor :instrument
 
@@ -171,7 +164,6 @@ module ElasticAPM
     attr_accessor :view_paths
     attr_accessor :root_path
 
-    alias :disable_environment_warning? :disable_environment_warning
     alias :disable_send? :disable_send
     alias :http_compression? :http_compression
     alias :instrument? :instrument
@@ -249,6 +241,8 @@ module ElasticAPM
       flush_interval=
       http_open_timeout=
       http_read_timeout=
+      enabled_environments=
+      disable_environment_warning=
     ].freeze
 
     def respond_to_missing?(name)
