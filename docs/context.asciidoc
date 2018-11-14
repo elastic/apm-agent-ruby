@@ -5,7 +5,8 @@
 [float]
 ==== Adding custom context
 
-You can add your own custom, nested JSON-compatible data to the current transaction using `ElasticAPM.set_custom_context(hash)` eg.:
+You can add your own custom, nested JSON-compatible data to the current
+transaction using `ElasticAPM.set_custom_context(hash)` eg.:
 
 [source,ruby]
 ----
@@ -21,12 +22,15 @@ end
 [float]
 ==== Adding tags
 
-Tags are special in that they are indexed in your Elasticsearch database and therefore searchable.
+Tags are special in that they are indexed in your Elasticsearch database and
+therefore searchable.
 
 [source,ruby]
 ----
 ElasticAPM.set_tag(:company_name, 'Acme, Inc.')
 ----
+
+Note that `.`, `*` and `"` in keys are converted to `_`.
 
 [float]
 ==== Providing info about the user

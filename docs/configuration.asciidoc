@@ -68,7 +68,7 @@ eg `ELASTIC_APM_ENABLED_ENVIRONMENTS=development,production`.
 | `ELASTIC_APM_CONFIG_FILE` | `config_file` | `config/elastic_apm.yml`
 |============
 
-Path to the configuration Yaml-file.
+Path to the configuration YAML-file.
 Elastic APM will load config options from this if the file exists.
 
 [float]
@@ -107,37 +107,103 @@ ruby -r securerandom -e 'print SecureRandom.uuid'
 WARNING: Secret tokens only provide any real security if your APM server use TLS.
 
 [float]
-[[config-service-name]]
-==== `service_name`
-
-[options="header"]
+[[config-api-buffer-size]]
+==== `api_buffer_size`
 |============
-| Environment                | `Config` key   | Default    | Example
-| `ELASTIC_APM_SERVICE_NAME` | `service_name` | App's name | `MyApp`
+| Environment                   | `Config` key      | Default
+| `ELASTIC_APM_API_BUFFER_SIZE` | `api_buffer_size` | `256`
 |============
 
-The name of your service.
-This is used to keep all the errors and transactions of your service together and is
-the primary filter in the Elastic APM user interface.
+Maximum amount of objects kept in queue, before sending to APM Server.
 
-If you're using Ruby on Rails this will default to your app's name.
-If you're using Sinatra it will default to the name of your app's class.
-
-NOTE: The service name must conform to this regular expression: `^[a-zA-Z0-9 _-]+$`.
-In layman's terms: Your service name must only contain characters from the ASCII
-alphabet, numbers, dashes, underscores and spaces.
+If you hit this limit you either have to increase the agent's 
+<<config-pool-size,worker pool size>> or it could mean the agent has trouble
+connecting to APM Server. The <<config-log-path,logs>> should tell you what
+went wrong.
 
 [float]
-[[config-service-version]]
-==== `service_version`
-[options="header"]
+[[config-api-request-size]]
+==== `api_request_size`
 |============
-| Environment                    | `Config` key      | Default   | Example
-| `ELASTIC_APM_SERVICE_VERSION`  | `service_version` | `git` sha | A string indicating the version of the deployed service
+| Environment                    | `Config` key       | Default
+| `ELASTIC_APM_API_REQUEST_SIZE` | `api_request_size` | `"750kb"`
 |============
 
-Deployed version of your service.
-Defaults to `git rev-parse --verify HEAD`.
+Maximum amount of bytes sent over one request to APM Server. When reached the agent
+will open a new request.
+
+It has to be provided in *<<config-format-size, size format>>*.
+
+[float]
+[[config-api-request-time]]
+==== `api_request_time`
+|============
+| Environment                    | `Config` key       | Default
+| `ELASTIC_APM_API_REQUEST_TIME` | `api_request_time` | `"10s"`
+|============
+
+Maximum duration of a single streaming request to APM Server before opening
+a new one.
+
+APM Server has its own limit of 30 seconds before it will close requests.
+
+It has to be provided in *<<config-format-duration, duration format>>*.
+
+[float]
+[[config-custom-key-filters]]
+==== `custom_key_filters`
+[options="header"]
+|============
+| Environment                      | `Config` key         | Default | Example
+| `ELASTIC_APM_CUSTOM_KEY_FILTERS` | `custom_key_filters` | `[]`    | `['MyAuthHeader']`
+|============
+
+Elastic APM strips
+https://github.com/elastic/apm-agent-ruby/blob/1.x/lib/elastic_apm/filters/secrets_filter.rb[
+what looks like confidential information] from the request/response headers.
+Use this option to add your own custom header keys to the list of filtered keys.
+
+When setting this option via `ENV`, use a comma separated string.
+Eg. `ELASTIC_APM_CUSTOM_KEY_FILTERS="a,b" # => [/a/, /b/]`
+
+[float]
+[[config-default-tags]]
+==== `default_tags`
+
+[options="header"]
+|============
+| Environment                | `Config` key   | Default | Example
+| `ELASTIC_APM_DEFAULT_TAGS` | `default_tags` | `{}`    | `region=us1`
+|============
+
+Add default tags to add to every transaction.
+
+WARNING: Be aware that tags are indexed in Elasticsearch. Using too many unique keys will result in *https://www.elastic.co/blog/found-crash-elasticsearch#mapping-explosion[Mapping explosion]*.
+
+[float]
+[[config-disable-send]]
+==== `disable_send`
+|============
+| Environment | `Config` key   | Default
+| N/A         | `disable_send` | `false`
+|============
+
+Disables sending payloads to APM Server.
+
+[float]
+[[config-disabled-spies]]
+==== `disabled_spies`
+
+[options="header"]
+|============
+| Environment                  | `Config` key     | Default
+| `ELASTIC_APM_DISABLED_SPIES` | `disabled_spies` | `['json']`
+|============
+
+Elastic APM automatically instruments select third party libraries.
+Use this option to disable any of these.
+
+Get an array of enabled spies with `ElasticAPM.agent.config.enabled_spies`.
 
 [float]
 [[config-environment]]
@@ -157,6 +223,16 @@ Defaults to `ENV['RAILS_ENV'] || ENV['RACK_ENV']`.
 NOTE: Kibana will not differentiate between different environments. To avoid
 mixing data from multiple environments, consider appending the environment to
 `service_name`.
+
+[float]
+[[config-filter-exception-types]]
+==== `filter_exception_types`
+|============
+| Environment | `Config` key             | Default | Example
+| N/A         | `filter_exception_types` | `[]`    | `[MyApp::Errors::IgnoredError]`
+|============
+
+Use this to filter error tracking for specific error constants.
 
 [float]
 [[config-framework-name]]
@@ -197,6 +273,58 @@ otherwise, the default is `nil`.
 The host name to use when sending error and transaction data to the APM server.
 
 [float]
+[[config-custom-ignore-url-patterns]]
+==== `ignore_url_patterns`
+[options="header"]
+|============
+| Environment                       | `Config` key          | Default | Example
+| `ELASTIC_APM_IGNORE_URL_PATTERNS` | `ignore_url_patterns` | `[]`    | `['^/ping', %r{^/admin}]`
+|============
+
+Use this option to ignore certain URL patterns eg. healthchecks or admin sections.
+
+_Ignoring_ in this context means _don't wrap in a <<api-transaction,Transaction>>_.
+Errors will still be reported.
+
+When setting this option via `ENV`, use a comma separated string.
+Eg. `ELASTIC_APM_IGNORE_URL_PATTERNS="a,b" # => [/a/, /b/]`
+
+[float]
+[[config-instrument]]
+==== `instrument`
+[options="header"]
+|============
+| Environment              | `Config` key | Default | Example
+| `ELASTIC_APM_INSTRUMENT` | `instrument` | `true`  | `0`
+|============
+
+Use this option to ignore certain URL patterns eg. healthchecks or admin sections.
+
+[float]
+[[config-instrumented-rake-tasks]]
+==== `instrumented_rake_tasks`
+
+[options="header"]
+|============
+| Environment                           | `Config` key              | Default | Example
+| `ELASTIC_APM_INSTRUMENTED_RAKE_TASKS` | `instrumented_rake_tasks` | `[]`    | `['my_task']`
+|============
+
+Elastic APM can instrument your Rake tasks but given that they are used for a multitude of sometimes very different and not always relevant things, this is opt in.
+
+[float]
+[[config-log-level]]
+==== `log_level`
+
+[options="header"]
+|============
+| Environment             | `Config` key | Default
+| `ELASTIC_APM_LOG_LEVEL` | `log_level`  | `Logger::DEBUG # => 0`
+|============
+
+By default Elastic APM logs to `stdout` or uses `Rails.log` when used with Rails.
+
+[float]
 [[config-log-path]]
 ==== `log_path`
 
@@ -213,18 +341,6 @@ By default Elastic APM logs to `stdout` or uses `Rails.log` when used with Rails
 Should support both absolute and relative paths. Just make sure the directory exists.
 
 [float]
-[[config-log-level]]
-==== `log_level`
-
-[options="header"]
-|============
-| Environment             | `Config` key | Default
-| `ELASTIC_APM_LOG_LEVEL` | `log_level`  | `Logger::DEBUG # => 0`
-|============
-
-By default Elastic APM logs to `stdout` or uses `Rails.log` when used with Rails.
-
-[float]
 [[config-logger]]
 ==== `logger`
 
@@ -237,6 +353,56 @@ By default Elastic APM logs to `stdout` or uses `Rails.log` when used with Rails
 By default Elastic APM logs to `stdout` or uses `Rails.log` when used with Rails.
 
 Use this to provide another logger. Expected to have the same API as Ruby's built-in `Logger`.
+
+[float]
+[[config-pool-size]]
+==== `pool_size`
+
+[options="header"]
+|============
+| Environment             | `Config` key | Default | Example
+| `ELASTIC_APM_POOL_SIZE` | `pool_size`  | `1`     | `2`
+|============
+
+Elastic APM uses a thread pool to send its data to APM Server.
+
+This makes sure the agent doesn't block the main thread any more than necessary.
+
+If you have high load and get warnings about the buffer being full, increasing
+the worker pool size might help.
+
+[float]
+[[config-service-name]]
+==== `service_name`
+
+[options="header"]
+|============
+| Environment                | `Config` key   | Default    | Example
+| `ELASTIC_APM_SERVICE_NAME` | `service_name` | App's name | `MyApp`
+|============
+
+The name of your service.
+This is used to keep all the errors and transactions of your service together and is
+the primary filter in the Elastic APM user interface.
+
+If you're using Ruby on Rails this will default to your app's name.
+If you're using Sinatra it will default to the name of your app's class.
+
+NOTE: The service name must conform to this regular expression: `^[a-zA-Z0-9 _-]+$`.
+In layman's terms: Your service name must only contain characters from the ASCII
+alphabet, numbers, dashes, underscores and spaces.
+
+[float]
+[[config-service-version]]
+==== `service_version`
+[options="header"]
+|============
+| Environment                    | `Config` key      | Default   | Example
+| `ELASTIC_APM_SERVICE_VERSION`  | `service_version` | `git` sha | A string indicating the version of the deployed service
+|============
+
+Deployed version of your service.
+Defaults to `git rev-parse --verify HEAD`.
 
 [float]
 [[config-source-lines-error-app-frames]]
@@ -287,65 +453,19 @@ Set it to `0` to disable stack trace collection for all spans.
 It has to be provided in *<<config-format-duration, duration format>>*.
 
 [float]
-[[config-api-request-time]]
-==== `api_request_time`
-|============
-| Environment                    | `Config` key       | Default
-| `ELASTIC_APM_API_REQUEST_TIME` | `api_request_time` | `"10s"`
-|============
-
-Maximum duration of a single streaming request to APM Server before opening
-a new one.
-
-APM Server has its own limit of 30 seconds before it will close requests.
-
-It has to be provided in *<<config-format-duration, duration format>>*.
-
-[float]
-[[config-api-request-size]]
-==== `api_request_size`
-|============
-| Environment                    | `Config` key       | Default
-| `ELASTIC_APM_API_REQUEST_SIZE` | `api_request_size` | `"750kb"`
-|============
-
-Maximum amount of bytes sent over one request to APM Server. When reached the agent
-will open a new request.
-
-It has to be provided in *<<config-format-size, size format>>*.
-
-[float]
-[[config-max-queue-size]]
-==== `max_queue_size`
+[[config-transaction-max-spans]]
+==== `transaction_max_spans`
 
 |============
-| Environment                  | `Config` key     | Default
-| `ELASTIC_APM_MAX_QUEUE_SIZE` | `max_queue_size` | `500`
+| Environment                         | `Config` key            | Default
+| `ELASTIC_APM_TRANSACTION_MAX_SPANS` | `transaction_max_spans` | `500`
 |============
 
-Maximum queue length of transactions before sending transactions to the APM server.
-A lower value will increase the load on your APM server,
-while a higher value can increase the memory pressure of your app.
-A higher value also impacts the time until transactions are indexed and searchable
-in Elasticsearch.
-
-This setting is useful to limit memory consumption if you experience a sudden spike
-of traffic.
-
-[float]
-[[config-flush-interval]]
-==== `flush_interval`
-
-|============
-| Environment                  | `Config` key     | Default
-| `ELASTIC_APM_FLUSH_INTERVAL` | `flush_interval` | `10`
-|============
-
-Interval with which transactions should be sent to the APM server, in seconds.
-A lower value will increase the load on your APM server,
-while a higher value can increase the memory pressure on your app.
-A higher value also impacts the time until transactions are indexed and searchable
-in Elasticsearch.
+Limits the amount of spans that are recorded per transaction.
+This is helpful in cases where a transaction creates a very high amount of spans
+(e.g. thousands of SQL queries).
+Setting an upper limit will prevent overloading the agent and the APM server with
+too much work for such edge cases.
 
 [float]
 [[config-transaction-sample-rate]]
@@ -363,21 +483,6 @@ We still record overall time and the result for unsampled transactions, but no
 context information, tags, or spans.
 
 [float]
-[[config-transaction-max-spans]]
-==== `transaction_max_spans`
-
-|============
-| Environment                         | `Config` key            | Default
-| `ELASTIC_APM_TRANSACTION_MAX_SPANS` | `transaction_max_spans` | `500`
-|============
-
-Limits the amount of spans that are recorded per transaction.
-This is helpful in cases where a transaction creates a very high amount of spans
-(e.g. thousands of SQL queries).
-Setting an upper limit will prevent overloading the agent and the APM server with
-too much work for such edge cases.
-
-[float]
 [[config-verify-server-cert]]
 ==== `verify_server_cert`
 |============
@@ -388,101 +493,6 @@ too much work for such edge cases.
 By default, the agent verifies the SSL certificate if you use an HTTPS connection to
 the APM server.
 Verification can be disabled by changing this setting to `false`.
-
-[float]
-[[config-disabled-spies]]
-==== `disabled_spies`
-
-[options="header"]
-|============
-| Environment                  | `Config` key     | Default
-| `ELASTIC_APM_DISABLED_SPIES` | `disabled_spies` | `['json']`
-|============
-
-Elastic APM automatically instruments select third party libraries.
-Use this option to disable any of these.
-
-Get an array of enabled spies with `ElasticAPM.agent.config.enabled_spies`.
-
-[float]
-[[config-instrumented-rake-tasks]]
-==== `instrumented_rake_tasks`
-
-[options="header"]
-|============
-| Environment                           | `Config` key              | Default | Example
-| `ELASTIC_APM_INSTRUMENTED_RAKE_TASKS` | `instrumented_rake_tasks` | `[]`    | `['my_task']`
-|============
-
-Elastic APM can instrument your Rake tasks but given that they are used for a multitude of sometimes very different and not always relevant things, this is opt in.
-
-[float]
-[[config-default-tags]]
-==== `default_tags`
-
-[options="header"]
-|============
-| Environment                | `Config` key   | Default | Example
-| `ELASTIC_APM_DEFAULT_TAGS` | `default_tags` | `{}`    | `region=us1`
-|============
-
-Add default tags to add to every transaction.
-
-WARNING: Be aware that tags are indexed in Elasticsearch. Using too many unique keys will result in *https://www.elastic.co/blog/found-crash-elasticsearch#mapping-explosion[Mapping explosion]*.
-
-[float]
-[[config-custom-key-filters]]
-==== `custom_key_filters`
-[options="header"]
-|============
-| Environment                      | `Config` key         | Default | Example
-| `ELASTIC_APM_CUSTOM_KEY_FILTERS` | `custom_key_filters` | `[]`    | `['MyAuthHeader']`
-|============
-
-Elastic APM strips
-https://github.com/elastic/apm-agent-ruby/blob/1.x/lib/elastic_apm/filters/secrets_filter.rb[
-what looks like confidential information] from the request/response headers.
-Use this option to add your own custom header keys to the list of filtered keys.
-
-When setting this option via `ENV`, use a comma separated string.
-Eg. `ELASTIC_APM_CUSTOM_KEY_FILTERS="a,b" # => [/a/, /b/]`
-
-[float]
-[[config-custom-ignore-url-patterns]]
-==== `ignore_url_patterns`
-[options="header"]
-|============
-| Environment                       | `Config` key          | Default | Example
-| `ELASTIC_APM_IGNORE_URL_PATTERNS` | `ignore_url_patterns` | `[]`    | `['^/ping', %r{^/admin}]`
-|============
-
-Use this option to ignore certain URL patterns eg. healthchecks or admin sections.
-
-_Ignoring_ in this context means _don't wrap in a <<api-transaction,Transaction>>_.
-Errors will still be reported.
-
-When setting this option via `ENV`, use a comma separated string.
-Eg. `ELASTIC_APM_IGNORE_URL_PATTERNS="a,b" # => [/a/, /b/]`
-
-[float]
-[[config-filter-exception-types]]
-==== `filter_exception_types`
-|============
-| Environment | `Config` key             | Default | Example
-| N/A         | `filter_exception_types` | `[]`    | `[MyApp::Errors::IgnoredError]`
-|============
-
-Use this to filter error tracking for specific error constants.
-
-[float]
-[[config-disable-send]]
-==== `disable_send`
-|============
-| Environment | `Config` key   | Default
-| N/A         | `disable_send` | `false`
-|============
-
-Disables sending payloads to APM Server.
 
 [float]
 [[config-formats]]
