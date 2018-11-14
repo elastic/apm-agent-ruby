@@ -34,7 +34,6 @@ module ElasticAPM
 
       def submit(resource)
         queue.push(resource, true)
-        info '>' * queue.length
 
         ensure_worker_count
       rescue ThreadError
