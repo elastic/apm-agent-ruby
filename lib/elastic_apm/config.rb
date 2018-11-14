@@ -31,7 +31,7 @@ module ElasticAPM
       ignore_url_patterns: [],
       instrument: true,
       instrumented_rake_tasks: [],
-      log_level: Logger::DEBUG,
+      log_level: Logger::INFO,
       log_path: nil,
       pool_size: 1,
       source_lines_error_app_frames: 5,
