@@ -6,8 +6,7 @@ module ElasticAPM
     class Context
       include NaivelyHashable
 
-      def initialize(sync: true, db: nil, http: nil)
-        @sync = sync
+      def initialize(db: nil, http: nil)
         @db = db && Db.new(db)
         @http = http && Http.new(http)
       end
