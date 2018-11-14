@@ -386,5 +386,3 @@ See the {apm-rum-ref}[JavaScript RUM agent documentation] for more information.
 [float]
 [[api-context]]
 === Context
-
-See https://www.elastic.co/guide/en/apm/server/current/transaction-api.html#transaction-context-schema[APM Server API Specs].
