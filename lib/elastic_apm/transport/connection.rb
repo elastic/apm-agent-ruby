@@ -35,9 +35,14 @@ module ElasticAPM
 
         @url = config.server_url + '/intake/v2/events'
 
-        @client = HTTP.headers(
-          @config.http_compression? ? GZIP_HEADERS : HEADERS
-        ).persistent(@url)
+        headers =
+          (@config.http_compression? ? GZIP_HEADERS : HEADERS).dup
+
+        if (token = config.secret_token)
+          headers['Authorization'] = "Bearer #{token}"
+        end
+
+        @client = HTTP.headers(headers).persistent(@url)
 
         @metadata = Metadata.build(config)
 

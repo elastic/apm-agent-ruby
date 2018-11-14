@@ -26,6 +26,17 @@ module ElasticAPM
         end
       end
 
+      describe 'secret token' do
+        let(:config) { Config.new(secret_token: 'asd') }
+
+        it 'adds an Authorization header if secret token provided' do
+          stub = build_stub(headers: { 'Authorization' => 'Bearer asd' })
+          subject.write('{}')
+          subject.flush
+          expect(stub).to have_been_requested
+        end
+      end
+
       describe 'handling errors' do
         it 'logs the error' do
           expect(subject).to receive(:error) # log
