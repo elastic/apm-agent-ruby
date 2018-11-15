@@ -41,15 +41,7 @@ module ElasticAPM
         transaction.start
         travel 100
         expect(subject.start).to be subject
-        expect(subject.relative_start).to eq 100_000
-      end
-
-      context 'when missing transaction' do
-        subject { described_class.new 'Span' }
-
-        it 'raises a RuntimeError' do
-          expect { subject.start }.to raise_error(RuntimeError)
-        end
+        expect(subject.timestamp - transaction.timestamp).to eq 100_000
       end
     end
 
