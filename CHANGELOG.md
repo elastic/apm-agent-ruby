@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.0.1 (2018-11-15)
+
+### Fixed
+
+- Stop sending `span.start` ([#234](https://github.com/elastic/apm-agent-ruby/pull/234))
+
 ## 2.0.0 (2018-11-14)
 
 Version adds support for APM Server 6.5 and needs at least that.
