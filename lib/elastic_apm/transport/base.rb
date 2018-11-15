@@ -25,7 +25,6 @@ module ElasticAPM
       attr_reader :config, :queue, :workers, :filters
 
       def start
-        ensure_worker_count
       end
 
       def stop
