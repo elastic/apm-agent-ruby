@@ -33,11 +33,10 @@ module ElasticAPM
 
     attr_accessor :name, :type, :original_backtrace, :parent
     attr_reader :id, :context, :stacktrace, :duration,
-      :relative_start, :timestamp, :transaction_id, :trace_id
+      :timestamp, :transaction_id, :trace_id
 
     def transaction=(transaction)
       @transaction_id = transaction&.id
-      @timestamp = transaction&.timestamp
       @trace_id = transaction&.trace_id
     end
 
@@ -48,15 +47,13 @@ module ElasticAPM
     # life cycle
 
     def start
-      raise 'Transaction needed to start span' unless transaction_id
-
-      @relative_start = Util.micros - timestamp
+      @timestamp = Util.micros
 
       self
     end
 
     def stop
-      @duration = Util.micros - timestamp - relative_start
+      @duration = Util.micros - timestamp
     end
 
     def done
@@ -74,7 +71,7 @@ module ElasticAPM
     end
 
     def started?
-      !!relative_start
+      !!timestamp
     end
 
     def running?

@@ -29,7 +29,6 @@ module ElasticAPM
                 type: 'custom',
                 context: nil,
                 stacktrace: [],
-                start: 0,
                 timestamp: 694_224_000_000_000,
                 duration: 100
               }
@@ -50,8 +49,7 @@ module ElasticAPM
             it 'adds context object' do
               expect(result.dig(:span, :context, :db, :statement))
                 .to be 'asd'
-              expect(result.dig(:span, :context, :http, :url))
-                .to be 'dsa'
+              expect(result.dig(:span, :context, :http, :url)).to be 'dsa'
             end
           end
         end

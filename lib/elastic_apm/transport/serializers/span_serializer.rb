@@ -14,7 +14,6 @@ module ElasticAPM
               parent_id: span.parent_id,
               name: span.name,
               type: span.type,
-              start: ms(span.relative_start),
               duration: ms(span.duration),
               context: span.context&.to_h,
               stacktrace: span.stacktrace.to_a,
