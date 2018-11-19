@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+- Lazy boot worker threads on first event. Fixes apps using Puma's `preload_app!` ([#239](https://github.com/elastic/apm-agent-ruby/pull/239))
+
 ## 2.0.1 (2018-11-15)
 
 ### Fixed
