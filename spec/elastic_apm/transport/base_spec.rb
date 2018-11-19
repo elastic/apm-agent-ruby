@@ -14,20 +14,14 @@ module ElasticAPM
       end
 
       describe '#start' do
-        let(:config) { Config.new(pool_size: 2) }
-
-        it 'boots workers' do
-          subject.start
-          expect(subject.workers.length).to be 2
-          subject.stop
-        end
       end
 
       describe '#stop' do
         let(:config) { Config.new(pool_size: 2) }
 
-        xit 'stops all workers' do
+        it 'stops all workers' do
           subject.start
+          subject.submit Transaction.new
           subject.stop
           expect(subject.workers.length).to be 0
         end
