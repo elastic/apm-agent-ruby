@@ -98,7 +98,7 @@ Wrap a block in a Transaction, starting and ending around the block
 
 [source,ruby]
 ----
-ElasticAPM.transaction 'Do things' do |transaction|
+ElasticAPM.with_transaction 'Do things' do |transaction|
   do_work # ...
 
   transaction.result = 'success'
