@@ -63,5 +63,11 @@ Rails/Delegate:
 Style/NumericPredicate:
   Enabled: false
 
+Style/PerlBackrefs:
+  Enabled: false
+
 Layout/EmptyLineAfterGuardClause:
+  Enabled: false
+
+Naming/MemoizedInstanceVariableName:
   Enabled: false

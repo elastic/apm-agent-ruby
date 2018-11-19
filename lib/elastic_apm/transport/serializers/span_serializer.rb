@@ -37,11 +37,10 @@ module ElasticAPM
           def build(context)
             return unless context
 
-            {
-              sync: context.sync,
-              db: build_db(context.db),
-              http: build_http(context.http)
-            }
+            { sync: context.sync }.tap do |base|
+              base[:db] = build_db(context.db) if context.db
+              base[:http] = build_http(context.http) if context.http
+            end
           end
 
           private

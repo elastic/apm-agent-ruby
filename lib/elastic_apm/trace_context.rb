@@ -8,21 +8,35 @@ module ElasticAPM
     VERSION = '00'
     HEX_REGEX = /[^[:xdigit:]]/.freeze
 
-    def initialize
-      @version = VERSION
+    def initialize(
+      version: VERSION,
+      trace_id: nil,
+      span_id: nil,
+      recorded: true
+    )
+      @version = version
+      @trace_id = trace_id
+      @span_id = span_id
+      @recorded = recorded
     end
 
-    attr_accessor :header, :version, :trace_id, :span_id, :recorded
+    attr_accessor :version, :trace_id, :span_id, :recorded
 
     alias :recorded? :recorded
 
-    def self.for_transaction(transaction)
+    def self.for_transaction(sampled: true)
       new.tap do |t|
-        t.trace_id =
-          transaction&.trace_context&.trace_id ||
-          SecureRandom.hex(16)
-        t.recorded = transaction && transaction.sampled?
-        t.span_id = transaction.id
+        t.trace_id = SecureRandom.hex(16)
+        t.span_id = SecureRandom.hex(8)
+        t.recorded = sampled
+      end
+    end
+
+    def self.for_span
+      new.tap do |t|
+        t.trace_id = SecureRandom.hex(16)
+        t.span_id = SecureRandom.hex(8)
+        t.recorded = true
       end
     end
 
@@ -57,8 +71,8 @@ module ElasticAPM
       format('%02x', flags.to_i(2))
     end
 
-    def child(span)
-      dup.tap { |tc| tc.span_id = span.id }
+    def child
+      dup.tap { |tc| tc.span_id = SecureRandom.hex(8) }
     end
 
     def to_header

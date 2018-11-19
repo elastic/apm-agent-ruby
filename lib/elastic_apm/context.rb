@@ -12,9 +12,10 @@ module ElasticAPM
     attr_accessor :request, :response, :user
     attr_reader :custom, :tags
 
-    def initialize(custom: {}, tags: {})
+    def initialize(custom: {}, tags: {}, user: nil)
       @custom = custom
       @tags = tags
+      @user = user || User.new
     end
   end
 end

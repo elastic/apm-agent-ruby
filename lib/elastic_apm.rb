@@ -177,15 +177,20 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     # @yield [Span] Optional block encapsulating span
     # @return [Span] Unless block given
     # @deprecated See `with_span` or `start_span`
-    def span(name, type = nil, context: nil, include_stacktrace: true, &block)
+    def span(
+      name,
+      type = nil,
+      context: nil,
+      include_stacktrace: true,
+      &block
+    )
       return (block_given? ? yield : nil) unless agent
 
       if block_given?
         with_span(
           name,
           type,
-          context:
-          context,
+          context: context,
           include_stacktrace: include_stacktrace,
           &block
         )
@@ -209,12 +214,19 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     # @param context [Span::Context] Context information about the span
     # @param include_stacktrace [Boolean] Whether or not to capture a stacktrace
     # @return [Span]
-    def start_span(name, type = nil, context: nil, include_stacktrace: true)
+    def start_span(
+      name,
+      type = nil,
+      context: nil,
+      include_stacktrace: true,
+      trace_context: nil
+    )
       agent&.start_span(
         name,
         type,
         context: context,
-        backtrace: include_stacktrace ? caller : nil
+        backtrace: include_stacktrace ? caller : nil,
+        trace_context: trace_context
       )
     end
 
@@ -238,7 +250,8 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       name,
       type = nil,
       context: nil,
-      include_stacktrace: true
+      include_stacktrace: true,
+      trace_context: nil
     )
       unless block_given?
         raise ArgumentError,
@@ -250,7 +263,11 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       begin
         span =
           start_span(
-            name, type, context: context, include_stacktrace: include_stacktrace
+            name,
+            type,
+            context: context,
+            include_stacktrace: include_stacktrace,
+            trace_context: trace_context
           )
         yield span
       ensure

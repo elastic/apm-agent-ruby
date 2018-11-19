@@ -122,12 +122,19 @@ module ElasticAPM
       instrumenter.end_transaction(result)
     end
 
-    def start_span(name = nil, type = nil, backtrace: nil, context: nil)
+    def start_span(
+      name = nil,
+      type = nil,
+      backtrace: nil,
+      context: nil,
+      trace_context: nil
+    )
       instrumenter.start_span(
         name,
         type,
         backtrace: backtrace,
-        context: context
+        context: context,
+        trace_context: trace_context
       )
     end
 
