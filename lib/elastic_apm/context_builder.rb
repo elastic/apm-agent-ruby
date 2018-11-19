@@ -21,10 +21,10 @@ module ElasticAPM
       context.request = Context::Request.new unless context.request
       request = context.request
 
-      request.socket = Context::Request::Socket.new(req).to_h
+      request.socket = Context::Request::Socket.new(req)
       request.http_version = build_http_version rack_env
       request.method = req.request_method
-      request.url = Context::Request::Url.new(req).to_h
+      request.url = Context::Request::Url.new(req)
       request.headers, request.env = get_headers_and_env(rack_env)
       request.body = get_body(req)
 

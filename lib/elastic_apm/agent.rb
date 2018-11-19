@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'elastic_apm/naively_hashable'
 require 'elastic_apm/context_builder'
 require 'elastic_apm/error_builder'
 require 'elastic_apm/stacktrace_builder'

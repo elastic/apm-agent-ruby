@@ -4,8 +4,6 @@ require 'http'
 require 'concurrent'
 require 'zlib'
 
-require 'elastic_apm/metadata'
-
 module ElasticAPM
   module Transport
     # @api private
@@ -30,8 +28,9 @@ module ElasticAPM
       }.freeze
       GZIP_HEADERS = HEADERS.merge('Content-Encoding' => 'gzip').freeze
 
-      def initialize(config)
+      def initialize(config, metadata)
         @config = config
+        @metadata = metadata.to_json
 
         @url = config.server_url + '/intake/v2/events'
 
@@ -43,8 +42,6 @@ module ElasticAPM
         end
 
         @client = HTTP.headers(headers).persistent(@url)
-
-        @metadata = Metadata.build(config)
 
         @mutex = Mutex.new
       end

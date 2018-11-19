@@ -24,5 +24,12 @@ module ElasticAPM
     def self.reverse_merge!(first, second)
       first.merge!(second) { |_, old, _| old }
     end
+
+    def self.truncate(value, max_length: 1024)
+      return unless value
+      return value if value.length <= max_length
+
+      value[0...(max_length - 1)] + '…'
+    end
   end
 end

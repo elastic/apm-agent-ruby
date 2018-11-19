@@ -4,12 +4,10 @@ module ElasticAPM
   class Context
     # @api private
     class User
-      include NaivelyHashable
-
       def initialize(config, record)
         return unless record
 
-        @id = safe_get(record, config.current_user_id_method)
+        @id = safe_get(record, config.current_user_id_method)&.to_s
         @email = safe_get(record, config.current_user_email_method)
         @username = safe_get(record, config.current_user_username_method)
       end

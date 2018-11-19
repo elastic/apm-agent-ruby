@@ -164,7 +164,7 @@ if defined?(Rails)
 
         context = @mock_intake.transactions.first['context']
         user = context['user']
-        expect(user['id']).to eq 1
+        expect(user['id']).to eq '1'
         expect(user['email']).to eq 'person@example.com'
       end
 

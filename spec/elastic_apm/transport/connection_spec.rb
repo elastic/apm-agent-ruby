@@ -6,7 +6,8 @@ module ElasticAPM
   module Transport
     RSpec.describe Connection do
       let(:config) { Config.new(http_compression: false) }
-      subject { described_class.new config }
+      let(:metadata) { Serializers.new(config).serialize(Metadata.new(config)) }
+      subject { described_class.new(config, metadata) }
 
       describe '#initialize' do
         it { should_not be_connected }
@@ -112,10 +113,9 @@ module ElasticAPM
 
         context 'and gzip off' do
           let(:config) { Config.new(http_compression: false) }
-          let(:metadata) { Metadata.build(config) }
 
           before do
-            config.api_request_size = metadata.bytesize + 1
+            config.api_request_size = metadata.to_json.bytesize + 1
           end
 
           it 'closes requests when reached' do

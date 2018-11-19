@@ -40,12 +40,12 @@ module ElasticAPM
       expect(span.name).to eq 'listCollections'
       expect(span.type).to eq 'db.mongodb.query'
       expect(span.duration).to_not be_nil
-      expect(span.context.db.to_h).to eq(
-        instance: 'elastic-apm-test',
-        type: 'mongodb',
-        statement: nil,
-        user: nil
-      )
+
+      db = span.context.db
+      expect(db.instance).to eq 'elastic-apm-test'
+      expect(db.type).to eq 'mongodb'
+      expect(db.statement).to be nil
+      expect(db.user).to be nil
 
       client.close
 

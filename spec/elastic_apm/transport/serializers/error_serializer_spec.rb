@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   module Transport
     module Serializers
@@ -27,7 +29,13 @@ module ElasticAPM
                   id: String,
                   culprit: '/',
                   timestamp: 694_224_000_000_000,
-                  context: { custom: {}, tags: {} },
+                  context: {
+                    custom: {},
+                    tags: {},
+                    request: nil,
+                    response: nil,
+                    user: nil
+                  },
                   exception: {
                     message: 'ZeroDivisionError: divided by 0',
                     type: 'ZeroDivisionError',
@@ -65,7 +73,13 @@ module ElasticAPM
               expect(result).to match(
                 error: {
                   id: String,
-                  context: { custom: {}, tags: {} },
+                  context: {
+                    custom: {},
+                    tags: {},
+                    request: nil,
+                    response: nil,
+                    user: nil
+                  },
                   culprit: nil,
                   log: {
                     message: 'Things',

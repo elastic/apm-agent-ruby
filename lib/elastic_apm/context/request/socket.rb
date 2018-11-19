@@ -7,8 +7,6 @@ module ElasticAPM
     class Request
       # @api private
       class Socket
-        include NaivelyHashable
-
         def initialize(req)
           @remote_addr = req.ip
           @encrypted = req.scheme == 'https'

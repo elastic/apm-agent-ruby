@@ -4,8 +4,6 @@ module ElasticAPM
   class Context
     # @api private
     class Response
-      include NaivelyHashable
-
       def initialize(
         status_code,
         headers: {},
