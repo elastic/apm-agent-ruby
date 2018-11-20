@@ -58,6 +58,7 @@ module ElasticAPM
       rescue Exception => e
         warn 'Worker died with exception: %s', e.inspect
         debug e.backtrace.join("\n")
+        work_forever
       end
       # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 

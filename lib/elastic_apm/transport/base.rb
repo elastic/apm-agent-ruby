@@ -25,6 +25,7 @@ module ElasticAPM
       attr_reader :config, :queue, :workers, :filters
 
       def start
+        ensure_worker_count if ENV['NEEDS_APM_ENSURE_WORKER_COUNT'].present?
       end
 
       def stop
