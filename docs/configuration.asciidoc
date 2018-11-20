@@ -319,7 +319,7 @@ Elastic APM can instrument your Rake tasks but given that they are used for a mu
 [options="header"]
 |============
 | Environment             | `Config` key | Default
-| `ELASTIC_APM_LOG_LEVEL` | `log_level`  | `Logger::DEBUG # => 0`
+| `ELASTIC_APM_LOG_LEVEL` | `log_level`  | `Logger::INFO # => 1`
 |============
 
 By default Elastic APM logs to `stdout` or uses `Rails.log` when used with Rails.
