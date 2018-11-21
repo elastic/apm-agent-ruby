@@ -6,12 +6,31 @@ module ElasticAPM
     # @api private
     class NetHTTPSpy
       # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+      class << self
+        def disable_in
+          @disabled = true
+
+          begin
+            yield
+          ensure
+            @disabled = false
+          end
+        end
+
+        def disabled?
+          @disabled ||= false
+        end
+      end
+
       def install
         Net::HTTP.class_eval do
           alias request_without_apm request
 
           def request(req, body = nil, &block)
             unless (transaction = ElasticAPM.current_transaction)
+              return request_without_apm(req, body, &block)
+            end
+            if ElasticAPM::Spies::NetHTTPSpy.disabled?
               return request_without_apm(req, body, &block)
             end
 

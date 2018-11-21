@@ -198,6 +198,7 @@ module ElasticAPM
         action_dispatch
         delayed_job
         elasticsearch
+        faraday
         http
         json
         mongo
