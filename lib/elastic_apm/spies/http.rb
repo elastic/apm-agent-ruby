@@ -22,8 +22,10 @@ module ElasticAPM
             type = "ext.http_rb.#{method}"
 
             ElasticAPM.with_span name, type do |span|
-              req['Elastic-Apm-Traceparent'] =
-                transaction.traceparent.to_header(span_id: span.id)
+              if span && span.id
+                req['Elastic-Apm-Traceparent'] =
+                  transaction.traceparent.to_header(span_id: span.id)
+              end
 
               perform_without_apm(req, options)
             end
