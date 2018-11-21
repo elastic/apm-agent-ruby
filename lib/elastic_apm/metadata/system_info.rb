@@ -1,29 +1,23 @@
 # frozen_string_literal: true
 
 module ElasticAPM
-  module Metadata
+  class Metadata
     # @api private
     class SystemInfo
       def initialize(config)
         @config = config
+
+        @hostname = @config.hostname || `hostname`.chomp
+        @architecture = gem_platform.cpu
+        @platform = gem_platform.os
       end
 
-      def build
-        {
-          hostname: @config.hostname || `hostname`.chomp,
-          architecture: platform.cpu,
-          platform: platform.os
-        }
-      end
-
-      def self.build(config)
-        new(config).build
-      end
+      attr_reader :hostname, :architecture, :platform
 
       private
 
-      def platform
-        @platform ||= Gem::Platform.local
+      def gem_platform
+        @gem_platform ||= Gem::Platform.local
       end
     end
   end

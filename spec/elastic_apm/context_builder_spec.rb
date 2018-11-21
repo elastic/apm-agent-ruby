@@ -17,15 +17,16 @@ module ElasticAPM
 
         expect(request).to be_a(Context::Request)
         expect(request.method).to eq 'POST'
-        expect(request.url).to eq(
-          protocol: 'http',
-          hostname: 'example.org',
-          port: '80',
-          pathname: '/somewhere/in/there',
-          search: 'q=yes',
-          hash: nil,
-          full: 'http://example.org/somewhere/in/there?q=yes'
-        )
+
+        expect(request.url).to be_a Context::Request::Url
+        expect(request.url.protocol).to eq 'http'
+        expect(request.url.hostname).to eq 'example.org'
+        expect(request.url.port).to eq '80'
+        expect(request.url.pathname).to eq '/somewhere/in/there'
+        expect(request.url.search).to eq 'q=yes'
+        expect(request.url.hash).to eq nil
+        expect(request.url.full).to eq 'http://example.org/somewhere/in/there?q=yes'
+
         expect(request.headers).to eq(
           'Content-Type' => 'application/json'
         )

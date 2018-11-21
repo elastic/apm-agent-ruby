@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
+require 'elastic_apm/metadata'
 require 'elastic_apm/transport/connection'
 require 'elastic_apm/transport/worker'
-
 require 'elastic_apm/transport/serializers'
 require 'elastic_apm/transport/filters'
 

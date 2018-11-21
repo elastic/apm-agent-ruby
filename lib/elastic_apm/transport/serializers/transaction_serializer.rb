@@ -5,20 +5,24 @@ module ElasticAPM
     module Serializers
       # @api private
       class TransactionSerializer < Serializer
-        # rubocop:disable Metrics/MethodLength
+        def context_serializer
+          @context_serializer ||= ContextSerializer.new(config)
+        end
+
+        # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
         def build(transaction)
           {
             transaction: {
               id: transaction.id,
               trace_id: transaction.trace_id,
               parent_id: transaction.parent_id,
-              name: transaction.name,
-              type: transaction.type,
-              result: transaction.result.to_s,
+              name: keyword_field(transaction.name),
+              type: keyword_field(transaction.type),
+              result: keyword_field(transaction.result.to_s),
               duration: ms(transaction.duration),
               timestamp: transaction.timestamp,
               sampled: transaction.sampled?,
-              context: transaction.context.to_h,
+              context: context_serializer.build(transaction.context),
               span_count: {
                 started: transaction.started_spans,
                 dropped: transaction.dropped_spans
@@ -26,7 +30,7 @@ module ElasticAPM
             }
           }
         end
-        # rubocop:enable Metrics/MethodLength
+        # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
       end
     end
   end

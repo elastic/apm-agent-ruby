@@ -9,8 +9,6 @@ require 'elastic_apm/context/user'
 module ElasticAPM
   # @api private
   class Context
-    include NaivelyHashable
-
     attr_accessor :request, :response, :user
     attr_reader :custom, :tags
 

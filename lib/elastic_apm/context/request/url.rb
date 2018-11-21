@@ -7,8 +7,6 @@ module ElasticAPM
     class Request
       # @api private
       class Url
-        include NaivelyHashable
-
         SKIPPED_PORTS = {
           'http' => 80,
           'https' => 443

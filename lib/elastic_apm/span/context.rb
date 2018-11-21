@@ -4,8 +4,6 @@ module ElasticAPM
   class Span
     # @api private
     class Context
-      include NaivelyHashable
-
       def initialize(db: nil, http: nil)
         @db = db && Db.new(db)
         @http = http && Http.new(http)
@@ -15,8 +13,6 @@ module ElasticAPM
 
       # @api private
       class Db
-        include NaivelyHashable
-
         def initialize(instance: nil, statement: nil, type: nil, user: nil)
           @instance = instance
           @statement = statement
@@ -29,8 +25,6 @@ module ElasticAPM
 
       # @api private
       class Http
-        include NaivelyHashable
-
         def initialize(url: nil, status_code: nil, method: nil)
           @url = url
           @status_code = status_code

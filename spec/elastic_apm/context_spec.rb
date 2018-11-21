@@ -6,11 +6,5 @@ module ElasticAPM
       expect(subject.tags).to eq({})
       expect(subject.custom).to eq({})
     end
-
-    describe '#to_h' do
-      it 'converts to a hash' do
-        expect(subject.to_h).to be_a Hash
-      end
-    end
   end
 end

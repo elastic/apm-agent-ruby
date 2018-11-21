@@ -24,9 +24,11 @@ module ElasticAPM
 
         @stopping = false
 
-        @connection = conn_adapter.new(config)
         @serializers = serializers
         @filters = filters
+
+        metadata = serializers.serialize(Metadata.new(config))
+        @connection = conn_adapter.new(config, metadata)
       end
 
       attr_reader :queue, :filters, :name, :connection, :serializers
@@ -39,7 +41,7 @@ module ElasticAPM
         @stopping
       end
 
-      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+      # rubocop:disable Metrics/MethodLength
       def work_forever
         while (msg = queue.pop)
           case msg
@@ -59,7 +61,7 @@ module ElasticAPM
         warn 'Worker died with exception: %s', e.inspect
         debug e.backtrace.join("\n")
       end
-      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+      # rubocop:enable Metrics/MethodLength
 
       private
 

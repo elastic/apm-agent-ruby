@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ### Fixed
 
+- Truncate keyword fields to 1024 chars ([#240](https://github.com/elastic/apm-agent-ruby/pull/240))
 - Lazy boot worker threads on first event. Fixes apps using Puma's `preload_app!` ([#239](https://github.com/elastic/apm-agent-ruby/pull/239))
 
 ## 2.0.1 (2018-11-15)

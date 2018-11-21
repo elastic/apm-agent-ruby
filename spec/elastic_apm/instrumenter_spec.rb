@@ -238,11 +238,10 @@ module ElasticAPM
         subject.set_user(User.new(1, 'a@a', 'abe'))
         subject.end_transaction
 
-        expect(transaction.context.user.to_h).to match(
-          id: 1,
-          email: 'a@a',
-          username: 'abe'
-        )
+        user = transaction.context.user
+        expect(user.id).to eq '1'
+        expect(user.email).to eq 'a@a'
+        expect(user.username).to eq 'abe'
       end
     end
   end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   module Transport
     module Serializers
@@ -33,7 +35,13 @@ module ElasticAPM
                   "name": 'GET /something',
                   "type": 'request',
                   "result": '200',
-                  "context": { custom: {}, tags: {} },
+                  "context": {
+                    custom: {},
+                    tags: {},
+                    request: nil,
+                    response: nil,
+                    user: nil
+                  },
                   "duration": 100.0,
                   "timestamp": 694_224_000_000_000,
                   "trace_id": transaction.trace_id,

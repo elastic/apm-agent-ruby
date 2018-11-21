@@ -1,20 +1,14 @@
 # frozen_string_literal: true
 
 module ElasticAPM
-  module Metadata
-    RSpec.describe ProcessInfo do
-      describe '#build' do
-        subject { described_class.new(Config.new).build }
+  RSpec.describe Metadata::ProcessInfo do
+    describe '#initialize' do
+      subject { described_class.new(Config.new) }
 
-        it { should be_a Hash }
-
-        it 'knows about the process' do
-          expect(subject).to match(
-            argv: Array,
-            pid: Integer,
-            title: /rspec/
-          )
-        end
+      it 'knows about the process' do
+        expect(subject.argv).to be_a Array
+        expect(subject.pid).to be_a Integer
+        expect(subject.title).to match(/rspec/)
       end
     end
   end
