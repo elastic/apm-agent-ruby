@@ -26,7 +26,7 @@ module ElasticAPM
                   req['Elastic-Apm-Traceparent'] =
                     transaction.traceparent.to_header(span_id: span.id)
 
-                  yield req
+                  yield req if block_given?
                 end
               end
             end
