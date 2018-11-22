@@ -6,6 +6,10 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ## Unreleased
 
+### Added
+
+- Support for Faraday ([#249](https://github.com/elastic/apm-agent-ruby/pull/249))
+
 ### Fixed
 
 - Truncate keyword fields to 1024 chars ([#240](https://github.com/elastic/apm-agent-ruby/pull/240))
