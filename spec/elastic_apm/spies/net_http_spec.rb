@@ -48,6 +48,8 @@ module ElasticAPM
       WebMock.stub_request(:any, %r{http://example.com/.*})
       ElasticAPM.start
 
+      expect(ElasticAPM::Spies::NetHTTPSpy).to_not be_disabled
+
       ElasticAPM.with_transaction 'Net::HTTP test' do
         ElasticAPM::Spies::NetHTTPSpy.disable_in do
           Net::HTTP.start('example.com') do |http|

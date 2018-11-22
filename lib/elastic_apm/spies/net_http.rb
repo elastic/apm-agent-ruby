@@ -5,20 +5,26 @@ module ElasticAPM
   module Spies
     # @api private
     class NetHTTPSpy
+      KEY = :__elastic_apm_net_http_disabled
+
       # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       class << self
+        def disabled=(disabled)
+          Thread.current[KEY] = disabled
+        end
+
+        def disabled?
+          Thread.current[KEY] ||= false
+        end
+
         def disable_in
-          @disabled = true
+          self.disabled = true
 
           begin
             yield
           ensure
-            @disabled = false
+            self.disabled = false
           end
-        end
-
-        def disabled?
-          @disabled ||= false
         end
       end
 
