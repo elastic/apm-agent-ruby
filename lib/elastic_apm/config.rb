@@ -7,6 +7,8 @@ require 'elastic_apm/config/duration'
 require 'elastic_apm/config/size'
 
 module ElasticAPM
+  class ConfigError < StandardError; end
+
   # rubocop:disable Metrics/ClassLength
   # @api private
   class Config
@@ -105,6 +107,8 @@ module ElasticAPM
       yield self if block_given?
 
       build_logger if logger.nil?
+    rescue NoMethodError => e
+      raise ConfigError, "No such option `#{e.name.to_s.delete('=')}'"
     end
 
     attr_accessor :config_file

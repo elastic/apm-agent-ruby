@@ -25,14 +25,22 @@ module ElasticAPM
 
           app.middleware.insert 0, Middleware
         end
+      rescue ConfigError => e
+        alert_logger.error "#{Logging::PREFIX}Failed to configure: #{e.message}"
       rescue StandardError => e
-        Rails.logger.error "#{Logging::PREFIX}Failed to start: #{e.message}"
-        Rails.logger.debug e.backtrace.join("\n")
+        alert_logger.error "#{Logging::PREFIX}Failed to start: #{e.message}"
+        alert_logger.debug e.backtrace.join("\n")
       end
     end
 
     config.after_initialize do
       require 'elastic_apm/spies/action_dispatch'
+    end
+
+    private
+
+    def alert_logger
+      @alert_logger ||= Logger.new($stdout)
     end
   end
 end
