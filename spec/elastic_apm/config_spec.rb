@@ -156,5 +156,11 @@ module ElasticAPM
           .to raise_error(NoMethodError)
       end
     end
+
+    describe 'unknown options' do
+      it 'raises an exception' do
+        expect { Config.new(unknown_key: true) }.to raise_error(ConfigError)
+      end
+    end
   end
 end
