@@ -1,0 +1,8 @@
+[[advanced]]
+== Advanced Topics
+
+* <<context>>
+* <<custom-instrumentation>>
+
+include::./context.asciidoc[]
+include::./custom-instrumentation.asciidoc[]
