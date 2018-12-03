@@ -25,6 +25,21 @@ module ElasticAPM
 
           expect(stub).to have_been_requested
         end
+
+        context 'when disable_send' do
+          let(:config) { Config.new disable_send: true }
+
+          it 'does nothing' do
+            stub = build_stub(body: /{"msg": "hey!"}/)
+
+            subject.write('{"msg": "hey!"}')
+            expect(subject).to_not be_connected
+            subject.flush
+            expect(subject).to_not be_connected
+
+            expect(stub).to_not have_been_requested
+          end
+        end
       end
 
       describe 'secret token' do
