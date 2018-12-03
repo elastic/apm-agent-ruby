@@ -47,6 +47,8 @@ module ElasticAPM
       end
 
       def write(str)
+        return if @config.disable_send
+
         connect_unless_connected
 
         @mutex.synchronize { append(str) }
