@@ -5,7 +5,7 @@ module ElasticAPM
   module Spies
     # @api private
     class HTTPSpy
-      # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       def install
         ::HTTP::Client.class_eval do
           alias perform_without_apm perform
@@ -22,15 +22,17 @@ module ElasticAPM
             type = "ext.http_rb.#{method}"
 
             ElasticAPM.with_span name, type do |span|
+              id = span&.id || transaction.id
+
               req['Elastic-Apm-Traceparent'] =
-                transaction.traceparent.to_header(span_id: span.id)
+                transaction.traceparent.to_header(span_id: id)
 
               perform_without_apm(req, options)
             end
           end
         end
       end
-      # rubocop:enable Metrics/MethodLength
+      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
     end
 
     register 'HTTP', 'http', HTTPSpy.new
