@@ -44,6 +44,23 @@ module ElasticAPM
       WebMock.reset!
     end
 
+    it 'adds traceparent header with no span' do
+      req_stub = WebMock.stub_request(:get, %r{http://example.com/.*})
+
+      ElasticAPM.start transaction_max_spans: 0
+
+      ElasticAPM.with_transaction 'Net::HTTP test' do
+        Net::HTTP.start('example.com') do |http|
+          http.get '/'
+        end
+      end
+
+      expect(req_stub).to have_been_requested
+
+      ElasticAPM.stop
+      WebMock.reset!
+    end
+
     it 'can be disabled', :intercept do
       WebMock.stub_request(:any, %r{http://example.com/.*})
       ElasticAPM.start
