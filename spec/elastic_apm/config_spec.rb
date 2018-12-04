@@ -147,13 +147,25 @@ module ElasticAPM
 
     describe 'deprecations' do
       it 'warns about removed options' do
-        expect(subject).to receive(:warn).with(/has been removed/)
+        expect_any_instance_of(PrefixedLogger)
+          .to receive(:warn).with(/has been removed/)
+
         subject.flush_interval = 123
       end
+    end
 
-      it "doesn't intercept unlisted, missing methods" do
-        expect { subject.very_missing_method = 123 }
-          .to raise_error(NoMethodError)
+    describe 'unknown options' do
+      before { expect_any_instance_of(PrefixedLogger).to receive(:warn) }
+
+      context 'from args' do
+        it 'logs to the alert logger' do
+          Config.new(unknown_key: true)
+        end
+      end
+      context 'from config_file' do
+        it 'logs to the alert logger' do
+          Config.new(config_file: 'spec/fixtures/unknown_option.yml')
+        end
       end
     end
   end

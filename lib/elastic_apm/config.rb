@@ -3,10 +3,13 @@
 require 'logger'
 require 'yaml'
 
+require 'elastic_apm/util/prefixed_logger'
 require 'elastic_apm/config/duration'
 require 'elastic_apm/config/size'
 
 module ElasticAPM
+  class ConfigError < StandardError; end
+
   # rubocop:disable Metrics/ClassLength
   # @api private
   class Config
@@ -144,10 +147,10 @@ module ElasticAPM
     attr_accessor :transaction_sample_rate
     attr_accessor :verify_server_cert
 
-    attr_reader   :custom_key_filters
-    attr_reader   :ignore_url_patterns
-    attr_reader   :span_frames_min_duration
-    attr_reader   :span_frames_min_duration_us
+    attr_reader :custom_key_filters
+    attr_reader :ignore_url_patterns
+    attr_reader :span_frames_min_duration
+    attr_reader :span_frames_min_duration_us
 
     attr_accessor :view_paths
     attr_accessor :root_path
@@ -156,6 +159,10 @@ module ElasticAPM
     alias :http_compression? :http_compression
     alias :instrument? :instrument
     alias :verify_server_cert? :verify_server_cert
+
+    def alert_logger
+      @alert_logger ||= PrefixedLogger.new($stdout, prefix: Logging::PREFIX)
+    end
 
     def app=(app)
       case app_type?(app)
@@ -235,12 +242,22 @@ module ElasticAPM
     ].freeze
 
     def respond_to_missing?(name)
-      DEPRECATED_OPTIONS.include? name
+      return true if DEPRECATED_OPTIONS.include? name
+      return true if name.to_s.end_with?('=')
+      false
     end
 
     def method_missing(name, *args)
-      return super unless DEPRECATED_OPTIONS.include?(name)
-      warn "The option `#{name}' has been removed."
+      if DEPRECATED_OPTIONS.include?(name)
+        alert_logger.warn "The option `#{name}' has been removed."
+        return
+      end
+
+      if name.to_s.end_with?('=')
+        raise ConfigError, "No such option `#{name.to_s.delete('=')}'"
+      end
+
+      super
     end
 
     private
@@ -281,11 +298,21 @@ module ElasticAPM
 
     def set_from_args(options)
       assign(options)
+    rescue ConfigError => e
+      alert_logger.warn format(
+        'Failed to configure from arguments: %s',
+        e.message
+      )
     end
 
     def set_from_config_file
       return unless File.exist?(config_file)
       assign(YAML.load_file(config_file) || {})
+    rescue ConfigError => e
+      alert_logger.warn format(
+        'Failed to configure from config file: %s',
+        e.message
+      )
     end
 
     def set_sinatra(app)
