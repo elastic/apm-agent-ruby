@@ -62,7 +62,7 @@ module ElasticAPM
 
             {
               url: http.url,
-              status_code: http.status_code,
+              status_code: http.status_code.to_i,
               method: keyword_field(http.method)
             }
           end
