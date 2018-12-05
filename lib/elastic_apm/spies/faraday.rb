@@ -15,7 +15,11 @@ module ElasticAPM
               return run_request_without_apm(method, url, body, headers, &block)
             end
 
-            host = URI(url).host
+            host = if url_prefix.is_a?(URI) && url_prefix.host
+                     url_prefix.host
+                   else
+                     URI(url).host
+                   end
 
             name = "#{method.upcase} #{host}"
             type = "ext.faraday.#{method}"
