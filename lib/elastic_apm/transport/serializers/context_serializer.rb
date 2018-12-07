@@ -29,7 +29,7 @@ module ElasticAPM
             http_version: keyword_field(request.http_version),
             method: keyword_field(request.method),
             socket: build_socket(request.socket),
-            url: request.url
+            url: build_url(request.url)
           }
         end
         # rubocop:enable Metrics/MethodLength
@@ -61,6 +61,20 @@ module ElasticAPM
           {
             remote_addr: socket.remote_addr,
             encrypted: socket.encrypted
+          }
+        end
+
+        def build_url(url)
+          return unless url
+
+          {
+            protocol: keyword_field(url.protocol),
+            full: keyword_field(url.full),
+            hostname: keyword_field(url.hostname),
+            port: keyword_field(url.port),
+            pathname: keyword_field(url.pathname),
+            search: keyword_field(url.search),
+            hash: keyword_field(url.hash)
           }
         end
       end
