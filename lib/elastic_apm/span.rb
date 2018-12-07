@@ -16,7 +16,8 @@ module ElasticAPM
       transaction: nil,
       parent: nil,
       context: nil,
-      stacktrace_builder: nil
+      stacktrace_builder: nil,
+      trace_context: nil
     )
       @name = name
       @type = type || DEFAULT_TYPE
@@ -26,12 +27,16 @@ module ElasticAPM
       self.transaction = transaction
       self.parent = parent
 
+      @trace_context =
+        trace_context ||
+        TraceContext.from(transaction: transaction, span: self)
+
       @context = context
       @stacktrace_builder = stacktrace_builder
     end
     # rubocop:enable Metrics/ParameterLists
 
-    attr_accessor :name, :type, :original_backtrace, :parent
+    attr_accessor :name, :type, :original_backtrace, :parent, :trace_context
     attr_reader :id, :context, :stacktrace, :duration,
       :timestamp, :transaction_id, :trace_id
 

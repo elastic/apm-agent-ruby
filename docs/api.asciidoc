@@ -76,7 +76,7 @@ Arguments:
   * `type`: A `type` for your transaction eg. `db.postgresql.sql`.
   * `context:`: An optional <<api-context,Context>> used to enrich the
   transaction with information about the current request.
-  * `traceparent:`: An optional `Traceparent` object for Distributed Tracing.
+  * `trace_context:`: An optional `TraceContext` object for Distributed Tracing.
 
 Returns the transaction.
 
@@ -111,7 +111,7 @@ Arguments:
   * `type`: A `type` for your transaction eg. `db.postgresql.sql`.
   * `context:`: An optional <<api-context,Context>> used to enrich the
   transaction with information about the current request.
-  * `traceparent:`: An optional `Traceparent` object for Distributed Tracing.
+  * `trace_context:`: An optional `TraceContext` object for Distributed Tracing.
   * `&block`: A block to wrap. Optionally yields the transaction.
 
 Returns the return value of the given block.

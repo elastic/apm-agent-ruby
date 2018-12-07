@@ -3,18 +3,24 @@
 require 'spec_helper'
 
 module ElasticAPM
-  RSpec.describe Traceparent do
-    describe '.from_transaction' do
-      let(:agent) { Agent.new Config.new }
-      let(:instrumenter) { Instrumenter.new agent }
-      let(:transaction) { Transaction.new instrumenter }
+  RSpec.describe TraceContext do
+    describe '.from' do
+      let(:transaction) { Transaction.new }
 
-      subject { described_class.from_transaction transaction }
+      subject { described_class.from transaction: transaction }
 
       its(:version) { should be '00' }
       its(:trace_id) { should match(/.{16}/) }
-      its(:span_id) { should be nil }
+      its(:span_id) { should be transaction.id }
       it { should be_recorded }
+
+      context 'with a span' do
+        let(:span) { Span.new 'things' }
+
+        subject { described_class.from transaction: transaction, span: span }
+
+        its(:span_id) { should be span.id }
+      end
     end
 
     describe '.parse' do
@@ -34,7 +40,7 @@ module ElasticAPM
         let(:header) { '' }
         it do
           expect { subject }
-            .to raise_error(Traceparent::InvalidTraceparentHeader)
+            .to raise_error(TraceContext::InvalidTraceparentHeader)
         end
       end
 
@@ -51,7 +57,7 @@ module ElasticAPM
         end
         it do
           expect { subject }
-            .to raise_error(Traceparent::InvalidTraceparentHeader)
+            .to raise_error(TraceContext::InvalidTraceparentHeader)
         end
       end
 
@@ -61,7 +67,7 @@ module ElasticAPM
         end
         it do
           expect { subject }
-            .to raise_error(Traceparent::InvalidTraceparentHeader)
+            .to raise_error(TraceContext::InvalidTraceparentHeader)
         end
       end
 
@@ -71,7 +77,7 @@ module ElasticAPM
         end
         it do
           expect { subject }
-            .to raise_error(Traceparent::InvalidTraceparentHeader)
+            .to raise_error(TraceContext::InvalidTraceparentHeader)
         end
       end
     end
@@ -87,14 +93,6 @@ module ElasticAPM
 
       its(:to_header) do
         should match('00-11111111111111111111111111111111-2222222222222222-01')
-      end
-
-      context 'given span id' do
-        it do
-          header = subject.to_header(span_id: '3333333333333333')
-          expect(header)
-            .to match '00-11111111111111111111111111111111-3333333333333333-01'
-        end
       end
     end
 

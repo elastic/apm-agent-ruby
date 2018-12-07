@@ -2,7 +2,7 @@
 
 module ElasticAPM
   # @api private
-  class Traceparent
+  class TraceContext
     class InvalidTraceparentHeader < StandardError; end
 
     VERSION = '00'
@@ -12,10 +12,15 @@ module ElasticAPM
       @version = VERSION
     end
 
-    def self.from_transaction(transaction)
+    attr_accessor :header, :version, :trace_id, :span_id, :recorded
+
+    alias :recorded? :recorded
+
+    def self.from(transaction:, span: nil)
       new.tap do |t|
         t.trace_id = SecureRandom.hex(16)
-        t.recorded = transaction.sampled?
+        t.recorded = transaction && transaction.sampled?
+        t.span_id = span&.id || transaction.id
       end
     end
 
@@ -36,10 +41,6 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/AbcSize
 
-    attr_accessor :header, :version, :trace_id, :span_id, :recorded
-
-    alias :recorded? :recorded
-
     def flags=(flags)
       @flags = flags
 
@@ -54,8 +55,7 @@ module ElasticAPM
       format('%02x', flags.to_i(2))
     end
 
-    def to_header(span_id: nil)
-      span_id ||= self.span_id
+    def to_header
       format('%s-%s-%s-%s', version, trace_id, span_id, hex_flags)
     end
   end

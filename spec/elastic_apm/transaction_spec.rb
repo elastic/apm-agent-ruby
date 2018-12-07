@@ -8,12 +8,12 @@ module ElasticAPM
       its(:id) { should_not be_nil }
       its(:type) { should be 'custom' }
       it { should be_sampled }
-      its(:traceparent) { should be_a Traceparent }
+      its(:trace_context) { should be_a TraceContext }
       its(:context) { should be_a Context }
       its(:started_spans) { should be 0 }
       its(:dropped_spans) { should be 0 }
       its(:notifications) { should be_empty }
-      its(:trace_id) { should be subject.traceparent.trace_id }
+      its(:trace_id) { should be subject.trace_context.trace_id }
 
       context 'with tags from context and args' do
         it 'merges tags' do
@@ -60,9 +60,9 @@ module ElasticAPM
       end
 
       it 'keeps and returns current if set' do
-        traceparent = Traceparent.new
-        traceparent.span_id = 'things'
-        subject = Transaction.new traceparent: traceparent
+        trace_context = TraceContext.new
+        trace_context.span_id = 'things'
+        subject = Transaction.new trace_context: trace_context
 
         parent_id = subject.ensure_parent_id
 

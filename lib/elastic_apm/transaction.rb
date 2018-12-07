@@ -16,7 +16,7 @@ module ElasticAPM
       sampled: true,
       context: nil,
       tags: nil,
-      traceparent: nil
+      trace_context: nil
     )
       @name = name
       @type = type || DEFAULT_TYPE
@@ -28,11 +28,11 @@ module ElasticAPM
 
       @id = SecureRandom.hex(8)
 
-      if traceparent
-        @traceparent = traceparent
-        @parent_id = traceparent.span_id
+      if trace_context
+        @trace_context = trace_context
+        @parent_id = trace_context.span_id
       else
-        @traceparent = Traceparent.from_transaction(self)
+        @trace_context = TraceContext.from(transaction: self)
       end
 
       @started_spans = 0
@@ -45,7 +45,7 @@ module ElasticAPM
     attr_accessor :name, :type, :result
 
     attr_reader :id, :context, :duration, :started_spans, :dropped_spans,
-      :timestamp, :traceparent, :notifications, :parent_id
+      :timestamp, :trace_context, :notifications, :parent_id
 
     def sampled?
       @sampled
@@ -62,7 +62,7 @@ module ElasticAPM
     deprecate :done?, :stopped?
 
     def trace_id
-      traceparent&.trace_id
+      trace_context&.trace_id
     end
 
     # life cycle

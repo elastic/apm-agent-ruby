@@ -96,13 +96,13 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       name = nil,
       type = nil,
       context: nil,
-      traceparent: nil
+      trace_context: nil
     )
       agent&.start_transaction(
         name,
         type,
         context: context,
-        traceparent: traceparent
+        trace_context: trace_context
       )
     end
 
@@ -124,7 +124,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     # @param context [Context] An optional [Context]
     # @yield [Transaction]
     # @return result of block
-    def with_transaction(name = nil, type = nil, context: nil, traceparent: nil)
+    def with_transaction(name = nil, type = nil, context: nil, trace_context: nil)
       unless block_given?
         raise ArgumentError,
           'expected a block. Do you want `start_transaction\' instead?'
@@ -138,7 +138,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
             name,
             type,
             context: context,
-            traceparent: traceparent
+            trace_context: trace_context
           )
         yield transaction
       ensure
