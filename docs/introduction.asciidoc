@@ -19,8 +19,8 @@ It has built-in support for <<getting-started-rails,Ruby on Rails>> and other
 [[additional-components]]
 === Additional Components
 
-APM Agents work in conjunction with the {apm-server-ref}/index.html[APM Server], {ref}/index.html[Elasticsearch], and {kibana-ref}/index.html[Kibana].
-Please view the {apm-get-started-ref}/index.html[APM Overview] for details on how these components work together. 
+APM Agents work in conjunction with the {apm-server-ref-v}/index.html[APM Server], {ref}/index.html[Elasticsearch], and {kibana-ref}/index.html[Kibana].
+Please view the {apm-overview-ref-v}/index.html[APM Overview] for details on how these components work together. 
 
 [float]
 [[framework-support]]
