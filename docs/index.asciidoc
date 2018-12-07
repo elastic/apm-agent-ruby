@@ -1,4 +1,5 @@
-:branch: current
+:branch: 6.4
+:server-branch: {branch}
 include::{asciidoc-dir}/../../shared/attributes.asciidoc[]
 
 ifdef::env-github[]
@@ -16,7 +17,7 @@ It has built-in support for <<getting-started-rails,Ruby on Rails>> and other <<
 
 This agent is one of several components you need to get started collecting APM data. See also:
 
- * {apm-server-ref}[APM Server]
+ * {apm-server-ref-v}[APM Server]
 
 [[framework-support]]
 The Elastic APM Ruby Agent officially supports <<getting-started-rails,Ruby on Rails>> versions 4.x on onwards.
