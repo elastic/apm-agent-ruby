@@ -28,6 +28,8 @@ module ElasticAPM
         end
 
         def keyword_object(hash)
+          return unless hash
+
           hash.tap do |h|
             h.each { |k, v| hash[k] = keyword_field(v) }
           end
