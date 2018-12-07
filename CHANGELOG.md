@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 2.1.2 (2018-12-07)
+
+### Fixed
+
+- Fix truncation of `transaction.request.url` values ([#267](https://github.com/elastic/apm-agent-ruby/pull/267))
+- Fix Faraday calls with `url_prefix` ([#263](https://github.com/elastic/apm-agent-ruby/pull/263))
+- Force `span.context.http.status_code` to be an integer
+
 ## 2.1.1 (2018-12-04)
 
 ### Fixed
