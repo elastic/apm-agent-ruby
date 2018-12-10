@@ -84,7 +84,8 @@ module ElasticAPM
 
           trace_context = @intercepted.transactions.first.trace_context
           expect(trace_context.version).to eq '00'
-          expect(trace_context.trace_id).to eq '0af7651916cd43dd8448eb211c80319c'
+          expect(trace_context.trace_id)
+            .to eq '0af7651916cd43dd8448eb211c80319c'
           expect(trace_context.span_id).to eq 'b7ad6b7169203331'
           expect(trace_context).to_not be_recorded
         end

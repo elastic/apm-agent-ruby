@@ -124,7 +124,12 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     # @param context [Context] An optional [Context]
     # @yield [Transaction]
     # @return result of block
-    def with_transaction(name = nil, type = nil, context: nil, trace_context: nil)
+    def with_transaction(
+      name = nil,
+      type = nil,
+      context: nil,
+      trace_context: nil
+    )
       unless block_given?
         raise ArgumentError,
           'expected a block. Do you want `start_transaction\' instead?'
