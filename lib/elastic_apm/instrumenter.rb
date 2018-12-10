@@ -140,12 +140,15 @@ module ElasticAPM
         return
       end
 
+      parent = current_span || transaction
+
       span = Span.new(
         name,
         type,
-        transaction: transaction,
-        parent_id: current_span&.id || transaction.id,
-        context: context
+        transaction_id: transaction.id,
+        parent_id: parent.id,
+        context: context,
+        trace_context: parent.trace_context
       )
 
       if backtrace && span_frames_min_duration?

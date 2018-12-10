@@ -13,7 +13,7 @@ module ElasticAPM
     def initialize(
       name,
       type = nil,
-      transaction: nil,
+      transaction_id: nil,
       parent_id: nil,
       context: nil,
       stacktrace_builder: nil,
@@ -24,11 +24,9 @@ module ElasticAPM
 
       @id = SecureRandom.hex(8)
       @parent_id = parent_id
-      @transaction_id = transaction&.id
+      @transaction_id = transaction_id
 
-      @trace_context =
-        trace_context ||
-        TraceContext.from(transaction: transaction, span: self)
+      @trace_context = trace_context&.child(self)
 
       @context = context
       @stacktrace_builder = stacktrace_builder

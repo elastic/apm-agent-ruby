@@ -4,23 +4,15 @@ require 'spec_helper'
 
 module ElasticAPM
   RSpec.describe TraceContext do
-    describe '.from' do
+    describe '.for_transaction' do
       let(:transaction) { Transaction.new }
 
-      subject { described_class.from transaction: transaction }
+      subject { described_class.for_transaction transaction }
 
       its(:version) { should be '00' }
       its(:trace_id) { should match(/.{16}/) }
       its(:span_id) { should be transaction.id }
       it { should be_recorded }
-
-      context 'with a span' do
-        let(:span) { Span.new 'things' }
-
-        subject { described_class.from transaction: transaction, span: span }
-
-        its(:span_id) { should be span.id }
-      end
     end
 
     describe '.parse' do
