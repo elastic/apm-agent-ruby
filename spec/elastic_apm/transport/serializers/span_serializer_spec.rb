@@ -11,7 +11,7 @@ module ElasticAPM
         describe '#build', :mock_time do
           let(:transaction) { Transaction.new.start }
           let :span do
-            Span.new('Span', transaction: transaction).tap do |span|
+            Span.new('Span', transaction_id: transaction.id).tap do |span|
               span.start
               travel 100
               span.stop

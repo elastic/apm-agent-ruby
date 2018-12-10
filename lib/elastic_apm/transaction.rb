@@ -32,7 +32,7 @@ module ElasticAPM
         @trace_context = trace_context
         @parent_id = trace_context.span_id
       else
-        @trace_context = TraceContext.from(transaction: self)
+        @trace_context = TraceContext.for_transaction(self)
       end
 
       @started_spans = 0

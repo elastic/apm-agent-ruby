@@ -13,8 +13,8 @@ module ElasticAPM
     def initialize(
       name,
       type = nil,
-      transaction: nil,
-      parent: nil,
+      transaction_id: nil,
+      parent_id: nil,
       context: nil,
       stacktrace_builder: nil,
       trace_context: nil
@@ -23,30 +23,22 @@ module ElasticAPM
       @type = type || DEFAULT_TYPE
 
       @id = SecureRandom.hex(8)
+      @parent_id = parent_id
+      @transaction_id = transaction_id
 
-      self.transaction = transaction
-      self.parent = parent
-
-      @trace_context =
-        trace_context ||
-        TraceContext.from(transaction: transaction, span: self)
+      @trace_context = trace_context&.child(self)
 
       @context = context
       @stacktrace_builder = stacktrace_builder
     end
     # rubocop:enable Metrics/ParameterLists
 
-    attr_accessor :name, :type, :original_backtrace, :parent, :trace_context
+    attr_accessor :name, :type, :original_backtrace, :parent_id, :trace_context
     attr_reader :id, :context, :stacktrace, :duration,
-      :timestamp, :transaction_id, :trace_id
+      :timestamp, :transaction_id
 
-    def transaction=(transaction)
-      @transaction_id = transaction&.id
-      @trace_id = transaction&.trace_id
-    end
-
-    def parent_id
-      @parent&.id || transaction_id
+    def trace_id
+      trace_context&.trace_id
     end
 
     # life cycle

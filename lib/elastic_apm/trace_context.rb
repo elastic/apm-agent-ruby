@@ -16,11 +16,13 @@ module ElasticAPM
 
     alias :recorded? :recorded
 
-    def self.from(transaction:, span: nil)
+    def self.for_transaction(transaction)
       new.tap do |t|
-        t.trace_id = SecureRandom.hex(16)
+        t.trace_id =
+          transaction&.trace_context&.trace_id ||
+          SecureRandom.hex(16)
         t.recorded = transaction && transaction.sampled?
-        t.span_id = span&.id || transaction.id
+        t.span_id = transaction.id
       end
     end
 
@@ -53,6 +55,10 @@ module ElasticAPM
 
     def hex_flags
       format('%02x', flags.to_i(2))
+    end
+
+    def child(span)
+      dup.tap { |tc| tc.span_id = span.id }
     end
 
     def to_header

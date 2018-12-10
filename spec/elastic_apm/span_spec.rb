@@ -13,29 +13,25 @@ module ElasticAPM
       its(:parent_id) { should be_nil }
       its(:context) { should be_nil }
 
-      context 'with a transaction' do
-        let(:transaction) { Transaction.new }
+      context 'with a trace context' do
+        it 'creates a child trace context' do
+          trace_context =
+            TraceContext.parse("00-#{'1' * 32}-#{'2' * 16}-01")
+          span = Span.new 'Spannest name', trace_context: trace_context
 
-        subject do
-          described_class.new 'Spannest name', transaction: transaction
+          expect(span.trace_context.version).to eq trace_context.version
+          expect(span.trace_context.trace_id).to eq trace_context.trace_id
+          expect(span.trace_context.span_id).to_not eq trace_context.span_id
+          expect(span.trace_context.span_id).to match(/.{16}/)
+          expect(span.trace_context.flags).to eq trace_context.flags
         end
-
-        its(:transaction_id) { should be transaction.id }
-        its(:timestamp) { should be transaction.timestamp }
-        its(:trace_id) { should be transaction.trace_id }
-      end
-
-      context 'with a parent' do
-        let(:span) { Span.new 'Span' }
-        subject { described_class.new 'Span', parent: span }
-        its(:parent_id) { should be span.id }
       end
     end
 
     describe '#start', :mock_time do
       let(:transaction) { Transaction.new }
 
-      subject { described_class.new('Span', transaction: transaction) }
+      subject { described_class.new('Span') }
 
       it 'has a relative and absolute start time', :mock_time do
         transaction.start
@@ -48,7 +44,7 @@ module ElasticAPM
     describe '#stopped', :mock_time do
       let(:transaction) { Transaction.new }
 
-      subject { described_class.new('Span', transaction: transaction) }
+      subject { described_class.new('Span') }
 
       it 'sets duration' do
         transaction.start
@@ -62,7 +58,6 @@ module ElasticAPM
     end
 
     describe '#done', :mock_time do
-      let(:transaction) { Transaction.new }
       let(:duration) { 100 }
       let(:span_frames_min_duration) { '5ms' }
       let(:config) do
@@ -72,13 +67,11 @@ module ElasticAPM
       subject do
         described_class.new(
           'Span',
-          transaction: transaction,
           stacktrace_builder: StacktraceBuilder.new(config)
         )
       end
 
       before do
-        transaction.start
         subject.original_backtrace = caller
         subject.start
         travel duration
