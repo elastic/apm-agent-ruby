@@ -147,7 +147,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
 
       if traceparent
         trace_context ||= traceparent
-        warn "[ElasticAPM] [DEPRECATED] `start_transaction' with " \
+        warn "[ElasticAPM] [DEPRECATED] `with_transaction' with " \
           "`traceparent:' has been renamed. Use `trace_context:' instead."
       end
 
