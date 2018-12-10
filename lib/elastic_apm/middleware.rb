@@ -1,8 +1,6 @@
 #
 # frozen_string_literal: true
 
-require 'elastic_apm/traceparent'
-
 module ElasticAPM
   # @api private
   class Middleware
@@ -53,13 +51,13 @@ module ElasticAPM
     def start_transaction(env)
       ElasticAPM.start_transaction 'Rack', 'request',
         context: ElasticAPM.build_context(env),
-        traceparent: traceparent(env)
+        trace_context: trace_context(env)
     end
 
-    def traceparent(env)
+    def trace_context(env)
       return unless (header = env['HTTP_ELASTIC_APM_TRACEPARENT'])
-      Traceparent.parse(header)
-    rescue Traceparent::InvalidTraceparentHeader
+      TraceContext.parse(header)
+    rescue TraceContext::InvalidTraceparentHeader
       warn "Couldn't parse invalid traceparent header: #{header.inspect}"
       nil
     end

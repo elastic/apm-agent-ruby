@@ -48,7 +48,7 @@ module ElasticAPM
         .with(MiddlewareTestError, handled: false)
     end
 
-    it 'attaches a new traceparent', :intercept do
+    it 'attaches a new trace_context', :intercept do
       ElasticAPM.start
 
       app = Middleware.new(->(_) { [200, {}, ['ok']] })
@@ -58,9 +58,9 @@ module ElasticAPM
 
       ElasticAPM.stop
 
-      traceparent = @intercepted.transactions.first.traceparent
-      expect(traceparent).to_not be_nil
-      expect(traceparent).to be_recorded
+      trace_context = @intercepted.transactions.first.trace_context
+      expect(trace_context).to_not be_nil
+      expect(trace_context).to be_recorded
     end
 
     describe 'Distributed Tracing', :intercept do
@@ -73,7 +73,7 @@ module ElasticAPM
       let(:app) { Middleware.new(->(_) { [200, {}, ['ok']] }) }
 
       context 'with valid header' do
-        it 'recognizes traceparent', :intercept do
+        it 'recognizes trace_context', :intercept do
           app.call(
             Rack::MockRequest.env_for(
               '/',
@@ -82,16 +82,17 @@ module ElasticAPM
             )
           )
 
-          traceparent = @intercepted.transactions.first.traceparent
-          expect(traceparent.version).to eq '00'
-          expect(traceparent.trace_id).to eq '0af7651916cd43dd8448eb211c80319c'
-          expect(traceparent.span_id).to eq 'b7ad6b7169203331'
-          expect(traceparent).to_not be_recorded
+          trace_context = @intercepted.transactions.first.trace_context
+          expect(trace_context.version).to eq '00'
+          expect(trace_context.trace_id)
+            .to eq '0af7651916cd43dd8448eb211c80319c'
+          expect(trace_context.span_id).to eq 'b7ad6b7169203331'
+          expect(trace_context).to_not be_recorded
         end
       end
 
       context 'with an invalid header' do
-        it 'skips traceparent, makes new', :intercept do
+        it 'skips trace_context, makes new', :intercept do
           app.call(
             Rack::MockRequest.env_for(
               '/',
@@ -100,21 +101,21 @@ module ElasticAPM
             )
           )
 
-          traceparent = @intercepted.transactions.first.traceparent
-          expect(traceparent.trace_id)
+          trace_context = @intercepted.transactions.first.trace_context
+          expect(trace_context.trace_id)
             .to_not eq '0af7651916cd43dd8448eb211c80319c'
-          expect(traceparent.span_id).to be nil
+          expect(trace_context.span_id).to_not match(/INVALID/)
         end
       end
 
       context 'with a blank header' do
-        it 'skips traceparent, makes new', :intercept do
+        it 'skips trace_context, makes new', :intercept do
           app.call(
             Rack::MockRequest.env_for('/', 'HTTP_ELASTIC_APM_TRACEPARENT' => '')
           )
 
-          traceparent = @intercepted.transactions.first.traceparent
-          expect(traceparent.trace_id)
+          trace_context = @intercepted.transactions.first.trace_context
+          expect(trace_context.trace_id)
             .to_not eq '0af7651916cd43dd8448eb211c80319c'
         end
       end
