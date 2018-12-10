@@ -84,6 +84,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
 
     deprecate :transaction, :with_transaction
 
+    # rubocop:disable Metrics/MethodLength
     # Start a new transaction
     #
     # @param name [String] A description of the transaction, eg
@@ -96,8 +97,15 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       name = nil,
       type = nil,
       context: nil,
-      trace_context: nil
+      trace_context: nil,
+      traceparent: nil
     )
+      if traceparent
+        trace_context ||= traceparent
+        warn "[ElasticAPM] [DEPRECATED] `start_transaction' with" \
+          "`traceparent:' has been renamed. Use `trace_context:' instead."
+      end
+
       agent&.start_transaction(
         name,
         type,
@@ -105,6 +113,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
         trace_context: trace_context
       )
     end
+    # rubocop:enable Metrics/MethodLength
 
     # Ends the current transaction with `result`
     #
@@ -128,11 +137,18 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       name = nil,
       type = nil,
       context: nil,
-      trace_context: nil
+      trace_context: nil,
+      traceparent: nil
     )
       unless block_given?
         raise ArgumentError,
           'expected a block. Do you want `start_transaction\' instead?'
+      end
+
+      if traceparent
+        trace_context ||= traceparent
+        warn "[ElasticAPM] [DEPRECATED] `start_transaction' with " \
+          "`traceparent:' has been renamed. Use `trace_context:' instead."
       end
 
       return yield(nil) unless agent

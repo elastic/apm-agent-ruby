@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+
+- Rename `Traceparent` object to `TraceContext` ([#271](https://github.com/elastic/apm-agent-ruby/pull/271))
+
 ## 2.1.2 (2018-12-07)
 
 ### Fixed
