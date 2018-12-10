@@ -41,7 +41,7 @@ module ElasticAPM
         {
           current_transaction: nil,
           current_span: nil,
-          start_transaction: [nil, nil, { context: nil, traceparent: nil }],
+          start_transaction: [nil, nil, { context: nil, trace_context: nil }],
           end_transaction: [nil],
           start_span: [nil, nil, { backtrace: nil, context: nil }],
           end_span: nil,

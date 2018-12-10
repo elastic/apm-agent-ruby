@@ -49,11 +49,8 @@ module ElasticAPM
             type = "ext.net_http.#{method}"
 
             ElasticAPM.with_span name, type do |span|
-              id = span&.id || transaction.id
-
-              req['Elastic-Apm-Traceparent'] =
-                transaction.traceparent.to_header(span_id: id)
-
+              trace_context = span&.trace_context || transaction.trace_context
+              req['Elastic-Apm-Traceparent'] = trace_context.to_header
               request_without_apm(req, body, &block)
             end
           end

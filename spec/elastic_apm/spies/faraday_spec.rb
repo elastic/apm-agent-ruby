@@ -49,7 +49,7 @@ module ElasticAPM
         WebMock.stub_request(:get, %r{http://example.com/.*}).with do |req|
           header = req.headers['Elastic-Apm-Traceparent']
           expect(header).to_not be nil
-          expect { Traceparent.parse(header) }.to_not raise_error
+          expect { TraceContext.parse(header) }.to_not raise_error
         end
 
       ElasticAPM.start

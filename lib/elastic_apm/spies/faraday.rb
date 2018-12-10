@@ -26,11 +26,10 @@ module ElasticAPM
 
             ElasticAPM.with_span name, type do |span|
               ElasticAPM::Spies::NetHTTPSpy.disable_in do
-                id = span&.id || transaction.id
+                trace_context = span&.trace_context || transaction.trace_context
 
                 run_request_without_apm(method, url, body, headers) do |req|
-                  req['Elastic-Apm-Traceparent'] =
-                    transaction.traceparent.to_header(span_id: id)
+                  req['Elastic-Apm-Traceparent'] = trace_context.to_header
 
                   yield req if block_given?
                 end

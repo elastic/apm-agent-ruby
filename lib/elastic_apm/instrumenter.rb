@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'elastic_apm/trace_context'
 require 'elastic_apm/span'
 require 'elastic_apm/transaction'
 
@@ -78,7 +79,7 @@ module ElasticAPM
       name = nil,
       type = nil,
       context: nil,
-      traceparent: nil
+      trace_context: nil
     )
       return nil unless config.instrument?
 
@@ -87,14 +88,14 @@ module ElasticAPM
           "Transactions may not be nested.\nAlready inside #{transaction}"
       end
 
-      sampled = traceparent ? traceparent.recorded? : random_sample?
+      sampled = trace_context ? trace_context.recorded? : random_sample?
 
       transaction =
         Transaction.new(
           name,
           type,
           context: context,
-          traceparent: traceparent,
+          trace_context: trace_context,
           sampled: sampled
         )
 

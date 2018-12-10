@@ -162,6 +162,8 @@ RSpec.describe ElasticAPM do
 
     describe '.transaction' do
       it 'redirects to new apis' do
+        expect(ElasticAPM).to receive(:warn).with(/DEPRECATED/).twice
+
         expect(ElasticAPM).to receive(:start_transaction) { true }
         ElasticAPM.transaction
 
@@ -172,11 +174,27 @@ RSpec.describe ElasticAPM do
 
     describe '.span' do
       it 'redirects to new apis' do
+        expect(ElasticAPM).to receive(:warn).with(/DEPRECATED/).twice
+
         expect(ElasticAPM).to receive(:start_span) { true }
         ElasticAPM.span('Name')
 
         expect(ElasticAPM).to receive(:with_span) { true }
         ElasticAPM.span('Name') { 'ok' }
+      end
+    end
+
+    describe '.start_transaction with traceparent' do
+      it 'warns and falls back' do
+        ElasticAPM.start
+        expect(ElasticAPM).to receive(:warn).with(/DEPRECATED/)
+
+        trace_context = ElasticAPM::TraceContext.new
+        transaction = ElasticAPM.start_transaction traceparent: trace_context
+
+        expect(transaction.trace_context).to be trace_context
+
+        ElasticAPM.stop
       end
     end
   end

@@ -106,13 +106,13 @@ module ElasticAPM
       name = nil,
       type = nil,
       context: nil,
-      traceparent: nil
+      trace_context: nil
     )
       instrumenter.start_transaction(
         name,
         type,
         context: context,
-        traceparent: traceparent
+        trace_context: trace_context
       )
     end
 
