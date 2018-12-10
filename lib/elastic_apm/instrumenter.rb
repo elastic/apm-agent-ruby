@@ -17,7 +17,7 @@ module ElasticAPM
     class Current
       def initialize
         self.transaction = nil
-        self.span = nil
+        self.spans = []
       end
 
       def transaction
@@ -28,12 +28,12 @@ module ElasticAPM
         Thread.current[TRANSACTION_KEY] = transaction
       end
 
-      def span
+      def spans
         Thread.current[SPAN_KEY]
       end
 
-      def span=(span)
-        Thread.current[SPAN_KEY] = span
+      def spans=(spans)
+        Thread.current[SPAN_KEY] = spans
       end
     end
 
@@ -54,7 +54,7 @@ module ElasticAPM
       debug 'Stopping instrumenter'
 
       self.current_transaction = nil
-      self.current_span = nil
+      current_spans.pop until current_spans.empty?
 
       @subscriber.unregister! if @subscriber
     end
@@ -119,15 +119,16 @@ module ElasticAPM
 
     # spans
 
-    def current_span
-      @current.span
+    def current_spans
+      @current.spans
     end
 
-    def current_span=(span)
-      @current.span = span
+    def current_span
+      current_spans.last
     end
 
     # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/AbcSize
     def start_span(name, type = nil, backtrace: nil, context: nil)
       return unless (transaction = current_transaction)
       return unless transaction.sampled?
@@ -143,7 +144,7 @@ module ElasticAPM
         name,
         type,
         transaction: transaction,
-        parent: current_span || transaction,
+        parent_id: current_span&.id || transaction.id,
         context: context
       )
 
@@ -151,19 +152,17 @@ module ElasticAPM
         span.original_backtrace = backtrace
       end
 
-      self.current_span = span
+      current_spans.push span
 
       span.start
     end
+    # rubocop:enable Metrics/AbcSize
     # rubocop:enable Metrics/MethodLength, Metrics/CyclomaticComplexity
 
     def end_span
-      return unless (span = current_span)
+      return unless (span = current_spans.pop)
 
       span.done
-
-      self.current_span =
-        span.parent&.is_a?(Span) && span.parent || nil
 
       enqueue.call span
 

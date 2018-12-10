@@ -18,7 +18,9 @@ module ElasticAPM
 
     def self.from(transaction:, span: nil)
       new.tap do |t|
-        t.trace_id = SecureRandom.hex(16)
+        t.trace_id =
+          transaction&.trace_context&.trace_id ||
+          SecureRandom.hex(16)
         t.recorded = transaction && transaction.sampled?
         t.span_id = span&.id || transaction.id
       end

@@ -9,7 +9,6 @@ module ElasticAPM
       its(:type) { should be 'custom' }
       its(:transaction_id) { should be_nil }
       its(:timestamp) { should be_nil }
-      its(:trace_id) { should be_nil }
       its(:parent_id) { should be_nil }
       its(:context) { should be_nil }
 
@@ -22,13 +21,6 @@ module ElasticAPM
 
         its(:transaction_id) { should be transaction.id }
         its(:timestamp) { should be transaction.timestamp }
-        its(:trace_id) { should be transaction.trace_id }
-      end
-
-      context 'with a parent' do
-        let(:span) { Span.new 'Span' }
-        subject { described_class.new 'Span', parent: span }
-        its(:parent_id) { should be span.id }
       end
     end
 

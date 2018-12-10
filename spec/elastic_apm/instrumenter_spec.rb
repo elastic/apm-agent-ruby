@@ -119,7 +119,7 @@ module ElasticAPM
           expect(span).to be_a Span
           expect(span).to be_started
           expect(span.transaction_id).to eq transaction.id
-          expect(span.parent).to eq transaction
+          expect(span.parent_id).to eq transaction.id
           expect(subject.current_span).to eq span
         end
 
@@ -128,7 +128,7 @@ module ElasticAPM
             parent = subject.start_span 'Level 1'
             child = subject.start_span 'Level 2'
 
-            expect(child.parent).to be parent
+            expect(child.parent_id).to be parent.id
           end
         end
 
