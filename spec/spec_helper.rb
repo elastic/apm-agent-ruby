@@ -59,6 +59,14 @@ rescue => e # rubocop:disable Style/RescueStandardError
   e
 end
 
+def darwin?
+  ElasticAPM::Metrics.platform == :darwin
+end
+
+def linux?
+  ElasticAPM::Metrics.platform == :linux
+end
+
 def jruby_92?
   defined?(JRUBY_VERSION) && JRUBY_VERSION =~ /^9\.2/
 end
