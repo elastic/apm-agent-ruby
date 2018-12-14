@@ -14,7 +14,7 @@ module ElasticAPM
 
     def self.git_sha
       sha = `git rev-parse --verify HEAD 2>&1`.chomp
-      $? && $?.success? ? sha : nil # rubocop:disable Style/SpecialGlobalVars
+      $? && $?.success? ? sha : nil
     end
 
     def self.hex_to_bits(str)
