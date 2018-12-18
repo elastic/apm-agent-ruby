@@ -9,6 +9,7 @@ module ElasticAPM
 
         KEY_FILTERS = [
           /passw(or)?d/i,
+          /auth/i,
           /^pw$/,
           /secret/i,
           /token/i,
