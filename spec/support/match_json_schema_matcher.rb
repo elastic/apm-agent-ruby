@@ -3,11 +3,13 @@
 require 'spec_helper'
 require 'json-schema'
 
+base = 'https://raw.githubusercontent.com/elastic/apm-server/master/docs/spec'
+
 SCHEMA_URLS = {
-  metadatas: 'https://github.com/elastic/apm-server/raw/v2/docs/spec/metadata.json',
-  transactions: 'https://github.com/elastic/apm-server/raw/v2/docs/spec/transactions/v2_transaction.json',
-  spans: 'https://github.com/elastic/apm-server/raw/v2/docs/spec/spans/v2_span.json',
-  errors: 'https://github.com/elastic/apm-server/raw/v2/docs/spec/errors/v2_error.json'
+  metadatas: base + '/metadata.json',
+  transactions: base + '/transactions/v2_transaction.json',
+  spans: base + '/spans/v2_span.json',
+  errors: base + '/errors/v2_error.json'
 }.freeze
 
 RSpec::Matchers.define :match_json_schema do |schema|
