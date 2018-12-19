@@ -21,6 +21,9 @@ module ElasticAPM
       api_buffer_size: 256,
       api_request_size: '750kb',
       api_request_time: '10s',
+      capture_body: true,
+      capture_headers: true,
+      capture_env: true,
       current_user_email_method: :email,
       current_user_id_method: :id,
       current_user_username_method: :username,
@@ -57,6 +60,9 @@ module ElasticAPM
       'ELASTIC_APM_API_BUFFER_SIZE' => [:int, 'api_buffer_size'],
       'ELASTIC_APM_API_REQUEST_SIZE' => [:int, 'api_request_size'],
       'ELASTIC_APM_API_REQUEST_TIME' => 'api_request_time',
+      'ELASTIC_APM_CAPTURE_BODY' => [:bool, 'capture_body'],
+      'ELASTIC_APM_CAPTURE_HEADERS' => [:bool, 'capture_headers'],
+      'ELASTIC_APM_CAPTURE_ENV' => [:bool, 'capture_env'],
       'ELASTIC_APM_CUSTOM_KEY_FILTERS' => [:list, 'custom_key_filters'],
       'ELASTIC_APM_DEFAULT_TAGS' => [:dict, 'default_tags'],
       'ELASTIC_APM_DISABLED_SPIES' => [:list, 'disabled_spies'],
@@ -118,6 +124,9 @@ module ElasticAPM
     attr_accessor :api_buffer_size
     attr_accessor :api_request_size
     attr_accessor :api_request_time
+    attr_accessor :capture_body
+    attr_accessor :capture_headers
+    attr_accessor :capture_env
     attr_accessor :current_user_email_method
     attr_accessor :current_user_id_method
     attr_accessor :current_user_method
@@ -155,6 +164,9 @@ module ElasticAPM
     attr_accessor :view_paths
     attr_accessor :root_path
 
+    alias :capture_body? :capture_body
+    alias :capture_headers? :capture_headers
+    alias :capture_env? :capture_env
     alias :disable_send? :disable_send
     alias :http_compression? :http_compression
     alias :instrument? :instrument

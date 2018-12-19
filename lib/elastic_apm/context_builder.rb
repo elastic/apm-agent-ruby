@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
 module ElasticAPM
-  # TODO: Move to txn.add_request ?
   # @api private
   class ContextBuilder
-    def initialize(_agent); end
+    def initialize(config)
+      @config = config
+    end
+
+    attr_reader :config
 
     def build(rack_env)
       context = Context.new
@@ -14,7 +17,7 @@ module ElasticAPM
 
     private
 
-    # rubocop:disable Metrics/AbcSize
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def apply_to_request(context, rack_env)
       req = rails_req?(rack_env) ? rack_env : Rack::Request.new(rack_env)
 
@@ -25,12 +28,16 @@ module ElasticAPM
       request.http_version = build_http_version rack_env
       request.method = req.request_method
       request.url = Context::Request::Url.new(req)
-      request.headers, request.env = get_headers_and_env(rack_env)
-      request.body = get_body(req)
+
+      request.body = get_body(req) if config.capture_body?
+
+      headers, env = get_headers_and_env(rack_env)
+      request.headers = headers if config.capture_headers?
+      request.env = env if config.capture_env?
 
       context
     end
-    # rubocop:enable Metrics/AbcSize
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def get_body(req)
       return req.POST if req.form_data?
