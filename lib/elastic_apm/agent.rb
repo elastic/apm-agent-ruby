@@ -53,7 +53,7 @@ module ElasticAPM
       @instrumenter = Instrumenter.new(config) { |event| enqueue event }
 
       @stacktrace_builder = StacktraceBuilder.new(config)
-      @context_builder = ContextBuilder.new(self)
+      @context_builder = ContextBuilder.new(config)
       @error_builder = ErrorBuilder.new(self)
     end
 
