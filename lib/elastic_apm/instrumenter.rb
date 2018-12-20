@@ -8,10 +8,10 @@ module ElasticAPM
   # rubocop:disable Metrics/ClassLength
   # @api private
   class Instrumenter
-    include Logging
+    TRANSACTION_KEY = :__elastic_instrumenter_transaction_key
+    SPAN_KEY = :__elastic_instrumenter_spans_key
 
-    TRANSACTION_KEY = :__elastic_transaction_key
-    SPAN_KEY = :__elastic_span_key
+    include Logging
 
     # @api private
     class Current
@@ -29,10 +29,11 @@ module ElasticAPM
       end
 
       def spans
-        Thread.current[SPAN_KEY]
+        Thread.current[SPAN_KEY] ||= []
       end
 
       def spans=(spans)
+        Thread.current[SPAN_KEY] ||= []
         Thread.current[SPAN_KEY] = spans
       end
     end
