@@ -3,10 +3,11 @@
 module ElasticAPM
   RSpec.describe Instrumenter, :intercept do
     let(:config) { Config.new }
+    let(:stacktrace_builder) { StacktraceBuilder.new(config) }
     let(:callback) { ->(*_) {} }
     before { allow(callback).to receive(:call) }
 
-    subject { Instrumenter.new(config, &callback) }
+    subject { Instrumenter.new(config, stacktrace_builder, &callback) }
 
     context 'life cycle' do
       describe '#stop' do
