@@ -7,7 +7,13 @@ module ElasticAPM
     let(:callback) { ->(*_) {} }
     before { allow(callback).to receive(:call) }
 
-    subject { Instrumenter.new(config, stacktrace_builder, &callback) }
+    subject do
+      Instrumenter.new(
+        config,
+        stacktrace_builder: stacktrace_builder,
+        &callback
+      )
+    end
 
     context 'life cycle' do
       describe '#stop' do

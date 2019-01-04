@@ -112,12 +112,13 @@ RSpec.describe ElasticAPM do
       end
 
       it 'includes stacktraces by default' do
-        allow(agent.config).to receive(:span_frames_min_duration_us).and_return(-1)
+        allow(agent.config).to receive(:span_frames_min_duration_us) { -1 }
 
         subject
 
         expect(placeholder.spans.length).to be 2
-        expect(placeholder.spans.map(&:stacktrace)).to all(be_a(ElasticAPM::Stacktrace))
+        expect(placeholder.spans.map(&:stacktrace))
+          .to all(be_a(ElasticAPM::Stacktrace))
       end
 
       it { should be 'original result' }

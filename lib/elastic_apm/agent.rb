@@ -54,9 +54,9 @@ module ElasticAPM
       @error_builder = ErrorBuilder.new(self)
 
       @transport = Transport::Base.new(config)
-      @instrumenter = Instrumenter.new(config, stacktrace_builder) do |event|
-        enqueue event
-      end
+      @instrumenter = Instrumenter.new(
+        config, stacktrace_builder: stacktrace_builder
+      ) { |event| enqueue event }
     end
 
     attr_reader :config, :transport, :instrumenter,
