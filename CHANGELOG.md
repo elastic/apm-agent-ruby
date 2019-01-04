@@ -14,6 +14,10 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 - Rename `Traceparent` object to `TraceContext` ([#271](https://github.com/elastic/apm-agent-ruby/pull/271))
 
+### Fixed
+
+- An issue where Spans would not get Stacktraces attached ([#282](https://github.com/elastic/apm-agent-ruby/pull/282))
+
 ## 2.1.2 (2018-12-07)
 
 ### Fixed

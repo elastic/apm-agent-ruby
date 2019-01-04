@@ -38,14 +38,15 @@ module ElasticAPM
       end
     end
 
-    def initialize(config, &enqueue)
+    def initialize(config, stacktrace_builder:, &enqueue)
       @config = config
+      @stacktrace_builder = stacktrace_builder
       @enqueue = enqueue
 
       @current = Current.new
     end
 
-    attr_reader :config, :enqueue
+    attr_reader :config, :stacktrace_builder, :enqueue
 
     def start
       debug 'Starting instrumenter'
@@ -149,7 +150,8 @@ module ElasticAPM
         transaction_id: transaction.id,
         parent_id: parent.id,
         context: context,
-        trace_context: parent.trace_context
+        trace_context: parent.trace_context,
+        stacktrace_builder: stacktrace_builder
       )
 
       if backtrace && span_frames_min_duration?
