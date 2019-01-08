@@ -150,6 +150,36 @@ APM Server has its own limit of 30 seconds before it will close requests.
 It has to be provided in *<<config-format-duration, duration format>>*.
 
 [float]
+[[config-capture-body]]
+==== `capture_body`
+|============
+| Environment                | `Config` key   | Default
+| `ELASTIC_APM_CAPTURE_BODY` | `capture_body` | `true`
+|============
+
+Whether or not to attach the request body to transactions and errors.
+
+[float]
+[[config-capture-headers]]
+==== `capture_headers`
+|============
+| Environment                   | `Config` key      | Default
+| `ELASTIC_APM_CAPTURE_HEADERS` | `capture_headers` | `true`
+|============
+
+Whether or not to attach the request headers to transactions and errors.
+
+[float]
+[[config-capture-env]]
+==== `capture_env`
+|============
+| Environment               | `Config` key  | Default
+| `ELASTIC_APM_CAPTURE_ENV` | `capture_env` | `true`
+|============
+
+Whether or not to attach `ENV` from Rack to transactions and errors.
+
+[float]
 [[config-custom-key-filters]]
 ==== `custom_key_filters`
 [options="header"]

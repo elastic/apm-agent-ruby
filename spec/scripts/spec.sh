@@ -20,4 +20,4 @@ RUBY_VERSION=$1 docker-compose run \
   --rm ruby_rspec \
   /bin/bash -c "\
     bundle install && \
-    timeout -s9 5m bundle exec rspec -f documentation -f JUnit -o spec/ruby-agent-junit.xml ${3:-spec}"
+    timeout -s9 5m bundle exec rspec -f progress -f JUnit -o spec/ruby-agent-junit.xml ${3:-spec}"

@@ -6,7 +6,7 @@ module ElasticAPM
   # @api private
   class SqlSummarizer
     DEFAULT = 'SQL'
-    TABLE_REGEX = %{["'`]?([A-Za-z0-9]+)}
+    TABLE_REGEX = %{["'`]?([A-Za-z0-9_]+)}
 
     REGEXES = {
       /^BEGIN/i => 'BEGIN',
