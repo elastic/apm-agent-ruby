@@ -139,14 +139,6 @@ module ElasticAPM
           end
         end
 
-        context 'with a backtrace' do
-          it 'saves original backtrace for later' do
-            backtrace = caller
-            span = subject.start_span 'Span', backtrace: backtrace
-            expect(span.original_backtrace).to eq backtrace
-          end
-        end
-
         context 'when max spans reached' do
           let(:config) { Config.new(transaction_max_spans: 1) }
           before do
