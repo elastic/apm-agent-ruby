@@ -7,9 +7,10 @@ base = 'https://raw.githubusercontent.com/elastic/apm-server/master/docs/spec'
 
 SCHEMA_URLS = {
   metadatas: base + '/metadata.json',
-  transactions: base + '/transactions/v2_transaction.json',
-  spans: base + '/spans/v2_span.json',
-  errors: base + '/errors/v2_error.json'
+  transactions: base + '/transactions/transaction.json',
+  spans: base + '/spans/span.json',
+  errors: base + '/errors/error.json',
+  metricset: base + '/metricsets/metricset.json'
 }.freeze
 
 RSpec::Matchers.define :match_json_schema do |schema|
