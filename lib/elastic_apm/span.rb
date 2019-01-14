@@ -33,8 +33,7 @@ module ElasticAPM
     # rubocop:enable Metrics/ParameterLists
 
     attr_accessor :name, :type, :original_backtrace, :parent_id, :trace_context
-    attr_reader :context, :stacktrace, :duration,
-      :timestamp, :transaction_id
+    attr_reader :context, :stacktrace, :duration, :timestamp, :transaction_id
 
     def id
       trace_context&.span_id
@@ -59,9 +58,7 @@ module ElasticAPM
     def done(end_time: Util.micros)
       stop end_time
 
-      if should_build_stacktrace?
-        build_stacktrace
-      end
+      build_stacktrace! if should_build_stacktrace?
 
       self
     end
@@ -89,13 +86,13 @@ module ElasticAPM
 
     private
 
-    def should_build_stacktrace?
-      @stacktrace_builder && original_backtrace && long_enough_for_stacktrace?
+    def build_stacktrace!
+      @stacktrace = @stacktrace_builder.build(original_backtrace, type: :span)
+      self.original_backtrace = nil # release original
     end
 
-    def build_stacktrace
-      @stacktrace = @stacktrace_builder.build(original_backtrace, type: :span)
-      self.original_backtrace = nil # release it
+    def should_build_stacktrace?
+      @stacktrace_builder && original_backtrace && long_enough_for_stacktrace?
     end
 
     def long_enough_for_stacktrace?

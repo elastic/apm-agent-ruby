@@ -18,6 +18,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 ### Fixed
 
 - An issue where Spans would not get Stacktraces attached ([#282](https://github.com/elastic/apm-agent-ruby/pull/282))
+- Skip `caller` unless needed ([#287](https://github.com/elastic/apm-agent-ruby/pull/283))
 
 ## 2.1.2 (2018-12-07)
 
