@@ -2,6 +2,7 @@
 
 require 'logger'
 require 'yaml'
+require 'erb'
 
 require 'elastic_apm/util/prefixed_logger'
 require 'elastic_apm/config/duration'
