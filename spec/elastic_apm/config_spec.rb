@@ -17,6 +17,11 @@ module ElasticAPM
       expect(config.server_url).to eq 'somewhere-config.com'
     end
 
+    it 'loads from erb-styled config file' do
+      config = Config.new(config_file: 'spec/fixtures/elastic_apm_erb.yml')
+      expect(config.server_url).to eq 'somewhere-config.com'
+    end
+
     it 'takes options from ENV' do
       ENV['ELASTIC_APM_SERVER_URL'] = 'by-env!'
       config = Config.new
