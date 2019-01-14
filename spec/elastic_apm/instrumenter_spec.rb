@@ -130,6 +130,14 @@ module ElasticAPM
           expect(subject.current_span).to eq span
         end
 
+        context 'with a backtrace' do
+          it 'saves original backtrace for later' do
+            backtrace = caller
+            span = subject.start_span 'Span', backtrace: backtrace
+            expect(span.original_backtrace).to eq backtrace
+          end
+        end
+
         context 'inside another span' do
           it 'sets current span as parent' do
             parent = subject.start_span 'Level 1'

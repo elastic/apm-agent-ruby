@@ -58,6 +58,8 @@ module ElasticAPM
     def done(end_time: Util.micros)
       stop end_time
 
+      build_stacktrace! if should_build_stacktrace?
+
       self
     end
 
@@ -73,15 +75,6 @@ module ElasticAPM
       started? && !stopped?
     end
 
-    def stacktrace
-      return @stacktrace if defined? @stacktrace
-      @stacktrace = if should_build_stacktrace?
-        @stacktrace_builder.build(original_backtrace, type: :span).tap do
-          self.original_backtrace = nil # release it
-        end
-      end
-    end
-
     # relations
 
     def inspect
@@ -92,6 +85,11 @@ module ElasticAPM
     end
 
     private
+
+    def build_stacktrace!
+      @stacktrace = @stacktrace_builder.build(original_backtrace, type: :span)
+      self.original_backtrace = nil # release original
+    end
 
     def should_build_stacktrace?
       @stacktrace_builder && original_backtrace && long_enough_for_stacktrace?

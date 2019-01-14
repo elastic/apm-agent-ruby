@@ -160,7 +160,7 @@ module ElasticAPM
         trace_context: trace_context || parent.trace_context.child
       )
 
-      if backtrace
+      if backtrace && config.span_frames_min_duration?
         span.original_backtrace = backtrace
       end
 

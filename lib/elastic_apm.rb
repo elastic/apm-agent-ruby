@@ -230,7 +230,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
         break unless span && include_stacktrace
         break unless agent.config.span_frames_min_duration?
 
-        span.original_backtrace = caller
+        span.original_backtrace ||= caller
       end
     end
 
