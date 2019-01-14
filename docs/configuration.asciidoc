@@ -16,7 +16,7 @@ The recommended way to configure Elastic APM is to create a file
 ----
 ---
 server_url: 'http://localhost:8200'
-secret_token: 'very_very_secret'
+secret_token: <%= ENV["VERY_SECRET_TOKEN"] %>
 ----
 
 Options are applied in the following order (last one wins):
