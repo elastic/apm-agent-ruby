@@ -160,7 +160,7 @@ module ElasticAPM
         trace_context: trace_context || parent.trace_context.child
       )
 
-      if backtrace && span_frames_min_duration?
+      if backtrace && config.span_frames_min_duration?
         span.original_backtrace = backtrace
       end
 
@@ -210,10 +210,6 @@ module ElasticAPM
 
     def random_sample?
       rand <= config.transaction_sample_rate
-    end
-
-    def span_frames_min_duration?
-      config.span_frames_min_duration != 0
     end
   end
   # rubocop:enable Metrics/ClassLength

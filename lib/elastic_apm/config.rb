@@ -241,6 +241,10 @@ module ElasticAPM
       @span_frames_min_duration_us = duration * 1_000_000
     end
 
+    def span_frames_min_duration?
+      span_frames_min_duration != 0
+    end
+
     DEPRECATED_OPTIONS = %i[
       compression_level=
       compression_minimum_size=

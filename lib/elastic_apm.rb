@@ -225,9 +225,13 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
         name,
         type,
         context: context,
-        backtrace: include_stacktrace ? caller : nil,
         trace_context: trace_context
-      )
+      ).tap do |span|
+        break unless span && include_stacktrace
+        break unless agent.config.span_frames_min_duration?
+
+        span.original_backtrace ||= caller
+      end
     end
 
     # Ends the current span
