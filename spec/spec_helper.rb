@@ -58,3 +58,7 @@ def actual_exception
 rescue => e # rubocop:disable Style/RescueStandardError
   e
 end
+
+def jruby_92?
+  defined?(JRUBY_VERSION) && JRUBY_VERSION =~ /^9\.2/
+end

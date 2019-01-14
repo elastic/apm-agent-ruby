@@ -44,10 +44,13 @@ module ElasticAPM
           last_frame = stacktrace.frames.first
           expect(last_frame.lineno).to be_a Integer
           expect(last_frame.abs_path).to_not be_nil
-          expect(last_frame.function).to eq '/'
           expect(last_frame.vars).to be_nil
 
-          expect(last_frame.filename).to eq 'org/jruby/RubyFixnum.java'
+          # JRuby 9.2 reports stacktraces differently
+          unless jruby_92?
+            expect(last_frame.function).to eq('/')
+            expect(last_frame.filename).to eq('org/jruby/RubyFixnum.java')
+          end
         end
 
         it 'builds from a Java exception' do

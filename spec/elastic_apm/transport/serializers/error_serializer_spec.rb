@@ -23,7 +23,7 @@ module ElasticAPM
             end
             subject { builder.build(error) }
 
-            it 'builds' do
+            it 'builds', unless: jruby_92? do
               should match(
                 error: {
                   id: String,
