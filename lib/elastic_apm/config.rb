@@ -2,6 +2,7 @@
 
 require 'logger'
 require 'yaml'
+require 'erb'
 
 require 'elastic_apm/util/prefixed_logger'
 require 'elastic_apm/config/duration'
@@ -323,7 +324,7 @@ module ElasticAPM
 
     def set_from_config_file
       return unless File.exist?(config_file)
-      assign(YAML.load_file(config_file) || {})
+      assign(YAML.safe_load(ERB.new(File.read(config_file)).result) || {})
     rescue ConfigError => e
       alert_logger.warn format(
         'Failed to configure from config file: %s',

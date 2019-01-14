@@ -16,7 +16,7 @@ The recommended way to configure Elastic APM is to create a file
 ----
 ---
 server_url: 'http://localhost:8200'
-secret_token: 'very_very_secret'
+secret_token: <%= ENV["VERY_SECRET_TOKEN"] %>
 ----
 
 Options are applied in the following order (last one wins):
@@ -76,6 +76,13 @@ eg `ELASTIC_APM_ENABLED_ENVIRONMENTS=development,production`.
 
 Path to the configuration YAML-file.
 Elastic APM will load config options from this if the file exists.
+The file will be evaluated as ERB, so you can include `ENV` variables like in
+your `database.yml`, eg:
+
+[source,ruby]
+----
+secret_token: <%= ENV['VERY_SECRET_TOKEN'] %>
+----
 
 [float]
 [[config-server-url]]
