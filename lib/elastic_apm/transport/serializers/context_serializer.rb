@@ -46,7 +46,7 @@ module ElasticAPM
         end
 
         def build_user(user)
-          return unless user
+          return if !user || user.empty?
 
           {
             id: keyword_field(user.id),

@@ -130,8 +130,14 @@ module ElasticAPM
     end
 
     # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/AbcSize
-    def start_span(name, type = nil, backtrace: nil, context: nil)
+    # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
+    def start_span(
+      name,
+      type = nil,
+      backtrace: nil,
+      context: nil,
+      trace_context: nil
+    )
       return unless (transaction = current_transaction)
       return unless transaction.sampled?
 
@@ -150,8 +156,8 @@ module ElasticAPM
         transaction_id: transaction.id,
         parent_id: parent.id,
         context: context,
-        trace_context: parent.trace_context,
-        stacktrace_builder: stacktrace_builder
+        stacktrace_builder: stacktrace_builder,
+        trace_context: trace_context || parent.trace_context.child
       )
 
       if backtrace && span_frames_min_duration?
@@ -162,7 +168,7 @@ module ElasticAPM
 
       span.start
     end
-    # rubocop:enable Metrics/AbcSize
+    # rubocop:enable Metrics/AbcSize, Metrics/PerceivedComplexity
     # rubocop:enable Metrics/MethodLength, Metrics/CyclomaticComplexity
 
     def end_span
@@ -191,7 +197,7 @@ module ElasticAPM
 
     def set_user(user)
       return unless current_transaction
-      current_transaction.context.user = Context::User.new(config, user)
+      current_transaction.context.user = Context::User.infer(config, user)
     end
 
     def inspect

@@ -26,13 +26,11 @@ module ElasticAPM
       @context = context || Context.new # TODO: Lazy generate this?
       Util.reverse_merge!(@context.tags, tags) if tags
 
-      @id = SecureRandom.hex(8)
-
       if trace_context
-        @trace_context = trace_context
         @parent_id = trace_context.span_id
+        @trace_context = trace_context
       else
-        @trace_context = TraceContext.for_transaction(self)
+        @trace_context = TraceContext.for_transaction(sampled: sampled)
       end
 
       @started_spans = 0
@@ -44,8 +42,12 @@ module ElasticAPM
 
     attr_accessor :name, :type, :result
 
-    attr_reader :id, :context, :duration, :started_spans, :dropped_spans,
+    attr_reader :context, :duration, :started_spans, :dropped_spans,
       :timestamp, :trace_context, :notifications, :parent_id
+
+    def id
+      trace_context.span_id
+    end
 
     def sampled?
       @sampled
@@ -67,19 +69,19 @@ module ElasticAPM
 
     # life cycle
 
-    def start
-      @timestamp = Util.micros
+    def start(timestamp = Util.micros)
+      @timestamp = timestamp
       self
     end
 
-    def stop
+    def stop(end_timestamp = Util.micros)
       raise 'Transaction not yet start' unless timestamp
-      @duration = Util.micros - timestamp
+      @duration = end_timestamp - timestamp
       self
     end
 
-    def done(result = nil)
-      stop
+    def done(result = nil, end_time: Util.micros)
+      stop end_time
       self.result = result if result
       self
     end

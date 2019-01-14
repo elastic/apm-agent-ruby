@@ -9,9 +9,8 @@ module ElasticAPM
       its(:type) { should be 'custom' }
       its(:transaction_id) { should be_nil }
       its(:timestamp) { should be_nil }
-      its(:trace_id) { should be_nil }
       its(:parent_id) { should be_nil }
-      its(:context) { should be_nil }
+      its(:context) { should be_a Span::Context }
 
       context 'with a trace context' do
         it 'creates a child trace context' do
@@ -21,8 +20,7 @@ module ElasticAPM
 
           expect(span.trace_context.version).to eq trace_context.version
           expect(span.trace_context.trace_id).to eq trace_context.trace_id
-          expect(span.trace_context.span_id).to_not eq trace_context.span_id
-          expect(span.trace_context.span_id).to match(/.{16}/)
+          expect(span.trace_context.span_id).to eq trace_context.span_id
           expect(span.trace_context.flags).to eq trace_context.flags
         end
       end
