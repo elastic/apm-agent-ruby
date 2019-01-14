@@ -5,7 +5,7 @@ module ElasticAPM
     subject { ErrorBuilder.new Agent.new(Config.new) }
 
     context 'with an exception' do
-      it 'builds an error from an exception', :mock_time do
+      it 'builds an error from an exception', :mock_time, unless: jruby_92? do
         error = subject.build_exception(actual_exception)
 
         expect(error.culprit).to eq '/'
@@ -38,7 +38,7 @@ module ElasticAPM
     end
 
     context 'with a log' do
-      it 'builds an error from a message', :mock_time do
+      it 'builds an error from a message', :mock_time, unless: jruby_92? do
         error = subject.build_log 'Things went BOOM', backtrace: caller
 
         expect(error.culprit).to eq 'instance_exec'
