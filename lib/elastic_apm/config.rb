@@ -98,8 +98,14 @@ module ElasticAPM
       'ELASTIC_APM_VERIFY_SERVER_CERT' => [:bool, 'verify_server_cert']
     }.freeze
 
-    DURATION_KEYS = %i[api_request_time span_frames_min_duration].freeze
-    DURATION_DEFAULT_UNITS = { span_frames_min_duration: 'ms' }.freeze
+    DURATION_KEYS = %i[
+      api_request_time
+      span_frames_min_duration
+      metrics_interval
+    ].freeze
+    DURATION_DEFAULT_UNITS = { # default is 's'
+      span_frames_min_duration: 'ms'
+    }.freeze
 
     SIZE_KEYS = %i[api_request_size].freeze
     SIZE_DEFAULT_UNITS = { api_request_size: 'kb' }.freeze

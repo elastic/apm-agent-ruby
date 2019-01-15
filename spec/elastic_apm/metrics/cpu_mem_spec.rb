@@ -17,7 +17,7 @@ module ElasticAPM
             sample = subject.sample
 
             expect(sample.system_cpu_total).to eq 338_876_168
-            expect(sample.system_cpu_usage).to eq 9_817_780
+            expect(sample.system_cpu_usage).to eq 9_065_212
             expect(sample.system_memory_total).to eq 4_042_711_040
             expect(sample.system_memory_free).to eq 2_750_062_592
             expect(sample.process_cpu_usage).to eq 7
@@ -39,14 +39,14 @@ module ElasticAPM
             )
             set = subject.collect
             expect(set).to match(
-              :'system.cpu.total.norm.pct' => 0.4,
-              :'system.process.cpu.total.norm.pct' => 0.2,
+              'system.cpu.total.norm.pct': 0.4,
+              'system.process.cpu.total.norm.pct': 0.2,
 
-              :'system.memory.total' => 4_042_711_040,
-              :'system.memory.actual.free' => 2_750_062_592,
+              'system.memory.total': 4_042_711_040,
+              'system.memory.actual.free': 2_750_062_592,
 
-              :'system.process.memory.rss.bytes' => 12_738_560,
-              :'system.process.memory.size' => 53_223_424
+              'system.process.memory.rss.bytes': 12_738_560,
+              'system.process.memory.size': 53_223_424
             )
           end
         end
