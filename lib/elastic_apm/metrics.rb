@@ -4,7 +4,7 @@ require 'elastic_apm/metricset'
 
 module ElasticAPM
   # @api private
-  class Metrics
+  module Metrics
     def self.new(config, &block)
       Registry.new(config, &block)
     end

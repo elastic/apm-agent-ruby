@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ElasticAPM
-  class Metrics
+  module Metrics
     RSpec.describe CpuMem do
       let(:config) { Config.new }
 
@@ -39,14 +39,14 @@ module ElasticAPM
             )
             set = subject.collect
             expect(set).to match(
-              'system.cpu.total.norm.pct' => 0.4,
-              'system.process.cpu.total.norm.pct' => 0.2,
+              :'system.cpu.total.norm.pct' => 0.4,
+              :'system.process.cpu.total.norm.pct' => 0.2,
 
-              'system.memory.total' => 4_042_711_040,
-              'system.memory.actual.free' => 2_750_062_592,
+              :'system.memory.total' => 4_042_711_040,
+              :'system.memory.actual.free' => 2_750_062_592,
 
-              'system.process.memory.rss.bytes' => 12_738_560,
-              'system.process.memory.size' => 53_223_424
+              :'system.process.memory.rss.bytes' => 12_738_560,
+              :'system.process.memory.size' => 53_223_424
             )
           end
         end

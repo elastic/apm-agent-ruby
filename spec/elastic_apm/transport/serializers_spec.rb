@@ -10,7 +10,7 @@ module ElasticAPM
         expect(subject.transaction).to be_a Serializers::TransactionSerializer
         expect(subject.span).to be_a Serializers::SpanSerializer
         expect(subject.error).to be_a Serializers::ErrorSerializer
-        expect(subject.metrics).to be_a Serializers::MetricsSerializer
+        expect(subject.metricset).to be_a Serializers::MetricsetSerializer
         expect(subject.metadata).to be_a Serializers::MetadataSerializer
       end
 

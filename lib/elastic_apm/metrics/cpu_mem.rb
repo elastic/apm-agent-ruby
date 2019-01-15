@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ElasticAPM
-  class Metrics
+  module Metrics
     # @api private
     class CpuMem
       include Logging
