@@ -73,6 +73,8 @@ module ElasticAPM
         cpu_usage_pct = delta.system_cpu_usage.to_f / delta.system_cpu_total
         cpu_process_pct = delta.process_cpu_usage.to_f / delta.system_cpu_total
 
+        @previous = current
+
         {
           'system.cpu.total.norm.pct': cpu_usage_pct,
           'system.memory.actual.free': current.system_memory_free,
