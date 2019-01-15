@@ -6,7 +6,7 @@ module ElasticAPM
   # @api private
   module Metrics
     def self.new(config, &block)
-      Registry.new(config, &block)
+      Collector.new(config, &block)
     end
 
     def self.platform
@@ -14,8 +14,10 @@ module ElasticAPM
     end
 
     # @api private
-    class Registry
+    class Collector
       include Logging
+
+      TIMEOUT_INTERVAL = 5 # seconds
 
       def initialize(config, &block)
         @config = config
@@ -29,13 +31,16 @@ module ElasticAPM
       def start
         @timer_task = Concurrent::TimerTask.execute(
           run_now: true,
-          execution_interval: config.metrics_interval
+          execution_interval: config.metrics_interval,
+          timeout_interval: TIMEOUT_INTERVAL
         ) do
           begin
             collect_and_send
+            true
           rescue StandardError => e
             error 'Error while collecting metrics: %e', e.inspect
             debug { e.backtrace.join("\n") }
+            false
           end
         end
       end

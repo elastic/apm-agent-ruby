@@ -144,7 +144,7 @@ module ElasticAPM
               softirq +
               steal
 
-            @usage = @total - idle + iowait
+            @usage = @total - (idle + iowait)
 
             self
           end

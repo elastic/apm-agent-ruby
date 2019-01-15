@@ -9,7 +9,7 @@ module ElasticAPM
     subject { described_class.new(config, &callback) }
 
     describe '.new' do
-      it { should be_a Metrics::Registry }
+      it { should be_a Metrics::Collector }
     end
 
     describe '.collect' do
