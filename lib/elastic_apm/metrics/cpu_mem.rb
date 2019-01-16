@@ -153,6 +153,11 @@ module ElasticAPM
           # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
         end
 
+        UTIME_POS = 13
+        STIME_POS = 14
+        VSIZE_POS = 22
+        RSS_POS = 23
+
         # @api private
         class ProcSelfStat
           attr_reader :total, :vsize, :rss
@@ -165,9 +170,9 @@ module ElasticAPM
                 .split
                 .map(&:to_i)
 
-            @total = stat[13] + stat[14] # utime + stime
-            @vsize = stat[22]
-            @rss = stat[23]
+            @total = stat[UTIME_POS] + stat[STIME_POS]
+            @vsize = stat[VSIZE_POS]
+            @rss = stat[RSS_POS]
 
             self
           end
