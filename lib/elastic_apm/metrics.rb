@@ -26,7 +26,7 @@ module ElasticAPM
         @callback = block
       end
 
-      attr_reader :config, :samplers, :callback
+      attr_reader :config, :samplers, :callback, :tags
 
       # rubocop:disable Metrics/MethodLength
       def start
@@ -61,7 +61,7 @@ module ElasticAPM
       end
 
       def collect_and_send
-        metricset = Metricset.new(**collect)
+        metricset = Metricset.new(tags: tags, **collect)
         return if metricset.empty?
 
         callback.call(metricset)
