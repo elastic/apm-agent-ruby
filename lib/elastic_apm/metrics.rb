@@ -5,6 +5,8 @@ require 'elastic_apm/metricset'
 module ElasticAPM
   # @api private
   module Metrics
+    MUTEX = Mutex.new
+
     def self.new(config, &block)
       Collector.new(config, &block)
     end
@@ -68,9 +70,11 @@ module ElasticAPM
       end
 
       def collect
-        samplers.each_with_object({}) do |sampler, samples|
-          next unless (sample = sampler.collect)
-          samples.merge!(sample)
+        MUTEX.synchronize do
+          samplers.each_with_object({}) do |sampler, samples|
+            next unless (sample = sampler.collect)
+            samples.merge!(sample)
+          end
         end
       end
     end
