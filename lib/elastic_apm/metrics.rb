@@ -19,8 +19,9 @@ module ElasticAPM
 
       TIMEOUT_INTERVAL = 5 # seconds
 
-      def initialize(config, &block)
+      def initialize(config, tags: nil, &block)
         @config = config
+        @tags = tags
         @samplers = [CpuMem].map { |kls| kls.new(config) }
         @callback = block
       end
@@ -29,6 +30,8 @@ module ElasticAPM
 
       # rubocop:disable Metrics/MethodLength
       def start
+        return unless config.collect_metrics?
+
         @timer_task = Concurrent::TimerTask.execute(
           run_now: true,
           execution_interval: config.metrics_interval,
@@ -43,11 +46,18 @@ module ElasticAPM
             false
           end
         end
+
+        @running = true
       end
       # rubocop:enable Metrics/MethodLength
 
       def stop
         @timer_task.shutdown
+        @running = false
+      end
+
+      def running?
+        !!@running
       end
 
       def collect_and_send

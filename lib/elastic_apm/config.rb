@@ -286,6 +286,10 @@ module ElasticAPM
       super
     end
 
+    def collect_metrics?
+      metrics_interval != 0
+    end
+
     private
 
     def assign(options)
