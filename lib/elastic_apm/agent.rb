@@ -6,6 +6,7 @@ require 'elastic_apm/stacktrace_builder'
 require 'elastic_apm/error'
 require 'elastic_apm/transport/base'
 require 'elastic_apm/spies'
+require 'elastic_apm/metrics'
 
 module ElasticAPM
   # rubocop:disable Metrics/ClassLength
@@ -55,18 +56,21 @@ module ElasticAPM
 
       @transport = Transport::Base.new(config)
       @instrumenter = Instrumenter.new(
-        config, stacktrace_builder: stacktrace_builder
+        config,
+        stacktrace_builder: stacktrace_builder
       ) { |event| enqueue event }
+      @metrics = Metrics.new(config) { |event| enqueue event }
     end
 
     attr_reader :config, :transport, :instrumenter,
-      :stacktrace_builder, :context_builder, :error_builder
+      :stacktrace_builder, :context_builder, :error_builder, :metrics
 
     def start
       info '[%s] Starting agent, reporting to %s', VERSION, config.server_url
 
       transport.start
       instrumenter.start
+      metrics.start
 
       config.enabled_spies.each do |lib|
         require "elastic_apm/spies/#{lib}"
@@ -80,6 +84,7 @@ module ElasticAPM
 
       instrumenter.stop
       transport.stop
+      metrics.stop
 
       self
     end

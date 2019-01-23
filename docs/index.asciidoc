@@ -18,6 +18,8 @@ include::./getting-started-rack.asciidoc[]
 
 include::./configuration.asciidoc[]
 
+include::./metrics.asciidoc[]
+
 include::./advanced.asciidoc[]
 
 include::./supported-technologies.asciidoc[]

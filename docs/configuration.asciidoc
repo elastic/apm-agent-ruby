@@ -398,6 +398,23 @@ By default Elastic APM logs to `stdout` or uses `Rails.log` when used with Rails
 Use this to provide another logger. Expected to have the same API as Ruby's built-in `Logger`.
 
 [float]
+[[config-metrics-interval]]
+==== `metrics_interval`
+
+[options="header"]
+|============
+| Environment                    | `Config` key       | Default
+| `ELASTIC_APM_METRICS_INTERVAL` | `metrics_interval` | `'30s'`
+|============
+
+Specify the interval for reporting metrics to APM Server.
+The interval should be in seconds,
+or should include a time suffix.
+
+To disable metrics reporting,
+set the interval to `0`.
+
+[float]
 [[config-pool-size]]
 ==== `pool_size`
 
