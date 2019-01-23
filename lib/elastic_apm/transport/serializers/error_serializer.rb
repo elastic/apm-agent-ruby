@@ -14,6 +14,7 @@ module ElasticAPM
           base = {
             id: error.id,
             transaction_id: error.transaction_id,
+            transaction: error.transaction,
             trace_id: error.trace_id,
             parent_id: error.parent_id,
 

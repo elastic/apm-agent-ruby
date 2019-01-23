@@ -17,11 +17,12 @@ module ElasticAPM
       @context = Context.new
 
       @transaction_id = nil
+      @transaction = nil
       @parent_id = nil
     end
 
-    attr_accessor :id, :culprit, :exception, :log, :transaction_id, :context,
-      :parent_id, :trace_id
+    attr_accessor :id, :culprit, :exception, :log, :transaction_id,
+      :transaction, :context, :parent_id, :trace_id
     attr_reader :timestamp
   end
 end
