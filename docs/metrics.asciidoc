@@ -3,6 +3,7 @@ NOTE: For the best reading experience,
 please view this documentation at https://www.elastic.co/guide/en/apm/agent/ruby[elastic.co]
 endif::[]
 
+[[metrics]]
 == Metrics
 
 The Ruby agent tracks various system and application metrics.
@@ -10,6 +11,8 @@ These metrics will be sent regularly to the APM Server and from there to Elastic
 You can adjust the interval by setting <<config-metrics-interval,`metrics_interval`>>.
 
 The metrics will be stored in the `apm-*` index and have the `processor.event` property set to `metric`.
+
+**Note:** Metrics from the Ruby agent are Linux only for now.
 
 [float]
 [[metric-system.cpu.total.norm.pct]]
