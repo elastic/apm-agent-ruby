@@ -1,5 +1,7 @@
 exclude:
   # Tests fail, but we don't care
+  - RUBY_VERSION: jruby-9.2
+    FRAMEWORK: rails-4.2
   - RUBY_VERSION: jruby-9.1
     FRAMEWORK: rails-4.2
 
@@ -20,6 +22,8 @@ exclude:
     FRAMEWORK: rails-master
   - RUBY_VERSION: ruby-2.5.0
     FRAMEWORK: rails-master
+  - RUBY_VERSION: jruby-9.2
+    FRAMEWORK: rails-master
   - RUBY_VERSION: jruby-9.1
     FRAMEWORK: rails-master
 
@@ -30,6 +34,8 @@ exclude:
   - RUBY_VERSION: ruby-2.4
     FRAMEWORK: sinatra-master
   - RUBY_VERSION: ruby-2.5.0
+    FRAMEWORK: sinatra-master
+  - RUBY_VERSION: jruby-9.2
     FRAMEWORK: sinatra-master
   - RUBY_VERSION: jruby-9.1
     FRAMEWORK: sinatra-master
