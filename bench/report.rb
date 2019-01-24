@@ -5,33 +5,10 @@ Encoding.default_external = 'utf-8'
 
 require 'time'
 require 'bundler/setup'
-require 'faraday'
 require 'json'
 
-ELASTICSEARCH_URL = ENV.fetch('CLOUD_ADDR') { '' }.chomp
-if ELASTICSEARCH_URL == ''
-  puts 'ELASTICSEARCH_URL missing, exiting ...'
-  exit 1
-else
-  # DEBUG
-  # puts ELASTICSEARCH_URL.gsub(/:[^\/]+(.*)@/) do |m|
-  #   ":#{Array.new(m.length - 2).map { '*' }.join}@"
-  # end
-end
-
-CONN = Faraday.new(url: ELASTICSEARCH_URL) do |f|
-  # f.response :logger
-  f.adapter Faraday.default_adapter
-end
-
-healthcheck = CONN.get('/microbenchmark*/_search')
-if healthcheck.status != 200
-  puts healthcheck.body.to_s
-  exit 1
-end
-
 input = STDIN.read.split("\n")
-puts input
+STDERR.puts input
 
 titles = input.grep(/^===/).map { |t| t.gsub(/^=== /, '') }
 counts = input.grep(/^Count: /).map { |a| a.gsub(/^Count: /, '').to_i }
@@ -60,14 +37,10 @@ payloads = titles.zip(averages, counts).map do |(title, avg, count)|
   }
 end.compact
 
-puts '=== Reporting to ES'
-puts payloads.inspect
+STDERR.puts '=== Reporting to ES'
+STDERR.puts payloads.inspect
 
 payloads.each do |payload|
-  result = CONN.post('/benchmark-ruby/_doc') do |req|
-    req.headers['Content-Type'] = 'application/json'
-    req.body = payload.to_json
-  end
-
-  puts result.body unless (200...300).include?(result.status)
+  puts '{ "index" : { "_index" : "benchmark-ruby", "_type" : "_doc" } }'
+  puts payload.to_json
 end
