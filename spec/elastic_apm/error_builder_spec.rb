@@ -32,8 +32,8 @@ module ElasticAPM
         ElasticAPM.stop
 
         error = @intercepted.errors.last
-        request = error.context.request
-        expect(request.method).to eq 'POST'
+        expect(error.transaction).to eq(sampled: true)
+        expect(error.context.request.method).to eq 'POST'
       end
     end
 

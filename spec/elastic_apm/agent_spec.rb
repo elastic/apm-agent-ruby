@@ -11,6 +11,7 @@ module ElasticAPM
       its(:stacktrace_builder) { should be_a StacktraceBuilder }
       its(:context_builder) { should be_a ContextBuilder }
       its(:error_builder) { should be_a ErrorBuilder }
+      its(:metrics) { should be_a Metrics::Collector }
     end
 
     context 'life cycle' do
@@ -85,6 +86,22 @@ module ElasticAPM
         it 'queues a request' do
           expect { subject.report_message('Everything went 💥') }
             .to change(@intercepted.errors, :length).by 1
+        end
+      end
+    end
+
+    context 'metrics', :intercept do
+      it 'starts' do
+        subject.start
+        expect(subject.metrics).to be_running
+      end
+
+      context 'when interval is zero' do
+        let(:config) { Config.new metrics_interval: 0 }
+
+        it "doesn't start" do
+          subject.start
+          expect(subject.metrics).to_not be_running
         end
       end
     end
