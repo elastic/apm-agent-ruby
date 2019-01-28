@@ -41,6 +41,16 @@ module ElasticAPM
           headers['Authorization'] = "Bearer #{token}"
         end
 
+        # Set SSL CA Cert
+        if config.use_ssl? && config.ssl_ca_cert
+          ssl_ctx = OpenSSL::SSL::SSLContext.new
+          ssl_ctx.ca_file = config.ssl_ca_cert
+
+          # include SSL context in default options
+          client_options = HTTP.default_options.merge(ssl_context: ssl_ctx)
+          HTTP.default_options = client_options
+        end
+
         @client = HTTP.headers(headers).persistent(@url)
 
         @mutex = Mutex.new

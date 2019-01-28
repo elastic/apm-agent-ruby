@@ -47,6 +47,7 @@ module ElasticAPM
       source_lines_span_app_frames: 5,
       source_lines_span_library_frames: 0,
       span_frames_min_duration: '5ms',
+      ssl_ca_cert: nil,
       transaction_max_spans: 500,
       transaction_sample_rate: 1.0,
       verify_server_cert: true,
@@ -92,6 +93,7 @@ module ElasticAPM
       'ELASTIC_APM_SOURCE_LINES_SPAN_LIBRARY_FRAMES' =>
         [:int, 'source_lines_span_library_frames'],
       'ELASTIC_APM_SPAN_FRAMES_MIN_DURATION' => 'span_frames_min_duration',
+      'ELASTIC_APM_SSL_CA_CERT' => 'ssl_ca_cert',
       'ELASTIC_APM_TRANSACTION_MAX_SPANS' => [:int, 'transaction_max_spans'],
       'ELASTIC_APM_TRANSACTION_SAMPLE_RATE' =>
         [:float, 'transaction_sample_rate'],
@@ -162,6 +164,7 @@ module ElasticAPM
     attr_accessor :source_lines_error_library_frames
     attr_accessor :source_lines_span_app_frames
     attr_accessor :source_lines_span_library_frames
+    attr_accessor :ssl_ca_cert
     attr_accessor :transaction_max_spans
     attr_accessor :transaction_sample_rate
     attr_accessor :verify_server_cert
