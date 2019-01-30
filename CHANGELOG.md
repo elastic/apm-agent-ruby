@@ -6,6 +6,10 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ## Unreleased
 
+### Added
+
+- Read container info from Docker or Kupernetes ([#303](https://github.com/elastic/apm-agent-ruby/pull/303))
+
 ### Fixed
 
 - Fix logging exceptions when booting via Railtie ([306](https://github.com/elastic/apm-agent-ruby/pull/306))
