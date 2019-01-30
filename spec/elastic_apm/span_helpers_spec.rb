@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'elastic_apm/span_helpers'
-
 module ElasticAPM
   RSpec.describe SpanHelpers do
     class Thing
