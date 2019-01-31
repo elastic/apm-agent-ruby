@@ -11,8 +11,8 @@ module ElasticAPM
 
     attr_reader :prefix
 
-    def add(severity, message = nil, progname = nil)
-      super(severity, format('%s%s', prefix, message), progname)
+    def add(severity, message = nil, progname = nil, &block)
+      super(severity, message, format('%s%s', prefix, progname), &block)
     end
   end
 end
