@@ -10,7 +10,7 @@ module ElasticAPM
     Config::DEFAULTS.each { |option, value| config.elastic_apm[option] = value }
 
     initializer 'elastic_apm.initialize' do |app|
-      config = app.config.elastic_apm.merge(app: app).tap do |c|
+      config = Config.new(app.config.elastic_apm.merge(app: app)).tap do |c|
         # Prepend Rails.root to log_path if present
         if c.log_path && !c.log_path.start_with?('/')
           c.log_path = Rails.root.join(c.log_path)
@@ -27,7 +27,7 @@ module ElasticAPM
         end
       rescue StandardError => e
         config.alert_logger.error format('Failed to start: %s', e.message)
-        config.alert_logger.debug e.backtrace.join("\n")
+        config.alert_logger.debug "Backtrace:\n" + e.backtrace.join("\n")
       end
     end
 
