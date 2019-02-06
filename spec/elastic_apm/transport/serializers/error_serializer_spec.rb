@@ -47,7 +47,8 @@ module ElasticAPM
                   },
                   parent_id: nil,
                   trace_id: nil,
-                  transaction_id: nil
+                  transaction_id: nil,
+                  transaction: nil
                 }
               )
             end
@@ -57,9 +58,11 @@ module ElasticAPM
             it 'attaches the transaction' do
               error = ElasticAPM::Error.new.tap do |e|
                 e.transaction_id = 'abc123'
+                e.transaction = { sampled: true }
               end
               subject = builder.build(error)
               expect(subject[:error][:transaction_id]).to eq 'abc123'
+              expect(subject[:error][:transaction]).to eq(sampled: true)
             end
           end
 
@@ -91,6 +94,7 @@ module ElasticAPM
                   timestamp: 694_224_000_000_000,
                   trace_id: nil,
                   transaction_id: nil,
+                  transaction: nil,
                   parent_id: nil
                 }
               )

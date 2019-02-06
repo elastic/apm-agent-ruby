@@ -16,7 +16,7 @@ module ElasticAPM
         add_stacktrace error, :exception, exception.backtrace
       end
 
-      add_transaction_id error
+      add_current_transaction_fields error
 
       if (transaction = ElasticAPM.current_transaction)
         error.context = transaction.context.dup
@@ -37,7 +37,7 @@ module ElasticAPM
         add_stacktrace error, :log, backtrace
       end
 
-      add_transaction_id error
+      add_current_transaction_fields error
 
       error
     end
@@ -59,9 +59,10 @@ module ElasticAPM
       error.culprit = stacktrace.frames.first.function
     end
 
-    def add_transaction_id(error)
+    def add_current_transaction_fields(error)
       return unless (transaction = ElasticAPM.current_transaction)
       error.transaction_id = transaction.id
+      error.transaction = { sampled: transaction.sampled? }
     end
   end
 end

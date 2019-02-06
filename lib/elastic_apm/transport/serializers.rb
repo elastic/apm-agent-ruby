@@ -43,9 +43,10 @@ module ElasticAPM
           @span = Serializers::SpanSerializer.new(config)
           @error = Serializers::ErrorSerializer.new(config)
           @metadata = Serializers::MetadataSerializer.new(config)
+          @metricset = Serializers::MetricsetSerializer.new(config)
         end
 
-        attr_reader :transaction, :span, :error, :metadata
+        attr_reader :transaction, :span, :error, :metadata, :metricset
 
         # rubocop:disable Metrics/MethodLength
         def serialize(resource)
@@ -56,6 +57,8 @@ module ElasticAPM
             span.build(resource)
           when Error
             error.build(resource)
+          when Metricset
+            metricset.build(resource)
           when Metadata
             metadata.build(resource)
           else
@@ -73,7 +76,8 @@ module ElasticAPM
 end
 
 require 'elastic_apm/transport/serializers/context_serializer'
-require 'elastic_apm/transport/serializers/error_serializer'
-require 'elastic_apm/transport/serializers/metadata_serializer'
-require 'elastic_apm/transport/serializers/span_serializer'
 require 'elastic_apm/transport/serializers/transaction_serializer'
+require 'elastic_apm/transport/serializers/span_serializer'
+require 'elastic_apm/transport/serializers/error_serializer'
+require 'elastic_apm/transport/serializers/metricset_serializer'
+require 'elastic_apm/transport/serializers/metadata_serializer'

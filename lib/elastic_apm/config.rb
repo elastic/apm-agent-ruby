@@ -40,6 +40,7 @@ module ElasticAPM
       instrumented_rake_tasks: [],
       log_level: Logger::INFO,
       log_path: nil,
+      metrics_interval: 30,
       pool_size: 1,
       source_lines_error_app_frames: 5,
       source_lines_error_library_frames: 0,
@@ -78,6 +79,7 @@ module ElasticAPM
         [:list, 'instrumented_rake_tasks'],
       'ELASTIC_APM_LOG_LEVEL' => [:int, 'log_level'],
       'ELASTIC_APM_LOG_PATH' => 'log_path',
+      'ELASTIC_APM_METRICS_INTERVAL' => [:int, 'metrics_interval'],
       'ELASTIC_APM_POOL_SIZE' => [:int, 'pool_size'],
       'ELASTIC_APM_SERVICE_NAME' => 'service_name',
       'ELASTIC_APM_SERVICE_VERSION' => 'service_version',
@@ -96,8 +98,14 @@ module ElasticAPM
       'ELASTIC_APM_VERIFY_SERVER_CERT' => [:bool, 'verify_server_cert']
     }.freeze
 
-    DURATION_KEYS = %i[api_request_time span_frames_min_duration].freeze
-    DURATION_DEFAULT_UNITS = { span_frames_min_duration: 'ms' }.freeze
+    DURATION_KEYS = %i[
+      api_request_time
+      span_frames_min_duration
+      metrics_interval
+    ].freeze
+    DURATION_DEFAULT_UNITS = { # default is 's'
+      span_frames_min_duration: 'ms'
+    }.freeze
 
     SIZE_KEYS = %i[api_request_size].freeze
     SIZE_DEFAULT_UNITS = { api_request_size: 'kb' }.freeze
@@ -146,6 +154,7 @@ module ElasticAPM
     attr_accessor :log_level
     attr_accessor :log_path
     attr_accessor :logger
+    attr_accessor :metrics_interval
     attr_accessor :pool_size
     attr_accessor :service_name
     attr_accessor :service_version
@@ -275,6 +284,10 @@ module ElasticAPM
       end
 
       super
+    end
+
+    def collect_metrics?
+      metrics_interval != 0
     end
 
     private
