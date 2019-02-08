@@ -10,9 +10,13 @@ module ElasticAPM
         @hostname = @config.hostname || `hostname`.chomp
         @architecture = gem_platform.cpu
         @platform = gem_platform.os
+
+        container_info = ContainerInfo.read!
+        @container = container_info.container
+        @kupernetes = container_info.kupernetes
       end
 
-      attr_reader :hostname, :architecture, :platform
+      attr_reader :hostname, :architecture, :platform, :container, :kupernetes
 
       private
 
@@ -22,3 +26,5 @@ module ElasticAPM
     end
   end
 end
+
+require 'elastic_apm/metadata/system_info/container_info'

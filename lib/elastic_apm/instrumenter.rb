@@ -3,6 +3,7 @@
 require 'elastic_apm/trace_context'
 require 'elastic_apm/span'
 require 'elastic_apm/transaction'
+require 'elastic_apm/span_helpers'
 
 module ElasticAPM
   # rubocop:disable Metrics/ClassLength

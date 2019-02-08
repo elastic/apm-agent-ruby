@@ -16,6 +16,7 @@ module ElasticAPM
           expect(subject.hostname).not_to match(/\n\z/)
         end
       end
+
     end
   end
 end

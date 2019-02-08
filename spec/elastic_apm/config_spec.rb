@@ -51,11 +51,10 @@ module ElasticAPM
           { 'test' => 'something something', 'other' => 'ok' }
         ]
       ].each do |(key, val, expected)|
-        val_before = ENV[key]
-        ENV[key] = val
-        setting = key.gsub('ELASTIC_APM_', '').downcase
-        expect(Config.new.send(setting.to_sym)).to eq expected
-        val_before ? ENV[key] = val_before : ENV.delete(key)
+        with_env(key => val) do
+          setting = key.gsub('ELASTIC_APM_', '').downcase
+          expect(Config.new.send(setting.to_sym)).to eq expected
+        end
       end
     end
 
