@@ -72,8 +72,23 @@ should "Squash and merge".
 
 ### Testing
 
-// To do: Testing information
+To do a full test run, use either `bundle exec rspec` or `rake spec`. Individual specs should also run as expected. The Mongo test needs a Mongo instance running, but will start one itself if Docker is installed.
+
+To test other platform, use the Docker setup and scripts like `spec.sh RUBY FRAMEWORK`.
+
+```sh
+$ spec/scripts/spec.sh ruby-2.6 rails-5.2
+```
 
 ### Releasing
 
-// To do: Release process
+To release a new version:
+
+1. Update `VERSION` in `lib/elastic_apm/version.rb` according to the changes (major, minor, patch).
+2. Update `CHANGELOG.md` to reflect the new version -- change _Unreleased_ section to _Version (release date)_.
+3. Run `rake relase`. This will...
+    1. Tag the current commit as new version.
+    2. Push the tag to Github.
+    3. Build the `.gem` package.
+    4. Upload to Rubygems (local needs to be signed in and authorized for gem.)
+    5. Update `2.x` branch to be at released commit.
