@@ -124,7 +124,18 @@ module ElasticAPM
         class ProcStat
           attr_reader :total, :usage
 
-          CPU_FIELDS = %i[user nice system idle iowait irq softirq steal guest guest_nice].freeze
+          CPU_FIELDS = %i[
+            user
+            nice
+            system
+            idle
+            iowait
+            irq
+            softirq
+            steal
+            guest
+            guest_nice
+          ].freeze
 
           # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
           def read!
