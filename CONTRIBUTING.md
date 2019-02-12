@@ -86,9 +86,8 @@ To release a new version:
 
 1. Update `VERSION` in `lib/elastic_apm/version.rb` according to the changes (major, minor, patch).
 2. Update `CHANGELOG.md` to reflect the new version -- change _Unreleased_ section to _Version (release date)_.
-3. Run `rake relase`. This will...
+3. Run `rake release`. This will...
     1. Tag the current commit as new version.
-    2. Push the tag to Github.
-    3. Build the `.gem` package.
-    4. Upload to Rubygems (local needs to be signed in and authorized for gem.)
-    5. Update `2.x` branch to be at released commit.
+    2. Push the tag to GitHub.
+    3. Build the gem and upload to Rubygems (local user needs to be signed in and authorized.)
+    4. Update `2.x` branch to be at released commit and push it to GitHub.
