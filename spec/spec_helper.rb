@@ -36,11 +36,14 @@ RSpec.configure do |config|
       return []
     end
 
-    ActiveSupport::Notifications
-      .notifier.instance_variable_get(:@subscribers)
-      .select do |s|
-        s.instance_variable_get(:@delegate).is_a?(ElasticAPM::Subscriber)
-      end
+    notifier = ActiveSupport::Notifications.notifier
+    subscribers =
+      notifier.instance_variable_get(:@subscribers) ||
+      notifier.instance_variable_get(:@string_subscribers) # when Rails 6
+
+    subscribers.select do |s|
+      s.instance_variable_get(:@delegate).is_a?(ElasticAPM::Subscriber)
+    end
   end
 
   config.after(:each) do |example|
