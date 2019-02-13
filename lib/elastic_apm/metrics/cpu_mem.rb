@@ -124,6 +124,19 @@ module ElasticAPM
         class ProcStat
           attr_reader :total, :usage
 
+          CPU_FIELDS = %i[
+            user
+            nice
+            system
+            idle
+            iowait
+            irq
+            softirq
+            steal
+            guest
+            guest_nice
+          ].freeze
+
           # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
           def read!
             stat =
@@ -133,20 +146,22 @@ module ElasticAPM
                 .split
                 .map(&:to_i)[1..-1]
 
-            user, nice, system, idle, iowait, irq, softirq, steal,
-              _guest, _guest_nice = stat
+            values =
+              CPU_FIELDS.each_with_index.each_with_object({}) do |(key, i), v|
+                v[key] = stat[i] || 0
+              end
 
             @total =
-              user +
-              nice +
-              system +
-              idle +
-              iowait +
-              irq +
-              softirq +
-              steal
+              values[:user] +
+              values[:nice] +
+              values[:system] +
+              values[:idle] +
+              values[:iowait] +
+              values[:irq] +
+              values[:softirq] +
+              values[:steal]
 
-            @usage = @total - (idle + iowait)
+            @usage = @total - (values[:idle] + values[:iowait])
 
             self
           end

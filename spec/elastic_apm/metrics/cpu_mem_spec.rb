@@ -24,6 +24,22 @@ module ElasticAPM
             expect(sample.process_memory_size).to eq 53_223_424
             expect(sample.process_memory_rss).to eq 3110
           end
+
+          context 'on RHEL' do
+            it "doesn't explode from missing numbers" do
+              mock_proc_files proc_stat_format: :rhel
+
+              sample = subject.sample
+
+              expect(sample.system_cpu_total).to eq 336_320_175
+              expect(sample.system_cpu_usage).to eq 6_869_967
+              expect(sample.system_memory_total).to eq 4_042_711_040
+              expect(sample.system_memory_free).to eq 2_750_062_592
+              expect(sample.process_cpu_usage).to eq 7
+              expect(sample.process_memory_size).to eq 53_223_424
+              expect(sample.process_memory_rss).to eq 3110
+            end
+          end
         end
 
         describe 'collect' do
@@ -57,11 +73,12 @@ module ElasticAPM
         user: 6_410_558,
         idle: 329_434_672,
         utime: 7,
-        stime: 0
+        stime: 0,
+        proc_stat_format: :debian
       )
         {
           '/proc/stat' =>
-            ['proc_stat', { user: user, idle: idle }],
+            ["proc_stat_#{proc_stat_format}", { user: user, idle: idle }],
           '/proc/self/stat' =>
             ['proc_self_stat', { utime: utime, stime: stime }],
           '/proc/meminfo' =>

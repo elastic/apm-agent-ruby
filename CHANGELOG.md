@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+- Reading CPU stats from /proc/stat on RHEL ([#312](https://github.com/elastic/apm-agent-ruby/pull/312))
+
 ## Changed (2019-01-31)
 
 ### Added
