@@ -43,7 +43,7 @@ else
   gem framework
 end
 
-unless version == 'master'
+unless version =~ /^(master|6)/
   gem 'delayed_job', require: nil
 end
 
