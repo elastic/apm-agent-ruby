@@ -1,17 +1,13 @@
 # frozen_string_literal: true
 
-if ENV['CI']
-  require 'simplecov'
-  require 'codecov'
-
-  ENV['CODECOV_TOKEN'] = 'b2e52084-f5e1-4690-9a24-f46cd6e2689c'
-
-  SimpleCov.start { add_filter('/spec/') }
-  SimpleCov.formatter = SimpleCov::Formatter::Codecov
-end
-
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
-ENV['ELASTIC_APM_ENABLED_ENVIRONMENTS'] = 'test'
+
+if ENV['INCLUDE_COVERAGE'] == '1'
+  require 'simplecov'
+  require 'simplecov-cobertura'
+  SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
+  SimpleCov.start { add_filter('/spec/') }
+end
 
 require 'bundler/setup'
 Bundler.require :default, 'test'
