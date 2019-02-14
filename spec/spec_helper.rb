@@ -2,8 +2,6 @@
 
 require 'simplecov'
 SimpleCov.start { add_filter('/spec/') }
-require 'codecov'
-SimpleCov.formatter = SimpleCov::Formatter::Codecov
 
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 ENV['ELASTIC_APM_ENABLED_ENVIRONMENTS'] = 'test'
