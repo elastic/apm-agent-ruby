@@ -514,17 +514,15 @@ It has to be provided in *<<config-format-duration, duration format>>*.
 
 [float]
 [[config-ssl-ca-cert]]
-==== `ssl_ca_cert`
+==== `server_ca_cert`
 
 [options="header"]
 |============
-| Environment                | `Config` key    | Default | Example
-| `ELASTIC_APM_SSL_CA_CERT`  | `ssl_ca_cert`   | `nil`   | /path/to/ca.pem
+| Environment                  | `Config` key     | Default | Example
+| `ELASTIC_APM_SERVER_CA_CERT` | `server_ca_cert` | `nil`   | `'/path/to/ca.pem'`
 |============
 
-This parameter should contain the path to a .pem formatted CA certificate. This
-allows verification of self-signed certificates instead of disabling server
-certificate verification.
+The path to a custom CA certificate for connecting to APM Server.
 
 [float]
 [[config-transaction-max-spans]]
