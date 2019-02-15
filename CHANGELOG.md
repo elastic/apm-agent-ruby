@@ -6,6 +6,8 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ## Unreleased
 
+### Added option to specify a custom server CA certificate ([#315](https://github.com/elastic/apm-agent-ruby/pull/315))
+
 ### Fixed
 
 - Reading CPU stats from /proc/stat on RHEL ([#312](https://github.com/elastic/apm-agent-ruby/pull/312))

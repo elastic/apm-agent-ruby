@@ -81,6 +81,7 @@ module ElasticAPM
       'ELASTIC_APM_LOG_PATH' => 'log_path',
       'ELASTIC_APM_METRICS_INTERVAL' => [:int, 'metrics_interval'],
       'ELASTIC_APM_POOL_SIZE' => [:int, 'pool_size'],
+      'ELASTIC_APM_SERVER_CA_CERT' => 'server_ca_cert',
       'ELASTIC_APM_SERVICE_NAME' => 'service_name',
       'ELASTIC_APM_SERVICE_VERSION' => 'service_version',
       'ELASTIC_APM_SOURCE_LINES_ERROR_APP_FRAMES' =>
@@ -156,6 +157,7 @@ module ElasticAPM
     attr_accessor :logger
     attr_accessor :metrics_interval
     attr_accessor :pool_size
+    attr_accessor :server_ca_cert
     attr_accessor :service_name
     attr_accessor :service_version
     attr_accessor :source_lines_error_app_frames
