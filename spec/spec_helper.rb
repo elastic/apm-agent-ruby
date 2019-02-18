@@ -2,10 +2,8 @@
 
 require 'simplecov'
 require 'simplecov-cobertura'
-SimpleCov.start do
-  add_filter('/spec/')
-  SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
-end
+SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
+SimpleCov.start { add_filter('/spec/') }
 
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 ENV['ELASTIC_APM_ENABLED_ENVIRONMENTS'] = 'test'
