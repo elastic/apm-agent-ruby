@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
-require 'simplecov'
-require 'simplecov-cobertura'
-SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
-SimpleCov.start { add_filter('/spec/') }
-
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
-ENV['ELASTIC_APM_ENABLED_ENVIRONMENTS'] = 'test'
+
+if ENV['BUILD_NUMBER'] # CI
+  require 'simplecov'
+  require 'simplecov-cobertura'
+  SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
+  SimpleCov.start { add_filter('/spec/') }
+end
 
 require 'bundler/setup'
 Bundler.require :default, 'test'
