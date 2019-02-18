@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'simplecov'
-SimpleCov.start {
+SimpleCov.start do
   add_filter('/spec/')
   SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
-}
+end
 
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 ENV['ELASTIC_APM_ENABLED_ENVIRONMENTS'] = 'test'
