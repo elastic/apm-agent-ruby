@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'simplecov'
+require 'simplecov-cobertura'
 SimpleCov.start do
   add_filter('/spec/')
   SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
