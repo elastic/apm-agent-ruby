@@ -53,11 +53,11 @@ See <<getting-started-rack>>.
 
 We automatically instrument database actions using:
 
-- ActiveRecord
-- Elasticsearch
-- Mongo
-- Redis
-- Sequel
+- ActiveRecord (v4.2+)
+- Elasticsearch (v0.9+)
+- Mongo (v2.1+)
+- Redis (v3.1+)
+- Sequel (v4.35+)
 
 [float]
 [[supported-technologies-http]]
@@ -67,4 +67,5 @@ We automatically instrument and add support for distributed tracing to external
 requests using these libraries:
 
 - `net/http`
-- Http.rb
+- Http.rb (v0.6+)
+- Faraday (v0.2.1+)
