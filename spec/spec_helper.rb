@@ -2,8 +2,8 @@
 
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 
-puts ENV['BUILD_NUMBER'].inspect
-if ENV['BUILD_NUMBER'] # CI
+puts ENV['CI'].inspect
+if ENV['CI']
   require 'simplecov'
   require 'simplecov-cobertura'
   SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
