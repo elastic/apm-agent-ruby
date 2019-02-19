@@ -129,7 +129,7 @@ WARNING: Secret tokens only provide any real security if your APM server use TLS
 
 Maximum amount of objects kept in queue, before sending to APM Server.
 
-If you hit this limit you either have to increase the agent's 
+If you hit this limit you either have to increase the agent's
 <<config-pool-size,worker pool size>> or it could mean the agent has trouble
 connecting to APM Server. The <<config-log-path,logs>> should tell you what
 went wrong.
@@ -511,6 +511,18 @@ Set it to `-1` to collect stack traces for all spans.
 Set it to `0` to disable stack trace collection for all spans.
 
 It has to be provided in *<<config-format-duration, duration format>>*.
+
+[float]
+[[config-ssl-ca-cert]]
+==== `server_ca_cert`
+
+[options="header"]
+|============
+| Environment                  | `Config` key     | Default | Example
+| `ELASTIC_APM_SERVER_CA_CERT` | `server_ca_cert` | `nil`   | `'/path/to/ca.pem'`
+|============
+
+The path to a custom CA certificate for connecting to APM Server.
 
 [float]
 [[config-transaction-max-spans]]
