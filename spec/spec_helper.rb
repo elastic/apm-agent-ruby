@@ -2,7 +2,8 @@
 
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 
-if ENV['JENKINS_FILE'] # CI
+pp ENV['BUILD_NUMBER']
+if ENV['BUILD_NUMBER'] # CI
   require 'simplecov'
   require 'simplecov-cobertura'
   SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
