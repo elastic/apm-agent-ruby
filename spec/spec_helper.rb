@@ -2,7 +2,7 @@
 
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 
-pp ENV['BUILD_NUMBER']
+puts ENV['BUILD_NUMBER'].inspect
 if ENV['BUILD_NUMBER'] # CI
   require 'simplecov'
   require 'simplecov-cobertura'
