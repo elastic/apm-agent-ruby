@@ -2,8 +2,7 @@
 
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 
-puts ENV['CI'].inspect
-if ENV['CI']
+if ENV['INCLUDE_COVERAGE'] == '1'
   require 'simplecov'
   require 'simplecov-cobertura'
   SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
