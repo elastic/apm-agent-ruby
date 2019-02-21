@@ -3,6 +3,9 @@
 module ElasticAPM
   # @api private
   class ContextBuilder
+    MAX_BODY_LENGTH = 2048
+    SKIPPED = '[SKIPPED]'
+
     def initialize(config)
       @config = config
     end
@@ -29,7 +32,7 @@ module ElasticAPM
       request.method = req.request_method
       request.url = Context::Request::Url.new(req)
 
-      request.body = get_body(req) if config.capture_body?
+      request.body = config.capture_body? ? get_body(req) : SKIPPED
 
       headers, env = get_headers_and_env(rack_env)
       request.headers = headers if config.capture_headers?
@@ -40,11 +43,9 @@ module ElasticAPM
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def get_body(req)
-      return req.POST if req.form_data?
-
       body = req.body.read
       req.body.rewind
-      body
+      body.byteslice(0, MAX_BODY_LENGTH)
     end
 
     def rails_req?(env)

@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'elastic_apm/transport/filters/request_body_filter'
 require 'elastic_apm/transport/filters/secrets_filter'
 
 module ElasticAPM
@@ -14,10 +13,7 @@ module ElasticAPM
       # @api private
       class Container
         def initialize(config)
-          @filters = {
-            request_body: RequestBodyFilter.new(config),
-            secrets: SecretsFilter.new(config)
-          }
+          @filters = { secrets: SecretsFilter.new(config) }
         end
 
         def add(key, filter)

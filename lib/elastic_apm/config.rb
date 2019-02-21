@@ -22,7 +22,7 @@ module ElasticAPM
       api_buffer_size: 256,
       api_request_size: '750kb',
       api_request_time: '10s',
-      capture_body: true,
+      capture_body: false,
       capture_headers: true,
       capture_env: true,
       current_user_email_method: :email,

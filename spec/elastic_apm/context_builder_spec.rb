@@ -3,7 +3,8 @@
 module ElasticAPM
   RSpec.describe ContextBuilder do
     describe '#build' do
-      let(:subject) { described_class.new(Config.new) }
+      let(:config) { Config.new }
+      let(:subject) { described_class.new(config) }
 
       it 'enriches request' do
         env = Rack::MockRequest.env_for(
@@ -30,6 +31,62 @@ module ElasticAPM
         expect(request.headers).to eq(
           'Content-Type' => 'application/json'
         )
+      end
+
+      context 'with form body' do
+        let(:config) { Config.new capture_body: true }
+
+        it 'includes body' do
+          env = Rack::MockRequest.env_for(
+            '/',
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            input: 'asd=123'
+          )
+
+          result = subject.build(env)
+
+          expect(result.request.body).to eq 'asd=123'
+        end
+      end
+
+      context 'with binary body' do
+        let(:config) { Config.new capture_body: true }
+
+        it 'skips body' do
+          Tempfile.open('test', encoding: 'binary') do |f|
+            f.write('0123456789' * 1024 * 1024)
+            f.rewind
+
+            env = Rack::MockRequest.env_for(
+              '/',
+              method: 'POST',
+              params: {
+                file: Rack::Multipart::UploadedFile.new(f.path, 'binary')
+              }
+            )
+
+            result = subject.build(env)
+
+            expect(result.request.body).to match(/Content-Disposition/)
+            expect(result.request.body.bytesize).to be 2048
+          end
+        end
+      end
+
+      context 'with JSON body' do
+        let(:config) { Config.new capture_body: true }
+
+        it 'includes body' do
+          env = Rack::MockRequest.env_for(
+            '/',
+            'CONTENT_TYPE' => 'application/json',
+            input: { something: 'everything' }.to_json
+          )
+
+          result = subject.build(env)
+
+          expect(result.request.body).to eq '{"something":"everything"}'
+        end
       end
     end
   end
