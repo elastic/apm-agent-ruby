@@ -54,7 +54,7 @@ module ElasticAPM
 
         it 'skips body' do
           Tempfile.open('test', encoding: 'binary') do |f|
-            f.write ('0123456789' * 1024 * 1024)
+            f.write('0123456789' * 1024 * 1024)
             f.rewind
 
             env = Rack::MockRequest.env_for(

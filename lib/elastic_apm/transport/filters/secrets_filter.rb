@@ -37,6 +37,7 @@ module ElasticAPM
           payload
         end
 
+        # rubocop:disable Metrics/MethodLength
         def strip_from(obj)
           case obj
           when Hash
@@ -50,6 +51,7 @@ module ElasticAPM
             obj.gsub!(/=([^&=]+)/, "=#{FILTERED}")
           end
         end
+        # rubocop:enable Metrics/MethodLength
 
         def filter_key?(key)
           @key_filters.any? { |regex| key.match regex }
