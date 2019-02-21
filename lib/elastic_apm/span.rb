@@ -1,47 +1,41 @@
 # frozen_string_literal: true
 
 require 'securerandom'
+require 'forwardable'
 
 require 'elastic_apm/span/context'
 
 module ElasticAPM
   # @api private
   class Span
+    extend Forwardable
+
+    def_delegators :@trace_context, :trace_id, :parent_id, :id
+
     DEFAULT_TYPE = 'custom'
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(
-      name,
-      type = nil,
-      transaction_id: nil,
-      parent_id: nil,
+      name:,
+      transaction_id:,
+      trace_context:,
+      type: nil,
       context: nil,
-      stacktrace_builder: nil,
-      trace_context: nil
+      stacktrace_builder: nil
     )
       @name = name
       @type = type || DEFAULT_TYPE
 
       @transaction_id = transaction_id
-
-      @parent_id = parent_id
-      @trace_context = trace_context || TraceContext.for_span
+      @trace_context = trace_context
 
       @context = context || Span::Context.new
       @stacktrace_builder = stacktrace_builder
     end
     # rubocop:enable Metrics/ParameterLists
 
-    attr_accessor :name, :type, :original_backtrace, :parent_id, :trace_context
+    attr_accessor :name, :type, :original_backtrace, :trace_context
     attr_reader :context, :stacktrace, :duration, :timestamp, :transaction_id
-
-    def id
-      trace_context&.span_id
-    end
-
-    def trace_id
-      trace_context&.trace_id
-    end
 
     # life cycle
 

@@ -10,8 +10,12 @@ module ElasticAPM
 
         describe '#build', :mock_time do
           let(:transaction) { Transaction.new.start }
+          let(:tc) { TraceContext.parse("00-#{'1' * 32}-#{'2' * 16}-01") }
           let :span do
-            Span.new('Span', transaction_id: transaction.id).tap do |span|
+            Span.new(name: 'Span',
+                     transaction_id: transaction.id,
+                     trace_context: tc)
+                .tap do |span|
               span.start
               travel 100
               span.stop
@@ -39,13 +43,13 @@ module ElasticAPM
 
           context 'with a context' do
             let(:span) do
-              Span.new(
-                'Span',
-                context: Span::Context.new(
-                  db: { statement: 'asd' },
-                  http: { url: 'dsa' }
-                )
-              )
+              Span.new(name: 'Span',
+                       transaction_id: transaction.id,
+                       trace_context: tc,
+                       context: Span::Context.new(
+                         db: { statement: 'asd' },
+                         http: { url: 'dsa' }
+                       ))
             end
 
             it 'adds context object' do
