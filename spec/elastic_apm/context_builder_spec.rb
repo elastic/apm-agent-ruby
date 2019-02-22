@@ -39,13 +39,13 @@ module ElasticAPM
         it 'includes body' do
           env = Rack::MockRequest.env_for(
             '/',
-            'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
-            input: 'asd=123'
+            method: 'POST',
+            params: { thing: 123 }
           )
 
           result = subject.build(env)
 
-          expect(result.request.body).to eq 'asd=123'
+          expect(result.request.body).to eq('thing' => '123')
         end
       end
 
@@ -67,8 +67,8 @@ module ElasticAPM
 
             result = subject.build(env)
 
-            expect(result.request.body).to match(/Content-Disposition/)
-            expect(result.request.body.bytesize).to be 2048
+            expect(result.request.body).to match('file' => Hash)
+            expect(result.request.body['file'][:type]).to eq 'binary'
           end
         end
       end

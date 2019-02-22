@@ -43,9 +43,16 @@ module ElasticAPM
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def get_body(req)
-      body = req.body.read
-      req.body.rewind
-      body.byteslice(0, MAX_BODY_LENGTH)
+      case req.media_type
+      when 'application/x-www-form-urlencoded'
+        req.POST
+      when 'multipart/form-data'
+        req.POST
+      else
+        body = req.body.read
+        req.body.rewind
+        body.byteslice(0, MAX_BODY_LENGTH)
+      end
     end
 
     def rails_req?(env)
