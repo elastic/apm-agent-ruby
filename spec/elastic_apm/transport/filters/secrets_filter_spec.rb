@@ -45,13 +45,13 @@ module ElasticAPM
 
         it 'removes secrets from form bodies' do
           payload = { transaction: { context: { request: {
-            body: +'api_key=secret&credit_card=4111111111111111'
+            body: { 'api_key' => 'super-secret', 'other' => 'not me' }
           } } } }
 
           subject.call(payload)
 
           body = payload.dig(:transaction, :context, :request, :body)
-          expect(body).to eq('api_key=[FILTERED]&credit_card=[FILTERED]')
+          expect(body).to match('api_key' => '[FILTERED]', 'other' => 'not me')
         end
 
         context 'with custom_key_filters' do

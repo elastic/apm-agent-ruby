@@ -28,30 +28,24 @@ module ElasticAPM
         end
 
         def call(payload)
-          strip_from payload.dig(:transaction, :context, :request, :headers)
-          strip_from payload.dig(:transaction, :context, :response, :headers)
-          strip_from payload.dig(:error, :context, :request, :headers)
-          strip_from payload.dig(:error, :context, :response, :headers)
-          strip_from payload.dig(:transaction, :context, :request, :body)
+          strip_from! payload.dig(:transaction, :context, :request, :headers)
+          strip_from! payload.dig(:transaction, :context, :response, :headers)
+          strip_from! payload.dig(:error, :context, :request, :headers)
+          strip_from! payload.dig(:error, :context, :response, :headers)
+          strip_from! payload.dig(:transaction, :context, :request, :body)
 
           payload
         end
 
-        # rubocop:disable Metrics/MethodLength
-        def strip_from(obj)
-          case obj
-          when Hash
-            obj.each do |k, v|
-              if filter_key?(k) || filter_value?(v)
-                obj[k] = FILTERED
-              end
+        def strip_from!(obj)
+          return unless obj && obj.is_a?(Hash)
+
+          obj.each do |k, v|
+            if filter_key?(k) || filter_value?(v)
+              obj[k] = FILTERED
             end
-          when String
-            return unless obj.include?('=')
-            obj.gsub!(/=([^&=]+)/, "=#{FILTERED}")
           end
         end
-        # rubocop:enable Metrics/MethodLength
 
         def filter_key?(key)
           @key_filters.any? { |regex| key.match regex }
