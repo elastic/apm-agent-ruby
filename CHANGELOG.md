@@ -17,6 +17,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 ### Fixed
 
 - Reading CPU stats from /proc/stat on RHEL ([#312](https://github.com/elastic/apm-agent-ruby/pull/312))
+- Changing TraceContext to differentiate between `id` and `parent_id` ([#326](https://github.com/elastic/apm-agent-ruby/pull/326))
 
 ## 2.3.1 (2019-01-31)
 
