@@ -93,28 +93,20 @@ module ElasticAPM
 
     # @api private
     class SpanContext
-      def initialize(id:, trace_id:, baggage: nil)
+      def initialize(trace_context:, baggage: nil)
         if baggage
           ElasticAPM.agent.config.logger.warn(
             'Baggage is not supported by ElasticAPM'
           )
         end
 
-        @id = id
-        @trace_id = trace_id
-        @trace_context =
-          ElasticAPM::TraceContext.new(trace_id: trace_id, span_id: id)
+        @trace_context = trace_context
       end
 
-      attr_accessor :id, :trace_id, :trace_context
+      attr_accessor :trace_context
 
       def self.from_trace_context(trace_context)
-        new(
-          trace_id: trace_context.trace_id,
-          id: trace_context.span_id
-        ).tap do |span_context|
-          span_context.trace_context = trace_context
-        end
+        new(trace_context: trace_context)
       end
     end
 

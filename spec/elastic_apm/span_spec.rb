@@ -2,34 +2,36 @@
 
 module ElasticAPM
   RSpec.describe Span do
-    subject { described_class.new 'Spannest name' }
+    subject do
+      described_class.new(name: 'Spannest name',
+                          transaction_id: transaction_id,
+                          trace_context: trace_context)
+    end
+    let(:trace_context) do
+      TraceContext.parse("00-#{'1' * 32}-#{'2' * 16}-01")
+    end
+    let(:transaction_id) { 'transaction_id' }
 
     describe '#initialize' do
       its(:name) { should be 'Spannest name' }
       its(:type) { should be 'custom' }
-      its(:transaction_id) { should be_nil }
+      its(:transaction_id) { should be transaction_id }
+      its(:trace_context) { should be trace_context }
       its(:timestamp) { should be_nil }
-      its(:parent_id) { should be_nil }
       its(:context) { should be_a Span::Context }
-
-      context 'with a trace context' do
-        it 'creates a child trace context' do
-          trace_context =
-            TraceContext.parse("00-#{'1' * 32}-#{'2' * 16}-01")
-          span = Span.new 'Spannest name', trace_context: trace_context
-
-          expect(span.trace_context.version).to eq trace_context.version
-          expect(span.trace_context.trace_id).to eq trace_context.trace_id
-          expect(span.trace_context.span_id).to eq trace_context.span_id
-          expect(span.trace_context.flags).to eq trace_context.flags
-        end
-      end
+      its(:trace_id) { should be trace_context.trace_id }
+      its(:id) { should be trace_context.id }
+      its(:parent_id) { should be trace_context.parent_id }
     end
 
     describe '#start', :mock_time do
       let(:transaction) { Transaction.new }
 
-      subject { described_class.new('Span') }
+      subject do
+        described_class.new(name: 'Spannest name',
+                            transaction_id: transaction.id,
+                            trace_context: trace_context)
+      end
 
       it 'has a relative and absolute start time', :mock_time do
         transaction.start
@@ -42,7 +44,11 @@ module ElasticAPM
     describe '#stopped', :mock_time do
       let(:transaction) { Transaction.new }
 
-      subject { described_class.new('Span') }
+      subject do
+        described_class.new(name: 'Spannest name',
+                            transaction_id: transaction.id,
+                            trace_context: trace_context)
+      end
 
       it 'sets duration' do
         transaction.start
@@ -64,7 +70,9 @@ module ElasticAPM
 
       subject do
         described_class.new(
-          'Span',
+          name: 'Span',
+          transaction_id: transaction_id,
+          trace_context: trace_context,
           stacktrace_builder: StacktraceBuilder.new(config)
         )
       end

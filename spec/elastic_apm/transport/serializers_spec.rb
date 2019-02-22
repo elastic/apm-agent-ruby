@@ -17,7 +17,10 @@ module ElasticAPM
       describe '#serialize' do
         it 'serializes known objects' do
           expect(subject.serialize(Transaction.new)).to be_a Hash
-          expect(subject.serialize(Span.new('Name'))).to be_a Hash
+          expect(subject.serialize(Span.new(name: 'Name',
+                                            transaction_id: '',
+                                            trace_context: TraceContext.new)))
+            .to be_a Hash
           expect(subject.serialize(Error.new)).to be_a Hash
         end
 

@@ -245,7 +245,11 @@ RSpec.describe 'OpenTracing bridge', :intercept do
       end
 
       context 'when span' do
-        let(:elastic_span) { ElasticAPM::Span.new 'Not test' }
+        let(:elastic_span) do
+          ElasticAPM::Span.new(name: 'Span',
+                               transaction_id: 'transaction_id',
+                               trace_context: trace_context)
+        end
         let(:trace_context) { nil }
 
         it_behaves_like :opengraph_span

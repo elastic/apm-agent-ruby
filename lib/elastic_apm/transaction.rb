@@ -1,15 +1,20 @@
 # frozen_string_literal: true
 
 require 'securerandom'
+require 'forwardable'
 
 module ElasticAPM
   # @api private
   class Transaction
     extend Deprecations
+    extend Forwardable
+
+    def_delegators :@trace_context,
+      :trace_id, :parent_id, :id, :ensure_parent_id
 
     DEFAULT_TYPE = 'custom'
 
-    # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
+    # rubocop:disable Metrics/ParameterLists
     def initialize(
       name = nil,
       type = nil,
@@ -26,28 +31,19 @@ module ElasticAPM
       @context = context || Context.new # TODO: Lazy generate this?
       Util.reverse_merge!(@context.tags, tags) if tags
 
-      if trace_context
-        @parent_id = trace_context.span_id
-        @trace_context = trace_context
-      else
-        @trace_context = TraceContext.for_transaction(sampled: sampled)
-      end
+      @trace_context = trace_context || TraceContext.new(recorded: sampled)
 
       @started_spans = 0
       @dropped_spans = 0
 
       @notifications = [] # for AS::Notifications
     end
-    # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
+    # rubocop:enable Metrics/ParameterLists
 
     attr_accessor :name, :type, :result
 
     attr_reader :context, :duration, :started_spans, :dropped_spans,
-      :timestamp, :trace_context, :notifications, :parent_id
-
-    def id
-      trace_context.span_id
-    end
+      :timestamp, :trace_context, :notifications
 
     def sampled?
       @sampled
@@ -62,10 +58,6 @@ module ElasticAPM
     end
 
     deprecate :done?, :stopped?
-
-    def trace_id
-      trace_context&.trace_id
-    end
 
     # life cycle
 
@@ -84,11 +76,6 @@ module ElasticAPM
       stop end_time
       self.result = result if result
       self
-    end
-
-    def ensure_parent_id
-      @parent_id ||= SecureRandom.hex(8)
-      @parent_id
     end
 
     # spans

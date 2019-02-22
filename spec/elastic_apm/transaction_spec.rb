@@ -59,9 +59,9 @@ module ElasticAPM
         expect(subject.parent_id).to be parent_id
       end
 
-      it 'keeps and returns current if set' do
+      it 'keeps and returns current parent id if set' do
         trace_context = TraceContext.new
-        trace_context.span_id = 'things'
+        trace_context.parent_id = 'things'
         subject = Transaction.new trace_context: trace_context
 
         parent_id = subject.ensure_parent_id

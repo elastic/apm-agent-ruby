@@ -8,37 +8,27 @@ module ElasticAPM
     VERSION = '00'
     HEX_REGEX = /[^[:xdigit:]]/.freeze
 
+    TRACE_ID_LENGTH = 16
+    ID_LENGTH = 8
+
     def initialize(
       version: VERSION,
       trace_id: nil,
       span_id: nil,
+      id: nil,
       recorded: true
     )
       @version = version
-      @trace_id = trace_id
-      @span_id = span_id
+      @trace_id = trace_id || hex(TRACE_ID_LENGTH)
+      # TODO: rename to parent_id with next major version bump
+      @parent_id = span_id
+      @id = id || hex(ID_LENGTH)
       @recorded = recorded
     end
 
-    attr_accessor :version, :trace_id, :span_id, :recorded
+    attr_accessor :version, :id, :trace_id, :parent_id, :recorded
 
     alias :recorded? :recorded
-
-    def self.for_transaction(sampled: true)
-      new.tap do |t|
-        t.trace_id = SecureRandom.hex(16)
-        t.span_id = SecureRandom.hex(8)
-        t.recorded = sampled
-      end
-    end
-
-    def self.for_span
-      new.tap do |t|
-        t.trace_id = SecureRandom.hex(16)
-        t.span_id = SecureRandom.hex(8)
-        t.recorded = true
-      end
-    end
 
     # rubocop:disable Metrics/AbcSize
     def self.parse(header)
@@ -46,13 +36,13 @@ module ElasticAPM
       raise InvalidTraceparentHeader unless header[0..1] == VERSION
 
       new.tap do |t|
-        t.version, t.trace_id, t.span_id, t.flags =
+        t.version, t.trace_id, t.parent_id, t.flags =
           header.split('-').tap do |values|
             values[-1] = Util.hex_to_bits(values[-1])
           end
 
         raise InvalidTraceparentHeader if HEX_REGEX =~ t.trace_id
-        raise InvalidTraceparentHeader if HEX_REGEX =~ t.span_id
+        raise InvalidTraceparentHeader if HEX_REGEX =~ t.parent_id
       end
     end
     # rubocop:enable Metrics/AbcSize
@@ -71,12 +61,35 @@ module ElasticAPM
       format('%02x', flags.to_i(2))
     end
 
+    def ensure_parent_id
+      @parent_id ||= hex(ID_LENGTH)
+    end
+
     def child
-      dup.tap { |tc| tc.span_id = SecureRandom.hex(8) }
+      dup.tap do |tc|
+        tc.parent_id = tc.id
+        tc.id = hex(ID_LENGTH)
+      end
     end
 
     def to_header
-      format('%s-%s-%s-%s', version, trace_id, span_id, hex_flags)
+      format('%s-%s-%s-%s', version, trace_id, id, hex_flags)
+    end
+
+    # @deprecated Use parent_id instead
+    def span_id
+      @parent_id
+    end
+
+    # @deprecated Use parent_id instead
+    def span_id=(span_id)
+      @parent_id = span_id
+    end
+
+    private
+
+    def hex(len)
+      SecureRandom.hex(len)
     end
   end
 end
