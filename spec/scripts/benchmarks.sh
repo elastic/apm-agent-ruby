@@ -18,6 +18,8 @@ RUBY_IMAGE=${1/-/:}
 docker build --pull --force-rm --build-arg RUBY_IMAGE=$RUBY_IMAGE -t apm-agent-ruby:$1 .
 RUBY_VERSION=$1 docker-compose run \
   --user $UID \
+  -e HOME=/app \
+  -w /app \
   -e LOCAL_USER_ID=$UID \
   -v "$local_vendor_path:$container_vendor_path" \
   -v "$(dirname $(pwd))":/app \
