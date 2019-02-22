@@ -4,10 +4,10 @@ require 'spec_helper'
 
 module ElasticAPM
   RSpec.describe TraceContext do
-    describe '.for_transaction' do
+    describe '.new' do
       let(:transaction) { Transaction.new }
 
-      subject { described_class.for_transaction }
+      subject { described_class.new }
 
       its(:version) { should be '00' }
       its(:trace_id) { should match(/.{16}/) }

@@ -8,8 +8,8 @@ module ElasticAPM
     VERSION = '00'
     HEX_REGEX = /[^[:xdigit:]]/.freeze
 
-    TRACE_ID_N = 16
-    ID_N = 8
+    TRACE_ID_LENGTH = 16
+    ID_LENGTH = 8
 
     def initialize(
       version: VERSION,
@@ -19,19 +19,16 @@ module ElasticAPM
       recorded: true
     )
       @version = version
-      @trace_id = trace_id || hex_id(TRACE_ID_N)
-      @parent_id = span_id # rename to parent_id with next major version bump
-      @id = id || hex_id(ID_N)
+      @trace_id = trace_id || hex(TRACE_ID_LENGTH)
+      # TODO: rename to parent_id with next major version bump
+      @parent_id = span_id
+      @id = id || hex(ID_LENGTH)
       @recorded = recorded
     end
 
     attr_accessor :version, :id, :trace_id, :parent_id, :recorded
 
     alias :recorded? :recorded
-
-    def self.for_transaction(sampled: true)
-      new(recorded: sampled)
-    end
 
     # rubocop:disable Metrics/AbcSize
     def self.parse(header)
@@ -65,14 +62,13 @@ module ElasticAPM
     end
 
     def ensure_parent_id
-      @parent_id ||= hex_id(ID_N)
-      @parent_id
+      @parent_id ||= hex(ID_LENGTH)
     end
 
     def child
       dup.tap do |tc|
         tc.parent_id = tc.id
-        tc.id = hex_id(ID_N)
+        tc.id = hex(ID_LENGTH)
       end
     end
 
@@ -92,7 +88,7 @@ module ElasticAPM
 
     private
 
-    def hex_id(len)
+    def hex(len)
       SecureRandom.hex(len)
     end
   end

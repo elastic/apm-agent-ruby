@@ -9,7 +9,8 @@ module ElasticAPM
     extend Deprecations
     extend Forwardable
 
-    def_delegators :@trace_context, :trace_id, :parent_id, :id
+    def_delegators :@trace_context,
+      :trace_id, :parent_id, :id, :ensure_parent_id
 
     DEFAULT_TYPE = 'custom'
 
@@ -30,8 +31,7 @@ module ElasticAPM
       @context = context || Context.new # TODO: Lazy generate this?
       Util.reverse_merge!(@context.tags, tags) if tags
 
-      @trace_context = trace_context ||
-                       TraceContext.for_transaction(sampled: sampled)
+      @trace_context = trace_context || TraceContext.new(recorded: sampled)
 
       @started_spans = 0
       @dropped_spans = 0
@@ -58,10 +58,6 @@ module ElasticAPM
     end
 
     deprecate :done?, :stopped?
-
-    def ensure_parent_id
-      trace_context.ensure_parent_id
-    end
 
     # life cycle
 
