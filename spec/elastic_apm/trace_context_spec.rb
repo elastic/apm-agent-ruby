@@ -135,5 +135,16 @@ module ElasticAPM
         its(:flags) { should eq '00000001' }
       end
     end
+
+    describe '#tests deprecated span_id' do
+      subject(:tc) { TraceContext.new span_id: 'abc' }
+      its(:parent_id) { should eq 'abc' }
+      its(:span_id) { should eq 'abc' }
+
+      describe 'set span_id' do
+        before { tc.span_id = 'foo' }
+        its(:parent_id) { should eq 'foo' }
+      end
+    end
   end
 end
