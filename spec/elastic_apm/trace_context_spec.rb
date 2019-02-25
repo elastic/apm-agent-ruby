@@ -135,5 +135,27 @@ module ElasticAPM
         its(:flags) { should eq '00000001' }
       end
     end
+
+    describe '#tests deprecated span_id' do
+      subject(:tc) { TraceContext.new span_id: 'abc' }
+      it 'outputs deprecated warning' do
+        expect_any_instance_of(ElasticAPM::TraceContext)
+          .to receive(:warn)
+          .with(/DEPRECATED/)
+        expect(tc.span_id).to eq 'abc'
+        expect(tc.parent_id).to eq 'abc'
+      end
+
+      describe '#tests deprecated span_id='
+      subject(:tc) { TraceContext.new span_id: 'abc' }
+
+      it 'outputs deprecated warning' do
+        expect_any_instance_of(ElasticAPM::TraceContext)
+          .to receive(:warn)
+          .with(/DEPRECATED/)
+        tc.span_id = 'foo'
+        expect(tc.parent_id).to eq 'foo'
+      end
+    end
   end
 end
