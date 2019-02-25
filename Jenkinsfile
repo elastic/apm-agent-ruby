@@ -39,7 +39,7 @@ pipeline {
     Checkout the code and stash it, to use it on other stages.
     */
     stage('Checkout') {
-      agent { label 'linux && immutable' }
+      agent { label 'flyweight' }
       options { skipDefaultCheckout() }
       steps {
         deleteDir()
@@ -51,7 +51,7 @@ pipeline {
     Execute unit tests.
     */
     stage('Test') {
-      agent { label 'linux && immutable' }
+      agent { label 'flyweight' }
       options { skipDefaultCheckout() }
       steps {
         deleteDir()
