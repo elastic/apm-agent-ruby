@@ -21,7 +21,7 @@ method.
 [source,ruby]
 ----
 class Thing
-  include SpanHelpers
+  include ElasticAPM::SpanHelpers
 
   def do_the_work
     # ...
