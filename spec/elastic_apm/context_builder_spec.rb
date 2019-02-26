@@ -76,7 +76,7 @@ module ElasticAPM
       context 'with JSON body' do
         let(:config) { Config.new capture_body: true }
 
-        it 'includes body' do
+        it 'includes body in utf-8' do
           env = Rack::MockRequest.env_for(
             '/',
             'CONTENT_TYPE' => 'application/json',
@@ -86,6 +86,7 @@ module ElasticAPM
           result = subject.build(env)
 
           expect(result.request.body).to eq '{"something":"everything"}'
+          expect(result.request.body.encoding).to eq Encoding::UTF_8
         end
       end
     end
