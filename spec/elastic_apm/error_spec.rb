@@ -5,12 +5,8 @@ module ElasticAPM
     describe 'initialization' do
       subject { Error.new }
 
-      it { expect(subject.timestamp).to_not be nil }
-      it { expect(subject.context).to_not be nil }
-
-      it 'has an id' do
-        expect(subject.id).to_not be_nil
-      end
+      its(:id) { should_not be nil }
+      its(:timestamp) { should_not be nil }
     end
   end
 end

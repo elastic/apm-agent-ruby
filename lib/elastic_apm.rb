@@ -294,18 +294,25 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     # Report and exception to APM
     #
     # @param exception [Exception] The exception
+    # @param context [Context] An optional [Context]
     # @param handled [Boolean] Whether the exception was rescued
     # @return [Error] The generated [Error]
-    def report(exception, handled: true)
-      agent&.report(exception, handled: handled)
+    def report(exception, context: nil, handled: true)
+      agent&.report(exception, context: context, handled: handled)
     end
 
     # Report a custom string error message to APM
     #
     # @param message [String] The message
+    # @param context [Context] An optional [Context]
     # @return [Error] The generated [Error]
-    def report_message(message, **attrs)
-      agent&.report_message(message, backtrace: caller, **attrs)
+    def report_message(message, context: nil, **attrs)
+      agent&.report_message(
+        message,
+        context: context,
+        backtrace: caller,
+        **attrs
+      )
     end
 
     ### Context

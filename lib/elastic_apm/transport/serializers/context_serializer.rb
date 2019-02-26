@@ -6,6 +6,8 @@ module ElasticAPM
       # @api private
       class ContextSerializer < Serializer
         def build(context)
+          return nil unless context
+
           {
             custom: context.custom,
             tags: keyword_object(context.tags),

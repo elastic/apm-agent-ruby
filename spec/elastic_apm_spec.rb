@@ -127,11 +127,12 @@ RSpec.describe ElasticAPM do
     it { should delegate :current_transaction, to: agent }
 
     it do
-      should delegate :report, to: agent, args: ['E', { handled: nil }]
+      should delegate :report,
+        to: agent, args: ['E', { context: nil, handled: nil }]
     end
     it do
       should delegate :report_message,
-        to: agent, args: ['NOT OK', { backtrace: Array }]
+        to: agent, args: ['NOT OK', { backtrace: Array, context: nil }]
     end
     it { should delegate :set_tag, to: agent, args: [nil, nil] }
     it { should delegate :set_custom_context, to: agent, args: [nil] }
