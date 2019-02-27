@@ -13,16 +13,15 @@ module ElasticAPM
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def call(env)
       begin
-        context = ElasticAPM.build_context(env)
-
         if running? && !path_ignored?(env)
-          transaction = start_transaction(env, context: context)
+          transaction = start_transaction(env)
         end
 
         resp = @app.call env
       rescue InternalError
         raise # Don't report ElasticAPM errors
       rescue ::Exception => e
+        context = ElasticAPM.build_context(env, for_type: :error)
         ElasticAPM.report(e, context: context, handled: false)
         raise
       ensure
@@ -50,9 +49,9 @@ module ElasticAPM
       end
     end
 
-    def start_transaction(env, context:)
+    def start_transaction(env)
       ElasticAPM.start_transaction 'Rack', 'request',
-        context: context,
+        context: ElasticAPM.build_context(env, for_type: :transaction),
         trace_context: trace_context(env)
     end
 
