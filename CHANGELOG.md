@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 2.4.0 (2019-02-27)
 
 ### Added
 
@@ -16,8 +16,8 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ### Fixed
 
-- Reading CPU stats from /proc/stat on RHEL ([#312](https://github.com/elastic/apm-agent-ruby/pull/312))
-- Changing TraceContext to differentiate between `id` and `parent_id` ([#326](https://github.com/elastic/apm-agent-ruby/pull/326))
+- Reading CPU stats from `/proc/stat` on RHEL ([#312](https://github.com/elastic/apm-agent-ruby/pull/312))
+- Change TraceContext to differentiate between `id` and `parent_id` ([#326](https://github.com/elastic/apm-agent-ruby/pull/326))
 - `capture_body` will now force encode text bodies to utf-8 when possible ([#332](https://github.com/elastic/apm-agent-ruby/pull/332))
 
 ## 2.3.1 (2019-01-31)
