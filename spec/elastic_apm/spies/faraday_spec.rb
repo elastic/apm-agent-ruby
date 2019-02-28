@@ -44,6 +44,26 @@ module ElasticAPM
       WebMock.reset!
     end
 
+    it 'spans http calls when url in block', :intercept do
+      WebMock.stub_request(:get, %r{http://example.com/.*})
+      ElasticAPM.start
+      client = Faraday.new
+      ElasticAPM.with_transaction 'Faraday test' do
+        client.get do |req|
+          req.url('http://example.com/page.html')
+        end
+      end
+
+      span, = @intercepted.spans
+
+      expect(span).to_not be nil
+      expect(span.name).to eq 'GET example.com'
+      expect(span.type).to eq 'ext.faraday.get'
+
+      ElasticAPM.stop
+      WebMock.reset!
+    end
+
     it 'adds traceparent header' do
       req_stub =
         WebMock.stub_request(:get, %r{http://example.com/.*}).with do |req|
