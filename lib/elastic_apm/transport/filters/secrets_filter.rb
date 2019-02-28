@@ -37,15 +37,26 @@ module ElasticAPM
           payload
         end
 
+        # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
         def strip_from!(obj)
           return unless obj && obj.is_a?(Hash)
 
           obj.each do |k, v|
-            if filter_key?(k) || filter_value?(v)
-              obj[k] = FILTERED
+            if filter_key?(k)
+              next obj[k] = FILTERED
+            end
+
+            case v
+            when Hash
+              strip_from!(v)
+            when String
+              if filter_value?(v)
+                obj[k] = FILTERED
+              end
             end
           end
         end
+        # rubocop:enable Metrics/MethodLength, Metrics/CyclomaticComplexity
 
         def filter_key?(key)
           @key_filters.any? { |regex| key.match regex }

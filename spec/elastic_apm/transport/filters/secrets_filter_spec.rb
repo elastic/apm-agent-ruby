@@ -29,7 +29,11 @@ module ElasticAPM
           payload = { transaction: { context: { response: { headers: {
             ApiKey: 'very zecret!',
             Untouched: 'very much',
-            TotallyNotACreditCard: '4111 1111 1111 1111'
+            TotallyNotACreditCard: '4111 1111 1111 1111',
+            nested: {
+              even_works_token: 'abc'
+            },
+            secret_array_for_good_measure: [1, 2, 3]
           } } } } }
 
           subject.call(payload)
@@ -39,7 +43,9 @@ module ElasticAPM
           expect(headers).to match(
             ApiKey: '[FILTERED]',
             Untouched: 'very much',
-            TotallyNotACreditCard: '[FILTERED]'
+            TotallyNotACreditCard: '[FILTERED]',
+            nested: { even_works_token: '[FILTERED]' },
+            secret_array_for_good_measure: '[FILTERED]'
           )
         end
 
