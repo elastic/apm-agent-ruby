@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+- Fix error with `capture_body` and nested request bodies ([#339](https://github.com/elastic/apm-agent-ruby/pull/339))
+
 ## 2.4.0 (2019-02-27)
 
 ### Added
