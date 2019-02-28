@@ -17,6 +17,11 @@ module ElasticAPM
 
             host = if url_prefix.is_a?(URI) && url_prefix.host
                      url_prefix.host
+                   elsif url.nil?
+                     tmp_request = build_request(method) do |req|
+                       yield(req) if block_given?
+                     end
+                     URI(tmp_request.path).host
                    else
                      URI(url).host
                    end
