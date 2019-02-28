@@ -6,6 +6,10 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ## Unreleased
 
+### Added
+
+- Added the option `active` that will prevent the agent from starting if set to `false` ([#338](https://github.com/elastic/apm-agent-ruby/pull/338))
+
 ### Fixed
 
 - Fix error with `capture_body` and nested request bodies ([#339](https://github.com/elastic/apm-agent-ruby/pull/339))

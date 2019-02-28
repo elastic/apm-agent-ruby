@@ -23,6 +23,15 @@ module ElasticAPM
 
           Agent.stop # clean up
         end
+
+        context 'when active: false' do
+          let(:config) { Config.new(active: false) }
+
+          it "doesn't start" do
+            Agent.start(config)
+            expect(Agent.instance).to be nil
+          end
+        end
       end
 
       describe '.stop' do

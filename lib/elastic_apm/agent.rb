@@ -22,6 +22,7 @@ module ElasticAPM
       @instance
     end
 
+    # rubocop:disable Metrics/MethodLength
     def self.start(config)
       return @instance if @instance
 
@@ -30,9 +31,18 @@ module ElasticAPM
       LOCK.synchronize do
         return @instance if @instance
 
+        unless config.active?
+          config.logger.debug format(
+            '%sAgent disabled with active: false',
+            Logging::PREFIX
+          )
+          return
+        end
+
         @instance = new(config).start
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def self.stop
       LOCK.synchronize do
