@@ -22,6 +22,7 @@ module ElasticAPM
       @instance
     end
 
+    # rubocop:disable Metrics/MethodLength
     def self.start(config)
       return @instance if @instance
 
@@ -41,6 +42,7 @@ module ElasticAPM
         @instance = new(config).start
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def self.stop
       LOCK.synchronize do
@@ -73,7 +75,6 @@ module ElasticAPM
     attr_reader :config, :transport, :instrumenter,
       :stacktrace_builder, :context_builder, :error_builder, :metrics
 
-    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def start
       info '[%s] Starting agent, reporting to %s', VERSION, config.server_url
 
@@ -87,7 +88,6 @@ module ElasticAPM
 
       self
     end
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def stop
       debug 'Stopping agent'
