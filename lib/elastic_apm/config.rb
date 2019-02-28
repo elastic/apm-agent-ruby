@@ -19,6 +19,7 @@ module ElasticAPM
 
       server_url: 'http://localhost:8200',
 
+      active: true,
       api_buffer_size: 256,
       api_request_size: '750kb',
       api_request_time: '10s',
@@ -59,6 +60,7 @@ module ElasticAPM
       'ELASTIC_APM_SERVER_URL' => 'server_url',
       'ELASTIC_APM_SECRET_TOKEN' => 'secret_token',
 
+      'ELASTIC_APM_ACTIVE' => [:bool, 'active'],
       'ELASTIC_APM_API_BUFFER_SIZE' => [:int, 'api_buffer_size'],
       'ELASTIC_APM_API_REQUEST_SIZE' => [:int, 'api_request_size'],
       'ELASTIC_APM_API_REQUEST_TIME' => 'api_request_time',
@@ -131,6 +133,7 @@ module ElasticAPM
     attr_accessor :server_url
     attr_accessor :secret_token
 
+    attr_accessor :active
     attr_accessor :api_buffer_size
     attr_accessor :api_request_size
     attr_accessor :api_request_time
@@ -176,6 +179,7 @@ module ElasticAPM
     attr_accessor :view_paths
     attr_accessor :root_path
 
+    alias :active? :active
     alias :capture_body? :capture_body
     alias :capture_headers? :capture_headers
     alias :capture_env? :capture_env

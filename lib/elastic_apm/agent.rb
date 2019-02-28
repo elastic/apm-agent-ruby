@@ -30,6 +30,14 @@ module ElasticAPM
       LOCK.synchronize do
         return @instance if @instance
 
+        unless config.active?
+          config.logger.debug format(
+            '%sAgent disabled with active: false',
+            Logging::PREFIX
+          )
+          return
+        end
+
         @instance = new(config).start
       end
     end
@@ -65,6 +73,7 @@ module ElasticAPM
     attr_reader :config, :transport, :instrumenter,
       :stacktrace_builder, :context_builder, :error_builder, :metrics
 
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def start
       info '[%s] Starting agent, reporting to %s', VERSION, config.server_url
 
@@ -78,6 +87,7 @@ module ElasticAPM
 
       self
     end
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def stop
       debug 'Stopping agent'
