@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-@Library('apm@v1.0.7') _
+@Library('apm@v1.0.9') _
 
 import co.elastic.matrix.*
 import groovy.transform.Field
@@ -199,6 +199,7 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
   */
   public Closure generateStep(x, y){
     return {
+      steps.sleep steps.randomNumber(min:10, max: 30)
       steps.node('linux && immutable'){
         def label = "${tag}:${x}#${y}"
         try {
