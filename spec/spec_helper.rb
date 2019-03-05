@@ -4,8 +4,12 @@ ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 
 if ENV['INCLUDE_COVERAGE'] == '1'
   require 'simplecov'
-  require 'simplecov-cobertura'
-  SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
+
+  if ENV['CI'] == '1'
+    require 'simplecov-cobertura'
+    SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
+  end
+
   SimpleCov.start { add_filter('/spec/') }
 end
 
