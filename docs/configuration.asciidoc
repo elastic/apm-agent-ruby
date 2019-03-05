@@ -177,11 +177,21 @@ It has to be provided in *<<config-format-duration, duration format>>*.
 [[config-capture-body]]
 ==== `capture_body`
 |============
-| Environment                | `Config` key   | Default
-| `ELASTIC_APM_CAPTURE_BODY` | `capture_body` | `true`
+| Environment                | `Config` key   | Default | Example |
+| `ELASTIC_APM_CAPTURE_BODY` | `capture_body` | `"off"` | `"all"`
 |============
 
-Whether or not to attach the request body to transactions and errors.
+For transactions that are HTTP requests,
+the Ruby agent can optionally capture the request body (e.g. `POST` variables or JSON data).
+
+Possible values: `"errors"`, `"transactions"`, `"all"`, `"off"`.
+
+If the request has a body and this setting is disabled, the body will be shown as `[SKIPPED]`.
+
+WARNING: request bodies often contain sensitive values like passwords, credit card numbers etc.
+We try to strip sensitive looking data from form bodies but don't touch text bodies like JSON.
+If your service handles data like this, we advise to only enable this feature with care.
+
 
 [float]
 [[config-capture-headers]]

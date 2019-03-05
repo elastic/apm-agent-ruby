@@ -156,6 +156,14 @@ module ElasticAPM
 
         subject.flush_interval = 123
       end
+
+      it 'warns about boolean value for capture_body' do
+        expect_any_instance_of(PrefixedLogger)
+          .to receive(:warn).with(/Boolean value.*deprecated./)
+
+        subject.capture_body = true
+        expect(subject.capture_body).to be 'all'
+      end
     end
 
     describe 'unknown options' do
