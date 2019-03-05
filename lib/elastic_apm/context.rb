@@ -17,5 +17,13 @@ module ElasticAPM
       @tags = tags
       @user = user || User.new
     end
+
+    def empty?
+      return false if tags.any?
+      return false if custom.any?
+      return false unless user.empty?
+
+      true
+    end
   end
 end

@@ -8,7 +8,7 @@ module ElasticAPM
     end
 
     def build_exception(exception, context: nil, handled: true)
-      error = Error.new context: context
+      error = Error.new context: context || Context.new
       error.exception = Error::Exception.new(exception, handled: handled)
 
       if exception.backtrace
@@ -21,7 +21,7 @@ module ElasticAPM
     end
 
     def build_log(message, context: nil, backtrace: nil, **attrs)
-      error = Error.new context: context
+      error = Error.new context: context || Context.new
       error.log = Error::Log.new(message, **attrs)
 
       if backtrace
@@ -50,15 +50,20 @@ module ElasticAPM
       error.culprit = stacktrace.frames.first.function
     end
 
+    # rubocop:disable Metrics/AbcSize
     def add_current_transaction_fields(error, transaction)
       return unless transaction
-
-      error.context ||= transaction.context.dup
 
       error.transaction_id = transaction.id
       error.transaction = { sampled: transaction.sampled? }
       error.trace_id = transaction.trace_id
       error.parent_id = ElasticAPM.current_span&.id || transaction.id
+
+      return unless transaction.context
+
+      Util.reverse_merge!(error.context.tags, transaction.context.tags)
+      Util.reverse_merge!(error.context.custom, transaction.context.custom)
     end
+    # rubocop:enable Metrics/AbcSize
   end
 end

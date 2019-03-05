@@ -21,7 +21,7 @@ module ElasticAPM
       rescue InternalError
         raise # Don't report ElasticAPM errors
       rescue ::Exception => e
-        context = ElasticAPM.build_context(env, for_type: :error)
+        context = ElasticAPM.build_context(rack_env: env, for_type: :error)
         ElasticAPM.report(e, context: context, handled: false)
         raise
       ensure
@@ -50,8 +50,10 @@ module ElasticAPM
     end
 
     def start_transaction(env)
+      context = ElasticAPM.build_context(rack_env: env, for_type: :transaction)
+
       ElasticAPM.start_transaction 'Rack', 'request',
-        context: ElasticAPM.build_context(env, for_type: :transaction),
+        context: context,
         trace_context: trace_context(env)
     end
 
