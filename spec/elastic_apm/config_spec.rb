@@ -159,10 +159,19 @@ module ElasticAPM
 
       it 'warns about boolean value for capture_body' do
         expect_any_instance_of(PrefixedLogger)
-          .to receive(:warn).with(/Boolean value.*deprecated./)
+          .to receive(:warn).with(/Boolean value.*deprecated./).twice
 
         subject.capture_body = true
         expect(subject.capture_body).to be 'all'
+
+        subject.capture_body = false
+        expect(subject.capture_body).to be 'off'
+
+        expect_any_instance_of(PrefixedLogger)
+          .to receive(:warn).with(/Unknown value/)
+
+        subject.capture_body = :oh_no
+        expect(subject.capture_body).to be 'off'
       end
     end
 

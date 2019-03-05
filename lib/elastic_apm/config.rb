@@ -310,8 +310,8 @@ module ElasticAPM
         @capture_body = 'all'
       when false
         alert_logger.warn "Boolean value for option `capture_body' has " \
-          "been deprecated. Setting to 'none'"
-        @capture_body = 'none'
+          "been deprecated. Setting to 'off'"
+        @capture_body = 'off'
       else
         default = DEFAULTS[:capture_body]
         alert_logger.warn "Unknown value `#{value}' for option "\
