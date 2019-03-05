@@ -169,8 +169,8 @@ module ElasticAPM
       instrumenter.set_user(user)
     end
 
-    def build_context(rack_env)
-      @context_builder.build(rack_env)
+    def build_context(rack_env:, for_type:)
+      @context_builder.build(rack_env: rack_env, for_type: for_type)
     end
 
     # errors

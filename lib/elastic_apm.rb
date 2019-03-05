@@ -285,8 +285,17 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     #
     # @param rack_env [Rack::Env] A Rack env
     # @return [Context] The built context
-    def build_context(rack_env)
-      agent&.build_context(rack_env)
+    def build_context(
+      deprecated_env = nil,
+      rack_env: nil,
+      for_type: :transaction
+    )
+      if !rack_env && (rack_env = deprecated_env)
+        warn "[ElasticAPM] [DEPRECATED] `build_context' expects two keyword" \
+          "arguments, `rack_env:' and `for_type:'"
+      end
+
+      agent&.build_context(rack_env: rack_env, for_type: for_type)
     end
 
     ### Errors

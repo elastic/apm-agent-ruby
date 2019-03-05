@@ -208,5 +208,21 @@ RSpec.describe ElasticAPM do
         ElasticAPM.stop
       end
     end
+
+    describe '.build_context with a single argument' do
+      it 'warns and falls back' do
+        begin
+          ElasticAPM.start
+          expect(ElasticAPM).to receive(:warn).with(/DEPRECATED/)
+
+          env = Rack::MockRequest.env_for('/')
+          context = ElasticAPM.build_context env
+
+          expect(context).to be_a ElasticAPM::Context
+        ensure
+          ElasticAPM.stop
+        end
+      end
+    end
   end
 end
