@@ -24,7 +24,8 @@ module ElasticAPM
     def empty?
       return false if tags.any?
       return false if custom.any?
-      return false unless user.empty?
+      return false if user.any?
+      return false if request || response
 
       true
     end
