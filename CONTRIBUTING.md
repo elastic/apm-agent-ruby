@@ -85,8 +85,9 @@ $ spec/scripts/spec.sh ruby-2.6 rails-5.2
 To release a new version:
 
 1. Update `VERSION` in `lib/elastic_apm/version.rb` according to the changes (major, minor, patch).
-2. Update `CHANGELOG.md` to reflect the new version -- change _Unreleased_ section to _Version (release date)_.
-3. Run `rake release`. This will...
+2. Update `CHANGELOG.md` to reflect the new version – change _Unreleased_ section to _Version (release date)_.
+3. Make a new commit with the changes above, with a message in the style of `vX.X.X`.
+4. Run `rake release`. This will...
     1. Tag the current commit as new version.
     2. Push the tag to GitHub.
     3. Build the gem and upload to Rubygems (local user needs to be signed in and authorized.)
