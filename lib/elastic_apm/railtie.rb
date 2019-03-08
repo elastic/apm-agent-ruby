@@ -17,22 +17,46 @@ module ElasticAPM
         end
       end
 
-      begin
-        agent = ElasticAPM.start config
-
-        if agent
-          agent.instrumenter.subscriber = ElasticAPM::Subscriber.new(agent)
-
-          app.middleware.insert 0, Middleware
-        end
-      rescue StandardError => e
-        config.alert_logger.error format('Failed to start: %s', e.message)
-        config.alert_logger.debug "Backtrace:\n" + e.backtrace.join("\n")
+      if start(config)
+        app.middleware.insert 0, Middleware
       end
     end
 
     config.after_initialize do
       require 'elastic_apm/spies/action_dispatch'
+    end
+
+    private
+
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+    def start(config)
+      if (reason = should_skip?(config))
+        config.alert_logger.info "Skipping because: #{reason}. " \
+          "Start manually with `ElasticAPM.start'"
+        return
+      end
+
+      ElasticAPM.start(config).tap do |agent|
+        attach_subscriber(agent)
+      end
+    rescue StandardError => e
+      config.alert_logger.error format('Failed to start: %s', e.message)
+      config.alert_logger.debug "Backtrace:\n" + e.backtrace.join("\n")
+    end
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+
+    def should_skip?(_config)
+      if Rails.const_defined? :Console
+        return 'Rails console'
+      end
+
+      nil
+    end
+
+    def attach_subscriber(agent)
+      return unless agent
+
+      agent.instrumenter.subscriber = ElasticAPM::Subscriber.new(agent)
     end
   end
 end

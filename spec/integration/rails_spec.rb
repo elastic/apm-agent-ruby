@@ -251,6 +251,44 @@ if defined?(Rails)
       ElasticAPM.stop
     end
   end
+
+  RSpec.describe 'Rails console' do
+    def app
+      @app ||= Rails.application
+    end
+
+    before :all do
+      class RailsConsoleTestApp < Rails::Application
+        config.secret_key_base = '__secret_key_base'
+        config.logger = Logger.new(nil)
+        config.eager_load = false
+
+        # silence warning
+        config.elastic_apm.alert_logger = Logger.new(nil)
+      end
+
+      class ApplicationController < ActionController::Base
+      end
+
+      module Rails
+        class Console; end
+      end
+
+      RailsConsoleTestApp.initialize!
+    end
+
+    after :all do
+      %i[RailsConsoleTestApp ApplicationController].each do |const|
+        Object.send(:remove_const, const)
+      end
+      Rails.send(:remove_const, :Console)
+      Rails.application = nil
+    end
+
+    it "doesn't start when console" do
+      expect(ElasticAPM.agent).to be nil
+    end
+  end
 else
   puts '[INFO] Skipping Rails spec'
 end
