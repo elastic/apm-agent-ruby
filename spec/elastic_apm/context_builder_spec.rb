@@ -13,7 +13,7 @@ module ElasticAPM
         )
         env['HTTP_CONTENT_TYPE'] = 'application/json'
 
-        context = subject.build(env)
+        context = subject.build(rack_env: env, for_type: :transaction)
         request = context.request
 
         expect(request).to be_a(Context::Request)
@@ -34,7 +34,7 @@ module ElasticAPM
       end
 
       context 'with form body' do
-        let(:config) { Config.new capture_body: true }
+        let(:config) { Config.new capture_body: 'all' }
 
         it 'includes body' do
           env = Rack::MockRequest.env_for(
@@ -43,16 +43,16 @@ module ElasticAPM
             params: { thing: 123 }
           )
 
-          result = subject.build(env)
+          result = subject.build(rack_env: env, for_type: :transaction)
 
           expect(result.request.body).to eq('thing' => '123')
         end
       end
 
       context 'with binary body' do
-        let(:config) { Config.new capture_body: true }
+        let(:config) { Config.new capture_body: 'all' }
 
-        it 'skips body' do
+        it 'includes form data' do
           Tempfile.open('test', encoding: 'binary') do |f|
             f.write('0123456789' * 1024 * 1024)
             f.rewind
@@ -65,7 +65,7 @@ module ElasticAPM
               }
             )
 
-            result = subject.build(env)
+            result = subject.build(rack_env: env, for_type: :transaction)
 
             expect(result.request.body).to match('file' => Hash)
             expect(result.request.body['file'][:type]).to eq 'binary'
@@ -74,7 +74,7 @@ module ElasticAPM
       end
 
       context 'with JSON body' do
-        let(:config) { Config.new capture_body: true }
+        let(:config) { Config.new capture_body: 'all' }
 
         it 'includes body in utf-8' do
           env = Rack::MockRequest.env_for(
@@ -83,7 +83,7 @@ module ElasticAPM
             input: { something: 'everything' }.to_json
           )
 
-          result = subject.build(env)
+          result = subject.build(rack_env: env, for_type: :transaction)
 
           expect(result.request.body).to eq '{"something":"everything"}'
           expect(result.request.body.encoding).to eq Encoding::UTF_8

@@ -8,17 +8,11 @@ require 'elastic_apm/error/log'
 module ElasticAPM
   # @api private
   class Error
-    def initialize(culprit: nil)
+    def initialize(culprit: nil, context: nil)
       @id = SecureRandom.hex(16)
-      @trace_id = nil
       @culprit = culprit
-
       @timestamp = Util.micros
-      @context = Context.new
-
-      @transaction_id = nil
-      @transaction = nil
-      @parent_id = nil
+      @context = context
     end
 
     attr_accessor :id, :culprit, :exception, :log, :transaction_id,

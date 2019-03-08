@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Deprecated
+
+- `ElasticAPM.build_context` now takes two keyword arguments instead of a single, normal argument. [Docs](https://www.elastic.co/guide/en/apm/agent/ruby/2.x/api.html#api-agent-build-context).
+- The option `capture_body` has a string value instead of boolean. [Docs](https://www.elastic.co/guide/en/apm/agent/ruby/2.x/configuration.html#config-capture-body).
+
+Both APIs are backwards compatible with fallbacks and deprecation warnings, scheduled for removal in next major release.
+
+### Changed
+
+- Errors get their own contexts, perhaps leading to slightly different (but more correct) results. ([#335](https://github.com/elastic/apm-agent-ruby/pull/335))
+
 ## 2.5.0 (2019-03-01)
 
 ### Added

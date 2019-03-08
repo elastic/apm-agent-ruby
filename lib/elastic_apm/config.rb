@@ -23,7 +23,7 @@ module ElasticAPM
       api_buffer_size: 256,
       api_request_size: '750kb',
       api_request_time: '10s',
-      capture_body: false,
+      capture_body: 'off',
       capture_headers: true,
       capture_env: true,
       current_user_email_method: :email,
@@ -64,7 +64,7 @@ module ElasticAPM
       'ELASTIC_APM_API_BUFFER_SIZE' => [:int, 'api_buffer_size'],
       'ELASTIC_APM_API_REQUEST_SIZE' => [:int, 'api_request_size'],
       'ELASTIC_APM_API_REQUEST_TIME' => 'api_request_time',
-      'ELASTIC_APM_CAPTURE_BODY' => [:bool, 'capture_body'],
+      'ELASTIC_APM_CAPTURE_BODY' => 'capture_body',
       'ELASTIC_APM_CAPTURE_HEADERS' => [:bool, 'capture_headers'],
       'ELASTIC_APM_CAPTURE_ENV' => [:bool, 'capture_env'],
       'ELASTIC_APM_CUSTOM_KEY_FILTERS' => [:list, 'custom_key_filters'],
@@ -137,7 +137,6 @@ module ElasticAPM
     attr_accessor :api_buffer_size
     attr_accessor :api_request_size
     attr_accessor :api_request_time
-    attr_accessor :capture_body
     attr_accessor :capture_headers
     attr_accessor :capture_env
     attr_accessor :current_user_email_method
@@ -171,6 +170,7 @@ module ElasticAPM
     attr_accessor :transaction_sample_rate
     attr_accessor :verify_server_cert
 
+    attr_reader :capture_body
     attr_reader :custom_key_filters
     attr_reader :ignore_url_patterns
     attr_reader :span_frames_min_duration
@@ -295,6 +295,31 @@ module ElasticAPM
     def collect_metrics?
       metrics_interval != 0
     end
+
+    # rubocop:disable Metrics/MethodLength
+    def capture_body=(value)
+      if value =~ /(all|transactions|errors|off)/
+        @capture_body = value
+        return
+      end
+
+      case value
+      when true
+        alert_logger.warn "Boolean value for option `capture_body' has " \
+          "been deprecated. Setting to 'all'"
+        @capture_body = 'all'
+      when false
+        alert_logger.warn "Boolean value for option `capture_body' has " \
+          "been deprecated. Setting to 'off'"
+        @capture_body = 'off'
+      else
+        default = DEFAULTS[:capture_body]
+        alert_logger.warn "Unknown value `#{value}' for option "\
+          "`capture_body'. Defaulting to `#{default}'"
+        @capture_body = default
+      end
+    end
+    # rubocop:enable Metrics/MethodLength
 
     private
 

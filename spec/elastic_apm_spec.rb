@@ -127,11 +127,12 @@ RSpec.describe ElasticAPM do
     it { should delegate :current_transaction, to: agent }
 
     it do
-      should delegate :report, to: agent, args: ['E', { handled: nil }]
+      should delegate :report,
+        to: agent, args: ['E', { context: nil, handled: nil }]
     end
     it do
       should delegate :report_message,
-        to: agent, args: ['NOT OK', { backtrace: Array }]
+        to: agent, args: ['NOT OK', { backtrace: Array, context: nil }]
     end
     it { should delegate :set_tag, to: agent, args: [nil, nil] }
     it { should delegate :set_custom_context, to: agent, args: [nil] }
@@ -205,6 +206,22 @@ RSpec.describe ElasticAPM do
         expect(transaction.trace_context).to be trace_context
 
         ElasticAPM.stop
+      end
+    end
+
+    describe '.build_context with a single argument' do
+      it 'warns and falls back' do
+        begin
+          ElasticAPM.start
+          expect(ElasticAPM).to receive(:warn).with(/DEPRECATED/)
+
+          env = Rack::MockRequest.env_for('/')
+          context = ElasticAPM.build_context env
+
+          expect(context).to be_a ElasticAPM::Context
+        ensure
+          ElasticAPM.stop
+        end
       end
     end
   end

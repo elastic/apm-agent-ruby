@@ -9,13 +9,25 @@ require 'elastic_apm/context/user'
 module ElasticAPM
   # @api private
   class Context
-    attr_accessor :request, :response, :user
-    attr_reader :custom, :tags
-
     def initialize(custom: {}, tags: {}, user: nil)
       @custom = custom
       @tags = tags
       @user = user || User.new
+    end
+
+    attr_accessor :request
+    attr_accessor :response
+    attr_accessor :user
+    attr_reader :custom
+    attr_reader :tags
+
+    def empty?
+      return false if tags.any?
+      return false if custom.any?
+      return false if user.any?
+      return false if request || response
+
+      true
     end
   end
 end

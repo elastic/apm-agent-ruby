@@ -7,37 +7,28 @@ module ElasticAPM
       @agent = agent
     end
 
-    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
-    def build_exception(exception, handled: true)
-      error = Error.new
+    def build_exception(exception, context: nil, handled: true)
+      error = Error.new context: context || Context.new
       error.exception = Error::Exception.new(exception, handled: handled)
 
       if exception.backtrace
         add_stacktrace error, :exception, exception.backtrace
       end
 
-      add_current_transaction_fields error
-
-      if (transaction = ElasticAPM.current_transaction)
-        error.context = transaction.context.dup
-        error.trace_id = transaction.trace_id
-        error.transaction_id = transaction.id
-        error.parent_id = ElasticAPM.current_span&.id || transaction.id
-      end
+      add_current_transaction_fields error, ElasticAPM.current_transaction
 
       error
     end
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
-    def build_log(message, backtrace: nil, **attrs)
-      error = Error.new
+    def build_log(message, context: nil, backtrace: nil, **attrs)
+      error = Error.new context: context || Context.new
       error.log = Error::Log.new(message, **attrs)
 
       if backtrace
         add_stacktrace error, :log, backtrace
       end
 
-      add_current_transaction_fields error
+      add_current_transaction_fields error, ElasticAPM.current_transaction
 
       error
     end
@@ -59,10 +50,20 @@ module ElasticAPM
       error.culprit = stacktrace.frames.first.function
     end
 
-    def add_current_transaction_fields(error)
-      return unless (transaction = ElasticAPM.current_transaction)
+    # rubocop:disable Metrics/AbcSize
+    def add_current_transaction_fields(error, transaction)
+      return unless transaction
+
       error.transaction_id = transaction.id
       error.transaction = { sampled: transaction.sampled? }
+      error.trace_id = transaction.trace_id
+      error.parent_id = ElasticAPM.current_span&.id || transaction.id
+
+      return unless transaction.context
+
+      Util.reverse_merge!(error.context.tags, transaction.context.tags)
+      Util.reverse_merge!(error.context.custom, transaction.context.custom)
     end
+    # rubocop:enable Metrics/AbcSize
   end
 end

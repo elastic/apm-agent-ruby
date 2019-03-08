@@ -7,98 +7,86 @@ module ElasticAPM
     module Serializers
       RSpec.describe ErrorSerializer do
         let(:config) { Config.new }
-        let(:agent) { Agent.new config }
+        let(:agent) { Agent.new(config) }
+        let(:builder) { ErrorBuilder.new(agent) }
 
-        let(:builder) { described_class.new config }
+        subject { described_class.new(config) }
 
-        before do
-          @mock_uuid = SecureRandom.uuid
-          allow(SecureRandom).to receive(:uuid) { @mock_uuid }
+        context 'with an exception', :mock_time do
+          let(:error) do
+            builder.build_exception(actual_exception)
+          end
+
+          it 'matches format' do
+            result = subject.build(error).fetch(:error)
+
+            expect(result).to include(
+              id: be_a(String),
+              culprit: be_a(String),
+              timestamp: 694_224_000_000_000,
+              parent_id: nil,
+              trace_id: nil,
+              transaction_id: nil,
+              transaction: nil
+            )
+
+            expect(result.fetch(:exception)).to include(
+              message: 'ZeroDivisionError: divided by 0',
+              type: 'ZeroDivisionError',
+              module: '',
+              code: nil,
+              attributes: nil,
+              stacktrace: be_an(Array),
+              handled: true
+            )
+          end
+
+          context 'with a context' do
+            let(:error) do
+              env = Rack::MockRequest.env_for('/')
+              context =
+                agent.context_builder.build(rack_env: env, for_type: :error)
+              builder.build_exception(actual_exception, context: context)
+            end
+
+            it 'includes context' do
+              context = subject.build(error).fetch(:error).fetch(:context)
+
+              expect(context).to include(
+                custom: {},
+                tags: {},
+                user: nil,
+                request: be_a(Hash)
+              )
+            end
+          end
         end
 
-        describe '#build', :mock_time do
-          context 'an error with exception' do
-            let(:error) do
-              ErrorBuilder.new(agent).build_exception(actual_exception)
-            end
-            subject { builder.build(error) }
-
-            it 'builds', unless: jruby_92? do
-              should match(
-                error: {
-                  id: String,
-                  culprit: '/',
-                  timestamp: 694_224_000_000_000,
-                  context: {
-                    custom: {},
-                    tags: {},
-                    request: nil,
-                    response: nil,
-                    user: nil
-                  },
-                  exception: {
-                    message: 'ZeroDivisionError: divided by 0',
-                    type: 'ZeroDivisionError',
-                    module: '',
-                    code: nil,
-                    attributes: nil,
-                    stacktrace: error.exception.stacktrace.to_a, # so lazy
-                    handled: true
-                  },
-                  parent_id: nil,
-                  trace_id: nil,
-                  transaction_id: nil,
-                  transaction: nil
-                }
-              )
-            end
+        context 'with a log', :mock_time do
+          let(:error) do
+            builder.build_log('oh no!')
           end
 
-          context 'an error with a transaction id' do
-            it 'attaches the transaction' do
-              error = ElasticAPM::Error.new.tap do |e|
-                e.transaction_id = 'abc123'
-                e.transaction = { sampled: true }
-              end
-              subject = builder.build(error)
-              expect(subject[:error][:transaction_id]).to eq 'abc123'
-              expect(subject[:error][:transaction]).to eq(sampled: true)
-            end
-          end
+          it 'matches format' do
+            result = subject.build(error).fetch(:error)
 
-          context 'a log message' do
-            it 'builds' do
-              error_log =
-                ErrorBuilder.new(agent).build_log('Things')
+            expect(result).to include(
+              id: be_a(String),
+              culprit: nil,
+              timestamp: 694_224_000_000_000,
+              parent_id: nil,
+              trace_id: nil,
+              transaction_id: nil,
+              transaction: nil
+            )
 
-              result = builder.build(error_log)
-
-              expect(result).to match(
-                error: {
-                  id: String,
-                  context: {
-                    custom: {},
-                    tags: {},
-                    request: nil,
-                    response: nil,
-                    user: nil
-                  },
-                  culprit: nil,
-                  log: {
-                    message: 'Things',
-                    level: nil,
-                    logger_name: nil,
-                    param_message: nil,
-                    stacktrace: []
-                  },
-                  timestamp: 694_224_000_000_000,
-                  trace_id: nil,
-                  transaction_id: nil,
-                  transaction: nil,
-                  parent_id: nil
-                }
-              )
-            end
+            expect(result.fetch(:log)).to include(
+              level: nil,
+              logger_name: nil,
+              message: 'oh no!',
+              param_message: nil,
+              stacktrace: []
+            )
           end
         end
       end

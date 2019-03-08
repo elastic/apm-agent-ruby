@@ -26,6 +26,10 @@ module ElasticAPM
         !id && !email && !username
       end
 
+      def any?
+        !empty?
+      end
+
       class << self
         private
 

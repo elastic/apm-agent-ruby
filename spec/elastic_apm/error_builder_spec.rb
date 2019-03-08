@@ -15,25 +15,39 @@ module ElasticAPM
         expect(error.exception.handled).to be true
       end
 
-      it 'inherits context from current transaction', :intercept do
+      it 'sets properties from current transaction', :intercept do
         env = Rack::MockRequest.env_for(
           '/somewhere/in/there?q=yes',
           method: 'POST'
         )
         env['HTTP_CONTENT_TYPE'] = 'application/json'
 
-        ElasticAPM.start
-        context = ElasticAPM.build_context(env)
+        begin
+          ElasticAPM.start
 
-        ElasticAPM.with_transaction context: context do
-          ElasticAPM.report actual_exception
+          context =
+            ElasticAPM.build_context rack_env: env, for_type: :transaction
+
+          transaction = ElasticAPM.with_transaction context: context do |txn|
+            ElasticAPM.set_tag(:my_tag, '123')
+            ElasticAPM.set_custom_context(all_the_other_things: 'blah blah')
+            ElasticAPM.set_user(Struct.new(:id).new(321))
+            ElasticAPM.report actual_exception
+
+            txn
+          end
+        ensure
+          ElasticAPM.stop
         end
-
-        ElasticAPM.stop
 
         error = @intercepted.errors.last
         expect(error.transaction).to eq(sampled: true)
-        expect(error.context.request.method).to eq 'POST'
+        expect(error.transaction_id).to eq transaction.id
+        expect(error.trace_id).to eq transaction.trace_id
+        expect(error.context.tags).to match(my_tag: '123')
+        expect(error.context.custom)
+          .to match(all_the_other_things: 'blah blah')
+        # expect(error.trace_id).to eq transaction.trace_id
       end
     end
 

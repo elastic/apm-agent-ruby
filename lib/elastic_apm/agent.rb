@@ -169,25 +169,27 @@ module ElasticAPM
       instrumenter.set_user(user)
     end
 
-    def build_context(rack_env)
-      @context_builder.build(rack_env)
+    def build_context(rack_env:, for_type:)
+      @context_builder.build(rack_env: rack_env, for_type: for_type)
     end
 
     # errors
 
-    def report(exception, handled: true)
+    def report(exception, context: nil, handled: true)
       return if config.filter_exception_types.include?(exception.class.to_s)
 
       error = @error_builder.build_exception(
         exception,
+        context: context,
         handled: handled
       )
       enqueue error
     end
 
-    def report_message(message, backtrace: nil, **attrs)
+    def report_message(message, context: nil, backtrace: nil, **attrs)
       error = @error_builder.build_log(
         message,
+        context: context,
         backtrace: backtrace,
         **attrs
       )

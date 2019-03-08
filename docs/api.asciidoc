@@ -182,6 +182,7 @@ A context provides information about the current request, response, user and mor
 Arguments:
 
   * `rack_env`: An instance of Rack::Env
+  * `for_type`: Symbol representing type of event, eg. `:transaction` or `error`
 
 Returns the built context.
 

@@ -22,5 +22,11 @@ module ElasticAPM
         end.to_not raise_exception
       end
     end
+
+    describe 'empty?' do
+      it 'is when new' do
+        expect(Context::User.new).to be_empty
+      end
+    end
   end
 end

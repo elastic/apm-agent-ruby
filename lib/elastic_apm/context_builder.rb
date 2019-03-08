@@ -12,16 +12,16 @@ module ElasticAPM
 
     attr_reader :config
 
-    def build(rack_env)
-      context = Context.new
-      apply_to_request(context, rack_env)
-      context
+    def build(rack_env:, for_type:)
+      Context.new.tap do |context|
+        apply_to_request(context, rack_env: rack_env, for_type: for_type)
+      end
     end
 
     private
 
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
-    def apply_to_request(context, rack_env)
+    def apply_to_request(context, rack_env:, for_type:)
       req = rails_req?(rack_env) ? rack_env : Rack::Request.new(rack_env)
 
       context.request = Context::Request.new unless context.request
@@ -32,7 +32,7 @@ module ElasticAPM
       request.method = req.request_method
       request.url = Context::Request::Url.new(req)
 
-      request.body = config.capture_body? ? get_body(req) : SKIPPED
+      request.body = should_capture_body?(for_type) ? get_body(req) : SKIPPED
 
       headers, env = get_headers_and_env(rack_env)
       request.headers = headers if config.capture_headers?
@@ -41,6 +41,16 @@ module ElasticAPM
       context
     end
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+
+    def should_capture_body?(for_type)
+      option = config.capture_body
+
+      return true if option == 'all'
+      return true if option == 'transactions' && for_type == :transaction
+      return true if option == 'errors' && for_type == :error
+
+      false
+    end
 
     def get_body(req)
       case req.media_type

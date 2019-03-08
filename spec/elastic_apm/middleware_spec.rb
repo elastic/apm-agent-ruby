@@ -45,7 +45,7 @@ module ElasticAPM
       end.to raise_error(MiddlewareTestError)
 
       expect(ElasticAPM).to have_received(:report)
-        .with(MiddlewareTestError, handled: false)
+        .with(MiddlewareTestError, context: nil, handled: false)
     end
 
     it 'attaches a new trace_context', :intercept do
