@@ -270,6 +270,10 @@ if defined?(Rails)
       class ApplicationController < ActionController::Base
       end
 
+      module Rails
+        class Console; end
+      end
+
       RailsConsoleTestApp.initialize!
     end
 
@@ -279,11 +283,6 @@ if defined?(Rails)
       end
       Rails.send(:remove_const, :Console)
       Rails.application = nil
-    end
-
-    module Rails
-      class Console
-      end
     end
 
     it "doesn't start when console" do
