@@ -205,10 +205,11 @@ if defined?(Rails)
         error = @mock_intake.errors.first
         expect(error['transaction_id']).to_not be_nil
         expect(error['transaction']['sampled']).to be true
+        expect(error['context']).to_not be nil
 
         exception = error['exception']
         expect(exception['type']).to eq 'ApplicationController::FancyError'
-        expect(exception['handled']).to eq true
+        expect(exception['handled']).to eq false
       end
 
       it 'validates json schema', type: :json_schema do
