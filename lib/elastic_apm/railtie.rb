@@ -17,9 +17,9 @@ module ElasticAPM
         end
       end
 
-      return unless start(config)
-
-      app.middleware.insert 0, Middleware
+      if start(config)
+        app.middleware.insert 0, Middleware
+      end
     end
 
     config.after_initialize do
@@ -31,7 +31,7 @@ module ElasticAPM
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def start(config)
       if (reason = should_skip?(config))
-        config.alert_logger.info "Skipping: #{reason}. " \
+        config.alert_logger.info "Skipping because: #{reason}. " \
           "Start manually with `ElasticAPM.start'"
         return
       end

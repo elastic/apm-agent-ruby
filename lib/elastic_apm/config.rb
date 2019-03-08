@@ -176,6 +176,8 @@ module ElasticAPM
     attr_reader :span_frames_min_duration
     attr_reader :span_frames_min_duration_us
 
+    attr_writer :alert_logger
+
     attr_accessor :view_paths
     attr_accessor :root_path
 
@@ -401,7 +403,7 @@ module ElasticAPM
     end
 
     def format_name(str)
-      str.gsub('::', '_')
+      str && str.gsub('::', '_')
     end
 
     def normalize_durations
