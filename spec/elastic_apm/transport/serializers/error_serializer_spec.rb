@@ -22,7 +22,7 @@ module ElasticAPM
 
             expect(result).to include(
               id: be_a(String),
-              culprit: '/',
+              culprit: be_a(String),
               timestamp: 694_224_000_000_000,
               parent_id: nil,
               trace_id: nil,
