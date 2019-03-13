@@ -133,6 +133,12 @@ module ElasticAPM
     attr_accessor :server_url
     attr_accessor :secret_token
 
+    attr_accessor :proxy_address
+    attr_accessor :proxy_port
+    attr_accessor :proxy_username
+    attr_accessor :proxy_password
+    attr_accessor :proxy_headers
+
     attr_accessor :active
     attr_accessor :api_buffer_size
     attr_accessor :api_request_size

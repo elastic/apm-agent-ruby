@@ -49,6 +49,16 @@ module ElasticAPM
 
         @client = HTTP.headers(headers).persistent(@url)
 
+        if config.proxy_address.present? && config.proxy_port.present?
+          @client = @client.via(
+            config.proxy_address,
+            config.proxy_port,
+            config.proxy_username,
+            config.proxy_password,
+            config.proxy_headers
+          )
+        end
+
         @mutex = Mutex.new
       end
       # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
