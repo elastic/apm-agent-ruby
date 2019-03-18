@@ -52,7 +52,7 @@ module ElasticAPM
       # rubocop:enable Metrics/MethodLength
 
       def configure_proxy
-        unless @config.proxy_address.present? && @config.proxy_port.present?
+        unless @config.proxy_address && @config.proxy_port
           return
         end
 
