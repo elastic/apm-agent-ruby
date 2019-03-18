@@ -40,6 +40,17 @@ module ElasticAPM
               expect(sample.process_memory_rss).to eq 3110
             end
           end
+
+          context 'on Debian Wheezy (kernel 3.2)' do
+            it 'builds MemAvailable from others' do
+              mock_proc_files proc_meminfo_format: :wheezy
+
+              sample = subject.sample
+
+              expect(sample.system_memory_total).to eq 4_042_711_040
+              expect(sample.system_memory_free).to eq 2_443_145_216
+            end
+          end
         end
 
         describe 'collect' do
@@ -68,13 +79,14 @@ module ElasticAPM
         end
       end
 
-      # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
       def mock_proc_files(
         user: 6_410_558,
         idle: 329_434_672,
         utime: 7,
         stime: 0,
-        proc_stat_format: :debian
+        proc_stat_format: :debian,
+        proc_meminfo_format: nil
       )
         {
           '/proc/stat' =>
@@ -82,7 +94,10 @@ module ElasticAPM
           '/proc/self/stat' =>
             ['proc_self_stat', { utime: utime, stime: stime }],
           '/proc/meminfo' =>
-            ['proc_meminfo', {}]
+            [
+              "proc_meminfo#{proc_meminfo_format && "_#{proc_meminfo_format}"}",
+              {}
+            ]
         }.each do |file, (fixture, updates)|
           allow(IO).to receive(:readlines).with(file) do
             text = File.read("spec/fixtures/#{fixture}")
@@ -91,7 +106,7 @@ module ElasticAPM
           end
         end
       end
-      # rubocop:enable Metrics/MethodLength
+      # rubocop:enable Metrics/MethodLength, Metrics/ParameterLists
     end
   end
 end

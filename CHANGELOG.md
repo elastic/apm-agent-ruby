@@ -18,6 +18,10 @@ Both APIs are backwards compatible with fallbacks and deprecation warnings, sche
 - Errors get their own contexts, perhaps leading to slightly different (but more correct) results. ([#335](https://github.com/elastic/apm-agent-ruby/pull/335))
 - The agent no longer starts automatically inside Rails' console ([#343](https://github.com/elastic/apm-agent-ruby/pull/343))
 
+### Fixed
+
+- Fixed reading available memory on older Linux kernels ([#351](https://github.com/elastic/apm-agent-ruby/pull/351))
+
 ## 2.5.0 (2019-03-01)
 
 ### Added
