@@ -13,6 +13,10 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 Both APIs are backwards compatible with fallbacks and deprecation warnings, scheduled for removal in next major release.
 
+### Added 
+
+- Configuration options to use an HTTP proxy ([#352](https://github.com/elastic/apm-agent-ruby/pull/352))
+
 ### Changed
 
 - Errors get their own contexts, perhaps leading to slightly different (but more correct) results. ([#335](https://github.com/elastic/apm-agent-ruby/pull/335))

@@ -453,6 +453,28 @@ If you have high load and get warnings about the buffer being full, increasing
 the worker pool size might help.
 
 [float]
+[[config-proxy-address]]
+==== `proxy_address`
+
+[options="header"]
+|============
+| Environment | `Config` key    | Default | Example
+| N/A         | `proxy_address` | `nil`   | `"example.com"`
+|============
+
+An address to use as a proxy for the HTTP client.
+
+Options available are:
+
+- `proxy_address`
+- `proxy_headers`
+- `proxy_password`
+- `proxy_port`
+- `proxy_username`
+
+See https://github.com/httprb/http/wiki/Proxy-Support[Http.rb's docs].
+
+[float]
 [[config-service-name]]
 ==== `service_name`
 

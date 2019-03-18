@@ -40,6 +40,31 @@ module ElasticAPM
             expect(stub).to_not have_been_requested
           end
         end
+
+        context 'with a proxy' do
+          let(:config) do
+            Config.new(
+              proxy_address: 'example.com',
+              proxy_port: 80,
+              http_compression: false
+            )
+          end
+
+          it 'uses proxy' do
+            expect_any_instance_of(HTTP::Client)
+              .to receive(:via).and_call_original
+
+            stub = build_stub(body: /{"msg": "hey!"}/)
+
+            subject.write('{"msg": "hey!"}')
+            expect(subject).to be_connected
+
+            subject.flush
+            expect(subject).to_not be_connected
+
+            expect(stub).to have_been_requested
+          end
+        end
       end
 
       describe 'secret token' do

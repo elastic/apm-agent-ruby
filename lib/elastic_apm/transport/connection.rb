@@ -28,7 +28,7 @@ module ElasticAPM
       }.freeze
       GZIP_HEADERS = HEADERS.merge('Content-Encoding' => 'gzip').freeze
 
-      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+      # rubocop:disable Metrics/MethodLength
       def initialize(config, metadata)
         @config = config
         @metadata = metadata.to_json
@@ -42,16 +42,36 @@ module ElasticAPM
           headers['Authorization'] = "Bearer #{token}"
         end
 
-        if config.use_ssl? && config.server_ca_cert
-          @ssl_context = OpenSSL::SSL::SSLContext.new
-          @ssl_context.ca_file = config.server_ca_cert
-        end
-
         @client = HTTP.headers(headers).persistent(@url)
+
+        configure_proxy
+        configure_ssl
 
         @mutex = Mutex.new
       end
-      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+      # rubocop:enable Metrics/MethodLength
+
+      def configure_proxy
+        unless @config.proxy_address && @config.proxy_port
+          return
+        end
+
+        @client = @client.via(
+          @config.proxy_address,
+          @config.proxy_port,
+          @config.proxy_username,
+          @config.proxy_password,
+          @config.proxy_headers
+        )
+      end
+
+      def configure_ssl
+        return unless @config.use_ssl? && @config.server_ca_cert
+
+        @ssl_context = OpenSSL::SSL::SSLContext.new.tap do |context|
+          context.ca_file = @config.server_ca_cert
+        end
+      end
 
       def write(str)
         return if @config.disable_send

@@ -137,8 +137,8 @@ module ElasticAPM
     attr_accessor :api_buffer_size
     attr_accessor :api_request_size
     attr_accessor :api_request_time
-    attr_accessor :capture_headers
     attr_accessor :capture_env
+    attr_accessor :capture_headers
     attr_accessor :current_user_email_method
     attr_accessor :current_user_id_method
     attr_accessor :current_user_method
@@ -159,6 +159,11 @@ module ElasticAPM
     attr_accessor :logger
     attr_accessor :metrics_interval
     attr_accessor :pool_size
+    attr_accessor :proxy_address
+    attr_accessor :proxy_headers
+    attr_accessor :proxy_password
+    attr_accessor :proxy_port
+    attr_accessor :proxy_username
     attr_accessor :server_ca_cert
     attr_accessor :service_name
     attr_accessor :service_version
