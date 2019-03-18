@@ -79,7 +79,7 @@ module ElasticAPM
         end
       end
 
-      # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
       def mock_proc_files(
         user: 6_410_558,
         idle: 329_434_672,
@@ -94,7 +94,10 @@ module ElasticAPM
           '/proc/self/stat' =>
             ['proc_self_stat', { utime: utime, stime: stime }],
           '/proc/meminfo' =>
-            ["proc_meminfo#{proc_meminfo_format && "_#{proc_meminfo_format}"}", {}]
+            [
+              "proc_meminfo#{proc_meminfo_format && "_#{proc_meminfo_format}"}",
+              {}
+            ]
         }.each do |file, (fixture, updates)|
           allow(IO).to receive(:readlines).with(file) do
             text = File.read("spec/fixtures/#{fixture}")
@@ -103,7 +106,7 @@ module ElasticAPM
           end
         end
       end
-      # rubocop:enable Metrics/MethodLength
+      # rubocop:enable Metrics/MethodLength, Metrics/ParameterLists
     end
   end
 end

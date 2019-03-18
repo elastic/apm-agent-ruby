@@ -198,6 +198,8 @@ module ElasticAPM
           attr_reader :total, :available, :page_size
 
           # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+          # rubocop:disable Metrics/PerceivedComplexity
+          # rubocop:disable Metrics/CyclomaticComplexity
           def read!
             # rubocop:disable Style/RescueModifier
             @page_size = `getconf PAGESIZE`.chomp.to_i rescue 4096
@@ -223,11 +225,13 @@ module ElasticAPM
                 end
 
             @total = info[:total]
-            @available = info[:available] ||
-              info[:free] + info[:buffers] + info[:cached]
+            @available =
+              info[:available] || info[:free] + info[:buffers] + info[:cached]
 
             self
           end
+          # rubocop:enable Metrics/CyclomaticComplexity
+          # rubocop:enable Metrics/PerceivedComplexity
           # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
         end
       end
