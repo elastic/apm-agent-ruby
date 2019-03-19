@@ -55,9 +55,9 @@ module ElasticAPM
     def get_body(req)
       case req.media_type
       when 'application/x-www-form-urlencoded'
-        req.POST
+        req.POST.dup
       when 'multipart/form-data'
-        req.POST
+        req.POST.dup
       else
         body = req.body.read
         req.body.rewind
