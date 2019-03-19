@@ -25,6 +25,7 @@ Both APIs are backwards compatible with fallbacks and deprecation warnings, sche
 ### Fixed
 
 - Fixed reading available memory on older Linux kernels ([#351](https://github.com/elastic/apm-agent-ruby/pull/351))
+- Don't apply filters to original response headers ([#354](https://github.com/elastic/apm-agent-ruby/pull/354))
 
 ## 2.5.0 (2019-03-01)
 

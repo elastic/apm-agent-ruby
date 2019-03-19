@@ -30,6 +30,7 @@ if defined?(Rails)
         config.action_mailer.perform_deliveries = false
 
         config.elastic_apm.api_request_time = '100ms'
+        config.elastic_apm.capture_body = 'all'
         config.elastic_apm.pool_size = Concurrent.processor_count
         config.elastic_apm.service_name = 'RailsTestApp'
         config.elastic_apm.log_path = 'spec/elastic_apm.log'
@@ -45,6 +46,14 @@ if defined?(Rails)
         end
 
         def index
+          render_ok
+        end
+
+        http_basic_authenticate_with(
+          name: 'dhh', password: 'secret123', only: [:create]
+        )
+
+        def create
           render_ok
         end
 
@@ -104,6 +113,7 @@ if defined?(Rails)
         get '/tags_and_context', to: 'application#context'
         get '/send_notification', to: 'application#send_notification'
         get '/ping', to: 'application#ping'
+        post '/', to: 'application#create'
         root to: 'application#index'
       end
     end
@@ -176,6 +186,24 @@ if defined?(Rails)
 
         name = @mock_intake.transactions.first['name']
         expect(name).to eq 'ApplicationController#index'
+      end
+
+      it "filters sensitive looking data, but doesn't touch original" do
+        resp = post '/', access_token: 'abc123'
+
+        wait_for transactions: 1
+
+        expect(resp.body).to eq("HTTP Basic: Access denied.\n")
+        expect(resp.original_headers['WWW-Authenticate']).to_not be nil
+        expect(resp.original_headers['WWW-Authenticate']).to_not eq '[FILTERED]'
+
+        transaction, = @mock_intake.transactions
+
+        body = transaction.dig('context', 'request', 'body')
+        expect(body['access_token']).to eq '[FILTERED]'
+
+        response_headers = transaction.dig('context', 'response', 'headers')
+        expect(response_headers['WWW-Authenticate']).to eq '[FILTERED]'
       end
 
       it 'validates json schema', type: :json_schema do

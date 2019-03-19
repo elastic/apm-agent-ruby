@@ -54,10 +54,8 @@ module ElasticAPM
 
     def get_body(req)
       case req.media_type
-      when 'application/x-www-form-urlencoded'
-        req.POST
-      when 'multipart/form-data'
-        req.POST
+      when 'application/x-www-form-urlencoded', 'multipart/form-data'
+        req.POST.dup
       else
         body = req.body.read
         req.body.rewind
@@ -66,8 +64,7 @@ module ElasticAPM
     end
 
     def rails_req?(env)
-      defined?(ActionDispatch::Request) &&
-        env.is_a?(ActionDispatch::Request)
+      defined?(ActionDispatch::Request) && env.is_a?(ActionDispatch::Request)
     end
 
     def get_headers_and_env(rack_env)
