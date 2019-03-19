@@ -189,8 +189,6 @@ if defined?(Rails)
       end
 
       it "filters sensitive looking data, but doesn't touch original" do
-        # basic_authorize 'dhh', 'secret123'
-
         resp = post '/', access_token: 'abc123'
 
         wait_for transactions: 1
