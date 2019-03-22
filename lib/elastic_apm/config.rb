@@ -41,7 +41,7 @@ module ElasticAPM
       instrumented_rake_tasks: [],
       log_level: Logger::INFO,
       log_path: nil,
-      metrics_interval: 30,
+      metrics_interval: '30s',
       pool_size: 1,
       source_lines_error_app_frames: 5,
       source_lines_error_library_frames: 0,
@@ -81,7 +81,7 @@ module ElasticAPM
         [:list, 'instrumented_rake_tasks'],
       'ELASTIC_APM_LOG_LEVEL' => [:int, 'log_level'],
       'ELASTIC_APM_LOG_PATH' => 'log_path',
-      'ELASTIC_APM_METRICS_INTERVAL' => [:int, 'metrics_interval'],
+      'ELASTIC_APM_METRICS_INTERVAL' => 'metrics_interval',
       'ELASTIC_APM_POOL_SIZE' => [:int, 'pool_size'],
       'ELASTIC_APM_SERVER_CA_CERT' => 'server_ca_cert',
       'ELASTIC_APM_SERVICE_NAME' => 'service_name',
@@ -300,7 +300,7 @@ module ElasticAPM
     end
 
     def collect_metrics?
-      metrics_interval != 0
+      metrics_interval > 0
     end
 
     # rubocop:disable Metrics/MethodLength
