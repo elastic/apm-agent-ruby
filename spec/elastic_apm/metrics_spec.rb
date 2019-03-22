@@ -8,6 +8,32 @@ module ElasticAPM
     let(:callback) { ->(_) {} }
     subject { described_class.new(config, &callback) }
 
+    describe 'life cycle' do
+      describe '#start' do
+        before { subject.start }
+        it { should be_running }
+      end
+
+      describe '#stop' do
+        it 'stops the collector' do
+          subject.start
+          subject.stop
+          expect(subject).to_not be_running
+        end
+      end
+
+      context 'when disabled' do
+        let(:config) { Config.new metrics_interval: '0s' }
+
+        it "doesn't start" do
+          subject.start
+          expect(subject).to_not be_running
+          subject.stop
+          expect(subject).to_not be_running
+        end
+      end
+    end
+
     describe '.new' do
       it { should be_a Metrics::Collector }
     end

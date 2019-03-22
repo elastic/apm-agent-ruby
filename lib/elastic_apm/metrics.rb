@@ -54,6 +54,8 @@ module ElasticAPM
       # rubocop:enable Metrics/MethodLength
 
       def stop
+        return unless running?
+
         @timer_task.shutdown
         @running = false
       end
