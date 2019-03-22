@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+- Stopping the Metrics collector when it is disabled ([#357](https://github.com/elastic/apm-agent-ruby/pull/357))
+
 ## 2.6.0 (2019-03-19)
 
 ### Deprecated
