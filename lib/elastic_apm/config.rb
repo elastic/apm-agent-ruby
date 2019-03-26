@@ -67,6 +67,7 @@ module ElasticAPM
       'ELASTIC_APM_CAPTURE_BODY' => 'capture_body',
       'ELASTIC_APM_CAPTURE_HEADERS' => [:bool, 'capture_headers'],
       'ELASTIC_APM_CAPTURE_ENV' => [:bool, 'capture_env'],
+      'ELASTIC_APM_CONFIG_FILE' => 'config_file',
       'ELASTIC_APM_CUSTOM_KEY_FILTERS' => [:list, 'custom_key_filters'],
       'ELASTIC_APM_DEFAULT_TAGS' => [:dict, 'default_tags'],
       'ELASTIC_APM_DISABLED_SPIES' => [:list, 'disabled_spies'],
