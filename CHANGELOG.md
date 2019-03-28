@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 - Setting `config_file` via `ELASTIC_APM_CONFIG_FILE` ([#363(https://github.com/elastic/apm-agent-ruby/pull/363))
 - Stopping the Metrics collector when it is disabled ([#357](https://github.com/elastic/apm-agent-ruby/pull/357))
+- HTTP proxy settings can now be set by ENV variable ([#367](https://github.com/elastic/apm-agent-ruby/pull/367))
 
 ## 2.6.0 (2019-03-19)
 
