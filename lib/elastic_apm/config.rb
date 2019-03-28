@@ -83,6 +83,11 @@ module ElasticAPM
       'ELASTIC_APM_LOG_LEVEL' => [:int, 'log_level'],
       'ELASTIC_APM_LOG_PATH' => 'log_path',
       'ELASTIC_APM_METRICS_INTERVAL' => 'metrics_interval',
+      'ELASTIC_APM_PROXY_ADDRESS' => 'proxy_address',
+      'ELASTIC_APM_PROXY_HEADERS' => [:dict, 'proxy_headers'],
+      'ELASTIC_APM_PROXY_PASSWORD' => 'proxy_password',
+      'ELASTIC_APM_PROXY_PORT' => [:int, 'proxy_port'],
+      'ELASTIC_APM_PROXY_USERNAME' => 'proxy_username',
       'ELASTIC_APM_POOL_SIZE' => [:int, 'pool_size'],
       'ELASTIC_APM_SERVER_CA_CERT' => 'server_ca_cert',
       'ELASTIC_APM_SERVICE_NAME' => 'service_name',
@@ -355,7 +360,7 @@ module ElasticAPM
           when :float then value.to_f
           when :bool then !%w[0 false].include?(value.strip.downcase)
           when :list then value.split(/[ ,]/)
-          when :dict then Hash[value.split('&').map { |kv| kv.split('=') }]
+          when :dict then Hash[value.split(/[&,]/).map { |kv| kv.split('=') }]
           else value
           end
 
