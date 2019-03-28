@@ -458,8 +458,8 @@ the worker pool size might help.
 
 [options="header"]
 |============
-| Environment | `Config` key    | Default | Example
-| N/A         | `proxy_address` | `nil`   | `"example.com"`
+| Environment                 | `Config` key    | Default | Example
+| `ELASTIC_APM_PROXY_ADDRESS` | `proxy_address` | `nil`   | `"example.com"`
 |============
 
 An address to use as a proxy for the HTTP client.
@@ -471,6 +471,8 @@ Options available are:
 - `proxy_password`
 - `proxy_port`
 - `proxy_username`
+
+There are also `ENV` version of these following the same pattern of putting `ELASTIC_APM_` in front.
 
 See https://github.com/httprb/http/wiki/Proxy-Support[Http.rb's docs].
 
