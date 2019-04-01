@@ -63,12 +63,14 @@ module ElasticAPM
       end
       # rubocop:enable Metrics/MethodLength
 
-      private
-
       def process(resource)
         serialized = serializers.serialize(resource)
         @filters.apply!(serialized)
-        @connection.write(serialized.to_json)
+        @connection.write(JSON.fast_generate(serialized))
+      rescue Exception => e
+        error format('Failed converting event to JSON: %s', resource.inspect)
+        error e.inspect
+        debug('Backtrace:') { e.backtrace.join("\n") }
       end
     end
   end
