@@ -26,3 +26,5 @@ include::./supported-technologies.asciidoc[]
 
 include::./api.asciidoc[]
 
+include::./release-notes.asciidoc[]
+
