@@ -5,7 +5,7 @@ require 'spec_helper'
 module ElasticAPM
   module Transport
     RSpec.describe Worker do
-      let(:config) { Config.new }
+      let(:config) { Config.new logger: Logger.new($stdout) }
       let(:queue) { Queue.new }
       let(:serializers) { Serializers.new config }
       let(:filters) { Filters.new config }
@@ -65,6 +65,23 @@ module ElasticAPM
           queue.push Worker::StopMessage.new
 
           Timeout.timeout(1) { loop while thread.alive? }
+        end
+      end
+
+      describe '#process' do
+        it 'rescues exceptions' do
+          event = Transaction.new(
+            "What's in a name ⁉️",
+            (+'👏').force_encoding('ascii-8bit')
+          )
+
+          expect(config.logger).to receive(:error).twice.and_call_original
+
+          expect do
+            subject.process event
+          end.to_not raise_error
+
+          subject.connection.flush
         end
       end
     end
