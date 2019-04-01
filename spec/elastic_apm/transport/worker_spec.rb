@@ -5,7 +5,7 @@ require 'spec_helper'
 module ElasticAPM
   module Transport
     RSpec.describe Worker do
-      let(:config) { Config.new logger: Logger.new($stdout) }
+      let(:config) { Config.new }
       let(:queue) { Queue.new }
       let(:serializers) { Serializers.new config }
       let(:filters) { Filters.new config }
