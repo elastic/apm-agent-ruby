@@ -25,9 +25,11 @@ module ElasticAPM
       attr_reader :config, :queue, :workers, :filters
 
       def start
+        debug 'Starting Transport'
       end
 
       def stop
+        debug 'Stopping Transport'
         stop_workers
       end
 
@@ -50,7 +52,7 @@ module ElasticAPM
         missing = config.pool_size - @workers.length
         return unless missing > 0
 
-        info 'Booting %i workers', missing
+        debug 'Booting %i workers', missing
         missing.times { boot_worker }
       end
 
