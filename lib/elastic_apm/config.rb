@@ -31,6 +31,7 @@ module ElasticAPM
       current_user_username_method: :username,
       custom_key_filters: [],
       default_tags: {},
+      disable_start_message: false,
       disable_send: false,
       disable_start_message: false,
       disabled_spies: %w[json],

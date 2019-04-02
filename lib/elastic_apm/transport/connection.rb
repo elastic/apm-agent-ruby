@@ -82,6 +82,7 @@ module ElasticAPM
 
         return unless @bytes_sent >= @config.api_request_size
 
+        debug 'Closing request after reaching api_request_size'
         flush
       rescue FailedToConnectError => e
         error "Couldn't establish connection to APM Server:\n%p", e
@@ -141,10 +142,11 @@ module ElasticAPM
               @url,
               body: @rd,
               ssl_context: @ssl_context
-            ).flush
+            )
           rescue Exception => e
             @connection_error = e
           ensure
+            resp&.flush
             @connected = false
           end
 
@@ -175,6 +177,7 @@ module ElasticAPM
       def schedule_closing
         @close_task =
           Concurrent::ScheduledTask.execute(@config.api_request_time) do
+            debug 'Closing request after reaching api_request_time'
             flush
           end
       end
