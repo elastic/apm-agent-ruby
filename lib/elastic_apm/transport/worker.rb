@@ -64,13 +64,26 @@ module ElasticAPM
       # rubocop:enable Metrics/MethodLength
 
       def process(resource)
+        return unless (json = serialize_and_filter(resource))
+        @connection.write(json)
+      rescue Zlib::GzipFile::Error => e
+        warn 'Unexpectedly closed GZip stream encountered. '\
+          'Dropping event and flushing connection... '
+        error e.inspect
+        @connection.flush
+      end
+
+      private
+
+      def serialize_and_filter(resource)
         serialized = serializers.serialize(resource)
         @filters.apply!(serialized)
-        @connection.write(JSON.fast_generate(serialized))
+        JSON.fast_generate(serialized)
       rescue Exception => e
         error format('Failed converting event to JSON: %s', resource.inspect)
         error e.inspect
         debug('Backtrace:') { e.backtrace.join("\n") }
+        nil
       end
     end
   end
