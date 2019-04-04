@@ -82,7 +82,7 @@ module ElasticAPM
       rescue Exception => e
         error format('Failed converting event to JSON: %s', resource.inspect)
         error e.inspect
-        debug('Dump:') { serialized }
+        error (format('Dump:\n%s', serialized.inspect))
         # debug('Backtrace:') { e.backtrace.join("\n") }
         nil
       end
