@@ -81,8 +81,7 @@ module ElasticAPM
         JSON.fast_generate(serialized)
       rescue Exception => e
         error format('Failed converting event to JSON: %s', resource.inspect)
-        error e.inspect
-        error (format('Dump:\n%s', serialized.inspect))
+        error format("Dump:\n%s", serialized.inspect)
         # debug('Backtrace:') { e.backtrace.join("\n") }
         nil
       end
