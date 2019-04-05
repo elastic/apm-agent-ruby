@@ -18,6 +18,29 @@ module ElasticAPM
           stub = build_stub(body: /{"msg": "hey!"}/)
 
           subject.write('{"msg": "hey!"}')
+
+          expect(subject).to be_connected
+
+          subject.flush
+          expect(subject).to_not be_connected
+
+          expect(stub).to have_been_requested
+        end
+
+        it 'is thread safe' do
+          stub = build_stub(body: /{"thread": \d+}/)
+
+          threads = (0..9).map do |i|
+            Thread.new do
+              subject.write(%({"thread": #{i}}))
+              # sleep((10..30).to_a.sample / 10.0)
+            end
+          end
+
+          threads.each_with_index do |thread, i|
+            thread.join
+          end
+
           expect(subject).to be_connected
 
           subject.flush
@@ -40,31 +63,6 @@ module ElasticAPM
             expect(stub).to_not have_been_requested
           end
         end
-
-        context 'with a proxy' do
-          let(:config) do
-            Config.new(
-              proxy_address: 'example.com',
-              proxy_port: 80,
-              http_compression: false
-            )
-          end
-
-          it 'uses proxy' do
-            expect_any_instance_of(HTTP::Client)
-              .to receive(:via).and_call_original
-
-            stub = build_stub(body: /{"msg": "hey!"}/)
-
-            subject.write('{"msg": "hey!"}')
-            expect(subject).to be_connected
-
-            subject.flush
-            expect(subject).to_not be_connected
-
-            expect(stub).to have_been_requested
-          end
-        end
       end
 
       describe 'secret token' do
@@ -79,7 +77,9 @@ module ElasticAPM
       end
 
       describe 'handling errors' do
-        it 'logs the error' do
+        let(:config) { Config.new }
+
+        it 'logs server errors' do
           expect(subject).to receive(:error) # log
 
           errors = { errors: [{ message: 'real big explosion' }] }
@@ -133,6 +133,7 @@ module ElasticAPM
           end
 
           subject.write('{}')
+          sleep 0.2
 
           expect(subject).to_not be_connected
 
@@ -194,7 +195,7 @@ module ElasticAPM
       end
 
       # rubocop:disable Metrics/MethodLength
-      def build_stub(body: nil, headers: {}, to_return: {}, &block)
+      def build_stub(body: nil, headers: {}, to_return: {}, status: 202, &block)
         opts = {
           headers: {
             'Transfer-Encoding' => 'chunked',
@@ -207,7 +208,7 @@ module ElasticAPM
         WebMock
           .stub_request(:post, 'http://localhost:8200/intake/v2/events')
           .with(**opts, &block)
-          .to_return(to_return.merge(status: 202) { |_, old, _| old })
+          .to_return(to_return.merge(status: status) { |_, old, _| old })
       end
       # rubocop:enable Metrics/MethodLength
 

@@ -13,7 +13,7 @@ RSpec.describe ElasticAPM do
     end
   end
 
-  context 'when running' do
+  context 'when running', :mock_intake do
     before { ElasticAPM.start }
 
     let(:agent) { ElasticAPM.agent }
