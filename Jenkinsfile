@@ -17,6 +17,7 @@ pipeline {
     PIPELINE_LOG_LEVEL='INFO'
     NOTIFY_TO = credentials('notify-to')
     JOB_GCS_BUCKET = credentials('gcs-bucket')
+    CODECOV_SECRET = 'secret/apm-team/ci/apm-agent-ruby-codecov'
   }
   options {
     timeout(time: 2, unit: 'HOURS')
@@ -82,9 +83,6 @@ pipeline {
           beforeAgent true
           allOf {
             anyOf {
-              not {
-                changeRequest()
-              }
               branch 'master'
               branch "\\d+\\.\\d+"
               branch "v\\d?"
@@ -139,9 +137,6 @@ pipeline {
           beforeAgent true
           allOf {
             anyOf {
-              not {
-                changeRequest()
-              }
               branch 'master'
               branch "\\d+\\.\\d+"
               branch "v\\d?"
@@ -214,7 +209,8 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
           steps.junit(allowEmptyResults: false,
             keepLongStdio: true,
             testResults: "**/spec/ruby-agent-junit.xml")
-          steps.codecov(repo: 'apm-agent-ruby', basedir: "${steps.env.BASE_DIR}")
+          steps.codecov(repo: 'apm-agent-ruby', basedir: "${steps.env.BASE_DIR}",
+            secret: "${steps.env.CODECOV_SECRET}")
         }
       }
     }
