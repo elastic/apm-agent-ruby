@@ -27,6 +27,9 @@ Lint/RescueException:
 Lint/HandleExceptions:
   Enabled: false
 
+Lint/NonLocalExitFromIterator:
+  Enabled: false
+
 Metrics/BlockLength:
   Exclude:
     - 'spec/**/*.rb'

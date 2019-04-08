@@ -18,9 +18,32 @@ module ElasticAPM
           stub = build_stub(body: /{"msg": "hey!"}/)
 
           subject.write('{"msg": "hey!"}')
+          sleep 0.2
+
           expect(subject).to be_connected
 
           subject.flush
+          expect(subject).to_not be_connected
+
+          expect(stub).to have_been_requested
+        end
+
+        xit 'is thread safe' do
+          stub = build_stub(body: /{"thread": \d+}/)
+
+          threads = (0..9).map do |i|
+            Thread.new do
+              subject.write(%({"thread": #{i}}))
+            end
+          end
+
+          threads.each(&:join)
+
+          sleep 0.2
+
+          expect(subject).to be_connected
+          subject.flush
+
           expect(subject).to_not be_connected
 
           expect(stub).to have_been_requested
@@ -41,25 +64,31 @@ module ElasticAPM
           end
         end
 
-        context 'with a proxy' do
-          let(:config) do
-            Config.new(
-              proxy_address: 'example.com',
-              proxy_port: 80,
-              http_compression: false
-            )
-          end
-
-          it 'uses proxy' do
-            expect_any_instance_of(HTTP::Client)
-              .to receive(:via).and_call_original
-
+        context 'when gzip fails' do
+          it 'handles it' do
             stub = build_stub(body: /{"msg": "hey!"}/)
 
             subject.write('{"msg": "hey!"}')
+            sleep 0.1
+
             expect(subject).to be_connected
 
+            _wr = subject.instance_variable_get(:@wr).io
+            rd = subject.instance_variable_get(:@rd).io
+
+            rd.close
+
+            expect do
+              subject.write('{"msg": "hey!"}')
+            end.to_not raise_error
+
+            expect(stub).to_not have_been_requested
+
+            subject.write('{"msg": "hey!"}')
+            sleep 0.1
+
             subject.flush
+
             expect(subject).to_not be_connected
 
             expect(stub).to have_been_requested
@@ -79,7 +108,9 @@ module ElasticAPM
       end
 
       describe 'handling errors' do
-        it 'logs the error' do
+        let(:config) { Config.new }
+
+        it 'logs server errors' do
           expect(subject).to receive(:error) # log
 
           errors = { errors: [{ message: 'real big explosion' }] }
@@ -100,7 +131,8 @@ module ElasticAPM
 
           subject.write('{}')
 
-          sleep 0.2
+          sleep 0.5
+
           expect(subject).to_not be_connected
 
           expect(stub).to have_been_requested
@@ -133,6 +165,7 @@ module ElasticAPM
           end
 
           subject.write('{}')
+          sleep 0.2
 
           expect(subject).to_not be_connected
 
@@ -194,7 +227,7 @@ module ElasticAPM
       end
 
       # rubocop:disable Metrics/MethodLength
-      def build_stub(body: nil, headers: {}, to_return: {}, &block)
+      def build_stub(body: nil, headers: {}, to_return: {}, status: 202, &block)
         opts = {
           headers: {
             'Transfer-Encoding' => 'chunked',
@@ -207,7 +240,7 @@ module ElasticAPM
         WebMock
           .stub_request(:post, 'http://localhost:8200/intake/v2/events')
           .with(**opts, &block)
-          .to_return(to_return.merge(status: 202) { |_, old, _| old })
+          .to_return(to_return.merge(status: status) { |_, old, _| old })
       end
       # rubocop:enable Metrics/MethodLength
 

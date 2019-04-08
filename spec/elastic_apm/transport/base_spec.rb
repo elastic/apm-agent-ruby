@@ -19,10 +19,19 @@ module ElasticAPM
       describe '#stop' do
         let(:config) { Config.new(pool_size: 2) }
 
-        it 'stops all workers' do
+        it 'stops all workers', :mock_intake do
           subject.start
+
+          subject.submit Transaction.new
+          subject.submit Transaction.new
+          subject.submit Transaction.new
+          subject.submit Transaction.new
+          subject.submit Transaction.new
           subject.submit Transaction.new
           subject.stop
+
+          wait_for transactions: 6
+
           expect(subject.workers.length).to be 0
         end
       end

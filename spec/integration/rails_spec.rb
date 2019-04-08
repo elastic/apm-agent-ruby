@@ -22,7 +22,7 @@ if defined?(Rails)
         config.consider_all_requests_local = false
 
         config.logger = Logger.new(nil)
-        # config.logger = Logger.new(STDOUT)
+        # config.logger = Logger.new($stdout)
         config.logger.level = Logger::DEBUG
 
         config.eager_load = false
@@ -210,6 +210,7 @@ if defined?(Rails)
         get '/'
 
         wait_for transactions: 1
+        pp @mock_intake.spans.length
 
         metadata = @mock_intake.metadatas.first
         expect(metadata).to match_json_schema(:metadatas)
@@ -244,6 +245,7 @@ if defined?(Rails)
         get '/error'
 
         wait_for transactions: 1, errors: 1
+        pp @mock_intake.spans.length
 
         payload = @mock_intake.errors.first
         expect(payload).to match_json_schema(:errors)

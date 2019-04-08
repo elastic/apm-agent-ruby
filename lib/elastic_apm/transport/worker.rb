@@ -33,20 +33,12 @@ module ElasticAPM
 
       attr_reader :queue, :filters, :name, :connection, :serializers
 
-      def stop
-        @stopping = true
-      end
-
-      def stopping?
-        @stopping
-      end
-
       # rubocop:disable Metrics/MethodLength
       def work_forever
         while (msg = queue.pop)
           case msg
           when StopMessage
-            stop
+            @stopping = true
           else
             process msg
           end
@@ -54,7 +46,7 @@ module ElasticAPM
           next unless stopping?
 
           debug 'Stopping worker -- %s', self
-          @connection.flush
+          @connection.flush(:halt)
           break
         end
       rescue Exception => e
@@ -66,23 +58,21 @@ module ElasticAPM
       def process(resource)
         return unless (json = serialize_and_filter(resource))
         @connection.write(json)
-      rescue Zlib::GzipFile::Error => e
-        warn 'Unexpectedly closed GZip stream encountered. '\
-          'Dropping event and flushing connection... '
-        error e.inspect
-        @connection.flush
       end
 
       private
+
+      def stopping?
+        @stopping
+      end
 
       def serialize_and_filter(resource)
         serialized = serializers.serialize(resource)
         @filters.apply!(serialized)
         JSON.fast_generate(serialized)
-      rescue Exception => e
+      rescue Exception
         error format('Failed converting event to JSON: %s', resource.inspect)
-        error format("Dump:\n%s", serialized.inspect)
-        # debug('Backtrace:') { e.backtrace.join("\n") }
+        error serialized.inspect
         nil
       end
     end
