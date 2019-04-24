@@ -244,6 +244,9 @@ Add a tag to the current transaction.
 Tags are basic key-value pairs that are indexed in your Elasticsearch database
 and therefore searchable.
 
+TIP: Before using custom tags, ensure you understand the different types of
+{apm-overview-ref-v}/metadata.html[metadata] that are available.
+
 [source,ruby]
 ----
 before_action do
@@ -267,6 +270,9 @@ WARNING: Be aware that tags are indexed in Elasticsearch. Using too many unique 
 Add custom context to the current transaction.
 Use this to further specify a context that will help you track or diagnose what's
 going on inside your app.
+
+TIP: Before using custom context, ensure you understand the different types of
+{apm-overview-ref-v}/metadata.html[metadata] that are available.
 
 If called several times during a transaction the custom context will be destructively
 merged with `merge!`.
