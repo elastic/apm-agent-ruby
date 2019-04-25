@@ -37,12 +37,16 @@ module ElasticAPM
         def kubernetes
           @kubernetes =
             begin
-              kubernetes = {}
-
-              kubernetes[:namespace] = kubernetes_namespace
-              kubernetes[:node_name] = kubernetes_node_name
-              kubernetes[:pod_name] = kubernetes_pod_name
-              kubernetes[:pod_uid] = kubernetes_pod_uid
+              kubernetes = {
+                namespace: kubernetes_namespace,
+                node: {
+                  name: kubernetes_node_name
+                },
+                pod: {
+                  name: kubernetes_pod_name,
+                  uid: kubernetes_pod_uid
+                }
+              }
               return nil if kubernetes.values.all?(&:nil?)
 
               kubernetes
