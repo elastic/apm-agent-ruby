@@ -10,7 +10,9 @@ module ElasticAPM
       subject { described_class.new(config, metadata) }
 
       describe '#initialize' do
-        it { should_not be_connected }
+        it 'is has no active connection' do
+          expect(subject.http).to be nil
+        end
       end
 
       describe 'write' do
@@ -20,10 +22,10 @@ module ElasticAPM
           subject.write('{"msg": "hey!"}')
           sleep 0.2
 
-          expect(subject).to be_connected
+          expect(subject.http.closed?).to be false
 
           subject.flush
-          expect(subject).to_not be_connected
+          expect(subject.http.closed?).to be true
 
           expect(stub).to have_been_requested
         end
@@ -41,11 +43,10 @@ module ElasticAPM
 
           sleep 0.2
 
-          expect(subject).to be_connected
+          expect(subject.http.closed?).to be false
           subject.flush
 
-          expect(subject).to_not be_connected
-
+          expect(subject.http.closed?).to be true
           expect(stub).to have_been_requested
         end
 
@@ -56,26 +57,26 @@ module ElasticAPM
             stub = build_stub(body: /{"msg": "hey!"}/)
 
             subject.write('{"msg": "hey!"}')
-            expect(subject).to_not be_connected
-            subject.flush
-            expect(subject).to_not be_connected
 
+            expect(subject.http).to be nil
+
+            subject.flush
+
+            expect(subject.http).to be nil
             expect(stub).to_not have_been_requested
           end
         end
 
-        context 'when gzip fails' do
+        context 'when Error occurs' do
           it 'handles it' do
             stub = build_stub(body: /{"msg": "hey!"}/)
 
             subject.write('{"msg": "hey!"}')
             sleep 0.1
 
-            expect(subject).to be_connected
+            expect(subject.http.closed?).to be false
 
-            _wr = subject.instance_variable_get(:@wr).io
-            rd = subject.instance_variable_get(:@rd).io
-
+            rd = subject.http.instance_variable_get(:@rd)
             rd.close
 
             expect do
@@ -83,15 +84,7 @@ module ElasticAPM
             end.to_not raise_error
 
             expect(stub).to_not have_been_requested
-
-            subject.write('{"msg": "hey!"}')
-            sleep 0.1
-
-            subject.flush
-
-            expect(subject).to_not be_connected
-
-            expect(stub).to have_been_requested
+            expect(subject.http.closed?).to be true
           end
         end
       end
@@ -107,22 +100,6 @@ module ElasticAPM
         end
       end
 
-      describe 'handling errors' do
-        let(:config) { Config.new }
-
-        it 'logs server errors' do
-          expect(subject).to receive(:error) # log
-
-          errors = { errors: [{ message: 'real big explosion' }] }
-          stub = build_stub(to_return: { status: 500, body: errors.to_json })
-
-          subject.write('{}')
-          subject.flush
-
-          expect(stub).to have_been_requested.once
-        end
-      end
-
       context 'max request time' do
         let(:config) { Config.new(api_request_time: '100ms') }
 
@@ -133,7 +110,7 @@ module ElasticAPM
 
           sleep 0.5
 
-          expect(subject).to_not be_connected
+          expect(subject.http.closed?).to be true
 
           expect(stub).to have_been_requested
         end
@@ -144,10 +121,10 @@ module ElasticAPM
           subject.write('{}')
           subject.flush
 
-          expect(subject).to_not be_connected
+          expect(subject.http.closed?).to be true
 
           sleep 0.2
-          expect(subject).to_not be_connected
+          expect(subject.http.closed?).to be true
         end
       end
 
@@ -167,7 +144,7 @@ module ElasticAPM
           subject.write('{}')
           sleep 0.2
 
-          expect(subject).to_not be_connected
+          expect(subject.http.closed?).to be true
 
           expect(stub).to have_been_requested
         end
@@ -178,10 +155,10 @@ module ElasticAPM
           subject.write('{}')
           subject.flush
 
-          expect(subject).to_not be_connected
+          expect(subject.http.closed?).to be true
 
           sleep 0.2
-          expect(subject).to_not be_connected
+          expect(subject.http.closed?).to be true
         end
 
         context 'and gzip off' do
@@ -197,8 +174,7 @@ module ElasticAPM
             subject.write('{}')
 
             sleep 0.2
-            expect(subject).to_not be_connected
-
+            expect(subject.http.closed?).to be true
             expect(stub).to have_been_requested
           end
         end

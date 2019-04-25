@@ -22,8 +22,6 @@ module ElasticAPM
         @config = config
         @queue = queue
 
-        @stopping = false
-
         @serializers = serializers
         @filters = filters
 
@@ -38,16 +36,12 @@ module ElasticAPM
         while (msg = queue.pop)
           case msg
           when StopMessage
-            @stopping = true
+            debug 'Stopping worker -- %s', self
+            connection.flush(:halt)
+            break
           else
             process msg
           end
-
-          next unless stopping?
-
-          debug 'Stopping worker -- %s', self
-          @connection.flush(:halt)
-          break
         end
       rescue Exception => e
         warn 'Worker died with exception: %s', e.inspect
@@ -57,14 +51,10 @@ module ElasticAPM
 
       def process(resource)
         return unless (json = serialize_and_filter(resource))
-        @connection.write(json)
+        connection.write(json)
       end
 
       private
-
-      def stopping?
-        @stopping
-      end
 
       def serialize_and_filter(resource)
         serialized = serializers.serialize(resource)

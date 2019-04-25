@@ -8,10 +8,10 @@ module ElasticAPM
     class Connection
       # @api private
       class ProxyPipe
-        def initialize(enc = nil, on_first_read: nil, compress: true)
+        def initialize(enc = nil, compress: true)
           rd, wr = IO.pipe(enc)
 
-          @read = Read.new(rd, on_first_read)
+          @read = rd
           @write = Write.new(wr, compress: compress)
         end
 
@@ -57,49 +57,6 @@ module ElasticAPM
 
           def bytes_sent
             @bytes_sent.value
-          end
-        end
-
-        # @api private
-        class Read
-          def initialize(io, callback = nil)
-            @io = io
-            @callback = callback
-          end
-
-          attr_reader :io
-
-          def read(*args)
-            if @callback
-              @callback.call
-              @callback = nil
-            end
-
-            io.read(*args)
-          end
-
-          def readpartial(*args)
-            if @callback
-              @callback.call
-              @callback = nil
-            end
-
-            io.readpartial(*args)
-          end
-
-          # not supported, but http.rb calls it
-          def rewind
-          end
-
-          def method_missing(name, *args, &block)
-            return @io.send(name, *args, &block) if @io.respond_to?(name)
-            super
-          end
-
-          private
-
-          def respond_to_missing?(name, include_all)
-            @io.respond_to?(name) || super
           end
         end
 

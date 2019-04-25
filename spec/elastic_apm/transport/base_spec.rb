@@ -32,7 +32,7 @@ module ElasticAPM
 
           wait_for transactions: 6
 
-          expect(subject.workers.length).to be 0
+          expect(subject.send(:workers).length).to be 0
         end
       end
 
