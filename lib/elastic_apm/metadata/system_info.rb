@@ -13,10 +13,10 @@ module ElasticAPM
 
         container_info = ContainerInfo.read!
         @container = container_info.container
-        @kupernetes = container_info.kupernetes
+        @kubernetes = container_info.kubernetes
       end
 
-      attr_reader :hostname, :architecture, :platform, :container, :kupernetes
+      attr_reader :hostname, :architecture, :platform, :container, :kubernetes
 
       private
 

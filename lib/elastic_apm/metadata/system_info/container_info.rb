@@ -5,10 +5,10 @@ module ElasticAPM
     class SystemInfo
       # @api private
       class ContainerInfo
-        CGROUP_PATH = '/proc/pid/cgroup'
+        CGROUP_PATH = '/proc/self/cgroup'
 
-        attr_accessor :container_id, :kupernetes_namespace,
-          :kupernetes_node_name, :kupernetes_pod_name, :kupernetes_pod_uid
+        attr_accessor :container_id, :kubernetes_namespace,
+          :kubernetes_node_name, :kubernetes_pod_name, :kubernetes_pod_uid
 
         def initialize(cgroup_path: CGROUP_PATH)
           @cgroup_path = cgroup_path
@@ -34,32 +34,36 @@ module ElasticAPM
             end
         end
 
-        def kupernetes
-          @kupernetes =
+        def kubernetes
+          @kubernetes =
             begin
-              kupernetes = {}
+              kubernetes = {
+                namespace: kubernetes_namespace,
+                node: {
+                  name: kubernetes_node_name
+                },
+                pod: {
+                  name: kubernetes_pod_name,
+                  uid: kubernetes_pod_uid
+                }
+              }
+              return nil if kubernetes.values.all?(&:nil?)
 
-              kupernetes[:namespace] = kupernetes_namespace
-              kupernetes[:node_name] = kupernetes_node_name
-              kupernetes[:pod_name] = kupernetes_pod_name
-              kupernetes[:pod_uid] = kupernetes_pod_uid
-              return nil if kupernetes.values.all?(&:nil?)
-
-              kupernetes
+              kubernetes
             end
         end
 
         private
 
         def read_from_env!
-          self.kupernetes_namespace =
-            ENV.fetch('KUBERNETES_NAMESPACE', kupernetes_namespace)
-          self.kupernetes_node_name =
-            ENV.fetch('KUBERNETES_NODE_NAME', kupernetes_node_name)
-          self.kupernetes_pod_name =
-            ENV.fetch('KUBERNETES_POD_NAME', kupernetes_pod_name)
-          self.kupernetes_pod_uid =
-            ENV.fetch('KUBERNETES_POD_UID', kupernetes_pod_uid)
+          self.kubernetes_namespace =
+            ENV.fetch('KUBERNETES_NAMESPACE', kubernetes_namespace)
+          self.kubernetes_node_name =
+            ENV.fetch('KUBERNETES_NODE_NAME', kubernetes_node_name)
+          self.kubernetes_pod_name =
+            ENV.fetch('KUBERNETES_POD_NAME', kubernetes_pod_name)
+          self.kubernetes_pod_uid =
+            ENV.fetch('KUBERNETES_POD_UID', kubernetes_pod_uid)
         end
 
         CONTAINER_ID_REGEX = /^[0-9A-Fa-f]{64}$/.freeze
@@ -103,7 +107,7 @@ module ElasticAPM
               pod_id = kubepods_match[1] || kubepods_match[2]
 
               self.container_id = container_id
-              self.kupernetes_pod_uid = pod_id
+              self.kubernetes_pod_uid = pod_id
             elsif CONTAINER_ID_REGEX.match(container_id)
               self.container_id = container_id
             end
