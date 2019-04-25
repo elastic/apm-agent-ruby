@@ -14,10 +14,10 @@ module ElasticAPM
             ) do
               subject.read!
 
-              expect(subject.kupernetes_namespace).to eq('my-namespace')
-              expect(subject.kupernetes_node_name).to eq('my-node-name')
-              expect(subject.kupernetes_pod_name).to eq('my-pod-name')
-              expect(subject.kupernetes_pod_uid).to eq('my-pod-uid')
+              expect(subject.kubernetes_namespace).to eq('my-namespace')
+              expect(subject.kubernetes_node_name).to eq('my-node-name')
+              expect(subject.kubernetes_pod_name).to eq('my-pod-name')
+              expect(subject.kubernetes_pod_uid).to eq('my-pod-uid')
             end
           end
         end
@@ -63,7 +63,7 @@ module ElasticAPM
             its(:container_id) do
               should eq '15aa6e53-b09a-40c7-8558-c6c31e36c88a'
             end
-            its(:kupernetes_pod_uid) do
+            its(:kubernetes_pod_uid) do
               should eq 'e9b90526-f47d-11e8-b2a5-080027b9f4fb'
             end
           end
@@ -75,7 +75,7 @@ module ElasticAPM
             its(:container_id) do
               should eq '2227daf62df6694645fee5df53c1f91271546a9560e8600a525690ae252b7f63'
             end
-            its(:kupernetes_pod_uid) do
+            its(:kubernetes_pod_uid) do
               should eq '90d81341_92de_11e7_8cf2_507b9d4141fa'
             end
           end
