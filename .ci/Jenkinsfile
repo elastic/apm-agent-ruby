@@ -1,15 +1,6 @@
 #!/usr/bin/env groovy
 @Library('apm@current') _
 
-import co.elastic.matrix.*
-import groovy.transform.Field
-
-/**
-This is the parallel tasks generator,
-it is need as field to store the results of the tests.
-*/
-@Field def rubyTasksGen
-
 pipeline {
   agent any
   environment {
@@ -60,18 +51,12 @@ pipeline {
         unstash "source"
         dir("${BASE_DIR}"){
           script {
-            rubyTasksGen = new RubyParallelTaskGenerator(
-              xKey: 'RUBY_VERSION',
-              yKey: 'FRAMEWORK',
-              xFile: ".ci/.jenkins_ruby.yml",
-              yFile: ".ci/.jenkins_framework.yml",
-              exclusionFile: ".ci/.jenkins_exclude.yml",
-              tag: "Ruby",
-              name: "Ruby",
-              steps: this
-              )
-              def mapPatallelTasks = rubyTasksGen.generateParallelTests()
-              parallel(mapPatallelTasks)
+            def node = readYaml(file: '.ci/.jenkins_ruby.yml')
+            def parallelTasks = [:]
+            node['RUBY_VERSION'].each{ version ->
+              parallelTasks["${version}"] = generateStep(version)
+            }
+            parallel(parallelTasks)
             }
           }
         }
@@ -186,59 +171,15 @@ pipeline {
     }
   }
 
-/**
-Parallel task generator for the integration tests.
-*/
-class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
-  
-  public RubyParallelTaskGenerator(Map params){
-    super(params)
-  }
-  
-  /**
-  build a clousure that launch and agent and execute the corresponding test script,
-  then store the results.
-  */
-  public Closure generateStep(x, y){
-    return {
-      steps.sleep steps.randomNumber(min:10, max: 30)
-      steps.node('linux && immutable'){
-        def label = "${tag}:${x}#${y}"
-        try {
-          steps.runScript(label: label, ruby: x, framework: y)
-          saveResult(x, y, 1)
-        } catch(e){
-          saveResult(x, y, 0)
-          error("${label} tests failed : ${e.toString()}\n")
-        } finally {
-          steps.junit(allowEmptyResults: false,
-            keepLongStdio: true,
-            testResults: "**/spec/ruby-agent-junit.xml")
-          steps.codecov(repo: 'apm-agent-ruby', basedir: "${steps.env.BASE_DIR}")
-        }
-      }
-    }
-  }
-}
-
-/**
-  Run tests for a Ruby version and framework version.
-*/
-def runScript(Map params = [:]){
-  def label = params.label
-  def ruby = params.ruby
-  def framework = params.framework
-  log(level: 'INFO', text: "${label}")
-  env.HOME = "${env.WORKSPACE}"
-  env.PATH = "${env.PATH}:${env.WORKSPACE}/bin"
-  deleteDir()
-  unstash 'source'
-  dir("${BASE_DIR}"){
-    retry(2){
-      sleep randomNumber(min:10, max: 30)
-      sh("./spec/scripts/spec.sh ${ruby} ${framework}")
-    }
-  }
+def generateStep(version){
+  return { build(job: 'apm-agent-ruby/downstream-ruby-tests-pipeline',
+    parameters: [
+    string(name: 'RUBY_VERSION', value: version),
+    string(name: 'BRANCH_SPECIFIER', value: env.GIT_BASE_COMMIT),
+    string(name: 'BRANCH_TARGET', value: env.BRANCH_TARGET),
+    propagate: true,
+    quietPeriod: 10,
+    wait: true) }
 }
 
 /**

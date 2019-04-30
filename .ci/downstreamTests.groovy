@@ -13,10 +13,12 @@ it is need as field to store the results of the tests.
 pipeline {
   agent any
   environment {
+    REPO="git@github.com:elastic/apm-agent-ruby.git"
     BASE_DIR="src/github.com/elastic/apm-agent-ruby"
     PIPELINE_LOG_LEVEL='INFO'
     NOTIFY_TO = credentials('notify-to')
     JOB_GCS_BUCKET = credentials('gcs-bucket')
+    JOB_GIT_CREDENTIALS = "f6c7695a-671e-4f4f-a331-acdce44ff9ba"
   }
   options {
     timeout(time: 2, unit: 'HOURS')
@@ -32,9 +34,9 @@ pipeline {
     issueCommentTrigger('.*(?:jenkins\\W+)?run\\W+(?:the\\W+)?tests(?:\\W+please)?.*')
   }
   parameters {
-    booleanParam(name: 'Run_As_Master_Branch', defaultValue: false, description: 'Allow to run any steps on a PR, some steps normally only run on master branch.')
-    booleanParam(name: 'doc_ci', defaultValue: true, description: 'Enable build docs.')
-    booleanParam(name: 'bench_ci', defaultValue: true, description: 'Enable run benchmarks.')
+    string(name: 'RUBY_VERSION', defaultValue: "ruby-2.6", description: "Ruby version to test")
+    string(name: 'BRANCH_SPECIFIER', defaultValue: "master", description: "Git branch/tag to use")
+    string(name: 'CHANGE_TARGET', defaultValue: "master", description: "Git branch/tag to merge before building")
   }
   stages {
     /**
@@ -45,7 +47,12 @@ pipeline {
       options { skipDefaultCheckout() }
       steps {
         deleteDir()
-        gitCheckout(basedir: "${BASE_DIR}")
+        gitCheckout(basedir: "${BASE_DIR}", 
+          branch: "${params.BRANCH_SPECIFIER}",
+          repo: "${REPO}",
+          credentialsId: "${JOB_GIT_CREDENTIALS}",
+          mergeTarget: "${params.CHANGE_TARGET}"
+          reference: '/var/lib/jenkins/apm-agent-ruby.git')
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }
@@ -61,9 +68,8 @@ pipeline {
         dir("${BASE_DIR}"){
           script {
             rubyTasksGen = new RubyParallelTaskGenerator(
-              xKey: 'RUBY_VERSION',
+              xVersions: [ "${RUBY_VERSION}" ],
               yKey: 'FRAMEWORK',
-              xFile: ".ci/.jenkins_ruby.yml",
               yFile: ".ci/.jenkins_framework.yml",
               exclusionFile: ".ci/.jenkins_exclude.yml",
               tag: "Ruby",
@@ -76,88 +82,6 @@ pipeline {
           }
         }
       }
-      stage('Benchmarks') {
-        options { skipDefaultCheckout() }
-        when {
-          beforeAgent true
-          allOf {
-            anyOf {
-              not {
-                changeRequest()
-              }
-              branch 'master'
-              branch "\\d+\\.\\d+"
-              branch "v\\d?"
-              tag "v\\d+\\.\\d+\\.\\d+*"
-              expression { return params.Run_As_Master_Branch }
-            }
-            expression { return params.bench_ci }
-          }
-        }
-        stages {
-          stage('Clean Workspace') {
-            agent { label 'metal' }
-            steps {
-              echo "Cleaning Workspace"
-            }
-            post {
-              always {
-                cleanWs()
-              }
-            }
-          }
-          /**
-            Run the benchmarks and store the results on ES.
-            The result JSON files are also archive into Jenkins.
-          */
-          stage('Run Benchmarks') {
-            agent { label 'linux && immutable' }
-            steps {
-              deleteDir()
-              unstash 'source'
-              dir("${BASE_DIR}"){
-                script {
-                  def versions = readYaml(file: ".ci/.jenkins_ruby.yml")
-                  def benchmarkTask = [:]
-                  versions['RUBY_VERSION'].each{ v ->
-                    benchmarkTask[v] = runBenchmark(v)
-                  }
-                  parallel(benchmarkTask)
-                }
-              }
-            }
-          }
-        }
-      }
-      /**
-      Build the documentation.
-      */
-      stage('Documentation') {
-        agent { label 'linux && immutable' }
-        options { skipDefaultCheckout() }
-        when {
-          beforeAgent true
-          allOf {
-            anyOf {
-              not {
-                changeRequest()
-              }
-              branch 'master'
-              branch "\\d+\\.\\d+"
-              branch "v\\d?"
-              tag "v\\d+\\.\\d+\\.\\d+*"
-              expression { return params.Run_As_Master_Branch }
-            }
-            expression { return params.doc_ci }
-          }
-        }
-        steps {
-          deleteDir()
-          unstash 'source'
-          buildDocs(docsDir: "${BASE_DIR}/docs", archive: true)
-        }
-      }
-    }
     post {
       always{
         script{
@@ -225,10 +149,7 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
   Run tests for a Ruby version and framework version.
 */
 def runScript(Map params = [:]){
-  def label = params.label
-  def ruby = params.ruby
-  def framework = params.framework
-  log(level: 'INFO', text: "${label}")
+  log(level: 'INFO', text: "${params.label}")
   env.HOME = "${env.WORKSPACE}"
   env.PATH = "${env.PATH}:${env.WORKSPACE}/bin"
   deleteDir()
@@ -236,32 +157,7 @@ def runScript(Map params = [:]){
   dir("${BASE_DIR}"){
     retry(2){
       sleep randomNumber(min:10, max: 30)
-      sh("./spec/scripts/spec.sh ${ruby} ${framework}")
-    }
-  }
-}
-
-/**
-  Run benchmarks for a Ruby version, then report the results to the Elasticsearch server.
-*/
-def runBenchmark(version){
-  return {
-    node('metal'){
-      env.HOME = "${env.WORKSPACE}/${version}"
-      dir("${version}"){
-        deleteDir()
-        unstash 'source'
-        dir("${BASE_DIR}"){
-          try{
-            sh "./spec/scripts/benchmarks.sh ${version}"
-          } catch(e){
-            throw e
-          } finally {
-            sendBenchmarks(file: "benchmark-${version}.bulk",
-              index: "benchmark-ruby", archive: true)
-          }
-        }
-      }
+      sh("./spec/scripts/spec.sh ${params.ruby} ${params.framework}")
     }
   }
 }
