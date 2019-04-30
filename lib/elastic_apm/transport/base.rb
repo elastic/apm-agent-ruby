@@ -47,6 +47,9 @@ module ElasticAPM
       rescue ThreadError
         warn 'Queue is full (%i items), skipping…', config.api_buffer_size
         nil
+      rescue Exception => e
+        error 'Failed adding to the transport queue: %p', e.inspect
+        nil
       end
 
       def add_filter(key, callback)
