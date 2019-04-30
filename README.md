@@ -1,7 +1,7 @@
 # elastic-apm
 ## Elastic APM agent for ♦️Ruby
 
-[![Jenkins](https://apm-ci.elastic.co/buildStatus/icon?job=apm-agent-ruby/apm-agent-ruby-mbp/master)](https://apm-ci.elastic.co/job/apm-agent-ruby/apm-agent-ruby-mbp/master) [![Gem](https://img.shields.io/gem/v/elastic-apm.svg)](https://rubygems.org/gems/elastic-apm) [![codecov](https://codecov.io/gh/elastic/apm-agent-ruby/branch/master/graph/badge.svg)](https://codecov.io/gh/elastic/apm-agent-ruby)
+[![Jenkins](https://apm-ci.elastic.co/buildStatus/icon?job=apm-agent-ruby/apm-agent-ruby-mbp/master)](https://apm-ci.elastic.co/job/apm-agent-ruby/job/apm-agent-ruby-mbp/job/master/) [![Gem](https://img.shields.io/gem/v/elastic-apm.svg)](https://rubygems.org/gems/elastic-apm) [![codecov](https://codecov.io/gh/elastic/apm-agent-ruby/branch/master/graph/badge.svg)](https://codecov.io/gh/elastic/apm-agent-ruby)
 
 The official Rubygem for [Elastic][] [APM][].
 
