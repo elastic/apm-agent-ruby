@@ -11,6 +11,8 @@ module ElasticAPM
       error = Error.new context: context || Context.new
       error.exception = Error::Exception.new(exception, handled: handled)
 
+      Util.reverse_merge!(error.context.tags, @agent.config.default_tags)
+
       if exception.backtrace
         add_stacktrace error, :exception, exception.backtrace
       end
