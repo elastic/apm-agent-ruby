@@ -11,6 +11,15 @@ module ElasticAPM
     class Connection
       include Logging
 
+      # A connection holds an instance `http` of an Http::Connection.
+      # The HTTP::Connection itself is not thread safe.
+      # The connection sends write requests and close requests to `http`, and
+      # has to ensure no write requests are sent after closing `http`.
+      # The connection schedules a separate thread to close an `http`
+      # connection some time in the future. To avoid the thread interfering
+      # with ongoing write requests to `http`, write and close
+      # requests have to be synchronized.
+
       HEADERS = {
         'Content-Type' => 'application/x-ndjson',
         'Transfer-Encoding' => 'chunked'
@@ -25,7 +34,6 @@ module ElasticAPM
         @url = config.server_url + '/intake/v2/events'
         @headers = build_headers
         @ssl_context = build_ssl_context
-
         @mutex = Mutex.new
       end
 
