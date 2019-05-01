@@ -5,6 +5,14 @@ module ElasticAPM
   module Spies
     # @api private
     class FaradaySpy
+      def self.without_net_http
+        return yield unless defined?(NetHTTPSpy)
+
+        ElasticAPM::Spies::NetHTTPSpy.disable_in do
+          yield
+        end
+      end
+
       # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       # rubocop:disable Metrics/BlockLength, Metrics/PerceivedComplexity
       # rubocop:disable Metrics/CyclomaticComplexity
@@ -32,7 +40,7 @@ module ElasticAPM
             type = "ext.faraday.#{method}"
 
             ElasticAPM.with_span name, type do |span|
-              ElasticAPM::Spies::NetHTTPSpy.disable_in do
+              ElasticAPM::Spies::FaradaySpy.without_net_http do
                 trace_context = span&.trace_context || transaction.trace_context
 
                 run_request_without_apm(method, url, body, headers) do |req|
