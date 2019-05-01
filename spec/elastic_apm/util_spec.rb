@@ -30,5 +30,17 @@ module ElasticAPM
         expect(result.length).to be 1024
       end
     end
+
+    describe '.reverse_merge!' do
+      it 'merges hashes into one, destructively' do
+        first = { a: 1 }
+        second = { b: 2, c: 3 }
+        third = { b: 'interception!' }
+
+        Util.reverse_merge!(first, second, third)
+
+        expect(first).to match(a: 1, b: 'interception!', c: 3)
+      end
+    end
   end
 end

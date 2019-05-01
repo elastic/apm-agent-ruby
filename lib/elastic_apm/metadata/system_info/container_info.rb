@@ -34,14 +34,13 @@ module ElasticAPM
             end
         end
 
+        # rubocop:disable Metrics/MethodLength
         def kubernetes
           @kubernetes =
             begin
               kubernetes = {
                 namespace: kubernetes_namespace,
-                node: {
-                  name: kubernetes_node_name
-                },
+                node: { name: kubernetes_node_name },
                 pod: {
                   name: kubernetes_pod_name,
                   uid: kubernetes_pod_uid
@@ -52,6 +51,7 @@ module ElasticAPM
               kubernetes
             end
         end
+        # rubocop:enable Metrics/MethodLength
 
         private
 

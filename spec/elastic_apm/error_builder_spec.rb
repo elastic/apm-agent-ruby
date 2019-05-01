@@ -2,7 +2,9 @@
 
 module ElasticAPM
   RSpec.describe ErrorBuilder do
-    subject { ErrorBuilder.new Agent.new(Config.new) }
+    let(:config) { Config.new }
+
+    subject { ErrorBuilder.new Agent.new(config) }
 
     context 'with an exception' do
       it 'builds an error from an exception', :mock_time, unless: jruby_92? do
@@ -23,7 +25,7 @@ module ElasticAPM
         env['HTTP_CONTENT_TYPE'] = 'application/json'
 
         begin
-          ElasticAPM.start
+          ElasticAPM.start(default_tags: { more: 'totes' })
 
           context =
             ElasticAPM.build_context rack_env: env, for_type: :transaction
@@ -44,7 +46,7 @@ module ElasticAPM
         expect(error.transaction).to eq(sampled: true)
         expect(error.transaction_id).to eq transaction.id
         expect(error.trace_id).to eq transaction.trace_id
-        expect(error.context.tags).to match(my_tag: '123')
+        expect(error.context.tags).to match(my_tag: '123', more: 'totes')
         expect(error.context.custom)
           .to match(all_the_other_things: 'blah blah')
         # expect(error.trace_id).to eq transaction.trace_id

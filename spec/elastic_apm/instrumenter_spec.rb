@@ -74,6 +74,15 @@ module ElasticAPM
           expect(subject.current_transaction).to be nil
         end
       end
+
+      context 'with default tags' do
+        let(:config) { Config.new(default_tags: { more: 'yes!' }) }
+
+        it 'adds them to transaction context' do
+          transaction = subject.start_transaction 'Test', 't'
+          expect(transaction.context.tags).to match(more: 'yes!')
+        end
+      end
     end
 
     describe '#end_transaction' do

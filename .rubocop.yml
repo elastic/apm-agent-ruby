@@ -5,8 +5,14 @@ AllCops:
     - 'vendor/**/*'
     - 'bench/*'
 
+Layout/AlignArguments:
+  EnforcedStyle: with_fixed_indentation
+
 Layout/AlignParameters:
   EnforcedStyle: with_fixed_indentation
+
+Layout/IndentFirstParameter:
+  Enabled: false
 
 Layout/AlignHash:
   Exclude:

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+- Re-added `default_tags` ([#395](https://github.com/elastic/apm-agent-ruby/pull/395))
+
 ## 2.6.1
 
 ### Fixed
