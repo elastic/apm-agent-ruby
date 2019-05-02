@@ -86,6 +86,7 @@ module ElasticAPM
       metrics.start
 
       config.enabled_spies.each do |lib|
+        debug "Requiring spy: #{lib}"
         require "elastic_apm/spies/#{lib}"
       end
 
@@ -96,9 +97,9 @@ module ElasticAPM
     def stop
       debug 'Stopping agent'
 
+      metrics.stop
       instrumenter.stop
       transport.stop
-      metrics.stop
 
       self
     end

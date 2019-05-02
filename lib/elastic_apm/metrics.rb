@@ -24,7 +24,10 @@ module ElasticAPM
       def initialize(config, tags: nil, &block)
         @config = config
         @tags = tags
-        @samplers = [CpuMem].map { |kls| kls.new(config) }
+        @samplers = [CpuMem].map do |kls|
+          debug "Adding metrics collector '#{kls}'"
+          kls.new(config)
+        end
         @callback = block
       end
 
@@ -32,7 +35,12 @@ module ElasticAPM
 
       # rubocop:disable Metrics/MethodLength
       def start
-        return unless config.collect_metrics?
+        unless config.collect_metrics?
+          debug 'Skipping metrics'
+          return
+        end
+
+        debug 'Starting metrics'
 
         @timer_task = Concurrent::TimerTask.execute(
           run_now: true,
@@ -40,6 +48,7 @@ module ElasticAPM
           timeout_interval: TIMEOUT_INTERVAL
         ) do
           begin
+            debug 'Collecting metrics'
             collect_and_send
             true
           rescue StandardError => e
@@ -55,6 +64,8 @@ module ElasticAPM
 
       def stop
         return unless running?
+
+        debug 'Stopping metrics'
 
         @timer_task.shutdown
         @running = false
