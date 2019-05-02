@@ -32,6 +32,7 @@ module ElasticAPM
       custom_key_filters: [],
       default_tags: {},
       disable_send: false,
+      disable_start_message: false,
       disabled_spies: %w[json],
       environment: ENV['RAILS_ENV'] || ENV['RACK_ENV'],
       filter_exception_types: [],
@@ -72,6 +73,7 @@ module ElasticAPM
       'ELASTIC_APM_DEFAULT_TAGS' => [:dict, 'default_tags'],
       'ELASTIC_APM_DISABLED_SPIES' => [:list, 'disabled_spies'],
       'ELASTIC_APM_DISABLE_SEND' => [:bool, 'disable_send'],
+      'ELASTIC_APM_DISABLE_START_MESSAGE' => [:bool, 'disable_start_message'],
       'ELASTIC_APM_ENVIRONMENT' => 'environment',
       'ELASTIC_APM_FRAMEWORK_NAME' => 'framework_name',
       'ELASTIC_APM_FRAMEWORK_VERSION' => 'framework_version',
@@ -151,6 +153,7 @@ module ElasticAPM
     attr_accessor :current_user_username_method
     attr_accessor :default_tags
     attr_accessor :disable_send
+    attr_accessor :disable_start_message
     attr_accessor :disabled_spies
     attr_accessor :environment
     attr_accessor :filter_exception_types
@@ -197,6 +200,7 @@ module ElasticAPM
     alias :capture_headers? :capture_headers
     alias :capture_env? :capture_env
     alias :disable_send? :disable_send
+    alias :disable_start_message? :disable_start_message
     alias :http_compression? :http_compression
     alias :instrument? :instrument
     alias :verify_server_cert? :verify_server_cert

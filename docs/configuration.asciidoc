@@ -248,11 +248,21 @@ WARNING: Be aware that tags are indexed in Elasticsearch. Using too many unique 
 [[config-disable-send]]
 ==== `disable_send`
 |============
-| Environment | `Config` key   | Default
-| N/A         | `disable_send` | `false`
+| Environment                | `Config` key   | Default
+| `ELASTIC_APM_DISABLE_SEND` | `disable_send` | `false`
 |============
 
 Disables sending payloads to APM Server.
+
+[float]
+[[config-disable-start-message]]
+==== `disable_start_message`
+|============
+| Environment                         | `Config` key            | Default
+| `ELASTIC_APM_DISABLE_START_MESSAGE` | `disable_start_message` | `false`
+|============
+
+Disables the agent's startup message announcing itself.
 
 [float]
 [[config-disabled-spies]]

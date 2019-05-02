@@ -33,7 +33,7 @@ module ElasticAPM
 
         unless config.active?
           config.logger.debug format(
-            '%sAgent disabled with active: false',
+            "%sAgent disabled with `active: false'",
             Logging::PREFIX
           )
           return
@@ -75,8 +75,11 @@ module ElasticAPM
     attr_reader :config, :transport, :instrumenter,
       :stacktrace_builder, :context_builder, :error_builder, :metrics
 
+    # rubocop:disable Metrics/AbcSize
     def start
-      info '[%s] Starting agent, reporting to %s', VERSION, config.server_url
+      unless config.disable_start_message
+        info '[%s] Starting agent, reporting to %s', VERSION, config.server_url
+      end
 
       transport.start
       instrumenter.start
@@ -88,6 +91,7 @@ module ElasticAPM
 
       self
     end
+    # rubocop:enable Metrics/AbcSize
 
     def stop
       debug 'Stopping agent'
