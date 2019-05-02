@@ -91,10 +91,12 @@ module ElasticAPM
       def connect
         schedule_closing if @config.api_request_time
 
-        @http = Http.new(@config).tap do |http|
-          http.start(@url, headers: @headers, ssl_context: @ssl_context)
-          http.write(@metadata)
-        end
+        @http =
+          Http.open(
+            @config, @url,
+            headers: @headers,
+            ssl_context: @ssl_context
+          ).tap { |http| http.write(@metadata) }
       end
       # rubocop:enable
 

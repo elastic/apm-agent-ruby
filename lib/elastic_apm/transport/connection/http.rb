@@ -15,35 +15,45 @@ module ElasticAPM
 
         def initialize(config)
           @config = config
-          @closed = Mutex.new
+          @closed = Concurrent::AtomicBoolean.new
 
-          @rd, @wr = ProxyPipe.pipe(
-            compress: @config.http_compression?
-          )
+          @rd, @wr = ProxyPipe.pipe(compress: @config.http_compression?)
         end
 
-        def start(url, headers: {}, ssl_context: nil)
-          @request = init_request(url, headers, ssl_context)
+        def open(url, headers: {}, ssl_context: nil)
+          @request = open_request_in_thread(url, headers, ssl_context)
+        end
+
+        def self.open(config, url, headers: {}, ssl_context: nil)
+          new(config).tap do |http|
+            http.open(url, headers: headers, ssl_context: ssl_context)
+          end
         end
 
         def write(str)
-          append(str)
+          @wr.write(str)
           @wr.bytes_sent
         end
 
-        # rubocop:disable Metrics/LineLength
         def close(reason)
           return if closed?
 
-          debug "Closing request from Thread[#{Thread.current.object_id}] with reason #{reason}"
-          return unless @closed.try_lock
+          debug '%s: Closing request with reason %s', thread_str, reason
+          @closed.make_true
+
           @wr&.close(reason)
           return if @request.nil? || @request&.join(5)
 
-          error 'APM Server not responding in time, terminating request'
+          error(
+            '%s: APM Server not responding in time, terminating request',
+            thread_str
+          )
           @request.kill
         end
-        # rubocop:enable Metrics/LineLength
+
+        def closed?
+          @closed.true?
+        end
 
         def inspect
           format(
@@ -53,20 +63,17 @@ module ElasticAPM
           )
         end
 
-        def closed?
-          @closed.locked?
-        end
-
         private
 
-        def append(str)
-          @wr.write(str)
+        def thread_str
+          format('[THREAD:%s]', Thread.current.object_id)
         end
 
         # rubocop:disable Metrics/LineLength
-        def init_request(url, headers, ssl_context)
+        def open_request_in_thread(url, headers, ssl_context)
           client = build_client(headers)
-          debug "Opening new request from Thread[#{Thread.current.object_id}]"
+
+          debug '%s: Opening new request', thread_str
           Thread.new do
             begin
               post(client, url, ssl_context)
@@ -78,17 +85,16 @@ module ElasticAPM
         # rubocop:enable Metrics/LineLength
 
         def build_client(headers)
-          HTTP.headers(headers).tap do |client|
-            return client unless @config.proxy_address && @config.proxy_port
+          client = HTTP.headers(headers)
+          return client unless @config.proxy_address && @config.proxy_port
 
-            client.via(
-              @config.proxy_address,
-              @config.proxy_port,
-              @config.proxy_username,
-              @config.proxy_password,
-              @config.proxy_headers
-            )
-          end
+          client.via(
+            @config.proxy_address,
+            @config.proxy_port,
+            @config.proxy_username,
+            @config.proxy_password,
+            @config.proxy_headers
+          )
         end
 
         def post(client, url, ssl_context)

@@ -9,9 +9,7 @@ module ElasticAPM
       # @api private
       class ProxyPipe
         def initialize(enc = nil, compress: true)
-          rd, wr = IO.pipe(enc)
-
-          @read = rd
+          @read, wr = IO.pipe(enc)
           @write = Write.new(wr, compress: compress)
         end
 

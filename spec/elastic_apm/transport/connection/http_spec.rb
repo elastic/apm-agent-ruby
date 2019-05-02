@@ -6,33 +6,30 @@ module ElasticAPM
   module Transport
     RSpec.describe Connection::Http do
       let(:config) { Config.new(http_compression: false) }
+
       let(:metadata) do
-        m = Serializers.new(config).serialize(Metadata.new(config))
-        JSON.fast_generate(m)
+        JSON.fast_generate(metadata: { service_name: 'Test' })
       end
+
       let(:url) { 'http://localhost:8200/intake/v2/events' }
+
       let(:headers) do
-        { 'Transfer-Encoding' => 'chunked',
-          'Content-Type' => 'application/x-ndjson' }
-      end
-      subject do
-        http = described_class.new(config)
-        http.start(url, headers: headers)
-        http
+        {
+          'Transfer-Encoding' => 'chunked',
+          'Content-Type' => 'application/x-ndjson'
+        }
       end
 
       describe '#initialize' do
+        subject { described_class.open(config, url, headers: headers) }
+
         it 'is has no active connection' do
           expect(subject.closed?).to be false
         end
       end
 
       describe 'write and close' do
-        subject do
-          http = described_class.new(config)
-          http.start(url, headers: headers)
-          http
-        end
+        subject { described_class.open(config, url, headers: headers) }
 
         it 'sends metadata' do
           stub = build_stub(body: /metadata/, headers: headers)
@@ -77,31 +74,12 @@ module ElasticAPM
           subject.close(:api_request_size)
           expect(subject.closed?).to be true
         end
-
-        it 'is thread safe' do
-          stub = build_stub(body: /{"thread": \d+}/, headers: headers)
-          expect(subject).to receive(:append)
-            .with(/{"thread": \d+}/)
-            .exactly(10).times
-            .and_call_original
-
-          threads = (0..9).map do |i|
-            Thread.new do
-              sleep(rand(100) / 1000.0)
-              subject.write(%({"thread": #{i}}))
-            end
-          end
-
-          threads.each(&:join)
-          sleep 0.2
-
-          subject.close(:api_request_size)
-          expect(stub).to have_been_requested
-        end
       end
 
       context 'http compression' do
         let(:config) { Config.new }
+
+        subject { described_class.open(config, url, headers: headers) }
 
         it 'compresses the payload' do
           stub = build_stub(
@@ -122,6 +100,7 @@ module ElasticAPM
           expect(stub).to have_been_requested
         end
       end
+
       def build_stub(body: nil, headers: {}, to_return: {}, status: 202, &block)
         opts = { headers: headers }
         opts[:body] = body if body
