@@ -8,7 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ### Added
 
-- Added `disable_start_message` for those wanting complete silence on boot ([#xxx](#))
+- Added `disable_start_message` for those wanting complete silence on boot ([#397](https://github.com/elastic/apm-agent-ruby/pull/397))
 
 ### Fixed
 

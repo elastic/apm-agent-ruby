@@ -75,7 +75,7 @@ module ElasticAPM
     attr_reader :config, :transport, :instrumenter,
       :stacktrace_builder, :context_builder, :error_builder, :metrics
 
-    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    # rubocop:disable Metrics/AbcSize
     def start
       unless config.disable_start_message
         info '[%s] Starting agent, reporting to %s', VERSION, config.server_url
@@ -91,7 +91,7 @@ module ElasticAPM
 
       self
     end
-    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+    # rubocop:enable Metrics/AbcSize
 
     def stop
       debug 'Stopping agent'
