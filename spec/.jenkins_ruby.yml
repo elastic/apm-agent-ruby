@@ -5,3 +5,7 @@ RUBY_VERSION:
   - ruby-2.3
   - jruby-9.2
   - jruby-9.1
+  - jruby-9.2-12-jdk
+  - jruby-9.2-11-jdk
+  - jruby-9.2-8-jdk
+  - jruby-9.1-7-jdk

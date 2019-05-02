@@ -12,7 +12,7 @@ RUBY_IMAGE=${1/-/:}
 
 docker-compose up -d mongodb
 
-docker build --pull --build-arg RUBY_IMAGE=$RUBY_IMAGE -t apm-agent-ruby:$1 .
+docker build --build-arg RUBY_IMAGE=$RUBY_IMAGE -t apm-agent-ruby:$1 .
 RUBY_VERSION=$1 docker-compose run \
   -e FRAMEWORK=$2 \
   -e INCLUDE_SCHEMA_SPECS=1 \
