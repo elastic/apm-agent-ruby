@@ -8,6 +8,7 @@ require 'elastic_apm/transport/filters'
 
 module ElasticAPM
   module Transport
+    # rubocop:disable Metrics/ClassLength
     # @api private
     class Base
       include Logging
@@ -27,6 +28,8 @@ module ElasticAPM
         @mutex = Mutex.new
         @workers = Array.new(config.pool_size)
       end
+
+      attr_reader :config, :queue, :filters, :workers, :watcher, :stopped
 
       def start
         debug '%s: Starting Transport', pid_str
@@ -66,8 +69,6 @@ module ElasticAPM
       def add_filter(key, callback)
         @filters.add(key, callback)
       end
-
-      attr_reader :config, :queue, :filters, :workers, :watcher, :stopped
 
       private
 
@@ -130,7 +131,7 @@ module ElasticAPM
         @mutex.synchronize do
           workers.each do |thread|
             next if thread.nil?
-            next if thread&.join(WORKER_JOIN_TIMEOUT)
+            next if thread.join(WORKER_JOIN_TIMEOUT)
 
             debug(
               '%s: Worker did not stop in %ds, killing...',
@@ -155,5 +156,6 @@ module ElasticAPM
         watcher.shutdown
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end

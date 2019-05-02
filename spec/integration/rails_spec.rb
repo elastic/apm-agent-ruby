@@ -210,7 +210,6 @@ if defined?(Rails)
         get '/'
 
         wait_for transactions: 1
-        pp @mock_intake.spans.length
 
         metadata = @mock_intake.metadatas.first
         expect(metadata).to match_json_schema(:metadatas)
@@ -245,7 +244,6 @@ if defined?(Rails)
         get '/error'
 
         wait_for transactions: 1, errors: 1
-        pp @mock_intake.spans.length
 
         payload = @mock_intake.errors.first
         expect(payload).to match_json_schema(:errors)

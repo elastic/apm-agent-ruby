@@ -119,7 +119,7 @@ module ElasticAPM
       it 'may add a filter' do
         expect do
           subject.add_filter :key, -> {}
-        end.to change(subject.transport.send(:filters), :length).by 1
+        end.to change(subject.transport.filters, :length).by 1
       end
     end
   end
