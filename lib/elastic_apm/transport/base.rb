@@ -25,8 +25,10 @@ module ElasticAPM
         @filters = Filters.new(config)
 
         @stopped = Concurrent::AtomicBoolean.new
-        @mutex = Mutex.new
         @workers = Array.new(config.pool_size)
+
+        @watcher_mutex = Mutex.new
+        @worker_mutex = Mutex.new
       end
 
       attr_reader :config, :queue, :filters, :workers, :watcher, :stopped
@@ -81,8 +83,10 @@ module ElasticAPM
         # pid has changed == we've forked
         return if @pid == Process.pid
 
-        @mutex.synchronize do
+        @watcher_mutex.synchronize do
+          return if @pid == Process.pid
           @pid = Process.pid
+
           @watcher = Concurrent::TimerTask.execute(
             execution_interval: WATCHER_EXECUTION_INTERVAL,
             timeout_interval: WATCHER_TIMEOUT_INTERVAL
@@ -93,7 +97,7 @@ module ElasticAPM
       def ensure_worker_count
         return if all_workers_alive?
 
-        @mutex.synchronize do
+        @worker_mutex.synchronize do
           return if stopped.true?
 
           @workers.map! do |thread|
