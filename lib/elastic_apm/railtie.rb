@@ -31,8 +31,10 @@ module ElasticAPM
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def start(config)
       if (reason = should_skip?(config))
-        config.alert_logger.info "Skipping because: #{reason}. " \
-          "Start manually with `ElasticAPM.start'"
+        unless config.disable_start_message?
+          config.alert_logger.info "Skipping because: #{reason}. " \
+            "Start manually with `ElasticAPM.start'"
+        end
         return
       end
 
