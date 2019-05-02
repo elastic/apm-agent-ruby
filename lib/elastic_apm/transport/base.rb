@@ -61,7 +61,7 @@ module ElasticAPM
         warn '%s: Queue is full (%i items), skipping…', pid_str, config.api_buffer_size
         nil
       rescue Exception => e
-        error "#{pid_str}: Failed adding to the transport queue: %p", e.inspect
+        error '%s: Failed adding to the transport queue: %p', pid_str, e.inspect
         nil
       end
       # rubocop:enable Metrics/MethodLength, Metrics/LineLength
@@ -73,7 +73,7 @@ module ElasticAPM
       private
 
       def pid_str
-        format('[PID]%s', Process.pid)
+        format('[PID:%s]', Process.pid)
       end
 
       def ensure_watcher_running
