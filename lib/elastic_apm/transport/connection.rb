@@ -12,9 +12,12 @@ module ElasticAPM
       include Logging
 
       # A connection holds an instance `http` of an Http::Connection.
+      #
       # The HTTP::Connection itself is not thread safe.
+      #
       # The connection sends write requests and close requests to `http`, and
       # has to ensure no write requests are sent after closing `http`.
+      #
       # The connection schedules a separate thread to close an `http`
       # connection some time in the future. To avoid the thread interfering
       # with ongoing write requests to `http`, write and close
@@ -37,17 +40,23 @@ module ElasticAPM
         @mutex = Mutex.new
       end
 
+      attr_reader :http
+
       # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       def write(str)
         return false if @config.disable_send
 
         begin
-          w = 0
+          bytes_written = 0
+
+          # The request might get closed from timertask so let's make sure we
+          # hold it open until we've written.
           @mutex.synchronize do
             connect if http.nil? || http.closed?
-            w = http.write(str)
+            bytes_written = http.write(str)
           end
-          flush(:api_request_size) if w >= @config.api_request_size
+
+          flush(:api_request_size) if bytes_written >= @config.api_request_size
         rescue IOError => e
           error('Connection error: %s', e.inspect)
           flush(:ioerror)
@@ -62,6 +71,7 @@ module ElasticAPM
       # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
       def flush(reason = :force)
+        # Could happen from the timertask so we need to sync
         @mutex.synchronize do
           return if http.nil?
           http.close(reason)
@@ -76,15 +86,15 @@ module ElasticAPM
         )
       end
 
-      attr_reader :http
-
       private
 
       def connect
         schedule_closing if @config.api_request_time
-        @http = Http.new(@config)
-        @http.start(@url, headers: @headers, ssl_context: @ssl_context)
-        @http.write(@metadata)
+
+        @http = Http.new(@config).tap do |http|
+          http.start(@url, headers: @headers, ssl_context: @ssl_context)
+          http.write(@metadata)
+        end
       end
       # rubocop:enable
 

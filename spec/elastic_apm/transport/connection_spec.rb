@@ -30,26 +30,6 @@ module ElasticAPM
           expect(stub).to have_been_requested
         end
 
-        xit 'is thread safe' do
-          stub = build_stub(body: /{"thread": \d+}/)
-
-          threads = (0..9).map do |i|
-            Thread.new do
-              subject.write(%({"thread": #{i}}))
-            end
-          end
-
-          threads.each(&:join)
-
-          sleep 0.2
-
-          expect(subject.http.closed?).to be false
-          subject.flush
-
-          expect(subject.http.closed?).to be true
-          expect(stub).to have_been_requested
-        end
-
         context 'when disable_send' do
           let(:config) { Config.new disable_send: true }
 
