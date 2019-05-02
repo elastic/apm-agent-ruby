@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 - Re-added `default_tags` ([#395](https://github.com/elastic/apm-agent-ruby/pull/395))
 - A bug in the Faraday spy when disabling the Net::HTTP spy ([#396](https://github.com/elastic/apm-agent-ruby/pull/396))
+- Fix disabling the ActionDispatch spy ([#399](https://github.com/elastic/apm-agent-ruby/pull/399))
 
 ## 2.6.1
 
