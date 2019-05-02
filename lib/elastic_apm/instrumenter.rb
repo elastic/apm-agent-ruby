@@ -63,6 +63,7 @@ module ElasticAPM
     end
 
     def subscriber=(subscriber)
+      debug 'Registering subscriber'
       @subscriber = subscriber
       @subscriber.register!
     end
