@@ -4,7 +4,7 @@ require 'spec_helper'
 
 module ElasticAPM
   module Transport
-    RSpec.describe Base do
+    RSpec.describe Base, :mock_intake do
       let(:config) { Config.new }
 
       subject { described_class.new config }

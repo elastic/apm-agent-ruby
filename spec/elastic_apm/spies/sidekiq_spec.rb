@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'fakeredis/rspec'
 require 'sidekiq'
 require 'sidekiq/manager'
 require 'sidekiq/testing'
@@ -12,7 +13,7 @@ rescue LoadError
 end
 
 module ElasticAPM
-  RSpec.describe 'Spy: Sidekiq', :intercept do
+  RSpec.describe 'Spy: Sidekiq', :mock_intake do
     class TestingWorker
       include Sidekiq::Worker
 
@@ -61,7 +62,11 @@ module ElasticAPM
     end
 
     context 'with an agent' do
-      before { ElasticAPM.start }
+      let(:config) do
+        Config.new(api_request_time: '20ms')
+      end
+
+      before { ElasticAPM.start(config) }
       after { ElasticAPM.stop }
 
       it 'instruments jobs' do
@@ -69,10 +74,12 @@ module ElasticAPM
           HardWorker.perform_async
         end
 
-        transaction, = @intercepted.transactions
+        wait_for transactions: 1
+
+        transaction, = @mock_intake.transactions
         expect(transaction).to_not be_nil
-        expect(transaction.name).to eq 'ElasticAPM::HardWorker'
-        expect(transaction.type).to eq 'Sidekiq'
+        expect(transaction['name']).to eq 'ElasticAPM::HardWorker'
+        expect(transaction['type']).to eq 'Sidekiq'
       end
 
       it 'reports errors' do
@@ -84,14 +91,16 @@ module ElasticAPM
 
         ElasticAPM.stop
 
-        transaction, = @intercepted.transactions
-        error, = @intercepted.errors
+        wait_for transactions: 1, errors: 1
+
+        transaction, = @mock_intake.transactions
+        error, = @mock_intake.errors
 
         expect(transaction).to_not be_nil
-        expect(transaction.name).to eq 'ElasticAPM::ExplodingWorker'
-        expect(transaction.type).to eq 'Sidekiq'
+        expect(transaction['name']).to eq 'ElasticAPM::ExplodingWorker'
+        expect(transaction['type']).to eq 'Sidekiq'
 
-        expect(error.exception.type).to eq 'ZeroDivisionError'
+        expect(error.dig('exception', 'type')).to eq 'ZeroDivisionError'
       end
 
       it 'knows the name of ActiveJob jobs', if: defined?(ActiveJob) do
@@ -99,9 +108,11 @@ module ElasticAPM
           ActiveJobbyJob.perform_later
         end
 
-        transaction, = @intercepted.transactions
+        wait_for transactions: 1
+
+        transaction, = @mock_intake.transactions
         expect(transaction).to_not be_nil
-        expect(transaction.name).to eq 'ElasticAPM::ActiveJobbyJob'
+        expect(transaction['name']).to eq 'ElasticAPM::ActiveJobbyJob'
       end
     end
   end

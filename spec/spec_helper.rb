@@ -35,7 +35,7 @@ RSpec.configure do |config|
   config.example_status_persistence_file_path = '.rspec_status'
   config.disable_monkey_patching!
 
-  config.fail_fast = ENV.fetch('CI', false)
+  config.fail_fast = ENV.fetch('CI', nil) == '1'
 
   config.expect_with :rspec do |c|
     c.syntax = :expect
