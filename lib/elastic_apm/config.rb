@@ -247,7 +247,6 @@ module ElasticAPM
     # rubocop:disable Metrics/MethodLength
     def available_spies
       %w[
-        action_dispatch
         delayed_job
         elasticsearch
         faraday
