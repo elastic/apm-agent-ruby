@@ -130,7 +130,7 @@ module ElasticAPM
 
         send_stop_messages
 
-        @mutex.synchronize do
+        @worker_mutex.synchronize do
           workers.each do |thread|
             next if thread.nil?
             next if thread.join(WORKER_JOIN_TIMEOUT)
