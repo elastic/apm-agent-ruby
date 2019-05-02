@@ -39,7 +39,7 @@ module ElasticAPM
       describe '#submit' do
         before do
           # Avoid emptying the queue
-          allow(subject).to receive(:start_watcher) {}
+          allow(subject).to receive(:ensure_watcher_running) {}
         end
 
         it 'adds stuff to the queue' do

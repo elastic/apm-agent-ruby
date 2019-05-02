@@ -12,6 +12,10 @@ module ElasticAPM
     class Base
       include Logging
 
+      WATCHER_EXECUTION_INTERVAL = 5
+      WATCHER_TIMEOUT_INTERVAL = 4
+      WORKER_JOIN_TIMEOUT = 5
+
       def initialize(config)
         @config = config
         @queue = SizedQueue.new(config.api_buffer_size)
@@ -21,18 +25,20 @@ module ElasticAPM
 
         @stopped = Concurrent::AtomicBoolean.new
         @mutex = Mutex.new
+        @workers = Array.new(config.pool_size)
       end
 
       def start
-        debug "#{pid_str}: Starting Transport"
+        debug '%s: Starting Transport', pid_str
 
-        start_watcher
+        ensure_watcher_running
       end
 
       def stop
-        debug "#{pid_str}: Stopping Transport"
+        debug '%s: Stopping Transport', pid_str
 
         @stopped.make_true
+
         stop_watcher
         stop_workers
       end
@@ -40,14 +46,16 @@ module ElasticAPM
       # rubocop:disable Metrics/MethodLength, Metrics/LineLength
       def submit(resource)
         if @stopped.true?
-          warn "#{pid_str}: Transport stopping, no new events accepted"
+          warn '%s: Transport stopping, no new events accepted', pid_str
           return false
         end
 
-        start_watcher
+        ensure_watcher_running
         queue.push(resource, true)
+
+        true
       rescue ThreadError
-        warn "#{pid_str}: Queue is full (%i items), skipping…", config.api_buffer_size
+        warn '%s: Queue is full (%i items), skipping…', pid_str, config.api_buffer_size
         nil
       rescue Exception => e
         error "#{pid_str}: Failed adding to the transport queue: %p", e.inspect
@@ -59,54 +67,79 @@ module ElasticAPM
         @filters.add(key, callback)
       end
 
-      attr_reader :queue
+      attr_reader :config, :queue, :filters, :workers, :watcher, :stopped
 
       private
 
-      attr_reader :config, :filters, :pool, :workers, :watcher, :stopped
+      def pid_str
+        format('[PID]%s', Process.pid)
+      end
 
-      def watch_workers
-        return if working?
+      def ensure_watcher_running
+        # pid has changed == we've forked
+        return if @pid == Process.pid
+        @pid = Process.pid
 
-        @workers ||= Array.new(config.pool_size)
+        ensure_worker_count
+
+        @watcher = Concurrent::TimerTask.execute(
+          execution_interval: WATCHER_EXECUTION_INTERVAL,
+          timeout_interval: WATCHER_TIMEOUT_INTERVAL
+        ) { ensure_worker_count }
+      end
+
+      def ensure_worker_count
+        return if all_workers_alive?
+
         @mutex.synchronize do
           return if stopped.true?
-          @workers.map! do |t|
-            next t if t&.alive?
+
+          @workers.map! do |thread|
+            next thread if thread&.alive?
+
             boot_worker
           end
         end
       end
 
+      def all_workers_alive?
+        !!workers.all? { |t| t&.alive? }
+      end
+
       def boot_worker
-        debug "#{pid_str}: Booting worker..."
+        debug '%s: Booting worker...', pid_str
 
         Thread.new do
-          Worker
-            .new(config, queue,
-              serializers: @serializers,
-              filters: @filters)
-            .work_forever
+          Worker.new(
+            config, queue,
+            serializers: @serializers,
+            filters: @filters
+          ).work_forever
         end
       end
 
-      def working?
-        workers&.all? { |t| t&.alive? }
-      end
-
+      # rubocop:disable Metrics/MethodLength
       def stop_workers
-        debug "#{pid_str}: Stopping workers"
+        debug '%s: Stopping workers', pid_str
 
         send_stop_messages
+
         @mutex.synchronize do
-          workers&.each do |t|
-            next if t.join(5)
-            debug "#{pid_str}: Worker did not stop in time"
-            t.kill
+          workers.each do |thread|
+            next if thread.nil?
+            next if thread&.join(WORKER_JOIN_TIMEOUT)
+
+            debug(
+              '%s: Worker did not stop in %ds, killing...',
+              pid_str, WORKER_JOIN_TIMEOUT
+            )
+            thread.kill
           end
         end
+
         @workers.clear
       end
+      # rubocop:enable Metrics/MethodLength
 
       def send_stop_messages
         config.pool_size.times { queue.push(Worker::StopMessage.new, true) }
@@ -114,27 +147,9 @@ module ElasticAPM
         warn 'Cannot push stop messages to worker queue as it is full'
       end
 
-      def start_watcher
-        return if @pid == Process.pid
-        @pid = Process.pid
-
-        # run once immediately, then schedule worker to run every interval
-        watch_workers
-        t = Concurrent::TimerTask.new(execution_interval: 5,
-                                      timeout_interval: 4) do
-          watch_workers
-        end
-        t.execute
-        @watcher = t
-      end
-
       def stop_watcher
         return if watcher.nil? || @pid != Process.pid
         watcher.shutdown
-      end
-
-      def pid_str
-        "[PID]#{Process.pid}"
       end
     end
   end
