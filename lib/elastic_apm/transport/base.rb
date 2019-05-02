@@ -35,6 +35,7 @@ module ElasticAPM
         debug '%s: Starting Transport', pid_str
 
         ensure_watcher_running
+        ensure_worker_count
       end
 
       def stop
@@ -78,17 +79,15 @@ module ElasticAPM
 
       def ensure_watcher_running
         # pid has changed == we've forked
+        return if @pid == Process.pid
+
         @mutex.synchronize do
-          return if @pid == Process.pid
           @pid = Process.pid
+          @watcher = Concurrent::TimerTask.execute(
+            execution_interval: WATCHER_EXECUTION_INTERVAL,
+            timeout_interval: WATCHER_TIMEOUT_INTERVAL
+          ) { ensure_worker_count }
         end
-
-        ensure_worker_count
-
-        @watcher = Concurrent::TimerTask.execute(
-          execution_interval: WATCHER_EXECUTION_INTERVAL,
-          timeout_interval: WATCHER_TIMEOUT_INTERVAL
-        ) { ensure_worker_count }
       end
 
       def ensure_worker_count
