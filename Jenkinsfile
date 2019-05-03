@@ -198,7 +198,8 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
     return {
       steps.sleep steps.randomNumber(min:10, max: 30)
       steps.node('linux && immutable'){
-        def label = "${tag}:${x}#${y}"
+        // Label is transformed to avoid using the internal docker registry in the x coordinate
+        def label = "${tag}:${x?.drop(x?.lastIndexOf('/')+1)}#${y}"
         try {
           steps.runScript(label: label, ruby: x, framework: y)
           saveResult(x, y, 1)
