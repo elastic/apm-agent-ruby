@@ -185,11 +185,11 @@ pipeline {
 Parallel task generator for the integration tests.
 */
 class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
-  
+
   public RubyParallelTaskGenerator(Map params){
     super(params)
   }
-  
+
   /**
   build a clousure that launch and agent and execute the corresponding test script,
   then store the results.
@@ -229,6 +229,7 @@ def runScript(Map params = [:]){
   env.PATH = "${env.PATH}:${env.WORKSPACE}/bin"
   deleteDir()
   unstash 'source'
+  dockerLoginToInternalRegistry()
   dir("${BASE_DIR}"){
     retry(2){
       sleep randomNumber(min:10, max: 30)
@@ -247,6 +248,7 @@ def runBenchmark(version){
       dir("${version}"){
         deleteDir()
         unstash 'source'
+        dockerLoginToInternalRegistry()
         dir("${BASE_DIR}"){
           try{
             sh "./spec/scripts/benchmarks.sh ${version}"
@@ -260,4 +262,12 @@ def runBenchmark(version){
       }
     }
   }
+}
+
+/**
+  Login to the internal docker registry
+*/
+def dockerLoginToInternalRegistry(){
+  dockerLogin(secret: 'secret/apm-team/ci/elastic-observability-docker-elastic-co',
+              registry: 'docker.elastic.co')
 }
