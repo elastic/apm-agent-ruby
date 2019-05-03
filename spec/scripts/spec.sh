@@ -8,12 +8,13 @@ fi
 
 cd spec
 
-RUBY_IMAGE=${1/-/:}
+RUBY_IMAGE=${1}
+VERSION=$(echo $1 | cut -d":" -f2)
 
 docker-compose up -d mongodb
 
-docker build --build-arg RUBY_IMAGE=$RUBY_IMAGE -t apm-agent-ruby:$1 .
-RUBY_VERSION=$1 docker-compose run \
+docker build --pull --build-arg RUBY_IMAGE=$RUBY_IMAGE -t apm-agent-ruby:${VERSION} .
+RUBY_VERSION=${VERSION} docker-compose run \
   -e FRAMEWORK=$2 \
   -e INCLUDE_SCHEMA_SPECS=1 \
   -v "$(dirname $(pwd))":/app \
