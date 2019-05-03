@@ -11,7 +11,7 @@ RUN [ apt-get ] \
 
 RUN [ yum ] \
     && ( yum update -y -q \
-        && yum install -y build-essential libpq-dev git ) \
+        && yum install -y git ) \
     || true
 
 WORKDIR /app
