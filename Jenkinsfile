@@ -18,6 +18,8 @@ pipeline {
     NOTIFY_TO = credentials('notify-to')
     JOB_GCS_BUCKET = credentials('gcs-bucket')
     CODECOV_SECRET = 'secret/apm-team/ci/apm-agent-ruby-codecov'
+    DOCKER_REGISTRY = 'docker.elastic.co'
+    DOCKER_SECRET = 'secret/apm-team/ci/elastic-observability-docker-elastic-co'
   }
   options {
     timeout(time: 2, unit: 'HOURS')
@@ -231,8 +233,8 @@ def runScript(Map params = [:]){
   env.PATH = "${env.PATH}:${env.WORKSPACE}/bin"
   deleteDir()
   unstash 'source'
-  dockerLoginToInternalRegistry()
   dir("${BASE_DIR}"){
+    dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
     retry(2){
       sleep randomNumber(min:10, max: 30)
       sh("./spec/scripts/spec.sh ${ruby} ${framework}")
@@ -250,8 +252,8 @@ def runBenchmark(version){
       dir("${version}"){
         deleteDir()
         unstash 'source'
-        dockerLoginToInternalRegistry()
         dir("${BASE_DIR}"){
+          dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
           try{
             sh "./spec/scripts/benchmarks.sh ${version}"
           } catch(e){
@@ -264,12 +266,4 @@ def runBenchmark(version){
       }
     }
   }
-}
-
-/**
-  Login to the internal docker registry
-*/
-def dockerLoginToInternalRegistry(){
-  dockerLogin(secret: 'secret/apm-team/ci/elastic-observability-docker-elastic-co',
-              registry: 'docker.elastic.co')
 }
