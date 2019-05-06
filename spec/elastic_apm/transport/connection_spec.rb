@@ -46,27 +46,6 @@ module ElasticAPM
             expect(stub).to_not have_been_requested
           end
         end
-
-        context 'when Error occurs' do
-          it 'handles it' do
-            stub = build_stub(body: /{"msg": "hey!"}/)
-
-            subject.write('{"msg": "hey!"}')
-            sleep 0.1
-
-            expect(subject.http.closed?).to be false
-
-            rd = subject.http.instance_variable_get(:@rd)
-            rd.close
-
-            expect do
-              subject.write('{"msg": "hey!"}')
-            end.to_not raise_error
-
-            expect(stub).to_not have_been_requested
-            expect(subject.http.closed?).to be true
-          end
-        end
       end
 
       describe 'secret token' do
