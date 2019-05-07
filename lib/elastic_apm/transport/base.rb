@@ -5,6 +5,7 @@ require 'elastic_apm/transport/connection'
 require 'elastic_apm/transport/worker'
 require 'elastic_apm/transport/serializers'
 require 'elastic_apm/transport/filters'
+require 'elastic_apm/util/throttle'
 
 module ElasticAPM
   module Transport
@@ -49,7 +50,7 @@ module ElasticAPM
         stop_workers
       end
 
-      # rubocop:disable Metrics/MethodLength, Metrics/LineLength
+      # rubocop:disable Metrics/MethodLength
       def submit(resource)
         if @stopped.true?
           warn '%s: Transport stopping, no new events accepted', pid_str
@@ -61,13 +62,13 @@ module ElasticAPM
 
         true
       rescue ThreadError
-        warn '%s: Queue is full (%i items), skipping…', pid_str, config.api_buffer_size
+        throttled_queue_full_warning
         nil
       rescue Exception => e
         error '%s: Failed adding to the transport queue: %p', pid_str, e.inspect
         nil
       end
-      # rubocop:enable Metrics/MethodLength, Metrics/LineLength
+      # rubocop:enable Metrics/MethodLength
 
       def add_filter(key, callback)
         @filters.add(key, callback)
@@ -157,6 +158,15 @@ module ElasticAPM
           return if watcher.nil? || @pid != Process.pid
           watcher.shutdown
         end
+      end
+
+      def throttled_queue_full_warning
+        (@queue_full_log ||= Util::Throttle.new(5) do
+          warn(
+            '%s: Queue is full (%i items), skipping…',
+            pid_str, config.api_buffer_size
+          )
+        end).call
       end
     end
     # rubocop:enable Metrics/ClassLength
