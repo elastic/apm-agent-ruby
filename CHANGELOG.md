@@ -10,8 +10,12 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 - Added `disable_start_message` for those wanting complete silence on boot ([#397](https://github.com/elastic/apm-agent-ruby/pull/397))
 
+### Changed
+
+
 ### Fixed
 
+- Rewritten most of the internal transport code, streaming events to APM Server ([#372](https://github.com/elastic/apm-agent-ruby/pull/372))
 - Re-added `default_tags` ([#395](https://github.com/elastic/apm-agent-ruby/pull/395))
 - A bug in the Faraday spy when disabling the Net::HTTP spy ([#396](https://github.com/elastic/apm-agent-ruby/pull/396))
 - Fix disabling the ActionDispatch spy ([#399](https://github.com/elastic/apm-agent-ruby/pull/399))
