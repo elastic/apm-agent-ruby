@@ -29,6 +29,7 @@ module ElasticAPM
 
         def call(payload)
           strip_from! payload.dig(:transaction, :context, :request, :headers)
+          strip_from! payload.dig(:transaction, :context, :request, :env)
           strip_from! payload.dig(:transaction, :context, :response, :headers)
           strip_from! payload.dig(:error, :context, :request, :headers)
           strip_from! payload.dig(:error, :context, :response, :headers)
