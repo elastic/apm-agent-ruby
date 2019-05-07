@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ### Changed
 
+- Attempt to strip secrets from `request.env` ([#410](https://github.com/elastic/apm-agent-ruby/pull/410))
 
 ### Fixed
 
