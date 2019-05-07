@@ -1,204 +1,128 @@
 # frozen_string_literal: true
 
-require 'http'
 require 'concurrent'
 require 'zlib'
+
+require 'elastic_apm/transport/connection/http'
 
 module ElasticAPM
   module Transport
     # @api private
-    class Connection # rubocop:disable Metrics/ClassLength
+    class Connection
       include Logging
 
-      class FailedToConnectError < InternalError; end
-
-      # @api private
-      # HTTP.rb calls #rewind the body stream which IO.pipes don't support
-      class ModdedIO < IO
-        def self.pipe(ext_enc = nil)
-          super(ext_enc).tap do |rw|
-            rw[0].define_singleton_method(:rewind) { nil }
-          end
-        end
-      end
+      # A connection holds an instance `http` of an Http::Connection.
+      #
+      # The HTTP::Connection itself is not thread safe.
+      #
+      # The connection sends write requests and close requests to `http`, and
+      # has to ensure no write requests are sent after closing `http`.
+      #
+      # The connection schedules a separate thread to close an `http`
+      # connection some time in the future. To avoid the thread interfering
+      # with ongoing write requests to `http`, write and close
+      # requests have to be synchronized.
 
       HEADERS = {
         'Content-Type' => 'application/x-ndjson',
         'Transfer-Encoding' => 'chunked'
       }.freeze
-      GZIP_HEADERS = HEADERS.merge('Content-Encoding' => 'gzip').freeze
+      GZIP_HEADERS = HEADERS.merge(
+        'Content-Encoding' => 'gzip'
+      ).freeze
 
-      # rubocop:disable Metrics/MethodLength
       def initialize(config, metadata)
         @config = config
-        @metadata = metadata.to_json
-
+        @metadata = JSON.fast_generate(metadata)
         @url = config.server_url + '/intake/v2/events'
-
-        headers =
-          (@config.http_compression? ? GZIP_HEADERS : HEADERS).dup
-
-        if (token = config.secret_token)
-          headers['Authorization'] = "Bearer #{token}"
-        end
-
-        @client = HTTP.headers(headers).persistent(@url)
-
-        configure_proxy
-        configure_ssl
-
+        @headers = build_headers
+        @ssl_context = build_ssl_context
         @mutex = Mutex.new
       end
-      # rubocop:enable Metrics/MethodLength
 
-      def configure_proxy
-        unless @config.proxy_address && @config.proxy_port
-          return
-        end
+      attr_reader :http
 
-        @client = @client.via(
-          @config.proxy_address,
-          @config.proxy_port,
-          @config.proxy_username,
-          @config.proxy_password,
-          @config.proxy_headers
-        )
-      end
-
-      def configure_ssl
-        return unless @config.use_ssl? && @config.server_ca_cert
-
-        @ssl_context = OpenSSL::SSL::SSLContext.new.tap do |context|
-          context.ca_file = @config.server_ca_cert
-        end
-      end
-
+      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       def write(str)
-        return if @config.disable_send
+        return false if @config.disable_send
 
-        connect_unless_connected
+        begin
+          bytes_written = 0
 
-        @mutex.synchronize { append(str) }
+          # The request might get closed from timertask so let's make sure we
+          # hold it open until we've written.
+          @mutex.synchronize do
+            connect if http.nil? || http.closed?
+            bytes_written = http.write(str)
+          end
 
-        return unless @bytes_sent >= @config.api_request_size
-
-        flush
-      rescue FailedToConnectError => e
-        error "Couldn't establish connection to APM Server:\n%p", e
-        flush
-
-        nil
-      end
-
-      def connected?
-        @mutex.synchronize { @connected }
-      end
-
-      def flush
-        @mutex.synchronize do
-          return unless @connected
-
-          debug 'Closing request'
-          @wr.close
-          @conn_thread.join 5 if @conn_thread
+          flush(:api_request_size) if bytes_written >= @config.api_request_size
+        rescue IOError => e
+          error('Connection error: %s', e.inspect)
+          flush(:ioerror)
+        rescue Errno::EPIPE => e
+          error('Connection error: %s', e.inspect)
+          flush(:broken_pipe)
+        rescue Exception => e
+          error('Connection error: %s', e.inspect)
+          flush(:connection_error)
         end
+      end
+      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+
+      def flush(reason = :force)
+        # Could happen from the timertask so we need to sync
+        @mutex.synchronize do
+          return if http.nil?
+          http.close(reason)
+        end
+      end
+
+      def inspect
+        format(
+          '@%s http connection closed? :%s>',
+          super.split.first,
+          http.closed?
+        )
       end
 
       private
 
-      # rubocop:disable Metrics/MethodLength
-      def connect_unless_connected
-        @mutex.synchronize do
-          return true if @connected
+      def connect
+        schedule_closing if @config.api_request_time
 
-          debug 'Opening new request'
-
-          reset!
-
-          @rd, @wr = ModdedIO.pipe
-
-          enable_compression! if @config.http_compression?
-
-          perform_request_in_thread
-          wait_for_connection
-
-          schedule_closing if @config.api_request_time
-
-          append(@metadata)
-
-          true
-        end
+        @http =
+          Http.open(
+            @config, @url,
+            headers: @headers,
+            ssl_context: @ssl_context
+          ).tap { |http| http.write(@metadata) }
       end
-      # rubocop:enable Metrics/MethodLength
-
-      # rubocop:disable Metrics/MethodLength
-      def perform_request_in_thread
-        @conn_thread = Thread.new do
-          begin
-            @connected = true
-
-            resp = @client.post(
-              @url,
-              body: @rd,
-              ssl_context: @ssl_context
-            ).flush
-          rescue Exception => e
-            @connection_error = e
-          ensure
-            @connected = false
-          end
-
-          if resp&.status == 202
-            debug 'APM Server responded with status 202'
-          elsif resp
-            error "APM Server responded with an error:\n%p", resp.body.to_s
-          end
-
-          resp
-        end
-      end
-      # rubocop:enable Metrics/MethodLength
-
-      def append(str)
-        bytes =
-          if @config.http_compression
-            @bytes_sent = @wr.tell
-          else
-            @bytes_sent += str.bytesize
-          end
-
-        debug 'Bytes sent during this request: %d', bytes
-
-        @wr.puts(str)
-      end
+      # rubocop:enable
 
       def schedule_closing
+        @close_task&.cancel
         @close_task =
           Concurrent::ScheduledTask.execute(@config.api_request_time) do
-            flush
+            flush(:timeout)
           end
       end
 
-      def enable_compression!
-        @wr.binmode
-        @wr = Zlib::GzipWriter.new(@wr)
-      end
-
-      def reset!
-        @bytes_sent = 0
-        @connected = false
-        @connection_error = nil
-        @close_task = nil
-      end
-
-      def wait_for_connection
-        until @connected
-          if (exception = @connection_error)
-            @wr&.close
-            raise FailedToConnectError, exception
+      def build_headers
+        (
+          @config.http_compression? ? GZIP_HEADERS : HEADERS
+        ).dup.tap do |headers|
+          if (token = @config.secret_token)
+            headers['Authorization'] = "Bearer #{token}"
           end
+        end
+      end
 
-          sleep 0.01
+      def build_ssl_context
+        return unless @config.use_ssl? && @config.server_ca_cert
+
+        OpenSSL::SSL::SSLContext.new.tap do |context|
+          context.ca_file = @config.server_ca_cert
         end
       end
     end
