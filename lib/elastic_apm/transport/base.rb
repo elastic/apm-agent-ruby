@@ -95,9 +95,8 @@ module ElasticAPM
       end
 
       def ensure_worker_count
-        return if all_workers_alive?
-
         @worker_mutex.synchronize do
+          return if all_workers_alive?
           return if stopped.true?
 
           @workers.map! do |thread|
@@ -141,9 +140,9 @@ module ElasticAPM
             )
             thread.kill
           end
-        end
 
-        @workers.clear
+          @workers.clear
+        end
       end
       # rubocop:enable Metrics/MethodLength
 
@@ -154,8 +153,10 @@ module ElasticAPM
       end
 
       def stop_watcher
-        return if watcher.nil? || @pid != Process.pid
-        watcher.shutdown
+        @watcher_mutex.synchronize do
+          return if watcher.nil? || @pid != Process.pid
+          watcher.shutdown
+        end
       end
     end
     # rubocop:enable Metrics/ClassLength
