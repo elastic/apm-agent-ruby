@@ -66,6 +66,20 @@ module ElasticAPM
 
           thread.join 1
         end
+
+        context 'when a filter wants to skip the event' do
+          before do
+            filters.add(:always_nil, ->(_payload) { nil })
+          end
+
+          it 'applies filters, writes resources to the connection' do
+            queue.push Transaction.new
+
+            Thread.new { subject.work_forever }.join 0.1
+
+            expect(subject.connection.calls.length).to be 0
+          end
+        end
       end
 
       describe '#process' do
