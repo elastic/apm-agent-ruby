@@ -234,6 +234,7 @@ Arguments:
 Returns `[ElasticAPM::Error]`.
 
 [float]
+[[api-context]]
 === Context
 
 [float]
