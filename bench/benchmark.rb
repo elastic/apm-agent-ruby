@@ -15,11 +15,11 @@ def perform(app, count: 1000)
   app.start
 
   transactions = count.times.map do |i|
-    ElasticAPM.transaction "Transaction##{i}",
-      context: ElasticAPM.build_context(app.mock_env) do
-      ElasticAPM.span('Number one') { 'ok 1' }
-      ElasticAPM.span('Number two') { 'ok 2' }
-      ElasticAPM.span('Number three') { 'ok 3' }
+    ElasticAPM.with_transaction "Transaction##{i}",
+      context: ElasticAPM.build_context(for_type: :transaction, rack_env: app.mock_env) do
+      ElasticAPM.with_span('Number one') { 'ok 1' }
+      ElasticAPM.with_span('Number two') { 'ok 2' }
+      ElasticAPM.with_span('Number three') { 'ok 3' }
     end
   end
 
