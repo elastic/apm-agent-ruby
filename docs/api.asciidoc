@@ -111,7 +111,7 @@ ElasticAPM.with_transaction 'Do things' do |transaction|
 end
 ----
 
-Arguments: 
+Arguments:
 
   * `name`: A name for your transaction. Transactions are grouped by name. **Required**.
   * `type`: A `type` for your transaction eg. `db.postgresql.sql`.
@@ -234,6 +234,7 @@ Arguments:
 Returns `[ElasticAPM::Error]`.
 
 [float]
+[[api-context]]
 === Context
 
 [float]
@@ -395,7 +396,3 @@ See the {apm-rum-ref}[JavaScript RUM agent documentation] for more information.
 
 - `name`: String
 - `type`: String
-
-[float]
-[[api-context]]
-=== Context
