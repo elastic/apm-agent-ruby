@@ -18,7 +18,7 @@ module ElasticAPM
             trace_id: error.trace_id,
             parent_id: error.parent_id,
 
-            culprit: error.culprit,
+            culprit: keyword_field(error.culprit),
             timestamp: error.timestamp
           }
 
