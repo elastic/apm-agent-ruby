@@ -19,7 +19,7 @@ pipeline {
     JOB_GCS_BUCKET = credentials('gcs-bucket')
     CODECOV_SECRET = 'secret/apm-team/ci/apm-agent-ruby-codecov'
     DOCKER_REGISTRY = 'docker.elastic.co'
-    DOCKER_SECRET = 'secret/apm-team/ci/elastic-observability-docker-elastic-co'
+    DOCKER_SECRET = 'secret/apm-team/ci/docker-registry/prod'
   }
   options {
     timeout(time: 2, unit: 'HOURS')
