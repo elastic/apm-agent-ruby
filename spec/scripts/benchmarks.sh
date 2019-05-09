@@ -6,13 +6,6 @@ if [ $# -lt 1 ]; then
   exit 2
 fi
 
-local_vendor_path="$HOME/.cache/ruby-vendor"
-container_vendor_path="/tmp/vendor/${1/ruby-/}"
-
-mkdir -p $local_vendor_path
-
-cd spec
-
 RUBY_IMAGE=${1}
 VERSION=$(echo $RUBY_IMAGE | cut -d":" -f2)
 
@@ -20,6 +13,14 @@ VERSION=$(echo $RUBY_IMAGE | cut -d":" -f2)
 ##  - docker.elastic.co/observability-ci/jruby:9.2-12-jdk to jruby-9.2-12-jdk
 ##  - jruby:9.1 to jruby-9.1
 TRANSFORMED_VERSION=$(basename $RUBY_IMAGE | sed "s#:#-#g")
+
+local_vendor_path="$HOME/.cache/ruby-vendor"
+container_vendor_path="/tmp/vendor/${TRANSFORMED_VERSION/ruby-/}"
+
+mkdir -p $local_vendor_path
+
+cd spec
+
 
 docker build --pull --force-rm --build-arg RUBY_IMAGE=$RUBY_IMAGE -t apm-agent-ruby:${VERSION} .
 RUBY_VERSION=${VERSION} docker-compose run \
