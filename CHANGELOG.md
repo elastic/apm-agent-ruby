@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+- `error.culprit` is properly truncated to 1024 characters ([#418](https://github.com/elastic/apm-agent-ruby/pull/418))
+
 ## 2.7.0 (2019-05-07)
 
 ### Added
