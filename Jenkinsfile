@@ -262,7 +262,11 @@ def runBenchmark(version){
           } catch(e){
             throw e
           } finally {
-            sendBenchmarks(file: "benchmark-${version}.bulk",
+            // Transform the versions like:
+            //  - docker.elastic.co/observability-ci/jruby:9.2-12-jdk to jruby-9.2-12-jdk
+            //  - jruby:9.1 to jruby-9.1
+            def transformedVersion = version.replaceAll('.*/', '').replaceAll(':', '-')
+            sendBenchmarks(file: "benchmark-${transformedVersion}.bulk",
               index: "benchmark-ruby", archive: true)
           }
         }
