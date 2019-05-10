@@ -16,7 +16,6 @@ TRANSFORMED_VERSION=$(basename "${RUBY_IMAGE}" | sed "s#:#-#g")
 
 local_vendor_path="$HOME/.cache/ruby-vendor"
 container_vendor_path="/tmp/vendor/${TRANSFORMED_VERSION/ruby-/}"
-CURRENT_PATH=$(dirname "$(pwd)")
 
 mkdir -p "${local_vendor_path}"
 
@@ -29,6 +28,6 @@ RUBY_VERSION=${VERSION} docker-compose run \
   -w /app \
   -e LOCAL_USER_ID=$UID \
   -v "$local_vendor_path:$container_vendor_path" \
-  -v "${CURRENT_PATH}:/app" \
+  -v "$(dirname "$(pwd)"):/app" \
   --rm ruby_rspec \
   /bin/bash -c "bundle install --path $container_vendor_path && bench/benchmark.rb 2> /dev/null | bench/report.rb > benchmark-${TRANSFORMED_VERSION}.bulk"
