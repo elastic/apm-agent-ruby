@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+#
+# Perform benchmarks for the given docker ruby image.
+# NOTE:  It's required to be launched inside the root of the project.
+#
+# Usage: ./spec/scripts/benchmarks.sh jruby:9.1
+#
 set -exuo pipefail
 
 if [ $# -lt 1 ]; then
