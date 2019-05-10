@@ -253,7 +253,7 @@ def runBenchmark(version){
       //  - jruby:9.1 to jruby-9.1
       def transformedVersion = version.replaceAll('.*/', '').replaceAll(':', '-')
       env.HOME = "${env.WORKSPACE}/${transformedVersion}"
-      dir("${version}"){
+      dir("${transformedVersion}"){
         deleteDir()
         unstash 'source'
         dir("${BASE_DIR}"){
