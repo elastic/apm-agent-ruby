@@ -54,7 +54,7 @@ module ElasticAPM
             'User-Agent' => %r{
               \Aelastic-apm-ruby/(\d\.)+\d\s
               http.rb/(\d\.)+\d\s
-              ruby/(\d\.)+\d\z
+              j?ruby/(\d\.)+\d\z
             }x
           }
         )
