@@ -58,7 +58,10 @@ module ElasticAPM
 
       def serialize_and_filter(resource)
         serialized = serializers.serialize(resource)
-        @filters.apply!(serialized)
+
+        # if a filter returns nil, it means skip the event
+        return nil if @filters.apply!(serialized) == Filters::SKIP
+
         JSON.fast_generate(serialized)
       rescue Exception
         error format('Failed converting event to JSON: %s', resource.inspect)

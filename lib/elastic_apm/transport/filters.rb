@@ -6,6 +6,8 @@ module ElasticAPM
   module Transport
     # @api private
     module Filters
+      SKIP = :skip
+
       def self.new(config)
         Container.new(config)
       end
@@ -27,7 +29,7 @@ module ElasticAPM
         def apply!(payload)
           @filters.reduce(payload) do |result, (_key, filter)|
             result = filter.call(result)
-            break if result.nil?
+            break SKIP if result.nil?
             result
           end
         end
