@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+#
+# Test the given docker ruby image and framework. Optionally to filter what test
+# to be triggered otherwise all of them.
+#
+# NOTE: It's required to be launched inside the root of the project.
+#
+# Usage: ./spec/scripts/spec.sh jruby:9.1 sinatra-2.0
+#
 set -ex
 
 if [ $# -lt 2 ]; then
