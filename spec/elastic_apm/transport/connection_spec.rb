@@ -48,6 +48,21 @@ module ElasticAPM
         end
       end
 
+      it 'has a fitting user agent' do
+        stub = build_stub(
+          headers: {
+            'User-Agent' => %r{
+              \Aelastic-apm-ruby/(\d+\.)+\d+\s
+              http.rb/(\d+\.)+\d+\s
+              j?ruby/(\d+\.)+\d+\z
+            }x
+          }
+        )
+        subject.write('{}')
+        subject.flush
+        expect(stub).to have_been_requested
+      end
+
       describe 'secret token' do
         let(:config) { Config.new(secret_token: 'asd') }
 

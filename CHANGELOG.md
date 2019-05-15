@@ -6,6 +6,10 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ## Unreleased
 
+### Changed
+
+- Use standardized User-Agent ([#419](https://github.com/elastic/apm-agent-ruby/pull/419))
+
 ### Fixed
 
 - `error.culprit` is properly truncated to 1024 characters ([#418](https://github.com/elastic/apm-agent-ruby/pull/418))

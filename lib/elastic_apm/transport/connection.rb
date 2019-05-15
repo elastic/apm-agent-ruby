@@ -33,9 +33,9 @@ module ElasticAPM
 
       def initialize(config, metadata)
         @config = config
+        @headers = build_headers(metadata)
         @metadata = JSON.fast_generate(metadata)
         @url = config.server_url + '/intake/v2/events'
-        @headers = build_headers
         @ssl_context = build_ssl_context
         @mutex = Mutex.new
       end
@@ -108,14 +108,26 @@ module ElasticAPM
           end
       end
 
-      def build_headers
+      def build_headers(metadata)
         (
           @config.http_compression? ? GZIP_HEADERS : HEADERS
         ).dup.tap do |headers|
+          headers['User-Agent'] = build_user_agent(metadata)
+
           if (token = @config.secret_token)
             headers['Authorization'] = "Bearer #{token}"
           end
         end
+      end
+
+      def build_user_agent(metadata)
+        runtime = metadata.dig(:metadata, :service, :runtime)
+
+        [
+          "elastic-apm-ruby/#{VERSION}",
+          HTTP::Request::USER_AGENT,
+          [runtime[:name], runtime[:version]].join('/')
+        ].join(' ')
       end
 
       def build_ssl_context
