@@ -51,7 +51,7 @@ module ElasticAPM
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def should_skip?(_config)
-      if Rails.const_defined? :Console
+      if Rails.const_defined? 'Rails::Console'
         return 'Rails console'
       end
 
