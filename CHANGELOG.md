@@ -17,6 +17,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 ### Fixed
 
 - `error.culprit` is properly truncated to 1024 characters ([#418](https://github.com/elastic/apm-agent-ruby/pull/418))
+- Force convert `transaction.context.response.status_code` to integer ([#423](https://github.com/elastic/apm-agent-ruby/pull/423))
 
 ## 2.7.0 (2019-05-07)
 
