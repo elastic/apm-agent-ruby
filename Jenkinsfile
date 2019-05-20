@@ -18,6 +18,8 @@ pipeline {
     NOTIFY_TO = credentials('notify-to')
     JOB_GCS_BUCKET = credentials('gcs-bucket')
     CODECOV_SECRET = 'secret/apm-team/ci/apm-agent-ruby-codecov'
+    DOCKER_REGISTRY = 'docker.elastic.co'
+    DOCKER_SECRET = 'secret/apm-team/ci/docker-registry/prod'
   }
   options {
     timeout(time: 2, unit: 'HOURS')
@@ -185,11 +187,11 @@ pipeline {
 Parallel task generator for the integration tests.
 */
 class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
-  
+
   public RubyParallelTaskGenerator(Map params){
     super(params)
   }
-  
+
   /**
   build a clousure that launch and agent and execute the corresponding test script,
   then store the results.
@@ -198,13 +200,15 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
     return {
       steps.sleep steps.randomNumber(min:10, max: 30)
       steps.node('linux && immutable'){
+        // Label is transformed to avoid using the internal docker registry in the x coordinate
+        // TODO: def label = "${tag}:${x?.drop(x?.lastIndexOf('/')+1)}#${y}"
         def label = "${tag}:${x}#${y}"
         try {
           steps.runScript(label: label, ruby: x, framework: y)
           saveResult(x, y, 1)
         } catch(e){
           saveResult(x, y, 0)
-          error("${label} tests failed : ${e.toString()}\n")
+          steps.error("${label} tests failed : ${e.toString()}\n")
         } finally {
           steps.junit(allowEmptyResults: false,
             keepLongStdio: true,
@@ -232,6 +236,7 @@ def runScript(Map params = [:]){
   dir("${BASE_DIR}"){
     retry(2){
       sleep randomNumber(min:10, max: 30)
+      dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
       sh("./spec/scripts/spec.sh ${ruby} ${framework}")
     }
   }
@@ -243,17 +248,25 @@ def runScript(Map params = [:]){
 def runBenchmark(version){
   return {
     node('metal'){
-      env.HOME = "${env.WORKSPACE}/${version}"
-      dir("${version}"){
+      // Transform the versions like:
+      //  - docker.elastic.co/observability-ci/jruby:9.2-12-jdk to jruby-9.2-12-jdk
+      //  - jruby:9.1 to jruby-9.1
+      def transformedVersion = version.replaceAll('.*/', '').replaceAll(':', '-')
+      env.HOME = "${env.WORKSPACE}/${transformedVersion}"
+      dir("${transformedVersion}"){
         deleteDir()
         unstash 'source'
         dir("${BASE_DIR}"){
+          retry(2){
+            sleep randomNumber(min:10, max: 30)
+            dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
+          }
           try{
             sh "./spec/scripts/benchmarks.sh ${version}"
           } catch(e){
             throw e
           } finally {
-            sendBenchmarks(file: "benchmark-${version}.bulk",
+            sendBenchmarks(file: "benchmark-${transformedVersion}.bulk",
               index: "benchmark-ruby", archive: true)
           }
         }

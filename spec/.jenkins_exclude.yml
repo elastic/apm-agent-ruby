@@ -1,41 +1,73 @@
 exclude:
   # Tests fail, but we don't care
-  - RUBY_VERSION: jruby-9.2
+  - RUBY_VERSION: jruby:9.2
     FRAMEWORK: rails-4.2
-  - RUBY_VERSION: jruby-9.1
+  - RUBY_VERSION: jruby:9.1
+    FRAMEWORK: rails-4.2
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-12-jdk
+    FRAMEWORK: rails-4.2
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-11-jdk
+    FRAMEWORK: rails-4.2
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-8-jdk
+    FRAMEWORK: rails-4.2
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.1-7-jdk
     FRAMEWORK: rails-4.2
 
   # Only test master on newest ruby
-  - RUBY_VERSION: ruby-2.5
+  - RUBY_VERSION: ruby:2.5
     FRAMEWORK: rails-master
-  - RUBY_VERSION: ruby-2.4
+  - RUBY_VERSION: ruby:2.4
     FRAMEWORK: rails-master
-  - RUBY_VERSION: ruby-2.3
+  - RUBY_VERSION: ruby:2.3
     FRAMEWORK: rails-master
-  - RUBY_VERSION: jruby-9.2
+  - RUBY_VERSION: jruby:9.2
     FRAMEWORK: rails-master
-  - RUBY_VERSION: jruby-9.1
+  - RUBY_VERSION: jruby:9.1
+    FRAMEWORK: rails-master
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-12-jdk
+    FRAMEWORK: rails-master
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-11-jdk
+    FRAMEWORK: rails-master
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-8-jdk
+    FRAMEWORK: rails-master
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.1-7-jdk
     FRAMEWORK: rails-master
 
-  - RUBY_VERSION: ruby-2.5
+  - RUBY_VERSION: ruby:2.5
     FRAMEWORK: sinatra-master
-  - RUBY_VERSION: ruby-2.4
+  - RUBY_VERSION: ruby:2.4
     FRAMEWORK: sinatra-master
-  - RUBY_VERSION: ruby-2.3
+  - RUBY_VERSION: ruby:2.3
     FRAMEWORK: sinatra-master
-  - RUBY_VERSION: jruby-9.2
+  - RUBY_VERSION: jruby:9.2
     FRAMEWORK: sinatra-master
-  - RUBY_VERSION: jruby-9.1
+  - RUBY_VERSION: jruby:9.1
+    FRAMEWORK: sinatra-master
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-12-jdk
+    FRAMEWORK: sinatra-master
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-11-jdk
+    FRAMEWORK: sinatra-master
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-8-jdk
+    FRAMEWORK: sinatra-master
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.1-7-jdk
     FRAMEWORK: sinatra-master
 
   # Rails 6 beta
-  - RUBY_VERSION: ruby-2.5
+  - RUBY_VERSION: ruby:2.5
     FRAMEWORK: rails-6.0-beta.2
-  - RUBY_VERSION: ruby-2.4
+  - RUBY_VERSION: ruby:2.4
     FRAMEWORK: rails-6.0-beta.2
-  - RUBY_VERSION: ruby-2.3
+  - RUBY_VERSION: ruby:2.3
     FRAMEWORK: rails-6.0-beta.2
-  - RUBY_VERSION: jruby-9.2
+  - RUBY_VERSION: jruby:9.2
     FRAMEWORK: rails-6.0-beta.2
-  - RUBY_VERSION: jruby-9.1
+  - RUBY_VERSION: jruby:9.1
+    FRAMEWORK: rails-6.0-beta.2
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-12-jdk
+    FRAMEWORK: rails-6.0-beta.2
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-11-jdk
+    FRAMEWORK: rails-6.0-beta.2
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-8-jdk
+    FRAMEWORK: rails-6.0-beta.2
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.1-7-jdk
     FRAMEWORK: rails-6.0-beta.2

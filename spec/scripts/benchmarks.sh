@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+#
+# Perform benchmarks for the given docker ruby image.
+# NOTE:  It's required to be launched inside the root of the project.
+#
+# Usage: ./spec/scripts/benchmarks.sh jruby:9.1
+#
 set -exuo pipefail
 
 if [ $# -lt 1 ]; then
@@ -6,22 +12,28 @@ if [ $# -lt 1 ]; then
   exit 2
 fi
 
-local_vendor_path="$HOME/.cache/ruby-vendor"
-container_vendor_path="/tmp/vendor/${1/ruby-/}"
+RUBY_IMAGE=${1}
+VERSION=$(echo "${RUBY_IMAGE}" | cut -d":" -f2)
 
-mkdir -p $local_vendor_path
+## Transform the versions like:
+##  - docker.elastic.co/observability-ci/jruby:9.2-12-jdk to jruby-9.2-12-jdk
+##  - jruby:9.1 to jruby-9.1
+TRANSFORMED_VERSION=$(basename "${RUBY_IMAGE}" | sed "s#:#-#g")
+
+local_vendor_path="$HOME/.cache/ruby-vendor"
+container_vendor_path="/tmp/vendor/${TRANSFORMED_VERSION/ruby-/}"
+
+mkdir -p "${local_vendor_path}"
 
 cd spec
 
-RUBY_IMAGE=${1/-/:}
-
-docker build --pull --force-rm --build-arg RUBY_IMAGE=$RUBY_IMAGE -t apm-agent-ruby:$1 .
-RUBY_VERSION=$1 docker-compose run \
+docker build --pull --force-rm --build-arg "RUBY_IMAGE=${RUBY_IMAGE}" -t "apm-agent-ruby:${VERSION}" .
+RUBY_VERSION=${VERSION} docker-compose run \
   --user $UID \
   -e HOME=/app \
   -w /app \
   -e LOCAL_USER_ID=$UID \
   -v "$local_vendor_path:$container_vendor_path" \
-  -v "$(dirname $(pwd))":/app \
+  -v "$(dirname "$(pwd)"):/app" \
   --rm ruby_rspec \
-  /bin/bash -c "bundle install --path $container_vendor_path && bench/benchmark.rb 2> /dev/null | bench/report.rb > benchmark-${1}.bulk"
+  /bin/bash -c "bundle install --path $container_vendor_path && bench/benchmark.rb 2> /dev/null | bench/report.rb > benchmark-${TRANSFORMED_VERSION}.bulk"
