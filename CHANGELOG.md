@@ -6,6 +6,10 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ## Unreleased
 
+### Added
+
+- The option `stack_trace_limit` ([#424](https://github.com/elastic/apm-agent-ruby/pull/424))
+
 ### Changed
 
 - Use standardized User-Agent ([#419](https://github.com/elastic/apm-agent-ruby/pull/419))

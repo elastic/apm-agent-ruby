@@ -64,10 +64,19 @@ module ElasticAPM
         stacktrace = subject.build(caller, type: :span)
         expect(stacktrace.frames).to_not be_empty
       end
+
+      context 'with stack trace limit' do
+        let(:config) { Config.new stack_trace_limit: 5 }
+
+        it 'shortens to limit' do
+          result = subject.build(actual_exception.backtrace, type: :error)
+          expect(result.length).to be 5
+        end
+      end
     end
 
     describe '#to_a' do
-      it 'is a hash' do
+      it 'is an array' do
         array =
           subject.build(actual_exception.backtrace, type: :error).to_a
         expect(array).to be_a Array
@@ -89,10 +98,10 @@ module ElasticAPM
         # rubocop:enable Metrics/LineLength
       ].each do |(expected, frame)|
         it "is #{expected} for #{frame[0..60] + '...'}" do
-          stacktrace = subject.build([frame], type: :error)
-          frame, = stacktrace.frames
-          expect(frame.library_frame).to be(expected), frame.inspect
-        end
+        stacktrace = subject.build([frame], type: :error)
+        frame, = stacktrace.frames
+        expect(frame.library_frame).to be(expected), frame.inspect
+      end
       end
     end
   end
