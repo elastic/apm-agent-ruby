@@ -98,10 +98,10 @@ module ElasticAPM
         # rubocop:enable Metrics/LineLength
       ].each do |(expected, frame)|
         it "is #{expected} for #{frame[0..60] + '...'}" do
-        stacktrace = subject.build([frame], type: :error)
-        frame, = stacktrace.frames
-        expect(frame.library_frame).to be(expected), frame.inspect
-      end
+          stacktrace = subject.build([frame], type: :error)
+          frame, = stacktrace.frames
+          expect(frame.library_frame).to be(expected), frame.inspect
+        end
       end
     end
   end
