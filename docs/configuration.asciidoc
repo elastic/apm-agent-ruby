@@ -580,6 +580,18 @@ It has to be provided in *<<config-format-duration, duration format>>*.
 The path to a custom CA certificate for connecting to APM Server.
 
 [float]
+[[config-stack-trace-limit]]
+==== `stack_trace_limit`
+
+[options="header"]
+|============
+| Environment                     | `Config` key        | Default
+| `ELASTIC_APM_STACK_TRACE_LIMIT` | `stack_trace_limit` | `999999`
+|============
+
+The maximum number of stack trace lines per span/error.
+
+[float]
 [[config-transaction-max-spans]]
 ==== `transaction_max_spans`
 
