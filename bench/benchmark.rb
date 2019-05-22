@@ -22,10 +22,10 @@ end
 bench = Benchmark.benchmark(CAPTION, 15, FORMAT) do |b|
   perform # warm up
 
-  b.report('with agent') { perform }
+  b.report('with agent:') { perform }
 
   ElasticAPM.stop
   perform # warm up
 
-  b.report('without agent') { perform }
+  b.report('without agent:') { perform }
 end

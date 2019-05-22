@@ -16,9 +16,8 @@ results =
   input
   .grep(/^with/)
   .map do |line|
-    values = line.split(/\s{2,}/)
-    title = values.shift
-    user, system, total, real = values.map(&:to_f)
+    title = line.match(/^(.*):/) { |m| m[1] }
+    user, system, total, real = line.scan(/[0-9\.]+/).map(&:to_f)
     {
       title: title,
       user: user,
