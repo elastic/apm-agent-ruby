@@ -26,5 +26,5 @@ Things to consider:
 
   - Is `server_url` misconfigured or APM Server down? If the agent fails to connect you will also see log messages containing `Connection error` or `Couldn't establish connection to APM Server`.
   - Experiencing high load? The agent can spawn multiple instances of its Workers that pick off the queue by changing the option `pool_size` (default is `1`).
-  - If you have high load you could also consider setting `transaction_sample_rate` to something smaller than `1.0`. This determines whether to include _spans_ for every _transaction_. If you have enough traffic, skipping some (probably) identical spans won't have a noticeable effect on your data.
+  - If you have high load you may also consider setting `transaction_sample_rate` to something smaller than `1.0`. This determines whether to include _spans_ for every _transaction_. If you have enough traffic, skipping some (probably) identical spans won't have a noticeable effect on your data.
 
