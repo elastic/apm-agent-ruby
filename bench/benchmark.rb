@@ -14,7 +14,7 @@ end
 include Rack::Test::Methods
 
 def perform
-  10.times do
+  10_000.times do
     get '/'
   end
 end
