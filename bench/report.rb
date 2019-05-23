@@ -47,4 +47,7 @@ overhead =
   1000 /  # milliseconds
   10_000     # transactions
 
-puts meta.merge(overhead: overhead).to_json
+puts meta.merge(
+  title: 'overhead',
+  overhead: overhead
+).to_json
