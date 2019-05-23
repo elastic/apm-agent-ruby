@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+ENV['RAILS_ENV'] = 'production'
+
 require 'benchmark'
 include Benchmark
 require 'rack/test'
