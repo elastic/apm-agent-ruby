@@ -403,13 +403,21 @@ module ElasticAPM
     end
 
     def set_rails(app) # rubocop:disable Metrics/AbcSize
-      self.service_name ||= format_name(service_name || app.class.parent_name)
+      self.service_name ||= format_name(service_name || rails_app_name(app))
       self.framework_name ||= 'Ruby on Rails'
       self.framework_version ||= Rails::VERSION::STRING
       self.logger ||= Rails.logger
 
       self.root_path = Rails.root.to_s
       self.view_paths = app.config.paths['app/views'].existent
+    end
+
+    def rails_app_name(app)
+      if Rails::VERSION::MAJOR >= 6
+        app.class.module_parent_name
+      else
+        app.class.parent_name
+      end
     end
 
     def build_logger
