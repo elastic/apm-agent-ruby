@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
+ENV['RAILS_ENV'] = 'production'
+ 
+require 'bundler/setup'
 
 require 'benchmark'
 include Benchmark
