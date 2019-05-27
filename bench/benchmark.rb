@@ -3,6 +3,8 @@
 
 ENV['RAILS_ENV'] = 'production'
 
+require 'bundler/setup'
+
 require 'benchmark'
 include Benchmark
 require 'rack/test'
