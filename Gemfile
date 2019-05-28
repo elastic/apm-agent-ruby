@@ -44,6 +44,8 @@ else
   gem framework
 end
 
+gem 'activerecord-jdbcsqlite3-adapter', platform: :jruby
+
 unless version =~ /^(master|6)/
   gem 'delayed_job', require: nil
 end
