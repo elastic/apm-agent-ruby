@@ -12,7 +12,7 @@ platform = Gem::Platform.local
 
 def doc(payload)
   puts({ index: { _index: "benchmark-ruby", _type: "_doc" } }.to_json)
-  puts({ doc: payload }.to_json)
+  puts(payload.to_json)
 end
 
 meta = {
