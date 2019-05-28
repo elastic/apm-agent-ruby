@@ -266,6 +266,10 @@ def runBenchmark(version){
           } catch(e){
             throw e
           } finally {
+            archiveArtifacts(
+              allowEmptyArchive: true, 
+              artifacts: "**/benchmark-${transformedVersion}.raw,**/benchmark-${transformedVersion}.error", 
+              onlyIfSuccessful: false)
             sendBenchmarks(file: "benchmark-${transformedVersion}.bulk",
               index: "benchmark-ruby", archive: true)
           }

@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Encoding.default_external = 'utf-8'
-
 require 'time'
 require 'json'
 
@@ -11,6 +9,11 @@ input = STDIN.read.split("\n")
 git_sha, git_msg = `git log -n 1 --pretty="format:%H|||%s"`.split('|||')
 git_date = `git log -n 1 --pretty="format:%ai"`
 platform = Gem::Platform.local
+
+def doc(payload)
+  puts({ index: { _index: "benchmark-ruby", _type: "_doc" } }.to_json)
+  puts(payload.to_json)
+end
 
 meta = {
   executed_at: Time.new.iso8601,
@@ -39,15 +42,14 @@ results =
     )
   end
 
-puts '{ "index" : { "_index" : "benchmark-ruby", "_type" : "_doc" } }'
-results.each { |result| puts result.to_json }
+results.each { |result| doc result }
 
 overhead =
   (results[0][:total] - results[1][:total]) *
   1000 /  # milliseconds
   10_000     # transactions
 
-puts meta.merge(
+doc meta.merge(
   title: 'overhead',
   overhead: overhead
-).to_json
+)

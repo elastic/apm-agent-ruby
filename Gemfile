@@ -15,6 +15,7 @@ gem 'webmock'
 
 gem 'elasticsearch', require: nil
 gem 'fakeredis', require: nil
+gem 'faraday', require: nil
 gem 'json-schema', require: nil
 gem 'mongo', require: nil
 gem 'opentracing', require: nil
@@ -43,6 +44,8 @@ when /.+/
 else
   gem framework
 end
+
+gem 'activerecord-jdbcsqlite3-adapter', platform: :jruby
 
 unless version =~ /^(master|6)/
   gem 'delayed_job', require: nil
