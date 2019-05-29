@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+- Database statements are properly truncated ([#431](https://github.com/elastic/apm-agent-ruby/pull/431))
+
 ## 2.8.0 (2019-05-20)
 
 ### Added

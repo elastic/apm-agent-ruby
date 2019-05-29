@@ -10,12 +10,17 @@ module ElasticAPM
 
         describe '#build', :mock_time do
           let(:transaction) { Transaction.new.start }
-          let(:tc) { TraceContext.parse("00-#{'1' * 32}-#{'2' * 16}-01") }
+
+          let(:trace_context) do
+            TraceContext.parse("00-#{'1' * 32}-#{'2' * 16}-01")
+          end
+
           let :span do
-            Span.new(name: 'Span',
-                     transaction_id: transaction.id,
-                     trace_context: tc)
-                .tap do |span|
+            Span.new(
+              name: 'Span',
+              transaction_id: transaction.id,
+              trace_context: trace_context
+            ).tap do |span|
               span.start
               travel 100
               span.stop
@@ -43,19 +48,39 @@ module ElasticAPM
 
           context 'with a context' do
             let(:span) do
-              Span.new(name: 'Span',
-                       transaction_id: transaction.id,
-                       trace_context: tc,
-                       context: Span::Context.new(
-                         db: { statement: 'asd' },
-                         http: { url: 'dsa' }
-                       ))
+              Span.new(
+                name: 'Span',
+                transaction_id: transaction.id,
+                trace_context: trace_context,
+                context: Span::Context.new(
+                  db: { statement: 'asd' },
+                  http: { url: 'dsa' }
+                )
+              )
             end
 
             it 'adds context object' do
               expect(result.dig(:span, :context, :db, :statement))
                 .to be 'asd'
               expect(result.dig(:span, :context, :http, :url)).to be 'dsa'
+            end
+          end
+
+          context 'with a large db.statement' do
+            it 'truncates to 10k chars' do
+              span = Span.new(
+                name: 'Span',
+                transaction_id: transaction.id,
+                trace_context: trace_context,
+                context: Span::Context.new(
+                  db: { statement: 'X' * 11_000 }
+                )
+              )
+
+              result = subject.build(span)
+
+              statement = result.dig(:span, :context, :db, :statement)
+              expect(statement.length).to be(10_000)
             end
           end
         end

@@ -54,20 +54,20 @@ exclude:
 
   # Rails 6 beta
   - RUBY_VERSION: ruby:2.5
-    FRAMEWORK: rails-6.0-beta.2
+    FRAMEWORK: rails-6.0-rc1
   - RUBY_VERSION: ruby:2.4
-    FRAMEWORK: rails-6.0-beta.2
+    FRAMEWORK: rails-6.0-rc1
   - RUBY_VERSION: ruby:2.3
-    FRAMEWORK: rails-6.0-beta.2
+    FRAMEWORK: rails-6.0-rc1
   - RUBY_VERSION: jruby:9.2
-    FRAMEWORK: rails-6.0-beta.2
+    FRAMEWORK: rails-6.0-rc1
   - RUBY_VERSION: jruby:9.1
-    FRAMEWORK: rails-6.0-beta.2
+    FRAMEWORK: rails-6.0-rc1
   - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-12-jdk
-    FRAMEWORK: rails-6.0-beta.2
+    FRAMEWORK: rails-6.0-rc1
   - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-11-jdk
-    FRAMEWORK: rails-6.0-beta.2
+    FRAMEWORK: rails-6.0-rc1
   - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-8-jdk
-    FRAMEWORK: rails-6.0-beta.2
+    FRAMEWORK: rails-6.0-rc1
   - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.1-7-jdk
-    FRAMEWORK: rails-6.0-beta.2
+    FRAMEWORK: rails-6.0-rc1

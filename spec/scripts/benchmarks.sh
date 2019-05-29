@@ -37,7 +37,8 @@ RUBY_VERSION=${VERSION} docker-compose run \
   -v "$(dirname "$(pwd)"):/app" \
   --rm ruby_rspec \
   /bin/bash -c "set -x
-    gem install bundler 
-    bundle install --path $container_vendor_path 
+    gem update --system
+    gem install bundler
+    bundle install --path $container_vendor_path
     bench/benchmark.rb 2> benchmark-${TRANSFORMED_VERSION}.error > benchmark-${TRANSFORMED_VERSION}.raw
     bench/report.rb < benchmark-${TRANSFORMED_VERSION}.raw > benchmark-${TRANSFORMED_VERSION}.bulk"

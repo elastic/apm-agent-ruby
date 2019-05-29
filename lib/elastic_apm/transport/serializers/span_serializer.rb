@@ -50,7 +50,7 @@ module ElasticAPM
 
             {
               instance: db.instance,
-              statement: db.statement,
+              statement: Util.truncate(db.statement, max_length: 10_000),
               type: db.type,
               user: db.user
             }
