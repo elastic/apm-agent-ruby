@@ -50,7 +50,7 @@ module ElasticAPM
 
             {
               instance: db.instance,
-              statement: db.statement,
+              statement: db.statement[0...10_000],
               type: db.type,
               user: db.user
             }
