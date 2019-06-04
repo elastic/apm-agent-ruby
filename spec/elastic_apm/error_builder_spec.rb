@@ -43,7 +43,7 @@ module ElasticAPM
         end
 
         error = @intercepted.errors.last
-        expect(error.transaction).to eq(sampled: true)
+        expect(error.transaction).to eq(sampled: true, type: 'custom')
         expect(error.transaction_id).to eq transaction.id
         expect(error.trace_id).to eq transaction.trace_id
         expect(error.context.tags).to match(my_tag: '123', more: 'totes')

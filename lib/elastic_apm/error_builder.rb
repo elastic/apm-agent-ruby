@@ -57,7 +57,7 @@ module ElasticAPM
       return unless transaction
 
       error.transaction_id = transaction.id
-      error.transaction = { sampled: transaction.sampled? }
+      error.transaction = { sampled: transaction.sampled?, type: transaction.type }
       error.trace_id = transaction.trace_id
       error.parent_id = ElasticAPM.current_span&.id || transaction.id
 
