@@ -47,7 +47,7 @@ module ElasticAPM
           expect(last_frame.vars).to be_nil
 
           # JRuby 9.2 reports stacktraces differently
-          unless jruby_92?
+          unless PlatformHelpers.jruby_92?
             expect(last_frame.function).to eq('/')
             expect(last_frame.filename).to eq('org/jruby/RubyFixnum.java')
           end
