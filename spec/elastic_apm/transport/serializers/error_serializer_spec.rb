@@ -61,18 +61,19 @@ module ElasticAPM
 
           context 'with a transaction' do
             it 'includes context' do
-              error =
-                builder.build_exception(actual_exception).tap do |e|
-                  e.transaction = with_agent do
-                    ElasticAPM.with_transaction { |t| t }
-                  end
+              error = with_agent do
+                ElasticAPM.with_transaction do
+                  ErrorBuilder
+                    .new(ElasticAPM.agent)
+                    .build_exception(actual_exception)
                 end
+              end
 
               transaction =
                 subject.build(error).fetch(:error).fetch(:transaction)
 
               expect(transaction).to match(
-                id: /[a-z0-9]+/,
+                sampled: true,
                 type: 'custom'
               )
             end

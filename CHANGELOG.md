@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- Add `transaction.type` to errors ([#434](https://github.com/elastic/apm-agent-ruby/pull/434))
+
 ## 2.8.1 (2019-05-29)
 
 ### Fixed

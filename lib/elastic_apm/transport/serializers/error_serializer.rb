@@ -66,8 +66,8 @@ module ElasticAPM
           return unless transaction
 
           {
-            id: transaction.id,
-            type: keyword_field(transaction.type)
+            sampled: transaction[:sampled],
+            type: keyword_field(transaction[:type])
           }
         end
       end

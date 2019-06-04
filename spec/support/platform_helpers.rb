@@ -9,7 +9,7 @@ module PlatformHelpers
     ElasticAPM::Metrics.platform == :linux
   end
 
-  def jruby_92?
+  def self.jruby_92?
     defined?(JRUBY_VERSION) && JRUBY_VERSION =~ /^9\.2/
   end
 end
