@@ -7,7 +7,8 @@ module ElasticAPM
     subject { ErrorBuilder.new Agent.new(config) }
 
     context 'with an exception' do
-      it 'builds an error from an exception', :mock_time, unless: jruby_92? do
+      it 'builds an error from an exception', :mock_time,
+        unless: PlatformHelpers.jruby_92? do
         error = subject.build_exception(actual_exception)
 
         expect(error.culprit).to eq '/'
@@ -24,37 +25,34 @@ module ElasticAPM
         )
         env['HTTP_CONTENT_TYPE'] = 'application/json'
 
-        begin
-          ElasticAPM.start(default_tags: { more: 'totes' })
+        transaction =
+          with_agent(default_tags: { more: 'totes' }) do
+            context =
+              ElasticAPM.build_context rack_env: env, for_type: :transaction
 
-          context =
-            ElasticAPM.build_context rack_env: env, for_type: :transaction
+            ElasticAPM.with_transaction context: context do |txn|
+              ElasticAPM.set_tag(:my_tag, '123')
+              ElasticAPM.set_custom_context(all_the_other_things: 'blah blah')
+              ElasticAPM.set_user(Struct.new(:id).new(321))
+              ElasticAPM.report actual_exception
 
-          transaction = ElasticAPM.with_transaction context: context do |txn|
-            ElasticAPM.set_tag(:my_tag, '123')
-            ElasticAPM.set_custom_context(all_the_other_things: 'blah blah')
-            ElasticAPM.set_user(Struct.new(:id).new(321))
-            ElasticAPM.report actual_exception
-
-            txn
+              txn
+            end
           end
-        ensure
-          ElasticAPM.stop
-        end
 
         error = @intercepted.errors.last
-        expect(error.transaction).to eq(sampled: true)
+        expect(error.transaction).to eq(sampled: true, type: 'custom')
         expect(error.transaction_id).to eq transaction.id
         expect(error.trace_id).to eq transaction.trace_id
         expect(error.context.tags).to match(my_tag: '123', more: 'totes')
         expect(error.context.custom)
           .to match(all_the_other_things: 'blah blah')
-        # expect(error.trace_id).to eq transaction.trace_id
       end
     end
 
     context 'with a log' do
-      it 'builds an error from a message', :mock_time, unless: jruby_92? do
+      it 'builds an error from a message', :mock_time,
+        unless: PlatformHelpers.jruby_92? do
         error = subject.build_log 'Things went BOOM', backtrace: caller
 
         expect(error.culprit).to eq 'instance_exec'

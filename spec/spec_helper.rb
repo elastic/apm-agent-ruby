@@ -28,6 +28,11 @@ Concurrent.use_stdlib_logger(Logger::DEBUG)
 Thread.abort_on_exception = true
 
 RSpec.configure do |config|
+  config.include ExceptionHelpers
+  config.include WithAgent
+  config.include PlatformHelpers
+  config.include ElasticSubscribers
+
   unless ENV['INCLUDE_SCHEMA_SPECS']
     config.filter_run_excluding(type: 'json_schema')
   end
@@ -35,26 +40,9 @@ RSpec.configure do |config|
   config.example_status_persistence_file_path = '.rspec_status'
   config.disable_monkey_patching!
 
-  config.fail_fast = ENV.fetch('CI', nil) == '1'
-
-  config.expect_with :rspec do |c|
-    c.syntax = :expect
-  end
-
-  def elastic_subscribers
-    unless defined?(::ActiveSupport) && defined?(ElasticAPM::Subscriber)
-      return []
-    end
-
-    notifier = ActiveSupport::Notifications.notifier
-    subscribers =
-      notifier.instance_variable_get(:@subscribers) ||
-      notifier.instance_variable_get(:@string_subscribers) # when Rails 6
-
-    subscribers.select do |s|
-      s.instance_variable_get(:@delegate).is_a?(ElasticAPM::Subscriber)
-    end
-  end
+  # config.expect_with :rspec do |c|
+  #   c.syntax = :expect
+  # end
 
   config.after(:each) do |example|
     if elastic_subscribers.any? &&
@@ -64,22 +52,4 @@ RSpec.configure do |config|
       raise 'someone leaked subscription'
     end
   end
-end
-
-def actual_exception
-  1 / 0
-rescue => e # rubocop:disable Style/RescueStandardError
-  e
-end
-
-def darwin?
-  ElasticAPM::Metrics.platform == :darwin
-end
-
-def linux?
-  ElasticAPM::Metrics.platform == :linux
-end
-
-def jruby_92?
-  defined?(JRUBY_VERSION) && JRUBY_VERSION =~ /^9\.2/
 end
