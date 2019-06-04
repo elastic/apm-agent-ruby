@@ -9,7 +9,6 @@ if defined?(Rails)
 
   RSpec.describe 'Rails integration',
     :allow_leaking_subscriptions, :mock_intake do
-
     include Rack::Test::Methods
 
     def app
