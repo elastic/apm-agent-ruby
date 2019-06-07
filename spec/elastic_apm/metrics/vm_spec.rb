@@ -5,7 +5,7 @@ module ElasticAPM
     RSpec.describe VM do
       let(:config) { Config.new }
 
-      before(:suite) { GC::Profiler.enable }
+      before(:all) { GC::Profiler.enable }
 
       subject { described_class.new config }
 
@@ -16,6 +16,7 @@ module ElasticAPM
             'ruby.gc.time': Float,
             'ruby.heap.live': Integer,
             'ruby.heap.free': Integer,
+            'ruby.allocations.total': Integer,
             'ruby.threads': Integer
           )
         end
