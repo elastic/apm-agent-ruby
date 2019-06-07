@@ -11,14 +11,6 @@ module ElasticAPM
       # @api private
       class Sampler
         def sample
-          stat = GC.stat
-          total_time = GC::Profiler.total_time
-          thread_count = Thread.list.count
-
-          stat.merge(
-            gc_total_time: total_time,
-            thread_count: thread_count
-          )
         end
       end
 
@@ -27,18 +19,18 @@ module ElasticAPM
         @sampler = Sampler.new
       end
 
-      attr_reader :config, :sampler
-
-      def sample
-        @sampler.sample
-      end
-
       def collect
-        return unless sampler
+        stat = GC.stat
+        total_time = GC::Profiler.total_time
+        thread_count = Thread.list.count
 
-        sample.each_with_object({}) do |(key, value), snap|
-          snap[:"#{SCOPE}#{key}"] = value
-        end
+        {
+          'ruby.gc.count': stat[:count],
+          'ruby.gc.time': total_time,
+          'ruby.heap.live': stat[:heap_live_slots],
+          'ruby.heap.free': stat[:heap_free_slots],
+          'ruby.threads': thread_count
+        }
       end
     end
   end
