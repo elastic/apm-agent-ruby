@@ -294,7 +294,7 @@ e.g. "production" or "staging".
 
 Environments allow you to easily filter data on a global level in the APM UI.
 It's important to be consistent when naming environments across agents.
-See {kib}/filters.html#environment-selector[environment selector] in the Kibana UI for more information.
+See {kibana-ref}/filters.html#environment-selector[environment selector] in the Kibana UI for more information.
 
 Defaults to `ENV['RAILS_ENV'] || ENV['RACK_ENV']`.
 
