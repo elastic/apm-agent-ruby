@@ -10,33 +10,16 @@ module ElasticAPM
       class ProxyPipe
         def initialize(enc = nil, compress: true)
           rd, wr = IO.pipe(enc)
-          @read = Read.new(rd)
+
+          @read = rd
           @write = Write.new(wr, compress: compress)
+
+          # Http.rb<4 calls rewind on the request bodies, but IO::Pipe raises
+          # ~mikker
+          def rd.rewind; end
         end
 
         attr_reader :read, :write
-
-        # @api private
-        class Read
-          def initialize(io)
-            @io = io
-          end
-
-          attr_reader :io
-
-          def method_missing(name, *args, &block)
-            return io.send(name, *args, &block) if io.respond_to?(name)
-            super
-          end
-
-          def respond_to?(name)
-            io.respond_to?(name) || super
-          end
-
-          # Http.rb < 4 calls when request finishes, IO::Pipe raises
-          def rewind
-          end
-        end
 
         # @api private
         class Write
