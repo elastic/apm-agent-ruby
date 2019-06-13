@@ -172,7 +172,19 @@ pipeline {
             archiveArtifacts allowEmptyArchive: true, artifacts: 'results.json,results.html', defaultExcludes: false
           }
         }
-        notifyBuildResult()
+      }
+      success {
+        echoColor(text: '[SUCCESS]', colorfg: 'green', colorbg: 'default')
+      }
+      aborted {
+        echoColor(text: '[ABORTED]', colorfg: 'magenta', colorbg: 'default')
+      }
+      failure {
+        echoColor(text: '[FAILURE]', colorfg: 'red', colorbg: 'default')
+        step([$class: 'Mailer', notifyEveryUnstableBuild: true, recipients: "${NOTIFY_TO}", sendToIndividuals: false])
+      }
+      unstable {
+        echoColor(text: '[UNSTABLE]', colorfg: 'yellow', colorbg: 'default')
       }
     }
   }
@@ -261,8 +273,8 @@ def runBenchmark(version){
             throw e
           } finally {
             archiveArtifacts(
-              allowEmptyArchive: true,
-              artifacts: "**/benchmark-${transformedVersion}.raw,**/benchmark-${transformedVersion}.error",
+              allowEmptyArchive: true, 
+              artifacts: "**/benchmark-${transformedVersion}.raw,**/benchmark-${transformedVersion}.error", 
               onlyIfSuccessful: false)
             sendBenchmarks(file: "benchmark-${transformedVersion}.bulk",
               index: "benchmark-ruby", archive: true)
