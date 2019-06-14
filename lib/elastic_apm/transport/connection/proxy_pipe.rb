@@ -16,6 +16,7 @@ module ElasticAPM
 
           # Http.rb<4 calls rewind on the request bodies, but IO::Pipe raises
           # ~mikker
+          return if HTTP::VERSION.to_i >= 4
           def rd.rewind; end
         end
 
