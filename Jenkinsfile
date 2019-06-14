@@ -153,11 +153,9 @@ pipeline {
           }
         }
         steps {
-          withGithubNotify(context: 'Documentation', tab: 'artifacts') {
-            deleteDir()
-            unstash 'source'
-            buildDocs(docsDir: "${BASE_DIR}/docs", archive: true)
-          }
+          deleteDir()
+          unstash 'source'
+          buildDocs(docsDir: "${BASE_DIR}/docs", archive: true)
         }
       }
     }
@@ -273,8 +271,8 @@ def runBenchmark(version){
             throw e
           } finally {
             archiveArtifacts(
-              allowEmptyArchive: true, 
-              artifacts: "**/benchmark-${transformedVersion}.raw,**/benchmark-${transformedVersion}.error", 
+              allowEmptyArchive: true,
+              artifacts: "**/benchmark-${transformedVersion}.raw,**/benchmark-${transformedVersion}.error",
               onlyIfSuccessful: false)
             sendBenchmarks(file: "benchmark-${transformedVersion}.bulk",
               index: "benchmark-ruby", archive: true)
