@@ -59,22 +59,24 @@ pipeline {
       agent { label 'linux && immutable' }
       options { skipDefaultCheckout() }
       steps {
-        deleteDir()
-        unstash "source"
-        dir("${BASE_DIR}"){
-          script {
-            rubyTasksGen = new RubyParallelTaskGenerator(
-              xKey: 'RUBY_VERSION',
-              yKey: 'FRAMEWORK',
-              xFile: "./spec/.jenkins_ruby.yml",
-              yFile: "./spec/.jenkins_framework.yml",
-              exclusionFile: "./spec/.jenkins_exclude.yml",
-              tag: "Ruby",
-              name: "Ruby",
-              steps: this
-              )
-              def mapPatallelTasks = rubyTasksGen.generateParallelTests()
-              parallel(mapPatallelTasks)
+        withGithubNotify(context: 'Tests', tab: 'tests') {
+          deleteDir()
+          unstash "source"
+          dir("${BASE_DIR}"){
+            script {
+              rubyTasksGen = new RubyParallelTaskGenerator(
+                xKey: 'RUBY_VERSION',
+                yKey: 'FRAMEWORK',
+                xFile: "./spec/.jenkins_ruby.yml",
+                yFile: "./spec/.jenkins_framework.yml",
+                exclusionFile: "./spec/.jenkins_exclude.yml",
+                tag: "Ruby",
+                name: "Ruby",
+                steps: this
+                )
+                def mapPatallelTasks = rubyTasksGen.generateParallelTests()
+                parallel(mapPatallelTasks)
+              }
             }
           }
         }
@@ -113,16 +115,18 @@ pipeline {
           stage('Run Benchmarks') {
             agent { label 'linux && immutable' }
             steps {
-              deleteDir()
-              unstash 'source'
-              dir("${BASE_DIR}"){
-                script {
-                  def versions = readYaml(file: "./spec/.jenkins_ruby.yml")
-                  def benchmarkTask = [:]
-                  versions['RUBY_VERSION'].each{ v ->
-                    benchmarkTask[v] = runBenchmark(v)
+              withGithubNotify(context: 'Run Benchmarks') {
+                deleteDir()
+                unstash 'source'
+                dir("${BASE_DIR}"){
+                  script {
+                    def versions = readYaml(file: "./spec/.jenkins_ruby.yml")
+                    def benchmarkTask = [:]
+                    versions['RUBY_VERSION'].each{ v ->
+                      benchmarkTask[v] = runBenchmark(v)
+                    }
+                    parallel(benchmarkTask)
                   }
-                  parallel(benchmarkTask)
                 }
               }
             }
@@ -260,8 +264,8 @@ def runBenchmark(version){
             throw e
           } finally {
             archiveArtifacts(
-              allowEmptyArchive: true, 
-              artifacts: "**/benchmark-${transformedVersion}.raw,**/benchmark-${transformedVersion}.error", 
+              allowEmptyArchive: true,
+              artifacts: "**/benchmark-${transformedVersion}.raw,**/benchmark-${transformedVersion}.error",
               onlyIfSuccessful: false)
             sendBenchmarks(file: "benchmark-${transformedVersion}.bulk",
               index: "benchmark-ruby", archive: true)
