@@ -18,6 +18,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ### Added
 
+- Add Ruby specific metrics ([#437](https://github.com/elastic/apm-agent-ruby/pull/437))
 - Add `transaction.type` to errors ([#434](https://github.com/elastic/apm-agent-ruby/pull/434))
 - Add cookies to `request.cookies` ([#448](https://github.com/elastic/apm-agent-ruby/pull/448))
 
