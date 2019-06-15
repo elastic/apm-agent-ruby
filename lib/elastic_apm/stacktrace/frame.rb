@@ -41,7 +41,7 @@ module ElasticAPM
       private
 
       def read_lines(path, range)
-        File.readlines(path)[range]
+        File.readlines(path)[range] || []
       rescue Errno::ENOENT
         []
       end
