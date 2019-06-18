@@ -9,7 +9,8 @@ module ElasticAPM
       it 'enriches request' do
         env = Rack::MockRequest.env_for(
           '/somewhere/in/there?q=yes',
-          method: 'POST'
+          method: 'POST',
+          'HTTP_COOKIE' => 'things=1'
         )
         env['HTTP_CONTENT_TYPE'] = 'application/json'
 
@@ -28,8 +29,11 @@ module ElasticAPM
         expect(request.url.hash).to eq nil
         expect(request.url.full).to eq 'http://example.org/somewhere/in/there?q=yes'
 
+        expect(request.cookies).to eq('things' => '1')
+
         expect(request.headers).to eq(
-          'Content-Type' => 'application/json'
+          'Content-Type' => 'application/json',
+          'Cookie' => 'things=1'
         )
       end
 
