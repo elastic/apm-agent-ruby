@@ -32,6 +32,8 @@ module ElasticAPM
         to = lineno + padding - 1
         file_lines = read_lines(abs_path, from..to)
 
+        return unless file_lines
+
         self.context_line = file_lines[padding]
         self.pre_context  = file_lines.first(padding)
         self.post_context = file_lines.last(padding)
@@ -43,7 +45,7 @@ module ElasticAPM
       def read_lines(path, range)
         File.readlines(path)[range]
       rescue Errno::ENOENT
-        []
+        nil
       end
     end
   end
