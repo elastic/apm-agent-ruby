@@ -176,6 +176,43 @@ module ElasticAPM
         end
       end
 
+      describe 'verify_server_cert' do
+        let(:config) do
+          Config.new(server_url: 'https://self-signed.badssl.com')
+        end
+
+        it 'is enabled by default' do
+          expect(config.logger)
+            .to receive(:error)
+            .with(/OpenSSL::SSL::SSLError/)
+
+          WebMock.disable!
+          subject.write('')
+          subject.flush
+          WebMock.enable!
+        end
+
+        context 'when disabled' do
+          let(:config) do
+            Config.new(
+              server_url: 'https://self-signed.badssl.com',
+              verify_server_cert: false
+            )
+          end
+
+          it "doesn't complain" do
+            expect(config.logger)
+              .to_not receive(:error)
+              .with(/OpenSSL::SSL::SSLError/)
+
+            WebMock.disable!
+            subject.write('')
+            subject.flush
+            WebMock.enable!
+          end
+        end
+      end
+
       # rubocop:disable Metrics/MethodLength
       def build_stub(body: nil, headers: {}, to_return: {}, status: 202, &block)
         opts = {
