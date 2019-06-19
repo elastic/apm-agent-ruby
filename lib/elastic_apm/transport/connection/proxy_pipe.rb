@@ -9,8 +9,15 @@ module ElasticAPM
       # @api private
       class ProxyPipe
         def initialize(enc = nil, compress: true)
-          @read, wr = IO.pipe(enc)
+          rd, wr = IO.pipe(enc)
+
+          @read = rd
           @write = Write.new(wr, compress: compress)
+
+          # Http.rb<4 calls rewind on the request bodies, but IO::Pipe raises
+          # ~mikker
+          return if HTTP::VERSION.to_i >= 4
+          def rd.rewind; end
         end
 
         attr_reader :read, :write

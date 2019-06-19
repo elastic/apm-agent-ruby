@@ -9,6 +9,7 @@ module ElasticAPM
             rd, wr = described_class.pipe
 
             expect(rd).to respond_to(:each)
+            expect(rd).to respond_to(:read)
             expect(wr).to respond_to(:write)
 
             expect(rd).to respond_to(:close)
