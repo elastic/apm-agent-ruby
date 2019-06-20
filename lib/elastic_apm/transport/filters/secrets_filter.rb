@@ -14,7 +14,8 @@ module ElasticAPM
           /secret/i,
           /token/i,
           /api[-._]?key/i,
-          /session[-._]?id/i
+          /session[-._]?id/i,
+          /(set[-_])?cookie/i
         ].freeze
 
         VALUE_FILTERS = [
@@ -30,6 +31,7 @@ module ElasticAPM
         def call(payload)
           strip_from! payload.dig(:transaction, :context, :request, :headers)
           strip_from! payload.dig(:transaction, :context, :request, :env)
+          strip_from! payload.dig(:transaction, :context, :request, :cookies)
           strip_from! payload.dig(:transaction, :context, :response, :headers)
           strip_from! payload.dig(:error, :context, :request, :headers)
           strip_from! payload.dig(:error, :context, :response, :headers)
