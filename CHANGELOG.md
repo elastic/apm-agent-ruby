@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 - Fix support for older versions of Http.rb ([#438](https://github.com/elastic/apm-agent-ruby/pull/434))
 - Strip `Cookie` and `Set-Cookie` from headers ([#448](https://github.com/elastic/apm-agent-ruby/pull/448))
+- Fix disabling SSL verification ([#449](https://github.com/elastic/apm-agent-ruby/pull/449))
 
 ## 2.8.1 (2019-05-29)
 

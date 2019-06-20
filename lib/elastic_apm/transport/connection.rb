@@ -130,11 +130,20 @@ module ElasticAPM
         ].join(' ')
       end
 
-      def build_ssl_context
-        return unless @config.use_ssl? && @config.server_ca_cert
+      def build_ssl_context # rubocop:disable Metrics/MethodLength
+        return unless @config.use_ssl?
 
         OpenSSL::SSL::SSLContext.new.tap do |context|
-          context.ca_file = @config.server_ca_cert
+          if @config.server_ca_cert
+            context.ca_file = @config.server_ca_cert
+          end
+
+          context.verify_mode =
+            if @config.verify_server_cert
+              OpenSSL::SSL::VERIFY_PEER
+            else
+              OpenSSL::SSL::VERIFY_NONE
+            end
         end
       end
     end
