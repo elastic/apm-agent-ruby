@@ -13,13 +13,16 @@ it is need as field to store the results of the tests.
 pipeline {
   agent any
   environment {
-    BASE_DIR="src/github.com/elastic/apm-agent-ruby"
+    REPO = 'apm-agent-ruby'
+    BASE_DIR = "src/github.com/elastic/${env.REPO}"
     PIPELINE_LOG_LEVEL='INFO'
     NOTIFY_TO = credentials('notify-to')
     JOB_GCS_BUCKET = credentials('gcs-bucket')
     CODECOV_SECRET = 'secret/apm-team/ci/apm-agent-ruby-codecov'
     DOCKER_REGISTRY = 'docker.elastic.co'
     DOCKER_SECRET = 'secret/apm-team/ci/docker-registry/prod'
+    GITHUB_CHECK_ITS_NAME = 'Integration Tests'
+    ITS_PIPELINE = 'apm-integration-tests-selector-mbp/master'
   }
   options {
     timeout(time: 2, unit: 'HOURS')
@@ -158,6 +161,28 @@ pipeline {
           buildDocs(docsDir: "${BASE_DIR}/docs", archive: true)
         }
       }
+      stage('Integration Tests') {
+        agent none
+        when {
+          beforeAgent true
+          allOf {
+            anyOf {
+              environment name: 'GIT_BUILD_CAUSE', value: 'pr'
+              expression { return !params.Run_As_Master_Branch }
+            }
+          }
+        }
+        steps {
+          log(level: 'INFO', text: 'Launching Async ITs')
+          build(job: env.ITS_PIPELINE, propagate: false, wait: false,
+                parameters: [string(name: 'AGENT_INTEGRATION_TEST', value: 'Ruby'),
+                             string(name: 'BUILD_OPTS', value: "--ruby-agent-version ${env.GIT_BASE_COMMIT} --ruby-agent-version-state ${env.GIT_BUILD_CAUSE} --ruby-agent-repo ${env.CHANGE_FORK}/${env.REPO}"),
+                             string(name: 'GITHUB_CHECK_NAME', value: env.GITHUB_CHECK_ITS_NAME),
+                             string(name: 'GITHUB_CHECK_REPO', value: env.REPO),
+                             string(name: 'GITHUB_CHECK_SHA1', value: env.GIT_BASE_COMMIT)])
+          githubNotify(context: "${env.GITHUB_CHECK_ITS_NAME}", description: "${env.GITHUB_CHECK_ITS_NAME} ...", status: 'PENDING', targetUrl: "${env.JENKINS_URL}search/?q=${env.ITS_PIPELINE.replaceAll('/','+')}")
+        }
+      }
     }
     post {
       always{
@@ -210,7 +235,7 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
           steps.junit(allowEmptyResults: false,
             keepLongStdio: true,
             testResults: "**/spec/ruby-agent-junit.xml")
-          steps.codecov(repo: 'apm-agent-ruby', basedir: "${steps.env.BASE_DIR}",
+          steps.codecov(repo: "${steps.env.REPO}", basedir: "${steps.env.BASE_DIR}",
             secret: "${steps.env.CODECOV_SECRET}")
         }
       }
