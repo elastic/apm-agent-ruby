@@ -70,8 +70,8 @@ pipeline {
               rubyTasksGen = new RubyParallelTaskGenerator(
                 xKey: 'RUBY_VERSION',
                 yKey: 'FRAMEWORK',
-                xFile: "./spec/.jenkins_ruby.yml",
-                yFile: "./spec/.jenkins_framework.yml",
+                xFile: ".ci/.jenkins_ruby.yml",
+                yFile: ".ci/.jenkins_framework.yml",
                 exclusionFile: "./spec/.jenkins_exclude.yml",
                 tag: "Ruby",
                 name: "Ruby",
@@ -123,7 +123,7 @@ pipeline {
                 unstash 'source'
                 dir("${BASE_DIR}"){
                   script {
-                    def versions = readYaml(file: "./spec/.jenkins_ruby.yml")
+                    def versions = readYaml(file: ".ci/.jenkins_ruby.yml")
                     def benchmarkTask = [:]
                     versions['RUBY_VERSION'].each{ v ->
                       benchmarkTask[v] = runBenchmark(v)
@@ -185,7 +185,7 @@ pipeline {
       }
     }
     post {
-      always{
+      cleanup {
         script{
           if(rubyTasksGen?.results){
             writeJSON(file: 'results.json', json: toJSON(rubyTasksGen.results), pretty: 2)

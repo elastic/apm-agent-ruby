@@ -1,0 +1,6 @@
+---
+- job:
+    name: apm-agent-ruby/apm-agent-ruby-downstream
+    display-name: APM Agent Ruby Downstream
+    description: APM Agent Ruby Downstream
+    script-path: .ci/downstreamTests.groovy
