@@ -3,3 +3,4 @@
     name: apm-agent-ruby/apm-agent-ruby-mbp
     display-name: APM Agent Ruby
     description: APM Agent Ruby
+    script-path: .ci/Jenkinsfile
