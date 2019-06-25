@@ -13,8 +13,8 @@
     logrotate:
       daysToKeep: 30
       numToKeep: 100
-    number-to-keep: '5'
-    days-to-keep: '1'
+    number-to-keep: '100'
+    days-to-keep: '30'
     concurrent: true
     node: linux
     script-path: .ci/Jenkinsfile
