@@ -4,7 +4,11 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 2.9.0 (2019-06-25)
+
+### Security
+
+- **NB:** If you are using a custom CA cert via `server_ca_cert`, versions of the agent prior to 2.9.0 may not have validated the certificate of APM Server correctly.
 
 ### Added
 
