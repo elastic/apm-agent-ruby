@@ -63,6 +63,7 @@ module ElasticAPM
     end
 
     def subscriber=(subscriber)
+      debug 'Registering subscriber'
       @subscriber = subscriber
       @subscriber.register!
     end
@@ -99,7 +100,8 @@ module ElasticAPM
           type,
           context: context,
           trace_context: trace_context,
-          sampled: sampled
+          sampled: sampled,
+          tags: config.default_tags
         )
 
       transaction.start

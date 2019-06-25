@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'rake'
 
 module ElasticAPM
-  RSpec.describe 'Rake', :mock_intake do
+  RSpec.describe 'Rake', :intercept do
     let(:task) do
       Rake::Task.define_task(:test_task) do
         'ok'
@@ -16,7 +16,7 @@ module ElasticAPM
       task.invoke
       ElasticAPM.stop
 
-      expect(@mock_intake.transactions.length).to be 1
+      expect(@intercepted.transactions.length).to eq 1
     end
 
     context 'when disabled' do
@@ -25,7 +25,7 @@ module ElasticAPM
         task.invoke
         ElasticAPM.stop
 
-        expect(@mock_intake.transactions.length).to be 0
+        expect(@intercepted.transactions.length).to eq 0
       end
     end
   end

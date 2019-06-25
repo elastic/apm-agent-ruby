@@ -6,7 +6,7 @@ module ElasticAPM
   # @api private
   class SqlSummarizer
     DEFAULT = 'SQL'
-    TABLE_REGEX = %{["'`]?([A-Za-z0-9_]+)}
+    TABLE_REGEX = %{["'`]?([A-Za-z0-9_]+)["'`]?}
 
     REGEXES = {
       /^BEGIN/i => 'BEGIN',
@@ -26,7 +26,7 @@ module ElasticAPM
     def summarize(sql)
       self.class.cache[sql] ||=
         REGEXES.find do |regex, sig|
-          if (match = sql.match(regex))
+          if (match = sql[0...1000].match(regex))
             break format(FORMAT, sig, match[1] && match[1].gsub(/["']/, ''))
           end
         end || DEFAULT

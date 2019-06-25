@@ -38,6 +38,8 @@ module ElasticAPM
       request.headers = headers if config.capture_headers?
       request.env = env if config.capture_env?
 
+      request.cookies = req.cookies
+
       context
     end
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize

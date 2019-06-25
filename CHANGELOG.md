@@ -4,7 +4,62 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## 2.6.1
+## 2.9.0 (2019-06-25)
+
+### Security
+
+- **NB:** If you are using a custom CA cert via `server_ca_cert`, versions of the agent prior to 2.9.0 may not have validated the certificate of APM Server correctly.
+
+### Added
+
+- Add `transaction.type` to errors ([#434](https://github.com/elastic/apm-agent-ruby/pull/434))
+- Add cookies to `request.cookies` ([#448](https://github.com/elastic/apm-agent-ruby/pull/448))
+
+### Fixed
+
+- Fix support for older versions of Http.rb ([#438](https://github.com/elastic/apm-agent-ruby/pull/434))
+- Strip `Cookie` and `Set-Cookie` from headers ([#448](https://github.com/elastic/apm-agent-ruby/pull/448))
+- Fix disabling SSL verification ([#449](https://github.com/elastic/apm-agent-ruby/pull/449))
+
+## 2.8.1 (2019-05-29)
+
+### Fixed
+
+- Database statements are properly truncated ([#431](https://github.com/elastic/apm-agent-ruby/pull/431))
+
+## 2.8.0 (2019-05-20)
+
+### Added
+
+- The option `stack_trace_limit` ([#424](https://github.com/elastic/apm-agent-ruby/pull/424))
+
+### Changed
+
+- Use standardized User-Agent ([#419](https://github.com/elastic/apm-agent-ruby/pull/419))
+
+### Fixed
+
+- `error.culprit` is properly truncated to 1024 characters ([#418](https://github.com/elastic/apm-agent-ruby/pull/418))
+- Force convert `transaction.context.response.status_code` to integer ([#423](https://github.com/elastic/apm-agent-ruby/pull/423))
+
+## 2.7.0 (2019-05-07)
+
+### Added
+
+- Added `disable_start_message` for those wanting complete silence on boot ([#397](https://github.com/elastic/apm-agent-ruby/pull/397))
+
+### Changed
+
+- Attempt to strip secrets from `request.env` ([#410](https://github.com/elastic/apm-agent-ruby/pull/410))
+
+### Fixed
+
+- Rewritten most of the internal transport code, streaming events to APM Server ([#372](https://github.com/elastic/apm-agent-ruby/pull/372))
+- Re-added `default_tags` ([#395](https://github.com/elastic/apm-agent-ruby/pull/395))
+- A bug in the Faraday spy when disabling the Net::HTTP spy ([#396](https://github.com/elastic/apm-agent-ruby/pull/396))
+- Fix disabling the ActionDispatch spy ([#399](https://github.com/elastic/apm-agent-ruby/pull/399))
+
+## 2.6.1 (2019-03-28)
 
 ### Fixed
 
@@ -21,7 +76,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 Both APIs are backwards compatible with fallbacks and deprecation warnings, scheduled for removal in next major release.
 
-### Added 
+### Added
 
 - Configuration options to use an HTTP proxy ([#352](https://github.com/elastic/apm-agent-ruby/pull/352))
 
@@ -82,7 +137,7 @@ Both APIs are backwards compatible with fallbacks and deprecation warnings, sche
 ### Added
 
 - Support for [OpenTracing](https://opentracing.io) ([#273](https://github.com/elastic/apm-agent-ruby/pull/273))
-- Add capture_* options ([#279](https://github.com/elastic/apm-agent-ruby/pull/279))
+- Add capture\_\* options ([#279](https://github.com/elastic/apm-agent-ruby/pull/279))
 - Evaluate the config file as ERB ([#288](https://github.com/elastic/apm-agent-ruby/pull/288))
 
 ### Changed

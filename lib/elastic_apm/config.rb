@@ -32,6 +32,7 @@ module ElasticAPM
       custom_key_filters: [],
       default_tags: {},
       disable_send: false,
+      disable_start_message: false,
       disabled_spies: %w[json],
       environment: ENV['RAILS_ENV'] || ENV['RACK_ENV'],
       filter_exception_types: [],
@@ -48,6 +49,7 @@ module ElasticAPM
       source_lines_span_app_frames: 5,
       source_lines_span_library_frames: 0,
       span_frames_min_duration: '5ms',
+      stack_trace_limit: 999_999,
       transaction_max_spans: 500,
       transaction_sample_rate: 1.0,
       verify_server_cert: true,
@@ -72,6 +74,7 @@ module ElasticAPM
       'ELASTIC_APM_DEFAULT_TAGS' => [:dict, 'default_tags'],
       'ELASTIC_APM_DISABLED_SPIES' => [:list, 'disabled_spies'],
       'ELASTIC_APM_DISABLE_SEND' => [:bool, 'disable_send'],
+      'ELASTIC_APM_DISABLE_START_MESSAGE' => [:bool, 'disable_start_message'],
       'ELASTIC_APM_ENVIRONMENT' => 'environment',
       'ELASTIC_APM_FRAMEWORK_NAME' => 'framework_name',
       'ELASTIC_APM_FRAMEWORK_VERSION' => 'framework_version',
@@ -101,6 +104,7 @@ module ElasticAPM
       'ELASTIC_APM_SOURCE_LINES_SPAN_LIBRARY_FRAMES' =>
         [:int, 'source_lines_span_library_frames'],
       'ELASTIC_APM_SPAN_FRAMES_MIN_DURATION' => 'span_frames_min_duration',
+      'ELASTIC_APM_STACK_TRACE_LIMIT' => [:int, 'stack_trace_limit'],
       'ELASTIC_APM_TRANSACTION_MAX_SPANS' => [:int, 'transaction_max_spans'],
       'ELASTIC_APM_TRANSACTION_SAMPLE_RATE' =>
         [:float, 'transaction_sample_rate'],
@@ -151,6 +155,7 @@ module ElasticAPM
     attr_accessor :current_user_username_method
     attr_accessor :default_tags
     attr_accessor :disable_send
+    attr_accessor :disable_start_message
     attr_accessor :disabled_spies
     attr_accessor :environment
     attr_accessor :filter_exception_types
@@ -177,6 +182,7 @@ module ElasticAPM
     attr_accessor :source_lines_error_library_frames
     attr_accessor :source_lines_span_app_frames
     attr_accessor :source_lines_span_library_frames
+    attr_accessor :stack_trace_limit
     attr_accessor :transaction_max_spans
     attr_accessor :transaction_sample_rate
     attr_accessor :verify_server_cert
@@ -197,6 +203,7 @@ module ElasticAPM
     alias :capture_headers? :capture_headers
     alias :capture_env? :capture_env
     alias :disable_send? :disable_send
+    alias :disable_start_message? :disable_start_message
     alias :http_compression? :http_compression
     alias :instrument? :instrument
     alias :verify_server_cert? :verify_server_cert
@@ -243,7 +250,6 @@ module ElasticAPM
     # rubocop:disable Metrics/MethodLength
     def available_spies
       %w[
-        action_dispatch
         delayed_job
         elasticsearch
         faraday
@@ -397,13 +403,21 @@ module ElasticAPM
     end
 
     def set_rails(app) # rubocop:disable Metrics/AbcSize
-      self.service_name ||= format_name(service_name || app.class.parent_name)
+      self.service_name ||= format_name(service_name || rails_app_name(app))
       self.framework_name ||= 'Ruby on Rails'
       self.framework_version ||= Rails::VERSION::STRING
       self.logger ||= Rails.logger
 
       self.root_path = Rails.root.to_s
       self.view_paths = app.config.paths['app/views'].existent
+    end
+
+    def rails_app_name(app)
+      if Rails::VERSION::MAJOR >= 6
+        app.class.module_parent_name
+      else
+        app.class.parent_name
+      end
     end
 
     def build_logger

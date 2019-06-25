@@ -55,7 +55,8 @@ module ElasticAPM
           {
             hostname: keyword_field(system.hostname),
             architecture: keyword_field(system.architecture),
-            platform: keyword_field(system.platform)
+            platform: keyword_field(system.platform),
+            kubernetes: keyword_object(system.kubernetes)
           }
         end
       end

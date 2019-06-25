@@ -22,7 +22,7 @@ module ElasticAPM
           expect(last_frame.pre_context.last).to match(/def actual_exception/)
           expect(last_frame.context_line).to match(%r{1 / 0})
           expect(last_frame.post_context.first).to match(/rescue/)
-          expect(last_frame.filename).to eq 'spec_helper.rb'
+          expect(last_frame.filename).to eq 'support/exception_helpers.rb'
         end
       end
 
@@ -47,7 +47,7 @@ module ElasticAPM
           expect(last_frame.vars).to be_nil
 
           # JRuby 9.2 reports stacktraces differently
-          unless jruby_92?
+          unless PlatformHelpers.jruby_92?
             expect(last_frame.function).to eq('/')
             expect(last_frame.filename).to eq('org/jruby/RubyFixnum.java')
           end
@@ -64,10 +64,19 @@ module ElasticAPM
         stacktrace = subject.build(caller, type: :span)
         expect(stacktrace.frames).to_not be_empty
       end
+
+      context 'with stack trace limit' do
+        let(:config) { Config.new stack_trace_limit: 5 }
+
+        it 'shortens to limit' do
+          result = subject.build(actual_exception.backtrace, type: :error)
+          expect(result.length).to be 5
+        end
+      end
     end
 
     describe '#to_a' do
-      it 'is a hash' do
+      it 'is an array' do
         array =
           subject.build(actual_exception.backtrace, type: :error).to_a
         expect(array).to be_a Array

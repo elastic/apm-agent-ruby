@@ -11,7 +11,8 @@ module ElasticAPM
           payload = { transaction: { context: { request: { headers: {
             ApiKey: 'very zecret!',
             Untouched: 'very much',
-            TotallyNotACreditCard: '4111 1111 1111 1111'
+            TotallyNotACreditCard: '4111 1111 1111 1111',
+            'HTTP_COOKIE': 'things=1'
           } } } } }
 
           subject.call(payload)
@@ -21,7 +22,8 @@ module ElasticAPM
           expect(headers).to match(
             ApiKey: '[FILTERED]',
             Untouched: 'very much',
-            TotallyNotACreditCard: '[FILTERED]'
+            TotallyNotACreditCard: '[FILTERED]',
+            HTTP_COOKIE: '[FILTERED]'
           )
         end
 

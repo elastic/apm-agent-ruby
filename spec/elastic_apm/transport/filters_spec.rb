@@ -40,7 +40,7 @@ module ElasticAPM
 
           result = subject.apply!(things: 1)
 
-          expect(result).to be_nil
+          expect(result).to be Filters::SKIP
           expect(untouched).to_not have_received(:call)
         end
       end

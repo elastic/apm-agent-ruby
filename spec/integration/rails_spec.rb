@@ -9,7 +9,6 @@ if defined?(Rails)
 
   RSpec.describe 'Rails integration',
     :allow_leaking_subscriptions, :mock_intake do
-
     include Rack::Test::Methods
 
     def app
@@ -22,7 +21,7 @@ if defined?(Rails)
         config.consider_all_requests_local = false
 
         config.logger = Logger.new(nil)
-        # config.logger = Logger.new(STDOUT)
+        # config.logger = Logger.new($stdout)
         config.logger.level = Logger::DEBUG
 
         config.eager_load = false
@@ -129,7 +128,7 @@ if defined?(Rails)
     it 'knows Rails' do
       responses = Array.new(10).map { get '/' }
 
-      wait_for transactions: 10
+      wait_for transactions: 10, spans: 20
 
       expect(responses.last.body).to eq 'Yes!'
       expect(@mock_intake.metadatas.length >= 1).to be true
@@ -151,7 +150,7 @@ if defined?(Rails)
       it 'spans action and posts it' do
         get '/'
 
-        wait_for transactions: 1
+        wait_for transactions: 1, spans: 2
 
         name = @mock_intake.transactions.first['name']
         expect(name).to eq 'ApplicationController#index'
@@ -160,7 +159,7 @@ if defined?(Rails)
       it 'can set tags and custom context' do
         get '/tags_and_context'
 
-        wait_for transactions: 1
+        wait_for transactions: 1, spans: 2
 
         context = @mock_intake.transactions.first['context']
         expect(context['tags']).to eq('things' => '1')
@@ -170,7 +169,7 @@ if defined?(Rails)
       it 'includes user information' do
         get '/'
 
-        wait_for transactions: 1
+        wait_for transactions: 1, spans: 2
 
         context = @mock_intake.transactions.first['context']
         user = context['user']
@@ -182,7 +181,7 @@ if defined?(Rails)
         get '/ping'
         get '/'
 
-        wait_for transactions: 1
+        wait_for transactions: 1, spans: 2
 
         name = @mock_intake.transactions.first['name']
         expect(name).to eq 'ApplicationController#index'
@@ -191,7 +190,7 @@ if defined?(Rails)
       it "filters sensitive looking data, but doesn't touch original" do
         resp = post '/', access_token: 'abc123'
 
-        wait_for transactions: 1
+        wait_for transactions: 1, spans: 1
 
         expect(resp.body).to eq("HTTP Basic: Access denied.\n")
         expect(resp.original_headers['WWW-Authenticate']).to_not be nil
@@ -226,7 +225,7 @@ if defined?(Rails)
       it 'handles exceptions and posts transaction' do
         response = get '/error'
 
-        wait_for transactions: 1, errors: 1
+        wait_for transactions: 1, errors: 1, spans: 1
 
         expect(response.status).to be 500
 
@@ -252,7 +251,7 @@ if defined?(Rails)
       it 'sends messages that validate' do
         get '/report_message'
 
-        wait_for transactions: 1, errors: 1
+        wait_for transactions: 1, errors: 1, spans: 2
 
         error, = @mock_intake.errors
         expect(error['log']).to be_a Hash

@@ -1,13 +1,28 @@
 #!/usr/bin/env groovy
 @Library('apm@current') _
 
+import co.elastic.matrix.*
+import groovy.transform.Field
+
+/**
+This is the parallel tasks generator,
+it is need as field to store the results of the tests.
+*/
+@Field def rubyTasksGen
+
 pipeline {
   agent any
   environment {
-    BASE_DIR="src/github.com/elastic/apm-agent-ruby"
+    REPO = 'apm-agent-ruby'
+    BASE_DIR = "src/github.com/elastic/${env.REPO}"
     PIPELINE_LOG_LEVEL='INFO'
     NOTIFY_TO = credentials('notify-to')
     JOB_GCS_BUCKET = credentials('gcs-bucket')
+    CODECOV_SECRET = 'secret/apm-team/ci/apm-agent-ruby-codecov'
+    DOCKER_REGISTRY = 'docker.elastic.co'
+    DOCKER_SECRET = 'secret/apm-team/ci/docker-registry/prod'
+    GITHUB_CHECK_ITS_NAME = 'Integration Tests'
+    ITS_PIPELINE = 'apm-integration-tests-selector-mbp/master'
   }
   options {
     timeout(time: 2, unit: 'HOURS')
@@ -20,7 +35,7 @@ pipeline {
     quietPeriod(10)
   }
   triggers {
-    issueCommentTrigger('.*(?:jenkins\\W+)?run\\W+(?:the\\W+)?tests(?:\\W+please)?.*')
+    issueCommentTrigger('(?i).*(?:jenkins\\W+)?run\\W+(?:the\\W+)?tests(?:\\W+please)?.*')
   }
   parameters {
     booleanParam(name: 'Run_As_Master_Branch', defaultValue: false, description: 'Allow to run any steps on a PR, some steps normally only run on master branch.')
@@ -47,16 +62,24 @@ pipeline {
       agent { label 'linux && immutable' }
       options { skipDefaultCheckout() }
       steps {
-        deleteDir()
-        unstash "source"
-        dir("${BASE_DIR}"){
-          script {
-            def node = readYaml(file: '.ci/.jenkins_ruby.yml')
-            def parallelTasks = [:]
-            node['RUBY_VERSION'].each{ version ->
-              parallelTasks["${version}"] = generateStep(version)
-            }
-            parallel(parallelTasks)
+        withGithubNotify(context: 'Tests', tab: 'tests') {
+          deleteDir()
+          unstash "source"
+          dir("${BASE_DIR}"){
+            script {
+              rubyTasksGen = new RubyParallelTaskGenerator(
+                xKey: 'RUBY_VERSION',
+                yKey: 'FRAMEWORK',
+                xFile: ".ci/.jenkins_ruby.yml",
+                yFile: ".ci/.jenkins_framework.yml",
+                exclusionFile: "./spec/.jenkins_exclude.yml",
+                tag: "Ruby",
+                name: "Ruby",
+                steps: this
+                )
+                def mapPatallelTasks = rubyTasksGen.generateParallelTests()
+                parallel(mapPatallelTasks)
+              }
             }
           }
         }
@@ -67,9 +90,6 @@ pipeline {
           beforeAgent true
           allOf {
             anyOf {
-              not {
-                changeRequest()
-              }
               branch 'master'
               branch "\\d+\\.\\d+"
               branch "v\\d?"
@@ -98,16 +118,18 @@ pipeline {
           stage('Run Benchmarks') {
             agent { label 'linux && immutable' }
             steps {
-              deleteDir()
-              unstash 'source'
-              dir("${BASE_DIR}"){
-                script {
-                  def versions = readYaml(file: ".ci/.jenkins_ruby.yml")
-                  def benchmarkTask = [:]
-                  versions['RUBY_VERSION'].each{ v ->
-                    benchmarkTask[v] = runBenchmark(v)
+              withGithubNotify(context: 'Run Benchmarks') {
+                deleteDir()
+                unstash 'source'
+                dir("${BASE_DIR}"){
+                  script {
+                    def versions = readYaml(file: ".ci/.jenkins_ruby.yml")
+                    def benchmarkTask = [:]
+                    versions['RUBY_VERSION'].each{ v ->
+                      benchmarkTask[v] = runBenchmark(v)
+                    }
+                    parallel(benchmarkTask)
                   }
-                  parallel(benchmarkTask)
                 }
               }
             }
@@ -124,9 +146,6 @@ pipeline {
           beforeAgent true
           allOf {
             anyOf {
-              not {
-                changeRequest()
-              }
               branch 'master'
               branch "\\d+\\.\\d+"
               branch "v\\d?"
@@ -142,9 +161,31 @@ pipeline {
           buildDocs(docsDir: "${BASE_DIR}/docs", archive: true)
         }
       }
+      stage('Integration Tests') {
+        agent none
+        when {
+          beforeAgent true
+          allOf {
+            anyOf {
+              environment name: 'GIT_BUILD_CAUSE', value: 'pr'
+              expression { return !params.Run_As_Master_Branch }
+            }
+          }
+        }
+        steps {
+          log(level: 'INFO', text: 'Launching Async ITs')
+          build(job: env.ITS_PIPELINE, propagate: false, wait: false,
+                parameters: [string(name: 'AGENT_INTEGRATION_TEST', value: 'Ruby'),
+                             string(name: 'BUILD_OPTS', value: "--ruby-agent-version ${env.GIT_BASE_COMMIT} --ruby-agent-version-state ${env.GIT_BUILD_CAUSE} --ruby-agent-repo ${env.CHANGE_FORK}/${env.REPO}"),
+                             string(name: 'GITHUB_CHECK_NAME', value: env.GITHUB_CHECK_ITS_NAME),
+                             string(name: 'GITHUB_CHECK_REPO', value: env.REPO),
+                             string(name: 'GITHUB_CHECK_SHA1', value: env.GIT_BASE_COMMIT)])
+          githubNotify(context: "${env.GITHUB_CHECK_ITS_NAME}", description: "${env.GITHUB_CHECK_ITS_NAME} ...", status: 'PENDING', targetUrl: "${env.JENKINS_URL}search/?q=${env.ITS_PIPELINE.replaceAll('/','+')}")
+        }
+      }
     }
     post {
-      always{
+      cleanup {
         script{
           if(rubyTasksGen?.results){
             writeJSON(file: 'results.json', json: toJSON(rubyTasksGen.results), pretty: 2)
@@ -152,34 +193,75 @@ pipeline {
             def processor = new ResultsProcessor()
             processor.processResults(mapResults)
             archiveArtifacts allowEmptyArchive: true, artifacts: 'results.json,results.html', defaultExcludes: false
+            catchError(buildResult: 'SUCCESS') {
+              def datafile = readFile(file: "results.json")
+              def json = getVaultSecret(secret: 'secret/apm-team/ci/apm-server-benchmark-cloud')
+              sendDataToElasticsearch(es: json.data.url, data: datafile, restCall: '/jenkins-builds-test-results/_doc/')
+            }
           }
         }
-      }
-      success {
-        echoColor(text: '[SUCCESS]', colorfg: 'green', colorbg: 'default')
-      }
-      aborted {
-        echoColor(text: '[ABORTED]', colorfg: 'magenta', colorbg: 'default')
-      }
-      failure {
-        echoColor(text: '[FAILURE]', colorfg: 'red', colorbg: 'default')
-        step([$class: 'Mailer', notifyEveryUnstableBuild: true, recipients: "${NOTIFY_TO}", sendToIndividuals: false])
-      }
-      unstable {
-        echoColor(text: '[UNSTABLE]', colorfg: 'yellow', colorbg: 'default')
+      notifyBuildResult()
+    }
+  }
+}
+
+/**
+Parallel task generator for the integration tests.
+*/
+class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
+
+  public RubyParallelTaskGenerator(Map params){
+    super(params)
+  }
+
+  /**
+  build a clousure that launch and agent and execute the corresponding test script,
+  then store the results.
+  */
+  public Closure generateStep(x, y){
+    return {
+      steps.sleep steps.randomNumber(min:10, max: 30)
+      steps.node('linux && immutable'){
+        // Label is transformed to avoid using the internal docker registry in the x coordinate
+        // TODO: def label = "${tag}:${x?.drop(x?.lastIndexOf('/')+1)}#${y}"
+        def label = "${tag}:${x}#${y}"
+        try {
+          steps.runScript(label: label, ruby: x, framework: y)
+          saveResult(x, y, 1)
+        } catch(e){
+          saveResult(x, y, 0)
+          steps.error("${label} tests failed : ${e.toString()}\n")
+        } finally {
+          steps.junit(allowEmptyResults: false,
+            keepLongStdio: true,
+            testResults: "**/spec/ruby-agent-junit.xml")
+          steps.codecov(repo: "${steps.env.REPO}", basedir: "${steps.env.BASE_DIR}",
+            secret: "${steps.env.CODECOV_SECRET}")
+        }
       }
     }
   }
+}
 
-def generateStep(version){
-  return { build(job: 'apm-agent-ruby/downstream-ruby-tests-pipeline',
-    parameters: [
-    string(name: 'RUBY_VERSION', value: version),
-    string(name: 'BRANCH_SPECIFIER', value: env.GIT_BASE_COMMIT),
-    string(name: 'BRANCH_TARGET', value: env.BRANCH_TARGET),
-    propagate: true,
-    quietPeriod: 10,
-    wait: true) }
+/**
+  Run tests for a Ruby version and framework version.
+*/
+def runScript(Map params = [:]){
+  def label = params.label
+  def ruby = params.ruby
+  def framework = params.framework
+  log(level: 'INFO', text: "${label}")
+  env.HOME = "${env.WORKSPACE}"
+  env.PATH = "${env.PATH}:${env.WORKSPACE}/bin"
+  deleteDir()
+  unstash 'source'
+  dir("${BASE_DIR}"){
+    retry(2){
+      sleep randomNumber(min:10, max: 30)
+      dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
+      sh("./spec/scripts/spec.sh ${ruby} ${framework}")
+    }
+  }
 }
 
 /**
@@ -188,17 +270,29 @@ def generateStep(version){
 def runBenchmark(version){
   return {
     node('metal'){
-      env.HOME = "${env.WORKSPACE}/${version}"
-      dir("${version}"){
+      // Transform the versions like:
+      //  - docker.elastic.co/observability-ci/jruby:9.2-12-jdk to jruby-9.2-12-jdk
+      //  - jruby:9.1 to jruby-9.1
+      def transformedVersion = version.replaceAll('.*/', '').replaceAll(':', '-')
+      env.HOME = "${env.WORKSPACE}/${transformedVersion}"
+      dir("${transformedVersion}"){
         deleteDir()
         unstash 'source'
         dir("${BASE_DIR}"){
+          retry(2){
+            sleep randomNumber(min:10, max: 30)
+            dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
+          }
           try{
             sh "./spec/scripts/benchmarks.sh ${version}"
           } catch(e){
             throw e
           } finally {
-            sendBenchmarks(file: "benchmark-${version}.bulk",
+            archiveArtifacts(
+              allowEmptyArchive: true,
+              artifacts: "**/benchmark-${transformedVersion}.raw,**/benchmark-${transformedVersion}.error",
+              onlyIfSuccessful: false)
+            sendBenchmarks(file: "benchmark-${transformedVersion}.bulk",
               index: "benchmark-ruby", archive: true)
           }
         }

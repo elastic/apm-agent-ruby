@@ -74,10 +74,10 @@ should "Squash and merge".
 
 To do a full test run, use either `bundle exec rspec` or `rake spec`. Individual specs should also run as expected. The Mongo test needs a Mongo instance running, but will start one itself if Docker is installed.
 
-To test other platform, use the Docker setup and scripts like `spec.sh RUBY FRAMEWORK`.
+To test other platform, use the Docker setup and scripts like `spec.sh RUBY_DOCKER_IMAGE FRAMEWORK`.
 
 ```sh
-$ spec/scripts/spec.sh ruby-2.6 rails-5.2
+$ spec/scripts/spec.sh ruby:2.6 rails-5.2
 ```
 
 ### Releasing

@@ -14,11 +14,11 @@ module ElasticAPM
           base = {
             id: error.id,
             transaction_id: error.transaction_id,
-            transaction: error.transaction,
+            transaction: build_transaction(error.transaction),
             trace_id: error.trace_id,
             parent_id: error.parent_id,
 
-            culprit: error.culprit,
+            culprit: keyword_field(error.culprit),
             timestamp: error.timestamp
           }
 
@@ -59,6 +59,15 @@ module ElasticAPM
             logger_name: keyword_field(log.logger_name),
             param_message: keyword_field(log.param_message),
             stacktrace: log.stacktrace.to_a
+          }
+        end
+
+        def build_transaction(transaction)
+          return unless transaction
+
+          {
+            sampled: transaction[:sampled],
+            type: keyword_field(transaction[:type])
           }
         end
       end

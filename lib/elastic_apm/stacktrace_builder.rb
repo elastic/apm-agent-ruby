@@ -21,7 +21,7 @@ module ElasticAPM
 
     def build(backtrace, type:)
       Stacktrace.new.tap do |s|
-        s.frames = backtrace.map do |line|
+        s.frames = backtrace[0...config.stack_trace_limit].map do |line|
           @cache[[line, type]]
         end
       end

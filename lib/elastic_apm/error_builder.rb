@@ -11,6 +11,8 @@ module ElasticAPM
       error = Error.new context: context || Context.new
       error.exception = Error::Exception.new(exception, handled: handled)
 
+      Util.reverse_merge!(error.context.tags, @agent.config.default_tags)
+
       if exception.backtrace
         add_stacktrace error, :exception, exception.backtrace
       end
@@ -50,12 +52,15 @@ module ElasticAPM
       error.culprit = stacktrace.frames.first.function
     end
 
-    # rubocop:disable Metrics/AbcSize
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def add_current_transaction_fields(error, transaction)
       return unless transaction
 
       error.transaction_id = transaction.id
-      error.transaction = { sampled: transaction.sampled? }
+      error.transaction = {
+        sampled: transaction.sampled?,
+        type: transaction.type
+      }
       error.trace_id = transaction.trace_id
       error.parent_id = ElasticAPM.current_span&.id || transaction.id
 
@@ -64,6 +69,6 @@ module ElasticAPM
       Util.reverse_merge!(error.context.tags, transaction.context.tags)
       Util.reverse_merge!(error.context.custom, transaction.context.custom)
     end
-    # rubocop:enable Metrics/AbcSize
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
   end
 end

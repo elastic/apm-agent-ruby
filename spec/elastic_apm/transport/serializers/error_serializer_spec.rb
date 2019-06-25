@@ -13,11 +13,8 @@ module ElasticAPM
         subject { described_class.new(config) }
 
         context 'with an exception', :mock_time do
-          let(:error) do
-            builder.build_exception(actual_exception)
-          end
-
           it 'matches format' do
+            error = builder.build_exception(actual_exception)
             result = subject.build(error).fetch(:error)
 
             expect(result).to include(
@@ -42,14 +39,15 @@ module ElasticAPM
           end
 
           context 'with a context' do
-            let(:error) do
+            it 'includes context' do
               env = Rack::MockRequest.env_for('/')
+
               context =
                 agent.context_builder.build(rack_env: env, for_type: :error)
-              builder.build_exception(actual_exception, context: context)
-            end
 
-            it 'includes context' do
+              error =
+                builder.build_exception(actual_exception, context: context)
+
               context = subject.build(error).fetch(:error).fetch(:context)
 
               expect(context).to include(
@@ -57,6 +55,26 @@ module ElasticAPM
                 tags: {},
                 user: nil,
                 request: be_a(Hash)
+              )
+            end
+          end
+
+          context 'with a transaction' do
+            it 'includes context' do
+              error = with_agent do
+                ElasticAPM.with_transaction do
+                  ErrorBuilder
+                    .new(ElasticAPM.agent)
+                    .build_exception(actual_exception)
+                end
+              end
+
+              transaction =
+                subject.build(error).fetch(:error).fetch(:transaction)
+
+              expect(transaction).to match(
+                sampled: true,
+                type: 'custom'
               )
             end
           end

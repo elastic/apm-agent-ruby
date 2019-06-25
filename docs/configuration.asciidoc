@@ -248,11 +248,21 @@ WARNING: Be aware that tags are indexed in Elasticsearch. Using too many unique 
 [[config-disable-send]]
 ==== `disable_send`
 |============
-| Environment | `Config` key   | Default
-| N/A         | `disable_send` | `false`
+| Environment                | `Config` key   | Default
+| `ELASTIC_APM_DISABLE_SEND` | `disable_send` | `false`
 |============
 
 Disables sending payloads to APM Server.
+
+[float]
+[[config-disable-start-message]]
+==== `disable_start_message`
+|============
+| Environment                         | `Config` key            | Default
+| `ELASTIC_APM_DISABLE_START_MESSAGE` | `disable_start_message` | `false`
+|============
+
+Disables the agent's startup message announcing itself.
 
 [float]
 [[config-disabled-spies]]
@@ -282,11 +292,14 @@ Get an array of enabled spies with `ElasticAPM.agent.config.enabled_spies`.
 The name of the environment this service is deployed in,
 e.g. "production" or "staging".
 
+Environments allow you to easily filter data on a global level in the APM UI.
+It's important to be consistent when naming environments across agents.
+See {kibana-ref}/filters.html#environment-selector[environment selector] in the Kibana UI for more information.
+
 Defaults to `ENV['RAILS_ENV'] || ENV['RACK_ENV']`.
 
-NOTE: Kibana will not differentiate between different environments. To avoid
-mixing data from multiple environments, consider appending the environment to
-`service_name`.
+NOTE: This feature is fully supported in the APM UI in Kibana versions >= 7.2.
+You must use the query bar to filter for a specific environment in versions prior to 7.2.
 
 [float]
 [[config-filter-exception-types]]
@@ -568,6 +581,18 @@ It has to be provided in *<<config-format-duration, duration format>>*.
 |============
 
 The path to a custom CA certificate for connecting to APM Server.
+
+[float]
+[[config-stack-trace-limit]]
+==== `stack_trace_limit`
+
+[options="header"]
+|============
+| Environment                     | `Config` key        | Default
+| `ELASTIC_APM_STACK_TRACE_LIMIT` | `stack_trace_limit` | `999999`
+|============
+
+The maximum number of stack trace lines per span/error.
 
 [float]
 [[config-transaction-max-spans]]

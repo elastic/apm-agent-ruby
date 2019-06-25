@@ -40,7 +40,7 @@ module ElasticAPM
           return unless response
 
           {
-            status_code: response.status_code,
+            status_code: response.status_code.to_i,
             headers: response.headers,
             headers_sent: response.headers_sent,
             finished: response.finished

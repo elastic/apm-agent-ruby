@@ -53,6 +53,7 @@ module ElasticAPM
       stop end_time
 
       build_stacktrace! if should_build_stacktrace?
+      self.original_backtrace = nil # release original
 
       self
     end
@@ -82,7 +83,6 @@ module ElasticAPM
 
     def build_stacktrace!
       @stacktrace = @stacktrace_builder.build(original_backtrace, type: :span)
-      self.original_backtrace = nil # release original
     end
 
     def should_build_stacktrace?

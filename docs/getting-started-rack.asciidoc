@@ -18,7 +18,7 @@ Create a file `config/elastic_apm.yml`:
 
 [source,yaml]
 ----
-server_url: http://localhost:8100
+server_url: http://localhost:8200
 secret_token: ''
 ----
 

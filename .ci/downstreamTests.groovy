@@ -83,7 +83,7 @@ pipeline {
         }
       }
     post {
-      always{
+      cleanup {
         script{
           if(rubyTasksGen?.results){
             writeJSON(file: 'results.json', json: toJSON(rubyTasksGen.results), pretty: 2)
@@ -93,71 +93,66 @@ pipeline {
             archiveArtifacts allowEmptyArchive: true, artifacts: 'results.json,results.html', defaultExcludes: false
           }
         }
-      }
-      success {
-        echoColor(text: '[SUCCESS]', colorfg: 'green', colorbg: 'default')
-      }
-      aborted {
-        echoColor(text: '[ABORTED]', colorfg: 'magenta', colorbg: 'default')
-      }
-      failure {
-        echoColor(text: '[FAILURE]', colorfg: 'red', colorbg: 'default')
-        step([$class: 'Mailer', notifyEveryUnstableBuild: true, recipients: "${NOTIFY_TO}", sendToIndividuals: false])
-      }
-      unstable {
-        echoColor(text: '[UNSTABLE]', colorfg: 'yellow', colorbg: 'default')
+        notifyBuildResult()
       }
     }
   }
 
-/**
-Parallel task generator for the integration tests.
-*/
-class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
-  
-  public RubyParallelTaskGenerator(Map params){
-    super(params)
-  }
-  
   /**
-  build a clousure that launch and agent and execute the corresponding test script,
-  then store the results.
+  Parallel task generator for the integration tests.
   */
-  public Closure generateStep(x, y){
-    return {
-      steps.sleep steps.randomNumber(min:10, max: 30)
-      steps.node('linux && immutable'){
-        def label = "${tag}:${x}#${y}"
-        try {
-          steps.runScript(label: label, ruby: x, framework: y)
-          saveResult(x, y, 1)
-        } catch(e){
-          saveResult(x, y, 0)
-          error("${label} tests failed : ${e.toString()}\n")
-        } finally {
-          steps.junit(allowEmptyResults: false,
-            keepLongStdio: true,
-            testResults: "**/spec/ruby-agent-junit.xml")
-          steps.codecov(repo: 'apm-agent-ruby', basedir: "${steps.env.BASE_DIR}")
+  class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
+
+    public RubyParallelTaskGenerator(Map params){
+      super(params)
+    }
+
+    /**
+    build a clousure that launch and agent and execute the corresponding test script,
+    then store the results.
+    */
+    public Closure generateStep(x, y){
+      return {
+        steps.sleep steps.randomNumber(min:10, max: 30)
+        steps.node('linux && immutable'){
+          // Label is transformed to avoid using the internal docker registry in the x coordinate
+          // TODO: def label = "${tag}:${x?.drop(x?.lastIndexOf('/')+1)}#${y}"
+          def label = "${tag}:${x}#${y}"
+          try {
+            steps.runScript(label: label, ruby: x, framework: y)
+            saveResult(x, y, 1)
+          } catch(e){
+            saveResult(x, y, 0)
+            steps.error("${label} tests failed : ${e.toString()}\n")
+          } finally {
+            steps.junit(allowEmptyResults: false,
+              keepLongStdio: true,
+              testResults: "**/spec/ruby-agent-junit.xml")
+            steps.codecov(repo: "${steps.env.REPO}", basedir: "${steps.env.BASE_DIR}",
+              secret: "${steps.env.CODECOV_SECRET}")
+          }
         }
       }
     }
   }
-}
 
-/**
-  Run tests for a Ruby version and framework version.
-*/
-def runScript(Map params = [:]){
-  log(level: 'INFO', text: "${params.label}")
-  env.HOME = "${env.WORKSPACE}"
-  env.PATH = "${env.PATH}:${env.WORKSPACE}/bin"
-  deleteDir()
-  unstash 'source'
-  dir("${BASE_DIR}"){
-    retry(2){
-      sleep randomNumber(min:10, max: 30)
-      sh("./spec/scripts/spec.sh ${params.ruby} ${params.framework}")
+  /**
+    Run tests for a Ruby version and framework version.
+  */
+  def runScript(Map params = [:]){
+    def label = params.label
+    def ruby = params.ruby
+    def framework = params.framework
+    log(level: 'INFO', text: "${label}")
+    env.HOME = "${env.WORKSPACE}"
+    env.PATH = "${env.PATH}:${env.WORKSPACE}/bin"
+    deleteDir()
+    unstash 'source'
+    dir("${BASE_DIR}"){
+      retry(2){
+        sleep randomNumber(min:10, max: 30)
+        dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
+        sh("./spec/scripts/spec.sh ${ruby} ${framework}")
+      }
     }
   }
-}

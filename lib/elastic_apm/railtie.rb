@@ -23,7 +23,10 @@ module ElasticAPM
     end
 
     config.after_initialize do
-      require 'elastic_apm/spies/action_dispatch'
+      if ElasticAPM.running? &&
+         !ElasticAPM.agent.config.disabled_spies.include?('action_dispatch')
+        require 'elastic_apm/spies/action_dispatch'
+      end
     end
 
     private
@@ -31,8 +34,10 @@ module ElasticAPM
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def start(config)
       if (reason = should_skip?(config))
-        config.alert_logger.info "Skipping because: #{reason}. " \
-          "Start manually with `ElasticAPM.start'"
+        unless config.disable_start_message?
+          config.alert_logger.info "Skipping because: #{reason}. " \
+            "Start manually with `ElasticAPM.start'"
+        end
         return
       end
 
@@ -46,7 +51,7 @@ module ElasticAPM
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def should_skip?(_config)
-      if Rails.const_defined? :Console
+      if Rails.const_defined? 'Rails::Console'
         return 'Rails console'
       end
 

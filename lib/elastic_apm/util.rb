@@ -21,8 +21,10 @@ module ElasticAPM
       str.hex.to_s(2).rjust(str.size * 4, '0')
     end
 
-    def self.reverse_merge!(first, second)
-      first.merge!(second) { |_, old, _| old }
+    def self.reverse_merge!(first, *others)
+      others.reduce(first) do |curr, other|
+        curr.merge!(other) { |_, _, new| new }
+      end
     end
 
     def self.truncate(value, max_length: 1024)
