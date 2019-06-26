@@ -72,7 +72,7 @@ pipeline {
                 yKey: 'FRAMEWORK',
                 xFile: ".ci/.jenkins_ruby.yml",
                 yFile: ".ci/.jenkins_framework.yml",
-                exclusionFile: "./spec/.jenkins_exclude.yml",
+                exclusionFile: ".ci/.jenkins_exclude.yml",
                 tag: "Ruby",
                 name: "Ruby",
                 steps: this

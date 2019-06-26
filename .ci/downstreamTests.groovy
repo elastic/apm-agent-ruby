@@ -19,6 +19,9 @@ pipeline {
     NOTIFY_TO = credentials('notify-to')
     JOB_GCS_BUCKET = credentials('gcs-bucket')
     JOB_GIT_CREDENTIALS = "f6c7695a-671e-4f4f-a331-acdce44ff9ba"
+    DOCKER_REGISTRY = 'docker.elastic.co'
+    DOCKER_SECRET = 'secret/apm-team/ci/docker-registry/prod'
+    CODECOV_SECRET = 'secret/apm-team/ci/apm-agent-ruby-codecov'
   }
   options {
     timeout(time: 2, unit: 'HOURS')
@@ -31,7 +34,7 @@ pipeline {
     quietPeriod(10)
   }
   parameters {
-    string(name: 'RUBY_VERSION', defaultValue: "ruby-2.6", description: "Ruby version to test")
+    string(name: 'RUBY_VERSION', defaultValue: "ruby:2.6", description: "Ruby version to test")
     string(name: 'BRANCH_SPECIFIER', defaultValue: "master", description: "Git branch/tag to use")
     string(name: 'CHANGE_TARGET', defaultValue: "master", description: "Git branch/tag to merge before building")
   }
@@ -65,7 +68,7 @@ pipeline {
         dir("${BASE_DIR}"){
           script {
             rubyTasksGen = new RubyParallelTaskGenerator(
-              xVersions: [ "${RUBY_VERSION}" ],
+              xVersions: [ "${params.RUBY_VERSION}" ],
               yKey: 'FRAMEWORK',
               yFile: ".ci/.jenkins_framework.yml",
               exclusionFile: ".ci/.jenkins_exclude.yml",
