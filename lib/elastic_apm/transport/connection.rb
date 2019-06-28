@@ -136,6 +136,9 @@ module ElasticAPM
         OpenSSL::SSL::SSLContext.new.tap do |context|
           if @config.server_ca_cert
             context.ca_file = @config.server_ca_cert
+          else
+            context.cert_store =
+              OpenSSL::X509::Store.new.tap(&:set_default_paths)
           end
 
           context.verify_mode =

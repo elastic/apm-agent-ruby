@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased (2019-06-28)
+
+### Fixed
+
+- Use system CA certificate if none is specified ([#460](https://github.com/elastic/apm-agent-ruby/pull/460))
+
 ## 2.9.0 (2019-06-25)
 
 ### Security
