@@ -1,12 +1,16 @@
 # frozen_string_literal: true
 
+require 'elastic_apm/error'
+
 require 'elastic_apm/context_builder'
 require 'elastic_apm/error_builder'
 require 'elastic_apm/stacktrace_builder'
-require 'elastic_apm/error'
+
+require 'elastic_apm/central_config'
 require 'elastic_apm/transport/base'
-require 'elastic_apm/spies'
 require 'elastic_apm/metrics'
+
+require 'elastic_apm/spies'
 
 module ElasticAPM
   # rubocop:disable Metrics/ClassLength
@@ -57,6 +61,7 @@ module ElasticAPM
       !!@instance
     end
 
+    # rubocop:disable Metrics/MethodLength
     def initialize(config)
       @config = config
 
@@ -64,6 +69,7 @@ module ElasticAPM
       @context_builder = ContextBuilder.new(config)
       @error_builder = ErrorBuilder.new(self)
 
+      @central_config = CentralConfig.new(config)
       @transport = Transport::Base.new(config)
       @instrumenter = Instrumenter.new(
         config,
@@ -71,6 +77,7 @@ module ElasticAPM
       ) { |event| enqueue event }
       @metrics = Metrics.new(config) { |event| enqueue event }
     end
+    # rubocop:enable Metrics/MethodLength
 
     attr_reader :config, :transport, :instrumenter,
       :stacktrace_builder, :context_builder, :error_builder, :metrics
