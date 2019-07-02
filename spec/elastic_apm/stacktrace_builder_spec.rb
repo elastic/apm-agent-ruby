@@ -86,7 +86,7 @@ module ElasticAPM
     context 'determining lib frames' do
       [
         # rubocop:disable Metrics/LineLength
-        [false, "#{Config.new.root_path}/app/controllers/somethings_controller.rb:5:in `render'"],
+        [false, "#{Config.new.__root_path}/app/controllers/somethings_controller.rb:5:in `render'"],
         [true, "/Users/someone/.rubies/ruby-2.5.0/lib/ruby/2.5.0/irb/workspace.rb:85:in `eval'"],
         [true, "/usr/local/lib/ruby/site_ruby/2.5.0/bundler/friendly_errors.rb:122:in `yield'"],
         [true, "/Users/someone/.gem/ruby/2.5.0/gems/railties-5.1.5/lib/rails.rb:24:in `whatever'"],

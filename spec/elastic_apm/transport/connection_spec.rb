@@ -139,7 +139,7 @@ module ElasticAPM
           let(:config) { Config.new(http_compression: false) }
 
           before do
-            config.api_request_size = metadata.to_json.bytesize + 1
+            config.api_request_size = "#{metadata.to_json.bytesize + 1}b"
           end
 
           it 'closes requests when reached' do

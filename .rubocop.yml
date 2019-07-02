@@ -83,3 +83,6 @@ Naming/MemoizedInstanceVariableName:
 
 Style/SpecialGlobalVars:
   Enabled: false
+
+Style/MissingRespondToMissing:
+  Enabled: false
