@@ -34,7 +34,7 @@ RSpec.configure do |config|
   config.include ElasticSubscribers
 
   if config.files_to_run.one?
-    config.default_formatter = "documentation"
+    config.default_formatter = 'documentation'
   end
 
   unless ENV['INCLUDE_SCHEMA_SPECS']

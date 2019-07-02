@@ -180,14 +180,16 @@ module ElasticAPM
 
       context 'from args' do
         it 'warns' do
-          expect_any_instance_of(Config).to receive(:warn).with(/Unknown option/)
+          expect_any_instance_of(Config)
+            .to receive(:warn).with(/Unknown option/)
           Config.new(unknown_key: true)
         end
       end
 
       context 'from config_file' do
         it 'warns' do
-          expect_any_instance_of(Config).to receive(:warn).with(/Unknown option/).twice
+          expect_any_instance_of(Config)
+            .to receive(:warn).with(/Unknown option/).twice
           Config.new(config_file: 'spec/fixtures/unknown_option.yml')
         end
       end

@@ -12,6 +12,7 @@ require 'elastic_apm/config/bytes'
 require 'elastic_apm/config/regexp_list'
 
 module ElasticAPM
+  # rubocop:disable Metrics/ClassLength
   # @api private
   class Config
     extend Options
@@ -194,7 +195,7 @@ module ElasticAPM
     end
 
     def inspect
-      super.split.first + ">"
+      super.split.first + '>'
     end
 
     private
@@ -260,9 +261,5 @@ module ElasticAPM
       str && str.gsub('::', '_')
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end
-
-# def span_frames_min_duration=(duration)
-#   @span_frames_min_duration = duration
-#   @span_frames_min_duration_us = duration * 1_000_000
-# end

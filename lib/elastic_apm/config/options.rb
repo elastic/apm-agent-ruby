@@ -33,7 +33,7 @@ module ElasticAPM
 
         private
 
-        # rubocop:disable Metrics/CyclomaticComplexity
+        # rubocop:disable Metrics/CyclomaticComplexity, Metrics/MethodLength
         def normalize(val)
           return unless val
 
@@ -53,7 +53,7 @@ module ElasticAPM
             val
           end
         end
-        # rubocop:enable Metrics/CyclomaticComplexity
+        # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
 
         def normalize_bool(val)
           return val unless val.is_a?(String)
