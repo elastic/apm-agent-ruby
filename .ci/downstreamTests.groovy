@@ -36,7 +36,7 @@ pipeline {
   parameters {
     string(name: 'RUBY_VERSION', defaultValue: "ruby:2.6", description: "Ruby version to test")
     string(name: 'BRANCH_SPECIFIER', defaultValue: "master", description: "Git branch/tag to use")
-    string(name: 'CHANGE_TARGET', defaultValue: "master", description: "Git branch/tag to merge before building")
+    string(name: 'MERGE_TARGET', defaultValue: "master", description: "Git branch/tag to merge before building")
   }
   stages {
     /**
@@ -51,7 +51,7 @@ pipeline {
           branch: "${params.BRANCH_SPECIFIER}",
           repo: "${REPO}",
           credentialsId: "${JOB_GIT_CREDENTIALS}",
-          mergeTarget: "${params.CHANGE_TARGET}",
+          mergeTarget: "${params.MERGE_TARGET}",
           reference: '/var/lib/jenkins/apm-agent-ruby.git')
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
@@ -69,6 +69,7 @@ pipeline {
           script {
             rubyTasksGen = new RubyParallelTaskGenerator(
               xVersions: [ "${params.RUBY_VERSION}" ],
+              xKey: 'RUBY_VERSION',
               yKey: 'FRAMEWORK',
               yFile: ".ci/.jenkins_framework.yml",
               exclusionFile: ".ci/.jenkins_exclude.yml",
@@ -92,6 +93,11 @@ pipeline {
           def processor = new ResultsProcessor()
           processor.processResults(mapResults)
           archiveArtifacts allowEmptyArchive: true, artifacts: 'results.json,results.html', defaultExcludes: false
+          catchError(buildResult: 'SUCCESS') {
+            def datafile = readFile(file: "results.json")
+            def json = getVaultSecret(secret: 'secret/apm-team/ci/jenkins-stats-cloud')
+            sendDataToElasticsearch(es: json.data.url, data: datafile, restCall: '/jenkins-builds-ruby-test-results/_doc/')
+          }
         }
       }
       notifyBuildResult()
@@ -126,7 +132,7 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
           saveResult(x, y, 0)
           steps.error("${label} tests failed : ${e.toString()}\n")
         } finally {
-          steps.junit(allowEmptyResults: false,
+          steps.junit(allowEmptyResults: true,
             keepLongStdio: true,
             testResults: "**/spec/ruby-agent-junit.xml")
           steps.codecov(repo: "${steps.env.REPO}", basedir: "${steps.env.BASE_DIR}",
