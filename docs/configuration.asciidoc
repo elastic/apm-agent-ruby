@@ -62,7 +62,7 @@ Some options can be set with `ENV` variables and all of them may be set in
 your source code.
 
 When setting values for lists using `ENV` variables, strings are split by comma
-eg `ELASTIC_APM_ENABLED_ENVIRONMENTS=development,production`.
+eg `ELASTIC_APM_CUSTOM_KEY_FILTERS="a,b" # => [/a/, /b/]`.
 
 [float]
 [[config-config-file]]
