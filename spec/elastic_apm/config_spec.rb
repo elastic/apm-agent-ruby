@@ -25,12 +25,9 @@ module ElasticAPM
     end
 
     it 'takes options from ENV' do
-      ENV['ELASTIC_APM_SERVER_URL'] = 'by-env!'
-      config = Config.new
-
-      expect(config.server_url).to eq 'by-env!'
-
-      ENV.delete('ELASTIC_APM_SERVER_URL') # clean up
+      with_env('ELASTIC_APM_SERVER_URL' => 'by-env!') do
+        expect(Config.new.server_url).to eq 'by-env!'
+      end
     end
 
     it 'converts certain env values to Ruby types' do
@@ -153,24 +150,22 @@ module ElasticAPM
 
     describe 'deprecations' do
       it 'warns about removed options' do
-        expect_any_instance_of(PrefixedLogger)
-          .to receive(:warn).with(/has been removed/)
-
+        expect(subject).to receive(:warn).with(/has been removed/)
         subject.flush_interval = 123
       end
 
       it 'warns about boolean value for capture_body' do
-        expect_any_instance_of(PrefixedLogger)
-          .to receive(:warn).with(/Boolean value.*deprecated./).twice
+        expect(subject).to receive(:warn).with(/Boolean value.*deprecated./)
 
         subject.capture_body = true
         expect(subject.capture_body).to be 'all'
 
+        expect(subject).to receive(:warn).with(/Boolean value.*deprecated./)
+
         subject.capture_body = false
         expect(subject.capture_body).to be 'off'
 
-        expect_any_instance_of(PrefixedLogger)
-          .to receive(:warn).with(/Unknown value/)
+        expect(subject).to receive(:warn).with(/Unknown value/)
 
         subject.capture_body = :oh_no
         expect(subject.capture_body).to be 'off'
@@ -178,15 +173,23 @@ module ElasticAPM
     end
 
     describe 'unknown options' do
-      before { expect_any_instance_of(PrefixedLogger).to receive(:warn) }
+      it 'warns' do
+        expect(subject).to receive(:warn).with(/Unknown option/)
+        subject.unknown_option = 'whatever'
+      end
 
       context 'from args' do
-        it 'logs to the alert logger' do
+        it 'warns' do
+          expect_any_instance_of(Config)
+            .to receive(:warn).with(/Unknown option/)
           Config.new(unknown_key: true)
         end
       end
+
       context 'from config_file' do
-        it 'logs to the alert logger' do
+        it 'warns' do
+          expect_any_instance_of(Config)
+            .to receive(:warn).with(/Unknown option/).twice
           Config.new(config_file: 'spec/fixtures/unknown_option.yml')
         end
       end

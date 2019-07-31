@@ -7,6 +7,7 @@ require 'elastic_apm/transport/connection/http'
 
 module ElasticAPM
   module Transport
+    # rubocop:disable Metrics/ClassLength
     # @api private
     class Connection
       include Logging
@@ -150,5 +151,6 @@ module ElasticAPM
         end
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end
