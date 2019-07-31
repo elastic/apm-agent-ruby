@@ -36,11 +36,11 @@ module ElasticAPM
 
     private
 
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def start(config)
       if (reason = should_skip?(config))
         unless config.disable_start_message?
-          warn "Skipping because: #{reason}. " \
+          config.logger.info "Skipping because: #{reason}. " \
             "Start manually with `ElasticAPM.start'"
         end
         return
@@ -50,10 +50,10 @@ module ElasticAPM
         attach_subscriber(agent)
       end
     rescue StandardError => e
-      warn format('Failed to start: %s', e.message)
-      warn "Backtrace:\n" + e.backtrace.join("\n")
+      config.logger.error format('Failed to start: %s', e.message)
+      config.logger.debug "Backtrace:\n" + e.backtrace.join("\n")
     end
-    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def should_skip?(_config)
       if Rails.const_defined? 'Rails::Console'
