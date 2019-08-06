@@ -61,7 +61,7 @@ module ElasticAPM
           Span::Context.new(
             db: {
               instance: event.database_name,
-              statement: ("#{collection}.#{event.command_name}" if collection),
+              statement: (collection && "#{collection}.#{event.command_name}"),
               type: 'mongodb',
               user: nil
             }

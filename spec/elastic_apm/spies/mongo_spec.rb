@@ -4,13 +4,11 @@ require 'mongo'
 
 module ElasticAPM
   RSpec.describe 'Spy: MongoDB' do
-    before(:all) do
+    before(:context) do
       start_mongodb
-      ElasticAPM.start
     end
 
-    after(:all) do
-      ElasticAPM.stop
+    after(:context) do
       stop_mongodb
     end
 
@@ -28,7 +26,7 @@ module ElasticAPM
     end
 
     it 'instruments db admin commands', :intercept do
-
+      ElasticAPM.start
       client =
         Mongo::Client.new(
           [url],
@@ -54,10 +52,12 @@ module ElasticAPM
       expect(db.user).to be nil
 
       client.close
+
+      ElasticAPM.stop
     end
 
     it 'instruments commands on collections', :intercept do
-
+      ElasticAPM.start
       client =
         Mongo::Client.new(
           [url],
@@ -83,6 +83,8 @@ module ElasticAPM
       expect(db.user).to be nil
 
       client.close
+
+      ElasticAPM.stop
     end
   end
 end
