@@ -4,9 +4,13 @@ require 'mongo'
 
 module ElasticAPM
   RSpec.describe 'Spy: MongoDB' do
-    around do |ex|
+    before(:all) do
       start_mongodb
-      ex.run
+      ElasticAPM.start
+    end
+
+    after(:all) do
+      ElasticAPM.stop
       stop_mongodb
     end
 
@@ -19,10 +23,12 @@ module ElasticAPM
       `docker-compose -f spec/docker-compose.yml up -d mongodb 2>&1`
     end
 
-    it 'instruments calls', :intercept do
-      ElasticAPM.start
+    let(:url) do
+      ENV.fetch('MONGODB_URL') { '127.0.0.1:27017' }
+    end
 
-      url = ENV.fetch('MONGODB_URL') { '127.0.0.1:27017' }
+    it 'instruments db admin commands', :intercept do
+
       client =
         Mongo::Client.new(
           [url],
@@ -48,8 +54,35 @@ module ElasticAPM
       expect(db.user).to be nil
 
       client.close
+    end
 
-      ElasticAPM.stop
+    it 'instruments commands on collections', :intercept do
+
+      client =
+        Mongo::Client.new(
+          [url],
+          database: 'elastic-apm-test',
+          logger: Logger.new(nil),
+          server_selection_timeout: 5
+        )
+
+      ElasticAPM.with_transaction 'Mongo test' do
+        client['testing'].find.to_a
+      end
+
+      span, = @intercepted.spans
+
+      expect(span.name).to eq 'find'
+      expect(span.type).to eq 'db.mongodb.query'
+      expect(span.duration).to_not be_nil
+
+      db = span.context.db
+      expect(db.instance).to eq 'elastic-apm-test'
+      expect(db.type).to eq 'mongodb'
+      expect(db.statement).to eq 'testing.find'
+      expect(db.user).to be nil
+
+      client.close
     end
   end
 end

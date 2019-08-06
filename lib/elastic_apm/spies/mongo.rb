@@ -55,10 +55,13 @@ module ElasticAPM
         end
 
         def build_context(event)
+          # Some MongoDB commands are not on collections but rather db admin commands.
+          # For these commands, the value at the `command_name` key is the integer 1.
+          collection = event.command[event.command_name] unless event.command[event.command_name] == 1
           Span::Context.new(
             db: {
               instance: event.database_name,
-              statement: nil,
+              statement: ("#{collection}.#{event.command_name}" if collection),
               type: 'mongodb',
               user: nil
             }
