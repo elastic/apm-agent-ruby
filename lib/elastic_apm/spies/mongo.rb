@@ -36,7 +36,7 @@ module ElasticAPM
 
         def push_event(event)
           return unless ElasticAPM.current_transaction
-          collection = event.command[event.command_name] != 1 && event.command[event.command_name]
+          collection = event.command[event.command_name] unless event.command[event.command_name] == 1
           name = [event.database_name, collection, event.command_name].compact.join('.')
 
           span =
