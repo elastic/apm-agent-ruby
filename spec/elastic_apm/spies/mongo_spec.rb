@@ -48,7 +48,7 @@ module ElasticAPM
       db = span.context.db
       expect(db.instance).to eq 'elastic-apm-test'
       expect(db.type).to eq 'mongodb'
-      expect(db.statement).to include('{"listCollections"=>1, "cursor"=>{}, "nameOnly"=>true,')
+      expect(db.statement).to include '{"listCollections"=>1, "cursor"=>{}, "nameOnly"=>true,'
       expect(db.user).to be nil
 
       client.close
@@ -82,7 +82,7 @@ module ElasticAPM
       expect(db.instance).to eq 'elastic-apm-test'
       expect(db.type).to eq 'mongodb'
       # ParallelCollectionScan doesn't send 'lsid' in the command so we can validate the entire command document.
-      expect(db.statement).to eq "#{BSON::Document.new('parallelCollectionScan' => 'testing', 'numCursors' => 1)}"
+      expect(db.statement).to eq '{"parallelCollectionScan"=>"testing", "numCursors"=>1}'
       expect(db.user).to be nil
 
       client.close
@@ -113,7 +113,7 @@ module ElasticAPM
       db = span.context.db
       expect(db.instance).to eq 'elastic-apm-test'
       expect(db.type).to eq 'mongodb'
-      expect(db.statement).to include("#{BSON::Document.new('a' => BSON::Decimal128.new('1'))}")
+      expect(db.statement).to include '{"a"=>BSON::Decimal128(\'1\')}'
       expect(db.user).to be nil
 
       client.close
