@@ -36,10 +36,12 @@ module ElasticAPM
 
         def push_event(event)
           return unless ElasticAPM.current_transaction
+          collection = event.command[event.command_name] != 1 && event.command[event.command_name]
+          name = [event.database_name, collection, event.command_name].compact.join('.')
 
           span =
             ElasticAPM.start_span(
-              event.command_name.to_s,
+              name,
               TYPE,
               context: build_context(event)
             )
@@ -61,7 +63,7 @@ module ElasticAPM
           Span::Context.new(
             db: {
               instance: event.database_name,
-              statement: (collection && "#{collection}.#{event.command_name}"),
+              statement: event.command.inspect,
               type: 'mongodb',
               user: nil
             }
