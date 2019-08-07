@@ -41,14 +41,14 @@ module ElasticAPM
 
       span, = @intercepted.spans
 
-      expect(span.name).to eq 'listCollections'
+      expect(span.name).to eq 'elastic-apm-test.listCollections'
       expect(span.type).to eq 'db.mongodb.query'
       expect(span.duration).to_not be_nil
 
       db = span.context.db
       expect(db.instance).to eq 'elastic-apm-test'
       expect(db.type).to eq 'mongodb'
-      expect(db.statement).to be nil
+      expect(db.statement).to include('{"listCollections"=>1, "cursor"=>{}, "nameOnly"=>true,')
       expect(db.user).to be nil
 
       client.close
@@ -66,20 +66,54 @@ module ElasticAPM
           server_selection_timeout: 5
         )
 
+      # ParallelCollectionScan can only be run on an existing collection.
+      client['testing'].create
       ElasticAPM.with_transaction 'Mongo test' do
-        client['testing'].find.to_a
+        client['testing'].parallel_scan(1).to_a
       end
 
       span, = @intercepted.spans
 
-      expect(span.name).to eq 'find'
+      expect(span.name).to eq 'elastic-apm-test.testing.parallelCollectionScan'
       expect(span.type).to eq 'db.mongodb.query'
       expect(span.duration).to_not be_nil
 
       db = span.context.db
       expect(db.instance).to eq 'elastic-apm-test'
       expect(db.type).to eq 'mongodb'
-      expect(db.statement).to eq 'testing.find'
+      # ParallelCollectionScan doesn't send 'lsid' in the command so we can validate the entire command document.
+      expect(db.statement).to eq "#{BSON::Document.new('parallelCollectionScan' => 'testing', 'numCursors' => 1)}"
+      expect(db.user).to be nil
+
+      client.close
+
+      ElasticAPM.stop
+    end
+
+    it 'instruments commands containing special BSON types on collections', :intercept do
+      ElasticAPM.start
+      client =
+          Mongo::Client.new(
+              [url],
+              database: 'elastic-apm-test',
+              logger: Logger.new(nil),
+              server_selection_timeout: 5
+          )
+
+      ElasticAPM.with_transaction 'Mongo test' do
+        client['testing'].find(a: BSON::Decimal128.new('1')).to_a
+      end
+
+      span, = @intercepted.spans
+
+      expect(span.name).to eq 'elastic-apm-test.testing.find'
+      expect(span.type).to eq 'db.mongodb.query'
+      expect(span.duration).to_not be_nil
+
+      db = span.context.db
+      expect(db.instance).to eq 'elastic-apm-test'
+      expect(db.type).to eq 'mongodb'
+      expect(db.statement).to include("#{BSON::Document.new('a' => BSON::Decimal128.new('1'))}")
       expect(db.user).to be nil
 
       client.close
