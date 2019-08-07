@@ -63,7 +63,7 @@ module ElasticAPM
           Span::Context.new(
             db: {
               instance: event.database_name,
-              statement: event.command.inspect,
+              statement: event.command.to_s,
               type: 'mongodb',
               user: nil
             }
