@@ -38,9 +38,7 @@ module ElasticAPM
     end
 
     def fetch_and_apply_config
-      @task&.cancel
-      @task =
-        Concurrent::Promise
+      Concurrent::Promise
         .execute(&method(:fetch_config))
         .on_success(&method(:handle_success))
         .rescue(&method(:handle_error))
@@ -68,10 +66,14 @@ module ElasticAPM
     # rubocop:enable Metrics/MethodLength
 
     def assign(update)
+      # For each updated option, store the original value,
+      # unless already stored
       update.each_key do |key|
         @modified_options[key] ||= config.get(key.to_sym)&.value
       end
 
+      # If the new update doesn't set a previously modified option,
+      # revert it to the original
       @modified_options.each_key do |key|
         next if update.key?(key)
         update[key] = @modified_options.delete(key)
@@ -82,16 +84,12 @@ module ElasticAPM
 
     private
 
-    # rubocop:disable Metrics/MethodLength
     def handle_success(resp)
-      update =
-        if !resp.body.empty?
-          JSON.parse(resp.body.to_s)
-        else
-          {}
-        end
-
-      assign(update)
+      # 304 Not Modified
+      unless resp.status == 304
+        update = JSON.parse(resp.body.to_s)
+        assign(update)
+      end
 
       info 'Updated config from APM Server'
 
@@ -102,7 +100,6 @@ module ElasticAPM
       error 'Failed to apply remote config, %s', e.inspect
       debug { e.backtrace.join('\n') }
     end
-    # rubocop:enable Metrics/MethodLength
 
     def handle_error(error)
       error(

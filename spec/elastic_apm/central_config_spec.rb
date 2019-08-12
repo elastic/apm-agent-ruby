@@ -82,7 +82,16 @@ module ElasticAPM
       end
 
       context 'when server responds 304' do
-        it 'schedules a new poll' do
+        it 'doesn\'t restore config, schedules a new poll' do
+          stub_response(
+            { transaction_sample_rate: 0.5 },
+            headers: { 'Cache-Control': 'must-revalidate, max-age=0.1' }
+          )
+
+          subject.fetch_and_apply_config
+
+          sleep 0.1
+
           stub_response(
             nil,
             status: 304,
@@ -94,6 +103,7 @@ module ElasticAPM
 
           expect(subject.task).to be_pending
           expect(subject.task.initial_delay).to eq 123
+          expect(config.transaction_sample_rate).to eq 0.5
         end
       end
 
