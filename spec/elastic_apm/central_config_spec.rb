@@ -38,20 +38,6 @@ module ElasticAPM
         expect(config.transaction_sample_rate).to eq(0.5)
       end
 
-      it 'reverts config if later changed' do
-        stub_response(transaction_sample_rate: '0.5')
-
-        subject.fetch_and_apply_config
-        sleep 0.2
-
-        stub_response({})
-
-        subject.fetch_and_apply_config
-        sleep 0.2
-
-        expect(config.transaction_sample_rate).to eq(1.0)
-      end
-
       it 'reverts config if later 404' do
         stub_response(transaction_sample_rate: '0.5')
 
