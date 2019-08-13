@@ -74,7 +74,7 @@ module ElasticAPM
                 module: 'Errno',
                 code: nil,
                 attributes: nil,
-                stacktrace: be_an(Array),
+                stacktrace: eq([]),
                 handled: nil,
                 cause: be_a(Hash)
               )
@@ -86,7 +86,7 @@ module ElasticAPM
                 module: '',
                 code: nil,
                 attributes: nil,
-                stacktrace: be_an(Array),
+                stacktrace: eq([]),
                 handled: nil,
                 cause: nil
               )
