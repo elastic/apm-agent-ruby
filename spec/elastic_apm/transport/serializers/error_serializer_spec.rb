@@ -34,8 +34,63 @@ module ElasticAPM
               code: nil,
               attributes: nil,
               stacktrace: be_an(Array),
-              handled: true
+              handled: true,
+              cause: nil
             )
+          end
+
+          context 'with an exception chain', :mock_time do
+            it 'matches format' do
+              error = builder.build_exception(actual_chained_exception)
+              result = subject.build(error).fetch(:error)
+
+              expect(result).to include(
+                id: be_a(String),
+                culprit: be_a(String),
+                timestamp: 694_224_000_000_000,
+                parent_id: nil,
+                trace_id: nil,
+                transaction_id: nil,
+                transaction: nil
+              )
+
+              exception = result.fetch(:exception)
+              expect(exception).to include(
+                message: "NoMethodError: undefined method `merge' for []:Array",
+                type: 'NoMethodError',
+                module: '',
+                code: nil,
+                attributes: nil,
+                stacktrace: be_an(Array),
+                handled: true,
+                cause: be_a(Hash)
+              )
+
+              cause1 = exception.fetch(:cause)
+              expect(cause1).to include(
+                message: 'Errno::ENOENT: No such file or directory ' \
+                  '@ rb_sysopen - gotcha',
+                type: 'Errno::ENOENT',
+                module: 'Errno',
+                code: nil,
+                attributes: nil,
+                stacktrace: be_an(Array),
+                handled: nil,
+                cause: be_a(Hash)
+              )
+
+              cause2 = cause1.fetch(:cause)
+              expect(cause2).to include(
+                message: 'ZeroDivisionError: divided by 0',
+                type: 'ZeroDivisionError',
+                module: '',
+                code: nil,
+                attributes: nil,
+                stacktrace: be_an(Array),
+                handled: nil,
+                cause: nil
+              )
+            end
           end
 
           context 'with a context' do
