@@ -34,12 +34,18 @@ module ElasticAPM
 
         private
 
+        # rubocop:disable Metrics/MethodLength
         def push_event(event)
           return unless ElasticAPM.current_transaction
-          # Some MongoDB commands are not on collections but rather db admin commands.
-          # For these commands, the value at the `command_name` key is the integer 1.
-          collection = event.command[event.command_name] unless event.command[event.command_name] == 1
-          name = [event.database_name, collection, event.command_name].compact.join('.')
+          # Some MongoDB commands are not on collections but rather are db
+          # admin commands. For these commands, the value at the `command_name`
+          # key is the integer 1.
+          unless event.command[event.command_name] == 1
+            collection = event.command[event.command_name]
+          end
+          name = [event.database_name,
+                  collection,
+                  event.command_name].compact.join('.')
 
           span =
             ElasticAPM.start_span(
@@ -50,6 +56,7 @@ module ElasticAPM
 
           @events[event.operation_id] = span
         end
+        # rubocop:enable Metrics/MethodLength
 
         def pop_event(event)
           return unless (curr = ElasticAPM.current_span)
