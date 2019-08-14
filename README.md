@@ -11,6 +11,7 @@ The official Rubygem for [Elastic][] [APM][].
 
 ## Documentation
 
+
 [Full documentation at elastic.co](https://www.elastic.co/guide/en/apm/agent/ruby/2.x/index.html).
 
 <ul>
