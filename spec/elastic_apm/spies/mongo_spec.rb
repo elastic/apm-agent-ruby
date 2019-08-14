@@ -48,7 +48,8 @@ module ElasticAPM
       db = span.context.db
       expect(db.instance).to eq 'elastic-apm-test'
       expect(db.type).to eq 'mongodb'
-      expect(db.statement).to include '{"listCollections"=>1, "cursor"=>{}, "nameOnly"=>true,'
+      expect(db.statement).to include '{"listCollections"=>1, "cursor"=>{}, ' \
+        '"nameOnly"=>true'
       expect(db.user).to be nil
 
       client.close
@@ -81,8 +82,10 @@ module ElasticAPM
       db = span.context.db
       expect(db.instance).to eq 'elastic-apm-test'
       expect(db.type).to eq 'mongodb'
-      # ParallelCollectionScan doesn't send 'lsid' in the command so we can validate the entire command document.
-      expect(db.statement).to eq '{"parallelCollectionScan"=>"testing", "numCursors"=>1}'
+      # ParallelCollectionScan doesn't send 'lsid' in the command so we can
+      # validate the entire command document.
+      expect(db.statement).to eq '{"parallelCollectionScan"=>"testing", ' \
+        '"numCursors"=>1}'
       expect(db.user).to be nil
 
       client.close
@@ -90,15 +93,15 @@ module ElasticAPM
       ElasticAPM.stop
     end
 
-    it 'instruments commands containing special BSON types on collections', :intercept do
+    it 'instruments commands with special BSON types', :intercept do
       ElasticAPM.start
       client =
-          Mongo::Client.new(
-              [url],
-              database: 'elastic-apm-test',
-              logger: Logger.new(nil),
-              server_selection_timeout: 5
-          )
+        Mongo::Client.new(
+          [url],
+          database: 'elastic-apm-test',
+          logger: Logger.new(nil),
+          server_selection_timeout: 5
+        )
 
       ElasticAPM.with_transaction 'Mongo test' do
         client['testing'].find(a: BSON::Decimal128.new('1')).to_a
