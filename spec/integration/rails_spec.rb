@@ -291,7 +291,7 @@ if defined?(Rails)
         config.eager_load = false
 
         # silence warning
-        config.elastic_apm.alert_logger = Logger.new(nil)
+        config.elastic_apm.disable_start_message = true
       end
 
       class ApplicationController < ActionController::Base

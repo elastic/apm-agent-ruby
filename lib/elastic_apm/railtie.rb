@@ -7,10 +7,15 @@ module ElasticAPM
   class Railtie < Rails::Railtie
     config.elastic_apm = ActiveSupport::OrderedOptions.new
 
-    Config::DEFAULTS.each { |option, value| config.elastic_apm[option] = value }
+    Config.schema.each do |key, args|
+      next unless args.length > 1
+      config.elastic_apm[key] = args.last[:default]
+    end
 
     initializer 'elastic_apm.initialize' do |app|
-      config = Config.new(app.config.elastic_apm.merge(app: app)).tap do |c|
+      config = Config.new(app.config.elastic_apm).tap do |c|
+        c.app = app
+
         # Prepend Rails.root to log_path if present
         if c.log_path && !c.log_path.start_with?('/')
           c.log_path = Rails.root.join(c.log_path)
@@ -35,7 +40,7 @@ module ElasticAPM
     def start(config)
       if (reason = should_skip?(config))
         unless config.disable_start_message?
-          config.alert_logger.info "Skipping because: #{reason}. " \
+          config.logger.info "Skipping because: #{reason}. " \
             "Start manually with `ElasticAPM.start'"
         end
         return
@@ -45,8 +50,8 @@ module ElasticAPM
         attach_subscriber(agent)
       end
     rescue StandardError => e
-      config.alert_logger.error format('Failed to start: %s', e.message)
-      config.alert_logger.debug "Backtrace:\n" + e.backtrace.join("\n")
+      config.logger.error format('Failed to start: %s', e.message)
+      config.logger.debug "Backtrace:\n" + e.backtrace.join("\n")
     end
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 

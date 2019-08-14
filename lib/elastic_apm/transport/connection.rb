@@ -7,6 +7,7 @@ require 'elastic_apm/transport/connection/http'
 
 module ElasticAPM
   module Transport
+    # rubocop:disable Metrics/ClassLength
     # @api private
     class Connection
       include Logging
@@ -136,6 +137,9 @@ module ElasticAPM
         OpenSSL::SSL::SSLContext.new.tap do |context|
           if @config.server_ca_cert
             context.ca_file = @config.server_ca_cert
+          else
+            context.cert_store =
+              OpenSSL::X509::Store.new.tap(&:set_default_paths)
           end
 
           context.verify_mode =
@@ -147,5 +151,6 @@ module ElasticAPM
         end
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end

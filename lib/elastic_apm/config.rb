@@ -5,246 +5,107 @@ require 'yaml'
 require 'erb'
 
 require 'elastic_apm/util/prefixed_logger'
+
+require 'elastic_apm/config/options'
 require 'elastic_apm/config/duration'
-require 'elastic_apm/config/size'
+require 'elastic_apm/config/bytes'
+require 'elastic_apm/config/regexp_list'
 
 module ElasticAPM
-  class ConfigError < StandardError; end
-
   # rubocop:disable Metrics/ClassLength
   # @api private
   class Config
-    DEFAULTS = {
-      config_file: 'config/elastic_apm.yml',
+    extend Options
 
-      server_url: 'http://localhost:8200',
-
-      active: true,
-      api_buffer_size: 256,
-      api_request_size: '750kb',
-      api_request_time: '10s',
-      capture_body: 'off',
-      capture_headers: true,
-      capture_env: true,
-      current_user_email_method: :email,
-      current_user_id_method: :id,
-      current_user_username_method: :username,
-      custom_key_filters: [],
-      default_tags: {},
-      disable_send: false,
-      disable_start_message: false,
-      disabled_spies: %w[json],
-      environment: ENV['RAILS_ENV'] || ENV['RACK_ENV'],
-      filter_exception_types: [],
-      http_compression: true,
-      ignore_url_patterns: [],
-      instrument: true,
-      instrumented_rake_tasks: [],
-      log_level: Logger::INFO,
-      log_path: nil,
-      metrics_interval: '30s',
-      pool_size: 1,
-      source_lines_error_app_frames: 5,
-      source_lines_error_library_frames: 0,
-      source_lines_span_app_frames: 5,
-      source_lines_span_library_frames: 0,
-      span_frames_min_duration: '5ms',
-      stack_trace_limit: 999_999,
-      transaction_max_spans: 500,
-      transaction_sample_rate: 1.0,
-      verify_server_cert: true,
-
-      view_paths: [],
-      root_path: Dir.pwd
-    }.freeze
-
-    ENV_TO_KEY = {
-      'ELASTIC_APM_SERVER_URL' => 'server_url',
-      'ELASTIC_APM_SECRET_TOKEN' => 'secret_token',
-
-      'ELASTIC_APM_ACTIVE' => [:bool, 'active'],
-      'ELASTIC_APM_API_BUFFER_SIZE' => [:int, 'api_buffer_size'],
-      'ELASTIC_APM_API_REQUEST_SIZE' => [:int, 'api_request_size'],
-      'ELASTIC_APM_API_REQUEST_TIME' => 'api_request_time',
-      'ELASTIC_APM_CAPTURE_BODY' => 'capture_body',
-      'ELASTIC_APM_CAPTURE_HEADERS' => [:bool, 'capture_headers'],
-      'ELASTIC_APM_CAPTURE_ENV' => [:bool, 'capture_env'],
-      'ELASTIC_APM_CONFIG_FILE' => 'config_file',
-      'ELASTIC_APM_CUSTOM_KEY_FILTERS' => [:list, 'custom_key_filters'],
-      'ELASTIC_APM_DEFAULT_TAGS' => [:dict, 'default_tags'],
-      'ELASTIC_APM_DISABLED_SPIES' => [:list, 'disabled_spies'],
-      'ELASTIC_APM_DISABLE_SEND' => [:bool, 'disable_send'],
-      'ELASTIC_APM_DISABLE_START_MESSAGE' => [:bool, 'disable_start_message'],
-      'ELASTIC_APM_ENVIRONMENT' => 'environment',
-      'ELASTIC_APM_FRAMEWORK_NAME' => 'framework_name',
-      'ELASTIC_APM_FRAMEWORK_VERSION' => 'framework_version',
-      'ELASTIC_APM_HOSTNAME' => 'hostname',
-      'ELASTIC_APM_IGNORE_URL_PATTERNS' => [:list, 'ignore_url_patterns'],
-      'ELASTIC_APM_INSTRUMENT' => [:bool, 'instrument'],
-      'ELASTIC_APM_INSTRUMENTED_RAKE_TASKS' =>
-        [:list, 'instrumented_rake_tasks'],
-      'ELASTIC_APM_LOG_LEVEL' => [:int, 'log_level'],
-      'ELASTIC_APM_LOG_PATH' => 'log_path',
-      'ELASTIC_APM_METRICS_INTERVAL' => 'metrics_interval',
-      'ELASTIC_APM_PROXY_ADDRESS' => 'proxy_address',
-      'ELASTIC_APM_PROXY_HEADERS' => [:dict, 'proxy_headers'],
-      'ELASTIC_APM_PROXY_PASSWORD' => 'proxy_password',
-      'ELASTIC_APM_PROXY_PORT' => [:int, 'proxy_port'],
-      'ELASTIC_APM_PROXY_USERNAME' => 'proxy_username',
-      'ELASTIC_APM_POOL_SIZE' => [:int, 'pool_size'],
-      'ELASTIC_APM_SERVER_CA_CERT' => 'server_ca_cert',
-      'ELASTIC_APM_SERVICE_NAME' => 'service_name',
-      'ELASTIC_APM_SERVICE_VERSION' => 'service_version',
-      'ELASTIC_APM_SOURCE_LINES_ERROR_APP_FRAMES' =>
-        [:int, 'source_lines_error_app_frames'],
-      'ELASTIC_APM_SOURCE_LINES_ERROR_LIBRARY_FRAMES' =>
-        [:int, 'source_lines_error_library_frames'],
-      'ELASTIC_APM_SOURCE_LINES_SPAN_APP_FRAMES' =>
-        [:int, 'source_lines_span_app_frames'],
-      'ELASTIC_APM_SOURCE_LINES_SPAN_LIBRARY_FRAMES' =>
-        [:int, 'source_lines_span_library_frames'],
-      'ELASTIC_APM_SPAN_FRAMES_MIN_DURATION' => 'span_frames_min_duration',
-      'ELASTIC_APM_STACK_TRACE_LIMIT' => [:int, 'stack_trace_limit'],
-      'ELASTIC_APM_TRANSACTION_MAX_SPANS' => [:int, 'transaction_max_spans'],
-      'ELASTIC_APM_TRANSACTION_SAMPLE_RATE' =>
-        [:float, 'transaction_sample_rate'],
-      'ELASTIC_APM_VERIFY_SERVER_CERT' => [:bool, 'verify_server_cert']
-    }.freeze
-
-    DURATION_KEYS = %i[
-      api_request_time
-      span_frames_min_duration
-      metrics_interval
+    DEPRECATED_OPTIONS = %i[
+      compression_level=
+      compression_minimum_size=
+      debug_http=
+      debug_transactions=
+      flush_interval=
+      http_open_timeout=
+      http_read_timeout=
+      enabled_environments=
+      disable_environment_warning=
     ].freeze
-    DURATION_DEFAULT_UNITS = { # default is 's'
-      span_frames_min_duration: 'ms'
-    }.freeze
 
-    SIZE_KEYS = %i[api_request_size].freeze
-    SIZE_DEFAULT_UNITS = { api_request_size: 'kb' }.freeze
+    # rubocop:disable Metrics/LineLength, Layout/ExtraSpacing
+    option :config_file, default: 'config/elastic_apm.yml'
+    option :server_url, default: 'http://localhost:8200'
+    option :secret_token
+
+    option :active,                            type: :bool,   default: true
+    option :api_buffer_size,                   type: :int,    default: 256
+    option :api_request_size,                  type: :bytes,  default: '750kb', converter: Bytes.new
+    option :api_request_time,                  type: :float,  default: '10s',   converter: Duration.new
+    option :capture_body,                      type: :string, default: 'off'
+    option :capture_headers,                   type: :bool,   default: true
+    option :capture_env,                       type: :bool,   default: true
+    option :current_user_email_method,         type: :string, default: 'email'
+    option :current_user_id_method,            type: :string, default: 'id'
+    option :current_user_username_method,      type: :string, default: 'username'
+    option :custom_key_filters,                type: :list,   default: [],      converter: RegexpList.new
+    option :default_tags,                      type: :dict,   default: {}
+    option :disable_send,                      type: :bool,   default: false
+    option :disable_start_message,             type: :bool,   default: false
+    option :disabled_spies,                    type: :list,   default: %w[json]
+    option :environment,                       type: :string, default: ENV['RAILS_ENV'] || ENV['RACK_ENV']
+    option :framework_name,                    type: :string
+    option :framework_version,                 type: :string
+    option :filter_exception_types,            type: :list,   default: []
+    option :hostname,                          type: :string
+    option :http_compression,                  type: :bool,   default: true
+    option :ignore_url_patterns,               type: :list,   default: [],      converter: RegexpList.new
+    option :instrument,                        type: :bool,   default: true
+    option :instrumented_rake_tasks,           type: :list,   default: []
+    option :log_level,                         type: :int,    default: Logger::INFO
+    option :log_path,                          type: :string
+    option :metrics_interval,                  type: :int,    default: '30s',   converter: Duration.new
+    option :pool_size,                         type: :int,    default: 1
+    option :proxy_address,                     type: :string
+    option :proxy_headers,                     type: :dict
+    option :proxy_password,                    type: :string
+    option :proxy_port,                        type: :int
+    option :proxy_username,                    type: :string
+    option :server_ca_cert,                    type: :string
+    option :service_name,                      type: :string
+    option :service_version,                   type: :string
+    option :source_lines_error_app_frames,     type: :int,    default: 5
+    option :source_lines_error_library_frames, type: :int,    default: 0
+    option :source_lines_span_app_frames,      type: :int,    default: 5
+    option :source_lines_span_library_frames,  type: :int,    default: 0
+    option :span_frames_min_duration,          type: :float,  default: '5ms',   converter: Duration.new(default_unit: 'ms')
+    option :stack_trace_limit,                 type: :int,    default: 999_999
+    option :transaction_max_spans,             type: :int,    default: 500
+    option :transaction_sample_rate,           type: :float,  default: 1.0
+    option :verify_server_cert,                type: :bool,   default: true
+    # rubocop:enable Metrics/LineLength, Layout/ExtraSpacing
 
     def initialize(options = {})
-      set_defaults
+      @options = load_schema
 
-      set_from_args(options)
-      set_from_config_file
-      set_from_env
+      custom_logger = options.delete(:logger)
 
-      normalize_durations
-      normalize_sizes
+      assign(options)
+      assign(load_config_file)
+      assign(load_env)
 
       yield self if block_given?
 
-      build_logger if logger.nil?
+      @logger = custom_logger || build_logger
+
+      @__view_paths = []
+      @__root_path = Dir.pwd
     end
 
-    attr_accessor :config_file
-
-    attr_accessor :server_url
-    attr_accessor :secret_token
-
-    attr_accessor :active
-    attr_accessor :api_buffer_size
-    attr_accessor :api_request_size
-    attr_accessor :api_request_time
-    attr_accessor :capture_env
-    attr_accessor :capture_headers
-    attr_accessor :current_user_email_method
-    attr_accessor :current_user_id_method
-    attr_accessor :current_user_method
-    attr_accessor :current_user_username_method
-    attr_accessor :default_tags
-    attr_accessor :disable_send
-    attr_accessor :disable_start_message
-    attr_accessor :disabled_spies
-    attr_accessor :environment
-    attr_accessor :filter_exception_types
-    attr_accessor :framework_name
-    attr_accessor :framework_version
-    attr_accessor :hostname
-    attr_accessor :http_compression
-    attr_accessor :instrument
-    attr_accessor :instrumented_rake_tasks
-    attr_accessor :log_level
-    attr_accessor :log_path
+    attr_accessor :__view_paths, :__root_path
     attr_accessor :logger
-    attr_accessor :metrics_interval
-    attr_accessor :pool_size
-    attr_accessor :proxy_address
-    attr_accessor :proxy_headers
-    attr_accessor :proxy_password
-    attr_accessor :proxy_port
-    attr_accessor :proxy_username
-    attr_accessor :server_ca_cert
-    attr_accessor :service_name
-    attr_accessor :service_version
-    attr_accessor :source_lines_error_app_frames
-    attr_accessor :source_lines_error_library_frames
-    attr_accessor :source_lines_span_app_frames
-    attr_accessor :source_lines_span_library_frames
-    attr_accessor :stack_trace_limit
-    attr_accessor :transaction_max_spans
-    attr_accessor :transaction_sample_rate
-    attr_accessor :verify_server_cert
 
-    attr_reader :capture_body
-    attr_reader :custom_key_filters
-    attr_reader :ignore_url_patterns
-    attr_reader :span_frames_min_duration
-    attr_reader :span_frames_min_duration_us
+    attr_reader :options
 
-    attr_writer :alert_logger
-
-    attr_accessor :view_paths
-    attr_accessor :root_path
-
-    alias :active? :active
-    alias :capture_body? :capture_body
-    alias :capture_headers? :capture_headers
-    alias :capture_env? :capture_env
-    alias :disable_send? :disable_send
-    alias :disable_start_message? :disable_start_message
-    alias :http_compression? :http_compression
-    alias :instrument? :instrument
-    alias :verify_server_cert? :verify_server_cert
-
-    def alert_logger
-      @alert_logger ||= PrefixedLogger.new($stdout, prefix: Logging::PREFIX)
-    end
-
-    def app=(app)
-      case app_type?(app)
-      when :sinatra
-        set_sinatra(app)
-      when :rails
-        set_rails(app)
-      else
-        self.service_name = 'ruby'
-      end
-    end
-
-    def app_type?(app)
-      if defined?(Rails::Application) && app.is_a?(Rails::Application)
-        return :rails
-      end
-
-      if app.is_a?(Class) && app.superclass.to_s == 'Sinatra::Base'
-        return :sinatra
-      end
-
-      nil
-    end
-
-    def use_ssl?
-      server_url.start_with?('https')
-    end
-
-    def custom_key_filters=(filters)
-      @custom_key_filters = Array(filters).map(&Regexp.method(:new))
-    end
-
-    def ignore_url_patterns=(strings)
-      @ignore_url_patterns = Array(strings).map(&Regexp.method(:new))
+    def assign(update)
+      return unless update
+      update.each { |key, value| send(:"#{key}=", value) }
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -271,135 +132,111 @@ module ElasticAPM
       available_spies - disabled_spies
     end
 
-    def span_frames_min_duration=(duration)
-      @span_frames_min_duration = duration
-      @span_frames_min_duration_us = duration * 1_000_000
-    end
-
-    def span_frames_min_duration?
-      span_frames_min_duration != 0
-    end
-
-    DEPRECATED_OPTIONS = %i[
-      compression_level=
-      compression_minimum_size=
-      debug_http=
-      debug_transactions=
-      flush_interval=
-      http_open_timeout=
-      http_read_timeout=
-      enabled_environments=
-      disable_environment_warning=
-    ].freeze
-
-    def respond_to_missing?(name)
-      return true if DEPRECATED_OPTIONS.include? name
-      return true if name.to_s.end_with?('=')
-      false
-    end
-
     def method_missing(name, *args)
-      if DEPRECATED_OPTIONS.include?(name)
-        alert_logger.warn "The option `#{name}' has been removed."
+      return super unless DEPRECATED_OPTIONS.include?(name)
+      warn "The option `#{name}' has been removed."
+    end
+
+    def app=(app)
+      case app_type?(app)
+      when :sinatra
+        set_sinatra(app)
+      when :rails
+        set_rails(app)
+      else
+        self.service_name = 'ruby'
+      end
+    end
+
+    # rubocop:disable Metrics/MethodLength
+    def capture_body=(value)
+      if value =~ /(all|transactions|errors|off)/
+        set(:capture_body, value)
         return
       end
 
-      if name.to_s.end_with?('=')
-        raise ConfigError, "No such option `#{name.to_s.delete('=')}'"
+      case value
+      when true
+        warn "Boolean value for option `capture_body' has " \
+          "been deprecated. Setting to 'all'"
+        self.capture_body = 'all'
+      when false
+        warn "Boolean value for option `capture_body' has " \
+          "been deprecated. Setting to 'off'"
+        self.capture_body = 'off'
+      else
+        default = options[:capture_body].default
+        warn "Unknown value `#{value}' for option "\
+          "`capture_body'. Defaulting to `#{default}'"
+        self.capture_body = default
       end
+    end
+    # rubocop:enable Metrics/MethodLength
 
-      super
+    def use_ssl?
+      server_url.start_with?('https')
     end
 
     def collect_metrics?
       metrics_interval > 0
     end
 
-    # rubocop:disable Metrics/MethodLength
-    def capture_body=(value)
-      if value =~ /(all|transactions|errors|off)/
-        @capture_body = value
-        return
-      end
-
-      case value
-      when true
-        alert_logger.warn "Boolean value for option `capture_body' has " \
-          "been deprecated. Setting to 'all'"
-        @capture_body = 'all'
-      when false
-        alert_logger.warn "Boolean value for option `capture_body' has " \
-          "been deprecated. Setting to 'off'"
-        @capture_body = 'off'
-      else
-        default = DEFAULTS[:capture_body]
-        alert_logger.warn "Unknown value `#{value}' for option "\
-          "`capture_body'. Defaulting to `#{default}'"
-        @capture_body = default
-      end
+    def span_frames_min_duration?
+      span_frames_min_duration != 0
     end
-    # rubocop:enable Metrics/MethodLength
+
+    def span_frames_min_duration=(value)
+      super
+      @span_frames_min_duration_us = nil
+    end
+
+    def span_frames_min_duration_us
+      @span_frames_min_duration_us ||= span_frames_min_duration * 1_000_000
+    end
+
+    def inspect
+      super.split.first + '>'
+    end
 
     private
 
-    def assign(options)
-      options.each do |key, value|
-        send("#{key}=", value)
-      end
-    end
-
-    def set_defaults
-      assign(DEFAULTS)
-    end
-
-    # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/AbcSize
-    def set_from_env
-      ENV_TO_KEY.each do |env_key, key|
-        next unless (value = ENV[env_key])
-
-        type, key = key if key.is_a? Array
-
-        value =
-          case type
-          when :int then value.to_i
-          when :float then value.to_f
-          when :bool then !%w[0 false].include?(value.strip.downcase)
-          when :list then value.split(/[ ,]/)
-          when :dict then Hash[value.split(/[&,]/).map { |kv| kv.split('=') }]
-          else value
-          end
-
-        send("#{key}=", value)
-      end
-    end
-    # rubocop:enable Metrics/AbcSize
-    # rubocop:enable Metrics/MethodLength, Metrics/CyclomaticComplexity
-
-    def set_from_args(options)
-      assign(options)
-    rescue ConfigError => e
-      alert_logger.warn format(
-        'Failed to configure from arguments: %s',
-        e.message
-      )
-    end
-
-    def set_from_config_file
+    def load_config_file
       return unless File.exist?(config_file)
-      assign(YAML.safe_load(ERB.new(File.read(config_file)).result) || {})
-    rescue ConfigError => e
-      alert_logger.warn format(
-        'Failed to configure from config file: %s',
-        e.message
-      )
+
+      config = YAML.safe_load(ERB.new(File.read(config_file)).result)
+      assign(config)
+    end
+
+    def load_env
+      @options.values.each_with_object({}) do |option, opts|
+        next unless (value = ENV[option.env_key])
+        opts[option.key] = value
+      end
+    end
+
+    def build_logger
+      Logger.new(log_path == '-' ? STDOUT : log_path).tap do |logger|
+        logger.level = log_level
+      end
+    end
+
+    def app_type?(app)
+      if defined?(Rails::Application) && app.is_a?(Rails::Application)
+        return :rails
+      end
+
+      if app.is_a?(Class) && app.superclass.to_s == 'Sinatra::Base'
+        return :sinatra
+      end
+
+      nil
     end
 
     def set_sinatra(app)
       self.service_name = format_name(service_name || app.to_s)
       self.framework_name = framework_name || 'Sinatra'
       self.framework_version = framework_version || Sinatra::VERSION
-      self.root_path = Dir.pwd
+      self.__root_path = Dir.pwd
     end
 
     def set_rails(app) # rubocop:disable Metrics/AbcSize
@@ -408,8 +245,8 @@ module ElasticAPM
       self.framework_version ||= Rails::VERSION::STRING
       self.logger ||= Rails.logger
 
-      self.root_path = Rails.root.to_s
-      self.view_paths = app.config.paths['app/views'].existent
+      self.__root_path = Rails.root.to_s
+      self.__view_paths = app.config.paths['app/views'].existent
     end
 
     def rails_app_name(app)
@@ -420,33 +257,8 @@ module ElasticAPM
       end
     end
 
-    def build_logger
-      logger = Logger.new(log_path == '-' ? STDOUT : log_path)
-      logger.level = log_level
-
-      self.logger = logger
-    end
-
     def format_name(str)
       str && str.gsub('::', '_')
-    end
-
-    def normalize_durations
-      DURATION_KEYS.each do |key|
-        value = send(key).to_s
-        default_unit = DURATION_DEFAULT_UNITS.fetch(key, 's')
-        duration = Duration.parse(value, default_unit: default_unit)
-        send("#{key}=", duration.seconds)
-      end
-    end
-
-    def normalize_sizes
-      SIZE_KEYS.each do |key|
-        value = send(key).to_s
-        default_unit = SIZE_DEFAULT_UNITS.fetch(key, 'b')
-        size = Size.parse(value, default_unit: default_unit)
-        send("#{key}=", size.bytes)
-      end
     end
   end
   # rubocop:enable Metrics/ClassLength

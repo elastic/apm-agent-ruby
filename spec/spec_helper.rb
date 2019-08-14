@@ -33,6 +33,10 @@ RSpec.configure do |config|
   config.include PlatformHelpers
   config.include ElasticSubscribers
 
+  if config.files_to_run.one?
+    config.default_formatter = 'documentation'
+  end
+
   unless ENV['INCLUDE_SCHEMA_SPECS']
     config.filter_run_excluding(type: 'json_schema')
   end
@@ -40,9 +44,7 @@ RSpec.configure do |config|
   config.example_status_persistence_file_path = '.rspec_status'
   config.disable_monkey_patching!
 
-  # config.expect_with :rspec do |c|
-  #   c.syntax = :expect
-  # end
+  config.backtrace_inclusion_patterns = [/elastic_apm/]
 
   config.after(:each) do |example|
     if elastic_subscribers.any? &&

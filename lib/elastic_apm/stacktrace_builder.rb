@@ -67,8 +67,8 @@ module ElasticAPM
     def library_frame?(config, abs_path)
       return false unless abs_path
 
-      if abs_path.start_with?(config.root_path)
-        return true if abs_path.start_with?(config.root_path + '/vendor')
+      if abs_path.start_with?(config.__root_path)
+        return true if abs_path.start_with?(config.__root_path + '/vendor')
         return false
       end
 

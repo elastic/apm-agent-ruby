@@ -66,9 +66,6 @@ Style/DoubleNegation:
 Style/EmptyMethod:
   Enabled: false
 
-Rails/Delegate:
-  Enabled: false
-
 Style/NumericPredicate:
   Enabled: false
 
@@ -82,4 +79,7 @@ Naming/MemoizedInstanceVariableName:
   Enabled: false
 
 Style/SpecialGlobalVars:
+  Enabled: false
+
+Style/MissingRespondToMissing:
   Enabled: false
