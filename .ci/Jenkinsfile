@@ -69,7 +69,8 @@ pipeline {
               def ruby = readYaml(file: '.ci/.jenkins_ruby.yml')
               def testTasks = [:]
               ruby['RUBY_VERSION'].each{ rubyVersion ->
-                testTasks[rubyVersion] = { runJob(rubyVersion) }
+                isCoverage = rubyVersion.equals('ruby:2.6')
+                testTasks[rubyVersion] = { runJob(rubyVersion, isCoverage) }
               }
               parallel(testTasks)
               }
@@ -197,19 +198,20 @@ def runBenchmark(version){
   }
 }
 
-def runJob(rubyVersion){
+def runJob(rubyVersion, boolean isCoverage=false){
   def branch = env.BRANCH_NAME
 
   if (env.CHANGE_ID) {
     branch = env.CHANGE_TARGET
   }
-  
-  build( job: "apm-agent-ruby/apm-agent-ruby-downstream/${branch}", 
+
+  build( job: "apm-agent-ruby/apm-agent-ruby-downstream/${branch}",
     parameters: [
-      string(name: 'RUBY_VERSION', value: "${rubyVersion}"), 
-      string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}"), 
-      string(name: 'MERGE_TARGET', value: "${branch}")
-    ], 
+      string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
+      string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}"),
+      string(name: 'MERGE_TARGET', value: "${branch}"),
+      booleanParam(name: 'POPULATE_COVERAGE', value: isCoverage)
+    ],
     quietPeriod: 15
   )
 }

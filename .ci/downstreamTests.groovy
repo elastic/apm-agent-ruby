@@ -37,6 +37,7 @@ pipeline {
     string(name: 'RUBY_VERSION', defaultValue: "ruby:2.6", description: "Ruby version to test")
     string(name: 'BRANCH_SPECIFIER', defaultValue: "master", description: "Git branch/tag to use")
     string(name: 'MERGE_TARGET', defaultValue: "master", description: "Git branch/tag to merge before building")
+    booleanParam(name: 'POPULATE_COVERAGE', defaultValue: false, description: 'Whether to send the coverage to codecov.io.')
   }
   stages {
     /**
@@ -47,7 +48,7 @@ pipeline {
       options { skipDefaultCheckout() }
       steps {
         deleteDir()
-        gitCheckout(basedir: "${BASE_DIR}", 
+        gitCheckout(basedir: "${BASE_DIR}",
           branch: "${params.BRANCH_SPECIFIER}",
           repo: "${REPO}",
           credentialsId: "${JOB_GIT_CREDENTIALS}",
@@ -135,8 +136,10 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
           steps.junit(allowEmptyResults: true,
             keepLongStdio: true,
             testResults: "**/spec/ruby-agent-junit.xml")
-          steps.codecov(repo: "${steps.env.REPO}", basedir: "${steps.env.BASE_DIR}",
-            secret: "${steps.env.CODECOV_SECRET}")
+          if (steps.params.POPULATE_COVERAGE) {
+            steps.codecov(repo: "${steps.env.REPO}", basedir: "${steps.env.BASE_DIR}",
+                          secret: "${steps.env.CODECOV_SECRET}")
+          }
         }
       }
     }
