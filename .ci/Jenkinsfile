@@ -69,7 +69,7 @@ pipeline {
               def ruby = readYaml(file: '.ci/.jenkins_ruby.yml')
               def testTasks = [:]
               ruby['RUBY_VERSION'].each{ rubyVersion ->
-                isCoverage = rubyVersion.equals('ruby:2.6')
+                isCoverage = rubyVersion.contains('ruby:2.6')
                 testTasks[rubyVersion] = { runJob(rubyVersion, isCoverage) }
               }
               parallel(testTasks)
