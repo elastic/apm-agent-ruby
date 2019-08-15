@@ -205,7 +205,7 @@ def runJob(rubyVersion, boolean isCoverage=false){
     branch = env.CHANGE_TARGET
   }
 
-  build( job: "apm-agent-ruby/apm-agent-ruby-downstream/${branch}",
+  build( job: "apm-agent-ruby/apm-agent-ruby-downstream/PR-485",
     parameters: [
       string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
       string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}"),
