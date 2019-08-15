@@ -59,7 +59,9 @@ module ElasticAPM
 
       context 'when no samples' do
         it 'calls callback' do
-          expect(subject.samplers.first).to receive(:collect) { nil }
+          subject.samplers.each do |sampler|
+            expect(sampler).to receive(:collect) { nil }
+          end
           expect(callback).to_not receive(:call)
 
           subject.collect_and_send
