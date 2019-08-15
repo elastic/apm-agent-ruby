@@ -29,7 +29,8 @@ module ElasticAPM
       }.to_json
     end
 
-    attr_reader :config, :task
+    attr_reader :config
+    attr_reader :scheduled_task, :promise # for specs
 
     def start
       return unless config.central_config?
@@ -38,14 +39,15 @@ module ElasticAPM
     end
 
     def fetch_and_apply_config
-      Concurrent::Promise
+      @promise =
+        Concurrent::Promise
         .execute(&method(:fetch_config))
         .on_success(&method(:handle_success))
         .rescue(&method(:handle_error))
     end
 
     def stop
-      @task&.cancel
+      @scheduled_task&.cancel
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -131,7 +133,7 @@ module ElasticAPM
           DEFAULT_MAX_AGE
         end
 
-      @task =
+      @scheduled_task =
         Concurrent::ScheduledTask
         .execute(seconds, &method(:fetch_and_apply_config))
     end

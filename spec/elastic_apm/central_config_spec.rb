@@ -9,7 +9,7 @@ module ElasticAPM
       it 'polls for config' do
         req_stub = stub_response(transaction_sample_rate: '0.5')
         subject.start
-        sleep 0.2
+        subject.promise.wait
         expect(req_stub).to have_been_requested
       end
 
@@ -19,7 +19,7 @@ module ElasticAPM
         it 'does nothing' do
           req_stub = stub_response(transaction_sample_rate: '0.5')
           subject.start
-          sleep 0.2
+          expect(subject.promise).to be nil
           expect(req_stub).to_not have_been_requested
         end
       end
@@ -31,7 +31,7 @@ module ElasticAPM
         expect(config.logger).to receive(:info)
 
         subject.fetch_and_apply_config
-        sleep 0.2
+        subject.promise.wait
 
         expect(req_stub).to have_been_requested
 
@@ -42,12 +42,12 @@ module ElasticAPM
         stub_response(transaction_sample_rate: '0.5')
 
         subject.fetch_and_apply_config
-        sleep 0.1
+        subject.promise.wait
 
         stub_response('Not found', status: 404)
 
         subject.fetch_and_apply_config
-        sleep 0.1
+        subject.promise.wait
 
         expect(config.transaction_sample_rate).to eq(1.0)
       end
@@ -60,10 +60,10 @@ module ElasticAPM
           )
 
           subject.fetch_and_apply_config
-          sleep 0.2
+          subject.promise.wait
 
-          expect(subject.task).to be_pending
-          expect(subject.task.initial_delay).to eq 123
+          expect(subject.scheduled_task).to be_pending
+          expect(subject.scheduled_task.initial_delay).to eq 123
         end
       end
 
@@ -75,8 +75,7 @@ module ElasticAPM
           )
 
           subject.fetch_and_apply_config
-
-          sleep 0.2
+          subject.promise.wait
 
           stub_response(
             nil,
@@ -85,10 +84,10 @@ module ElasticAPM
           )
 
           subject.fetch_and_apply_config
-          sleep 0.2
+          subject.promise.wait
 
-          expect(subject.task).to be_pending
-          expect(subject.task.initial_delay).to eq 123
+          expect(subject.scheduled_task).to be_pending
+          expect(subject.scheduled_task.initial_delay).to eq 123
           expect(config.transaction_sample_rate).to eq 0.5
         end
       end
@@ -98,10 +97,10 @@ module ElasticAPM
           stub_response('Not found', status: 404)
 
           subject.fetch_and_apply_config
-          sleep 0.2
+          subject.promise.wait
 
-          expect(subject.task).to be_pending
-          expect(subject.task.initial_delay).to eq 300
+          expect(subject.scheduled_task).to be_pending
+          expect(subject.scheduled_task.initial_delay).to eq 300
         end
       end
     end
