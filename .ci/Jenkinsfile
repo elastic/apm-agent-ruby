@@ -62,11 +62,11 @@ pipeline {
         PATH = "${env.WORKSPACE}/bin:${env.PATH}"
       }
       steps {
-        deleteDir()
-        unstash 'source'
-        dir(BASE_DIR) {
-          catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: 'Sanity checks failed but keep running the build') {
-            withGithubNotify(context: 'Sanity checks') {
+        withGithubNotify(context: 'Sanity checks') {
+          deleteDir()
+          unstash 'source'
+          dir(BASE_DIR) {
+            catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: 'Sanity checks failed but keep running the build') {
               preCommit(commit: "${GIT_BASE_COMMIT}", junit: true)
             }
           }
