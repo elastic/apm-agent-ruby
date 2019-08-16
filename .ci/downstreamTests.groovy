@@ -25,7 +25,7 @@ pipeline {
   }
   options {
     timeout(time: 2, unit: 'HOURS')
-    buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '20', daysToKeepStr: '30'))
+    buildDiscarder(logRotator(numToKeepStr: '300', artifactNumToKeepStr: '20', daysToKeepStr: '30'))
     timestamps()
     ansiColor('xterm')
     disableResume()
@@ -47,7 +47,7 @@ pipeline {
       options { skipDefaultCheckout() }
       steps {
         deleteDir()
-        gitCheckout(basedir: "${BASE_DIR}", 
+        gitCheckout(basedir: "${BASE_DIR}",
           branch: "${params.BRANCH_SPECIFIER}",
           repo: "${REPO}",
           credentialsId: "${JOB_GIT_CREDENTIALS}",
