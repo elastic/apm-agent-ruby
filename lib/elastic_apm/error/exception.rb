@@ -11,7 +11,7 @@ module ElasticAPM
           "#{exception.class}: #{exception.message}"
         @type = exception.class.to_s
         @module = format_module exception
-        @cause = self.class.new exception.cause if exception.cause
+        @cause = exception.cause && Exception.new(exception.cause)
 
         attrs.each do |key, val|
           send(:"#{key}=", val)
