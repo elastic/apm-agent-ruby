@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ### Added
 
+- Support for chained exceptions ([#488](https://github.com/elastic/apm-agent-ruby/pull/488))
 - Add Ruby specific metrics ([#437](https://github.com/elastic/apm-agent-ruby/pull/437))
 - Support for APM Agent Configuration via Kibana ([#464](https://github.com/elastic/apm-agent-ruby/pull/464))
 - Change span name format and add command to context's db.statement for `MongoSpy` ([#488](https://github.com/elastic/apm-agent-ruby/pull/490))
