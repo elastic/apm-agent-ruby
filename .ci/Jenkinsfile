@@ -55,19 +55,18 @@ pipeline {
       }
     }
     stage('Sanity checks') {
-      when {
-        beforeAgent true
-        changeRequest()
+      environment {
+        HOME = "${env.WORKSPACE}"
       }
       steps {
         deleteDir()
         unstash 'source'
         dir("${BASE_DIR}") {
-          catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: 'Sanity checks failed but keep running the build') {
+          //catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: 'Sanity checks failed but keep running the build') {
             withGithubNotify(context: 'Sanity checks') {
               preCommit(commit: "${GIT_BASE_COMMIT}", junit: true)
             }
-          }
+          //}
         }
       }
     }
