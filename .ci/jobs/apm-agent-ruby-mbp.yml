@@ -5,7 +5,7 @@
     description: APM Agent Ruby
     script-path: .ci/Jenkinsfile
     scm:
-    - github:
+    - githu:
         branch-discovery: no-pr
         discover-pr-forks-strategy: merge-current
         discover-pr-forks-trust: permission
