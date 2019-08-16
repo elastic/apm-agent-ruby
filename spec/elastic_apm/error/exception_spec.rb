@@ -14,18 +14,17 @@ module ElasticAPM
           exc = Error::Exception.new actual_chained_exception,
             message: 'Things'
           expect(exc.message).to eq 'Things'
-          expect(exc.type).to eq 'NoMethodError'
+          expect(exc.type).to eq 'ExceptionHelpers::One'
 
           cause1 = exc.cause
           expect(cause1).to be_a Error::Exception
-          expect(cause1.message).to eq 'Errno::ENOENT: No such file or ' \
-                                           'directory @ rb_sysopen - gotcha'
-          expect(cause1.type).to eq 'Errno::ENOENT'
+          expect(cause1.message).to eq 'ExceptionHelpers::Two: ExceptionHelpers::Two'
+          expect(cause1.type).to eq 'ExceptionHelpers::Two'
 
           cause2 = cause1.cause
           expect(cause2).to be_a Error::Exception
-          expect(cause2.message).to eq 'ZeroDivisionError: divided by 0'
-          expect(cause2.type).to eq 'ZeroDivisionError'
+          expect(cause2.message).to eq 'ExceptionHelpers::Three: ExceptionHelpers::Three'
+          expect(cause2.type).to eq 'ExceptionHelpers::Three'
         end
       end
     end

@@ -7,16 +7,20 @@ module ExceptionHelpers
     e
   end
 
+  class One < StandardError; end
+  class Two < StandardError; end
+  class Three < StandardError; end
+
   # rubocop:disable Metrics/MethodLength
   def actual_chained_exception
-    1 / 0
-  rescue ZeroDivisionError
+    raise Three
+  rescue Three
     begin
-      File.open('gotcha')
-    rescue Errno::ENOENT
+      raise Two
+    rescue Two
       begin
-        [].merge
-      rescue NoMethodError => e
+        raise One
+      rescue One => e
         e
       end
     end

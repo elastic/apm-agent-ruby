@@ -56,9 +56,9 @@ module ElasticAPM
 
               exception = result.fetch(:exception)
               expect(exception).to include(
-                message: "NoMethodError: undefined method `merge' for []:Array",
-                type: 'NoMethodError',
-                module: '',
+                message: 'ExceptionHelpers::One: ExceptionHelpers::One',
+                type: 'ExceptionHelpers::One',
+                module: 'ExceptionHelpers',
                 code: nil,
                 attributes: nil,
                 stacktrace: be_an(Array),
@@ -68,10 +68,9 @@ module ElasticAPM
 
               cause1 = exception.fetch(:cause)
               expect(cause1).to include(
-                message: 'Errno::ENOENT: No such file or directory ' \
-                  '@ rb_sysopen - gotcha',
-                type: 'Errno::ENOENT',
-                module: 'Errno',
+                message: 'ExceptionHelpers::Two: ExceptionHelpers::Two',
+                type: 'ExceptionHelpers::Two',
+                module: 'ExceptionHelpers',
                 code: nil,
                 attributes: nil,
                 stacktrace: eq([]),
@@ -81,9 +80,9 @@ module ElasticAPM
 
               cause2 = cause1.fetch(:cause)
               expect(cause2).to include(
-                message: 'ZeroDivisionError: divided by 0',
-                type: 'ZeroDivisionError',
-                module: '',
+                message: 'ExceptionHelpers::Three: ExceptionHelpers::Three',
+                type: 'ExceptionHelpers::Three',
+                module: 'ExceptionHelpers',
                 code: nil,
                 attributes: nil,
                 stacktrace: eq([]),
