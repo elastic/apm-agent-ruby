@@ -4,7 +4,6 @@
     display-name: APM Agent Ruby Downstream
     description: APM Agent Ruby Downstream .
     script-path: .ci/downstreamTests.groovy
-    typo### as I wanna fail the preCommit validation 
     scm:
     - github:
         branch-discovery: no-pr
