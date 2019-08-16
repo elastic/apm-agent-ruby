@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- Support for APM Agent Configuration via Kibana ([#464](https://github.com/elastic/apm-agent-ruby/pull/464))
+
 ## 2.9.1 (2019-06-28)
 
 ### Fixed
