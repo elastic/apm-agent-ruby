@@ -55,18 +55,20 @@ pipeline {
       }
     }
     stage('Sanity checks') {
+      agent { label 'linux && immutable && docker' }
       environment {
         HOME = "${env.WORKSPACE}"
+        PATH = "${env.WORKSPACE}/bin:${env.PATH}"
       }
       steps {
         deleteDir()
         unstash 'source'
-        dir("${BASE_DIR}") {
-          //catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: 'Sanity checks failed but keep running the build') {
+        dir(BASE_DIR) {
+          catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: 'Sanity checks failed but keep running the build') {
             withGithubNotify(context: 'Sanity checks') {
               preCommit(commit: "${GIT_BASE_COMMIT}", junit: true)
             }
-          //}
+          }
         }
       }
     }
