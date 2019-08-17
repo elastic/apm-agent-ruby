@@ -47,11 +47,10 @@ pipeline {
       options { skipDefaultCheckout() }
       steps {
         deleteDir()
-        gitCheckout(basedir: "${BASE_DIR}", 
+        gitCheckout(basedir: "${BASE_DIR}",
           branch: "${params.BRANCH_SPECIFIER}",
           repo: "${REPO}",
           credentialsId: "${JOB_GIT_CREDENTIALS}",
-          mergeTarget: "${params.MERGE_TARGET}",
           reference: '/var/lib/jenkins/apm-agent-ruby.git')
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
