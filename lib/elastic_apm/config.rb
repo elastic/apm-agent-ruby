@@ -41,6 +41,7 @@ module ElasticAPM
     option :capture_body,                      type: :string, default: 'off'
     option :capture_headers,                   type: :bool,   default: true
     option :capture_env,                       type: :bool,   default: true
+    option :central_config,                    type: :bool,   default: true
     option :current_user_email_method,         type: :string, default: 'email'
     option :current_user_id_method,            type: :string, default: 'id'
     option :current_user_username_method,      type: :string, default: 'username'

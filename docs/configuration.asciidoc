@@ -214,6 +214,21 @@ Whether or not to attach the request headers to transactions and errors.
 Whether or not to attach `ENV` from Rack to transactions and errors.
 
 [float]
+[[config-central-config]]
+==== `central_config`
+|============
+| Environment                  | `Config` key     | Default
+| `ELASTIC_APM_CENTRAL_CONFIG` | `central_config` | `true`
+|============
+
+Enable {kibana-ref}/agent-configuration.html[APM Agent Configuration via Kibana].
+If set to `true`, the client will poll the APM Server regularly for new agent configuration.
+
+Usually APM Server determines how often to poll, but if not the default interval is 5 minutes.
+
+NOTE: This feature requires APM Server v7.3 or later and that the APM Server is configured with `kibana.enabled: true`.
+
+[float]
 [[config-custom-key-filters]]
 ==== `custom_key_filters`
 [options="header"]
