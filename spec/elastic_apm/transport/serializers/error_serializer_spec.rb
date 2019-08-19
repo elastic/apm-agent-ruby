@@ -63,10 +63,10 @@ module ElasticAPM
                 attributes: nil,
                 stacktrace: be_an(Array),
                 handled: true,
-                cause: be_a(Hash)
+                cause: be_an(Array)
               )
 
-              cause1 = exception.fetch(:cause)
+              cause1 = exception.fetch(:cause)[0]
               expect(cause1).to include(
                 message: 'ExceptionHelpers::Two: ExceptionHelpers::Two',
                 type: 'ExceptionHelpers::Two',
@@ -75,10 +75,10 @@ module ElasticAPM
                 attributes: nil,
                 stacktrace: eq([]),
                 handled: nil,
-                cause: be_a(Hash)
+                cause: be_an(Array)
               )
 
-              cause2 = cause1.fetch(:cause)
+              cause2 = cause1.fetch(:cause)[0]
               expect(cause2).to include(
                 message: 'ExceptionHelpers::Three: ExceptionHelpers::Three',
                 type: 'ExceptionHelpers::Three',

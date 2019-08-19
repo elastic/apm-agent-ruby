@@ -18,12 +18,14 @@ module ElasticAPM
 
           cause1 = exc.cause
           expect(cause1).to be_a Error::Exception
-          expect(cause1.message).to eq 'ExceptionHelpers::Two: ExceptionHelpers::Two'
+          expect(cause1.message).to eq 'ExceptionHelpers::Two: ' \
+            'ExceptionHelpers::Two'
           expect(cause1.type).to eq 'ExceptionHelpers::Two'
 
           cause2 = cause1.cause
           expect(cause2).to be_a Error::Exception
-          expect(cause2.message).to eq 'ExceptionHelpers::Three: ExceptionHelpers::Three'
+          expect(cause2.message).to eq 'ExceptionHelpers::Three: ' \
+            'ExceptionHelpers::Three'
           expect(cause2.type).to eq 'ExceptionHelpers::Three'
         end
       end
