@@ -54,6 +54,25 @@ pipeline {
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }
+    stage('Sanity checks') {
+      agent { label 'linux && immutable && docker' }
+      options { skipDefaultCheckout() }
+      environment {
+        HOME = "${env.WORKSPACE}"
+        PATH = "${env.WORKSPACE}/bin:${env.PATH}"
+      }
+      steps {
+        withGithubNotify(context: 'Sanity checks') {
+          deleteDir()
+          unstash 'source'
+          dir(BASE_DIR) {
+            catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: 'Sanity checks failed but keep running the build') {
+              preCommit(commit: "${GIT_BASE_COMMIT}", junit: true)
+            }
+          }
+        }
+      }
+    }
     /**
     Execute unit tests.
     */
@@ -203,13 +222,13 @@ def runJob(rubyVersion){
   if (env.CHANGE_ID) {
     branch = env.CHANGE_TARGET
   }
-  
-  build( job: "apm-agent-ruby/apm-agent-ruby-downstream/${branch}", 
+
+  build( job: "apm-agent-ruby/apm-agent-ruby-downstream/${branch}",
     parameters: [
-      string(name: 'RUBY_VERSION', value: "${rubyVersion}"), 
-      string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}"), 
+      string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
+      string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}"),
       string(name: 'MERGE_TARGET', value: "${branch}")
-    ], 
+    ],
     quietPeriod: 15
   )
 }
