@@ -51,8 +51,7 @@ pipeline {
           branch: "${params.BRANCH_SPECIFIER}",
           repo: "${REPO}",
           credentialsId: "${JOB_GIT_CREDENTIALS}",
-          mergeTarget: "${params.MERGE_TARGET}",
-          reference: '/var/lib/jenkins/apm-agent-ruby.git')
+          mergeTarget: "${params.MERGE_TARGET}")
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }
