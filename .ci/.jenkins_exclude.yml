@@ -20,7 +20,7 @@ exclude:
   - RUBY_VERSION: jruby:9.1
     FRAMEWORK: rails-6.0
   - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.1-7-jdk
-    FRAMEWORK: rails-6.0-rc1
+    FRAMEWORK: rails-6.0
 
   # Only test master on newest ruby
   - RUBY_VERSION: ruby:2.5
