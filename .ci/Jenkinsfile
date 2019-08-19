@@ -202,7 +202,7 @@ def runJob(rubyVersion){
     parameters: [
       string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
       string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}"),
-      string(name: 'MERGE_TARGET', value: "${env.BRANCH_NAME}")
+      string(name: 'MERGE_TARGET', value: '')
     ],
     quietPeriod: 15
   )
