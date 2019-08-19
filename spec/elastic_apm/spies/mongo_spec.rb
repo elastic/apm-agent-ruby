@@ -68,6 +68,7 @@ module ElasticAPM
         )
 
       # ParallelCollectionScan can only be run on an existing collection.
+      client['testing'].drop
       client['testing'].create
       ElasticAPM.with_transaction 'Mongo test' do
         client['testing'].parallel_scan(1).to_a
@@ -88,6 +89,7 @@ module ElasticAPM
         '"numCursors"=>1}'
       expect(db.user).to be nil
 
+      client['testing'].drop
       client.close
 
       ElasticAPM.stop
