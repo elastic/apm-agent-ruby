@@ -14,7 +14,10 @@ RSpec.describe ElasticAPM do
   end
 
   context 'when running', :mock_intake do
-    before { ElasticAPM.start }
+    before do
+      # disable immediate metrics collection
+      ElasticAPM.start(metrics_interval: 0)
+    end
 
     let(:agent) { ElasticAPM.agent }
 
