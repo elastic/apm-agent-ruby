@@ -217,17 +217,10 @@ def runBenchmark(version){
 }
 
 def runJob(rubyVersion){
-  def branch = env.BRANCH_NAME
-
-  if (env.CHANGE_ID) {
-    branch = env.CHANGE_TARGET
-  }
-
-  build( job: "apm-agent-ruby/apm-agent-ruby-downstream/${branch}",
+  build( job: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}",
     parameters: [
       string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
-      string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}"),
-      string(name: 'MERGE_TARGET', value: "${branch}")
+      string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}")
     ],
     quietPeriod: 15
   )
