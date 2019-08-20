@@ -37,7 +37,6 @@ pipeline {
     string(name: 'RUBY_VERSION', defaultValue: "ruby:2.6", description: "Ruby version to test")
     string(name: 'BRANCH_SPECIFIER', defaultValue: "master", description: "Git branch/tag to use")
     string(name: 'MERGE_TARGET', defaultValue: "master", description: "Git branch/tag to merge before building")
-    booleanParam(name: 'POPULATE_COVERAGE', defaultValue: false, description: 'Whether to send the coverage to codecov.io.')
   }
   stages {
     /**
@@ -135,7 +134,7 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
           steps.junit(allowEmptyResults: true,
             keepLongStdio: true,
             testResults: "**/spec/ruby-agent-junit.xml")
-          if (steps.params.POPULATE_COVERAGE) {
+          if (steps.isCodecovEnabled(x, y)) {
             steps.codecov(repo: "${steps.env.REPO}", basedir: "${steps.env.BASE_DIR}",
                           secret: "${steps.env.CODECOV_SECRET}")
           }
@@ -163,5 +162,13 @@ def runScript(Map params = [:]){
       dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
       sh("./spec/scripts/spec.sh ${ruby} ${framework}")
     }
+  }
+}
+
+def isCodecovEnabled(x, y){
+  dir(BASE_DIR){
+    def codecovVersions = readYaml(file: '.ci/.jenkins_codecov.yml')
+    return codecovVersions['RUBY'].find { ruby -> ruby?.trim().equals(x.trim()) } &&
+           codecovVersions['FRAMEWORK'].find { framework -> framework?.trim().equals(y.trim()) }
   }
 }

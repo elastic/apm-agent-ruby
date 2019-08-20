@@ -1,0 +1,7 @@
+---
+
+RUBY:
+  - ruby:2.6
+
+FRAMEWORK:
+  - rails-5.2
