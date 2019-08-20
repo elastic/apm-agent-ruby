@@ -112,6 +112,11 @@ module ElasticAPM
         end
         # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
+        def [](key)
+          options[key]
+        end
+        alias :get :[]
+
         def set(key, value)
           options.fetch(key.to_sym).set(value)
         rescue KeyError

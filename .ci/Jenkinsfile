@@ -54,6 +54,25 @@ pipeline {
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }
+    stage('Sanity checks') {
+      agent { label 'linux && immutable && docker' }
+      options { skipDefaultCheckout() }
+      environment {
+        HOME = "${env.WORKSPACE}"
+        PATH = "${env.WORKSPACE}/bin:${env.PATH}"
+      }
+      steps {
+        withGithubNotify(context: 'Sanity checks') {
+          deleteDir()
+          unstash 'source'
+          dir(BASE_DIR) {
+            catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: 'Sanity checks failed but keep running the build') {
+              preCommit(commit: "${GIT_BASE_COMMIT}", junit: true)
+            }
+          }
+        }
+      }
+    }
     /**
     Execute unit tests.
     */
