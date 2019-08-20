@@ -165,10 +165,13 @@ def runScript(Map params = [:]){
   }
 }
 
-def isCodecovEnabled(x, y){
+/**
+* Whether the given ruby version and framework are in charge of sending the
+* codecov results. It does require the workspace.
+*/
+def isCodecovEnabled(ruby, framework){
   dir(BASE_DIR){
     def codecovVersions = readYaml(file: '.ci/.jenkins_codecov.yml')
-    return codecovVersions['RUBY'].find { ruby -> ruby?.trim().equals(x.trim()) } &&
-           codecovVersions['FRAMEWORK'].find { framework -> framework?.trim().equals(y.trim()) }
+    return codecovVersions['ENABLED'].find { it.trim().equals("${ruby?.trim()}#${framework?.trim()}") }
   }
 }
