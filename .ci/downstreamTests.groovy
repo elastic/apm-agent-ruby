@@ -175,6 +175,6 @@ def isCodecovEnabled(ruby, framework){
     sh 'ls -ltra .ci/.jenkins_codecov.yml'
     def codecovVersions = readYaml(file: '.ci/.jenkins_codecov.yml')
     sh 'cat .ci/.jenkins_codecov.yml'
-    return codecovVersions['ENABLED'].contains("${ruby?.trim()}#${framework?.trim()}")
+    return codecovVersions['ENABLED'].any { it.trim() == "${ruby?.trim()}#${framework?.trim()}" }
   }
 }
