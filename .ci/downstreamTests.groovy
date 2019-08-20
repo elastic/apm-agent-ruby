@@ -25,7 +25,7 @@ pipeline {
   }
   options {
     timeout(time: 2, unit: 'HOURS')
-    buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '20', daysToKeepStr: '30'))
+    buildDiscarder(logRotator(numToKeepStr: '300', artifactNumToKeepStr: '20', daysToKeepStr: '30'))
     timestamps()
     ansiColor('xterm')
     disableResume()
@@ -51,7 +51,7 @@ pipeline {
           branch: "${params.BRANCH_SPECIFIER}",
           repo: "${REPO}",
           credentialsId: "${JOB_GIT_CREDENTIALS}",
-          reference: '/var/lib/jenkins/apm-agent-ruby.git')
+          mergeTarget: "${params.MERGE_TARGET}")
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }

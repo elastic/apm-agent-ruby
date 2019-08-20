@@ -1,0 +1,24 @@
+repos:
+-   repo: git://github.com/pre-commit/pre-commit-hooks
+    rev: v2.2.3
+    hooks:
+    -   id: check-case-conflict
+    -   id: check-executables-have-shebangs
+    -   id: check-json
+    -   id: check-merge-conflict
+    -   id: check-yaml
+    -   id: check-xml
+    -   id: end-of-file-fixer
+
+-   repo: git@github.com:elastic/apm-pipeline-library
+    rev: current
+    hooks:
+    -   id: check-bash-syntax
+    -   id: check-abstract-classes-and-trait
+    -   id: check-jsonslurper-class
+    -   id: check-jenkins-pipelines
+    -   id: check-unicode-non-breaking-spaces
+    -   id: remove-unicode-non-breaking-spaces
+    -   id: check-en-dashes
+    -   id: remove-en-dashes
+    -   id: check-jjbb
