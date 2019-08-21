@@ -8,6 +8,13 @@ module ElasticAPM
       subject { described_class.new config }
 
       describe 'collect' do
+        context 'when disabled' do
+          it 'returns nil' do
+            subject.disabled = true
+            expect(subject.collect).to be nil
+          end
+        end
+
         context 'mri', unless: RSpec::Support::Ruby.jruby? do
           it 'collects a metric set and prefixes keys' do
             expect(subject.collect).to match(

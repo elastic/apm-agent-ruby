@@ -4,12 +4,18 @@ module ElasticAPM
   module Metrics
     # @api private
     class VM
-      def initialize(_config)
+      def initialize(config)
         @total_time = 0
+        @disabled = false
       end
+
+      attr_reader :config
+      attr_writer :disabled
 
       # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       def collect
+        return if disabled?
+
         stat = GC.stat
         thread_count = Thread.list.count
 
@@ -32,8 +38,16 @@ module ElasticAPM
         sample[:'ruby.gc.time'] = @total_time
 
         sample
+      rescue TypeError => e
+        error 'VM metrics encountered error: %s', e
+        debug { e.backtrace.join("\n") }
+        @disabled = true
       end
       # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+
+      def disabled?
+        @disabled
+      end
     end
   end
 end
