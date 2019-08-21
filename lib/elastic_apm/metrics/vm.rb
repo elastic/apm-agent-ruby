@@ -4,6 +4,8 @@ module ElasticAPM
   module Metrics
     # @api private
     class VM
+      include Logging
+
       def initialize(config)
         @total_time = 0
         @disabled = false
