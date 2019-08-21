@@ -42,7 +42,7 @@ module ElasticAPM
         sample
       rescue TypeError => e
         error 'VM metrics encountered error: %s', e
-        debug { e.backtrace.join("\n") }
+        debug('Backtrace:') { e.backtrace.join("\n") }
         @disabled = true
       end
       # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
