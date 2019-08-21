@@ -15,6 +15,15 @@ module ElasticAPM
           end
         end
 
+        context 'when failing' do
+          it 'disables and returns nil' do
+            allow(GC).to receive(:stat).and_raise(TypeError)
+
+            expect(subject.collect).to be nil
+            expect(subject).to be_disabled
+          end
+        end
+
         context 'mri', unless: RSpec::Support::Ruby.jruby? do
           it 'collects a metric set and prefixes keys' do
             expect(subject.collect).to match(
