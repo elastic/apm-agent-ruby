@@ -23,10 +23,18 @@ cd spec
 
 docker-compose up -d mongodb
 
+## Customise the docker container to enable the access to the internal of the jdk
+## for the jruby docker images.
+JDK_JAVA_OPTIONS=''
+if [[ $RUBY_IMAGE == *"jruby"* ]]; then
+  JDK_JAVA_OPTIONS='--illegal-access=permit'
+fi
+
 docker build --pull --build-arg "RUBY_IMAGE=${RUBY_IMAGE}" -t "apm-agent-ruby:${VERSION}" .
 RUBY_VERSION=${VERSION} docker-compose run \
   -e FRAMEWORK="${FRAMEWORK}" \
   -e INCLUDE_SCHEMA_SPECS=1 \
+  -e JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS}" \
   -v "$(dirname "$(pwd)"):/app" \
   --rm ruby_rspec \
   /bin/bash -c "\
