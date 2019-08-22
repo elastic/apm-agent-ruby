@@ -11,7 +11,7 @@ it is need as field to store the results of the tests.
 @Field def rubyTasksGen
 
 pipeline {
-  agent any
+  agent { label 'linux && immutable' }
   environment {
     REPO="git@github.com:elastic/apm-agent-ruby.git"
     BASE_DIR="src/github.com/elastic/apm-agent-ruby"
