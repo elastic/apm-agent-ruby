@@ -352,6 +352,10 @@ otherwise defaults to `nil`.
 | `ELASTIC_APM_FRAMEWORK_VERSION` | `framework_version` | Depending on framework
 |============
 
+Version number of the used framework.
+For Ruby on Rails and Sinatra, this defaults to the used version of the framework,
+otherwise, the default is `nil`.
+
 [float]
 [[config-global-labels]]
 ==== `global_labels`
