@@ -53,30 +53,19 @@ pipeline {
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }
-    /**
-    Execute unit tests.
-    */
     stage('Test') {
       agent { label 'linux && immutable' }
       options { skipDefaultCheckout() }
       steps {
-        deleteDir()
-        unstash "source"
-        dir("${BASE_DIR}"){
-          script {
-            rubyTasksGen = new RubyParallelTaskGenerator(
-              xVersions: [ "${params.RUBY_VERSION}" ],
-              xKey: 'RUBY_VERSION',
-              yKey: 'FRAMEWORK',
-              yFile: ".ci/.jenkins_framework.yml",
-              exclusionFile: ".ci/.jenkins_exclude.yml",
-              tag: "Ruby",
-              name: "Ruby",
-              steps: this
-            )
-            def mapPatallelTasks = rubyTasksGen.generateParallelTests()
-            parallel(mapPatallelTasks)
-          }
+        runTests('.ci/.jenkins_framework.yml')
+      }
+    }
+    stage('Master Test') {
+      agent { label 'linux && immutable' }
+      options { skipDefaultCheckout() }
+      steps {
+        catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: "The tests for the master framework have failed. Let's warn instead.") {
+          runTests('.ci/.jenkins_master_framework.yml')
         }
       }
     }
@@ -157,6 +146,30 @@ def runScript(Map params = [:]){
       sleep randomNumber(min:10, max: 30)
       dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
       sh("./spec/scripts/spec.sh ${ruby} ${framework}")
+    }
+  }
+}
+
+/**
+  Run all the tests for the given ruby version and file with the frameworks to test
+*/
+def runTests(frameworkFile) {
+  deleteDir()
+  unstash "source"
+  dir("${BASE_DIR}"){
+    script {
+      rubyTasksGen = new RubyParallelTaskGenerator(
+        xVersions: [ "${params.RUBY_VERSION}" ],
+        xKey: 'RUBY_VERSION',
+        yKey: 'FRAMEWORK',
+        yFile: frameworkFile,
+        exclusionFile: '.ci/.jenkins_exclude.yml',
+        tag: 'Ruby',
+        name: 'Ruby',
+        steps: this
+      )
+      def mapPatallelTasks = rubyTasksGen.generateParallelTests()
+      parallel(mapPatallelTasks)
     }
   }
 }

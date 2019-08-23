@@ -15,7 +15,7 @@ pipeline {
   environment {
     REPO = 'apm-agent-ruby'
     BASE_DIR = "src/github.com/elastic/${env.REPO}"
-    PIPELINE_LOG_LEVEL='INFO'
+    PIPELINE_LOG_LEVEL='DEBUG'
     NOTIFY_TO = credentials('notify-to')
     JOB_GCS_BUCKET = credentials('gcs-bucket')
     CODECOV_SECRET = 'secret/apm-team/ci/apm-agent-ruby-codecov'
