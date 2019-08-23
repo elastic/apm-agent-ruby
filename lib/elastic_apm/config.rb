@@ -54,6 +54,7 @@ module ElasticAPM
     option :framework_name,                    type: :string
     option :framework_version,                 type: :string
     option :filter_exception_types,            type: :list,   default: []
+    option :global_labels,                     type: :dict
     option :hostname,                          type: :string
     option :http_compression,                  type: :bool,   default: true
     option :ignore_url_patterns,               type: :list,   default: [],      converter: RegexpList.new
