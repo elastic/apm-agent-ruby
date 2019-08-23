@@ -159,7 +159,10 @@ def runScript(Map params = [:]){
 * codecov results. It does require the workspace.
 */
 def isCodecovEnabled(ruby, framework){
+  sh 'ls -ltra'
   dir(BASE_DIR){
+    sh 'ls -ltra'
+    sh 'cat .ci/.jenkins_codecov.yml'
     def codecovVersions = readYaml(file: '.ci/.jenkins_codecov.yml')
     return codecovVersions['ENABLED'].any { it.trim() == "${ruby?.trim()}#${framework?.trim()}" }
   }
