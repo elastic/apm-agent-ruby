@@ -10,7 +10,8 @@ module ElasticAPM
             metadata: {
               service: build_service(metadata.service),
               process: build_process(metadata.process),
-              system: build_system(metadata.system)
+              system: build_system(metadata.system),
+              labels: build_labels(metadata.labels)
             }
           }
         end
@@ -58,6 +59,10 @@ module ElasticAPM
             platform: keyword_field(system.platform),
             kubernetes: keyword_object(system.kubernetes)
           }
+        end
+
+        def build_labels(labels)
+          keyword_object(labels)
         end
       end
     end

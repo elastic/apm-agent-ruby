@@ -17,6 +17,7 @@ module ElasticAPM
             expect(result[:metadata][:service]).to be_a Hash
             expect(result[:metadata][:process]).to be_a Hash
             expect(result[:metadata][:system]).to be_a Hash
+            expect(result[:metadata][:labels]).to be_nil
           end
         end
       end

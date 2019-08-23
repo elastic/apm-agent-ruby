@@ -7,9 +7,10 @@ module ElasticAPM
       @service = ServiceInfo.new(config)
       @process = ProcessInfo.new(config)
       @system = SystemInfo.new(config)
+      @labels = config.global_labels
     end
 
-    attr_reader :service, :process, :system
+    attr_reader :service, :process, :system, :labels
   end
 end
 
