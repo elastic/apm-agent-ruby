@@ -260,7 +260,7 @@ Add default tags to add to every transaction.
 WARNING: Be aware that tags are indexed in Elasticsearch. Using too many unique keys will result in *https://www.elastic.co/blog/found-crash-elasticsearch#mapping-explosion[Mapping explosion]*.
 
 NOTE: `global_labels` are supported as of APM server version 7.2. `default_tags` will eventually be
-deprecated to please transition to using `global_labels` instead. In the meantime, any `default_tags`
+deprecated so please transition to using `global_labels` instead. In the meantime, any `default_tags`
 that are set will override `global_labels`.
 
 [float]
