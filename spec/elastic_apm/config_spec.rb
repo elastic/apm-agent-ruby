@@ -51,7 +51,7 @@ module ElasticAPM
         ],
         [
           'ELASTIC_APM_GLOBAL_LABELS',
-          'why=hello goodbye,apple=orange',
+          'why=hello goodbye,apples=oranges',
           { 'why' => 'hello goodbye', 'apples' => 'oranges' }
         ]
       ].each do |(key, val, expected)|
