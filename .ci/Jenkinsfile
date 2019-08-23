@@ -58,6 +58,9 @@ pipeline {
         deleteDir()
         gitCheckout(basedir: "${BASE_DIR}", githubNotifyFirstTimeContributor: true)
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
+        script {
+          gitBaseCommit = env.GIT_BASE_COMMIT
+        }
       }
     }
     stage('Sanity checks') {
