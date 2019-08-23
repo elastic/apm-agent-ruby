@@ -61,7 +61,6 @@ pipeline {
         script {
           gitCommit = env.GIT_SHA
         }
-        sh 'env | sort'
       }
     }
     stage('Sanity checks') {
