@@ -48,6 +48,11 @@ module ElasticAPM
           'ELASTIC_APM_DEFAULT_TAGS',
           'test=something something&other=ok',
           { 'test' => 'something something', 'other' => 'ok' }
+        ],
+        [
+          'ELASTIC_APM_GLOBAL_LABELS',
+          'why=hello goodbye,apples=oranges',
+          { 'why' => 'hello goodbye', 'apples' => 'oranges' }
         ]
       ].each do |(key, val, expected)|
         with_env(key => val) do

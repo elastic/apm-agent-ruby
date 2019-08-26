@@ -7,16 +7,31 @@ module ElasticAPM
     module Serializers
       RSpec.describe MetadataSerializer do
         subject { described_class.new Config.new }
+        let(:result) { subject.build(metadata) }
 
         describe '#build' do
           let(:metadata) { Metadata.new Config.new }
-          let(:result) { subject.build(metadata) }
 
-          it 'is a bunch of hashes' do
+          it 'is a bunch of hashes and no labels' do
             expect(result[:metadata]).to be_a Hash
             expect(result[:metadata][:service]).to be_a Hash
             expect(result[:metadata][:process]).to be_a Hash
             expect(result[:metadata][:system]).to be_a Hash
+            expect(result[:metadata][:labels]).to be_nil
+          end
+
+          context 'when there are global_labels' do
+            let(:metadata) do
+              Metadata.new Config.new(global_labels: { apples: 'oranges' })
+            end
+
+            it 'is a bunch of hashes' do
+              expect(result[:metadata]).to be_a Hash
+              expect(result[:metadata][:service]).to be_a Hash
+              expect(result[:metadata][:process]).to be_a Hash
+              expect(result[:metadata][:system]).to be_a Hash
+              expect(result[:metadata][:labels]).to be_a Hash
+            end
           end
         end
       end

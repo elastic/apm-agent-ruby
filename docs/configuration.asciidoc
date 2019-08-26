@@ -259,6 +259,10 @@ Add default tags to add to every transaction.
 
 WARNING: Be aware that tags are indexed in Elasticsearch. Using too many unique keys will result in *https://www.elastic.co/blog/found-crash-elasticsearch#mapping-explosion[Mapping explosion]*.
 
+NOTE: `global_labels` are supported as of APM server version 7.2. `default_tags` will eventually be
+deprecated so please transition to using `global_labels` instead. In the meantime, any `default_tags`
+that are set will override `global_labels`.
+
 [float]
 [[config-disable-send]]
 ==== `disable_send`
@@ -351,6 +355,23 @@ otherwise defaults to `nil`.
 Version number of the used framework.
 For Ruby on Rails and Sinatra, this defaults to the used version of the framework,
 otherwise, the default is `nil`.
+
+[float]
+[[config-global-labels]]
+==== `global_labels`
+
+[options="header"]
+|============
+| Environment                 | `Config` key    | Default  | Example
+| `ELASTIC_APM_GLOBAL_LABELS` | `global_labels` | `nil`    | `dept=engineering,rack=number8`
+|============
+
+Labels added to all events, with the format key=value[,key=value[,...]].
+
+NOTE: This option requires APM Server 7.2 or greater, and will have no effect when using older
+server versions. `default_tags` will eventually be deprecated but in the meantime, their value
+will override any `global_labels`. Please transition to using `global_labels` instead of
+`default_tags` in light of this deprecation.
 
 [float]
 [[config-hostname]]
