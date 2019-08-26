@@ -13,7 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ### Changed
 
-- `ElasticAPM.report` and `ElasticAPM.report_message` now return the generated `Error` objects ([#]())
+- `ElasticAPM.report` and `ElasticAPM.report_message` now return the generated `Error` objects ([#507](https://github.com/elastic/apm-agent-ruby/pull/507))
 
 ## 2.9.1 (2019-06-28)
 
