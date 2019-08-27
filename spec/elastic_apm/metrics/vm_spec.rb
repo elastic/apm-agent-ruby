@@ -50,22 +50,15 @@ module ElasticAPM
 
         context 'jruby', if: RSpec::Support::Ruby.jruby? do
           it 'collects a metric set and prefixes keys' do
+            subject.collect # disable on strict plaforms
+
             expect(subject.collect).to match(
-              'ruby.gc.count': Integer,
-              'ruby.threads': Integer
+              if subject.disabled?
+                nil
+              else
+                { 'ruby.gc.count': Integer, 'ruby.threads': Integer }
+              end
             )
-          end
-
-          xcontext 'with profiler enabled' do
-            around do |example|
-              GC::Profiler.enable
-              example.run
-              GC::Profiler.disable
-            end
-
-            it 'adds time spent' do
-              expect(subject.collect).to have_key(:'ruby.gc.time')
-            end
           end
         end
       end
