@@ -19,6 +19,4 @@ repos:
     -   id: check-jenkins-pipelines
     -   id: check-unicode-non-breaking-spaces
     -   id: remove-unicode-non-breaking-spaces
-    -   id: check-en-dashes
-    -   id: remove-en-dashes
     -   id: check-jjbb
