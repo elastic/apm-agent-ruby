@@ -6,7 +6,7 @@ module ElasticAPM
   RSpec.describe Transaction do
     describe '#initialize', :mock_time do
       its(:id) { should_not be_nil }
-      its(:type) { should be 'custom' }
+      its(:type) { should eq 'custom' }
       it { should be_sampled }
       its(:trace_context) { should be_a TraceContext }
       its(:context) { should be_a Context }

@@ -60,7 +60,7 @@ RSpec.describe ElasticAPM do
         expect(placeholder.transaction.name).to eq 'Block test'
       end
 
-      it { should be 'original result' }
+      it { should eq 'original result' }
     end
 
     describe '.start_span' do
@@ -123,7 +123,7 @@ RSpec.describe ElasticAPM do
           .to all(be_a(ElasticAPM::Stacktrace))
       end
 
-      it { should be 'original result' }
+      it { should eq 'original result' }
     end
 
     it { should delegate :current_transaction, to: agent }
