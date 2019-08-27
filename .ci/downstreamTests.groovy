@@ -11,7 +11,7 @@ it is need as field to store the results of the tests.
 @Field def rubyTasksGen
 
 pipeline {
-  agent none
+  agent { label 'linux && immutable' }
   environment {
     REPO="git@github.com:elastic/apm-agent-ruby.git"
     BASE_DIR="src/github.com/elastic/apm-agent-ruby"
@@ -72,19 +72,17 @@ pipeline {
   }
   post {
     cleanup {
-      node('linux && immutable') {
-        script{
-          if(rubyTasksGen?.results){
-            writeJSON(file: 'results.json', json: toJSON(rubyTasksGen.results), pretty: 2)
-            def mapResults = ["Ruby": rubyTasksGen.results]
-            def processor = new ResultsProcessor()
-            processor.processResults(mapResults)
-            archiveArtifacts allowEmptyArchive: true, artifacts: 'results.json,results.html', defaultExcludes: false
-            catchError(buildResult: 'SUCCESS') {
-              def datafile = readFile(file: "results.json")
-              def json = getVaultSecret(secret: 'secret/apm-team/ci/jenkins-stats-cloud')
-              sendDataToElasticsearch(es: json.data.url, data: datafile, restCall: '/jenkins-builds-ruby-test-results/_doc/')
-            }
+      script{
+        if(rubyTasksGen?.results){
+          writeJSON(file: 'results.json', json: toJSON(rubyTasksGen.results), pretty: 2)
+          def mapResults = ["Ruby": rubyTasksGen.results]
+          def processor = new ResultsProcessor()
+          processor.processResults(mapResults)
+          archiveArtifacts allowEmptyArchive: true, artifacts: 'results.json,results.html', defaultExcludes: false
+          catchError(buildResult: 'SUCCESS') {
+            def datafile = readFile(file: "results.json")
+            def json = getVaultSecret(secret: 'secret/apm-team/ci/jenkins-stats-cloud')
+            sendDataToElasticsearch(es: json.data.url, data: datafile, restCall: '/jenkins-builds-ruby-test-results/_doc/')
           }
         }
       }
@@ -159,10 +157,7 @@ def runScript(Map params = [:]){
 * codecov results. It does require the workspace.
 */
 def isCodecovEnabled(ruby, framework){
-  sh 'ls -ltra'
   dir(BASE_DIR){
-    sh 'ls -ltra'
-    sh 'cat .ci/.jenkins_codecov.yml'
     def codecovVersions = readYaml(file: '.ci/.jenkins_codecov.yml')
     return codecovVersions['ENABLED'].any { it.trim() == "${ruby?.trim()}#${framework?.trim()}" }
   }
