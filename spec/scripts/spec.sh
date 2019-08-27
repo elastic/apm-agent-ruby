@@ -28,7 +28,7 @@ docker-compose up -d mongodb
 JDK_JAVA_OPTIONS=''
 JRUBY_OPTS=''
 if [[ $RUBY_IMAGE == *"jruby"* ]]; then
-  JDK_JAVA_OPTIONS='--debug --illegal-access=permit'
+  JDK_JAVA_OPTIONS='--illegal-access=permit'
   JRUBY_OPTS="--debug"
 fi
 
