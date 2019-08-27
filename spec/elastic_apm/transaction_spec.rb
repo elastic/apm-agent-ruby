@@ -47,7 +47,7 @@ module ElasticAPM
 
         expect(subject).to be_stopped
         expect(subject.duration).to be 100_000
-        expect(subject.result).to be 'HTTP 200'
+        expect(subject.result).to eq 'HTTP 200'
       end
     end
 
@@ -56,7 +56,7 @@ module ElasticAPM
         parent_id = subject.ensure_parent_id
 
         expect(subject.parent_id).to_not be_nil
-        expect(subject.parent_id).to be parent_id
+        expect(subject.parent_id).to eq parent_id
       end
 
       it 'keeps and returns current parent id if set' do
@@ -66,8 +66,8 @@ module ElasticAPM
 
         parent_id = subject.ensure_parent_id
 
-        expect(parent_id).to be 'things'
-        expect(subject.parent_id).to be 'things'
+        expect(parent_id).to eq 'things'
+        expect(subject.parent_id).to eq 'things'
       end
     end
 

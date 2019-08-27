@@ -163,17 +163,17 @@ module ElasticAPM
         expect(subject).to receive(:warn).with(/Boolean value.*deprecated./)
 
         subject.capture_body = true
-        expect(subject.capture_body).to be 'all'
+        expect(subject.capture_body).to eq 'all'
 
         expect(subject).to receive(:warn).with(/Boolean value.*deprecated./)
 
         subject.capture_body = false
-        expect(subject.capture_body).to be 'off'
+        expect(subject.capture_body).to eq 'off'
 
         expect(subject).to receive(:warn).with(/Unknown value/)
 
         subject.capture_body = :oh_no
-        expect(subject.capture_body).to be 'off'
+        expect(subject.capture_body).to eq 'off'
       end
     end
 

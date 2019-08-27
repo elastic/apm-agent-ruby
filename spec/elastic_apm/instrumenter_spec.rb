@@ -97,7 +97,7 @@ module ElasticAPM
 
         expect(return_value).to be transaction
         expect(transaction).to be_stopped
-        expect(transaction.result).to be 'result'
+        expect(transaction.result).to eq 'result'
         expect(subject.current_transaction).to be nil
         expect(callback).to have_received(:call).with(transaction)
       end

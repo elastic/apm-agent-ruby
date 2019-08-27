@@ -12,7 +12,7 @@ module ElasticAPM
         subject { described_class.new db: { statement: 'asd' } }
 
         it 'adds a db object' do
-          expect(subject.db.statement).to be 'asd'
+          expect(subject.db.statement).to eq 'asd'
         end
       end
 
@@ -20,7 +20,7 @@ module ElasticAPM
         subject { described_class.new http: { url: 'asd' } }
 
         it 'adds a http object' do
-          expect(subject.http.url).to be 'asd'
+          expect(subject.http.url).to eq 'asd'
         end
       end
     end
