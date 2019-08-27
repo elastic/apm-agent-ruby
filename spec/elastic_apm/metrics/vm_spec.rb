@@ -56,7 +56,7 @@ module ElasticAPM
             )
           end
 
-          context 'with profiler enabled' do
+          xcontext 'with profiler enabled' do
             around do |example|
               GC::Profiler.enable
               example.run
