@@ -27,7 +27,7 @@ docker-compose up -d mongodb
 ## for the jruby docker images.
 JDK_JAVA_OPTIONS=''
 if [[ $RUBY_IMAGE == *"jruby"* ]]; then
-  JDK_JAVA_OPTIONS='--illegal-access=permit'
+  JDK_JAVA_OPTIONS='--debug --illegal-access=permit'
 fi
 
 docker build --pull --build-arg "RUBY_IMAGE=${RUBY_IMAGE}" -t "apm-agent-ruby:${VERSION}" .
