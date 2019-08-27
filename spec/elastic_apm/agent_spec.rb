@@ -77,7 +77,7 @@ module ElasticAPM
 
         it 'returns error object' do
           result = subject.report(actual_exception)
-          expect(result).to be_an ElasticAPM::Error
+          expect(result).to be_a String
         end
 
         context 'with filtered exception types' do
@@ -104,7 +104,7 @@ module ElasticAPM
 
         it 'returns error object' do
           result = subject.report_message(actual_exception)
-          expect(result).to be_an ElasticAPM::Error
+          expect(result).to be_a String
         end
       end
     end
