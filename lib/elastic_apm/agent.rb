@@ -196,6 +196,7 @@ module ElasticAPM
         handled: handled
       )
       enqueue error
+      error.id
     end
 
     def report_message(message, context: nil, backtrace: nil, **attrs)
@@ -206,6 +207,7 @@ module ElasticAPM
         **attrs
       )
       enqueue error
+      error.id
     end
 
     # filters

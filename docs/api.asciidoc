@@ -212,7 +212,7 @@ Arguments:
   * `handled`: Whether the error was _handled_ eg. wasn't rescued and was represented
   to the user. Default: `true`.
 
-Returns `[ElasticAPM::Error]`.
+Returns `[String]` ID of the generated `[ElasticAPM::Error]` object.
 
 [float]
 [[api-agent-report-message]]
@@ -231,7 +231,7 @@ Arguments:
 
   * `message`: A custom error string. **Required**.
 
-Returns `[ElasticAPM::Error]`.
+Returns `[String]` ID of the generated `[ElasticAPM::Error]` object.
 
 [float]
 [[api-context]]

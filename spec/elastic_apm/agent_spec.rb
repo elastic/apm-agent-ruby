@@ -75,6 +75,11 @@ module ElasticAPM
             .to change(@intercepted.errors, :length).by 1
         end
 
+        it 'returns error object' do
+          result = subject.report(actual_exception)
+          expect(result).to be_a String
+        end
+
         context 'with filtered exception types' do
           class AgentTestError < StandardError; end
 
@@ -95,6 +100,11 @@ module ElasticAPM
         it 'queues a request' do
           expect { subject.report_message('Everything went 💥') }
             .to change(@intercepted.errors, :length).by 1
+        end
+
+        it 'returns error object' do
+          result = subject.report_message(actual_exception)
+          expect(result).to be_a String
         end
       end
     end
