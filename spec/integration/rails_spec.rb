@@ -249,7 +249,7 @@ if defined?(Rails)
 
         payload = @mock_intake.errors.first
         expect(payload).to match_json_schema(:errors),
-          payload
+          payload.inspect
       end
 
       it 'sends messages that validate' do
