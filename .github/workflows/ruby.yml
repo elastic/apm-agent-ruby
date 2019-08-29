@@ -1,4 +1,4 @@
-name: Ruby
+name: Lint
 
 on: [push]
 
@@ -13,7 +13,7 @@ jobs:
       uses: actions/setup-ruby@v1
       with:
         ruby-version: 2.6.x
-    - name: Build and test with Rake
+    - name: Check with Rubocop
       run: |
         gem install rubocop
         rubocop -P
