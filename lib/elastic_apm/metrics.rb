@@ -24,7 +24,7 @@ module ElasticAPM
       def initialize(config, tags: nil, &block)
         @config = config
         @tags = tags
-        @samplers = [CpuMem].map do |kls|
+        @samplers = [CpuMem, VM].map do |kls|
           debug "Adding metrics collector '#{kls}'"
           kls.new(config)
         end
@@ -95,3 +95,4 @@ module ElasticAPM
 end
 
 require 'elastic_apm/metrics/cpu_mem'
+require 'elastic_apm/metrics/vm'

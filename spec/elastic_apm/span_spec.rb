@@ -13,15 +13,15 @@ module ElasticAPM
     let(:transaction_id) { 'transaction_id' }
 
     describe '#initialize' do
-      its(:name) { should be 'Spannest name' }
-      its(:type) { should be 'custom' }
-      its(:transaction_id) { should be transaction_id }
-      its(:trace_context) { should be trace_context }
+      its(:name) { should eq 'Spannest name' }
+      its(:type) { should eq 'custom' }
+      its(:transaction_id) { should eq transaction_id }
+      its(:trace_context) { should eq trace_context }
       its(:timestamp) { should be_nil }
       its(:context) { should be_a Span::Context }
-      its(:trace_id) { should be trace_context.trace_id }
-      its(:id) { should be trace_context.id }
-      its(:parent_id) { should be trace_context.parent_id }
+      its(:trace_id) { should eq trace_context.trace_id }
+      its(:id) { should eq trace_context.id }
+      its(:parent_id) { should eq trace_context.parent_id }
     end
 
     describe '#start', :mock_time do

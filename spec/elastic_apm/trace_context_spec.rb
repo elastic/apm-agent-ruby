@@ -9,7 +9,7 @@ module ElasticAPM
 
       subject { described_class.new }
 
-      its(:version) { should be '00' }
+      its(:version) { should eq '00' }
       its(:trace_id) { should match(/.{16}/) }
       its(:id) { should match(/.{8}/) }
       its(:parent_id) { should be_nil }

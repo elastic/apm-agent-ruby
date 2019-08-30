@@ -10,9 +10,9 @@ RSpec::Matchers.define :delegate do |method, opts|
     end
 
     if args
-      expect(to).to receive(method).with(*args) { true }
+      expect(to).to receive(method).at_least(:once).with(*args) { true }
     else
-      expect(to).to receive(method).with(no_args) { true }
+      expect(to).to receive(method).at_least(:once).with(no_args) { true }
     end
 
     delegator.send method, *args

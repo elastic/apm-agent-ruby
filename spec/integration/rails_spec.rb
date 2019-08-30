@@ -211,13 +211,16 @@ if defined?(Rails)
         wait_for transactions: 1
 
         metadata = @mock_intake.metadatas.first
-        expect(metadata).to match_json_schema(:metadatas)
+        expect(metadata).to match_json_schema(:metadatas),
+          metadata.inspect
 
         transaction = @mock_intake.transactions.first
-        expect(transaction).to match_json_schema(:transactions)
+        expect(transaction).to match_json_schema(:transactions),
+          transaction.inspect
 
         span = @mock_intake.spans.first
-        expect(span).to match_json_schema(:spans)
+        expect(span).to match_json_schema(:spans),
+          span.inspect
       end
     end
 
@@ -245,7 +248,8 @@ if defined?(Rails)
         wait_for transactions: 1, errors: 1
 
         payload = @mock_intake.errors.first
-        expect(payload).to match_json_schema(:errors)
+        expect(payload).to match_json_schema(:errors),
+          payload.inspect
       end
 
       it 'sends messages that validate' do

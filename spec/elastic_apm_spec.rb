@@ -14,7 +14,9 @@ RSpec.describe ElasticAPM do
   end
 
   context 'when running', :mock_intake do
-    before { ElasticAPM.start }
+    before do
+      ElasticAPM.start
+    end
 
     let(:agent) { ElasticAPM.agent }
 
@@ -22,7 +24,7 @@ RSpec.describe ElasticAPM do
       it 'starts a transaction' do
         transaction = ElasticAPM.start_transaction 'Test'
         expect(transaction).to be_a ElasticAPM::Transaction
-        expect(transaction.name).to be 'Test'
+        expect(transaction.name).to eq 'Test'
       end
     end
 
@@ -55,10 +57,10 @@ RSpec.describe ElasticAPM do
         subject
 
         expect(placeholder.transaction).to be_a ElasticAPM::Transaction
-        expect(placeholder.transaction.name).to be 'Block test'
+        expect(placeholder.transaction.name).to eq 'Block test'
       end
 
-      it { should be 'original result' }
+      it { should eq 'original result' }
     end
 
     describe '.start_span' do
@@ -67,7 +69,7 @@ RSpec.describe ElasticAPM do
 
         span = ElasticAPM.start_span 'Test'
         expect(span).to be_a ElasticAPM::Span
-        expect(span.name).to be 'Test'
+        expect(span.name).to eq 'Test'
       end
     end
 
@@ -107,8 +109,8 @@ RSpec.describe ElasticAPM do
         expect(placeholder.spans.length).to be 2
         span1, span2 = placeholder.spans
 
-        expect(span1.name).to be 'Block test'
-        expect(span2.name).to be 'All the way down'
+        expect(span1.name).to eq 'Block test'
+        expect(span2.name).to eq 'All the way down'
       end
 
       it 'includes stacktraces by default' do
@@ -121,7 +123,7 @@ RSpec.describe ElasticAPM do
           .to all(be_a(ElasticAPM::Stacktrace))
       end
 
-      it { should be 'original result' }
+      it { should eq 'original result' }
     end
 
     it { should delegate :current_transaction, to: agent }

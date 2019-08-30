@@ -61,8 +61,8 @@ module ElasticAPM
 
             it 'adds context object' do
               expect(result.dig(:span, :context, :db, :statement))
-                .to be 'asd'
-              expect(result.dig(:span, :context, :http, :url)).to be 'dsa'
+                .to eq 'asd'
+              expect(result.dig(:span, :context, :http, :url)).to eq 'dsa'
             end
           end
 

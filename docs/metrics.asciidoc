@@ -12,11 +12,15 @@ You can adjust the interval by setting <<config-metrics-interval,`metrics_interv
 
 The metrics will be stored in the `apm-*` index and have the `processor.event` property set to `metric`.
 
+[float]
+[[metrics-system]]
+=== System metrics
+
 **Note:** Metrics from the Ruby agent are Linux only for now.
 
 [float]
 [[metric-system.cpu.total.norm.pct]]
-=== `system.cpu.total.norm.pct`
+==== `system.cpu.total.norm.pct`
 
 * *Type:* Float
 * *Format:* Percent
@@ -26,7 +30,7 @@ normalised by the number of cores.
 
 [float]
 [[metric-system.memory.total]]
-=== `system.memory.total`
+==== `system.memory.total`
 
 * *Type:* Long
 * *Format:* Bytes
@@ -35,7 +39,7 @@ The total memory of the system in bytes.
 
 [float]
 [[metric-system.memory.actual.free]]
-=== `system.memory.actual.free`
+==== `system.memory.actual.free`
 
 * *Type:* Long
 * *Format:* Bytes
@@ -44,7 +48,7 @@ Free memory of the system in bytes.
 
 [float]
 [[metric-system.process.cpu.total.norm.pct]]
-=== `system.process.cpu.total.norm.pct`
+==== `system.process.cpu.total.norm.pct`
 
 * *Type:* Float
 * *Format:* Percent
@@ -54,7 +58,7 @@ This value is normalized by the number of CPU cores and it ranges from 0 to 100%
 
 [float]
 [[metric-system.process.memory.size]]
-=== `system.process.memory.size`
+==== `system.process.memory.size`
 
 * *Type:* Long
 * *Format:* Bytes
@@ -63,10 +67,77 @@ The total virtual memory the process has.
 
 [float]
 [[metric-system.process.memory.rss.bytes]]
-=== `system.process.memory.rss.bytes`
+==== `system.process.memory.rss.bytes`
 
 * *Type:* Long
 * *Format:* Bytes
 
 The Resident Set Size,
 the amount of memory the process occupies in main memory (RAM).
+
+[float]
+[[metrics-ruby]]
+=== Ruby Metrics
+
+[float]
+[[metric-ruby.gc.counts]]
+==== `ruby.gc.count`
+
+* *Type:* Integer
+* *Format:* Count
+
+The number of Garbage Collection runs since the process started.
+
+[float]
+[[metric-ruby.threads]]
+==== `ruby.threads`
+
+* *Type:* Integer
+* *Format:* Count
+
+The number of threads belonging to the current process.
+
+[float]
+[[metric-ruby.heap.slots.live]]
+==== `ruby.heap.slots.live`
+
+* *Type:* Integer
+* *Format:* Slots
+
+Current amount of heap slots that are live.
+
+**NB:** Not currently supported on JRuby.
+
+[float]
+[[metric-ruby.heap.slots.free]]
+==== `ruby.heap.slots.free`
+
+* *Type:* Integer
+* *Format:* Slots
+
+Current amount of heap slots that are free.
+
+**NB:** Not currently supported on JRuby.
+
+[float]
+[[metrics-ruby.heap.allocations.total]]
+==== `ruby.heap.allocations.total`
+
+* *Type:* Integer
+* *Format:* Objects
+
+Current amount of allocated objects on the heap.
+
+**NB:** Not currently supported on JRuby.
+
+[float]
+[[metrics-ruby.gc.time]]
+==== `ruby.gc.time`
+
+* *Type:* Float
+* *Format:* Seconds
+
+The total time spent in garbage collection.
+
+**NB:** You need to enable Ruby's GC Profiler for this to get reported.
+You can do this at any time when your application boots by calling `GC::Profiler.enable`.
