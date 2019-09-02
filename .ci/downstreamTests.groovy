@@ -49,7 +49,9 @@ pipeline {
         gitCheckout(basedir: "${BASE_DIR}",
           branch: "${params.BRANCH_SPECIFIER}",
           repo: "${REPO}",
-          credentialsId: "${JOB_GIT_CREDENTIALS}")
+          credentialsId: "${JOB_GIT_CREDENTIALS}",
+          shallow: false
+        )
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }
