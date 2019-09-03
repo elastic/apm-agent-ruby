@@ -67,7 +67,7 @@ module ElasticAPM
     option :source_lines_span_app_frames,      type: :int,    default: 5
     option :source_lines_span_library_frames,  type: :int,    default: 0
     option :span_frames_min_duration,          type: :float,  default: '5ms',   converter: Duration.new(default_unit: 'ms')
-    option :stack_trace_limit,                 type: :int,    default: 999_999
+    option :stack_trace_limit,                 type: :int,    default: 50
     option :transaction_max_spans,             type: :int,    default: 500
     option :transaction_sample_rate,           type: :float,  default: 1.0
     option :verify_server_cert,                type: :bool,   default: true
