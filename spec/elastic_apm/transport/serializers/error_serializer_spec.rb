@@ -28,7 +28,7 @@ module ElasticAPM
             )
 
             expect(result.fetch(:exception)).to include(
-              message: 'ZeroDivisionError: divided by 0',
+              message: 'divided by 0',
               type: 'ZeroDivisionError',
               module: '',
               code: nil,
