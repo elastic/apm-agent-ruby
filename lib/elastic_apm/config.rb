@@ -17,17 +17,7 @@ module ElasticAPM
   class Config
     extend Options
 
-    DEPRECATED_OPTIONS = %i[
-      compression_level=
-      compression_minimum_size=
-      debug_http=
-      debug_transactions=
-      flush_interval=
-      http_open_timeout=
-      http_read_timeout=
-      enabled_environments=
-      disable_environment_warning=
-    ].freeze
+    DEPRECATED_OPTIONS = %i[].freeze
 
     # rubocop:disable Metrics/LineLength, Layout/ExtraSpacing
     option :config_file,                       type: :string, default: 'config/elastic_apm.yml'
@@ -159,31 +149,6 @@ module ElasticAPM
         self.service_name = 'ruby'
       end
     end
-
-    # rubocop:disable Metrics/MethodLength
-    def capture_body=(value)
-      if value =~ /(all|transactions|errors|off)/
-        set(:capture_body, value)
-        return
-      end
-
-      case value
-      when true
-        warn "Boolean value for option `capture_body' has " \
-          "been deprecated. Setting to 'all'"
-        self.capture_body = 'all'
-      when false
-        warn "Boolean value for option `capture_body' has " \
-          "been deprecated. Setting to 'off'"
-        self.capture_body = 'off'
-      else
-        default = options[:capture_body].default
-        warn "Unknown value `#{value}' for option "\
-          "`capture_body'. Defaulting to `#{default}'"
-        self.capture_body = default
-      end
-    end
-    # rubocop:enable Metrics/MethodLength
 
     def use_ssl?
       server_url.start_with?('https')

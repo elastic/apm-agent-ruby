@@ -161,30 +161,6 @@ module ElasticAPM
       end
     end
 
-    describe 'deprecations' do
-      it 'warns about removed options' do
-        expect(subject).to receive(:warn).with(/has been removed/)
-        subject.flush_interval = 123
-      end
-
-      it 'warns about boolean value for capture_body' do
-        expect(subject).to receive(:warn).with(/Boolean value.*deprecated./)
-
-        subject.capture_body = true
-        expect(subject.capture_body).to eq 'all'
-
-        expect(subject).to receive(:warn).with(/Boolean value.*deprecated./)
-
-        subject.capture_body = false
-        expect(subject.capture_body).to eq 'off'
-
-        expect(subject).to receive(:warn).with(/Unknown value/)
-
-        subject.capture_body = :oh_no
-        expect(subject.capture_body).to eq 'off'
-      end
-    end
-
     describe 'unknown options' do
       it 'warns' do
         expect(subject).to receive(:warn).with(/Unknown option/)
