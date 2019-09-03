@@ -3,7 +3,6 @@
 require 'elastic_apm/version'
 require 'elastic_apm/internal_error'
 require 'elastic_apm/logging'
-require 'elastic_apm/deprecations'
 
 # Core
 require 'elastic_apm/agent'
@@ -19,8 +18,6 @@ require 'elastic_apm/railtie' if defined?(::Rails::Railtie)
 # ElasticAPM
 module ElasticAPM # rubocop:disable Metrics/ModuleLength
   class << self
-    extend ElasticAPM::Deprecations
-
     ### Life cycle
 
     # Starts the ElasticAPM Agent
@@ -62,28 +59,6 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       agent&.current_span
     end
 
-    # Start a new transaction or return the currently running
-    #
-    # @param name [String] A description of the transaction, eg
-    # `ExamplesController#index`
-    # @param type [String] The kind of the transaction, eg `app.request.get` or
-    # `db.mysql2.query`
-    # @param context [Context] An optional [Context]
-    # @yield [Transaction] Optional block encapsulating transaction
-    # @return [Transaction] Unless block given
-    # @deprecated See `with_transaction` or `start_transaction`
-    def transaction(name = nil, type = nil, context: nil, &block)
-      return (block_given? ? yield : nil) unless agent
-
-      if block_given?
-        with_transaction(name, type, context: context, &block)
-      else
-        start_transaction(name, type, context: context)
-      end
-    end
-
-    deprecate :transaction, :with_transaction
-
     # rubocop:disable Metrics/MethodLength
     # Start a new transaction
     #
@@ -97,15 +72,8 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       name = nil,
       type = nil,
       context: nil,
-      trace_context: nil,
-      traceparent: nil
+      trace_context: nil
     )
-      if traceparent
-        trace_context ||= traceparent
-        warn "[ElasticAPM] [DEPRECATED] `start_transaction' with" \
-          "`traceparent:' has been renamed. Use `trace_context:' instead."
-      end
-
       agent&.start_transaction(
         name,
         type,
@@ -137,18 +105,11 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       name = nil,
       type = nil,
       context: nil,
-      trace_context: nil,
-      traceparent: nil
+      trace_context: nil
     )
       unless block_given?
         raise ArgumentError,
           'expected a block. Do you want `start_transaction\' instead?'
-      end
-
-      if traceparent
-        trace_context ||= traceparent
-        warn "[ElasticAPM] [DEPRECATED] `with_transaction' with " \
-          "`traceparent:' has been renamed. Use `trace_context:' instead."
       end
 
       return yield(nil) unless agent
@@ -167,45 +128,6 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       end
     end
     # rubocop:enable Metrics/MethodLength
-
-    # rubocop:disable Metrics/MethodLength
-    # Start a new span
-    #
-    # @param name [String] A description of the span, eq `SELECT FROM "users"`
-    # @param type [String] The kind of span, eq `db.mysql2.query`
-    # @param context [Span::Context] Context information about the span
-    # @yield [Span] Optional block encapsulating span
-    # @return [Span] Unless block given
-    # @deprecated See `with_span` or `start_span`
-    def span(
-      name,
-      type = nil,
-      context: nil,
-      include_stacktrace: true,
-      &block
-    )
-      return (block_given? ? yield : nil) unless agent
-
-      if block_given?
-        with_span(
-          name,
-          type,
-          context: context,
-          include_stacktrace: include_stacktrace,
-          &block
-        )
-      else
-        start_span(
-          name,
-          type,
-          context: context,
-          include_stacktrace: include_stacktrace
-        )
-      end
-    end
-    # rubocop:enable Metrics/MethodLength
-
-    deprecate :span, :with_span
 
     # Start a new span
     #
@@ -286,15 +208,9 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     # @param rack_env [Rack::Env] A Rack env
     # @return [Context] The built context
     def build_context(
-      deprecated_env = nil,
       rack_env: nil,
       for_type: :transaction
     )
-      if !rack_env && (rack_env = deprecated_env)
-        warn "[ElasticAPM] [DEPRECATED] `build_context' expects two keyword" \
-          "arguments, `rack_env:' and `for_type:'"
-      end
-
       agent&.build_context(rack_env: rack_env, for_type: for_type)
     end
 

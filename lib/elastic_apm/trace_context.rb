@@ -3,7 +3,6 @@
 module ElasticAPM
   # @api private
   class TraceContext
-    extend Deprecations
     class InvalidTraceparentHeader < StandardError; end
 
     VERSION = '00'
@@ -76,19 +75,6 @@ module ElasticAPM
     def to_header
       format('%s-%s-%s-%s', version, trace_id, id, hex_flags)
     end
-
-    # @deprecated Use parent_id instead
-    def span_id
-      @parent_id
-    end
-
-    # @deprecated Use parent_id instead
-    def span_id=(span_id)
-      @parent_id = span_id
-    end
-
-    deprecate :span_id, :parent_id
-    deprecate :span_id=, :parent_id=
 
     private
 
