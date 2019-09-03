@@ -37,7 +37,7 @@ module ElasticAPM
                    end
 
             name = "#{method.upcase} #{host}"
-            type = "ext.faraday.#{method}"
+            type = "external.faraday.#{method}"
 
             ElasticAPM.with_span name, type do |span|
               ElasticAPM::Spies::FaradaySpy.without_net_http do

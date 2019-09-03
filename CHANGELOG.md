@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 ### Breaking Changes
 
 - Errors' `message` no longer include their `type` ([#323](https://github.com/elastic/apm-agent-ruby/pull/323/files))
+- External request spans now have type `external.http.{library}` ([]())
 
 ## 2.10.0
 
