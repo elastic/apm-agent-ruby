@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Breaking Changes
+
+- Errors' `message` no longer include their `type` ([#323](https://github.com/elastic/apm-agent-ruby/pull/323/files))
+
 ## 2.11.0 (2019-09-23)
 
 ### Added
