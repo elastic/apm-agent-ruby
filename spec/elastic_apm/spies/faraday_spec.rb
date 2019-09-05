@@ -4,6 +4,11 @@ require 'faraday'
 
 module ElasticAPM
   RSpec.describe 'Spy: Faraday', :intercept do
+    after do
+      ElasticAPM.stop
+      WebMock.reset!
+    end
+
     let(:client) do
       Faraday.new(url: 'http://example.com')
     end
@@ -20,10 +25,7 @@ module ElasticAPM
 
       expect(span).to_not be nil
       expect(span.name).to eq 'GET example.com'
-      expect(span.type).to eq 'ext.faraday.get'
-
-      ElasticAPM.stop
-      WebMock.reset!
+      expect(span.type).to eq 'external.faraday.get'
     end
 
     it 'spans http calls with prefix' do
@@ -38,10 +40,7 @@ module ElasticAPM
 
       expect(span).to_not be nil
       expect(span.name).to eq 'GET example.com'
-      expect(span.type).to eq 'ext.faraday.get'
-
-      ElasticAPM.stop
-      WebMock.reset!
+      expect(span.type).to eq 'external.faraday.get'
     end
 
     it 'spans http calls when url in block' do
@@ -58,7 +57,7 @@ module ElasticAPM
 
       expect(span).to_not be nil
       expect(span.name).to eq 'GET example.com'
-      expect(span.type).to eq 'ext.faraday.get'
+      expect(span.type).to eq 'external.faraday.get'
 
       ElasticAPM.stop
       WebMock.reset!
@@ -94,9 +93,6 @@ module ElasticAPM
       end
 
       expect(req_stub).to have_been_requested
-
-      ElasticAPM.stop
-      WebMock.reset!
     end
   end
 end

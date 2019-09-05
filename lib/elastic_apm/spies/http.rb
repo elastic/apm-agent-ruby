@@ -19,7 +19,7 @@ module ElasticAPM
             host = req.uri.host
 
             name = "#{method} #{host}"
-            type = "ext.http_rb.#{method}"
+            type = "external.http_rb.#{method}"
 
             ElasticAPM.with_span name, type do |span|
               trace_context = span&.trace_context || transaction.trace_context

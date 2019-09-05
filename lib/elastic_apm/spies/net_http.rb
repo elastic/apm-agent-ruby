@@ -46,7 +46,7 @@ module ElasticAPM
             host ||= address
 
             name = "#{method} #{host}"
-            type = "ext.net_http.#{method}"
+            type = "external.net_http.#{method}"
 
             ElasticAPM.with_span name, type do |span|
               trace_context = span&.trace_context || transaction.trace_context
