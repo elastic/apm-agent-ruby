@@ -4,6 +4,11 @@ require 'faraday'
 
 module ElasticAPM
   RSpec.describe 'Spy: Faraday', :intercept do
+    after do
+      ElasticAPM.stop
+      WebMock.reset!
+    end
+
     let(:client) do
       Faraday.new(url: 'http://example.com')
     end
@@ -100,9 +105,6 @@ module ElasticAPM
       end
 
       expect(req_stub).to have_been_requested
-
-      ElasticAPM.stop
-      WebMock.reset!
     end
   end
 end
