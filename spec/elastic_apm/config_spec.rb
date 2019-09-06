@@ -62,6 +62,14 @@ module ElasticAPM
       end
     end
 
+    it 'can get config_file specified by env' do
+      with_env('ELASTIC_APM_CONFIG_FILE' => 'spec/fixtures/elastic_apm.yml') do
+        config = Config.new
+        expect(config.config_file).to eq('spec/fixtures/elastic_apm.yml')
+        expect(config.server_url).to eq('somewhere-config.com')
+      end
+    end
+
     context 'duration units' do
       subject do
         Config.new(
@@ -194,7 +202,7 @@ module ElasticAPM
       context 'from config_file' do
         it 'warns' do
           expect_any_instance_of(Config)
-            .to receive(:warn).with(/Unknown option/).twice
+            .to receive(:warn).with(/Unknown option/)
           Config.new(config_file: 'spec/fixtures/unknown_option.yml')
         end
       end

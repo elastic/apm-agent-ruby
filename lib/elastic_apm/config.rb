@@ -30,9 +30,9 @@ module ElasticAPM
     ].freeze
 
     # rubocop:disable Metrics/LineLength, Layout/ExtraSpacing
-    option :config_file, default: 'config/elastic_apm.yml'
-    option :server_url, default: 'http://localhost:8200'
-    option :secret_token
+    option :config_file,                       type: :string, default: 'config/elastic_apm.yml'
+    option :server_url,                        type: :string, default: 'http://localhost:8200'
+    option :secret_token,                      type: :string
 
     option :active,                            type: :bool,   default: true
     option :api_buffer_size,                   type: :int,    default: 256
@@ -83,14 +83,23 @@ module ElasticAPM
     option :verify_server_cert,                type: :bool,   default: true
     # rubocop:enable Metrics/LineLength, Layout/ExtraSpacing
 
+    # rubocop:disable Metrics/MethodLength
     def initialize(options = {})
       @options = load_schema
 
       custom_logger = options.delete(:logger)
 
       assign(options)
+
+      # Pick out config_file specifically as we need it now to load it,
+      # but still need the other env vars to have precedence
+      env = load_env
+      if (env_config_file = env.delete(:config_file))
+        self.config_file = env_config_file
+      end
+
       assign(load_config_file)
-      assign(load_env)
+      assign(env)
 
       yield self if block_given?
 
@@ -99,6 +108,7 @@ module ElasticAPM
       @__view_paths = []
       @__root_path = Dir.pwd
     end
+    # rubocop:enable Metrics/MethodLength
 
     attr_accessor :__view_paths, :__root_path
     attr_accessor :logger
@@ -205,8 +215,9 @@ module ElasticAPM
     def load_config_file
       return unless File.exist?(config_file)
 
-      config = YAML.safe_load(ERB.new(File.read(config_file)).result)
-      assign(config)
+      read = File.read(config_file)
+      evaled = ERB.new(read).result
+      YAML.safe_load(evaled)
     end
 
     def load_env
