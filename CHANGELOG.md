@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+- Fixed loading options from a config file specified by `ELASTIC_APM_CONFIG_FILE` ([#518](https://github.com/elastic/apm-agent-ruby/pull/518))
+
 ## 2.10.0
 
 ### Added
