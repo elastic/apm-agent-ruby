@@ -19,6 +19,7 @@ No changes are necessary to your app.
 
 - Errors' `message` no longer include their `type` ([#323](https://github.com/elastic/apm-agent-ruby/pull/323/files))
 - External request spans now have type `external.http.{library}` ([#514](https://github.com/elastic/apm-agent-ruby/pull/514))
+- Decrease default `stack_trace_limit` to 50 ([#515](https://github.com/elastic/apm-agent-ruby/pull/515))
 
 ## 2.10.0
 
