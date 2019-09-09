@@ -34,8 +34,62 @@ module ElasticAPM
               code: nil,
               attributes: nil,
               stacktrace: be_an(Array),
-              handled: true
+              handled: true,
+              cause: nil
             )
+          end
+
+          context 'with an exception chain', :mock_time do
+            it 'matches format' do
+              error = builder.build_exception(actual_chained_exception)
+              result = subject.build(error).fetch(:error)
+
+              expect(result).to include(
+                id: be_a(String),
+                culprit: be_a(String),
+                timestamp: 694_224_000_000_000,
+                parent_id: nil,
+                trace_id: nil,
+                transaction_id: nil,
+                transaction: nil
+              )
+
+              exception = result.fetch(:exception)
+              expect(exception).to include(
+                message: 'ExceptionHelpers::One: ExceptionHelpers::One',
+                type: 'ExceptionHelpers::One',
+                module: 'ExceptionHelpers',
+                code: nil,
+                attributes: nil,
+                stacktrace: be_an(Array),
+                handled: true,
+                cause: be_an(Array)
+              )
+
+              cause1 = exception.fetch(:cause)[0]
+              expect(cause1).to include(
+                message: 'ExceptionHelpers::Two: ExceptionHelpers::Two',
+                type: 'ExceptionHelpers::Two',
+                module: 'ExceptionHelpers',
+                code: nil,
+                attributes: nil,
+                stacktrace: eq([]),
+                handled: nil,
+                cause: be_an(Array)
+              )
+
+              cause2 = cause1.fetch(:cause)[0]
+              expect(cause2).to include(
+                message: 'ExceptionHelpers::Three: ExceptionHelpers::Three',
+                type: 'ExceptionHelpers::Three',
+                module: 'ExceptionHelpers',
+                code: nil,
+                attributes: nil,
+                stacktrace: eq([]),
+                handled: nil,
+                cause: nil
+              )
+            end
           end
 
           context 'with a context' do

@@ -48,7 +48,8 @@ module ElasticAPM
             code: keyword_field(exception.code),
             attributes: exception.attributes,
             stacktrace: exception.stacktrace.to_a,
-            handled: exception.handled
+            handled: exception.handled,
+            cause: exception.cause && [build_exception(exception.cause)]
           }
         end
 
