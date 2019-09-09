@@ -56,6 +56,13 @@ pipeline {
     }
     stage('Sanity checks') {
       agent { label 'linux && immutable && docker' }
+      when {
+        beforeAgent true
+        anyOf {
+          not { changeRequest() }
+          expression { return params.Run_As_Master_Branch }
+        }
+      }
       options { skipDefaultCheckout() }
       environment {
         HOME = "${env.WORKSPACE}"
