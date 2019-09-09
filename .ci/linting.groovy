@@ -24,7 +24,7 @@ pipeline {
       steps {
         script {
           def sha = getGitCommitSha()
-          preCommit(commit: "${sha}", junit: true)
+          preCommit(commit: "${sha}", junit: true, registry: '')
         }
       }
     }
