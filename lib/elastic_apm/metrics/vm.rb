@@ -7,6 +7,7 @@ module ElasticAPM
       include Logging
 
       def initialize(config)
+        @config = config
         @total_time = 0
         @disabled = false
       end
@@ -15,6 +16,7 @@ module ElasticAPM
       attr_writer :disabled
 
       # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+      # rubocop:disable Metrics/CyclomaticComplexity
       def collect
         return if disabled?
 
@@ -47,6 +49,7 @@ module ElasticAPM
         @disabled = true
         nil
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
       # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
       def disabled?
