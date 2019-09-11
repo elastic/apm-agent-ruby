@@ -234,7 +234,7 @@ module ElasticAPM
     end
 
     def app_type?(app)
-      if defined?(Rails::Application) && app.is_a?(Rails::Application)
+      if defined?(::Rails::Application) && app.is_a?(::Rails::Application)
         return :rails
       end
 
@@ -255,15 +255,15 @@ module ElasticAPM
     def set_rails(app) # rubocop:disable Metrics/AbcSize
       self.service_name ||= format_name(service_name || rails_app_name(app))
       self.framework_name ||= 'Ruby on Rails'
-      self.framework_version ||= Rails::VERSION::STRING
-      self.logger ||= Rails.logger
+      self.framework_version ||= ::Rails::VERSION::STRING
+      self.logger ||= ::Rails.logger
 
-      self.__root_path = Rails.root.to_s
+      self.__root_path = ::Rails.root.to_s
       self.__view_paths = app.config.paths['app/views'].existent
     end
 
     def rails_app_name(app)
-      if Rails::VERSION::MAJOR >= 6
+      if ::Rails::VERSION::MAJOR >= 6
         app.class.module_parent_name
       else
         app.class.parent_name
