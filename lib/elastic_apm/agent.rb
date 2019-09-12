@@ -79,8 +79,16 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/MethodLength
 
-    attr_reader :config, :transport, :instrumenter, :central_config,
-      :stacktrace_builder, :context_builder, :error_builder, :metrics
+    attr_reader(
+      :central_config,
+      :config,
+      :context_builder,
+      :error_builder,
+      :instrumenter,
+      :metrics,
+      :stacktrace_builder,
+      :transport
+    )
 
     # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def start

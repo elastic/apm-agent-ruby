@@ -24,6 +24,15 @@ module ElasticAPM
           Agent.stop # clean up
         end
 
+        it 'starts subservices' do
+          expect(subject.central_config).to receive(:start) { nil }
+          expect(subject.transport).to receive(:start) { nil }
+          expect(subject.instrumenter).to receive(:start) { nil }
+          expect(subject.metrics).to receive(:start) { nil }
+          subject.start
+          subject.stop
+        end
+
         context 'when active: false' do
           let(:config) { Config.new(active: false) }
 
@@ -40,6 +49,14 @@ module ElasticAPM
           Agent.stop
 
           expect(Agent.instance).to be_nil
+        end
+
+        it 'stops subservices' do
+          expect(subject.central_config).to receive(:stop)
+          expect(subject.transport).to receive(:stop)
+          expect(subject.instrumenter).to receive(:stop)
+          expect(subject.metrics).to receive(:stop)
+          subject.stop
         end
       end
     end
@@ -113,6 +130,7 @@ module ElasticAPM
       it 'starts' do
         subject.start
         expect(subject.metrics).to be_running
+        subject.stop
       end
 
       context 'when interval is zero' do
@@ -121,6 +139,7 @@ module ElasticAPM
         it "doesn't start" do
           subject.start
           expect(subject.metrics).to_not be_running
+          subject.stop
         end
       end
     end
