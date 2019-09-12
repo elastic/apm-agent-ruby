@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'elastic_apm/trace_context'
+require 'elastic_apm/child_durations'
 require 'elastic_apm/span'
 require 'elastic_apm/transaction'
 require 'elastic_apm/span_helpers'
@@ -161,7 +162,8 @@ module ElasticAPM
         name: name,
         subtype: subtype,
         action: action,
-        transaction_id: transaction.id,
+        transaction: transaction,
+        parent: parent,
         trace_context: trace_context || parent.trace_context.child,
         type: type,
         context: context,

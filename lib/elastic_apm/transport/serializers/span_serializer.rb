@@ -18,7 +18,7 @@ module ElasticAPM
           {
             span: {
               id: span.id,
-              transaction_id: span.transaction_id,
+              transaction_id: span.transaction.id,
               parent_id: span.parent_id,
               name: keyword_field(span.name),
               type: join_type(span),

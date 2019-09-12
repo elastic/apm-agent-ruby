@@ -5,21 +5,24 @@ module ElasticAPM
     subject do
       described_class.new(
         name: 'Spannest name',
-        transaction_id: transaction_id,
+        transaction: transaction,
+        parent: transaction,
         trace_context: trace_context
       )
     end
+
     let(:trace_context) do
       TraceContext.parse("00-#{'1' * 32}-#{'2' * 16}-01")
     end
-    let(:transaction_id) { 'transaction_id' }
+
+    let(:transaction) { Transaction.new }
 
     describe '#initialize' do
       its(:name) { should eq 'Spannest name' }
       its(:type) { should eq 'custom' }
       its(:subtype) { should be nil }
       its(:action) { should be nil }
-      its(:transaction_id) { should eq transaction_id }
+      its(:transaction) { should eq transaction }
       its(:trace_context) { should eq trace_context }
       its(:timestamp) { should be_nil }
       its(:context) { should be_a Span::Context }
@@ -50,7 +53,8 @@ module ElasticAPM
       subject do
         described_class.new(
           name: 'Spannest name',
-          transaction_id: transaction.id,
+          transaction: transaction.id,
+          parent: transaction,
           trace_context: trace_context
         )
       end
@@ -69,7 +73,8 @@ module ElasticAPM
       subject do
         described_class.new(
           name: 'Spannest name',
-          transaction_id: transaction.id,
+          transaction: transaction.id,
+          parent: transaction,
           trace_context: trace_context
         )
       end
@@ -95,7 +100,8 @@ module ElasticAPM
       subject do
         described_class.new(
           name: 'Span',
-          transaction_id: transaction_id,
+          transaction: transaction,
+          parent: transaction,
           trace_context: trace_context,
           stacktrace_builder: StacktraceBuilder.new(config)
         )
