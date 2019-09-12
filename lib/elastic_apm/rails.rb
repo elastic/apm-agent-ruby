@@ -24,7 +24,8 @@ module ElasticAPM
       if ElasticAPM.running? &&
          !ElasticAPM.agent.config.disabled_spies.include?('action_dispatch')
         require 'elastic_apm/spies/action_dispatch'
-      end || ElasticAPM.running?
+      end
+      ElasticAPM.running?
     rescue StandardError => e
       config.logger.error format('Failed to start: %s', e.message)
       config.logger.debug "Backtrace:\n" + e.backtrace.join("\n")
