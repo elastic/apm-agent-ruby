@@ -23,15 +23,15 @@ RSpec.describe ElasticAPM do
     describe '.log_ids' do
       context 'with no current_transaction' do
         it 'returns empty string' do
-          expect(ElasticAPM.log_ids).to match(//)
+          expect(ElasticAPM.log_ids).to eq('')
         end
       end
 
       context 'with a current transaction' do
         it 'includes transaction and trace ids' do
           transaction = ElasticAPM.start_transaction 'Test'
-          expect(ElasticAPM.log_ids).to match(
-            /transaction.id=#{transaction.id} trace.id=#{transaction.trace_id}/
+          expect(ElasticAPM.log_ids).to eq(
+            "transaction.id=#{transaction.id} trace.id=#{transaction.trace_id}"
           )
         end
       end
@@ -40,8 +40,9 @@ RSpec.describe ElasticAPM do
         it 'includes transaction, span and trace ids' do
           trans = ElasticAPM.start_transaction
           span = ElasticAPM.start_span 'Test'
-          expect(ElasticAPM.log_ids).to match(
-            /transaction.id=#{trans.id} span.id=#{span.id} trace.id=#{trans.trace_id}/
+          expect(ElasticAPM.log_ids).to eq(
+            "transaction.id=#{trans.id} span.id=#{span.id} " \
+              "trace.id=#{trans.trace_id}"
           )
         end
       end
