@@ -62,6 +62,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       agent&.current_span
     end
 
+    # rubocop:disable Metrics/AbcSize
     # Get a formatted string containing transaction, span, and trace ids.
     # If a block is provided, the ids are yielded.
     #
@@ -79,6 +80,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       ids << "trace.id=#{trace_id}" if trace_id
       ids.join(' ')
     end
+    # rubocop:enable Metrics/AbcSize
 
     # Start a new transaction or return the currently running
     #
