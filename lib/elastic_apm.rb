@@ -62,6 +62,24 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       agent&.current_span
     end
 
+    # Get a formatted string containing transaction, span, and trace ids.
+    # If a block is provided, the ids are yielded.
+    #
+    # @yield [String, String, String] The transaction, span, and trace ids.
+    # @return [String] Unless block given
+    def log_ids
+      trace_id = (current_transaction || current_span)&.trace_id
+      if block_given?
+        yield(current_transaction&.id, current_span&.id, trace_id)
+      else
+        ids = []
+        ids << "transaction=#{current_transaction.id}" if current_transaction
+        ids << "span=#{current_span.id}" if current_span
+        ids << "trace=#{trace_id}" if trace_id
+        ids.compact.join(' ')
+      end
+    end
+
     # Start a new transaction or return the currently running
     #
     # @param name [String] A description of the transaction, eg
