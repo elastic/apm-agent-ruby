@@ -70,14 +70,14 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     def log_ids
       trace_id = (current_transaction || current_span)&.trace_id
       if block_given?
-        yield(current_transaction&.id, current_span&.id, trace_id)
-      else
-        ids = []
-        ids << "transaction=#{current_transaction.id}" if current_transaction
-        ids << "span=#{current_span.id}" if current_span
-        ids << "trace=#{trace_id}" if trace_id
-        ids.compact.join(' ')
+        return yield(current_transaction&.id, current_span&.id, trace_id)
       end
+
+      ids = []
+      ids << "transaction.id=#{current_transaction.id}" if current_transaction
+      ids << "span.id=#{current_span.id}" if current_span
+      ids << "trace.id=#{trace_id}" if trace_id
+      ids.join(' ')
     end
 
     # Start a new transaction or return the currently running

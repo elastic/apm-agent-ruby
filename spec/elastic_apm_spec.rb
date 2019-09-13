@@ -31,7 +31,7 @@ RSpec.describe ElasticAPM do
         it 'includes transaction and trace ids' do
           transaction = ElasticAPM.start_transaction 'Test'
           expect(ElasticAPM.log_ids).to match(
-            /transaction=#{transaction.id} trace=#{transaction.trace_id}/
+            /transaction.id=#{transaction.id} trace.id=#{transaction.trace_id}/
           )
         end
       end
@@ -41,7 +41,7 @@ RSpec.describe ElasticAPM do
           trans = ElasticAPM.start_transaction
           span = ElasticAPM.start_span 'Test'
           expect(ElasticAPM.log_ids).to match(
-            /transaction=#{trans.id} span=#{span.id} trace=#{trans.trace_id}/
+            /transaction.id=#{trans.id} span.id=#{span.id} trace.id=#{trans.trace_id}/
           )
         end
       end
