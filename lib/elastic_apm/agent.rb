@@ -63,6 +63,7 @@ module ElasticAPM
       !!@instance
     end
 
+    # rubocop:disable Metrics/MethodLength
     def initialize(config)
       @config = config
 
@@ -78,6 +79,7 @@ module ElasticAPM
       ) { |event| enqueue event }
       @metrics = Metrics.new(config) { |event| enqueue event }
     end
+    # rubocop:enable Metrics/MethodLength
 
     attr_reader(
       :central_config,
