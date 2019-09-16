@@ -7,6 +7,7 @@ module ElasticAPM
   module Rails
     extend self
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+    # rubocop:disable Metrics/CyclomaticComplexity
     def start(config)
       config = Config.new(config) unless config.is_a?(Config)
       if (reason = should_skip?(config))
@@ -31,6 +32,7 @@ module ElasticAPM
       config.logger.debug "Backtrace:\n" + e.backtrace.join("\n")
     end
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     private
 
