@@ -13,12 +13,11 @@ Trace/log correlation can be set up in three different ways.
 ==== Rails TaggedLogging
 
 Rails applications configured with an `ActiveSupport::TaggedLogging` logger can append the correlation IDs to log output.
-Add the following to the Rails environment configuration file:
+For example in your `config/environments/production.rb` file, add the following:
 
 [source,ruby]
 ----
-config.logger = ActiveSupport::TaggedLogging.new(my_logger)
-config.log_tags = [proc { ElasticAPM.log_ids }]
+config.log_tags = [ :request_id, proc { ElasticAPM.log_ids } ]
 
 # Logs will then include the correlation IDs:
 #
