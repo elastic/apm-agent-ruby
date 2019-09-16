@@ -41,9 +41,9 @@ configuration file. The returned `Hash` will be included in the structured Logra
 ----
 config.lograge.custom_options = lambda do |event|
   ElasticAPM.log_ids do |transaction_id, span_id, trace_id|
-    { transaction_id: transaction_id,
-      span_id: span_id,
-      trace_id: trace_id }
+    { :'transaction.id' => transaction_id,
+      :'span.id' => span_id,
+      :'trace.id' => trace_id }
   end
 end
 
@@ -58,9 +58,9 @@ You can also nest the ids in a separate document as in the following example:
 ----
 config.lograge.custom_options = lambda do |event|
   ElasticAPM.log_ids do |transaction_id, span_id, trace_id|
-    { elastic_apm: { transaction_id: transaction_id,
-                     span_id: span_id,
-                     trace_id: trace_id } }
+    { elastic_apm: { :'transaction.id' => transaction_id,
+                     :'span.id' => span_id,
+                     :'trace.id' => trace_id } }
   end
 end
 
