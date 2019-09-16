@@ -15,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ### Added
 
+- Add `Rails` module with `#start` method to run Rails setup explicitly ([#522](https://github.com/elastic/apm-agent-ruby/pull/522))
 - Support for chained exceptions ([#488](https://github.com/elastic/apm-agent-ruby/pull/488))
 - Add Ruby specific metrics ([#437](https://github.com/elastic/apm-agent-ruby/pull/437))
 - Support for APM Agent Configuration via Kibana ([#464](https://github.com/elastic/apm-agent-ruby/pull/464))
