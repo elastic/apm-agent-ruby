@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 ### Fixed
 
 - Fixed loading options from a config file specified by `ELASTIC_APM_CONFIG_FILE` ([#518](https://github.com/elastic/apm-agent-ruby/pull/518))
+- Fixed an issue with CentralConfig polling not starting ([#525](https://github.com/elastic/apm-agent-ruby/pull/525))
 
 ## 2.10.0
 
