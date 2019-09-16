@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 ### Added
 
 - Add `Rails` module with `#start` method to run Rails setup explicitly ([#522](https://github.com/elastic/apm-agent-ruby/pull/522))
+- Support for log/trace correlation ([#527](https://github.com/elastic/apm-agent-ruby/pull/527))
 
 ## 2.10.1
 
