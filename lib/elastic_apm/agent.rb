@@ -43,7 +43,9 @@ module ElasticAPM
           return
         end
 
-        @instance = new(config).start
+        @instance = allocate
+        @instance.send(:initialize, config)
+        @instance.start
       end
     end
     # rubocop:enable Metrics/MethodLength
@@ -70,8 +72,11 @@ module ElasticAPM
 
       @central_config = CentralConfig.new(config)
       @transport = Transport::Base.new(config)
-      @instrumenter = nil
-      @metrics = nil
+      @instrumenter = Instrumenter.new(
+        config,
+        stacktrace_builder: stacktrace_builder
+      ) { |event| enqueue event }
+      @metrics = Metrics.new(config) { |event| enqueue event }
     end
 
     attr_reader(
@@ -79,20 +84,11 @@ module ElasticAPM
       :config,
       :context_builder,
       :error_builder,
+      :instrumenter,
+      :metrics,
       :stacktrace_builder,
       :transport
     )
-
-    def instrumenter
-      @instrumenter ||= Instrumenter.new(
-        config,
-        stacktrace_builder: stacktrace_builder
-      ) { |event| enqueue event }
-    end
-
-    def metrics
-      @metrics ||= Metrics.new(config) { |event| enqueue event }
-    end
 
     # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def start
