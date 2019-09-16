@@ -66,7 +66,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     # Get a formatted string containing transaction, span, and trace ids.
     # If a block is provided, the ids are yielded.
     #
-    # @yield [String, String, String] The transaction, span, and trace ids.
+    # @yield [String|nil, String|nil, String|nil] The transaction, span, and trace ids.
     # @return [String] Unless block given
     def log_ids
       trace_id = (current_transaction || current_span)&.trace_id
