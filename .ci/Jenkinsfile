@@ -23,6 +23,7 @@ pipeline {
     DOCKER_SECRET = 'secret/apm-team/ci/docker-registry/prod'
     GITHUB_CHECK_ITS_NAME = 'Integration Tests'
     ITS_PIPELINE = 'apm-integration-tests-selector-mbp/master'
+    RELEASE_SECRET = 'secret/apm-team/ci/apm-agent-ruby-rubygems-release'
   }
   options {
     timeout(time: 2, unit: 'HOURS')
@@ -176,6 +177,33 @@ pipeline {
                              string(name: 'GITHUB_CHECK_SHA1', value: env.GIT_BASE_COMMIT)]
           )
           githubNotify(context: "${env.GITHUB_CHECK_ITS_NAME}", description: "${env.GITHUB_CHECK_ITS_NAME} ...", status: 'PENDING', targetUrl: "${env.JENKINS_URL}search/?q=${env.ITS_PIPELINE.replaceAll('/','+')}")
+        }
+      }
+      stage('Release') {
+        agent { label 'linux && immutable' }
+        options { skipDefaultCheckout() }
+        environment {
+          HOME = "${env.WORKSPACE}"
+          PATH = "${env.WORKSPACE}/bin:${env.PATH}"
+        }
+        when {
+          beforeAgent true
+          anyOf {
+            tag pattern: 'v\\d+.*', comparator: 'REGEXP'
+            expression { return params.Run_As_Master_Branch }
+          }
+        }
+        steps {
+          withGithubNotify(context: 'Release') {
+            deleteDir()
+            unstash 'source'
+            script {
+              rubygemsLogin.withApi(secret: RUBYGEM) {
+                sh 'rake release'
+                sh 'gem pull x.y'
+              }
+            }
+          }
         }
       }
     }
