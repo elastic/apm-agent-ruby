@@ -26,30 +26,6 @@ module ElasticAPM
       @instance
     end
 
-    # rubocop:disable Metrics/MethodLength
-    def self.start(config)
-      return @instance if @instance
-
-      config = Config.new(config) unless config.is_a?(Config)
-
-      LOCK.synchronize do
-        return @instance if @instance
-
-        unless config.active?
-          config.logger.debug format(
-            "%sAgent disabled with `active: false'",
-            Logging::PREFIX
-          )
-          return
-        end
-
-        @instance = allocate
-        @instance.send(:initialize, config)
-        @instance.start
-      end
-    end
-    # rubocop:enable Metrics/MethodLength
-
     def self.stop
       LOCK.synchronize do
         return unless @instance
@@ -227,6 +203,28 @@ module ElasticAPM
     def add_filter(key, callback)
       transport.add_filter(key, callback)
     end
+
+    # rubocop:disable Metrics/MethodLength
+    def self.start(config)
+      return @instance if @instance
+
+      config = Config.new(config) unless config.is_a?(Config)
+
+      LOCK.synchronize do
+        return @instance if @instance
+
+        unless config.active?
+          config.logger.debug format(
+                                  "%sAgent disabled with `active: false'",
+                                  Logging::PREFIX
+                              )
+          return
+        end
+
+        @instance = new(config).start
+      end
+    end
+    # rubocop:enable Metrics/MethodLength
   end
   # rubocop:enable Metrics/ClassLength
 end
