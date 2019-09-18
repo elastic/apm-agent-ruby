@@ -185,6 +185,7 @@ pipeline {
         environment {
           HOME = "${env.WORKSPACE}"
           PATH = "${env.WORKSPACE}/bin:${env.PATH}"
+          RUBY_DOCKER_TAG = 'ruby:latest'
         }
         when {
           beforeAgent true
@@ -199,8 +200,7 @@ pipeline {
             unstash 'source'
             script {
               rubygemsLogin.withApi(secret: RUBYGEM) {
-                sh 'rake release'
-                sh 'gem pull x.y'
+                sh("./spec/scripts/release.sh ${RUBY_DOCKER_TAG} ")
               }
             }
           }
