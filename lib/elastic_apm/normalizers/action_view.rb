@@ -7,8 +7,8 @@ module ElasticAPM
       class RenderNormalizer < Normalizer
         private
 
-        def normalize_render(payload, type)
-          [path_for(payload[:identifier]), type, nil]
+        def normalize_render(payload, type, subtype, action)
+          [path_for(payload[:identifier]), type, subtype, action, nil]
         end
 
         def path_for(path)
@@ -41,30 +41,35 @@ module ElasticAPM
       # @api private
       class RenderTemplateNormalizer < RenderNormalizer
         register 'render_template.action_view'
-        TYPE = 'template.view'
+        TYPE = 'template'
+        SUBTYPE = 'view'
 
         def normalize(_transaction, _name, payload)
-          normalize_render(payload, TYPE)
+          normalize_render(payload, TYPE, SUBTYPE, nil)
         end
       end
 
       # @api private
       class RenderPartialNormalizer < RenderNormalizer
         register 'render_partial.action_view'
-        TYPE = 'template.view.partial'
+        TYPE = 'template'
+        SUBTYPE = 'view'
+        ACTION = 'partial'
 
         def normalize(_transaction, _name, payload)
-          normalize_render(payload, TYPE)
+          normalize_render(payload, TYPE, SUBTYPE, ACTION)
         end
       end
 
       # @api private
       class RenderCollectionNormalizer < RenderNormalizer
         register 'render_collection.action_view'
-        TYPE = 'template.view.collection'
+        TYPE = 'template'
+        SUBTYPE = 'view'
+        ACTION = 'collection'
 
         def normalize(_transaction, _name, payload)
-          normalize_render(payload, TYPE)
+          normalize_render(payload, TYPE, SUBTYPE, ACTION)
         end
       end
     end

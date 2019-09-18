@@ -14,17 +14,26 @@ module ElasticAPM
 
     DEFAULT_TYPE = 'custom'
 
-    # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
     def initialize(
       name:,
       transaction_id:,
       trace_context:,
       type: nil,
+      subtype: nil,
+      action: nil,
       context: nil,
       stacktrace_builder: nil
     )
       @name = name
-      @type = type || DEFAULT_TYPE
+
+      if subtype.nil? && type&.include?('.')
+        @type, @subtype, @action = type.split('.')
+      else
+        @type = type || DEFAULT_TYPE
+        @subtype = subtype
+        @action = action
+      end
 
       @transaction_id = transaction_id
       @trace_context = trace_context
@@ -32,10 +41,23 @@ module ElasticAPM
       @context = context || Span::Context.new
       @stacktrace_builder = stacktrace_builder
     end
-    # rubocop:enable Metrics/ParameterLists
+    # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
 
-    attr_accessor :name, :type, :original_backtrace, :trace_context
-    attr_reader :context, :stacktrace, :duration, :timestamp, :transaction_id
+    attr_accessor(
+      :action,
+      :name,
+      :original_backtrace,
+      :subtype,
+      :trace_context,
+      :type
+    )
+    attr_reader(
+      :context,
+      :duration,
+      :stacktrace,
+      :timestamp,
+      :transaction_id
+    )
 
     # life cycle
 

@@ -141,7 +141,9 @@ end
 Arguments:
 
   * `name`: A name for your span. **Required**.
-  * `type`: The type of work eg. `db.postgresql.query`.
+  * `type`: The type of span eg. `db`.
+  * `type`: The subtype of span eg. `postgresql`.
+  * `type`: The action type of span eg. `connect` or `query`.
   * `context`: An instance of `Span::Context`.
   * `include_stacktrace`: Whether or not to collect a Stacktrace.
   * `&block`: An optional block to wrap with the span.

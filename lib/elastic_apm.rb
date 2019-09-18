@@ -227,16 +227,21 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
 
     deprecate :span, :with_span
 
+    # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
     # Start a new span
     #
     # @param name [String] A description of the span, eq `SELECT FROM "users"`
-    # @param type [String] The kind of span, eq `db.mysql2.query`
+    # @param type [String] The span type, eq `db`
+    # @param subtype [String] The span subtype, eq `postgresql`
+    # @param action [String] The span action type, eq `connect` or `query`
     # @param context [Span::Context] Context information about the span
     # @param include_stacktrace [Boolean] Whether or not to capture a stacktrace
     # @return [Span]
     def start_span(
       name,
       type = nil,
+      subtype: nil,
+      action: nil,
       context: nil,
       include_stacktrace: true,
       trace_context: nil
@@ -244,6 +249,8 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       agent&.start_span(
         name,
         type,
+        subtype: subtype,
+        action: action,
         context: context,
         trace_context: trace_context
       ).tap do |span|
@@ -253,6 +260,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
         span.original_backtrace ||= caller
       end
     end
+    # rubocop:enable Metrics/MethodLength, Metrics/ParameterLists
 
     # Ends the current span
     #
@@ -261,7 +269,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       agent&.end_span
     end
 
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
     # Wrap a block in a Span, ending it after the block
     #
     # @param name [String] A description of the span, eq `SELECT FROM "users"`
@@ -273,6 +281,8 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     def with_span(
       name,
       type = nil,
+      subtype: nil,
+      action: nil,
       context: nil,
       include_stacktrace: true,
       trace_context: nil
@@ -289,6 +299,8 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
           start_span(
             name,
             type,
+            subtype: subtype,
+            action: action,
             context: context,
             include_stacktrace: include_stacktrace,
             trace_context: trace_context
@@ -298,7 +310,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
         end_span
       end
     end
-    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength, Metrics/ParameterLists
 
     # Build a [Context] from a Rack `env`. The context may include information
     # about the request, response, current user and more

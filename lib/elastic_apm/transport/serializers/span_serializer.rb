@@ -22,6 +22,8 @@ module ElasticAPM
               parent_id: span.parent_id,
               name: keyword_field(span.name),
               type: keyword_field(span.type),
+              subtype: keyword_field(span.subtype),
+              action: keyword_field(span.action),
               duration: ms(span.duration),
               context: context_serializer.build(span.context),
               stacktrace: span.stacktrace.to_a,

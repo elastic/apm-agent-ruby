@@ -84,7 +84,9 @@ module ElasticAPM
 
       span, = @intercepted.spans
       expect(span.name).to eq 'POST example.com'
-      expect(span.type).to eq 'ext.net_http.POST'
+      expect(span.type).to eq 'ext'
+      expect(span.subtype).to eq 'net_http'
+      expect(span.action).to eq 'POST'
 
       ElasticAPM.stop
       WebMock.reset!

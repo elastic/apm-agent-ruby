@@ -6,6 +6,8 @@ module ElasticAPM
     # @api private
     class NetHTTPSpy
       KEY = :__elastic_apm_net_http_disabled
+      TYPE = 'ext'
+      SUBTYPE = 'net_http'
 
       # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       class << self
@@ -46,9 +48,13 @@ module ElasticAPM
             host ||= address
 
             name = "#{method} #{host}"
-            type = "ext.net_http.#{method}"
 
-            ElasticAPM.with_span name, type do |span|
+            ElasticAPM.with_span(
+              name,
+              TYPE,
+              subtype: SUBTYPE,
+              action: method.to_s
+            ) do |span|
               trace_context = span&.trace_context || transaction.trace_context
               req['Elastic-Apm-Traceparent'] = trace_context.to_header
               request_without_apm(req, body, &block)
