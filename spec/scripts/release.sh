@@ -23,6 +23,6 @@ RUBY_VERSION=${VERSION} docker-compose run \
   -e INCLUDE_SCHEMA_SPECS=1 \
   -e HOME=/app \
   -v "$(dirname "$(pwd)"):/app" \
-  --rm ruby_release \
+  --rm ruby_rspec \
   /bin/bash -c "\
     bundle install && rake release"
