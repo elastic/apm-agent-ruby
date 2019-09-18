@@ -187,8 +187,6 @@ pipeline {
       stage('Release') {
         options { skipDefaultCheckout() }
         environment {
-          HOME = "${env.WORKSPACE}"
-          PATH = "${env.WORKSPACE}/bin:${env.PATH}"
           RUBY_DOCKER_TAG = 'ruby:2.6'
         }
         when {
@@ -204,14 +202,12 @@ pipeline {
             unstash 'source'
             script {
               dir(BASE_DIR){
-                docker.image("${env.RUBY_DOCKER_TAG}").inside('-v /etc/passwd:/etc/passwd') {
+                docker.image("${env.RUBY_DOCKER_TAG}").inside('-v /etc/passwd:/etc/passwd -v ${HOME}/.ssh:${HOME}/.ssh') {
                   withEnv(["HOME=${env.WORKSPACE}/${env.BASE_DIR ?: ''}"]) {
                     rubygemsLogin.withApi(secret: "${env.RELEASE_SECRET}") {
                       sshagent(['f6c7695a-671e-4f4f-a331-acdce44ff9ba']) {
                         //sh "bundle install && rake release"
-                        sh 'env | sort'
-                        sh 'ls -ltrah .gem'
-                        sh 'ssh -T git@github.com -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -vv | true'
+                        sh 'ssh -T git@github.com | true'
                       }
                     }
                   }
