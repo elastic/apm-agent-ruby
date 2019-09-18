@@ -185,7 +185,7 @@ pipeline {
         environment {
           HOME = "${env.WORKSPACE}"
           PATH = "${env.WORKSPACE}/bin:${env.PATH}"
-          RUBY_DOCKER_TAG = 'ruby:latest'
+          RUBY_DOCKER_TAG = 'ruby:2.6'
         }
         when {
           beforeAgent true
