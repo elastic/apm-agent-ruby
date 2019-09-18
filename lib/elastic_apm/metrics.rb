@@ -7,8 +7,8 @@ module ElasticAPM
   module Metrics
     MUTEX = Mutex.new
 
-    def self.new(config, &block)
-      Collector.new(config, &block)
+    def self.new(config, agent)
+      Collector.new(config, agent: agent)
     end
 
     def self.platform
@@ -21,17 +21,17 @@ module ElasticAPM
 
       TIMEOUT_INTERVAL = 5 # seconds
 
-      def initialize(config, tags: nil, &block)
+      def initialize(config, tags: nil, agent:)
         @config = config
         @tags = tags
         @samplers = [CpuMem, VM].map do |kls|
           debug "Adding metrics collector '#{kls}'"
           kls.new(config)
         end
-        @callback = block
+        @agent = agent
       end
 
-      attr_reader :config, :samplers, :callback, :tags
+      attr_reader :config, :samplers, :agent, :tags
 
       # rubocop:disable Metrics/MethodLength
       def start
@@ -79,7 +79,7 @@ module ElasticAPM
         metricset = Metricset.new(tags: tags, **collect)
         return if metricset.empty?
 
-        callback.call(metricset)
+        agent.enqueue metricset
       end
 
       def collect

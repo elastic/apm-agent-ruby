@@ -5,8 +5,8 @@ require 'spec_helper'
 module ElasticAPM
   RSpec.describe Metrics do
     let(:config) { Config.new }
-    let(:callback) { ->(_) {} }
-    subject { described_class.new(config, &callback) }
+    let(:agent) { double('agent', enqueue: true) }
+    subject { described_class.new(config, agent) }
 
     describe 'life cycle' do
       describe '#start' do
@@ -49,20 +49,20 @@ module ElasticAPM
 
     describe '.collect_and_send' do
       context 'when samples' do
-        it 'calls callback' do
+        it 'calls enqueue on the agent' do
           expect(subject.samplers.first).to receive(:collect) { { thing: 1 } }
-          expect(callback).to receive(:call).with(Metricset)
+          expect(agent).to receive(:enqueue).with(Metricset)
 
           subject.collect_and_send
         end
       end
 
       context 'when no samples' do
-        it 'calls callback' do
+        it 'does not call enqueue on the agent' do
           subject.samplers.each do |sampler|
             expect(sampler).to receive(:collect) { nil }
           end
-          expect(callback).to_not receive(:call)
+          expect(agent).to_not receive(:enqueue)
 
           subject.collect_and_send
         end

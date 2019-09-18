@@ -73,9 +73,10 @@ module ElasticAPM
       @transport = Transport::Base.new(config)
       @instrumenter = Instrumenter.new(
         config,
-        stacktrace_builder: stacktrace_builder
-      ) { |event| enqueue event }
-      @metrics = Metrics.new(config) { |event| enqueue event }
+        stacktrace_builder: stacktrace_builder,
+        agent: self
+      )
+      @metrics = Metrics.new(config, self)
     end
     # rubocop:enable Metrics/MethodLength
 

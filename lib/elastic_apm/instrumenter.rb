@@ -39,15 +39,15 @@ module ElasticAPM
       end
     end
 
-    def initialize(config, stacktrace_builder:, &enqueue)
+    def initialize(config, stacktrace_builder:, agent:)
       @config = config
       @stacktrace_builder = stacktrace_builder
-      @enqueue = enqueue
+      @agent = agent
 
       @current = Current.new
     end
 
-    attr_reader :config, :stacktrace_builder, :enqueue
+    attr_reader :config, :stacktrace_builder, :agent
 
     def start
       debug 'Starting instrumenter'
@@ -117,7 +117,7 @@ module ElasticAPM
 
       transaction.done result
 
-      enqueue.call transaction
+      agent.enqueue transaction
 
       transaction
     end
@@ -178,7 +178,7 @@ module ElasticAPM
 
       span.done
 
-      enqueue.call span
+      agent.enqueue span
 
       span
     end
