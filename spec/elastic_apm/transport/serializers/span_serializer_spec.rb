@@ -39,6 +39,8 @@ module ElasticAPM
                 trace_id: span.trace_id,
                 name: 'Span',
                 type: 'custom',
+                subtype: nil,
+                action: nil,
                 context: { sync: true },
                 stacktrace: [],
                 timestamp: 694_224_000_000_000,
