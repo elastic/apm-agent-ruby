@@ -3,11 +3,17 @@
 require 'elastic_apm/subscriber'
 
 module ElasticAPM
-  # @api private
+  # Module for explicitly starting the ElasticAPM agent and hooking into Rails.
+  # It is recommended to use the Railtie instead.
   module Rails
     extend self
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     # rubocop:disable Metrics/CyclomaticComplexity
+    # Start the ElasticAPM agent and hook into Rails.
+    # Note that the agent won't be started if the Rails console is being used.
+    #
+    # @param config [Config, Hash] An instance of Config or a Hash config.
+    # @return [true, nil] true if the agent was started, nil otherwise.
     def start(config)
       config = Config.new(config) unless config.is_a?(Config)
       if (reason = should_skip?(config))
