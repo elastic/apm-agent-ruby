@@ -21,9 +21,7 @@ module ElasticAPM
               transaction_id: span.transaction_id,
               parent_id: span.parent_id,
               name: keyword_field(span.name),
-              type: keyword_field(span.type),
-              subtype: keyword_field(span.subtype),
-              action: keyword_field(span.action),
+              type: join_type(span),
               duration: ms(span.duration),
               context: context_serializer.build(span.context),
               stacktrace: span.stacktrace.to_a,
@@ -67,6 +65,12 @@ module ElasticAPM
               method: keyword_field(http.method)
             }
           end
+        end
+
+        private
+
+        def join_type(span)
+          [span.type, span.subtype, span.action].tap(&:compact!).join('.')
         end
       end
     end

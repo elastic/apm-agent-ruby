@@ -38,8 +38,6 @@ module ElasticAPM
                 trace_id: span.trace_id,
                 name: 'Span',
                 type: 'custom',
-                subtype: nil,
-                action: nil,
                 context: { sync: true },
                 stacktrace: [],
                 timestamp: 694_224_000_000_000,
@@ -83,6 +81,23 @@ module ElasticAPM
 
               statement = result.dig(:span, :context, :db, :statement)
               expect(statement.length).to be(10_000)
+            end
+          end
+
+          context 'with split types' do
+            let(:span) do
+              Span.new(
+                name: 'Span',
+                transaction_id: transaction.id,
+                trace_context: trace_context,
+                type: 'a',
+                subtype: 'b',
+                action: 'c'
+              )
+            end
+
+            it 'joins them for sending' do
+              expect(result[:span][:type]).to eq 'a.b.c'
             end
           end
         end
