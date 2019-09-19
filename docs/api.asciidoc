@@ -30,9 +30,10 @@ ElasticAPM.start(server_url: 'http://localhost:8200')
   * `config`: An optional hash or `ElasticAPM::Config` instance with configuration
   options.  See <<configuration,Configuration>>.
 
-If you are using <<getting-started-rails,Ruby on Rails>> this is done
-automatically for you.
-If not see <<getting-started-rack,Getting started with Rack>>.
+If you are using <<getting-started-rails,Ruby on Rails>> this is done automatically for you.
+If you choose not to require the `elastic_apm` gem and instead want to start the
+agent and hook into Rails manually, see <<rails-start,hooking into Rails explicitly>>.
+If you're not using Rails, see <<getting-started-rack,Getting started with Rack>>.
 
 [float]
 [[api-agent-stop]]
@@ -185,6 +186,18 @@ Arguments:
   * `for_type`: Symbol representing type of event, eg. `:transaction` or `error`
 
 Returns the built context.
+
+[float]
+[[rails-start]]
+=== Manually hooking into Rails
+
+Start the agent and hook into Rails explicitly. This is useful if you skip requiring
+the gem and using the `Railtie`.
+
+[source,ruby]
+----
+ElasticAPM::Rails.start(server_url: 'http://localhost:8200')
+----
 
 [float]
 === Errors
