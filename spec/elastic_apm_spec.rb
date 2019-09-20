@@ -20,6 +20,46 @@ RSpec.describe ElasticAPM do
 
     let(:agent) { ElasticAPM.agent }
 
+    describe '.log_ids' do
+      context 'with no current_transaction' do
+        it 'returns empty string' do
+          expect(ElasticAPM.log_ids).to eq('')
+        end
+      end
+
+      context 'with a current transaction' do
+        it 'includes transaction and trace ids' do
+          transaction = ElasticAPM.start_transaction 'Test'
+          expect(ElasticAPM.log_ids).to eq(
+            "transaction.id=#{transaction.id} trace.id=#{transaction.trace_id}"
+          )
+        end
+      end
+
+      context 'with a current_span' do
+        it 'includes transaction, span and trace ids' do
+          trans = ElasticAPM.start_transaction
+          span = ElasticAPM.start_span 'Test'
+          expect(ElasticAPM.log_ids).to eq(
+            "transaction.id=#{trans.id} span.id=#{span.id} " \
+              "trace.id=#{trans.trace_id}"
+          )
+        end
+      end
+
+      context 'when passed a block' do
+        it 'yields each id' do
+          transaction = ElasticAPM.start_transaction
+          span = ElasticAPM.start_span 'Test'
+          ElasticAPM.log_ids do |transaction_id, span_id, trace_id|
+            expect(transaction_id).to eq(transaction.id)
+            expect(span_id).to eq(span.id)
+            expect(trace_id).to eq(transaction.trace_id)
+          end
+        end
+      end
+    end
+
     describe '.start_transaction' do
       it 'starts a transaction' do
         transaction = ElasticAPM.start_transaction 'Test'
