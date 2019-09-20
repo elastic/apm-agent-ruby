@@ -13,7 +13,7 @@ module ElasticAPM
 
         attr_reader :context_serializer
 
-        # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+        # rubocop:disable Metrics/MethodLength
         def build(span)
           {
             span: {
@@ -30,7 +30,7 @@ module ElasticAPM
             }
           }
         end
-        # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+        # rubocop:enable Metrics/MethodLength
 
         # @api private
         class ContextSerializer < Serializer
@@ -70,7 +70,9 @@ module ElasticAPM
         private
 
         def join_type(span)
-          [span.type, span.subtype, span.action].tap(&:compact!).join('.')
+          combined = [span.type, span.subtype, span.action]
+          combined.compact!
+          combined.join '.'
         end
       end
     end
