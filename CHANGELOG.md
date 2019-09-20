@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- Add `Rails` module with `#start` method to run Rails setup explicitly ([#522](https://github.com/elastic/apm-agent-ruby/pull/522))
+
 ## 2.10.1
 
 ### Fixed
@@ -11,12 +17,14 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 - Fixed loading options from a config file specified by `ELASTIC_APM_CONFIG_FILE` ([#518](https://github.com/elastic/apm-agent-ruby/pull/518))
 - Fixed an issue with CentralConfig polling not starting ([#525](https://github.com/elastic/apm-agent-ruby/pull/525))
 
+### Added
+
+- Support for chained exceptions ([#488](https://github.com/elastic/apm-agent-ruby/pull/488))
+
 ## 2.10.0
 
 ### Added
 
-- Add `Rails` module with `#start` method to run Rails setup explicitly ([#522](https://github.com/elastic/apm-agent-ruby/pull/522))
-- Support for chained exceptions ([#488](https://github.com/elastic/apm-agent-ruby/pull/488))
 - Add Ruby specific metrics ([#437](https://github.com/elastic/apm-agent-ruby/pull/437))
 - Support for APM Agent Configuration via Kibana ([#464](https://github.com/elastic/apm-agent-ruby/pull/464))
 - Change span name format and add command to context's db.statement for `MongoSpy` ([#488](https://github.com/elastic/apm-agent-ruby/pull/490))
