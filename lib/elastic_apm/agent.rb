@@ -37,9 +37,9 @@ module ElasticAPM
 
         unless config.active?
           config.logger.debug format(
-                                  "%sAgent disabled with `active: false'",
-                                  Logging::PREFIX
-                              )
+            "%sAgent disabled with `active: false'",
+            Logging::PREFIX
+          )
           return
         end
 
