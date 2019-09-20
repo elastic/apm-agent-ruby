@@ -77,7 +77,7 @@ module ElasticAPM
           instrumenter.current_spans.delete(elastic_span)
         end
 
-        instrumenter.agent.enqueue elastic_span
+        instrumenter.enqueue elastic_span
       end
 
       private

@@ -4,7 +4,7 @@ module ElasticAPM
   RSpec.describe Instrumenter, :intercept do
     let(:config) { Config.new }
     let(:stacktrace_builder) { StacktraceBuilder.new(config) }
-    let(:agent) {double('agent', enqueue: true) }
+    let(:agent) { double('agent', enqueue: true) }
 
     subject do
       Instrumenter.new(

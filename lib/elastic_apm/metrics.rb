@@ -17,6 +17,9 @@ module ElasticAPM
 
     # @api private
     class Collector
+      extend Forwardable
+      def_delegators :@agent, :enqueue
+
       include Logging
 
       TIMEOUT_INTERVAL = 5 # seconds
@@ -31,7 +34,7 @@ module ElasticAPM
         @agent = agent
       end
 
-      attr_reader :config, :samplers, :agent, :tags
+      attr_reader :config, :samplers, :tags
 
       # rubocop:disable Metrics/MethodLength
       def start
@@ -79,7 +82,7 @@ module ElasticAPM
         metricset = Metricset.new(tags: tags, **collect)
         return if metricset.empty?
 
-        agent.enqueue metricset
+        enqueue metricset
       end
 
       def collect

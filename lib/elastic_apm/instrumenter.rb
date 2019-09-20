@@ -9,6 +9,9 @@ module ElasticAPM
   # rubocop:disable Metrics/ClassLength
   # @api private
   class Instrumenter
+    extend Forwardable
+    def_delegators :@agent, :enqueue
+
     TRANSACTION_KEY = :__elastic_instrumenter_transaction_key
     SPAN_KEY = :__elastic_instrumenter_spans_key
 
@@ -47,7 +50,7 @@ module ElasticAPM
       @current = Current.new
     end
 
-    attr_reader :config, :stacktrace_builder, :agent
+    attr_reader :config, :stacktrace_builder
 
     def start
       debug 'Starting instrumenter'
@@ -117,7 +120,7 @@ module ElasticAPM
 
       transaction.done result
 
-      agent.enqueue transaction
+      enqueue transaction
 
       transaction
     end
@@ -178,7 +181,7 @@ module ElasticAPM
 
       span.done
 
-      agent.enqueue span
+      enqueue span
 
       span
     end
