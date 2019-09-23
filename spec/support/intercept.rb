@@ -34,9 +34,7 @@ RSpec.configure do |config|
 
   config.before :each, intercept: true do
     @intercepted = Intercept.new
-    allow(ElasticAPM::Transport::Base).to receive(:new) do |_config|
-      @intercepted
-    end
+    allow(ElasticAPM::Transport::Base).to receive(:new).and_return(@intercepted)
   end
 
   config.after :each, intercept: true do
