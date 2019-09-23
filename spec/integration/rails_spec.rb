@@ -7,6 +7,8 @@ if defined?(Rails)
   require 'action_mailer/railtie'
   require 'elastic_apm/railtie'
 
+  SpecLogger = StringIO.new
+
   RSpec.describe 'Rails integration',
     :allow_leaking_subscriptions, :mock_intake do
     include Rack::Test::Methods
@@ -15,13 +17,20 @@ if defined?(Rails)
       @app ||= Rails.application
     end
 
+    after :each do |example|
+      if example.exception
+        puts 'Example failed, dumping log:'
+        SpecLogger.rewind
+        puts SpecLogger.read
+      end
+    end
+
     before :all do
       class RailsTestApp < Rails::Application
         config.secret_key_base = '__secret_key_base'
         config.consider_all_requests_local = false
 
-        config.logger = Logger.new(nil)
-        # config.logger = Logger.new($stdout)
+        config.logger = Logger.new(SpecLogger)
         config.logger.level = Logger::DEBUG
 
         config.eager_load = false
@@ -34,6 +43,7 @@ if defined?(Rails)
         config.elastic_apm.service_name = 'RailsTestApp'
         config.elastic_apm.log_path = 'spec/elastic_apm.log'
         config.elastic_apm.log_level = Logger::DEBUG
+        config.elastic_apm.logger = config.logger
         config.elastic_apm.ignore_url_patterns = '/ping'
       end
 

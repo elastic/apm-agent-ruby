@@ -20,7 +20,9 @@ module ElasticAPM
 
       expect(span).to_not be nil
       expect(span.name).to eq 'GET example.com'
-      expect(span.type).to eq 'ext.faraday.get'
+      expect(span.type).to eq 'ext'
+      expect(span.subtype).to eq 'faraday'
+      expect(span.action).to eq 'get'
 
       ElasticAPM.stop
       WebMock.reset!
@@ -38,7 +40,9 @@ module ElasticAPM
 
       expect(span).to_not be nil
       expect(span.name).to eq 'GET example.com'
-      expect(span.type).to eq 'ext.faraday.get'
+      expect(span.type).to eq 'ext'
+      expect(span.subtype).to eq 'faraday'
+      expect(span.action).to eq 'get'
 
       ElasticAPM.stop
       WebMock.reset!
@@ -58,7 +62,9 @@ module ElasticAPM
 
       expect(span).to_not be nil
       expect(span.name).to eq 'GET example.com'
-      expect(span.type).to eq 'ext.faraday.get'
+      expect(span.type).to eq 'ext'
+      expect(span.subtype).to eq 'faraday'
+      expect(span.action).to eq 'get'
 
       ElasticAPM.stop
       WebMock.reset!

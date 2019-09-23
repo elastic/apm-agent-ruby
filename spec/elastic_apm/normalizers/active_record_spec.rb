@@ -25,9 +25,10 @@ module ElasticAPM
 
             subject = SqlNormalizer.new nil
 
-            _, type, = subject.normalize(nil, nil, sql: 'DROP * FROM users')
+            _, _, subtype, =
+              subject.normalize(nil, nil, sql: 'DROP * FROM users')
 
-            expect(type).to eq 'db.mysql.sql'
+            expect(subtype).to eq 'mysql'
           end
         end
 
@@ -43,10 +44,12 @@ module ElasticAPM
             sql = 'SELECT  "hotdogs".* FROM "hotdogs" ' \
               'WHERE "hotdogs"."topping" = $1 LIMIT 1'
 
-            name, type, context = normalize_payload(sql: sql)
+            name, type, subtype, action, context_ = normalize_payload(sql: sql)
             expect(name).to eq 'SELECT FROM hotdogs'
-            expect(type).to eq 'db.unknown.sql'
-            expect(context.db.statement).to eq sql
+            expect(type).to eq 'db'
+            expect(subtype).to eq 'unknown'
+            expect(action).to eq 'sql'
+            expect(context_.db.statement).to eq sql
           end
 
           it 'skips cache queries' do

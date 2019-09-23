@@ -24,7 +24,13 @@ module ElasticAPM
               'process_action.action_controller',
               controller: 'UsersController', action: 'index'
             )
-            expected = ['UsersController#index', 'app.controller.action', nil]
+            expected = [
+              'UsersController#index',
+              'app',
+              'controller',
+              'action',
+              nil
+            ]
 
             expect(result).to eq expected
           end

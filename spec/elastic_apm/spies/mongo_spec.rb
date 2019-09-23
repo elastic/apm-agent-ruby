@@ -42,7 +42,9 @@ module ElasticAPM
       span, = @intercepted.spans
 
       expect(span.name).to eq 'elastic-apm-test.listCollections'
-      expect(span.type).to eq 'db.mongodb.query'
+      expect(span.type).to eq 'db'
+      expect(span.subtype).to eq 'mongodb'
+      expect(span.action).to eq 'query'
       expect(span.duration).to_not be_nil
 
       db = span.context.db
@@ -77,7 +79,9 @@ module ElasticAPM
       span, = @intercepted.spans
 
       expect(span.name).to eq 'elastic-apm-test.testing.parallelCollectionScan'
-      expect(span.type).to eq 'db.mongodb.query'
+      expect(span.type).to eq 'db'
+      expect(span.subtype).to eq 'mongodb'
+      expect(span.action).to eq 'query'
       expect(span.duration).to_not be_nil
 
       db = span.context.db
@@ -112,7 +116,9 @@ module ElasticAPM
       span, = @intercepted.spans
 
       expect(span.name).to eq 'elastic-apm-test.testing.find'
-      expect(span.type).to eq 'db.mongodb.query'
+      expect(span.type).to eq 'db'
+      expect(span.subtype).to eq 'mongodb'
+      expect(span.action).to eq 'query'
       expect(span.duration).to_not be_nil
 
       db = span.context.db

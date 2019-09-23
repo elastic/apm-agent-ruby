@@ -134,9 +134,12 @@ module ElasticAPM
 
     # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
     # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
+    # rubocop:disable Metrics/ParameterLists
     def start_span(
       name,
       type = nil,
+      subtype: nil,
+      action: nil,
       backtrace: nil,
       context: nil,
       trace_context: nil
@@ -155,6 +158,8 @@ module ElasticAPM
 
       span = Span.new(
         name: name,
+        subtype: subtype,
+        action: action,
         transaction_id: transaction.id,
         trace_context: trace_context || parent.trace_context.child,
         type: type,
@@ -170,6 +175,7 @@ module ElasticAPM
 
       span.start
     end
+    # rubocop:enable Metrics/ParameterLists
     # rubocop:enable Metrics/AbcSize, Metrics/PerceivedComplexity
     # rubocop:enable Metrics/MethodLength, Metrics/CyclomaticComplexity
 

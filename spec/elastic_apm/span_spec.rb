@@ -3,9 +3,11 @@
 module ElasticAPM
   RSpec.describe Span do
     subject do
-      described_class.new(name: 'Spannest name',
-                          transaction_id: transaction_id,
-                          trace_context: trace_context)
+      described_class.new(
+        name: 'Spannest name',
+        transaction_id: transaction_id,
+        trace_context: trace_context
+      )
     end
     let(:trace_context) do
       TraceContext.parse("00-#{'1' * 32}-#{'2' * 16}-01")
@@ -15,6 +17,8 @@ module ElasticAPM
     describe '#initialize' do
       its(:name) { should eq 'Spannest name' }
       its(:type) { should eq 'custom' }
+      its(:subtype) { should be nil }
+      its(:action) { should be nil }
       its(:transaction_id) { should eq transaction_id }
       its(:trace_context) { should eq trace_context }
       its(:timestamp) { should be_nil }
@@ -22,6 +26,22 @@ module ElasticAPM
       its(:trace_id) { should eq trace_context.trace_id }
       its(:id) { should eq trace_context.id }
       its(:parent_id) { should eq trace_context.parent_id }
+
+      context 'with a dot-separated type' do
+        it 'splits type' do
+          span =
+            described_class.new(
+              name: 'Spannest name',
+              type: 'typest.subest.actionest',
+              transaction_id: transaction_id,
+              trace_context: trace_context
+            )
+
+          expect(span.type).to eq 'typest'
+          expect(span.subtype).to eq 'subest'
+          expect(span.action).to eq 'actionest'
+        end
+      end
     end
 
     describe '#start', :mock_time do

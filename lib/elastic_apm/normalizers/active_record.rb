@@ -9,10 +9,13 @@ module ElasticAPM
       class SqlNormalizer < Normalizer
         register 'sql.active_record'
 
+        TYPE = 'db'
+        ACTION = 'sql'
+
         def initialize(*args)
           super
 
-          @type = format('db.%s.sql', lookup_adapter || 'unknown').freeze
+          @subtype = lookup_adapter || 'unknown'
           @summarizer = SqlSummarizer.new
         end
 
@@ -22,7 +25,7 @@ module ElasticAPM
           name = summarize(payload[:sql]) || payload[:name]
           context =
             Span::Context.new(db: { statement: payload[:sql], type: 'sql' })
-          [name, @type, context]
+          [name, TYPE, @subtype, ACTION, context]
         end
 
         private

@@ -13,7 +13,7 @@ module ElasticAPM
 
         attr_reader :context_serializer
 
-        # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+        # rubocop:disable Metrics/MethodLength
         def build(span)
           {
             span: {
@@ -21,7 +21,7 @@ module ElasticAPM
               transaction_id: span.transaction_id,
               parent_id: span.parent_id,
               name: keyword_field(span.name),
-              type: keyword_field(span.type),
+              type: join_type(span),
               duration: ms(span.duration),
               context: context_serializer.build(span.context),
               stacktrace: span.stacktrace.to_a,
@@ -30,7 +30,7 @@ module ElasticAPM
             }
           }
         end
-        # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+        # rubocop:enable Metrics/MethodLength
 
         # @api private
         class ContextSerializer < Serializer
@@ -65,6 +65,14 @@ module ElasticAPM
               method: keyword_field(http.method)
             }
           end
+        end
+
+        private
+
+        def join_type(span)
+          combined = [span.type, span.subtype, span.action]
+          combined.compact!
+          combined.join '.'
         end
       end
     end

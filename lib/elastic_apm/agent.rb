@@ -159,9 +159,12 @@ module ElasticAPM
       instrumenter.end_transaction(result)
     end
 
+    # rubocop:disable Metrics/ParameterLists
     def start_span(
       name = nil,
       type = nil,
+      subtype: nil,
+      action: nil,
       backtrace: nil,
       context: nil,
       trace_context: nil
@@ -169,11 +172,14 @@ module ElasticAPM
       instrumenter.start_span(
         name,
         type,
+        subtype: subtype,
+        action: action,
         backtrace: backtrace,
         context: context,
         trace_context: trace_context
       )
     end
+    # rubocop:enable Metrics/ParameterLists
 
     def end_span
       instrumenter.end_span

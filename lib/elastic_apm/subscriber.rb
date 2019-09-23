@@ -29,8 +29,8 @@ module ElasticAPM
 
     Notification = Struct.new(:id, :span)
 
+    # rubocop:disable Metrics/MethodLength
     def start(name, id, payload)
-      # debug "AS::Notification#start:#{name}:#{id}"
       return unless (transaction = @agent.current_transaction)
 
       normalized = @normalizers.normalize(transaction, name, payload)
@@ -39,12 +39,20 @@ module ElasticAPM
         if normalized == :skip
           nil
         else
-          name, type, context = normalized
-          @agent.start_span(name, type, context: context)
+          name, type, subtype, action, context = normalized
+
+          @agent.start_span(
+            name,
+            type,
+            subtype: subtype,
+            action: action,
+            context: context
+          )
         end
 
       transaction.notifications << Notification.new(id, span)
     end
+    # rubocop:enable Metrics/MethodLength
 
     def finish(_name, id, _payload)
       # debug "AS::Notification#finish:#{name}:#{id}"

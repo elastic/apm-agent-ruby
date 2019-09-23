@@ -73,7 +73,13 @@ module ElasticAPM
           start_span: [
             nil,
             nil,
-            { backtrace: nil, context: nil, trace_context: nil }
+            {
+              subtype: nil,
+              action: nil,
+              backtrace: nil,
+              context: nil,
+              trace_context: nil
+            }
           ],
           end_span: nil,
           set_tag: [nil, nil],

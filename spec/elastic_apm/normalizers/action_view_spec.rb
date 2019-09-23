@@ -17,7 +17,8 @@ module ElasticAPM
           it 'normalizes an unknown template' do
             result = subject.normalize(nil, key, {})
             type = described_class.const_get(:TYPE)
-            expected = ['Unknown template', type, nil]
+            subtype = described_class.const_get(:SUBTYPE)
+            expected = ['Unknown template', type, subtype, action, nil]
 
             expect(result).to eq expected
           end
@@ -49,18 +50,21 @@ module ElasticAPM
       end
 
       describe ActionView::RenderTemplateNormalizer do
+        let(:action) { nil }
         subject { normalizers.for('render_template.action_view') }
         it { expect(subject).to be_a ActionView::RenderTemplateNormalizer }
         it_should_behave_like :action_view_normalizer
       end
 
       describe ActionView::RenderPartialNormalizer do
+        let(:action) { 'partial' }
         subject { normalizers.for('render_partial.action_view') }
         it { expect(subject).to be_a ActionView::RenderPartialNormalizer }
         it_should_behave_like :action_view_normalizer
       end
 
       describe ActionView::RenderCollectionNormalizer do
+        let(:action) { 'collection' }
         subject { normalizers.for('render_collection.action_view') }
         it { expect(subject).to be_a ActionView::RenderCollectionNormalizer }
         it_should_behave_like :action_view_normalizer

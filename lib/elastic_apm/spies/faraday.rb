@@ -5,6 +5,9 @@ module ElasticAPM
   module Spies
     # @api private
     class FaradaySpy
+      TYPE = 'ext'
+      SUBTYPE = 'faraday'
+
       def self.without_net_http
         return yield unless defined?(NetHTTPSpy)
 
@@ -37,9 +40,13 @@ module ElasticAPM
                    end
 
             name = "#{method.upcase} #{host}"
-            type = "ext.faraday.#{method}"
 
-            ElasticAPM.with_span name, type do |span|
+            ElasticAPM.with_span(
+              name,
+              TYPE,
+              subtype: SUBTYPE,
+              action: method.to_s
+            ) do |span|
               ElasticAPM::Spies::FaradaySpy.without_net_http do
                 trace_context = span&.trace_context || transaction.trace_context
 

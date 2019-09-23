@@ -14,7 +14,9 @@ module ElasticAPM
 
       # @api private
       class Subscriber
-        TYPE = 'db.mongodb.query'
+        TYPE = 'db'
+        SUBTYPE = 'mongodb'
+        ACTION = 'query'
 
         def initialize
           @events = {}
@@ -51,6 +53,8 @@ module ElasticAPM
             ElasticAPM.start_span(
               name,
               TYPE,
+              subtype: SUBTYPE,
+              action: ACTION,
               context: build_context(event)
             )
 
