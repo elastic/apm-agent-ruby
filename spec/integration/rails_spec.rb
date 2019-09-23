@@ -115,6 +115,8 @@ if defined?(Rails)
         end
       end
 
+      MockIntake.instance.stub!
+
       RailsTestApp.initialize!
       RailsTestApp.routes.draw do
         get '/error', to: 'application#raise_error'
