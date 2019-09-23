@@ -4,8 +4,38 @@ require 'json'
 require 'timeout'
 require 'rack/chunked'
 
-class Intake
+class MockIntake
   def initialize
+    clear!
+  end
+
+  attr_reader :requests, :transactions, :spans, :errors, :metadatas
+
+  def self.instance
+    @instance ||= new
+  end
+
+  class << self
+    extend Forwardable
+
+    def_delegator :instance, :stub!
+    def_delegator :instance, :stubbed?
+    def_delegator :instance, :clear!
+    def_delegator :instance, :reset!
+  end
+
+  def stub!
+    @request_stub =
+      WebMock.stub_request(
+        :any, %r{^http://localhost:8200/intake/v2/events/?$}
+      ).to_rack(self)
+  end
+
+  def stubbed?
+    !!@request_stub
+  end
+
+  def clear!
     @requests = []
     @transactions = []
     @spans = []
@@ -13,7 +43,11 @@ class Intake
     @metadatas = []
   end
 
-  attr_reader :requests, :transactions, :spans, :errors, :metadatas
+  def reset!
+    clear!
+    WebMock.reset!
+    @request_stub = nil
+  end
 
   def call(env)
     request = Rack::Request.new(env)
@@ -64,23 +98,20 @@ end
 
 RSpec.configure do |config|
   config.before :each, :mock_intake do
-    @mock_intake = Intake.new
-
-    @request_stub =
-      WebMock.stub_request(
-        :any,
-        %r{^http://localhost:8200/intake/v2/events/?$}
-      ).to_rack(@mock_intake)
+    MockIntake.instance.stub! unless MockIntake.instance.stubbed?
+    @mock_intake = MockIntake.instance
   end
 
   config.after :each, :mock_intake do
-    WebMock.reset!
-    @request_stub = @mock_intake = nil
+    MockIntake.instance.reset!
+    @mock_intake = nil
   end
 
   # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
   def wait_for(expected)
-    raise 'No request stub – did you forget :mock_intake?' unless @request_stub
+    unless MockIntake.stubbed?
+      raise 'Not stubbed – did you forget :mock_intake?'
+    end
 
     Timeout.timeout(5) do
       loop do
