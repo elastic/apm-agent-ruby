@@ -11,6 +11,10 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 - Add `Rails` module with `#start` method to run Rails setup explicitly ([#522](https://github.com/elastic/apm-agent-ruby/pull/522))
 - Support for log/trace correlation ([#527](https://github.com/elastic/apm-agent-ruby/pull/527))
 
+### Changed
+
+- Split dot-separated `span.type` into `.type`, `.subtype` and `.action` (auto-upgrades dot style) ([#531](https://github.com/elastic/apm-agent-ruby/pull/531))
+
 ## 2.10.1
 
 ### Fixed
