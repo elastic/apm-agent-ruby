@@ -6,25 +6,40 @@ RSpec.configure do |config|
       @transactions = []
       @spans = []
       @errors = []
+      @metricsets = []
     end
 
-    attr_reader :transactions, :spans, :errors
-  end
+    attr_reader :transactions, :spans, :errors, :metricsets
 
-  config.before :each, intercept: true do
-    @intercepted = Intercept.new
-
-    allow_any_instance_of(ElasticAPM::Agent).to receive(:enqueue) do |_, obj|
+    def submit(obj)
       case obj
       when ElasticAPM::Transaction
-        @intercepted.transactions << obj
+        transactions << obj
       when ElasticAPM::Span
-        @intercepted.spans << obj
+        spans << obj
       when ElasticAPM::Error
-        @intercepted.errors << obj
+        errors << obj
+      when ElasticAPM::Metricset
+        metricsets << obj
+      else
+        raise "Unknown resource submitted to intercepted Transport! #{obj}"
       end
 
       true
     end
+
+    def start; end
+    def stop; end
+  end
+
+  config.before :each, intercept: true do
+    @intercepted = Intercept.new
+    allow(ElasticAPM::Transport::Base).to receive(:new) do |_config|
+      @intercepted
+    end
+  end
+
+  config.after :each, intercept: true do
+    @intercepted = nil
   end
 end
