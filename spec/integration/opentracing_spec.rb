@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'elastic_apm/opentracing'
 
-RSpec.describe 'OpenTracing bridge', :intercept do
+RSpec.describe 'OpenTracing bridge' do
   let(:tracer) { ::OpenTracing.global_tracer }
 
   before :context do
@@ -29,8 +29,7 @@ RSpec.describe 'OpenTracing bridge', :intercept do
   end
 
   context 'with an APM Agent' do
-    before { ElasticAPM.start }
-    after { ElasticAPM.stop }
+    include_context 'intercept'
 
     describe '#start_span' do
       context 'as root' do
@@ -145,9 +144,8 @@ RSpec.describe 'OpenTracing bridge', :intercept do
     end
   end
 
-  describe 'example', :intercept do
-    before { ElasticAPM.start }
-    after { ElasticAPM.stop }
+  describe 'example' do
+    include_context 'intercept'
 
     it 'traces nested spans' do
       OpenTracing.start_active_span(
@@ -183,8 +181,7 @@ RSpec.describe 'OpenTracing bridge', :intercept do
   end
 
   describe ElasticAPM::OpenTracing::Span do
-    before { ElasticAPM.start }
-    after { ElasticAPM.stop }
+    include_context 'intercept'
 
     let(:elastic_span) { ElasticAPM::Transaction.new }
 

@@ -3,7 +3,9 @@
 require 'faraday'
 
 module ElasticAPM
-  RSpec.describe 'Spy: Faraday', :intercept do
+  RSpec.describe 'Spy: Faraday' do
+    include_context 'intercept'
+
     let(:client) do
       Faraday.new(url: 'http://example.com')
     end

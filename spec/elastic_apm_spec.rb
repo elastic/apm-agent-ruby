@@ -68,7 +68,8 @@ RSpec.describe ElasticAPM do
       end
     end
 
-    describe '.end_transaction', :intercept do
+    describe '.end_transaction' do
+      include_context 'intercept'
       it 'ends current transaction' do
         transaction = ElasticAPM.start_transaction 'Test'
         expect(ElasticAPM.current_transaction).to_not be_nil

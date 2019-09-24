@@ -16,7 +16,8 @@ module ElasticAPM
       span_class_method :do_all_things
     end
 
-    context 'on class methods', :intercept do
+    context 'on class methods' do
+      include_context 'intercept'
       it 'wraps in a span' do
         ElasticAPM.start
 
@@ -31,7 +32,8 @@ module ElasticAPM
       end
     end
 
-    context 'on instance methods', :intercept do
+    context 'on instance methods' do
+      include_context 'intercept'
       it 'wraps in a span' do
         thing = Thing.new
 

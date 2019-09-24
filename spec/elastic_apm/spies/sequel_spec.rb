@@ -5,7 +5,9 @@ require 'sequel'
 
 module ElasticAPM
   RSpec.describe 'Spy: Sequel' do
-    it 'spans calls', :intercept do
+    include_context 'intercept'
+
+    it 'spans calls' do
       db =
         if RUBY_PLATFORM == 'java'
           ::Sequel.connect('jdbc:sqlite::memory:')

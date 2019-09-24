@@ -4,7 +4,9 @@ require 'fakeredis/rspec'
 
 module ElasticAPM
   RSpec.describe 'Spy: Redis' do
-    it 'spans queries', :intercept do
+    include_context 'intercept'
+
+    it 'spans queries' do
       redis = ::Redis.new
       ElasticAPM.start
 

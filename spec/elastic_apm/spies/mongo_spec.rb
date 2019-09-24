@@ -4,6 +4,7 @@ require 'mongo'
 
 module ElasticAPM
   RSpec.describe 'Spy: MongoDB' do
+    include_context 'intercept'
     before(:context) do
       start_mongodb
     end
@@ -25,7 +26,7 @@ module ElasticAPM
       ENV.fetch('MONGODB_URL') { '127.0.0.1:27017' }
     end
 
-    it 'instruments db admin commands', :intercept do
+    it 'instruments db admin commands' do
       ElasticAPM.start
       client =
         Mongo::Client.new(
@@ -59,7 +60,7 @@ module ElasticAPM
       ElasticAPM.stop
     end
 
-    it 'instruments commands on collections', :intercept do
+    it 'instruments commands on collections' do
       ElasticAPM.start
       client =
         Mongo::Client.new(
@@ -99,7 +100,7 @@ module ElasticAPM
       ElasticAPM.stop
     end
 
-    it 'instruments commands with special BSON types', :intercept do
+    it 'instruments commands with special BSON types' do
       ElasticAPM.start
       client =
         Mongo::Client.new(

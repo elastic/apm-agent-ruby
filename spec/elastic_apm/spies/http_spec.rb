@@ -3,10 +3,11 @@
 require 'http'
 
 module ElasticAPM
-  RSpec.describe 'Spy: HTTP.rb', :intercept do
+  RSpec.describe 'Spy: HTTP.rb' do
+    include_context 'intercept'
+
     it 'spans http calls' do
       WebMock.stub_request(:get, %r{http://example.com/.*})
-      ElasticAPM.start
 
       ElasticAPM.with_transaction 'HTTP test' do
         HTTP.get('http://example.com')

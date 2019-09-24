@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module ElasticAPM
-  RSpec.describe Instrumenter, :intercept do
-    let(:config) { Config.new }
+  RSpec.describe Instrumenter do
+    include_context 'intercept'
     let(:stacktrace_builder) { StacktraceBuilder.new(config) }
     let(:callback) { ->(*_) {} }
     before { allow(callback).to receive(:call) }

@@ -7,6 +7,9 @@ module ElasticAPM
     subject { ErrorBuilder.new Agent.new(config) }
 
     context 'with an exception' do
+      include_context 'intercept'
+      let(:config) { Config.new(default_tags: { more: 'totes' }) }
+
       it 'builds an error from an exception', :mock_time,
         unless: PlatformHelpers.jruby_92? do
         error = subject.build_exception(actual_exception)
@@ -18,19 +21,19 @@ module ElasticAPM
         expect(error.exception.handled).to be true
       end
 
-      it 'sets properties from current transaction', :intercept do
+      it 'sets properties from current transaction' do
         env = Rack::MockRequest.env_for(
           '/somewhere/in/there?q=yes',
           method: 'POST'
         )
         env['HTTP_CONTENT_TYPE'] = 'application/json'
 
-        transaction =
-          with_agent(default_tags: { more: 'totes' }) do
+        #transaction =
+          #with_agent(default_tags: { more: 'totes' }) do
             context =
               ElasticAPM.build_context rack_env: env, for_type: :transaction
 
-            ElasticAPM.with_transaction context: context do |txn|
+           transaction = ElasticAPM.with_transaction context: context do |txn|
               ElasticAPM.set_tag(:my_tag, '123')
               ElasticAPM.set_custom_context(all_the_other_things: 'blah blah')
               ElasticAPM.set_user(Struct.new(:id).new(321))
@@ -38,7 +41,7 @@ module ElasticAPM
 
               txn
             end
-          end
+          #end
 
         error = @intercepted.errors.last
         expect(error.transaction).to eq(sampled: true, type: 'custom')

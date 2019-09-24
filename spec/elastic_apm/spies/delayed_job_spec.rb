@@ -8,7 +8,9 @@ end
 
 if defined?(Delayed::Backend)
   module ElasticAPM
-    RSpec.describe 'Spy: DelayedJob', :intercept do
+    RSpec.describe 'Spy: DelayedJob' do
+      include_context 'intercept'
+
       class TestJob
         def perform
         end

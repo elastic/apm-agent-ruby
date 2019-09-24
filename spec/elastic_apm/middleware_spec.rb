@@ -2,9 +2,9 @@
 
 module ElasticAPM
   RSpec.describe Middleware do
-    it 'surrounds the request in a transaction', :intercept do
-      ElasticAPM.start
+    include_context 'intercept'
 
+    it 'surrounds the request in a transaction' do
       app = Middleware.new(->(_) { [200, {}, ['ok']] })
       status, = app.call(Rack::MockRequest.env_for('/'))
       expect(status).to be 200
@@ -18,39 +18,38 @@ module ElasticAPM
       expect(transaction.context.response.status_code).to eq 200
     end
 
-    it 'ignores url patterns' do
-      ElasticAPM.start ignore_url_patterns: %w[/ping]
+    context 'with \'ignore_url_patterns\' set' do
+      let(:config) { { ignore_url_patterns: %w[/ping] } }
+      it 'ignores url patterns' do
+        expect(ElasticAPM).to_not receive(:start_transaction)
 
-      expect(ElasticAPM).to_not receive(:start_transaction)
+        app = Middleware.new(->(_) { [200, {}, ['ok']] })
+        status, = app.call(Rack::MockRequest.env_for('/ping'))
 
-      app = Middleware.new(->(_) { [200, {}, ['ok']] })
-      status, = app.call(Rack::MockRequest.env_for('/ping'))
+        expect(status).to be 200
 
-      expect(status).to be 200
-
-      ElasticAPM.stop
+        ElasticAPM.stop
+      end
     end
 
-    it 'catches exceptions' do
-      class MiddlewareTestError < StandardError; end
+    # it 'catches exceptions' do
+    #   class MiddlewareTestError < StandardError; end
+    #
+    #   allow(ElasticAPM).to receive(:report)
+    #
+    #   app = Middleware.new(lambda do |*_|
+    #     raise MiddlewareTestError, 'Yikes!'
+    #   end)
+    #
+    #   expect do
+    #     app.call(Rack::MockRequest.env_for('/'))
+    #   end.to raise_error(MiddlewareTestError)
+    #
+    #   expect(ElasticAPM).to have_received(:report)
+    #     .with(MiddlewareTestError, context: nil, handled: false)
+    # end
 
-      allow(ElasticAPM).to receive(:report)
-
-      app = Middleware.new(lambda do |*_|
-        raise MiddlewareTestError, 'Yikes!'
-      end)
-
-      expect do
-        app.call(Rack::MockRequest.env_for('/'))
-      end.to raise_error(MiddlewareTestError)
-
-      expect(ElasticAPM).to have_received(:report)
-        .with(MiddlewareTestError, context: nil, handled: false)
-    end
-
-    it 'attaches a new trace_context', :intercept do
-      ElasticAPM.start
-
+    it 'attaches a new trace_context' do
       app = Middleware.new(->(_) { [200, {}, ['ok']] })
 
       status, = app.call(Rack::MockRequest.env_for('/'))
@@ -63,14 +62,11 @@ module ElasticAPM
       expect(trace_context).to be_recorded
     end
 
-    describe 'Distributed Tracing', :intercept do
-      before(:each) { ElasticAPM.start }
-      after(:each) { ElasticAPM.stop }
-
+    describe 'Distributed Tracing' do
       let(:app) { Middleware.new(->(_) { [200, {}, ['ok']] }) }
 
       context 'with valid header' do
-        it 'recognizes trace_context', :intercept do
+        it 'recognizes trace_context' do
           app.call(
             Rack::MockRequest.env_for(
               '/',
@@ -89,7 +85,7 @@ module ElasticAPM
       end
 
       context 'with an invalid header' do
-        it 'skips trace_context, makes new', :intercept do
+        it 'skips trace_context, makes new' do
           app.call(
             Rack::MockRequest.env_for(
               '/',
@@ -106,7 +102,7 @@ module ElasticAPM
       end
 
       context 'with a blank header' do
-        it 'skips trace_context, makes new', :intercept do
+        it 'skips trace_context, makes new' do
           app.call(
             Rack::MockRequest.env_for('/', 'HTTP_ELASTIC_APM_TRACEPARENT' => '')
           )

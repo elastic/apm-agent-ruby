@@ -40,7 +40,8 @@ if enable
       end
 
       describe 'AS::Notifications API' do
-        it 'adds spans from notifications', :intercept do
+        include_context 'intercept'
+        it 'adds spans from notifications' do
           agent.start_transaction 'Test'
 
           subject.start(

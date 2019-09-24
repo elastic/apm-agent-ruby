@@ -3,7 +3,7 @@
 module ElasticAPM
   RSpec.describe Agent do
     let(:config) { Config.new }
-    subject { Agent.new config }
+    subject(:agent) { Agent.new config }
 
     describe '#initialize' do
       its(:transport) { should be_a Transport::Base }
@@ -91,19 +91,22 @@ module ElasticAPM
       end
     end
 
-    context 'reporting', :intercept do
+    context 'reporting' do
       describe '#report' do
+        include_context 'intercept'
+
         it 'queues a request' do
-          expect { subject.report(actual_exception) }
+          expect { agent.report(actual_exception) }
             .to change(@intercepted.errors, :length).by 1
         end
 
         it 'returns error object' do
-          result = subject.report(actual_exception)
+          result = agent.report(actual_exception)
           expect(result).to be_a String
         end
 
         context 'with filtered exception types' do
+          include_context 'intercept'
           class AgentTestError < StandardError; end
 
           let(:config) do
@@ -113,29 +116,32 @@ module ElasticAPM
           it 'ignores exception' do
             exception = AgentTestError.new("It's ok!")
 
-            expect { subject.report(exception) }
+            expect { agent.report(exception) }
               .to change(@intercepted.errors, :length).by 0
           end
         end
       end
 
-      describe '#report_message', :intercept do
+      describe '#report_message' do
+        include_context 'intercept'
+
         it 'queues a request' do
-          expect { subject.report_message('Everything went 💥') }
+          expect { agent.report_message('Everything went 💥') }
             .to change(@intercepted.errors, :length).by 1
         end
 
         it 'returns error object' do
-          result = subject.report_message(actual_exception)
+          result = agent.report_message(actual_exception)
           expect(result).to be_a String
         end
       end
     end
 
-    context 'metrics', :intercept do
+    context 'metrics' do
+      include_context 'intercept'
+
       it 'starts' do
-        subject.start
-        expect(subject.metrics).to be_running
+        expect(agent.metrics).to be_running
         subject.stop
       end
 
@@ -143,8 +149,7 @@ module ElasticAPM
         let(:config) { Config.new metrics_interval: 0 }
 
         it "doesn't start" do
-          subject.start
-          expect(subject.metrics).to_not be_running
+          expect(agent.metrics).to_not be_running
           subject.stop
         end
       end
