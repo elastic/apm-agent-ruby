@@ -235,10 +235,10 @@ module ElasticAPM
         subject.set_label 'thin*gs', 'are all good!'
 
         expect(transaction.context.labels).to match(
-                                                th_ings: 'are all good!',
-                                                thi_ngs: 'are all good!',
-                                                thin_gs: 'are all good!'
-                                            )
+          th_ings: 'are all good!',
+          thi_ngs: 'are all good!',
+          thin_gs: 'are all good!'
+        )
       end
     end
 
