@@ -161,6 +161,14 @@ module ElasticAPM
       end
     end
 
+    context 'default tags and label set' do
+      let(:config) { Config.new(default_tags: { tags: 1 }, default_labels: { labels: 2 }) }
+
+      it 'merges the tags and labels' do
+        expect(config.default_labels).to eq(tags: 1, labels: 2)
+      end
+    end
+
     describe 'deprecations' do
       it 'warns about removed options' do
         expect(subject).to receive(:warn).with(/has been removed/)

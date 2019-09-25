@@ -185,8 +185,8 @@ module ElasticAPM
       instrumenter.end_span
     end
 
-    def set_tag(key, value)
-      instrumenter.set_tag(key, value)
+    def set_label(key, value)
+      instrumenter.set_label(key, value)
     end
 
     def set_custom_context(context)

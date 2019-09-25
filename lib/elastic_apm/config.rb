@@ -48,6 +48,7 @@ module ElasticAPM
     option :current_user_username_method,      type: :string, default: 'username'
     option :custom_key_filters,                type: :list,   default: [],      converter: RegexpList.new
     option :default_tags,                      type: :dict,   default: {}
+    option :default_labels,                    type: :dict,   default: {}
     option :disable_send,                      type: :bool,   default: false
     option :disable_start_message,             type: :bool,   default: false
     option :disabled_instrumentations,         type: :list,   default: %w[json]
@@ -237,6 +238,10 @@ module ElasticAPM
     deprecate :disabled_spies, :disabled_instrumentations
     deprecate :enabled_spies, :enabled_instrumentations
     deprecate :available_spies, :available_instrumentations
+
+    def default_labels
+      default_tags.merge(@options[:default_labels].value)
+    end
 
     private
 

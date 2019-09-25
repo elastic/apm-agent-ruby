@@ -3,14 +3,14 @@
 module ElasticAPM
   # @api private
   class Metricset
-    def initialize(timestamp: Util.micros, tags: nil, **samples)
+    def initialize(timestamp: Util.micros, labels: nil, **samples)
       @timestamp = timestamp
-      @tags = tags
+      @labels = labels
       @samples = samples
     end
 
     attr_accessor :timestamp
-    attr_reader :samples, :tags
+    attr_reader :samples, :labels
 
     def empty?
       samples.empty?

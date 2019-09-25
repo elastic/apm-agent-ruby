@@ -4,14 +4,14 @@ module ElasticAPM
   class Span
     # @api private
     class Context
-      def initialize(db: nil, http: nil, tags: {})
+      def initialize(db: nil, http: nil, labels: {})
         @sync = true
         @db = db && Db.new(db)
         @http = http && Http.new(http)
-        @tags = tags
+        @labels = labels
       end
 
-      attr_accessor :sync, :db, :http, :tags
+      attr_accessor :sync, :db, :http, :labels
 
       # @api private
       class Db

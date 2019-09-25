@@ -364,7 +364,18 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     # @param value [Object] A value (will be converted to string)
     # @return [Object] The given value
     def set_tag(key, value)
-      agent&.set_tag(key, value)
+      agent&.set_label(key, value)
+    end
+
+    deprecate :set_tag, :set_label
+
+    # Set a _label_ value for the current transaction
+    #
+    # @param key [String,Symbol] A key
+    # @param value [Object] A value
+    # @return [Object] The given value
+    def set_label(key, value)
+      agent&.set_label(key, value)
     end
 
     # Provide further context for the current transaction

@@ -14,7 +14,7 @@ module ElasticAPM
         def call(_worker, job, queue)
           name = SidekiqSpy.name_for(job)
           transaction = ElasticAPM.start_transaction(name, 'Sidekiq')
-          ElasticAPM.set_tag(:queue, queue)
+          ElasticAPM.set_label(:queue, queue)
 
           yield
 

@@ -21,9 +21,9 @@ module ElasticAPM
 
       TIMEOUT_INTERVAL = 5 # seconds
 
-      def initialize(config, tags: nil, &block)
+      def initialize(config, labels: nil, &block)
         @config = config
-        @tags = tags
+        @labels = labels
         @samplers = [CpuMem, VM].map do |kls|
           debug "Adding metrics collector '#{kls}'"
           kls.new(config)
@@ -31,7 +31,7 @@ module ElasticAPM
         @callback = block
       end
 
-      attr_reader :config, :samplers, :callback, :tags
+      attr_reader :config, :samplers, :callback, :labels
 
       # rubocop:disable Metrics/MethodLength
       def start
@@ -76,7 +76,7 @@ module ElasticAPM
       end
 
       def collect_and_send
-        metricset = Metricset.new(tags: tags, **collect)
+        metricset = Metricset.new(labels: labels, **collect)
         return if metricset.empty?
 
         callback.call(metricset)

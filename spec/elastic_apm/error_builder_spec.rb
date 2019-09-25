@@ -44,7 +44,7 @@ module ElasticAPM
         expect(error.transaction).to eq(sampled: true, type: 'custom')
         expect(error.transaction_id).to eq transaction.id
         expect(error.trace_id).to eq transaction.trace_id
-        expect(error.context.tags).to match(my_tag: '123', more: 'totes')
+        expect(error.context.labels).to match(my_tag: '123', more: 'totes')
         expect(error.context.custom)
           .to match(all_the_other_things: 'blah blah')
       end
