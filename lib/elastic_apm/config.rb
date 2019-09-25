@@ -49,7 +49,7 @@ module ElasticAPM
     option :default_tags,                      type: :dict,   default: {}
     option :disable_send,                      type: :bool,   default: false
     option :disable_start_message,             type: :bool,   default: false
-    option :disabled_spies,                    type: :list,   default: %w[json]
+    option :disabled_instrumentations,         type: :list,   default: %w[json]
     option :environment,                       type: :string, default: ENV['RAILS_ENV'] || ENV['RACK_ENV']
     option :framework_name,                    type: :string
     option :framework_version,                 type: :string
@@ -121,7 +121,7 @@ module ElasticAPM
     end
 
     # rubocop:disable Metrics/MethodLength
-    def available_spies
+    def available_instrumentations
       %w[
         delayed_job
         elasticsearch
@@ -140,8 +140,8 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/MethodLength
 
-    def enabled_spies
-      available_spies - disabled_spies
+    def enabled_instrumentations
+      available_instrumentations - disabled_instrumentations
     end
 
     def method_missing(name, *args)
@@ -160,6 +160,7 @@ module ElasticAPM
       end
     end
 
+    # DEPRECATED
     # rubocop:disable Metrics/MethodLength
     def capture_body=(value)
       if value =~ /(all|transactions|errors|off)/
@@ -184,6 +185,18 @@ module ElasticAPM
       end
     end
     # rubocop:enable Metrics/MethodLength
+
+    # DEPRECATED
+    def disabled_spies=(list)
+      warn 'The option disabled_spies has been renamed to ' \
+        'disabled_instrumentations'
+      self.disabled_instrumentations = list
+    end
+
+    def enabled_spies
+      warn 'enabled_spies has been renamed to enabled_instrumentations'
+      enabled_instrumentations
+    end
 
     def use_ssl?
       server_url.start_with?('https')

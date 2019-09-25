@@ -3,7 +3,7 @@
 module ElasticAPM
   RSpec.xdescribe 'Spy: JSON' do
     before do
-      ElasticAPM.start disabled_spies: [], disable_send: true
+      ElasticAPM.start disabled_instrumentations: [], disable_send: true
     end
 
     after do

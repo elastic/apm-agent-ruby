@@ -42,7 +42,7 @@ module ElasticAPM
         ['ELASTIC_APM_VERIFY_SERVER_CERT', 'true', true],
         ['ELASTIC_APM_VERIFY_SERVER_CERT', '0', false],
         ['ELASTIC_APM_VERIFY_SERVER_CERT', 'false', false],
-        ['ELASTIC_APM_DISABLED_SPIES', 'json,http', %w[json http]],
+        ['ELASTIC_APM_DISABLED_INSTRUMENTATIONS', 'json,http', %w[json http]],
         ['ELASTIC_APM_CUSTOM_KEY_FILTERS', 'Auth,Other', [/Auth/, /Other/]],
         [
           'ELASTIC_APM_DEFAULT_TAGS',
@@ -130,10 +130,10 @@ module ElasticAPM
     end
 
     it 'has spies and may disable them' do
-      expect(Config.new.available_spies).to_not be_empty
+      expect(Config.new.available_instrumentations).to_not be_empty
 
-      config = Config.new disabled_spies: ['json']
-      expect(config.enabled_spies).to_not include('json')
+      config = Config.new disabled_instrumentations: ['json']
+      expect(config.enabled_instrumentations).to_not include('json')
     end
 
     context 'logging' do
@@ -182,6 +182,17 @@ module ElasticAPM
 
         subject.capture_body = :oh_no
         expect(subject.capture_body).to eq 'off'
+      end
+
+      it 'warns about disabled_spies and falls back' do
+        expect(subject).to receive(:warn)
+          .with(/The option disabled_spies.*renamed./)
+        subject.disabled_spies = ['things']
+        expect(subject.disabled_instrumentations).to eq(['things'])
+
+        expect(subject).to receive(:warn)
+          .with(/enabled_spies.*renamed./)
+        expect(subject.enabled_spies).to_not be_empty
       end
     end
 
