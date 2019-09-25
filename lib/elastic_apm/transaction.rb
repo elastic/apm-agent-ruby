@@ -67,9 +67,7 @@ module ElasticAPM
       @duration = clock_end - @clock_start
       @self_time = @duration - child_durations.duration
 
-      if @breakdown_metrics
-        @breakdown_metrics.update('span.self_time')
-      end
+      @breakdown_metrics.update('span.self_time')
 
       self
     end
