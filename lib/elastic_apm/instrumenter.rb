@@ -195,7 +195,7 @@ module ElasticAPM
       return unless current_transaction
 
       key = key.to_s.gsub(/[\."\*]/, '_').to_sym
-      current_transaction.context.tags[key] = value.to_s
+      current_transaction.context.tags[key] = value
     end
 
     def set_custom_context(context)

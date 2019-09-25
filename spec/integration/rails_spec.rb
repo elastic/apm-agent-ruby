@@ -174,7 +174,7 @@ if defined?(Rails)
         wait_for transactions: 1, spans: 2
 
         context = @mock_intake.transactions.first['context']
-        expect(context['tags']).to eq('things' => '1')
+        expect(context['tags']).to eq('things' => 1)
         expect(context['custom']).to eq('nested' => { 'banana' => 'explosion' })
       end
 

@@ -231,6 +231,20 @@ module ElasticAPM
           thin_gs: 'are all good!'
         )
       end
+
+      it 'allows boolean values' do
+        transaction = subject.start_transaction 'Test'
+        subject.set_tag :things, true
+
+        expect(transaction.context.tags).to match(things: true)
+      end
+
+      it 'allows numerical values' do
+        transaction = subject.start_transaction 'Test'
+        subject.set_tag :things, 123
+
+        expect(transaction.context.tags).to match(things: 123)
+      end
     end
 
     describe '#set_custom_context' do
