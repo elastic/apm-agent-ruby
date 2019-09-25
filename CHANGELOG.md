@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+- Handles a case where stacktrace frames are empty ([#538](https://github.com/elastic/apm-agent-ruby/pull/538))
+
 ## 2.11.0 (2019-09-23)
 
 ### Added
