@@ -11,6 +11,7 @@ module ElasticAPM
         subject.start
         subject.promise.wait
         expect(req_stub).to have_been_requested
+        subject.stop
       end
 
       context 'when disabled' do
@@ -21,6 +22,7 @@ module ElasticAPM
           subject.start
           expect(subject.promise).to be nil
           expect(req_stub).to_not have_been_requested
+          subject.stop
         end
       end
     end
