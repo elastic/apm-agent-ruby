@@ -49,7 +49,7 @@ module ElasticAPM
         error.log.stacktrace = stacktrace
       end
 
-      error.culprit = stacktrace.frames.first.function
+      error.culprit = stacktrace.frames.first&.function
     end
 
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
