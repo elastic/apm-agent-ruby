@@ -18,7 +18,8 @@ module ElasticAPM
         new({
           message: exception.message.to_s,
           type: exception.class.to_s,
-          module: format_module(exception)
+          module: format_module(exception),
+          cause: exception.cause && Exception.from_exception(exception.cause)
         }.merge(attrs))
       end
 
