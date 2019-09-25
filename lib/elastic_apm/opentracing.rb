@@ -191,7 +191,6 @@ module ElasticAPM
         child_of: nil,
         references: nil,
         start_time: Time.now,
-        tags: {},
         labels: {},
         ignore_active_scope: false,
         finish_on_close: true,
@@ -202,7 +201,7 @@ module ElasticAPM
           child_of: child_of,
           references: references,
           start_time: start_time,
-          labels: tags.merge(labels),
+          labels: labels,
           ignore_active_scope: ignore_active_scope
         )
         scope = scope_manager.activate(span, finish_on_close: finish_on_close)

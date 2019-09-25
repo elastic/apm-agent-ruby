@@ -217,7 +217,7 @@ RSpec.describe 'OpenTracing bridge', :intercept do
         end
 
         describe 'set_label' do
-          it 'sets tag' do
+          it 'sets label' do
             subject.set_label :custom_key, 'custom_type'
             expect(subject.elastic_span.context.labels[:custom_key])
               .to eq 'custom_type'
