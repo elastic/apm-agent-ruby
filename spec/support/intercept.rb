@@ -33,20 +33,19 @@ RSpec.configure do
   end
 end
 
-RSpec.shared_context 'intercept', shared_contex: :metadata do
+RSpec.shared_context 'intercept' do
   let(:config) { ElasticAPM::Config.new }
   let(:agent) { ElasticAPM.agent }
+  let(:intercepted) { Intercept.new }
   before(:each) { start_intercepted_agent(config) }
 
   after(:each) do
     ElasticAPM.stop
-    @intercepted = nil
   end
 
   def start_intercepted_agent(config = ElasticAPM::Config.new)
-    @intercepted = Intercept.new
     ElasticAPM.start(config).tap do |agent|
-      allow(agent).to receive(:transport).and_return(@intercepted)
+      allow(agent).to receive(:transport).and_return(intercepted)
     end
   end
 end

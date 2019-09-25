@@ -169,13 +169,13 @@ RSpec.describe 'OpenTracing bridge' do
         end
       end
 
-      expect(@intercepted.transactions.length).to be 1
-      expect(@intercepted.spans.length).to be 2
+      expect(intercepted.transactions.length).to be 1
+      expect(intercepted.spans.length).to be 2
 
-      transaction, = @intercepted.transactions
+      transaction, = intercepted.transactions
       expect(transaction.context.tags).to match(test: '0')
 
-      span = @intercepted.spans.last
+      span = intercepted.spans.last
       expect(span.context.tags).to match(test: '1')
     end
   end
@@ -190,17 +190,17 @@ RSpec.describe 'OpenTracing bridge' do
 
       it 'logs exceptions' do
         subject.log_kv('error.object': actual_exception)
-        expect(@intercepted.errors.length).to be 1
+        expect(intercepted.errors.length).to be 1
       end
 
       it 'logs messages' do
         subject.log_kv(message: 'message')
-        expect(@intercepted.errors.length).to be 1
+        expect(intercepted.errors.length).to be 1
       end
 
       it 'ignores unknown logs' do
         subject.log_kv(other: 1)
-        expect(@intercepted.errors.length).to be 0
+        expect(intercepted.errors.length).to be 0
       end
     end
 

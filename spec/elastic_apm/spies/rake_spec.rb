@@ -17,7 +17,7 @@ module ElasticAPM
 
     it 'wraps in transaction when enabled' do
       task.invoke
-      expect(@intercepted.transactions.length).to eq 1
+      expect(intercepted.transactions.length).to eq 1
     end
 
     context 'when disabled' do
@@ -26,7 +26,7 @@ module ElasticAPM
         task.invoke
         ElasticAPM.stop
 
-        expect(@intercepted.transactions.length).to eq 0
+        expect(intercepted.transactions.length).to eq 0
       end
     end
   end

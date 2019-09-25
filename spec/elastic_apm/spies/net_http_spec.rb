@@ -16,7 +16,7 @@ module ElasticAPM
         end
       end
 
-      span, = @intercepted.spans
+      span, = intercepted.spans
 
       expect(span.name).to eq 'GET example.com'
 
@@ -81,10 +81,10 @@ module ElasticAPM
         end
       end
 
-      expect(@intercepted.transactions.length).to be 1
-      expect(@intercepted.spans.length).to be 1
+      expect(intercepted.transactions.length).to be 1
+      expect(intercepted.spans.length).to be 1
 
-      span, = @intercepted.spans
+      span, = intercepted.spans
       expect(span.name).to eq 'POST example.com'
       expect(span.type).to eq 'ext'
       expect(span.subtype).to eq 'net_http'

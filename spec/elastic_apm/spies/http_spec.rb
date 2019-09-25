@@ -13,7 +13,7 @@ module ElasticAPM
         HTTP.get('http://example.com')
       end
 
-      span, = @intercepted.spans
+      span, = intercepted.spans
 
       expect(span).to_not be nil
       expect(span.name).to eq 'GET example.com'

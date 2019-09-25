@@ -30,7 +30,7 @@ module ElasticAPM
 
       ElasticAPM.stop
 
-      span, = @intercepted.spans
+      span, = intercepted.spans
 
       expect(span.name).to eq 'SELECT FROM users'
       expect(span.context.db.statement)

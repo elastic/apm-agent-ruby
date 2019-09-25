@@ -97,7 +97,7 @@ module ElasticAPM
 
         it 'queues a request' do
           expect { agent.report(actual_exception) }
-            .to change(@intercepted.errors, :length).by 1
+            .to change(intercepted.errors, :length).by 1
         end
 
         it 'returns error object' do
@@ -117,7 +117,7 @@ module ElasticAPM
             exception = AgentTestError.new("It's ok!")
 
             expect { agent.report(exception) }
-              .to change(@intercepted.errors, :length).by 0
+              .to change(intercepted.errors, :length).by 0
           end
         end
       end
@@ -127,7 +127,7 @@ module ElasticAPM
 
         it 'queues a request' do
           expect { agent.report_message('Everything went 💥') }
-            .to change(@intercepted.errors, :length).by 1
+            .to change(intercepted.errors, :length).by 1
         end
 
         it 'returns error object' do

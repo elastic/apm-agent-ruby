@@ -16,7 +16,7 @@ module ElasticAPM
         client.search q: 'test'
       end
 
-      net_span, span = @intercepted.spans
+      net_span, span = intercepted.spans
 
       expect(span.name).to eq 'GET _search'
       expect(span.context.db.statement).to eq('{"q":"test"}')

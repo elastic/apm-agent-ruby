@@ -46,7 +46,7 @@ if defined?(Delayed::Backend)
 
         Delayed::Job.new(job).invoke_job
 
-        transaction, = @intercepted.transactions
+        transaction, = intercepted.transactions
         expect(transaction.name).to eq 'ElasticAPM::TestJob'
         expect(transaction.type).to eq 'Delayed::Job'
         expect(transaction.result).to eq 'success'
@@ -58,7 +58,7 @@ if defined?(Delayed::Backend)
 
         Delayed::Job.new(invokable).invoke_job
 
-        transaction, = @intercepted.transactions
+        transaction, = intercepted.transactions
         expect(transaction.name)
           .to eq 'ElasticAPM::TestJob#perform'
         expect(transaction.type).to eq 'Delayed::Job'
@@ -72,12 +72,12 @@ if defined?(Delayed::Backend)
           Delayed::Job.new(job).invoke_job
         end.to raise_error(ZeroDivisionError)
 
-        transaction, = @intercepted.transactions
+        transaction, = intercepted.transactions
         expect(transaction.name).to eq 'ElasticAPM::ExplodingJob'
         expect(transaction.type).to eq 'Delayed::Job'
         expect(transaction.result).to eq 'error'
 
-        error, = @intercepted.errors
+        error, = intercepted.errors
         expect(error.exception.type).to eq 'ZeroDivisionError'
       end
     end

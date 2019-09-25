@@ -14,7 +14,7 @@ module ElasticAPM
         redis.lrange('some:where', 0, -1)
       end
 
-      span, = @intercepted.spans
+      span, = intercepted.spans
 
       expect(span.name).to eq 'LRANGE'
 

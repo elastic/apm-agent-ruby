@@ -78,7 +78,7 @@ RSpec.describe ElasticAPM do
         expect(ElasticAPM.current_transaction).to be_nil
         expect(transaction).to be_stopped
 
-        transaction, = @intercepted.transactions
+        transaction, = intercepted.transactions
         expect(transaction.name).to eq 'Test'
       end
     end

@@ -40,7 +40,7 @@ module ElasticAPM
         client.database.collections
       end
 
-      span, = @intercepted.spans
+      span, = intercepted.spans
 
       expect(span.name).to eq 'elastic-apm-test.listCollections'
       expect(span.type).to eq 'db'
@@ -77,7 +77,7 @@ module ElasticAPM
         client['testing'].parallel_scan(1).to_a
       end
 
-      span, = @intercepted.spans
+      span, = intercepted.spans
 
       expect(span.name).to eq 'elastic-apm-test.testing.parallelCollectionScan'
       expect(span.type).to eq 'db'
@@ -114,7 +114,7 @@ module ElasticAPM
         client['testing'].find(a: BSON::Decimal128.new('1')).to_a
       end
 
-      span, = @intercepted.spans
+      span, = intercepted.spans
 
       expect(span.name).to eq 'elastic-apm-test.testing.find'
       expect(span.type).to eq 'db'

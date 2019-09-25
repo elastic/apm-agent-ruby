@@ -11,9 +11,9 @@ module ElasticAPM
 
       ElasticAPM.stop
 
-      expect(@intercepted.transactions.length).to be 1
+      expect(intercepted.transactions.length).to be 1
 
-      transaction, = @intercepted.transactions
+      transaction, = intercepted.transactions
       expect(transaction.result).to eq 'HTTP 2xx'
       expect(transaction.context.response.status_code).to eq 200
     end
@@ -57,7 +57,7 @@ module ElasticAPM
 
       ElasticAPM.stop
 
-      trace_context = @intercepted.transactions.first.trace_context
+      trace_context = intercepted.transactions.first.trace_context
       expect(trace_context).to_not be_nil
       expect(trace_context).to be_recorded
     end
@@ -75,7 +75,7 @@ module ElasticAPM
             )
           )
 
-          trace_context = @intercepted.transactions.first.trace_context
+          trace_context = intercepted.transactions.first.trace_context
           expect(trace_context.version).to eq '00'
           expect(trace_context.trace_id)
             .to eq '0af7651916cd43dd8448eb211c80319c'
@@ -94,7 +94,7 @@ module ElasticAPM
             )
           )
 
-          trace_context = @intercepted.transactions.first.trace_context
+          trace_context = intercepted.transactions.first.trace_context
           expect(trace_context.trace_id)
             .to_not eq '0af7651916cd43dd8448eb211c80319c'
           expect(trace_context.parent_id).to_not match(/INVALID/)
@@ -107,7 +107,7 @@ module ElasticAPM
             Rack::MockRequest.env_for('/', 'HTTP_ELASTIC_APM_TRACEPARENT' => '')
           )
 
-          trace_context = @intercepted.transactions.first.trace_context
+          trace_context = intercepted.transactions.first.trace_context
           expect(trace_context.trace_id)
             .to_not eq '0af7651916cd43dd8448eb211c80319c'
         end

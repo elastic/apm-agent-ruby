@@ -27,8 +27,8 @@ module ElasticAPM
 
         ElasticAPM.stop
 
-        expect(@intercepted.spans.length).to be 1
-        expect(@intercepted.spans.last.name).to eq 'do_all_things'
+        expect(intercepted.spans.length).to be 1
+        expect(intercepted.spans.last.name).to eq 'do_all_things'
       end
     end
 
@@ -45,8 +45,8 @@ module ElasticAPM
 
         ElasticAPM.stop
 
-        expect(@intercepted.spans.length).to be 1
-        expect(@intercepted.spans.last.name).to eq 'do_the_thing'
+        expect(intercepted.spans.length).to be 1
+        expect(intercepted.spans.last.name).to eq 'do_the_thing'
       end
     end
   end

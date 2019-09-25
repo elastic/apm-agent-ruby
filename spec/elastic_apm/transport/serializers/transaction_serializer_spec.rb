@@ -25,7 +25,7 @@ module ElasticAPM
               end
               ElasticAPM.stop
 
-              @intercepted.transactions.first
+              intercepted.transactions.first
             end
 
             subject { builder.build(transaction) }
@@ -62,7 +62,7 @@ module ElasticAPM
                 ElasticAPM.with_span('2') {}
                 ElasticAPM.with_span('dropped') {}
               end
-              transaction = @intercepted.transactions.first
+              transaction = intercepted.transactions.first
               result = described_class.new(Config.new).build(transaction)
 
               span_count = result.dig(:transaction, :span_count)

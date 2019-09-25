@@ -18,7 +18,7 @@ module ElasticAPM
         client.get('http://example.com/page.html')
       end
 
-      span, = @intercepted.spans
+      span, = intercepted.spans
 
       expect(span).to_not be nil
       expect(span.name).to eq 'GET example.com'
@@ -38,7 +38,7 @@ module ElasticAPM
         client.get('/page.html')
       end
 
-      span, = @intercepted.spans
+      span, = intercepted.spans
 
       expect(span).to_not be nil
       expect(span.name).to eq 'GET example.com'
@@ -60,7 +60,7 @@ module ElasticAPM
         end
       end
 
-      span, = @intercepted.spans
+      span, = intercepted.spans
 
       expect(span).to_not be nil
       expect(span.name).to eq 'GET example.com'
