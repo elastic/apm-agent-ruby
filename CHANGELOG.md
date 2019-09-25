@@ -24,6 +24,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 ### Changed
 
 - Split dot-separated `span.type` into `.type`, `.subtype` and `.action` (auto-upgrades dot style) ([#531](https://github.com/elastic/apm-agent-ruby/pull/531))
+- Rename `set_tag` to `set_label` and deprecate `set_tag` ([#543](https://github.com/elastic/apm-agent-ruby/pull/543))
 
 ## 2.10.1
 
