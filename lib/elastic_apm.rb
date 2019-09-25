@@ -363,6 +363,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     # @param key [String,Symbol] A key
     # @param value [Object] A value (will be converted to string)
     # @return [Object] The given value
+    # @deprecated See `set_label` instead
     def set_tag(key, value)
       agent&.set_label(key, value)
     end
