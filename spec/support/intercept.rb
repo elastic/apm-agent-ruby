@@ -10,25 +10,32 @@ RSpec.configure do |config|
     end
 
     attr_reader :transactions, :spans, :errors, :metricsets
+
+    def submit(obj)
+      case obj
+      when ElasticAPM::Transaction
+        transactions << obj
+      when ElasticAPM::Span
+        spans << obj
+      when ElasticAPM::Error
+        errors << obj
+      when ElasticAPM::Metricset
+        metricsets << obj
+      end
+
+      true
+    end
+
+    def start; end
+
+    def stop; end
   end
 
   config.before :each, intercept: true do
     @intercepted = Intercept.new
 
-    allow_any_instance_of(ElasticAPM::Transport::Base)
-      .to receive(:submit) do |_, obj|
-      case obj
-      when ElasticAPM::Transaction
-        @intercepted.transactions << obj
-      when ElasticAPM::Span
-        @intercepted.spans << obj
-      when ElasticAPM::Error
-        @intercepted.errors << obj
-      when ElasticAPM::Metricset
-        @intercepted.metricsets << obj
-      end
-
-      true
+    allow(ElasticAPM::Transport::Base).to receive(:new) do |*_args|
+      @intercepted
     end
   end
 
