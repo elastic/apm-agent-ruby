@@ -30,6 +30,14 @@ module ElasticAPM
       end
     end
 
+    it 'merges ELASTIC_APM_DEFAULT_TAGS and ELASTIC_APM_DEFAULT_LABELS' do
+      with_env('ELASTIC_APM_DEFAULT_TAGS' => 'wave=something',
+               'ELASTIC_APM_DEFAULT_LABELS' => 'brother=ok') do
+        expect(Config.new.default_labels).to eq('wave' => 'something',
+                                                'brother' => 'ok')
+      end
+    end
+
     it 'converts certain env values to Ruby types' do
       [
         # [ 'NAME', 'VALUE', 'EXPECTED' ]
@@ -48,6 +56,11 @@ module ElasticAPM
           'ELASTIC_APM_DEFAULT_TAGS',
           'test=something something&other=ok',
           { 'test' => 'something something', 'other' => 'ok' }
+        ],
+        [
+          'ELASTIC_APM_DEFAULT_LABELS',
+          'wave=something erlking&brother=ok',
+          { 'wave' => 'something erlking', 'brother' => 'ok' }
         ],
         [
           'ELASTIC_APM_GLOBAL_LABELS',
