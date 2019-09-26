@@ -288,8 +288,7 @@ NOTE: This method has been deprecated in favor of `set_label`, which does not co
 ==== `ElasticAPM.set_label`
 
 Add a label to the current transaction.
-Labels are equivalent to what were previously called `tags`. They are basic key-value pairs that
-are indexed in your Elasticsearch database and therefore searchable.
+Labels are basic key-value pairs that are indexed in your Elasticsearch database and therefore searchable.
 The value can be any type and will not be converted to Strings.
 
 TIP: Before using custom labels, ensure you understand the different types of
