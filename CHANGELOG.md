@@ -6,6 +6,10 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ## Unreleased
 
+### Changed
+
+- `disabled_spies` renamed to `disabled_instrumentations` with fallback ([#539](https://github.com/elastic/apm-agent-ruby/pull/539))
+
 ### Fixed
 
 - Handles a case where stacktrace frames are empty ([#538](https://github.com/elastic/apm-agent-ruby/pull/538))
