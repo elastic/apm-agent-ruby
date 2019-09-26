@@ -39,6 +39,8 @@ module ElasticAPM
     end
 
     def fetch_and_apply_config
+      @promise&.wait
+
       @promise =
         Concurrent::Promise
         .execute(&method(:fetch_config))
