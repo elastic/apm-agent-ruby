@@ -184,15 +184,20 @@ module ElasticAPM
         expect(subject.capture_body).to eq 'off'
       end
 
-      it 'warns about disabled_spies and falls back' do
+      it 'warns about *_spies and falls back' do
         expect(subject).to receive(:warn)
-          .with(/The option disabled_spies.*renamed./)
+          .with(/disabled_spies=.*removed./)
         subject.disabled_spies = ['things']
         expect(subject.disabled_instrumentations).to eq(['things'])
 
-        expect(subject).to receive(:warn)
-          .with(/enabled_spies.*renamed./)
+        expect(subject).to receive(:warn).with(/enabled_spies.*removed./)
         expect(subject.enabled_spies).to_not be_empty
+
+        expect(subject).to receive(:warn).with(/available_spies.*removed./)
+        expect(subject.available_spies).to_not be_empty
+
+        expect(subject).to receive(:warn).with(/disabled_spies.*removed./)
+        expect(subject.disabled_spies).to_not be_empty
       end
     end
 

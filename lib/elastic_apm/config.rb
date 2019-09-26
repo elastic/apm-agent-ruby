@@ -16,6 +16,7 @@ module ElasticAPM
   # @api private
   class Config
     extend Options
+    extend Deprecations
 
     DEPRECATED_OPTIONS = %i[
       compression_level=
@@ -160,6 +161,31 @@ module ElasticAPM
       end
     end
 
+    def use_ssl?
+      server_url.start_with?('https')
+    end
+
+    def collect_metrics?
+      metrics_interval > 0
+    end
+
+    def span_frames_min_duration?
+      span_frames_min_duration != 0
+    end
+
+    def span_frames_min_duration=(value)
+      super
+      @span_frames_min_duration_us = nil
+    end
+
+    def span_frames_min_duration_us
+      @span_frames_min_duration_us ||= span_frames_min_duration * 1_000_000
+    end
+
+    def inspect
+      super.split.first + '>'
+    end
+
     # DEPRECATED
     # rubocop:disable Metrics/MethodLength
     def capture_body=(value)
@@ -187,41 +213,29 @@ module ElasticAPM
     # rubocop:enable Metrics/MethodLength
 
     # DEPRECATED
+    # The spies methods are only somewhat public and only mentioned briefly in
+    # the docs.
+
     def disabled_spies=(list)
-      warn 'The option disabled_spies has been renamed to ' \
-        'disabled_instrumentations'
       self.disabled_instrumentations = list
     end
 
+    def disabled_spies
+      disabled_instrumentations
+    end
+
     def enabled_spies
-      warn 'enabled_spies has been renamed to enabled_instrumentations'
       enabled_instrumentations
     end
 
-    def use_ssl?
-      server_url.start_with?('https')
+    def available_spies
+      available_instrumentations
     end
 
-    def collect_metrics?
-      metrics_interval > 0
-    end
-
-    def span_frames_min_duration?
-      span_frames_min_duration != 0
-    end
-
-    def span_frames_min_duration=(value)
-      super
-      @span_frames_min_duration_us = nil
-    end
-
-    def span_frames_min_duration_us
-      @span_frames_min_duration_us ||= span_frames_min_duration * 1_000_000
-    end
-
-    def inspect
-      super.split.first + '>'
-    end
+    deprecate :disabled_spies=, :disabled_instrumentations=
+    deprecate :disabled_spies, :disabled_instrumentations
+    deprecate :enabled_spies, :enabled_instrumentations
+    deprecate :available_spies, :available_instrumentations
 
     private
 
