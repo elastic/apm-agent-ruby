@@ -12,6 +12,8 @@ module ElasticAPM
     RUBY_VERS_REGEX = %r{ruby(/gems)?[-/](\d+\.)+\d}.freeze
     JRUBY_ORG_REGEX = %r{org/jruby}.freeze
 
+    GEMS_PATH = defined?(Bundler) ? Bundler.bundle_path.to_s : Gem.dir
+
     def initialize(config)
       @config = config
       @cache = Util::LruCache.new(2048, &method(:build_frame))
@@ -64,8 +66,11 @@ module ElasticAPM
       [file, number, method, module_name]
     end
 
+    # rubocop:disable Metrics/CyclomaticComplexity
     def library_frame?(config, abs_path)
       return false unless abs_path
+
+      return true if abs_path.start_with?(GEMS_PATH)
 
       if abs_path.start_with?(config.__root_path)
         return true if abs_path.start_with?(config.__root_path + '/vendor')
@@ -77,6 +82,7 @@ module ElasticAPM
 
       false
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def strip_load_path(path)
       return nil if path.nil?
