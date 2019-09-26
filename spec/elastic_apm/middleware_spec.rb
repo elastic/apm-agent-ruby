@@ -64,11 +64,8 @@ module ElasticAPM
     end
 
     describe 'Distributed Tracing', :intercept do
-      around do |example|
-        ElasticAPM.start
-        example.run
-        ElasticAPM.stop
-      end
+      before(:each) { ElasticAPM.start }
+      after(:each) { ElasticAPM.stop }
 
       let(:app) { Middleware.new(->(_) { [200, {}, ['ok']] }) }
 
