@@ -51,6 +51,7 @@ module ElasticAPM
     option :disable_send,                      type: :bool,   default: false
     option :disable_start_message,             type: :bool,   default: false
     option :disabled_instrumentations,         type: :list,   default: %w[json]
+    option :disabled_spies,                    type: :list,   default: []
     option :environment,                       type: :string, default: ENV['RAILS_ENV'] || ENV['RACK_ENV']
     option :framework_name,                    type: :string
     option :framework_version,                 type: :string

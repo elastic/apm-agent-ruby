@@ -184,9 +184,19 @@ module ElasticAPM
         expect(subject.capture_body).to eq 'off'
       end
 
-      it 'warns about *_spies and falls back' do
-        expect(subject).to receive(:warn)
+      it 'accepts disabled_spies via env' do
+        # As soon as we build a config inside with_env `warn' will be called.
+        # This makes sure we don't pollute the test output.
+        allow_any_instance_of(Config).to receive(:warn)
           .with(/disabled_spies=.*removed./)
+
+        with_env('ELASTIC_APM_DISABLED_SPIES' => 'http,json') do
+          expect(subject.disabled_instrumentations).to eq(%w[http json])
+        end
+      end
+
+      it 'warns about *_spies and falls back' do
+        expect(subject).to receive(:warn).with(/disabled_spies=.*removed./)
         subject.disabled_spies = ['things']
         expect(subject.disabled_instrumentations).to eq(['things'])
 
