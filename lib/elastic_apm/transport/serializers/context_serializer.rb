@@ -10,7 +10,7 @@ module ElasticAPM
 
           {
             custom: context.custom,
-            tags: keyword_object(context.labels),
+            tags: mixed_object(context.labels),
             request: build_request(context.request),
             response: build_response(context.response),
             user: build_user(context.user)

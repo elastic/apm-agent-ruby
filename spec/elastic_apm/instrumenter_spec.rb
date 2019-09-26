@@ -221,7 +221,7 @@ module ElasticAPM
     end
 
     describe '#set_label' do
-      it 'sets tag on currenct transaction' do
+      it 'sets tag on current transaction' do
         transaction = subject.start_transaction 'Test'
         subject.set_label :things, 'are all good!'
 
@@ -239,6 +239,20 @@ module ElasticAPM
           thi_ngs: 'are all good!',
           thin_gs: 'are all good!'
         )
+      end
+
+      it 'allows boolean values' do
+        transaction = subject.start_transaction 'Test'
+        subject.set_label :things, true
+
+        expect(transaction.context.labels).to match(things: true)
+      end
+
+      it 'allows numerical values' do
+        transaction = subject.start_transaction 'Test'
+        subject.set_label :things, 123
+
+        expect(transaction.context.labels).to match(things: 123)
       end
     end
 

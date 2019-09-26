@@ -31,7 +31,7 @@ module ElasticAPM
               ElasticAPM.build_context rack_env: env, for_type: :transaction
 
             ElasticAPM.with_transaction context: context do |txn|
-              ElasticAPM.set_tag(:my_tag, '123')
+              ElasticAPM.set_label(:my_tag, '123')
               ElasticAPM.set_custom_context(all_the_other_things: 'blah blah')
               ElasticAPM.set_user(Struct.new(:id).new(321))
               ElasticAPM.report actual_exception

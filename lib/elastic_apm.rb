@@ -365,7 +365,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     # @return [Object] The given value
     # @deprecated See `set_label` instead
     def set_tag(key, value)
-      agent&.set_label(key, value)
+      set_label(key, value.to_s)
     end
 
     deprecate :set_tag, :set_label
