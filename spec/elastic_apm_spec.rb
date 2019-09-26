@@ -266,5 +266,20 @@ RSpec.describe ElasticAPM do
         end
       end
     end
+
+    describe '.set_tag' do
+      it 'redirects to set_label with string value' do
+        expect(ElasticAPM).to receive(:warn).with(/DEPRECATED/).exactly(3).times
+
+        expect(ElasticAPM).to receive(:set_label).with(:a_string, 'a')
+        ElasticAPM.set_tag(:a_string, 'a')
+
+        expect(ElasticAPM).to receive(:set_label).with(:a_number, '1')
+        ElasticAPM.set_tag(:a_number, 1)
+
+        expect(ElasticAPM).to receive(:set_label).with(:a_boolean, 'true')
+        ElasticAPM.set_tag(:a_boolean, true)
+      end
+    end
   end
 end
