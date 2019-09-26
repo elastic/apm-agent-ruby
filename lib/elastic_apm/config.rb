@@ -239,9 +239,14 @@ module ElasticAPM
     deprecate :enabled_spies, :enabled_instrumentations
     deprecate :available_spies, :available_instrumentations
 
-    def default_labels
-      default_tags.merge(@options[:default_labels].value)
+    # DEPRECATED
+
+    def default_tags=(tags)
+      super
+      send(:default_labels=, tags)
     end
+
+    deprecate :default_tags=, :default_labels=
 
     private
 

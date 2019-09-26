@@ -30,11 +30,10 @@ module ElasticAPM
       end
     end
 
-    it 'merges ELASTIC_APM_DEFAULT_TAGS and ELASTIC_APM_DEFAULT_LABELS' do
+    it 'favors ELASTIC_APM_DEFAULT_LABELS over ELASTIC_APM_DEFAULT_TAGS' do
       with_env('ELASTIC_APM_DEFAULT_TAGS' => 'wave=something',
                'ELASTIC_APM_DEFAULT_LABELS' => 'brother=ok') do
-        expect(Config.new.default_labels).to eq('wave' => 'something',
-                                                'brother' => 'ok')
+        expect(Config.new.default_labels).to eq('brother' => 'ok')
       end
     end
 
@@ -174,11 +173,19 @@ module ElasticAPM
       end
     end
 
-    context 'default tags and label set' do
+    context 'default tags and labels set' do
       let(:config) { Config.new(default_tags: { tags: 1 }, default_labels: { labels: 2 }) }
 
-      it 'merges the tags and labels' do
-        expect(config.default_labels).to eq(tags: 1, labels: 2)
+      it 'favors the default labels' do
+        expect(config.default_labels).to eq(labels: 2)
+      end
+    end
+
+    context 'default tags set' do
+      let(:config) { Config.new(default_tags: { tags: 1 }) }
+
+      it 'sets the default labels' do
+        expect(config.default_labels).to eq(tags: 1)
       end
     end
 
