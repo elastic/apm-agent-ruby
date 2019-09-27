@@ -30,10 +30,12 @@ module ElasticAPM
       end
     end
 
-    it 'sets default labels for both *_DEFAULT_LABELS and *_DEFAULT_TAGS' do
+    it 'raises an exception when *_DEFAULT_LABELS and *_DEFAULT_TAGS are set' do
       with_env('ELASTIC_APM_DEFAULT_TAGS' => 'wave=something',
                'ELASTIC_APM_DEFAULT_LABELS' => 'brother=ok') do
-        expect(Config.new.default_labels).to eq('brother' => 'ok')
+        expect {
+          Config.new.default_labels
+        }.to raise_exception(Exception, Config::LABELS_AND_TAGS_CONFLICT)
       end
     end
 
@@ -174,12 +176,11 @@ module ElasticAPM
     end
 
     context 'default tags and labels set' do
-      let(:config) do
-        Config.new(default_labels: { labels: 2 }, default_tags: { tags: 1 })
-      end
-
-      it 'favors the last one set' do
-        expect(config.default_labels).to eq(tags: 1)
+      it 'raises an exception' do
+        expect {
+          Config.new(default_labels: { labels: 2 },
+                     default_tags: { tags: 1 })
+        }.to raise_exception(Exception, Config::LABELS_AND_TAGS_CONFLICT)
       end
     end
 

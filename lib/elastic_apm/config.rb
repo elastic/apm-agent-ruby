@@ -239,11 +239,25 @@ module ElasticAPM
     deprecate :enabled_spies, :enabled_instrumentations
     deprecate :available_spies, :available_instrumentations
 
+    LABELS_AND_TAGS_CONFLICT = 'You have both \'default_labels\' and ' \
+      '\'default_tags\' set. \'default_tags\' has been deprecated in favor '\
+      'of \'default_labels. Please consider upgrading.'.freeze
+
+    def default_labels=(labels)
+      @options[:default_tags].value.empty? || (raise LABELS_AND_TAGS_CONFLICT)
+      super
+    end
+
     # DEPRECATED
 
     def default_tags=(tags)
+      @options[:default_labels].value.empty? || (raise LABELS_AND_TAGS_CONFLICT)
       super
-      send(:default_labels=, tags)
+      @options[:default_labels].set(tags)
+    end
+
+    def default_tags
+      default_labels
     end
 
     deprecate :default_tags=, :default_labels=
