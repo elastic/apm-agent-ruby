@@ -255,8 +255,7 @@ Eg. `ELASTIC_APM_CUSTOM_KEY_FILTERS="a,b" # => [/a/, /b/]`
 | `ELASTIC_APM_DEFAULT_LABELS` | `default_labels` | `{}`    | `region=us1`
 |============
 
-Add default labels to every transaction. Note that this is equivalent to the default tags option but that it
-will also eventually be deprecated in favor of `global_labels`.
+Add default labels to every transaction. Note that this will eventually be deprecated in favor of `global_labels`.
 
 WARNING: Be aware that labels are indexed in Elasticsearch. Using too many unique keys will result in *https://www.elastic.co/blog/found-crash-elasticsearch#mapping-explosion[Mapping explosion]*.
 
@@ -270,8 +269,7 @@ that are set will override `global_labels`.
 | `ELASTIC_APM_DEFAULT_TAGS` | `default_tags` | `{}`    | `region=us1`
 |============
 
-Add default tags to add to every transaction. Note that this is equivalent to the default labels option but that it
-will also eventually be deprecated in favor of `global_labels`.
+Add default tags to add to every transaction. Note that this option has been deprecated in favor of `default_labels`.
 
 WARNING: Be aware that tags are indexed in Elasticsearch. Using too many unique keys will result in *https://www.elastic.co/blog/found-crash-elasticsearch#mapping-explosion[Mapping explosion]*.
 
