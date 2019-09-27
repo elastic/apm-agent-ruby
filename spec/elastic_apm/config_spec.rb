@@ -42,7 +42,7 @@ module ElasticAPM
         ['ELASTIC_APM_VERIFY_SERVER_CERT', 'true', true],
         ['ELASTIC_APM_VERIFY_SERVER_CERT', '0', false],
         ['ELASTIC_APM_VERIFY_SERVER_CERT', 'false', false],
-        ['ELASTIC_APM_DISABLED_SPIES', 'json,http', %w[json http]],
+        ['ELASTIC_APM_DISABLED_INSTRUMENTATIONS', 'json,http', %w[json http]],
         ['ELASTIC_APM_CUSTOM_KEY_FILTERS', 'Auth,Other', [/Auth/, /Other/]],
         [
           'ELASTIC_APM_DEFAULT_TAGS',
@@ -130,10 +130,10 @@ module ElasticAPM
     end
 
     it 'has spies and may disable them' do
-      expect(Config.new.available_spies).to_not be_empty
+      expect(Config.new.available_instrumentations).to_not be_empty
 
-      config = Config.new disabled_spies: ['json']
-      expect(config.enabled_spies).to_not include('json')
+      config = Config.new disabled_instrumentations: ['json']
+      expect(config.enabled_instrumentations).to_not include('json')
     end
 
     context 'logging' do
@@ -182,6 +182,32 @@ module ElasticAPM
 
         subject.capture_body = :oh_no
         expect(subject.capture_body).to eq 'off'
+      end
+
+      it 'accepts disabled_spies via env' do
+        # As soon as we build a config inside with_env `warn' will be called.
+        # This makes sure we don't pollute the test output.
+        allow_any_instance_of(Config).to receive(:warn)
+          .with(/disabled_spies=.*removed./)
+
+        with_env('ELASTIC_APM_DISABLED_SPIES' => 'http,json') do
+          expect(subject.disabled_instrumentations).to eq(%w[http json])
+        end
+      end
+
+      it 'warns about *_spies and falls back' do
+        expect(subject).to receive(:warn).with(/disabled_spies=.*removed./)
+        subject.disabled_spies = ['things']
+        expect(subject.disabled_instrumentations).to eq(['things'])
+
+        expect(subject).to receive(:warn).with(/enabled_spies.*removed./)
+        expect(subject.enabled_spies).to_not be_empty
+
+        expect(subject).to receive(:warn).with(/available_spies.*removed./)
+        expect(subject.available_spies).to_not be_empty
+
+        expect(subject).to receive(:warn).with(/disabled_spies.*removed./)
+        expect(subject.disabled_spies).to_not be_empty
       end
     end
 

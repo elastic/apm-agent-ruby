@@ -29,7 +29,9 @@ module ElasticAPM
       end
 
       if ElasticAPM.running? &&
-         !ElasticAPM.agent.config.disabled_spies.include?('action_dispatch')
+         !ElasticAPM.agent.config.disabled_instrumentations.include?(
+           'action_dispatch'
+         )
         require 'elastic_apm/spies/action_dispatch'
       end
       ElasticAPM.running?

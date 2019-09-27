@@ -16,6 +16,7 @@ module ElasticAPM
   # @api private
   class Config
     extend Options
+    extend Deprecations
 
     DEPRECATED_OPTIONS = %i[
       compression_level=
@@ -49,7 +50,8 @@ module ElasticAPM
     option :default_tags,                      type: :dict,   default: {}
     option :disable_send,                      type: :bool,   default: false
     option :disable_start_message,             type: :bool,   default: false
-    option :disabled_spies,                    type: :list,   default: %w[json]
+    option :disabled_instrumentations,         type: :list,   default: %w[json]
+    option :disabled_spies,                    type: :list,   default: []
     option :environment,                       type: :string, default: ENV['RAILS_ENV'] || ENV['RACK_ENV']
     option :framework_name,                    type: :string
     option :framework_version,                 type: :string
@@ -121,7 +123,7 @@ module ElasticAPM
     end
 
     # rubocop:disable Metrics/MethodLength
-    def available_spies
+    def available_instrumentations
       %w[
         delayed_job
         elasticsearch
@@ -140,8 +142,8 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/MethodLength
 
-    def enabled_spies
-      available_spies - disabled_spies
+    def enabled_instrumentations
+      available_instrumentations - disabled_instrumentations
     end
 
     def method_missing(name, *args)
@@ -159,31 +161,6 @@ module ElasticAPM
         self.service_name = 'ruby'
       end
     end
-
-    # rubocop:disable Metrics/MethodLength
-    def capture_body=(value)
-      if value =~ /(all|transactions|errors|off)/
-        set(:capture_body, value)
-        return
-      end
-
-      case value
-      when true
-        warn "Boolean value for option `capture_body' has " \
-          "been deprecated. Setting to 'all'"
-        self.capture_body = 'all'
-      when false
-        warn "Boolean value for option `capture_body' has " \
-          "been deprecated. Setting to 'off'"
-        self.capture_body = 'off'
-      else
-        default = options[:capture_body].default
-        warn "Unknown value `#{value}' for option "\
-          "`capture_body'. Defaulting to `#{default}'"
-        self.capture_body = default
-      end
-    end
-    # rubocop:enable Metrics/MethodLength
 
     def use_ssl?
       server_url.start_with?('https')
@@ -209,6 +186,57 @@ module ElasticAPM
     def inspect
       super.split.first + '>'
     end
+
+    # DEPRECATED
+    # rubocop:disable Metrics/MethodLength
+    def capture_body=(value)
+      if value =~ /(all|transactions|errors|off)/
+        set(:capture_body, value)
+        return
+      end
+
+      case value
+      when true
+        warn "Boolean value for option `capture_body' has " \
+          "been deprecated. Setting to 'all'"
+        self.capture_body = 'all'
+      when false
+        warn "Boolean value for option `capture_body' has " \
+          "been deprecated. Setting to 'off'"
+        self.capture_body = 'off'
+      else
+        default = options[:capture_body].default
+        warn "Unknown value `#{value}' for option "\
+          "`capture_body'. Defaulting to `#{default}'"
+        self.capture_body = default
+      end
+    end
+    # rubocop:enable Metrics/MethodLength
+
+    # DEPRECATED
+    # The spies methods are only somewhat public and only mentioned briefly in
+    # the docs.
+
+    def disabled_spies=(list)
+      self.disabled_instrumentations = list
+    end
+
+    def disabled_spies
+      disabled_instrumentations
+    end
+
+    def enabled_spies
+      enabled_instrumentations
+    end
+
+    def available_spies
+      available_instrumentations
+    end
+
+    deprecate :disabled_spies=, :disabled_instrumentations=
+    deprecate :disabled_spies, :disabled_instrumentations
+    deprecate :enabled_spies, :enabled_instrumentations
+    deprecate :available_spies, :available_instrumentations
 
     private
 

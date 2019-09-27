@@ -284,19 +284,19 @@ Disables sending payloads to APM Server.
 Disables the agent's startup message announcing itself.
 
 [float]
-[[config-disabled-spies]]
-==== `disabled_spies`
+[[config-disabled-instrumentations]]
+==== `disabled_instrumentations`
 
 [options="header"]
 |============
-| Environment                  | `Config` key     | Default
-| `ELASTIC_APM_DISABLED_SPIES` | `disabled_spies` | `['json']`
+| Environment                             | `Config` key                | Default
+| `ELASTIC_APM_DISABLED_INSTRUMENTATIONS` | `disabled_instrumentations` | `['json']`
 |============
 
 Elastic APM automatically instruments select third party libraries.
 Use this option to disable any of these.
 
-Get an array of enabled spies with `ElasticAPM.agent.config.enabled_spies`.
+Get an array of enabled instrumentations with `ElasticAPM.agent.config.enabled_instrumentations`.
 
 [float]
 [[config-environment]]

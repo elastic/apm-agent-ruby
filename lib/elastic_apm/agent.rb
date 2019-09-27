@@ -101,7 +101,7 @@ module ElasticAPM
       instrumenter.start
       metrics.start
 
-      config.enabled_spies.each do |lib|
+      config.enabled_instrumentations.each do |lib|
         debug "Requiring spy: #{lib}"
         require "elastic_apm/spies/#{lib}"
       end
