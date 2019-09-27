@@ -241,7 +241,7 @@ module ElasticAPM
 
     LABELS_AND_TAGS_CONFLICT = 'You have both \'default_labels\' and ' \
       '\'default_tags\' set. \'default_tags\' has been deprecated in favor '\
-      'of \'default_labels. Please consider upgrading.'.freeze
+      'of \'default_labels\'. Please consider upgrading.'.freeze
 
     def default_labels=(labels)
       @options[:default_tags].value.empty? || (raise LABELS_AND_TAGS_CONFLICT)
