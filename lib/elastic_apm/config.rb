@@ -48,6 +48,7 @@ module ElasticAPM
     option :current_user_username_method,      type: :string, default: 'username'
     option :custom_key_filters,                type: :list,   default: [],      converter: RegexpList.new
     option :default_tags,                      type: :dict,   default: {}
+    option :default_labels,                    type: :dict,   default: {}
     option :disable_send,                      type: :bool,   default: false
     option :disable_start_message,             type: :bool,   default: false
     option :disabled_instrumentations,         type: :list,   default: %w[json]
@@ -237,6 +238,29 @@ module ElasticAPM
     deprecate :disabled_spies, :disabled_instrumentations
     deprecate :enabled_spies, :enabled_instrumentations
     deprecate :available_spies, :available_instrumentations
+
+    LABELS_AND_TAGS_CONFLICT = 'You have both \'default_labels\' and ' \
+      '\'default_tags\' set. \'default_tags\' has been deprecated in favor '\
+      'of \'default_labels\'. Please consider upgrading.'.freeze
+
+    def default_labels=(labels)
+      @options[:default_tags].value.empty? || (raise LABELS_AND_TAGS_CONFLICT)
+      super
+    end
+
+    # DEPRECATED
+
+    def default_tags=(tags)
+      @options[:default_labels].value.empty? || (raise LABELS_AND_TAGS_CONFLICT)
+      super
+      @options[:default_labels].set(tags)
+    end
+
+    def default_tags
+      default_labels
+    end
+
+    deprecate :default_tags=, :default_labels=
 
     private
 

@@ -30,6 +30,15 @@ module ElasticAPM
       end
     end
 
+    it 'raises an exception when *_DEFAULT_LABELS and *_DEFAULT_TAGS are set' do
+      with_env('ELASTIC_APM_DEFAULT_TAGS' => 'wave=something',
+               'ELASTIC_APM_DEFAULT_LABELS' => 'brother=ok') do
+        expect {
+          Config.new.default_labels
+        }.to raise_exception(Exception, Config::LABELS_AND_TAGS_CONFLICT)
+      end
+    end
+
     it 'converts certain env values to Ruby types' do
       [
         # [ 'NAME', 'VALUE', 'EXPECTED' ]
@@ -48,6 +57,11 @@ module ElasticAPM
           'ELASTIC_APM_DEFAULT_TAGS',
           'test=something something&other=ok',
           { 'test' => 'something something', 'other' => 'ok' }
+        ],
+        [
+          'ELASTIC_APM_DEFAULT_LABELS',
+          'wave=something erlking&brother=ok',
+          { 'wave' => 'something erlking', 'brother' => 'ok' }
         ],
         [
           'ELASTIC_APM_GLOBAL_LABELS',
@@ -158,6 +172,23 @@ module ElasticAPM
 
         expect(logger).to receive(:info).with('MockLog')
         config.logger.info 'MockLog'
+      end
+    end
+
+    context 'default tags and labels set' do
+      it 'raises an exception' do
+        expect {
+          Config.new(default_labels: { labels: 2 },
+                     default_tags: { tags: 1 })
+        }.to raise_exception(Exception, Config::LABELS_AND_TAGS_CONFLICT)
+      end
+    end
+
+    context 'default tags set' do
+      let(:config) { Config.new(default_tags: { tags: 1 }) }
+
+      it 'sets the default labels' do
+        expect(config.default_labels).to eq(tags: 1)
       end
     end
 

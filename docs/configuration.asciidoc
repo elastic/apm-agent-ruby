@@ -251,15 +251,29 @@ Eg. `ELASTIC_APM_CUSTOM_KEY_FILTERS="a,b" # => [/a/, /b/]`
 
 [options="header"]
 |============
+| Environment                  | `Config` key     | Default | Example
+| `ELASTIC_APM_DEFAULT_LABELS` | `default_labels` | `{}`    | `region=us1`
+|============
+
+Add default labels to every transaction. Note that this will eventually be deprecated in favor of `global_labels`.
+
+WARNING: Be aware that labels are indexed in Elasticsearch. Using too many unique keys will result in *https://www.elastic.co/blog/found-crash-elasticsearch#mapping-explosion[Mapping explosion]*.
+
+NOTE: `global_labels` are supported as of APM server version 7.2. `default_tags` and `default_labels` will eventually be
+deprecated so please transition to using `global_labels` instead. In the meantime, any `default_labels`
+that are set will override `global_labels`.
+
+[options="header"]
+|============
 | Environment                | `Config` key   | Default | Example
 | `ELASTIC_APM_DEFAULT_TAGS` | `default_tags` | `{}`    | `region=us1`
 |============
 
-Add default tags to add to every transaction.
+Add default tags to add to every transaction. Note that this option has been deprecated in favor of `default_labels`.
 
 WARNING: Be aware that tags are indexed in Elasticsearch. Using too many unique keys will result in *https://www.elastic.co/blog/found-crash-elasticsearch#mapping-explosion[Mapping explosion]*.
 
-NOTE: `global_labels` are supported as of APM server version 7.2. `default_tags` will eventually be
+NOTE: `global_labels` are supported as of APM server version 7.2. `default_tags` and `default_labels` will eventually be
 deprecated so please transition to using `global_labels` instead. In the meantime, any `default_tags`
 that are set will override `global_labels`.
 

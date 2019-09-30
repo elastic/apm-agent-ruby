@@ -66,7 +66,8 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     # Get a formatted string containing transaction, span, and trace ids.
     # If a block is provided, the ids are yielded.
     #
-    # @yield [String|nil, String|nil, String|nil] The transaction, span, and trace ids.
+    # @yield [String|nil, String|nil, String|nil] The transaction, span,
+    # and trace ids.
     # @return [String] Unless block given
     def log_ids
       trace_id = (current_transaction || current_span)&.trace_id
@@ -363,8 +364,29 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     # @param key [String,Symbol] A key
     # @param value [Object] A value (will be converted to string)
     # @return [Object] The given value
+    # @deprecated See `set_label` instead
     def set_tag(key, value)
-      agent&.set_tag(key, value)
+      set_label(key, value.to_s)
+    end
+
+    deprecate :set_tag, :set_label
+
+    # Set a _label_ value for the current transaction
+    #
+    # @param key [String,Symbol] A key
+    # @param value [Object] A value
+    # @return [Object] The given value
+    def set_label(key, value)
+      case value
+      when TrueClass,
+           FalseClass,
+           Numeric,
+           NilClass,
+           String
+        agent&.set_label(key, value)
+      else
+        agent&.set_label(key, value.to_s)
+      end
     end
 
     # Provide further context for the current transaction

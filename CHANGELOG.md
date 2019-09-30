@@ -9,10 +9,15 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 ### Changed
 
 - `disabled_spies` renamed to `disabled_instrumentations` with fallback ([#539](https://github.com/elastic/apm-agent-ruby/pull/539))
+- Rename `set_tag` to `set_label` and deprecate `set_tag` ([#543](https://github.com/elastic/apm-agent-ruby/pull/543))
+- Allow non-String label values ([#543](https://github.com/elastic/apm-agent-ruby/pull/543))
 
 ### Fixed
 
 - Handles a case where stacktrace frames are empty ([#538](https://github.com/elastic/apm-agent-ruby/pull/538))
+
+### Deprecated
+- Deprecate `set_tag` ([#543](https://github.com/elastic/apm-agent-ruby/pull/543))
 
 ## 2.11.0 (2019-09-23)
 

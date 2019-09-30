@@ -2,8 +2,8 @@
 
 module ElasticAPM
   RSpec.describe Context do
-    it 'initializes with tags and context' do
-      expect(subject.tags).to eq({})
+    it 'initializes with labels and context' do
+      expect(subject.labels).to eq({})
       expect(subject.custom).to eq({})
     end
 
@@ -13,7 +13,7 @@ module ElasticAPM
       end
 
       it "isn't when it has data" do
-        expect(Context.new(tags: { a: 1 })).to_not be_empty
+        expect(Context.new(labels: { a: 1 })).to_not be_empty
         expect(Context.new(custom: { a: 1 })).to_not be_empty
         expect(Context.new(user: { a: 1 })).to_not be_empty
         expect(Context.new.tap { |c| c.request = 1 }).to_not be_empty

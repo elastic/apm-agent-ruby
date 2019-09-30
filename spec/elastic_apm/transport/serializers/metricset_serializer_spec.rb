@@ -15,7 +15,7 @@ module ElasticAPM
           it 'matches' do
             expect(result[:metricset]).to be_a Hash
             expect(result[:metricset][:timestamp]).to be_an Integer
-            expect(result[:metricset][:tags]).to be_nil
+            expect(result[:metricset][:labels]).to be_nil
             expect(result[:metricset][:samples]).to be_a Hash
             expect(result[:metricset][:samples][:thing][:value]).to eq 1.0
             expect(result[:metricset][:samples][:other][:value]).to eq 321

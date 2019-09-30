@@ -82,7 +82,7 @@ module ElasticAPM
             }
           ],
           end_span: nil,
-          set_tag: [nil, nil],
+          set_label: [nil, nil],
           set_custom_context: [nil],
           set_user: [nil]
         }.each do |name, args|

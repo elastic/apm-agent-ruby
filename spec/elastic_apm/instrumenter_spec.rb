@@ -80,7 +80,16 @@ module ElasticAPM
 
         it 'adds them to transaction context' do
           transaction = subject.start_transaction 'Test', 't'
-          expect(transaction.context.tags).to match(more: 'yes!')
+          expect(transaction.context.labels).to match(more: 'yes!')
+        end
+      end
+
+      context 'with default labels' do
+        let(:config) { Config.new(default_labels: { more: 'yes!' }) }
+
+        it 'adds them to transaction context' do
+          transaction = subject.start_transaction 'Test', 't'
+          expect(transaction.context.labels).to match(more: 'yes!')
         end
       end
     end
@@ -211,25 +220,39 @@ module ElasticAPM
       end
     end
 
-    describe '#set_tag' do
-      it 'sets tag on currenct transaction' do
+    describe '#set_label' do
+      it 'sets tag on current transaction' do
         transaction = subject.start_transaction 'Test'
-        subject.set_tag :things, 'are all good!'
+        subject.set_label :things, 'are all good!'
 
-        expect(transaction.context.tags).to match(things: 'are all good!')
+        expect(transaction.context.labels).to match(things: 'are all good!')
       end
 
       it 'de-dots keys' do
         transaction = subject.start_transaction 'Test'
-        subject.set_tag 'th.ings', 'are all good!'
-        subject.set_tag 'thi"ngs', 'are all good!'
-        subject.set_tag 'thin*gs', 'are all good!'
+        subject.set_label 'th.ings', 'are all good!'
+        subject.set_label 'thi"ngs', 'are all good!'
+        subject.set_label 'thin*gs', 'are all good!'
 
-        expect(transaction.context.tags).to match(
+        expect(transaction.context.labels).to match(
           th_ings: 'are all good!',
           thi_ngs: 'are all good!',
           thin_gs: 'are all good!'
         )
+      end
+
+      it 'allows boolean values' do
+        transaction = subject.start_transaction 'Test'
+        subject.set_label :things, true
+
+        expect(transaction.context.labels).to match(things: true)
+      end
+
+      it 'allows numerical values' do
+        transaction = subject.start_transaction 'Test'
+        subject.set_label :things, 123
+
+        expect(transaction.context.labels).to match(things: 123)
       end
     end
 
