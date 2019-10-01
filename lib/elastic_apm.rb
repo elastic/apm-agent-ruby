@@ -274,18 +274,6 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
 
     ### Context
 
-    # Set a _tag_ value for the current transaction
-    #
-    # @param key [String,Symbol] A key
-    # @param value [Object] A value (will be converted to string)
-    # @return [Object] The given value
-    # @deprecated See `set_label` instead
-    def set_tag(key, value)
-      set_label(key, value.to_s)
-    end
-
-    deprecate :set_tag, :set_label
-
     # Set a _label_ value for the current transaction
     #
     # @param key [String,Symbol] A key
