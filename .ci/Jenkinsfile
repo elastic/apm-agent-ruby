@@ -54,32 +54,6 @@ pipeline {
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }
-    stage('pre-release') {
-      options { skipDefaultCheckout() }
-      environment {
-        RUBY_DOCKER_TAG = 'ruby:2.6'
-        HOME = '/var/lib/jenkins'
-      }
-      steps {
-        deleteDir()
-        unstash 'source'
-        script {
-          dir(BASE_DIR){
-            docker.image("${env.RUBY_DOCKER_TAG}").inside('-v /etc/passwd:/etc/passwd -v ${HOME}/.ssh:${HOME}/.ssh') {
-              withEnv(["HOME=${env.WORKSPACE}/${env.BASE_DIR ?: ''}"]) {
-                rubygemsLogin.withApi(secret: "${env.RELEASE_SECRET}") {
-                  sshagent(['f6c7695a-671e-4f4f-a331-acdce44ff9ba']) {
-                    sh 'ssh -T git@github.com | true'
-                    sh '.ci/prepare-git-context.sh'
-                    sh 'gem install rake yard rspec'
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
     stage('Sanity checks') {
       agent { label 'linux && immutable && docker' }
       when {
@@ -208,6 +182,7 @@ pipeline {
         options { skipDefaultCheckout() }
         environment {
           RUBY_DOCKER_TAG = 'ruby:2.6'
+          HOME = '/var/lib/jenkins'
         }
         when {
           beforeAgent true
