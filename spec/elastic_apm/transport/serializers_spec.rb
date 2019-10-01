@@ -57,6 +57,24 @@ module ElasticAPM
           expect(thing[:test]).to match(/X{1023}…/)
         end
       end
+
+      describe '#mixed_object' do
+        class TruncateSerializer < Serializers::Serializer
+          def serialize(obj)
+            mixed_object(obj)
+          end
+        end
+
+        it 'truncates string values to 1024 chars and leaves others unchanged' do
+          obj = { string: 'X' * 2000,
+                  bool: true,
+                  numerical: 123 }
+          thing = TruncateSerializer.new(Config.new).serialize(obj)
+          expect(thing[:string]).to match(/X{1023}…/)
+          expect(thing[:bool]).to match(true)
+          expect(thing[:numerical]).to match(123)
+        end
+      end
     end
   end
 end

@@ -23,7 +23,7 @@ module ElasticAPM
       end
 
       # rubocop:disable Metrics/MethodLength
-      def set_tag(key, val)
+      def set_label(key, val)
         if elastic_span.is_a?(Transaction)
           case key.to_s
           when 'type'
@@ -33,10 +33,10 @@ module ElasticAPM
           when /user\.(\w+)/
             set_user_value($1, val)
           else
-            elastic_span.context.tags[key] = val
+            elastic_span.context.labels[key] = val
           end
         else
-          elastic_span.context.tags[key] = val
+          elastic_span.context.labels[key] = val
         end
       end
       # rubocop:enable Metrics/MethodLength
@@ -191,7 +191,7 @@ module ElasticAPM
         child_of: nil,
         references: nil,
         start_time: Time.now,
-        tags: {},
+        labels: {},
         ignore_active_scope: false,
         finish_on_close: true,
         **
@@ -201,7 +201,7 @@ module ElasticAPM
           child_of: child_of,
           references: references,
           start_time: start_time,
-          tags: tags,
+          labels: labels,
           ignore_active_scope: ignore_active_scope
         )
         scope = scope_manager.activate(span, finish_on_close: finish_on_close)
@@ -225,7 +225,7 @@ module ElasticAPM
         child_of: nil,
         references: nil,
         start_time: Time.now,
-        tags: {},
+        labels: {},
         ignore_active_scope: false,
         **
       )
@@ -263,8 +263,8 @@ module ElasticAPM
         span_context ||=
           SpanContext.from_trace_context(elastic_span.trace_context)
 
-        tags.each do |key, value|
-          elastic_span.context.tags[key] = value
+        labels.each do |key, value|
+          elastic_span.context.labels[key] = value
         end
 
         elastic_span.start Util.micros(start_time)

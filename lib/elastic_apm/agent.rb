@@ -101,7 +101,7 @@ module ElasticAPM
       instrumenter.start
       metrics.start
 
-      config.enabled_spies.each do |lib|
+      config.enabled_instrumentations.each do |lib|
         debug "Requiring spy: #{lib}"
         require "elastic_apm/spies/#{lib}"
       end
@@ -185,8 +185,8 @@ module ElasticAPM
       instrumenter.end_span
     end
 
-    def set_tag(key, value)
-      instrumenter.set_tag(key, value)
+    def set_label(key, value)
+      instrumenter.set_label(key, value)
     end
 
     def set_custom_context(context)

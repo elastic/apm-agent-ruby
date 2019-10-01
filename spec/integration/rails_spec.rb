@@ -146,7 +146,7 @@ if defined?(Rails)
       expect(@mock_intake.metadatas.length >= 1).to be true
       expect(@mock_intake.transactions.length).to be 10
 
-      service = @mock_intake.metadatas.first['service']
+      service = @mock_intake.metadatas.fetch(0)['service']
       expect(service['name']).to eq 'RailsTestApp'
       expect(service['framework']['name']).to eq 'Ruby on Rails'
       expect(service['framework']['version'])
@@ -164,16 +164,18 @@ if defined?(Rails)
 
         wait_for transactions: 1, spans: 2
 
-        name = @mock_intake.transactions.first['name']
+        name = @mock_intake.transactions.fetch(0)['name']
         expect(name).to eq 'ApplicationController#index'
       end
 
       it 'can set tags and custom context' do
+        expect(ElasticAPM).to receive(:warn)
+          .with(/set_tag.*removed./)
         get '/tags_and_context'
 
         wait_for transactions: 1, spans: 2
 
-        context = @mock_intake.transactions.first['context']
+        context = @mock_intake.transactions.fetch(0)['context']
         expect(context['tags']).to eq('things' => '1')
         expect(context['custom']).to eq('nested' => { 'banana' => 'explosion' })
       end
@@ -183,7 +185,7 @@ if defined?(Rails)
 
         wait_for transactions: 1, spans: 2
 
-        context = @mock_intake.transactions.first['context']
+        context = @mock_intake.transactions.fetch(0)['context']
         user = context['user']
         expect(user['id']).to eq '1'
         expect(user['email']).to eq 'person@example.com'
@@ -195,7 +197,7 @@ if defined?(Rails)
 
         wait_for transactions: 1, spans: 2
 
-        name = @mock_intake.transactions.first['name']
+        name = @mock_intake.transactions.fetch(0)['name']
         expect(name).to eq 'ApplicationController#index'
       end
 
@@ -222,15 +224,15 @@ if defined?(Rails)
 
         wait_for transactions: 1
 
-        metadata = @mock_intake.metadatas.first
+        metadata = @mock_intake.metadatas.fetch(0)
         expect(metadata).to match_json_schema(:metadatas),
           metadata.inspect
 
-        transaction = @mock_intake.transactions.first
+        transaction = @mock_intake.transactions.fetch(0)
         expect(transaction).to match_json_schema(:transactions),
           transaction.inspect
 
-        span = @mock_intake.spans.first
+        span = @mock_intake.spans.fetch(0)
         expect(span).to match_json_schema(:spans),
           span.inspect
       end
@@ -244,7 +246,7 @@ if defined?(Rails)
 
         expect(response.status).to be 500
 
-        error = @mock_intake.errors.first
+        error = @mock_intake.errors.fetch(0)
         expect(error['transaction_id']).to_not be_nil
         expect(error['transaction']['sampled']).to be true
         expect(error['context']).to_not be nil
@@ -259,7 +261,7 @@ if defined?(Rails)
 
         wait_for transactions: 1, errors: 1
 
-        payload = @mock_intake.errors.first
+        payload = @mock_intake.errors.fetch(0)
         expect(payload).to match_json_schema(:errors),
           payload.inspect
       end

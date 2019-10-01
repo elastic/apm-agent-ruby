@@ -9,7 +9,7 @@ module ElasticAPM
           {
             metricset: {
               timestamp: metricset.timestamp.to_i,
-              tags: keyword_object(metricset.tags),
+              tags: keyword_object(metricset.labels),
               samples: build_samples(metricset.samples)
             }
           }

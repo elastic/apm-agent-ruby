@@ -15,11 +15,11 @@ module ElasticAPM
       its(:notifications) { should be_empty }
       its(:trace_id) { should be subject.trace_context.trace_id }
 
-      context 'with tags from context and args' do
-        it 'merges tags' do
-          context = Context.new(tags: { context: 'yes' })
-          subject = described_class.new(tags: { args: 'yes' }, context: context)
-          expect(subject.context.tags).to match(args: 'yes', context: 'yes')
+      context 'with labels from context and args' do
+        it 'merges labels' do
+          context = Context.new(labels: { context: 'yes' })
+          subject = described_class.new(labels: { args: 'yes' }, context: context)
+          expect(subject.context.labels).to match(args: 'yes', context: 'yes')
         end
       end
     end

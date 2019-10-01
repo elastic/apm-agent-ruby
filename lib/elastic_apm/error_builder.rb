@@ -12,7 +12,7 @@ module ElasticAPM
       error.exception =
         Error::Exception.from_exception(exception, handled: handled)
 
-      Util.reverse_merge!(error.context.tags, @agent.config.default_tags)
+      Util.reverse_merge!(error.context.labels, @agent.config.default_labels)
 
       if exception.backtrace
         add_stacktrace error, :exception, exception.backtrace
@@ -50,7 +50,7 @@ module ElasticAPM
         error.log.stacktrace = stacktrace
       end
 
-      error.culprit = stacktrace.frames.first.function
+      error.culprit = stacktrace.frames.first&.function
     end
 
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
@@ -67,7 +67,7 @@ module ElasticAPM
 
       return unless transaction.context
 
-      Util.reverse_merge!(error.context.tags, transaction.context.tags)
+      Util.reverse_merge!(error.context.labels, transaction.context.labels)
       Util.reverse_merge!(error.context.custom, transaction.context.custom)
     end
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize

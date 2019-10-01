@@ -30,7 +30,22 @@ module ElasticAPM
       end
     end
 
+    it 'raises an exception when *_DEFAULT_LABELS and *_DEFAULT_TAGS are set' do
+      # As soon as we build a config with default_tags, `warn' will be called.
+      # This makes sure we don't pollute the test output.
+      allow_any_instance_of(Config).to receive(:warn)
+        .with(/default_tags=.*removed./)
+      with_env('ELASTIC_APM_DEFAULT_TAGS' => 'wave=something',
+               'ELASTIC_APM_DEFAULT_LABELS' => 'brother=ok') do
+        expect {
+          Config.new.default_labels
+        }.to raise_exception(Exception, Config::LABELS_AND_TAGS_CONFLICT)
+      end
+    end
+
     it 'converts certain env values to Ruby types' do
+      allow_any_instance_of(Config).to receive(:warn)
+        .with(/default_tags=.*removed./)
       [
         # [ 'NAME', 'VALUE', 'EXPECTED' ]
         ['ELASTIC_APM_SOURCE_LINES_ERROR_APP_FRAMES', '666', 666],
@@ -42,12 +57,17 @@ module ElasticAPM
         ['ELASTIC_APM_VERIFY_SERVER_CERT', 'true', true],
         ['ELASTIC_APM_VERIFY_SERVER_CERT', '0', false],
         ['ELASTIC_APM_VERIFY_SERVER_CERT', 'false', false],
-        ['ELASTIC_APM_DISABLED_SPIES', 'json,http', %w[json http]],
+        ['ELASTIC_APM_DISABLED_INSTRUMENTATIONS', 'json,http', %w[json http]],
         ['ELASTIC_APM_CUSTOM_KEY_FILTERS', 'Auth,Other', [/Auth/, /Other/]],
         [
           'ELASTIC_APM_DEFAULT_TAGS',
           'test=something something&other=ok',
           { 'test' => 'something something', 'other' => 'ok' }
+        ],
+        [
+          'ELASTIC_APM_DEFAULT_LABELS',
+          'wave=something erlking&brother=ok',
+          { 'wave' => 'something erlking', 'brother' => 'ok' }
         ],
         [
           'ELASTIC_APM_GLOBAL_LABELS',
@@ -130,10 +150,10 @@ module ElasticAPM
     end
 
     it 'has spies and may disable them' do
-      expect(Config.new.available_spies).to_not be_empty
+      expect(Config.new.available_instrumentations).to_not be_empty
 
-      config = Config.new disabled_spies: ['json']
-      expect(config.enabled_spies).to_not include('json')
+      config = Config.new disabled_instrumentations: ['json']
+      expect(config.enabled_instrumentations).to_not include('json')
     end
 
     context 'logging' do

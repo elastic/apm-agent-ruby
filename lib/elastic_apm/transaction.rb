@@ -19,7 +19,7 @@ module ElasticAPM
       type = nil,
       sampled: true,
       context: nil,
-      tags: nil,
+      labels: nil,
       trace_context: nil
     )
       @name = name
@@ -28,7 +28,7 @@ module ElasticAPM
       @sampled = sampled
 
       @context = context || Context.new # TODO: Lazy generate this?
-      Util.reverse_merge!(@context.tags, tags) if tags
+      Util.reverse_merge!(@context.labels, labels) if labels
 
       @trace_context = trace_context || TraceContext.new(recorded: sampled)
 

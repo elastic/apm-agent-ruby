@@ -101,7 +101,7 @@ module ElasticAPM
           context: context,
           trace_context: trace_context,
           sampled: sampled,
-          tags: config.default_tags
+          labels: config.default_labels
         )
 
       transaction.start
@@ -191,11 +191,11 @@ module ElasticAPM
 
     # metadata
 
-    def set_tag(key, value)
+    def set_label(key, value)
       return unless current_transaction
 
       key = key.to_s.gsub(/[\."\*]/, '_').to_sym
-      current_transaction.context.tags[key] = value.to_s
+      current_transaction.context.labels[key] = value
     end
 
     def set_custom_context(context)

@@ -16,6 +16,7 @@ module ElasticAPM
   # @api private
   class Config
     extend Options
+    extend Deprecations
 
     DEPRECATED_OPTIONS = %i[].freeze
 
@@ -37,9 +38,11 @@ module ElasticAPM
     option :current_user_username_method,      type: :string, default: 'username'
     option :custom_key_filters,                type: :list,   default: [],      converter: RegexpList.new
     option :default_tags,                      type: :dict,   default: {}
+    option :default_labels,                    type: :dict,   default: {}
     option :disable_send,                      type: :bool,   default: false
     option :disable_start_message,             type: :bool,   default: false
-    option :disabled_spies,                    type: :list,   default: %w[json]
+    option :disabled_instrumentations,         type: :list,   default: %w[json]
+    option :disabled_spies,                    type: :list,   default: []
     option :environment,                       type: :string, default: ENV['RAILS_ENV'] || ENV['RACK_ENV']
     option :framework_name,                    type: :string
     option :framework_version,                 type: :string
@@ -111,7 +114,7 @@ module ElasticAPM
     end
 
     # rubocop:disable Metrics/MethodLength
-    def available_spies
+    def available_instrumentations
       %w[
         delayed_job
         elasticsearch
@@ -130,8 +133,8 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/MethodLength
 
-    def enabled_spies
-      available_spies - disabled_spies
+    def enabled_instrumentations
+      available_instrumentations - disabled_instrumentations
     end
 
     def method_missing(name, *args)

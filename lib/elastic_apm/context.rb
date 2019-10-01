@@ -9,9 +9,9 @@ require 'elastic_apm/context/user'
 module ElasticAPM
   # @api private
   class Context
-    def initialize(custom: {}, tags: {}, user: nil)
+    def initialize(custom: {}, labels: {}, user: nil)
       @custom = custom
-      @tags = tags
+      @labels = labels
       @user = user || User.new
     end
 
@@ -19,10 +19,10 @@ module ElasticAPM
     attr_accessor :response
     attr_accessor :user
     attr_reader :custom
-    attr_reader :tags
+    attr_reader :labels
 
     def empty?
-      return false if tags.any?
+      return false if labels.any?
       return false if custom.any?
       return false if user.any?
       return false if request || response

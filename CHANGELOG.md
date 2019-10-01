@@ -10,7 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 #### Removed
 
-- Deprecated methods and config options
+- Removed all deprecated methods and config options
 
 #### Changed
 
@@ -19,6 +19,22 @@ No changes are necessary to your app.
 
 - Errors' `message` no longer include their `type` ([#323](https://github.com/elastic/apm-agent-ruby/pull/323/files))
 - External request spans now have type `external.http.{library}` ([#514](https://github.com/elastic/apm-agent-ruby/pull/514))
+
+## 2.12.0 (2019-10-01)
+
+### Changed
+
+- `disabled_spies` renamed to `disabled_instrumentations` with fallback ([#539](https://github.com/elastic/apm-agent-ruby/pull/539))
+- Rename `set_tag` to `set_label` and deprecate `set_tag` ([#543](https://github.com/elastic/apm-agent-ruby/pull/543))
+- Allow non-String label values ([#543](https://github.com/elastic/apm-agent-ruby/pull/543))
+
+### Fixed
+
+- Handles a case where stacktrace frames are empty ([#538](https://github.com/elastic/apm-agent-ruby/pull/538))
+
+### Deprecated
+
+- Deprecate `set_tag` ([#543](https://github.com/elastic/apm-agent-ruby/pull/543))
 
 ## 2.11.0 (2019-09-23)
 

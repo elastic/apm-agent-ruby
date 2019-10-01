@@ -34,6 +34,16 @@ module ElasticAPM
             h.each { |k, v| hash[k] = keyword_field(v) }
           end
         end
+
+        def mixed_object(hash)
+          return unless hash
+
+          hash.tap do |h|
+            h.each do |k, v|
+              hash[k] = v.is_a?(String) ? keyword_field(v) : v
+            end
+          end
+        end
       end
 
       # @api private

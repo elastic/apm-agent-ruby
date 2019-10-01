@@ -10,7 +10,8 @@ module ElasticAPM
         req_stub = stub_response(transaction_sample_rate: '0.5')
         subject.start
         subject.promise.wait
-        expect(req_stub).to have_been_requested
+        expect(req_stub).to have_been_requested.at_least_once
+        subject.stop
       end
 
       context 'when disabled' do
@@ -21,6 +22,7 @@ module ElasticAPM
           subject.start
           expect(subject.promise).to be nil
           expect(req_stub).to_not have_been_requested
+          subject.stop
         end
       end
     end
