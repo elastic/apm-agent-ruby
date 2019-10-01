@@ -31,6 +31,10 @@ module ElasticAPM
     end
 
     it 'raises an exception when *_DEFAULT_LABELS and *_DEFAULT_TAGS are set' do
+      # As soon as we build a config with default_tags, `warn' will be called.
+      # This makes sure we don't pollute the test output.
+      allow_any_instance_of(Config).to receive(:warn)
+        .with(/default_tags=.*removed./)
       with_env('ELASTIC_APM_DEFAULT_TAGS' => 'wave=something',
                'ELASTIC_APM_DEFAULT_LABELS' => 'brother=ok') do
         expect {
@@ -40,6 +44,8 @@ module ElasticAPM
     end
 
     it 'converts certain env values to Ruby types' do
+      allow_any_instance_of(Config).to receive(:warn)
+        .with(/default_tags=.*removed./)
       [
         # [ 'NAME', 'VALUE', 'EXPECTED' ]
         ['ELASTIC_APM_SOURCE_LINES_ERROR_APP_FRAMES', '666', 666],
@@ -177,6 +183,8 @@ module ElasticAPM
 
     context 'default tags and labels set' do
       it 'raises an exception' do
+        allow_any_instance_of(Config).to receive(:warn)
+          .with(/default_tags=.*removed./)
         expect {
           Config.new(default_labels: { labels: 2 },
                      default_tags: { tags: 1 })
@@ -188,6 +196,8 @@ module ElasticAPM
       let(:config) { Config.new(default_tags: { tags: 1 }) }
 
       it 'sets the default labels' do
+        allow_any_instance_of(Config).to receive(:warn)
+          .with(/default_tags=.*removed./)
         expect(config.default_labels).to eq(tags: 1)
       end
     end
@@ -216,8 +226,6 @@ module ElasticAPM
       end
 
       it 'accepts disabled_spies via env' do
-        # As soon as we build a config inside with_env `warn' will be called.
-        # This makes sure we don't pollute the test output.
         allow_any_instance_of(Config).to receive(:warn)
           .with(/disabled_spies=.*removed./)
 

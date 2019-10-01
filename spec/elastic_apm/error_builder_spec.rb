@@ -26,7 +26,7 @@ module ElasticAPM
         env['HTTP_CONTENT_TYPE'] = 'application/json'
 
         transaction =
-          with_agent(default_tags: { more: 'totes' }) do
+          with_agent(default_labels: { more: 'totes' }) do
             context =
               ElasticAPM.build_context rack_env: env, for_type: :transaction
 
