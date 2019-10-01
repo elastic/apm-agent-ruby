@@ -98,7 +98,7 @@ end
 ==== Extracting trace IDs from the logs
 
 For log correlation to work, the trace IDs must be extracted from the log message and stored in separate fields in the Elasticsearch document. There are many ways to achieve this, for example by using ingest node and defining a pipeline with a grok processor.
-For example, you can extract the trace id from the Lograge output generated above like this:
+You can extract the trace id from the Lograge output generated above like this:
 
 [source,json]
 ----
