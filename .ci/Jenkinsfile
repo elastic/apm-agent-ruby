@@ -67,6 +67,8 @@ pipeline {
             sh 'pwd'
             sh 'cd'
             sh 'pwd'
+            sh 'ls -ltrah /var/lib/jenkins/.ssh || true'
+            sh 'mkdir -p ~/.ssh || true'
             docker.image("${env.RUBY_DOCKER_TAG}").inside('-v /etc/passwd:/etc/passwd') {
               withEnv(["HOME=${env.WORKSPACE}/${env.BASE_DIR ?: ''}"]) {
                 rubygemsLogin.withApi(secret: "${env.RELEASE_SECRET}") {
