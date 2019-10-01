@@ -64,12 +64,14 @@ pipeline {
         unstash 'source'
         script {
           dir(BASE_DIR){
-            sh 'env | sort'
-            sh 'echo ${HOME}'
-            docker.image("${env.RUBY_DOCKER_TAG}").inside('-v /etc/passwd:/etc/passwd -v ${HOME}/.ssh:${HOME}/.ssh') {
+            sh 'pwd'
+            sh 'cd'
+            sh 'pwd'
+            docker.image("${env.RUBY_DOCKER_TAG}").inside('-v /etc/passwd:/etc/passwd') {
               withEnv(["HOME=${env.WORKSPACE}/${env.BASE_DIR ?: ''}"]) {
                 rubygemsLogin.withApi(secret: "${env.RELEASE_SECRET}") {
                   sshagent(['f6c7695a-671e-4f4f-a331-acdce44ff9ba']) {
+                    sh 'ssh -T git@github.com | true'
                     sh '.ci/prepare-git-context.sh'
                     sh 'gem install rake yard rspec'
                   }
