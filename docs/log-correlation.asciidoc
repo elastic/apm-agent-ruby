@@ -117,4 +117,4 @@ PUT _ingest/pipeline/extract_trace_id
 }
 ----
 
-Please see this documentation for more information.
+Please see {apm-overview-ref-v}/observability-integrations.html[Observability integrations] for more information.
