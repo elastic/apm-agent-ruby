@@ -75,8 +75,8 @@ module ElasticAPM
         end
       end
 
-      context 'with default tags' do
-        let(:config) { Config.new(default_tags: { more: 'yes!' }) }
+      context 'with default labels' do
+        let(:config) { Config.new(default_labels: { more: 'yes!' }) }
 
         it 'adds them to transaction context' do
           transaction = subject.start_transaction 'Test', 't'

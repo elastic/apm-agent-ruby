@@ -169,6 +169,8 @@ if defined?(Rails)
       end
 
       it 'can set tags and custom context' do
+        expect(ElasticAPM).to receive(:warn)
+          .with(/set_tag.*removed./)
         get '/tags_and_context'
 
         wait_for transactions: 1, spans: 2
