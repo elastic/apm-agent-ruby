@@ -18,7 +18,7 @@ module ElasticAPM
             let(:transaction) do
               ElasticAPM.start
               ElasticAPM.with_transaction('GET /something', 'request') do |t|
-                travel 100
+                travel 10_000
                 t.result = '200'
               end
               ElasticAPM.stop
@@ -36,7 +36,7 @@ module ElasticAPM
                   "type": 'request',
                   "result": '200',
                   "context": nil,
-                  "duration": 100.0,
+                  "duration": 10,
                   "timestamp": 694_224_000_000_000,
                   "trace_id": transaction.trace_id,
                   "sampled": true,

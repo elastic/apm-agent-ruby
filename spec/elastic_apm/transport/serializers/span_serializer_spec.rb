@@ -22,7 +22,7 @@ module ElasticAPM
               trace_context: trace_context
             ).tap do |span|
               span.start
-              travel 100
+              travel 10_000
               span.stop
             end
           end
@@ -41,7 +41,7 @@ module ElasticAPM
                 context: { sync: true },
                 stacktrace: [],
                 timestamp: 694_224_000_000_000,
-                duration: 100
+                duration: 10
               }
             )
           end

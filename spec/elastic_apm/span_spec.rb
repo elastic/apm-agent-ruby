@@ -48,16 +48,18 @@ module ElasticAPM
       let(:transaction) { Transaction.new }
 
       subject do
-        described_class.new(name: 'Spannest name',
-                            transaction_id: transaction.id,
-                            trace_context: trace_context)
+        described_class.new(
+          name: 'Spannest name',
+          transaction_id: transaction.id,
+          trace_context: trace_context
+        )
       end
 
       it 'has a relative and absolute start time', :mock_time do
         transaction.start
         travel 100
         expect(subject.start).to be subject
-        expect(subject.timestamp - transaction.timestamp).to eq 100_000
+        expect(subject.timestamp - transaction.timestamp).to eq 100
       end
     end
 
@@ -65,9 +67,11 @@ module ElasticAPM
       let(:transaction) { Transaction.new }
 
       subject do
-        described_class.new(name: 'Spannest name',
-                            transaction_id: transaction.id,
-                            trace_context: trace_context)
+        described_class.new(
+          name: 'Spannest name',
+          transaction_id: transaction.id,
+          trace_context: trace_context
+        )
       end
 
       it 'sets duration' do
@@ -77,12 +81,12 @@ module ElasticAPM
         subject.stop
 
         expect(subject).to be_stopped
-        expect(subject.duration).to be 100_000
+        expect(subject.duration).to be 100
       end
     end
 
     describe '#done', :mock_time do
-      let(:duration) { 100 }
+      let(:duration_us) { 5_100 }
       let(:span_frames_min_duration) { '5ms' }
       let(:config) do
         Config.new(span_frames_min_duration: span_frames_min_duration)
@@ -100,12 +104,12 @@ module ElasticAPM
       before do
         subject.original_backtrace = caller
         subject.start
-        travel duration
+        travel duration_us
         subject.done
       end
 
       it { should be_stopped }
-      its(:duration) { should be 100_000 }
+      its(:duration) { should be duration_us }
       its(:stacktrace) { should be_a Stacktrace }
 
       context 'when shorter than min for stacktrace' do
