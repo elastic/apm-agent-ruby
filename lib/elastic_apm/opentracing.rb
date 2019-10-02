@@ -65,10 +65,10 @@ module ElasticAPM
       end
       # rubocop:enable Lint/UnusedMethodArgument
 
-      def finish(end_clock: Util.monotonic_micros)
+      def finish(clock_end: Util.monotonic_micros)
         return unless (instrumenter = ElasticAPM.agent&.instrumenter)
 
-        elastic_span.done end_clock: end_clock
+        elastic_span.done clock_end: clock_end
 
         case elastic_span
         when ElasticAPM::Transaction

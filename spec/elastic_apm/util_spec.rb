@@ -10,7 +10,7 @@ module ElasticAPM
 
     describe '.monotonic_micros' do
       it 'returns current processor microseconds' do
-        expect(Util.monotonic_micros.to_s).to match(/\d{12}/)
+        expect(Util.monotonic_micros.to_s).to match(/\d+/)
       end
     end
 
