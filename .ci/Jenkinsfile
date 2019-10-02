@@ -183,6 +183,7 @@ pipeline {
         options { skipDefaultCheckout() }
         environment {
           RUBY_DOCKER_TAG = 'ruby:2.6'
+          HOME = '/var/lib/jenkins'
         }
         when {
           beforeAgent true
