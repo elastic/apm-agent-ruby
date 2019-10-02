@@ -16,7 +16,6 @@ module ElasticAPM
   # @api private
   class Config
     extend Options
-    extend Deprecations
 
     DEPRECATED_OPTIONS = %i[].freeze
 

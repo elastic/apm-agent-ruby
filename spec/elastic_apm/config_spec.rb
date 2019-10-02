@@ -30,19 +30,6 @@ module ElasticAPM
       end
     end
 
-    it 'raises an exception when *_DEFAULT_LABELS and *_DEFAULT_TAGS are set' do
-      # As soon as we build a config with default_tags, `warn' will be called.
-      # This makes sure we don't pollute the test output.
-      allow_any_instance_of(Config).to receive(:warn)
-        .with(/default_tags=.*removed./)
-      with_env('ELASTIC_APM_DEFAULT_TAGS' => 'wave=something',
-               'ELASTIC_APM_DEFAULT_LABELS' => 'brother=ok') do
-        expect {
-          Config.new.default_labels
-        }.to raise_exception(Exception, Config::LABELS_AND_TAGS_CONFLICT)
-      end
-    end
-
     it 'converts certain env values to Ruby types' do
       allow_any_instance_of(Config).to receive(:warn)
         .with(/default_tags=.*removed./)
