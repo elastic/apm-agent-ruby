@@ -26,7 +26,7 @@ module ElasticAPM
 
     describe '#start', :mock_time do
       it 'sets timestamp' do
-        expect(subject.start.timestamp).to be Util.micros(@mocked_date)
+        expect(subject.start.timestamp).to be Util.micros
       end
     end
 
