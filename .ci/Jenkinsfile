@@ -133,7 +133,6 @@ pipeline {
             The result JSON files are also archive into Jenkins.
           */
           stage('Run Benchmarks') {
-            agent { label 'linux && immutable' }
             steps {
               withGithubNotify(context: 'Run Benchmarks') {
                 deleteDir()
