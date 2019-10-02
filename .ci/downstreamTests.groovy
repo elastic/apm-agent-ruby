@@ -42,7 +42,6 @@ pipeline {
     Checkout the code and stash it, to use it on other stages.
     */
     stage('Checkout') {
-      agent { label 'immutable' }
       options { skipDefaultCheckout() }
       steps {
         deleteDir()
@@ -54,14 +53,12 @@ pipeline {
       }
     }
     stage('Test') {
-      agent { label 'linux && immutable' }
       options { skipDefaultCheckout() }
       steps {
         runTests('.ci/.jenkins_framework.yml')
       }
     }
     stage('Master Test') {
-      agent { label 'linux && immutable' }
       options { skipDefaultCheckout() }
       steps {
         catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: "The tests for the master framework have failed. Let's warn instead.") {
