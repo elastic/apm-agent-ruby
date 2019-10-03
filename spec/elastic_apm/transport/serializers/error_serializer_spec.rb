@@ -28,7 +28,7 @@ module ElasticAPM
             )
 
             expect(result.fetch(:exception)).to include(
-              message: 'ZeroDivisionError: divided by 0',
+              message: 'divided by 0',
               type: 'ZeroDivisionError',
               module: '',
               code: nil,
@@ -56,7 +56,7 @@ module ElasticAPM
 
               exception = result.fetch(:exception)
               expect(exception).to include(
-                message: 'ExceptionHelpers::One: ExceptionHelpers::One',
+                message: 'ExceptionHelpers::One',
                 type: 'ExceptionHelpers::One',
                 module: 'ExceptionHelpers',
                 code: nil,
@@ -68,7 +68,7 @@ module ElasticAPM
 
               cause1 = exception.fetch(:cause)[0]
               expect(cause1).to include(
-                message: 'ExceptionHelpers::Two: ExceptionHelpers::Two',
+                message: 'ExceptionHelpers::Two',
                 type: 'ExceptionHelpers::Two',
                 module: 'ExceptionHelpers',
                 code: nil,
@@ -80,7 +80,7 @@ module ElasticAPM
 
               cause2 = cause1.fetch(:cause)[0]
               expect(cause2).to include(
-                message: 'ExceptionHelpers::Three: ExceptionHelpers::Three',
+                message: 'ExceptionHelpers::Three',
                 type: 'ExceptionHelpers::Three',
                 module: 'ExceptionHelpers',
                 code: nil,

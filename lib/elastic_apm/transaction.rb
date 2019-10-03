@@ -6,7 +6,6 @@ require 'forwardable'
 module ElasticAPM
   # @api private
   class Transaction
-    extend Deprecations
     extend Forwardable
 
     def_delegators :@trace_context,
@@ -52,12 +51,6 @@ module ElasticAPM
     def stopped?
       !!duration
     end
-
-    def done?
-      stopped?
-    end
-
-    deprecate :done?, :stopped?
 
     # life cycle
 

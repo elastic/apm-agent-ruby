@@ -67,7 +67,7 @@ if defined?(Rails)
         end
 
         def context
-          ElasticAPM.set_tag :things, 1
+          ElasticAPM.set_label :things, 1
           ElasticAPM.set_custom_context nested: { banana: 'explosion' }
           render_ok
         end
@@ -169,14 +169,12 @@ if defined?(Rails)
       end
 
       it 'can set tags and custom context' do
-        expect(ElasticAPM).to receive(:warn)
-          .with(/set_tag.*removed./)
         get '/tags_and_context'
 
         wait_for transactions: 1, spans: 2
 
         context = @mock_intake.transactions.fetch(0)['context']
-        expect(context['tags']).to eq('things' => '1')
+        expect(context['tags']).to eq('things' => 1)
         expect(context['custom']).to eq('nested' => { 'banana' => 'explosion' })
       end
 

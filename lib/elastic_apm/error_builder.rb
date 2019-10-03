@@ -9,7 +9,8 @@ module ElasticAPM
 
     def build_exception(exception, context: nil, handled: true)
       error = Error.new context: context || Context.new
-      error.exception = Error::Exception.new(exception, handled: handled)
+      error.exception =
+        Error::Exception.from_exception(exception, handled: handled)
 
       Util.reverse_merge!(error.context.labels, @agent.config.default_labels)
 

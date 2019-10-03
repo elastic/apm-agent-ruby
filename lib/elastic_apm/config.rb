@@ -16,19 +16,8 @@ module ElasticAPM
   # @api private
   class Config
     extend Options
-    extend Deprecations
 
-    DEPRECATED_OPTIONS = %i[
-      compression_level=
-      compression_minimum_size=
-      debug_http=
-      debug_transactions=
-      flush_interval=
-      http_open_timeout=
-      http_read_timeout=
-      enabled_environments=
-      disable_environment_warning=
-    ].freeze
+    DEPRECATED_OPTIONS = %i[].freeze
 
     # rubocop:disable Metrics/LineLength, Layout/ExtraSpacing
     option :config_file,                       type: :string, default: 'config/elastic_apm.yml'
@@ -187,80 +176,6 @@ module ElasticAPM
     def inspect
       super.split.first + '>'
     end
-
-    # DEPRECATED
-    # rubocop:disable Metrics/MethodLength
-    def capture_body=(value)
-      if value =~ /(all|transactions|errors|off)/
-        set(:capture_body, value)
-        return
-      end
-
-      case value
-      when true
-        warn "Boolean value for option `capture_body' has " \
-          "been deprecated. Setting to 'all'"
-        self.capture_body = 'all'
-      when false
-        warn "Boolean value for option `capture_body' has " \
-          "been deprecated. Setting to 'off'"
-        self.capture_body = 'off'
-      else
-        default = options[:capture_body].default
-        warn "Unknown value `#{value}' for option "\
-          "`capture_body'. Defaulting to `#{default}'"
-        self.capture_body = default
-      end
-    end
-    # rubocop:enable Metrics/MethodLength
-
-    # DEPRECATED
-    # The spies methods are only somewhat public and only mentioned briefly in
-    # the docs.
-
-    def disabled_spies=(list)
-      self.disabled_instrumentations = list
-    end
-
-    def disabled_spies
-      disabled_instrumentations
-    end
-
-    def enabled_spies
-      enabled_instrumentations
-    end
-
-    def available_spies
-      available_instrumentations
-    end
-
-    deprecate :disabled_spies=, :disabled_instrumentations=
-    deprecate :disabled_spies, :disabled_instrumentations
-    deprecate :enabled_spies, :enabled_instrumentations
-    deprecate :available_spies, :available_instrumentations
-
-    LABELS_AND_TAGS_CONFLICT = 'You have both \'default_labels\' and ' \
-      '\'default_tags\' set. \'default_tags\' has been deprecated in favor '\
-      'of \'default_labels\'. Please consider upgrading.'.freeze
-
-    def default_labels=(labels)
-      @options[:default_tags].value.empty? || (raise LABELS_AND_TAGS_CONFLICT)
-      super
-    end
-
-    # DEPRECATED
-
-    def default_tags=(tags)
-      @options[:default_labels].value.empty? || (raise LABELS_AND_TAGS_CONFLICT)
-      super
-      @options[:default_labels].set(tags)
-    end
-
-    def default_tags
-      default_labels
-    end
-
-    deprecate :default_tags=, :default_labels=
 
     private
 

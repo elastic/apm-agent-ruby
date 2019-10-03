@@ -30,19 +30,6 @@ module ElasticAPM
       end
     end
 
-    it 'raises an exception when *_DEFAULT_LABELS and *_DEFAULT_TAGS are set' do
-      # As soon as we build a config with default_tags, `warn' will be called.
-      # This makes sure we don't pollute the test output.
-      allow_any_instance_of(Config).to receive(:warn)
-        .with(/default_tags=.*removed./)
-      with_env('ELASTIC_APM_DEFAULT_TAGS' => 'wave=something',
-               'ELASTIC_APM_DEFAULT_LABELS' => 'brother=ok') do
-        expect {
-          Config.new.default_labels
-        }.to raise_exception(Exception, Config::LABELS_AND_TAGS_CONFLICT)
-      end
-    end
-
     it 'converts certain env values to Ruby types' do
       allow_any_instance_of(Config).to receive(:warn)
         .with(/default_tags=.*removed./)
@@ -178,75 +165,6 @@ module ElasticAPM
 
         expect(logger).to receive(:info).with('MockLog')
         config.logger.info 'MockLog'
-      end
-    end
-
-    context 'default tags and labels set' do
-      it 'raises an exception' do
-        allow_any_instance_of(Config).to receive(:warn)
-          .with(/default_tags=.*removed./)
-        expect {
-          Config.new(default_labels: { labels: 2 },
-                     default_tags: { tags: 1 })
-        }.to raise_exception(Exception, Config::LABELS_AND_TAGS_CONFLICT)
-      end
-    end
-
-    context 'default tags set' do
-      let(:config) { Config.new(default_tags: { tags: 1 }) }
-
-      it 'sets the default labels' do
-        allow_any_instance_of(Config).to receive(:warn)
-          .with(/default_tags=.*removed./)
-        expect(config.default_labels).to eq(tags: 1)
-      end
-    end
-
-    describe 'deprecations' do
-      it 'warns about removed options' do
-        expect(subject).to receive(:warn).with(/has been removed/)
-        subject.flush_interval = 123
-      end
-
-      it 'warns about boolean value for capture_body' do
-        expect(subject).to receive(:warn).with(/Boolean value.*deprecated./)
-
-        subject.capture_body = true
-        expect(subject.capture_body).to eq 'all'
-
-        expect(subject).to receive(:warn).with(/Boolean value.*deprecated./)
-
-        subject.capture_body = false
-        expect(subject.capture_body).to eq 'off'
-
-        expect(subject).to receive(:warn).with(/Unknown value/)
-
-        subject.capture_body = :oh_no
-        expect(subject.capture_body).to eq 'off'
-      end
-
-      it 'accepts disabled_spies via env' do
-        allow_any_instance_of(Config).to receive(:warn)
-          .with(/disabled_spies=.*removed./)
-
-        with_env('ELASTIC_APM_DISABLED_SPIES' => 'http,json') do
-          expect(subject.disabled_instrumentations).to eq(%w[http json])
-        end
-      end
-
-      it 'warns about *_spies and falls back' do
-        expect(subject).to receive(:warn).with(/disabled_spies=.*removed./)
-        subject.disabled_spies = ['things']
-        expect(subject.disabled_instrumentations).to eq(['things'])
-
-        expect(subject).to receive(:warn).with(/enabled_spies.*removed./)
-        expect(subject.enabled_spies).to_not be_empty
-
-        expect(subject).to receive(:warn).with(/available_spies.*removed./)
-        expect(subject.available_spies).to_not be_empty
-
-        expect(subject).to receive(:warn).with(/disabled_spies.*removed./)
-        expect(subject.disabled_spies).to_not be_empty
       end
     end
 
