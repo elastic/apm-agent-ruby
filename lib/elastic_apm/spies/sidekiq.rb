@@ -14,8 +14,7 @@ module ElasticAPM
         def call(_worker, job, queue)
           name = SidekiqSpy.name_for(job)
           transaction = ElasticAPM.start_transaction(name, 'Sidekiq')
-          # TODO: Remove #to_s when #set_tag is removed in v3.0
-          ElasticAPM.set_label(:queue, queue.to_s)
+          ElasticAPM.set_label(:queue, queue)
 
           yield
 
