@@ -55,6 +55,13 @@ pipeline {
       }
     }
     stage('Sanity checks') {
+      when {
+        beforeAgent true
+        anyOf {
+          not { changeRequest() }
+          expression { return params.Run_As_Master_Branch }
+        }
+      }
       options { skipDefaultCheckout() }
       environment {
         HOME = "${env.WORKSPACE}"
@@ -96,6 +103,19 @@ pipeline {
       }
       stage('Benchmarks') {
         options { skipDefaultCheckout() }
+        when {
+          beforeAgent true
+          allOf {
+            anyOf {
+              branch 'master'
+              branch "\\d+\\.\\d+"
+              branch "v\\d?"
+              tag "v\\d+\\.\\d+\\.\\d+*"
+              expression { return params.Run_As_Master_Branch }
+            }
+            expression { return params.bench_ci }
+          }
+        }
         stages {
           stage('Clean Workspace') {
             agent { label 'metal' }
@@ -160,6 +180,12 @@ pipeline {
         environment {
           RUBY_DOCKER_TAG = 'ruby:2.6'
         }
+        when {
+          beforeAgent true
+          anyOf {
+            tag pattern: 'v\\d+.*', comparator: 'REGEXP'
+          }
+        }
         steps {
           withGithubNotify(context: 'Release') {
             deleteDir()
@@ -172,8 +198,7 @@ pipeline {
                       sshagent(['f6c7695a-671e-4f4f-a331-acdce44ff9ba']) {
                         sh '.ci/prepare-git-context.sh'
                         sh 'gem install rake yard rspec'
-                        sh 'touch file'
-                        echo 'ignore'
+                        sh 'rake release'
                       }
                     }
                   }
@@ -211,13 +236,16 @@ def runBenchmark(version){
             dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
           }
           try{
-            //sh "./spec/scripts/benchmarks.sh ${version}"
-            sh 'touch file'
-            echo 'ignore'
+            sh "./spec/scripts/benchmarks.sh ${version}"
           } catch(e){
             throw e
           } finally {
-            echo 'ignore'
+            archiveArtifacts(
+              allowEmptyArchive: true,
+              artifacts: "**/benchmark-${transformedVersion}.raw,**/benchmark-${transformedVersion}.error",
+              onlyIfSuccessful: false)
+            sendBenchmarks(file: "benchmark-${transformedVersion}.bulk",
+              index: "benchmark-ruby", archive: true)
           }
         }
       }
