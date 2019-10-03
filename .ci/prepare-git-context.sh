@@ -20,4 +20,5 @@ git checkout "${BRANCH_NAME}"
 
 # Ensure the master branch points to the original commit to avoid commit injection
 # when running the release pipeline.
-git reset --hard "${GIT_COMMIT}"
+# used GIT_BASE_COMMIT instead GIT_COMMIT to support the MultiBranchPipelines.
+git reset --hard "${GIT_BASE_COMMIT}"
