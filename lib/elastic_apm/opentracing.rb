@@ -65,8 +65,15 @@ module ElasticAPM
       end
       # rubocop:enable Lint/UnusedMethodArgument
 
-      def finish(clock_end: Util.monotonic_micros)
+      # rubocop:disable Metrics/MethodLength
+      def finish(clock_end: Util.monotonic_micros, end_time: nil)
         return unless (instrumenter = ElasticAPM.agent&.instrumenter)
+
+        if end_time
+          warn '[ElasticAPM] DEPRECATED: Setting a custom end time as a ' \
+            '`Time` is deprecated. Use `clock_end:` and monotonic time instead.'
+          clock_end = end_time
+        end
 
         elastic_span.done clock_end: clock_end
 
@@ -79,6 +86,7 @@ module ElasticAPM
 
         instrumenter.enqueue.call elastic_span
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 
