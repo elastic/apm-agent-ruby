@@ -157,5 +157,20 @@ module ElasticAPM
         end.to change(subject.transport.filters, :length).by 1
       end
     end
+
+    describe '#update_config' do
+      let(:config) { Config.new transaction_sample_rate: 0.5 }
+      before { subject.update_config(transaction_sample_rate: 1.5,
+                                     transaction_max_spans: 100) }
+
+      it 'updates the config' do
+        expect(subject.config.transaction_sample_rate).to eq(1.5)
+        expect(subject.config.transaction_max_spans).to be(100)
+      end
+
+      it 'creates a new config object' do
+        expect(config).not_to be(subject.config)
+      end
+    end
   end
 end

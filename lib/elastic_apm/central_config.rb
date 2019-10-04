@@ -81,7 +81,7 @@ module ElasticAPM
         update[key] = @modified_options.delete(key)
       end
 
-      config.assign(update)
+      ElasticAPM.agent&.update_config(update)
     end
 
     private

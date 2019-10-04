@@ -231,6 +231,12 @@ module ElasticAPM
     def add_filter(key, callback)
       transport.add_filter(key, callback)
     end
+
+    def update_config(new_options)
+      @config = config.dup.tap do |_config|
+        new_options.each { |key, value| _config.send(:"#{key}=", value) }
+      end
+    end
   end
   # rubocop:enable Metrics/ClassLength
 end

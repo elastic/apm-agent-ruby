@@ -3,7 +3,12 @@
 module ElasticAPM
   RSpec.describe CentralConfig do
     let(:config) { Config.new }
+    let(:agent) { double('agent', update_config: {}) }
     subject { described_class.new(config) }
+
+    before do
+      allow(ElasticAPM).to receive(:agent) { agent }
+    end
 
     describe '#start' do
       it 'polls for config' do
@@ -36,8 +41,9 @@ module ElasticAPM
         subject.promise.wait
 
         expect(req_stub).to have_been_requested
-
-        expect(config.transaction_sample_rate).to eq(0.5)
+        expect(agent).to have_received(:update_config).with(
+          'transaction_sample_rate' => '0.5'
+        )
       end
 
       it 'reverts config if later 404' do
@@ -51,7 +57,12 @@ module ElasticAPM
         subject.fetch_and_apply_config
         subject.promise.wait
 
-        expect(config.transaction_sample_rate).to eq(1.0)
+        expect(agent).to have_received(:update_config).with(
+          'transaction_sample_rate' => '0.5'
+        )
+        expect(agent).to have_received(:update_config).with(
+          'transaction_sample_rate' => 1.0
+        )
       end
 
       context 'when server responds 200 and cache-control' do
@@ -90,7 +101,8 @@ module ElasticAPM
 
           expect(subject.scheduled_task).to be_pending
           expect(subject.scheduled_task.initial_delay).to eq 123
-          expect(config.transaction_sample_rate).to eq 0.5
+          expect(agent).to have_received(:update_config).
+            with('transaction_sample_rate' => 0.5).twice
         end
       end
 
@@ -148,20 +160,36 @@ module ElasticAPM
     describe '#assign' do
       it 'updates config' do
         subject.assign(transaction_sample_rate: 0.5)
-        expect(config.transaction_sample_rate).to eq 0.5
+        expect(agent).to have_received(:update_config).with(
+          transaction_sample_rate: 0.5
+        )
       end
 
       it 'reverts to previous when missing' do
         subject.assign(transaction_sample_rate: 0.5)
         subject.assign({})
-        expect(config.transaction_sample_rate).to eq 1.0
+
+        expect(agent).to have_received(:update_config).
+          with(transaction_sample_rate: 0.5)
+        expect(agent).to have_received(:update_config).
+          with(transaction_sample_rate: 1.0)
       end
 
       it 'goes back and forth' do
+        expect(agent).to receive(:update_config).with(
+            transaction_sample_rate: 0.5
+        ).ordered
+        expect(agent).to receive(:update_config).with(
+            transaction_sample_rate: 1.0
+        ).ordered
+        expect(agent).to receive(:update_config).with(
+            transaction_sample_rate: 0.5
+        ).ordered
         subject.assign(transaction_sample_rate: 0.5)
         subject.assign({})
         subject.assign(transaction_sample_rate: 0.5)
-        expect(config.transaction_sample_rate).to eq 0.5
+
+
       end
     end
 
