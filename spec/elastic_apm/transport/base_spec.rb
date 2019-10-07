@@ -22,12 +22,12 @@ module ElasticAPM
         it 'stops all workers', :mock_intake do
           subject.start
 
-          subject.submit Transaction.new
-          subject.submit Transaction.new
-          subject.submit Transaction.new
-          subject.submit Transaction.new
-          subject.submit Transaction.new
-          subject.submit Transaction.new
+          subject.submit Transaction.new config: config
+          subject.submit Transaction.new config: config
+          subject.submit Transaction.new config: config
+          subject.submit Transaction.new config: config
+          subject.submit Transaction.new config: config
+          subject.submit Transaction.new config: config
           subject.stop
 
           wait_for transactions: 6
@@ -43,7 +43,7 @@ module ElasticAPM
         end
 
         it 'adds stuff to the queue' do
-          subject.submit Transaction.new
+          subject.submit Transaction.new config: config
           expect(subject.queue.length).to be 1
         end
 
@@ -51,11 +51,11 @@ module ElasticAPM
           let(:config) { Config.new(api_buffer_size: 5) }
 
           it 'skips if queue is full' do
-            5.times { subject.submit Transaction.new }
+            5.times { subject.submit Transaction.new config: config }
 
             expect(config.logger).to receive(:warn)
 
-            expect { subject.submit Transaction.new }
+            expect { subject.submit Transaction.new config: config }
               .to_not raise_error
 
             expect(subject.queue.length).to be 5

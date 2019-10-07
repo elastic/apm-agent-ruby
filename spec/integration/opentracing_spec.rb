@@ -186,7 +186,7 @@ RSpec.describe 'OpenTracing bridge', :intercept do
     before { ElasticAPM.start }
     after { ElasticAPM.stop }
 
-    let(:elastic_span) { ElasticAPM::Transaction.new }
+    let(:elastic_span) { ElasticAPM::Transaction.new config: ElasticAPM::Config.new  }
 
     describe 'log_kv' do
       subject { described_class.new(elastic_span, nil) }
@@ -226,7 +226,7 @@ RSpec.describe 'OpenTracing bridge', :intercept do
       end
 
       context 'when transaction' do
-        let(:elastic_span) { ElasticAPM::Transaction.new }
+        let(:elastic_span) { ElasticAPM::Transaction.new config: ElasticAPM::Config.new }
         let(:trace_context) { nil }
 
         it_behaves_like :opengraph_span

@@ -39,15 +39,14 @@ module ElasticAPM
       end
     end
 
-    def initialize(config, stacktrace_builder:, &enqueue)
-      @config = config
+    def initialize(stacktrace_builder:, &enqueue)
       @stacktrace_builder = stacktrace_builder
       @enqueue = enqueue
 
       @current = Current.new
     end
 
-    attr_reader :config, :stacktrace_builder, :enqueue
+    attr_reader :stacktrace_builder, :enqueue
 
     def start
       debug 'Starting instrumenter'
@@ -82,6 +81,7 @@ module ElasticAPM
     def start_transaction(
       name = nil,
       type = nil,
+      config:,
       context: nil,
       trace_context: nil
     )
@@ -92,7 +92,7 @@ module ElasticAPM
           "Transactions may not be nested.\nAlready inside #{transaction}"
       end
 
-      sampled = trace_context ? trace_context.recorded? : random_sample?
+      sampled = trace_context ? trace_context.recorded? : random_sample?(config)
 
       transaction =
         Transaction.new(
@@ -101,7 +101,7 @@ module ElasticAPM
           context: context,
           trace_context: trace_context,
           sampled: sampled,
-          labels: config.default_labels
+          config: config
         )
 
       transaction.start
@@ -149,7 +149,7 @@ module ElasticAPM
 
       transaction.inc_started_spans!
 
-      if transaction.max_spans_reached?(config)
+      if transaction.max_spans_reached?
         transaction.inc_dropped_spans!
         return
       end
@@ -167,7 +167,7 @@ module ElasticAPM
         stacktrace_builder: stacktrace_builder
       )
 
-      if backtrace && config.span_frames_min_duration?
+      if backtrace && transaction.config.span_frames_min_duration?
         span.original_backtrace = backtrace
       end
 
@@ -205,7 +205,7 @@ module ElasticAPM
 
     def set_user(user)
       return unless current_transaction
-      current_transaction.context.user = Context::User.infer(config, user)
+      current_transaction.context.user = Context::User.infer(current_transaction.config, user)
     end
 
     def inspect
@@ -216,7 +216,7 @@ module ElasticAPM
 
     private
 
-    def random_sample?
+    def random_sample?(config)
       rand <= config.transaction_sample_rate
     end
   end

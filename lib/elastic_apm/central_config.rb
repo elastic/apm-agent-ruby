@@ -20,9 +20,8 @@ module ElasticAPM
 
     DEFAULT_MAX_AGE = 300
 
-    def initialize(config, agent)
+    def initialize(config)
       @config = config
-      @agent = agent
       @modified_options = {}
       @service_info = {
         'service.name': config.service_name,
@@ -82,10 +81,16 @@ module ElasticAPM
         update[key] = @modified_options.delete(key)
       end
 
-      @agent.update_config(update)
+      update_config(update)
     end
 
     private
+
+    def update_config(new_options)
+      @config = config.dup.tap do |_config|
+        new_options.each { |key, value| _config.send(:"#{key}=", value) }
+      end
+    end
 
     # rubocop:disable Metrics/MethodLength
     def handle_success(resp)

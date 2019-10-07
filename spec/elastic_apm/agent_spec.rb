@@ -68,7 +68,6 @@ module ElasticAPM
         {
           current_transaction: nil,
           current_span: nil,
-          start_transaction: [nil, nil, { context: nil, trace_context: nil }],
           end_transaction: [nil],
           start_span: [
             nil,
@@ -88,6 +87,12 @@ module ElasticAPM
         }.each do |name, args|
           expect(subject).to delegate(name, to: instrumenter, args: args)
         end
+      end
+
+      it 'passes the config when starting a transaction' do
+        expect(instrumenter).to receive(:start_transaction).with(
+            nil, nil, { context: nil, trace_context: nil, config: subject.config })
+        subject.start_transaction
       end
     end
 
@@ -155,21 +160,6 @@ module ElasticAPM
         expect do
           subject.add_filter :key, -> {}
         end.to change(subject.transport.filters, :length).by 1
-      end
-    end
-
-    describe '#update_config' do
-      let(:config) { Config.new transaction_sample_rate: 0.5 }
-      before { subject.update_config(transaction_sample_rate: 1.5,
-                                     transaction_max_spans: 100) }
-
-      it 'updates the config' do
-        expect(subject.config.transaction_sample_rate).to eq(1.5)
-        expect(subject.config.transaction_max_spans).to be(100)
-      end
-
-      it 'creates a new config object' do
-        expect(config).not_to be(subject.config)
       end
     end
   end
