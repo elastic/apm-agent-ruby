@@ -274,7 +274,7 @@ RSpec.describe 'OpenTracing bridge', :intercept do
 
           expect(span).to receive(:warn).with(/DEPRECATED/)
 
-          span.finish end_time: Time.current
+          span.finish end_time: Time.now
 
           expect(elastic_span.duration).to_not be nil
         end
