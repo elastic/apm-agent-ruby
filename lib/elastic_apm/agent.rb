@@ -69,7 +69,7 @@ module ElasticAPM
       @context_builder = ContextBuilder.new(config)
       @error_builder = ErrorBuilder.new(self)
 
-      @central_config = CentralConfig.new(config)
+      @central_config = CentralConfig.new(config, self)
       @transport = Transport::Base.new(config)
       @instrumenter = Instrumenter.new(
         config,

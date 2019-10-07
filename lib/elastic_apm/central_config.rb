@@ -20,8 +20,9 @@ module ElasticAPM
 
     DEFAULT_MAX_AGE = 300
 
-    def initialize(config)
+    def initialize(config, agent)
       @config = config
+      @agent = agent
       @modified_options = {}
       @service_info = {
         'service.name': config.service_name,
@@ -81,7 +82,7 @@ module ElasticAPM
         update[key] = @modified_options.delete(key)
       end
 
-      ElasticAPM.agent&.update_config(update)
+      @agent.update_config(update)
     end
 
     private

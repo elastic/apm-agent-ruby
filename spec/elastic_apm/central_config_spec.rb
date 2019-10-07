@@ -4,11 +4,7 @@ module ElasticAPM
   RSpec.describe CentralConfig do
     let(:config) { Config.new }
     let(:agent) { double('agent', update_config: {}) }
-    subject { described_class.new(config) }
-
-    before do
-      allow(ElasticAPM).to receive(:agent) { agent }
-    end
+    subject { described_class.new(config, agent) }
 
     describe '#start' do
       it 'polls for config' do
