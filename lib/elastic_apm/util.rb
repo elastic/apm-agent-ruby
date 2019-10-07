@@ -3,13 +3,13 @@
 module ElasticAPM
   # @api private
   module Util
-    def self.nearest_minute(target = Time.now.utc)
-      target - target.to_i % 60
-    end
-
     def self.micros(target = Time.now)
       utc = target.utc
       utc.to_i * 1_000_000 + utc.usec
+    end
+
+    def self.monotonic_micros
+      Process.clock_gettime(Process::CLOCK_MONOTONIC, :microsecond)
     end
 
     def self.git_sha

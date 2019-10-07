@@ -260,5 +260,25 @@ RSpec.describe 'OpenTracing bridge', :intercept do
         end
       end
     end
+
+    describe 'deprecations' do
+      describe '#finish with Time' do
+        it 'warns and manages' do
+          elastic_span =
+            ElasticAPM::Span.new(
+              name: 'Span',
+              transaction_id: 'transaction_id',
+              trace_context: nil
+            ).start
+          span = described_class.new(elastic_span, nil)
+
+          expect(span).to receive(:warn).with(/DEPRECATED/)
+
+          span.finish end_time: Time.now
+
+          expect(elastic_span.duration).to_not be nil
+        end
+      end
+    end
   end
 end

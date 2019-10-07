@@ -14,9 +14,10 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 #### Changed
 
-The following changes are breaking, as they may change the way data is grouped in Kibana.
+The following changes are breaking, as they may change the way data is grouped or shown in Kibana.
 No changes are necessary to your app.
 
+- Durations are measured using monotonic time ([#550](https://github.com/elastic/apm-agent-ruby/pull/550))
 - Errors' `message` no longer include their `type` ([#323](https://github.com/elastic/apm-agent-ruby/pull/323/files))
 - External request spans now have type `external.http.{library}` ([#514](https://github.com/elastic/apm-agent-ruby/pull/514))
 

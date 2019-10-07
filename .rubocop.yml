@@ -78,6 +78,9 @@ Layout/EmptyLineAfterGuardClause:
 Naming/MemoizedInstanceVariableName:
   Enabled: false
 
+Naming/UncommunicativeMethodParamName:
+  Enabled: false
+
 Style/SpecialGlobalVars:
   Enabled: false
 

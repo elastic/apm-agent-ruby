@@ -26,7 +26,7 @@ module ElasticAPM
 
     describe '#start', :mock_time do
       it 'sets timestamp' do
-        expect(subject.start.timestamp).to be Util.micros(@mocked_date)
+        expect(subject.start.timestamp).to be Util.micros
       end
     end
 
@@ -34,7 +34,7 @@ module ElasticAPM
       it 'sets duration' do
         subject.start
         travel 100
-        expect(subject.stop.duration).to eq 100_000
+        expect(subject.stop.duration).to eq 100
         expect(subject).to be_stopped
       end
     end
@@ -46,7 +46,7 @@ module ElasticAPM
         subject.done('HTTP 200')
 
         expect(subject).to be_stopped
-        expect(subject.duration).to be 100_000
+        expect(subject.duration).to be 100
         expect(subject.result).to eq 'HTTP 200'
       end
     end

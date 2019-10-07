@@ -61,18 +61,19 @@ module ElasticAPM
 
     # life cycle
 
-    def start(timestamp = Util.micros)
-      @timestamp = timestamp
-
+    def start(clock_start = Util.monotonic_micros)
+      @timestamp = Util.micros
+      @clock_start = clock_start
       self
     end
 
-    def stop(end_timestamp = Util.micros)
-      @duration ||= (end_timestamp - timestamp)
+    def stop(clock_end = Util.monotonic_micros)
+      @duration ||= (clock_end - @clock_start)
+      self
     end
 
-    def done(end_time: Util.micros)
-      stop end_time
+    def done(clock_end: Util.monotonic_micros)
+      stop clock_end
 
       build_stacktrace! if should_build_stacktrace?
       self.original_backtrace = nil # release original

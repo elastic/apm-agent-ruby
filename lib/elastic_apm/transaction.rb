@@ -54,19 +54,20 @@ module ElasticAPM
 
     # life cycle
 
-    def start(timestamp = Util.micros)
-      @timestamp = timestamp
+    def start(clock_start = Util.monotonic_micros)
+      @timestamp = Util.micros
+      @clock_start = clock_start
       self
     end
 
-    def stop(end_timestamp = Util.micros)
+    def stop(clock_end = Util.monotonic_micros)
       raise 'Transaction not yet start' unless timestamp
-      @duration = end_timestamp - timestamp
+      @duration = clock_end - @clock_start
       self
     end
 
-    def done(result = nil, end_time: Util.micros)
-      stop end_time
+    def done(result = nil, clock_end: Util.monotonic_micros)
+      stop clock_end
       self.result = result if result
       self
     end
