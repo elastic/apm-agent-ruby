@@ -9,6 +9,7 @@ module ElasticAPM
 
     subject do
       Instrumenter.new(
+        config,
         stacktrace_builder: stacktrace_builder,
         &callback
       )

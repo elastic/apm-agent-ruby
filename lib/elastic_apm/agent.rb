@@ -71,6 +71,7 @@ module ElasticAPM
       @central_config = CentralConfig.new(config)
       @transport = Transport::Base.new(config)
       @instrumenter = Instrumenter.new(
+        config,
         stacktrace_builder: stacktrace_builder
       ) { |event| enqueue event }
       @metrics = Metrics.new(config) { |event| enqueue event }
