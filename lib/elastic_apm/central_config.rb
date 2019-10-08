@@ -87,9 +87,7 @@ module ElasticAPM
     private
 
     def update_config(new_options)
-      @config = config.dup.tap do |_config|
-        new_options.each { |key, value| _config.send(:"#{key}=", value) }
-      end
+      @config = config.dup.tap { |new_config| new_config.assign(new_options) }
     end
 
     # rubocop:disable Metrics/MethodLength

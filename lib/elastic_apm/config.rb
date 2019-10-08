@@ -107,6 +107,11 @@ module ElasticAPM
 
     attr_reader :options
 
+    def assign(update)
+      return unless update
+      update.each { |key, value| send(:"#{key}=", value) }
+    end
+
     # rubocop:disable Metrics/MethodLength
     def available_instrumentations
       %w[
@@ -173,11 +178,6 @@ module ElasticAPM
     end
 
     private
-
-    def assign(update)
-      return unless update
-      update.each { |key, value| send(:"#{key}=", value) }
-    end
 
     def load_config_file
       return unless File.exist?(config_file)
