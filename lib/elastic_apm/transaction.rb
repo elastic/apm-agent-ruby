@@ -93,6 +93,10 @@ module ElasticAPM
       context.response = Context::Response.new(*args)
     end
 
+    def set_user(user)
+      context.user = Context::User.infer(config, user)
+    end
+
     def inspect
       "<ElasticAPM::Transaction id:#{id}" \
         " name:#{name.inspect} type:#{type.inspect}>"

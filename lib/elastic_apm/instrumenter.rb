@@ -206,7 +206,7 @@ module ElasticAPM
 
     def set_user(user)
       return unless current_transaction
-      current_transaction.context.user = Context::User.infer(current_transaction.config, user)
+      current_transaction.set_user(user)
     end
 
     def inspect
