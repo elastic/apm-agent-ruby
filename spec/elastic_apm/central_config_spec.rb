@@ -3,7 +3,6 @@
 module ElasticAPM
   RSpec.describe CentralConfig do
     let(:config) { Config.new }
-    let(:agent) { double('agent', update_config: {}) }
     subject { described_class.new(config) }
 
     describe '#start' do

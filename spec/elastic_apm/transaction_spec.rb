@@ -92,9 +92,6 @@ module ElasticAPM
 
     describe '#max_spans_reached?' do
       let(:config) { Config.new(transaction_max_spans: 3) }
-
-      subject { described_class.new(config: config) }
-
       let(:result) { subject.max_spans_reached? }
 
       context 'when below max' do
