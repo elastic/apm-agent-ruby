@@ -17,6 +17,7 @@ module ElasticAPM
   # @api private
   class Agent
     include Logging
+    extend Forwardable
 
     LOCK = Mutex.new
 
@@ -63,8 +64,6 @@ module ElasticAPM
 
     # rubocop:disable Metrics/MethodLength
     def initialize(config)
-      @config = config
-
       @stacktrace_builder = StacktraceBuilder.new(config)
       @context_builder = ContextBuilder.new(config)
       @error_builder = ErrorBuilder.new(self)
@@ -89,6 +88,8 @@ module ElasticAPM
       :stacktrace_builder,
       :transport
     )
+
+    def_delegator :@central_config, :config
 
     # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def start
@@ -150,6 +151,7 @@ module ElasticAPM
       instrumenter.start_transaction(
         name,
         type,
+        config: config,
         context: context,
         trace_context: trace_context
       )

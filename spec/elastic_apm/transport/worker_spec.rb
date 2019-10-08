@@ -52,7 +52,7 @@ module ElasticAPM
         it 'applies filters, writes resources to the connection' do
           expect(subject.filters).to receive(:apply!)
 
-          queue.push Transaction.new
+          queue.push Transaction.new config: config
           Thread.new { subject.work_forever }.join 0.1
 
           expect(subject.connection.calls.length).to be 1
@@ -73,7 +73,7 @@ module ElasticAPM
           end
 
           it 'applies filters, writes resources to the connection' do
-            queue.push Transaction.new
+            queue.push Transaction.new config: config
 
             Thread.new { subject.work_forever }.join 0.1
 
@@ -86,7 +86,8 @@ module ElasticAPM
         it 'rescues exceptions' do
           event = Transaction.new(
             "What's in a name ⁉️",
-            (+'👏').force_encoding('ascii-8bit')
+            (+'👏').force_encoding('ascii-8bit'),
+            config: config
           )
 
           expect(config.logger).to receive(:error).twice.and_call_original

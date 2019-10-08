@@ -4,21 +4,26 @@ require 'spec_helper'
 
 module ElasticAPM
   RSpec.describe Transaction do
+    subject { described_class.new config: config }
+    let(:config) { Config.new }
+
     describe '#initialize', :mock_time do
       its(:id) { should_not be_nil }
       its(:type) { should eq 'custom' }
       it { should be_sampled }
       its(:trace_context) { should be_a TraceContext }
       its(:context) { should be_a Context }
+      its(:config) { should be_a Config }
       its(:started_spans) { should be 0 }
       its(:dropped_spans) { should be 0 }
       its(:notifications) { should be_empty }
       its(:trace_id) { should be subject.trace_context.trace_id }
 
-      context 'with labels from context and args' do
+      context 'with labels from context and config' do
+        let(:config) { Config.new(default_labels: { args: 'yes' }) }
         it 'merges labels' do
           context = Context.new(labels: { context: 'yes' })
-          subject = described_class.new(labels: { args: 'yes' }, context: context)
+          subject = described_class.new(config: config, context: context)
           expect(subject.context.labels).to match(args: 'yes', context: 'yes')
         end
       end
@@ -62,7 +67,7 @@ module ElasticAPM
       it 'keeps and returns current parent id if set' do
         trace_context = TraceContext.new
         trace_context.parent_id = 'things'
-        subject = Transaction.new trace_context: trace_context
+        subject = Transaction.new config: config, trace_context: trace_context
 
         parent_id = subject.ensure_parent_id
 
@@ -87,10 +92,7 @@ module ElasticAPM
 
     describe '#max_spans_reached?' do
       let(:config) { Config.new(transaction_max_spans: 3) }
-
-      subject { described_class.new }
-
-      let(:result) { subject.max_spans_reached? config }
+      let(:result) { subject.max_spans_reached? }
 
       context 'when below max' do
         it { expect(result).to be false }

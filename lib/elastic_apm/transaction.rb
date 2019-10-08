@@ -19,16 +19,17 @@ module ElasticAPM
       type = nil,
       sampled: true,
       context: nil,
-      labels: nil,
+      config:,
       trace_context: nil
     )
       @name = name
       @type = type || DEFAULT_TYPE
+      @config = config
 
       @sampled = sampled
 
       @context = context || Context.new # TODO: Lazy generate this?
-      Util.reverse_merge!(@context.labels, labels) if labels
+      Util.reverse_merge!(@context.labels, config.default_labels) if config.default_labels
 
       @trace_context = trace_context || TraceContext.new(recorded: sampled)
 
@@ -42,7 +43,7 @@ module ElasticAPM
     attr_accessor :name, :type, :result
 
     attr_reader :context, :duration, :started_spans, :dropped_spans,
-      :timestamp, :trace_context, :notifications
+      :timestamp, :trace_context, :notifications, :config
 
     def sampled?
       @sampled
@@ -82,7 +83,7 @@ module ElasticAPM
       @dropped_spans += 1
     end
 
-    def max_spans_reached?(config)
+    def max_spans_reached?
       started_spans > config.transaction_max_spans
     end
 
@@ -90,6 +91,10 @@ module ElasticAPM
 
     def add_response(*args)
       context.response = Context::Response.new(*args)
+    end
+
+    def set_user(user)
+      context.user = Context::User.infer(config, user)
     end
 
     def inspect

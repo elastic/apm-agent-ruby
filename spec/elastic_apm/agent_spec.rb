@@ -68,7 +68,6 @@ module ElasticAPM
         {
           current_transaction: nil,
           current_span: nil,
-          start_transaction: [nil, nil, { context: nil, trace_context: nil }],
           end_transaction: [nil],
           start_span: [
             nil,
@@ -88,6 +87,12 @@ module ElasticAPM
         }.each do |name, args|
           expect(subject).to delegate(name, to: instrumenter, args: args)
         end
+      end
+
+      it 'passes the config when starting a transaction' do
+        expect(instrumenter).to receive(:start_transaction).with(
+          nil, nil, { context: nil, trace_context: nil, config: subject.config })
+        subject.start_transaction
       end
     end
 

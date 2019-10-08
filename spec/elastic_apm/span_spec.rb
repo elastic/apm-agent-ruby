@@ -45,7 +45,7 @@ module ElasticAPM
     end
 
     describe '#start', :mock_time do
-      let(:transaction) { Transaction.new }
+      let(:transaction) { Transaction.new config: Config.new }
 
       subject do
         described_class.new(
@@ -64,7 +64,7 @@ module ElasticAPM
     end
 
     describe '#stopped', :mock_time do
-      let(:transaction) { Transaction.new }
+      let(:transaction) { Transaction.new config: Config.new }
 
       subject do
         described_class.new(

@@ -36,8 +36,7 @@ module ElasticAPM
         subject.promise.wait
 
         expect(req_stub).to have_been_requested
-
-        expect(config.transaction_sample_rate).to eq(0.5)
+        expect(subject.config.transaction_sample_rate).to eq(0.5)
       end
 
       it 'reverts config if later 404' do
@@ -51,7 +50,7 @@ module ElasticAPM
         subject.fetch_and_apply_config
         subject.promise.wait
 
-        expect(config.transaction_sample_rate).to eq(1.0)
+        expect(subject.config.transaction_sample_rate).to eq(1.0)
       end
 
       context 'when server responds 200 and cache-control' do
@@ -90,7 +89,7 @@ module ElasticAPM
 
           expect(subject.scheduled_task).to be_pending
           expect(subject.scheduled_task.initial_delay).to eq 123
-          expect(config.transaction_sample_rate).to eq 0.5
+          expect(subject.config.transaction_sample_rate).to eq(0.5)
         end
       end
 
@@ -148,20 +147,20 @@ module ElasticAPM
     describe '#assign' do
       it 'updates config' do
         subject.assign(transaction_sample_rate: 0.5)
-        expect(config.transaction_sample_rate).to eq 0.5
+        expect(subject.config.transaction_sample_rate).to eq(0.5)
       end
 
       it 'reverts to previous when missing' do
         subject.assign(transaction_sample_rate: 0.5)
         subject.assign({})
-        expect(config.transaction_sample_rate).to eq 1.0
+        expect(subject.config.transaction_sample_rate).to eq(1.0)
       end
 
       it 'goes back and forth' do
         subject.assign(transaction_sample_rate: 0.5)
         subject.assign({})
         subject.assign(transaction_sample_rate: 0.5)
-        expect(config.transaction_sample_rate).to eq 0.5
+        expect(subject.config.transaction_sample_rate).to eq(0.5)
       end
     end
 

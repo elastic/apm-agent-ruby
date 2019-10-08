@@ -6,10 +6,11 @@ module ElasticAPM
   module Transport
     module Serializers
       RSpec.describe SpanSerializer do
-        subject { described_class.new Config.new }
+        let(:config) { Config.new }
+        subject { described_class.new config }
 
         describe '#build', :mock_time do
-          let(:transaction) { Transaction.new.start }
+          let(:transaction) { Transaction.new(config: config).start }
 
           let(:trace_context) do
             TraceContext.parse("00-#{'1' * 32}-#{'2' * 16}-01")
