@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+#### Changed
+
+- Log 404s from CentralConfig on debug level ([#553](https://github.com/elastic/apm-agent-ruby/pull/553))
+
 ## 3.0.0 (2019-10-08)
 
 ### Breaking Changes

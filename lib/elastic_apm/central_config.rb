@@ -111,7 +111,7 @@ module ElasticAPM
     # rubocop:enable Metrics/MethodLength
 
     def handle_error(error)
-      error(
+      debug(
         'Failed fetching config: %s, trying again in %d seconds',
         error.response.body, DEFAULT_MAX_AGE
       )
