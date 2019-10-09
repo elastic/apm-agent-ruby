@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'elastic_apm/subscriber'
+require 'elastic_apm/normalizers/rails'
 
 module ElasticAPM
   # Module for explicitly starting the ElasticAPM agent and hooking into Rails.
