@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'elastic_apm/normalizers'
+require 'elastic_apm/normalizers/rails'
 
 module ElasticAPM
   module Normalizers
