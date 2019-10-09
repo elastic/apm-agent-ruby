@@ -12,21 +12,21 @@ endif::[]
 
 include::./introduction.asciidoc[]
 
-include::./getting-started-rails.asciidoc[]
-
-include::./getting-started-rack.asciidoc[]
-
-include::./configuration.asciidoc[]
-
-include::./log-correlation.asciidoc[]
-
-include::./metrics.asciidoc[]
-
-include::./advanced.asciidoc[]
+include::./set-up.asciidoc[]
 
 include::./supported-technologies.asciidoc[]
 
+include::./configuration.asciidoc[]
+
+include::./advanced.asciidoc[]
+
 include::./api.asciidoc[]
+
+include::./metrics.asciidoc[]
+
+include::./opentracing.asciidoc[]
+
+include::./log-correlation.asciidoc[]
 
 include::./debugging.asciidoc[]
 

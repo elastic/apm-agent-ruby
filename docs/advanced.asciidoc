@@ -9,8 +9,6 @@ endif::[]
 
 * <<context>>
 * <<custom-instrumentation>>
-* <<opentracing>>
 
 include::./context.asciidoc[]
 include::./custom-instrumentation.asciidoc[]
-include::./opentracing.asciidoc[]
