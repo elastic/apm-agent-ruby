@@ -17,10 +17,10 @@ It also offers an API which allows you to instrument any application.
 === How does the Agent work?
 
 The agent auto-instruments <<supported-technologies,supported technologies>> and records interesting events,
-like HTTP requests and database queries. To do this, it {NEED CONTENT HERE}.
+like HTTP requests and database queries. To do this, it uses relevant public APIs when they are provided by the libraries. Otherwise, it carefully wraps the necessary internal methods.
 This means that for the supported technologies, there are no code changes required.
 
-The Agent automatically {NEED CONTENT HERE} to measure their duration and metadata (like the DB statement),
+The Agent automatically keeps track of queries to your data stores to measure their duration and metadata (like the DB statement),
 as well as HTTP related information (like the URL, parameters, and headers).
 
 These events, called Transactions and Spans, are sent to the APM Server.
