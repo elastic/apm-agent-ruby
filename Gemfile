@@ -26,6 +26,7 @@ gem 'simplecov', require: false, group: :test
 gem 'simplecov-cobertura', require: false, group: :test
 gem 'yard', require: nil
 gem 'yarjuf'
+gem 'grape', require: nil
 
 if RUBY_PLATFORM == 'java'
   gem 'jdbc-sqlite3'
