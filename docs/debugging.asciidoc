@@ -1,5 +1,5 @@
 [[debugging]]
-== Debugging the agent itself
+== Troubleshooting
 
 Hopefully the agent Just Works™, but depending on your situation the agent might need some tuning.
 

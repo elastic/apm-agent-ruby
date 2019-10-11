@@ -5,7 +5,7 @@ https://www.elastic.co/guide/en/apm/agent/ruby/current/introduction.html[elastic
 endif::[]
 
 [[getting-started-rack]]
-== Getting started with Rack
+=== Getting started with Rack
 
 Add the gem to your `Gemfile`:
 
