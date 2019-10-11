@@ -15,7 +15,7 @@ module ElasticAPM
       TraceContext.parse("00-#{'1' * 32}-#{'2' * 16}-01")
     end
 
-    let(:transaction) { Transaction.new }
+    let(:transaction) { Transaction.new config: Config.new }
 
     describe '#initialize' do
       its(:name) { should eq 'Spannest name' }
@@ -36,7 +36,8 @@ module ElasticAPM
             described_class.new(
               name: 'Spannest name',
               type: 'typest.subest.actionest',
-              transaction_id: transaction_id,
+              transaction: transaction,
+              parent: transaction,
               trace_context: trace_context
             )
 

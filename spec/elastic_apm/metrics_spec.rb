@@ -35,7 +35,7 @@ module ElasticAPM
     end
 
     describe '.new' do
-      it { should be_a Metrics::Collector }
+      it { should be_a Metrics::Registry }
     end
 
     describe '.collect' do
@@ -43,7 +43,7 @@ module ElasticAPM
       after { subject.stop }
 
       it 'samples all samplers' do
-        subject.samplers.each do |sampler|
+        subject.samplers.each_value do |sampler|
           expect(sampler).to receive(:collect).at_least(:once)
         end
         subject.collect
@@ -56,10 +56,9 @@ module ElasticAPM
 
       context 'when samples' do
         it 'calls callback' do
-          expect(subject.samplers.first).to receive(:collect).at_least(:once) do
-            { thing: 1 }
-          end
-          expect(callback).to receive(:call).with(Metricset).at_least(:once)
+          expect(subject.samplers.values.first)
+            .to receive(:collect).at_least(:once) { { thing: 1 } }
+          expect(callback).to receive(:call).with(Metricset)
 
           subject.collect_and_send
         end
@@ -67,7 +66,7 @@ module ElasticAPM
 
       context 'when no samples' do
         it 'calls callback' do
-          subject.samplers.each do |sampler|
+          subject.samplers.each_value do |sampler|
             expect(sampler).to receive(:collect).at_least(:once)
           end
           expect(callback).to_not receive(:call)

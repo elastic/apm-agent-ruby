@@ -37,7 +37,6 @@ module ElasticAPM
       @dropped_spans = 0
 
       @notifications = [] # for AS::Notifications
-      # @breakdown_metrics = Metrics::BreakdownMetrics.shared
     end
     # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
 
@@ -66,8 +65,6 @@ module ElasticAPM
       raise 'Transaction not yet start' unless timestamp
       @duration = clock_end - @clock_start
       @self_time = @duration - child_durations.duration
-
-      @breakdown_metrics.update('span.self_time')
 
       self
     end

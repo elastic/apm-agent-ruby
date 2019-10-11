@@ -11,7 +11,7 @@ module ElasticAPM
       its(:stacktrace_builder) { should be_a StacktraceBuilder }
       its(:context_builder) { should be_a ContextBuilder }
       its(:error_builder) { should be_a ErrorBuilder }
-      its(:metrics) { should be_a Metrics::Collector }
+      its(:metrics) { should be_a Metrics::Registry }
     end
 
     context 'life cycle' do

@@ -47,7 +47,7 @@ module ElasticAPM
         subject.start
         travel 100
         subject.stop
-        expect(subject.self_time).to eq 100_000
+        expect(subject.self_time).to eq 100
       end
 
       context 'with a child span' do
@@ -64,8 +64,8 @@ module ElasticAPM
           span.stop
           travel 100
           subject.stop
-          expect(subject.duration).to eq 300_000
-          expect(subject.self_time).to eq 200_000
+          expect(subject.duration).to eq 300
+          expect(subject.self_time).to eq 200
         end
       end
     end

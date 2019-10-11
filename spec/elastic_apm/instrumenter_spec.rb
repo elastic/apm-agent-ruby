@@ -3,16 +3,14 @@
 module ElasticAPM
   RSpec.describe Instrumenter, :intercept do
     let(:config) { Config.new }
-    let(:stacktrace_builder) { StacktraceBuilder.new(config) }
-    let(:callback) { ->(*_) {} }
-    before { allow(callback).to receive(:call) }
+    let(:agent) { Agent.new config }
+
+    before do
+      allow(agent).to receive(:enqueue) { nil }
+    end
 
     subject do
-      Instrumenter.new(
-        config,
-        stacktrace_builder: stacktrace_builder,
-        &callback
-      )
+      agent.instrumenter
     end
 
     context 'life cycle' do
@@ -112,7 +110,7 @@ module ElasticAPM
         expect(transaction).to be_stopped
         expect(transaction.result).to eq 'result'
         expect(subject.current_transaction).to be nil
-        expect(callback).to have_received(:call).with(transaction)
+        expect(agent).to have_received(:enqueue).with(transaction)
       end
     end
 
@@ -147,7 +145,7 @@ module ElasticAPM
 
           expect(span).to be_a Span
           expect(span).to be_started
-          expect(span.transaction_id).to eq transaction.id
+          expect(span.transaction).to eq transaction
           expect(span.parent_id).to eq transaction.id
           expect(subject.current_span).to eq span
         end
@@ -208,7 +206,7 @@ module ElasticAPM
           expect(return_value).to be span
           expect(span).to be_stopped
           expect(subject.current_span).to be nil
-          expect(callback).to have_received(:call).with(span)
+          expect(agent).to have_received(:enqueue).with(span)
         end
 
         context 'inside another span' do

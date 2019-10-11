@@ -8,7 +8,7 @@ module ElasticAPM
     MUTEX = Mutex.new
 
     def self.new(config, &block)
-      Collector.new(config, &block)
+      Registry.new(config, &block)
     end
 
     def self.platform
@@ -16,7 +16,7 @@ module ElasticAPM
     end
 
     # @api private
-    class Collector
+    class Registry
       include Logging
 
       TIMEOUT_INTERVAL = 5 # seconds
@@ -76,6 +76,10 @@ module ElasticAPM
         !!@running
       end
 
+      def get(key)
+        samplers.fetch(key)
+      end
+
       def collect_and_send
         metricset = Metricset.new(labels: labels, **collect)
         return if metricset.empty?
@@ -85,7 +89,7 @@ module ElasticAPM
 
       def collect
         MUTEX.synchronize do
-          samplers.each_with_object({}) do |sampler, samples|
+          samplers.each_value.each_with_object({}) do |sampler, samples|
             next unless (sample = sampler.collect)
             samples.merge!(sample)
           end
@@ -97,3 +101,4 @@ end
 
 require 'elastic_apm/metrics/cpu_mem'
 require 'elastic_apm/metrics/vm'
+require 'elastic_apm/metrics/breakdown'

@@ -19,7 +19,8 @@ module ElasticAPM
           let :span do
             Span.new(
               name: 'Span',
-              transaction_id: transaction.id,
+              transaction: transaction,
+              parent: transaction,
               trace_context: trace_context
             ).tap do |span|
               span.start
@@ -34,7 +35,7 @@ module ElasticAPM
             expect(result).to match(
               span: {
                 id: /.{16}/,
-                transaction_id: span.transaction_id,
+                transaction_id: transaction.id,
                 parent_id: span.parent_id,
                 trace_id: span.trace_id,
                 name: 'Span',
@@ -51,7 +52,8 @@ module ElasticAPM
             let(:span) do
               Span.new(
                 name: 'Span',
-                transaction_id: transaction.id,
+                transaction: transaction,
+                parent: transaction,
                 trace_context: trace_context,
                 context: Span::Context.new(
                   db: { statement: 'asd' },
@@ -71,7 +73,8 @@ module ElasticAPM
             it 'truncates to 10k chars' do
               span = Span.new(
                 name: 'Span',
-                transaction_id: transaction.id,
+                transaction: transaction,
+                parent: transaction,
                 trace_context: trace_context,
                 context: Span::Context.new(
                   db: { statement: 'X' * 11_000 }
@@ -89,7 +92,8 @@ module ElasticAPM
             let(:span) do
               Span.new(
                 name: 'Span',
-                transaction_id: transaction.id,
+                transaction: transaction,
+                parent: transaction,
                 trace_context: trace_context,
                 type: 'a',
                 subtype: 'b',

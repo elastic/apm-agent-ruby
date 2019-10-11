@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'elastic_apm/opentracing'
 
-RSpec.describe 'OpenTracing bridge', :intercept do
+RSpec.xdescribe 'OpenTracing bridge', :intercept do
   let(:tracer) { ::OpenTracing.global_tracer }
 
   before :context do

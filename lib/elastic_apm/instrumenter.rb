@@ -40,15 +40,16 @@ module ElasticAPM
       end
     end
 
-    def initialize(config, stacktrace_builder:, &enqueue)
-      @config = config
+    def initialize(agent, stacktrace_builder:)
+      @agent = agent
       @stacktrace_builder = stacktrace_builder
-      @enqueue = enqueue
+
+      @breakdown_metrics = agent.metrics.get(:breakdown)
 
       @current = Current.new
     end
 
-    attr_reader :stacktrace_builder, :enqueue
+    attr_reader :stacktrace_builder
 
     def start
       debug 'Starting instrumenter'
@@ -119,7 +120,11 @@ module ElasticAPM
 
       transaction.done result
 
-      enqueue.call transaction
+      @agent.enqueue transaction
+      @breakdown_metrics.update(
+        'transaction.name': transaction.name,
+        'transaction.type': transaction.type
+      )
 
       transaction
     end
@@ -187,7 +192,7 @@ module ElasticAPM
 
       span.done
 
-      enqueue.call span
+      @agent.enqueue span
 
       span
     end

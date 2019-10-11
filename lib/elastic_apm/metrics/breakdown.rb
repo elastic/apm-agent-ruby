@@ -3,11 +3,11 @@
 module ElasticAPM
   module Metrics
     # @api private
-    class TransactionMetrics
+    class Breakdown
       include Logging
 
-      Transaction = Struct.new(duration, count)
-      Update = Struct.new(duration, count)
+      Transaction = Struct.new(:duration, :count)
+      Update = Struct.new(:duration, :count)
 
       def initialize(config)
         @config = config
