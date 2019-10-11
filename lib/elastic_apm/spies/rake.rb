@@ -5,38 +5,38 @@ module ElasticAPM
   module Spies
     # @api private
     class RakeSpy
-      # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-      def install
-        ::Rake::Task.class_eval do
-          alias execute_without_apm execute
+      module RakeTask
+        # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+        def execute(*args)
+          agent = ElasticAPM.start
 
-          def execute(*args)
-            agent = ElasticAPM.start
-
-            unless agent && agent.config.instrumented_rake_tasks.include?(name)
-              return execute_without_apm(*args)
-            end
-
-            transaction =
-              ElasticAPM.start_transaction("Rake::Task[#{name}]", 'Rake')
-
-            begin
-              result = execute_without_apm(*args)
-
-              transaction.result = 'success' if transaction
-            rescue StandardError => e
-              transaction.result = 'error' if transaction
-              ElasticAPM.report(e)
-
-              raise
-            ensure
-              ElasticAPM.end_transaction
-              ElasticAPM.stop
-            end
-
-            result
+          unless agent && agent.config.instrumented_rake_tasks.include?(name)
+            return super
           end
+
+          transaction =
+            ElasticAPM.start_transaction("Rake::Task[#{name}]", 'Rake')
+
+          begin
+            result = super
+
+            transaction.result = 'success' if transaction
+          rescue StandardError => e
+            transaction.result = 'error' if transaction
+            ElasticAPM.report(e)
+
+            raise
+          ensure
+            ElasticAPM.end_transaction
+            ElasticAPM.stop
+          end
+
+          result
         end
+      end
+
+      def install
+        Rake::Task.send(:prepend, RakeTask)
       end
       # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
     end
