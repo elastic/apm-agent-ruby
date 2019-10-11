@@ -68,4 +68,3 @@ run MySinatraApp
 
 at_exit { ElasticAPM.stop }
 ----
-

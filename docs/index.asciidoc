@@ -30,4 +30,3 @@ include::./log-correlation.asciidoc[]
 include::./debugging.asciidoc[]
 
 include::./release-notes.asciidoc[]
-
