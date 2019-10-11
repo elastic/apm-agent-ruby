@@ -7,10 +7,8 @@ endif::[]
 == Supported technologies
 
 The Elastic APM Ruby Agent has built-in support for many frameworks and
-libraries.
-
-Generally we want to support all the most popular libraries, so if your favorite
-is missing feel free so request it in an issue or better yet supply a pull
+libraries. Generally, we want to support all of the most popular libraries. If your favorite
+is missing, feel free to request it in an issue, or better yet, create a pull
 request.
 
 [float]
