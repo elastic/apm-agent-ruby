@@ -5,10 +5,10 @@ https://www.elastic.co/guide/en/apm/agent/ruby/current/introduction.html[elastic
 endif::[]
 
 [[getting-started-rails]]
-== Getting started with Rails
+=== Getting started with Rails
 
 [float]
-=== Setup
+==== Setup
 
 Add the gem to your `Gemfile`:
 

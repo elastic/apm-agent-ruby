@@ -221,7 +221,7 @@ Whether or not to attach `ENV` from Rack to transactions and errors.
 | `ELASTIC_APM_CENTRAL_CONFIG` | `central_config` | `true`
 |============
 
-Enable {kibana-ref}/agent-configuration.html[APM Agent Configuration via Kibana].
+Enable {apm-app-ref}/agent-configuration.html[APM Agent Configuration via Kibana].
 If set to `true`, the client will poll the APM Server regularly for new agent configuration.
 
 Usually APM Server determines how often to poll, but if not the default interval is 5 minutes.
@@ -325,13 +325,13 @@ Get an array of enabled instrumentations with `ElasticAPM.agent.config.enabled_i
 The name of the environment this service is deployed in,
 e.g. "production" or "staging".
 
-Environments allow you to easily filter data on a global level in the APM UI.
+Environments allow you to easily filter data on a global level in the APM app.
 It's important to be consistent when naming environments across agents.
-See {kibana-ref}/filters.html#environment-selector[environment selector] in the Kibana UI for more information.
+See {apm-app-ref}/filters.html#environment-selector[environment selector] in the APM app for more information.
 
 Defaults to `ENV['RAILS_ENV'] || ENV['RACK_ENV']`.
 
-NOTE: This feature is fully supported in the APM UI in Kibana versions >= 7.2.
+NOTE: This feature is fully supported in the APM app in Kibana versions >= 7.2.
 You must use the query bar to filter for a specific environment in versions prior to 7.2.
 
 [float]

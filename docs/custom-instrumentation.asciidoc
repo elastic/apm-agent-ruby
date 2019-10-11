@@ -1,12 +1,12 @@
 [[custom-instrumentation]]
 === Custom instrumentation
 
-When <<introduction,installed>> and <<configuration,properly configured>>
+When installed and properly configured,
 ElasticAPM will automatically wrap your app's request/responses in transactions
 and report its errors.
 It also wraps each background job if you use Sidekiq or DelayedJob.
 
-But it is possible to create your own transactions as well as provide spans for
+But it is also possible to create your own transactions as well as provide spans for
 any automatic or custom transaction.
 
 See <<api-agent-start_transaction,`ElasticAPM.start_transaction`>> and

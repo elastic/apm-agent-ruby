@@ -5,7 +5,7 @@ https://www.elastic.co/guide/en/apm/agent/ruby/current/introduction.html[elastic
 endif::[]
 
 [[api]]
-== Public API
+== API reference
 
 Although most usage is covered automatically, Elastic APM also has a public
 API that allows custom usage.
