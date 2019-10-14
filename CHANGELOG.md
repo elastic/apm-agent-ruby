@@ -6,6 +6,10 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 ## Unreleased
 
+### Added
+
+- Add `ElasticAPM::Sinatra.start` API. ([#566](https://github.com/elastic/apm-agent-ruby/pull/566))
+
 #### Changed
 
 - Log 404s from CentralConfig on debug level ([#553](https://github.com/elastic/apm-agent-ruby/pull/553))
