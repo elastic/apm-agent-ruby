@@ -22,7 +22,7 @@ secret_token: <%= ENV["VERY_SECRET_TOKEN"] %>
 Options are applied in the following order (last one wins):
 
 1. Defaults
-2. Arguments to `ElasticAPM.start` / `Config.new`
+2. Arguments to `ElasticAPM.start` / `ElasticAPM::Grape.start` / `ElasticAPM::Rails.start` / `Config.new`
 3. Config file eg. `config/elastic_apm.yml`
 4. Environment variables
 
@@ -59,6 +59,23 @@ Alternatively, you can use the `ElasticAPM::Sinatra.start` API.
 ----
 # config.ru or similar
 ElasticAPM::Sinatra.start(
+  MyApp,
+  service_name: 'SomeOtherName'
+)
+----
+
+See <<getting-started-rack>>.
+
+[float]
+=== Grape and Rack
+
+When using APM with Grape and Rack you can configure it when starting
+the agent:
+
+[source,ruby]
+----
+# config.ru or similar
+ElasticAPM::Grape.start(
   MyApp,
   service_name: 'SomeOtherName'
 )
