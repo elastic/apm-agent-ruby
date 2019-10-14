@@ -37,7 +37,10 @@ if defined?(Grape)
       ElasticAPM::Grape.start(GrapeTestApp, config)
     end
 
-    after(:all) { ElasticAPM.stop }
+    after :all do
+      ElasticAPM.stop
+      Object.send(:remove_const, :GrapeTestApp)
+    end
 
     it 'sets the framework metadata' do
       get '/pingpong'
