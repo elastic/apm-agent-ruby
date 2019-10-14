@@ -4,7 +4,6 @@ module ElasticAPM
   # Module for starting the ElasticAPM agent and hooking into Sinatra.
   module Sinatra
     extend self
-    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     # Start the ElasticAPM agent and hook into Sinatra.
     #
     # @param app [Sinatra::Base] A Sinatra app.
@@ -20,7 +19,6 @@ module ElasticAPM
       config.logger.error format('Failed to start: %s', e.message)
       config.logger.debug "Backtrace:\n" + e.backtrace.join("\n")
     end
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     private
 

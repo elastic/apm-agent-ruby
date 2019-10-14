@@ -27,7 +27,7 @@ if defined?(Sinatra)
 
         it 'sets the options' do
           expect(ElasticAPM.agent.config.options[:service_name].value)
-              .to eq('Other Name')
+            .to eq('Other Name')
         end
       end
     end
