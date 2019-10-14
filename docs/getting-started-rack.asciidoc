@@ -64,6 +64,9 @@ end
 # Takes optional ElasticAPM::Config values
 ElasticAPM.start(app: MySinatraApp, ...)
 
+# You can also do the following, which is equivalent to the above:
+# ElasticAPM::Sinatra.start(MySinatraApp, ...)
+
 run MySinatraApp
 
 at_exit { ElasticAPM.stop }

@@ -53,6 +53,17 @@ ElasticAPM.start(
 )
 ----
 
+Alternatively, you can use the `ElasticAPM::Sinatra.start` API.
+
+[source,ruby]
+----
+# config.ru or similar
+ElasticAPM::Sinatra.start(
+  MyApp,
+  service_name: 'SomeOtherName'
+)
+----
+
 See <<getting-started-rack>>.
 
 [float]
