@@ -8,8 +8,10 @@ if defined?(Grape)
   RSpec.describe 'Grape integration', :mock_intake do
     include Rack::Test::Methods
 
-    let(:app) do
-      Class.new(::Grape::API) do
+    let(:app) { GrapeTestApp }
+
+    before(:all) do
+      class GrapeTestApp < ::Grape::API
         use ElasticAPM::Middleware
 
         get :pingpong do
@@ -28,77 +30,51 @@ if defined?(Grape)
           end
         end
       end
-    end
 
-    before(:all) do
       config = { api_request_time: '100ms',
                  capture_body: 'all',
-                 pool_size: Concurrent.processor_count,
-                 service_name: 'GrapeTestApp' }
-      ElasticAPM::Grape.start(config)
+                 pool_size: Concurrent.processor_count }
+      ElasticAPM::Grape.start(GrapeTestApp, config)
+    end
+
+    after(:all) { ElasticAPM.stop }
+
+    it 'sets the framework metadata' do
+      get '/pingpong'
+      wait_for transactions: 1, spans: 1
+
+      service = @mock_intake.metadatas.first['service']
+      expect(service['name']).to eq 'GrapeTestApp'
+      expect(service['framework']['name']).to eq 'Grape'
+      expect(service['framework']['version'])
+        .to match(/\d+\.\d+\.\d+(\.\d+)?/)
     end
 
     context 'endpoint_run.grape'do
       it 'sets the transaction and span values' do
         get '/pingpong'
-        wait_for transactions: 1, spans: 7
+        wait_for transactions: 1, spans: 1
 
-        span = @mock_intake.spans.find { |s| s['type'] == 'app.resource'}
+        span = @mock_intake.spans.last
         expect(span['name']).to eq('GET /pingpong')
         expect(span['type']).to eq('app.resource')
 
         transaction = @mock_intake.transactions.last
         expect(transaction['name']).to eq('GET /pingpong')
       end
-    end
 
-    context 'params specified' do
-      it 'sets the transaction and span values' do
-        get '/statuses/1'
-        wait_for transactions: 1, spans: 7
+      context 'params specified' do
+        it 'sets the transaction and span values' do
+          get '/statuses/1'
+          wait_for transactions: 1, spans: 1
 
-        span = @mock_intake.spans.find { |s| s['type'] == 'app.resource'}
-        expect(span['name']).to eq('GET /statuses/:id')
-        expect(span['type']).to eq('app.resource')
+          span = @mock_intake.spans.last
+          expect(span['name']).to eq('GET /statuses/:id')
+          expect(span['type']).to eq('app.resource')
 
-        transaction = @mock_intake.transactions.last
-        expect(transaction['name']).to eq('GET /statuses/:id')
-      end
-    end
-
-    context 'with filters' do
-      it 'sets the transaction and span values' do
-        get '/statuses/1'
-        wait_for transactions: 1, spans: 7
-
-        span = @mock_intake.spans.find { |s| s['type'] == 'app.resource'}
-        expect(span['name']).to eq('GET /statuses/:id')
-        expect(span['type']).to eq('app.resource')
-
-        filter_span = @mock_intake.spans.find { |s| s['type'] == 'filter.before'}
-        expect(filter_span['name']).to eq('GET /statuses/:id')
-        expect(filter_span['type']).to eq('filter.before')
-
-        transaction = @mock_intake.transactions.last
-        expect(transaction['name']).to eq('GET /statuses/:id')
-      end
-    end
-
-    context 'with validators' do
-      it 'sets the transaction and span values' do
-        get '/statuses/1'
-        wait_for transactions: 1, spans: 7
-
-        span = @mock_intake.spans.find { |s| s['type'] == 'app.resource'}
-        expect(span['name']).to eq('GET /statuses/:id')
-        expect(span['type']).to eq('app.resource')
-
-        filter_span = @mock_intake.spans.find { |s| s['type'] == 'validator'}
-        expect(filter_span['name']).to eq('GET /statuses/:id')
-        expect(filter_span['type']).to eq('validator')
-
-        transaction = @mock_intake.transactions.last
-        expect(transaction['name']).to eq('GET /statuses/:id')
+          transaction = @mock_intake.transactions.last
+          expect(transaction['name']).to eq('GET /statuses/:id')
+        end
       end
     end
   end

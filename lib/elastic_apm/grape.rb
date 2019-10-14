@@ -10,8 +10,14 @@ module ElasticAPM
     #
     # @param config [Config, Hash] An instance of Config or a Hash config.
     # @return [true, nil] true if the agent was started, nil otherwise.
-    def start(config)
+    def start(app, config)
       config = Config.new(config) unless config.is_a?(Config)
+      config.service_name ||= app.name
+      config.framework_name ||= 'Grape'
+      config.framework_version ||= ::Grape::VERSION
+      config.logger ||= app.logger
+      config.__root_path ||= Dir.pwd
+
       ElasticAPM.start(config).tap do |agent|
         attach_subscriber(agent)
       end

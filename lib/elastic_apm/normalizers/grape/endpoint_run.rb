@@ -22,28 +22,6 @@ module ElasticAPM
           [env['REQUEST_METHOD'], route_name].join(' ')
         end
       end
-
-      class Filters < EndpointRun
-        register 'endpoint_run_filters.grape'
-
-        TYPE = 'filter'
-
-        def normalize(transaction, _name, payload)
-          transaction.name = endpoint(payload[:endpoint].env)
-          [transaction.name, TYPE, payload[:type], nil, nil]
-        end
-      end
-
-      class Validators < EndpointRun
-        register 'endpoint_run_validators.grape'
-
-        TYPE = 'validator'
-
-        def normalize(transaction, _name, payload)
-          transaction.name = endpoint(payload[:endpoint].env)
-          [transaction.name, TYPE, nil, nil, nil]
-        end
-      end
     end
   end
 end
