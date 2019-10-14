@@ -15,7 +15,7 @@ if defined?(Grape)
         use ElasticAPM::Middleware
 
         get :pingpong do
-          { :message => "Hello world!" }
+          { message: 'Hello' }
         end
 
         resource :statuses do
@@ -53,7 +53,7 @@ if defined?(Grape)
         .to match(/\d+\.\d+\.\d+(\.\d+)?/)
     end
 
-    context 'endpoint_run.grape'do
+    context 'endpoint_run.grape' do
       it 'sets the transaction and span values' do
         get '/pingpong'
         wait_for transactions: 1, spans: 1

@@ -18,7 +18,8 @@ module ElasticAPM
         private
 
         def endpoint(env)
-          route_name = env['api.endpoint']&.routes&.first&.pattern&.origin || env['REQUEST_PATH']
+          route_name = env['api.endpoint']&.routes&.first&.pattern&.origin ||
+            env['REQUEST_PATH']
           [env['REQUEST_METHOD'], route_name].join(' ')
         end
       end

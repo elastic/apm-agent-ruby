@@ -4,7 +4,6 @@ if defined?(Grape)
   require 'elastic_apm/grape'
   RSpec.describe Grape do
     describe '.start' do
-
       before do
         class GrapeTestApp < ::Grape::API
           use ElasticAPM::Middleware
@@ -28,8 +27,8 @@ if defined?(Grape)
         let(:config) { { service_name: 'Other Name' } }
 
         it 'sets the options' do
-          expect(ElasticAPM.agent.config.options[:service_name].value).
-            to eq('Other Name')
+          expect(ElasticAPM.agent.config.options[:service_name].value)
+            .to eq('Other Name')
         end
       end
     end

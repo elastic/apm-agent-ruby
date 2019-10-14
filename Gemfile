@@ -16,6 +16,7 @@ gem 'webmock'
 gem 'elasticsearch', require: nil
 gem 'fakeredis', require: nil
 gem 'faraday', require: nil
+gem 'grape', require: nil
 gem 'json-schema', require: nil
 gem 'mongo', require: nil
 gem 'opentracing', require: nil
@@ -26,7 +27,6 @@ gem 'simplecov', require: false, group: :test
 gem 'simplecov-cobertura', require: false, group: :test
 gem 'yard', require: nil
 gem 'yarjuf'
-gem 'grape', require: nil
 
 if RUBY_PLATFORM == 'java'
   gem 'jdbc-sqlite3'
