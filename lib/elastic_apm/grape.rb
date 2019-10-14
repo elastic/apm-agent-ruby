@@ -8,6 +8,7 @@ module ElasticAPM
     extend self
     # Start the ElasticAPM agent and hook into Grape.
     #
+    # @param app [Grape::API] A Grape app.
     # @param config [Config, Hash] An instance of Config or a Hash config.
     # @return [true, nil] true if the agent was started, nil otherwise.
     def start(app, config)
