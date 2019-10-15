@@ -15,7 +15,7 @@ module ElasticAPM
     # @return [true, nil] true if the agent was started, nil otherwise.
     def start(app, config)
       config = Config.new(config) unless config.is_a?(Config)
-      set_config(app, config)
+      configure_app(app, config)
 
       ElasticAPM.start(config).tap do |agent|
         attach_subscriber(agent)
@@ -29,7 +29,7 @@ module ElasticAPM
 
     private
 
-    def set_config(app, config)
+    def configure_app(app, config)
       config.service_name ||= app.name
       config.framework_name ||= 'Grape'
       config.framework_version ||= ::Grape::VERSION
