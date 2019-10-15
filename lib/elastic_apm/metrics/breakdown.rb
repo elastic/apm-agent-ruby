@@ -21,6 +21,7 @@ module ElasticAPM
         return unless name || type
 
         set.transaction = { name: name, type: type }
+        set.tags = nil if set.tags.empty?
       end
 
       def move_span(set)
@@ -29,6 +30,7 @@ module ElasticAPM
         return unless type
 
         set.span = { type: type, subtype: subtype }
+        set.tags = nil if set.tags.empty?
       end
     end
 

@@ -69,7 +69,6 @@ module ElasticAPM
 
       @central_config = CentralConfig.new(config)
       @transport = Transport::Base.new(config)
-      # metrics need to be defined before instrumenter. Don't like this
       @metrics = Metrics.new(config) { |event| enqueue event }
       @instrumenter = Instrumenter.new(
         config,

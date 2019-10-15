@@ -11,8 +11,8 @@ module ElasticAPM
       @samples = samples
     end
 
-    attr_accessor :timestamp, :transaction, :span
-    attr_reader :samples, :tags
+    attr_accessor :timestamp, :transaction, :span, :tags
+    attr_reader :samples
 
     def merge_tags!(tags)
       return unless tags

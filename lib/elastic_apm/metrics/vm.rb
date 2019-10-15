@@ -6,12 +6,6 @@ module ElasticAPM
     class VM < Set
       include Logging
 
-      def initialize(config)
-        super
-
-        read! # set @previous on boot
-      end
-
       def collect
         read!
         super
