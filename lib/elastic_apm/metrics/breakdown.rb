@@ -3,7 +3,7 @@
 module ElasticAPM
   module Metrics
     # @api private
-    class Breakdown
+    class Breakdown < Set
       include Logging
 
       Transaction = Struct.new(:duration, :count)

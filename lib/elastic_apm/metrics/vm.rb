@@ -3,58 +3,48 @@
 module ElasticAPM
   module Metrics
     # @api private
-    class VM
+    class VM < Set
       include Logging
 
       def initialize(config)
-        @config = config
-        @total_time = 0
-        @disabled = false
+        super
+
+        read! # set @previous on boot
       end
 
-      attr_reader :config
-      attr_writer :disabled
+      def collect(data = {})
+        read!
+        super
+      end
 
       # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       # rubocop:disable Metrics/CyclomaticComplexity
-      def collect
+      def read!
         return if disabled?
 
         stat = GC.stat
-        thread_count = Thread.list.count
 
-        sample = {
-          'ruby.gc.count': stat[:count],
-          'ruby.threads': thread_count
-        }
+        gauge(:'ruby.gc.count').value = stat[:count]
+        gauge(:'ruby.threads').value = Thread.list.count
+        gauge(:'ruby.heap.slots.live').value = stat[:heap_live_slots]
 
-        (live_slots = stat[:heap_live_slots]) &&
-          sample[:'ruby.heap.slots.live'] = live_slots
-        (heap_slots = stat[:heap_free_slots]) &&
-          sample[:'ruby.heap.slots.free'] = heap_slots
-        (allocated = stat[:total_allocated_objects]) &&
-          sample[:'ruby.heap.allocations.total'] = allocated
+        gauge(:'ruby.heap.slots.free').value = stat[:heap_free_slots]
+        gauge(:'ruby.heap.allocations.total').value = stat[:total_allocated_objects]
 
-        return sample unless GC::Profiler.enabled?
+        return unless GC::Profiler.enabled?
 
+        @total_time ||= 0
         @total_time += GC::Profiler.total_time
         GC::Profiler.clear
-        sample[:'ruby.gc.time'] = @total_time
-
-        sample
+        gauge(:'ruby.gc.time').value = @total_time
       rescue TypeError => e
         error 'VM metrics encountered error: %s', e
         debug('Backtrace:') { e.backtrace.join("\n") }
 
-        @disabled = true
-        nil
+        self.disabled = true
       end
       # rubocop:enable Metrics/CyclomaticComplexity
       # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
-
-      def disabled?
-        @disabled
-      end
     end
   end
 end

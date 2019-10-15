@@ -121,6 +121,8 @@ module ElasticAPM
       transaction.done result
 
       @agent.enqueue transaction
+
+      raise 'WIP!'
       @breakdown_metrics.update(
         'transaction.name': transaction.name,
         'transaction.type': transaction.type

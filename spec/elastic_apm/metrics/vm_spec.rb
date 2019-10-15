@@ -9,9 +9,9 @@ module ElasticAPM
 
       describe 'collect' do
         context 'when disabled' do
-          it 'returns nil' do
+          it 'returns' do
             subject.disabled = true
-            expect(subject.collect).to be nil
+            expect(subject.collect).to eq({})
           end
         end
 
@@ -19,7 +19,7 @@ module ElasticAPM
           it 'disables and returns nil' do
             allow(GC).to receive(:stat).and_raise(TypeError)
 
-            expect(subject.collect).to be nil
+            expect(subject.collect).to eq({})
             expect(subject).to be_disabled
           end
         end

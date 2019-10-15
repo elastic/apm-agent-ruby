@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'elastic_apm/metricset'
-
 module ElasticAPM
   # @api private
   module Metrics
@@ -27,7 +25,7 @@ module ElasticAPM
         @callback = block
       end
 
-      attr_reader :config, :samplers, :callback, :labels
+      attr_reader :config, :sets, :callback, :labels
 
       # rubocop:disable Metrics/MethodLength
       def start
@@ -38,9 +36,13 @@ module ElasticAPM
 
         debug 'Starting metrics'
 
-        @samplers = [CpuMem, VM].map do |kls|
+        @sets = {
+          system: CpuMem,
+          vm: VM,
+          breakdown: Breakdown
+        }.each_with_object({}) do |(key, kls), sets|
           debug "Adding metrics collector '#{kls}'"
-          kls.new(config)
+          sets[key] = kls.new(config)
         end
 
         @timer_task = Concurrent::TimerTask.execute(
@@ -77,7 +79,7 @@ module ElasticAPM
       end
 
       def get(key)
-        samplers.fetch(key)
+        sets.fetch(key)
       end
 
       def collect_and_send
@@ -89,7 +91,7 @@ module ElasticAPM
 
       def collect
         MUTEX.synchronize do
-          samplers.each_value.each_with_object({}) do |sampler, samples|
+          sets.each_value.each_with_object({}) do |sampler, samples|
             next unless (sample = sampler.collect)
             samples.merge!(sample)
           end
@@ -98,6 +100,11 @@ module ElasticAPM
     end
   end
 end
+
+require 'elastic_apm/metricset'
+
+require 'elastic_apm/metrics/metric'
+require 'elastic_apm/metrics/set'
 
 require 'elastic_apm/metrics/cpu_mem'
 require 'elastic_apm/metrics/vm'
