@@ -10,8 +10,8 @@ module ElasticAPM
       describe 'collect' do
         context 'when disabled' do
           it 'returns' do
-            subject.disabled = true
-            expect(subject.collect).to eq({})
+            subject.disable!
+            expect(subject.collect).to be nil
           end
         end
 
@@ -19,14 +19,16 @@ module ElasticAPM
           it 'disables and returns nil' do
             allow(GC).to receive(:stat).and_raise(TypeError)
 
-            expect(subject.collect).to eq({})
+            expect(subject.collect).to be nil
             expect(subject).to be_disabled
           end
         end
 
         context 'mri', unless: RSpec::Support::Ruby.jruby? do
           it 'collects a metric set and prefixes keys' do
-            expect(subject.collect).to match(
+            set, = subject.collect
+
+            expect(set.samples).to match(
               'ruby.gc.count': Integer,
               'ruby.heap.slots.live': Integer,
               'ruby.heap.slots.free': Integer,
@@ -43,7 +45,8 @@ module ElasticAPM
             end
 
             it 'adds time spent' do
-              expect(subject.collect).to have_key(:'ruby.gc.time')
+              set, = subject.collect
+              expect(set.samples).to have_key(:'ruby.gc.time')
             end
           end
         end
@@ -52,7 +55,9 @@ module ElasticAPM
           it 'collects a metric set and prefixes keys' do
             subject.collect # disable on strict plaforms
 
-            expect(subject.collect).to match(
+            set, = subject.collect
+
+            expect(set.samples).to match(
               if subject.disabled?
                 nil
               else

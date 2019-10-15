@@ -89,6 +89,13 @@ module ElasticAPM
         expect(subject).to be_stopped
         expect(subject.duration).to be 100
       end
+
+      it 'calculates self_time' do
+        subject.start
+        travel 100
+        subject.stop
+        expect(subject.self_time).to eq 100
+      end
     end
 
     describe '#done', :mock_time do

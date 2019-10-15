@@ -3,30 +3,41 @@
 module ElasticAPM
   module Metrics
     # @api private
-    class Breakdown < Set
+    class SpanScopedSet < Set
       include Logging
 
-      Transaction = Struct.new(:duration, :count)
-      Update = Struct.new(:duration, :count)
-
-      def initialize(config)
-        @config = config
-        @transactions = {}
-      end
-
-      attr_reader :config
-
       def collect
-        # TODO
+        result = super
+        result.each do |set|
+          move_transaction(set)
+          move_span(set)
+        end
+        result
       end
 
-      def update(updates)
-        updates.each do |key, update|
-          transaction = transactions[key]
-          transaction.count += update.count
-          transaction.duration += update.duration
-        end
+      private
+
+      def move_transaction(set)
+        name = set.tags&.delete(:'transaction.name')
+        type = set.tags&.delete(:'transaction.type')
+        return unless name || type
+
+        set.transaction = { name: name, type: type }
       end
+
+      def move_span(set)
+        type = set.tags&.delete(:'span.type')
+        subtype = set.tags&.delete(:'span.subtype')
+        return unless type
+
+        set.span = { type: type, subtype: subtype }
+      end
+    end
+
+    class Breakdown < SpanScopedSet
+    end
+
+    class Transaction < SpanScopedSet
     end
   end
 end

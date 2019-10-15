@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'elastic_apm/opentracing'
 
-RSpec.xdescribe 'OpenTracing bridge', :intercept do
+RSpec.describe 'OpenTracing bridge', :intercept do
   let(:tracer) { ::OpenTracing.global_tracer }
 
   before :context do
@@ -262,9 +262,14 @@ RSpec.xdescribe 'OpenTracing bridge', :intercept do
 
       context 'when span' do
         let(:elastic_span) do
-          ElasticAPM::Span.new(name: 'Span',
-                               transaction_id: 'transaction_id',
-                               trace_context: trace_context)
+          transaction = ElasticAPM::Transaction.new(config: ElasticAPM::Config.new)
+
+          ElasticAPM::Span.new(
+            name: 'Span',
+            transaction: transaction,
+            parent: transaction,
+            trace_context: trace_context
+          )
         end
         let(:trace_context) { nil }
 
@@ -280,10 +285,13 @@ RSpec.xdescribe 'OpenTracing bridge', :intercept do
     describe 'deprecations' do
       describe '#finish with Time' do
         it 'warns and manages' do
+          transaction = ElasticAPM::Transaction.new(config: ElasticAPM::Config.new)
+
           elastic_span =
             ElasticAPM::Span.new(
               name: 'Span',
-              transaction_id: 'transaction_id',
+              transaction: transaction,
+              parent: transaction,
               trace_context: nil
             ).start
           span = described_class.new(elastic_span, nil)

@@ -67,7 +67,7 @@ module ElasticAPM
 
       # rubocop:disable Metrics/MethodLength
       def finish(clock_end: Util.monotonic_micros, end_time: nil)
-        return unless (instrumenter = ElasticAPM.agent&.instrumenter)
+        return unless (agent = ElasticAPM.agent)
 
         if end_time
           warn '[ElasticAPM] DEPRECATED: Setting a custom end time as a ' \
@@ -79,12 +79,12 @@ module ElasticAPM
 
         case elastic_span
         when ElasticAPM::Transaction
-          instrumenter.current_transaction = nil
+          agent.instrumenter.current_transaction = nil
         when ElasticAPM::Span
-          instrumenter.current_spans.delete(elastic_span)
+          agent.instrumenter.current_spans.delete(elastic_span)
         end
 
-        instrumenter.enqueue.call elastic_span
+        agent.enqueue elastic_span
       end
       # rubocop:enable Metrics/MethodLength
 
@@ -251,7 +251,7 @@ module ElasticAPM
         end
 
         elastic_span =
-          if ElasticAPM.current_transaction
+          if (transaction = ElasticAPM.current_transaction)
             ElasticAPM.start_span(
               operation_name,
               trace_context: trace_context

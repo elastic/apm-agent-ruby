@@ -21,32 +21,36 @@ module ElasticAPM
         @disabled
       end
 
-      def counter(key, labels: nil)
-        @metrics[key_with_labels(key, labels)] ||= Counter.new(key)
+      def counter(key, tags: nil)
+        @metrics[key_with_tags(key, tags)] ||= Counter.new(key, tags: tags)
       end
 
-      def gauge(key, labels: nil)
-        @metrics[key_with_labels(key, labels)] ||= Gauge.new(key)
+      def gauge(key, tags: nil)
+        @metrics[key = key_with_tags(key, tags)] ||= Gauge.new(key, tags: tags)
       end
 
-      def timer(key, labels: nil)
-        @metrics[key_with_labels(key, labels)] ||= Timer.new(key)
+      def timer(key, tags: nil)
+        @metrics[key_with_tags(key, tags)] ||= Timer.new(key, tags: tags)
       end
 
-      def collect(data = {})
-        return data if disabled?
+      def collect
+        return if disabled?
 
-        @metrics.each_with_object(data) do |(key, metric), data|
-          data[metric.key] = metric.value
-        end
+        @metrics.each_with_object({}) do |(key, metric), sets|
+          name, *tags = key
+          sets[tags] ||= Metricset.new
+          set = sets[tags]
+          set.samples[name] = metric.value
+          set.merge_tags! metric.tags
+        end.values
       end
 
       private
 
-      def key_with_labels(key, labels)
-        return [key] unless labels
+      def key_with_tags(key, tags)
+        return key unless tags
 
-        tuple = labels.keys.zip(labels.values)
+        tuple = tags.keys.zip(tags.values)
         tuple.flatten!
 
         [key, *tuple]

@@ -44,7 +44,10 @@ module ElasticAPM
       @agent = agent
       @stacktrace_builder = stacktrace_builder
 
-      @breakdown_metrics = agent.metrics.get(:breakdown)
+      @metrics = Struct.new(:transaction, :breakdown).new(
+        agent.metrics.get(:transaction),
+        agent.metrics.get(:breakdown)
+      )
 
       @current = Current.new
     end
@@ -122,11 +125,7 @@ module ElasticAPM
 
       @agent.enqueue transaction
 
-      raise 'WIP!'
-      @breakdown_metrics.update(
-        'transaction.name': transaction.name,
-        'transaction.type': transaction.type
-      )
+      update_transaction_metrics(transaction)
 
       transaction
     end
@@ -196,6 +195,8 @@ module ElasticAPM
 
       @agent.enqueue span
 
+      update_span_metrics(span)
+
       span
     end
 
@@ -228,6 +229,47 @@ module ElasticAPM
 
     def random_sample?(config)
       rand <= config.transaction_sample_rate
+    end
+
+    def update_transaction_metrics(transaction)
+      tags = {
+        'transaction.name': transaction.name,
+        'transaction.type': transaction.type 
+      }
+
+      @metrics.transaction.timer(
+        :'transaction.duration.sum.us', tags: tags
+      ).update(transaction.duration)
+
+      @metrics.transaction.counter(
+        :'transaction.duration.count', tags: tags
+      ).inc!
+
+      return unless transaction.sampled?
+
+      @metrics.transaction.counter(
+        :'transaction.breakdown.count', tags: tags
+      ).inc!
+      @metrics.breakdown.timer(
+        :'span.self_time', tags: tags.merge('span.type': 'app')
+      ).update(transaction.self_time)
+    end
+
+    def update_span_metrics(span)
+      tags = {
+        'span.type': span.type,
+        'transaction.name': span.transaction.name,
+        'transaction.type': span.transaction.type 
+      }
+
+      if span.subtype
+        tags[:'span.subtype'] = span.subtype
+      end
+
+      @metrics.breakdown.timer(
+        :'span.self_time',
+        tags: tags
+      ).update(span.self_time)
     end
   end
   # rubocop:enable Metrics/ClassLength

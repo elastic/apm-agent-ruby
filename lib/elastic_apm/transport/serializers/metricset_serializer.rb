@@ -6,13 +6,24 @@ module ElasticAPM
       # @api private
       class MetricsetSerializer < Serializer
         def build(metricset)
-          {
-            metricset: {
-              timestamp: metricset.timestamp.to_i,
-              tags: keyword_object(metricset.labels),
-              samples: build_samples(metricset.samples)
-            }
+          payload = {
+            timestamp: metricset.timestamp.to_i,
+            samples: build_samples(metricset.samples)
           }
+
+          if metricset.tags?
+            payload[:tags] = mixed_object(metricset.tags)
+          end
+
+          if metricset.transaction
+            payload[:transaction] = metricset.transaction
+          end
+
+          if metricset.span
+            payload[:span] = metricset.span
+          end
+
+          { metricset: payload }
         end
 
         private

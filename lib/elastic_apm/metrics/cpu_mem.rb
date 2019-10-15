@@ -51,7 +51,7 @@ module ElasticAPM
 
       attr_reader :config
 
-      def collect(data = {})
+      def collect
         read!
         super
       end

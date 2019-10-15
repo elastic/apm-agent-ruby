@@ -30,9 +30,9 @@ module ElasticAPM
           expect(subject.metrics.length).to be 1
         end
 
-        it 'adds cardinality with labels' do
-          first = subject.gauge('gauge', labels: { a: 1 })
-          second = subject.gauge('gauge', labels: { a: 2 })
+        it 'adds cardinality with tags' do
+          first = subject.gauge('gauge', tags: { a: 1 })
+          second = subject.gauge('gauge', tags: { a: 2 })
           expect(first).to_not be second
           expect(subject.metrics.keys).to match([
             ['gauge', :a, 1],
@@ -47,22 +47,22 @@ module ElasticAPM
           subject.counter(:counter).value = 0
           subject.timer(:timer).value = 0
 
-          expect(subject.collect).to match(
+          set, = subject.collect
+          expect(set).to be_a Metricset
+          expect(set.samples).to match(
             gauge: 0,
             counter: 0,
             timer: 0
           )
         end
 
-        it 'extends a passed hash' do
-          subject.gauge(:gauge).value = 0
+        it 'splits sets by tags' do
+          first = subject.gauge('gauge', tags: { a: 1 })
+          second = subject.gauge('gauge', tags: { a: 2 })
 
-          data = { existing: true }
+          sets = subject.collect
 
-          expect(subject.collect(data)).to match(
-            gauge: 0,
-            existing: true
-          )
+          expect(sets.length).to be 2
         end
       end
     end

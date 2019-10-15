@@ -12,7 +12,7 @@ module ElasticAPM
         read! # set @previous on boot
       end
 
-      def collect(data = {})
+      def collect
         read!
         super
       end
@@ -41,7 +41,7 @@ module ElasticAPM
         error 'VM metrics encountered error: %s', e
         debug('Backtrace:') { e.backtrace.join("\n") }
 
-        self.disabled = true
+        disable!
       end
       # rubocop:enable Metrics/CyclomaticComplexity
       # rubocop:enable Metrics/MethodLength, Metrics/AbcSize

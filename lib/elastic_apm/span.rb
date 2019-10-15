@@ -54,10 +54,11 @@ module ElasticAPM
     attr_reader(
       :context,
       :duration,
+      :parent,
+      :self_time,
       :stacktrace,
       :timestamp,
-      :transaction,
-      :parent
+      :transaction
     )
 
     # life cycle
@@ -72,6 +73,7 @@ module ElasticAPM
     def stop(clock_end = Util.monotonic_micros)
       @duration ||= (clock_end - @clock_start)
       @parent.child_stopped
+      @self_time = @duration - child_durations.duration
       self
     end
 

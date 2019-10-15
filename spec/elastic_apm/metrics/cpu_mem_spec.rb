@@ -19,9 +19,9 @@ module ElasticAPM
               user: 400_000, idle: 600_000, utime: 100_000, stime: 100_000
             )
 
-            sample = subject.collect
+            set, = subject.collect
 
-            expect(sample).to match(
+            expect(set.samples).to match(
               'system.cpu.total.norm.pct': 0.4,
               'system.memory.actual.free': 2_750_062_592,
               'system.memory.total': 4_042_711_040,
@@ -41,9 +41,9 @@ module ElasticAPM
               mock_proc_files proc_stat_format: :rhel,
                 user: 400_000, idle: 600_000, utime: 100_000, stime: 100_000
 
-              sample = subject.collect
+              set, = subject.collect
 
-              expect(sample).to match(
+              expect(set.samples).to match(
                 'system.cpu.total.norm.pct': 0.4,
                 'system.memory.actual.free': 2_750_062_592,
                 'system.memory.total': 4_042_711_040,
@@ -58,10 +58,10 @@ module ElasticAPM
             it 'builds MemAvailable from others' do
               mock_proc_files proc_meminfo_format: :wheezy
 
-              sample = subject.collect
+              set, = subject.collect
 
-              expect(sample[:'system.memory.total']).to eq 4_042_711_040
-              expect(sample[:'system.memory.actual.free']).to eq 2_443_145_216
+              expect(set.samples[:'system.memory.total']).to eq 4_042_711_040
+              expect(set.samples[:'system.memory.actual.free']).to eq 2_443_145_216
             end
           end
         end

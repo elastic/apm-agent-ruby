@@ -3,8 +3,6 @@
 module ElasticAPM
   # @api private
   module Metrics
-    MUTEX = Mutex.new
-
     def self.new(config, &block)
       Registry.new(config, &block)
     end
@@ -83,18 +81,18 @@ module ElasticAPM
       end
 
       def collect_and_send
-        metricset = Metricset.new(labels: labels, **collect)
-        return if metricset.empty?
-
-        callback.call(metricset)
+        metricsets = collect
+        metricsets.compact!
+        metricsets.each do |m|
+          callback.call(m)
+        end
       end
 
       def collect
-        MUTEX.synchronize do
-          sets.each_value.each_with_object({}) do |sampler, samples|
-            next unless (sample = sampler.collect)
-            samples.merge!(sample)
-          end
+        sets.each_value.each_with_object([]) do |set, arr|
+          samples = set.collect
+          next unless samples
+          arr.concat(samples)
         end
       end
     end
