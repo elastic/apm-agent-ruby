@@ -20,5 +20,17 @@ module ElasticAPM
         expect(Context.new.tap { |c| c.response = 1 }).to_not be_empty
       end
     end
+
+    describe 'service' do
+      before do
+        subject.set_service(framework_name: 'Grape',
+                            framework_version: '1.2')
+      end
+
+      it 'sets the service' do
+        expect(subject.service.framework.name).to eq('Grape')
+        expect(subject.service.framework.version).to eq('1.2')
+      end
+    end
   end
 end

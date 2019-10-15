@@ -13,7 +13,8 @@ module ElasticAPM
             tags: mixed_object(context.labels),
             request: build_request(context.request),
             response: build_response(context.response),
-            user: build_user(context.user)
+            user: build_user(context.user),
+            service: build_service(context.service)
           }
         end
 
@@ -77,6 +78,17 @@ module ElasticAPM
             pathname: keyword_field(url.pathname),
             search: keyword_field(url.search),
             hash: keyword_field(url.hash)
+          }
+        end
+
+        def build_service(service)
+          return unless service
+
+          {
+            framework: {
+              name: keyword_field(service.framework.name),
+              version: keyword_field(service.framework.version)
+            }
           }
         end
       end
