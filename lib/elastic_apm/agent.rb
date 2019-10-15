@@ -71,7 +71,11 @@ module ElasticAPM
       @transport = Transport::Base.new(config)
       # metrics need to be defined before instrumenter. Don't like this
       @metrics = Metrics.new(config) { |event| enqueue event }
-      @instrumenter = Instrumenter.new(self, stacktrace_builder: stacktrace_builder)
+      @instrumenter = Instrumenter.new(
+        config,
+        metrics: metrics,
+        stacktrace_builder: stacktrace_builder
+      ) { |event| enqueue event }
     end
 
     attr_reader(

@@ -40,19 +40,16 @@ module ElasticAPM
       end
     end
 
-    def initialize(agent, stacktrace_builder:)
-      @agent = agent
+    def initialize(config, metrics:, stacktrace_builder:, &enqueue)
+      @config = config
       @stacktrace_builder = stacktrace_builder
-
-      @metrics = Struct.new(:transaction, :breakdown).new(
-        agent.metrics.get(:transaction),
-        agent.metrics.get(:breakdown)
-      )
+      @enqueue = enqueue
+      @metrics = metrics
 
       @current = Current.new
     end
 
-    attr_reader :stacktrace_builder
+    attr_reader :stacktrace_builder, :enqueue
 
     def start
       debug 'Starting instrumenter'
@@ -123,7 +120,7 @@ module ElasticAPM
 
       transaction.done result
 
-      @agent.enqueue transaction
+      enqueue.call transaction
 
       update_transaction_metrics(transaction)
 
@@ -193,7 +190,7 @@ module ElasticAPM
 
       span.done
 
-      @agent.enqueue span
+      enqueue.call span
 
       update_span_metrics(span)
 
@@ -237,20 +234,20 @@ module ElasticAPM
         'transaction.type': transaction.type 
       }
 
-      @metrics.transaction.timer(
+      @metrics.get(:transaction).timer(
         :'transaction.duration.sum.us', tags: tags
       ).update(transaction.duration)
 
-      @metrics.transaction.counter(
+      @metrics.get(:transaction).counter(
         :'transaction.duration.count', tags: tags
       ).inc!
 
       return unless transaction.sampled?
 
-      @metrics.transaction.counter(
+      @metrics.get(:transaction).counter(
         :'transaction.breakdown.count', tags: tags
       ).inc!
-      @metrics.breakdown.timer(
+      @metrics.get(:breakdown).timer(
         :'span.self_time', tags: tags.merge('span.type': 'app')
       ).update(transaction.self_time)
     end
@@ -266,7 +263,7 @@ module ElasticAPM
         tags[:'span.subtype'] = span.subtype
       end
 
-      @metrics.breakdown.timer(
+      @metrics.get(:breakdown).timer(
         :'span.self_time',
         tags: tags
       ).update(span.self_time)
