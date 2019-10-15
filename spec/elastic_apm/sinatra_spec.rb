@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 if defined?(Sinatra)
+  require 'elastic_apm/sinatra'
   RSpec.describe Sinatra do
     describe '.start' do
       before do
