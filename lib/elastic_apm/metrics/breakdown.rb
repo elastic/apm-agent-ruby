@@ -4,15 +4,13 @@ module ElasticAPM
   module Metrics
     # @api private
     class SpanScopedSet < Set
-      include Logging
-
       def collect
-        result = super
-        result.each do |set|
-          move_transaction(set)
-          move_span(set)
+        super.tap do |sets|
+          sets.each do |set|
+            move_transaction(set)
+            move_span(set)
+          end
         end
-        result
       end
 
       private
