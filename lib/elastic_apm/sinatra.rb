@@ -11,7 +11,7 @@ module ElasticAPM
     # @return [true, nil] true if the agent was started, nil otherwise.
     def start(app, config)
       config = Config.new(config) unless config.is_a?(Config)
-      set_config(app, config)
+      configure_app(app, config)
 
       ElasticAPM.start(config)
       ElasticAPM.running?
@@ -22,7 +22,7 @@ module ElasticAPM
 
     private
 
-    def set_config(app, config)
+    def configure_app(app, config)
       config.service_name ||= format_name(app.to_s)
       config.framework_name ||= 'Sinatra'
       config.framework_version ||= ::Sinatra::VERSION
