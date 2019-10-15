@@ -7,3 +7,5 @@ FRAMEWORK:
 
   - sinatra-2.0
   - sinatra-1.4
+
+  - grape-1.2
