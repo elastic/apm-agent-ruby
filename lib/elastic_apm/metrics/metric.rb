@@ -4,11 +4,17 @@ module ElasticAPM
   module Metrics
     # @api private
     class Metric
-      def initialize(key, initial_value: nil, tags: nil)
+      def initialize(
+        key,
+        initial_value: nil,
+        tags: nil,
+        reset_on_collect: false
+      )
         @key = key
         @initial_value = initial_value
         @value = initial_value
         @tags = tags
+        @reset_on_collect = reset_on_collect
       end
 
       attr_reader :key, :initial_value, :tags
@@ -19,13 +25,24 @@ module ElasticAPM
       end
 
       def tags?
-        tags&.any?
+        !!tags&.any?
+      end
+
+      def reset_on_collect?
+        @reset_on_collect
+      end
+
+      def collect
+        collected = value
+        self.value = initial_value if reset_on_collect?
+        collected
       end
     end
 
+    # @api private
     class Counter < Metric
-      def initialize(key, initial_value: 0, tags: nil)
-        super(key, initial_value: initial_value, tags: tags)
+      def initialize(key, initial_value: 0, **args)
+        super(key, initial_value: initial_value, **args)
       end
 
       def inc!
@@ -37,15 +54,17 @@ module ElasticAPM
       end
     end
 
+    # @api private
     class Gauge < Metric
-      def initialize(key, tags: nil)
-        super(key, initial_value: 0, tags: tags)
+      def initialize(key, **args)
+        super(key, initial_value: 0, **args)
       end
     end
 
+    # @api private
     class Timer < Metric
-      def initialize(key, tags: nil)
-        super(key, initial_value: 0, tags: tags)
+      def initialize(key, **args)
+        super(key, initial_value: 0, **args)
         @count = 0
       end
 

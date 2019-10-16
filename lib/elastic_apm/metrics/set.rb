@@ -21,16 +21,19 @@ module ElasticAPM
         @disabled
       end
 
-      def counter(key, tags: nil)
-        @metrics[key_with_tags(key, tags)] ||= Counter.new(key, tags: tags)
+      def counter(key, tags: nil, **args)
+        @metrics[key_with_tags(key, tags)] ||=
+          Counter.new(key, tags: tags, **args)
       end
 
-      def gauge(key, tags: nil)
-        @metrics[key = key_with_tags(key, tags)] ||= Gauge.new(key, tags: tags)
+      def gauge(key, tags: nil, **args)
+        @metrics[key_with_tags(key, tags)] ||=
+          Gauge.new(key, tags: tags, **args)
       end
 
-      def timer(key, tags: nil)
-        @metrics[key_with_tags(key, tags)] ||= Timer.new(key, tags: tags)
+      def timer(key, tags: nil, **args)
+        @metrics[key_with_tags(key, tags)] ||=
+          Timer.new(key, tags: tags, **args)
       end
 
       def collect
@@ -40,7 +43,7 @@ module ElasticAPM
           name, *tags = key
           sets[tags] ||= Metricset.new
           set = sets[tags]
-          set.samples[name] = metric.value
+          set.samples[name] = metric.collect
           set.merge_tags! metric.tags
         end.values
       end

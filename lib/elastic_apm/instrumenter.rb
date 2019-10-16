@@ -228,35 +228,43 @@ module ElasticAPM
       rand <= config.transaction_sample_rate
     end
 
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def update_transaction_metrics(transaction)
       tags = {
         'transaction.name': transaction.name,
-        'transaction.type': transaction.type 
+        'transaction.type': transaction.type
       }
 
       @metrics.get(:transaction).timer(
-        :'transaction.duration.sum.us', tags: tags
+        :'transaction.duration.sum.us',
+        tags: tags, reset_on_collect: true
       ).update(transaction.duration)
 
       @metrics.get(:transaction).counter(
-        :'transaction.duration.count', tags: tags
+        :'transaction.duration.count',
+        tags: tags, reset_on_collect: true
       ).inc!
 
       return unless transaction.sampled?
 
       @metrics.get(:transaction).counter(
-        :'transaction.breakdown.count', tags: tags
+        :'transaction.breakdown.count',
+        tags: tags, reset_on_collect: true
       ).inc!
       @metrics.get(:breakdown).timer(
-        :'span.self_time', tags: tags.merge('span.type': 'app')
+        :'span.self_time',
+        tags: tags.merge('span.type': 'app'),
+        reset_on_collect: true
       ).update(transaction.self_time)
     end
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
+    # rubocop:disable Metrics/MethodLength
     def update_span_metrics(span)
       tags = {
         'span.type': span.type,
         'transaction.name': span.transaction.name,
-        'transaction.type': span.transaction.type 
+        'transaction.type': span.transaction.type
       }
 
       if span.subtype
@@ -265,9 +273,10 @@ module ElasticAPM
 
       @metrics.get(:breakdown).timer(
         :'span.self_time',
-        tags: tags
+        tags: tags, reset_on_collect: true
       ).update(span.self_time)
     end
+    # rubocop:enable Metrics/MethodLength
   end
   # rubocop:enable Metrics/ClassLength
 end

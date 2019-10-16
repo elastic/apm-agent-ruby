@@ -34,10 +34,12 @@ module ElasticAPM
           first = subject.gauge('gauge', tags: { a: 1 })
           second = subject.gauge('gauge', tags: { a: 2 })
           expect(first).to_not be second
-          expect(subject.metrics.keys).to match([
-            ['gauge', :a, 1],
-            ['gauge', :a, 2],
-          ])
+          expect(subject.metrics.keys).to match(
+            [
+              ['gauge', :a, 1],
+              ['gauge', :a, 2]
+            ]
+          )
         end
       end
 
@@ -57,8 +59,8 @@ module ElasticAPM
         end
 
         it 'splits sets by tags' do
-          first = subject.gauge('gauge', tags: { a: 1 })
-          second = subject.gauge('gauge', tags: { a: 2 })
+          subject.gauge('gauge', tags: { a: 1 })
+          subject.gauge('gauge', tags: { a: 2 })
 
           sets = subject.collect
 

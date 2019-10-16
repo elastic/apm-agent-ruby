@@ -10,11 +10,43 @@ module ElasticAPM
 
         its(:value) { is_expected.to eq 666 }
 
-        it 'can reset' do
-          subject.value = 123
-          expect(subject.value).to eq 123
-          subject.reset!
-          expect(subject.value).to eq 666
+        describe 'reset!' do
+          it 'resets to initial value' do
+            subject.value = 123
+            expect(subject.value).to eq 123
+            subject.reset!
+            expect(subject.value).to eq 666
+          end
+        end
+
+        describe 'tags?' do
+          it 'is false when nil' do
+            expect(described_class.new(:key).tags?).to be false
+          end
+
+          it 'is false when empty' do
+            expect(described_class.new(:key, tags: {}).tags?).to be false
+          end
+
+          it 'is true when present' do
+            expect(described_class.new(:key, tags: { a: 1 }).tags?).to be true
+          end
+        end
+
+        describe 'collect' do
+          subject do
+            described_class.new(
+              :key,
+              initial_value: 666, reset_on_collect: true
+            )
+          end
+
+          it 'resets value if told to' do
+            expect(subject.collect).to eq 666
+            subject.value = 321
+            expect(subject.collect).to eq 321
+            expect(subject.collect).to eq 666
+          end
         end
       end
     end
