@@ -86,7 +86,8 @@ module ElasticAPM
         gauge(:'system.memory.total').value = current.system_memory_total
         gauge(:'system.process.cpu.total.norm.pct').value = cpu_process_pct
         gauge(:'system.process.memory.size').value = current.process_memory_size
-        gauge(:'system.process.memory.rss.bytes').value = current.process_memory_rss * current.page_size
+        gauge(:'system.process.memory.rss.bytes').value =
+          current.process_memory_rss * current.page_size
 
         @previous = current
       end

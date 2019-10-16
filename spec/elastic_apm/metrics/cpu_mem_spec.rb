@@ -33,13 +33,17 @@ module ElasticAPM
 
           context 'on RHEL' do
             it "doesn't explode from missing numbers" do
-              mock_proc_files proc_stat_format: :rhel,
+              mock_proc_files(
+                proc_stat_format: :rhel,
                 user: 0, idle: 0, utime: 0, stime: 0
+              )
 
               subject # read values in init to allow delta calculation
 
-              mock_proc_files proc_stat_format: :rhel,
+              mock_proc_files(
+                proc_stat_format: :rhel,
                 user: 400_000, idle: 600_000, utime: 100_000, stime: 100_000
+              )
 
               set, = subject.collect
 
@@ -61,7 +65,8 @@ module ElasticAPM
               set, = subject.collect
 
               expect(set.samples[:'system.memory.total']).to eq 4_042_711_040
-              expect(set.samples[:'system.memory.actual.free']).to eq 2_443_145_216
+              expect(set.samples[:'system.memory.actual.free'])
+                .to eq 2_443_145_216
             end
           end
         end

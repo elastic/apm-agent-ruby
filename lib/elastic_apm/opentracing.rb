@@ -251,7 +251,7 @@ module ElasticAPM
         end
 
         elastic_span =
-          if (transaction = ElasticAPM.current_transaction)
+          if ElasticAPM.current_transaction
             ElasticAPM.start_span(
               operation_name,
               trace_context: trace_context

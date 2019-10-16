@@ -13,7 +13,7 @@ module ElasticAPM
 
         attr_reader :context_serializer
 
-        # rubocop:disable Metrics/MethodLength
+        # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
         def build(span)
           {
             span: {
@@ -30,7 +30,7 @@ module ElasticAPM
             }
           }
         end
-        # rubocop:enable Metrics/MethodLength
+        # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
         # @api private
         class ContextSerializer < Serializer

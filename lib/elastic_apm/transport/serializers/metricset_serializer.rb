@@ -5,6 +5,7 @@ module ElasticAPM
     module Serializers
       # @api private
       class MetricsetSerializer < Serializer
+        # rubocop:disable Metrics/MethodLength
         def build(metricset)
           payload = {
             timestamp: metricset.timestamp.to_i,
@@ -25,6 +26,7 @@ module ElasticAPM
 
           { metricset: payload }
         end
+        # rubocop:enable Metrics/MethodLength
 
         private
 

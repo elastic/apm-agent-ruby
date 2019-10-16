@@ -8,13 +8,19 @@ module ElasticAPM
 
       describe 'collect' do
         it 'moves transaction info from tags to props' do
-          subject.gauge(:a, tags: { 'transaction.name': 'name', 'transaction.type': 'type' })
+          subject.gauge(
+            :a,
+            tags: { 'transaction.name': 'name', 'transaction.type': 'type' }
+          )
           set, = subject.collect
           expect(set.transaction).to match(name: 'name', type: 'type')
         end
 
         it 'moves span info from tags to props' do
-          subject.gauge(:a, tags: { 'span.type': 'type', 'span.subtype': 'subtype' })
+          subject.gauge(
+            :a,
+            tags: { 'span.type': 'type', 'span.subtype': 'subtype' }
+          )
           set, = subject.collect
           expect(set.span).to match(type: 'type', subtype: 'subtype')
         end

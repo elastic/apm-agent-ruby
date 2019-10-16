@@ -17,11 +17,13 @@ module ElasticAPM
 
       TIMEOUT_INTERVAL = 5 # seconds
 
+      # rubocop:disable Metrics/MethodLength
       def initialize(config, labels: nil, &block)
         @config = config
         @labels = labels
         @callback = block
       end
+      # rubocop:enable Metrics/MethodLength
 
       attr_reader :config, :sets, :callback, :labels
 

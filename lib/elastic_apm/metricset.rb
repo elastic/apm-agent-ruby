@@ -3,7 +3,13 @@
 module ElasticAPM
   # @api private
   class Metricset
-    def initialize(timestamp: Util.micros, tags: nil, transaction: nil, span: nil, **samples)
+    def initialize(
+      timestamp: Util.micros,
+      tags: nil,
+      transaction: nil,
+      span: nil,
+      **samples
+    )
       @timestamp = timestamp
       @tags = tags
       @transaction = transaction

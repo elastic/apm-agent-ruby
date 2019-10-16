@@ -26,6 +26,7 @@ RSpec.configure do |config|
 
       true
     end
+    # rubocop:enable Metrics/MethodLength
 
     def start; end
 

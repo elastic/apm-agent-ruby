@@ -19,7 +19,7 @@ module ElasticAPM
                 tags: { a: 1 },
                 samples: {
                   thing: { value: 1.0 },
-                  other: { value: 321 },
+                  other: { value: 321 }
                 }
               }
             )
@@ -27,7 +27,10 @@ module ElasticAPM
 
           context 'with a transaction' do
             let(:set) do
-              Metricset.new('transaction.breakdown.count': 1, transaction: { name: 'txn', type: 'app' })
+              Metricset.new(
+                'transaction.breakdown.count': 1,
+                transaction: { name: 'txn', type: 'app' }
+              )
             end
 
             it 'matches' do
@@ -48,7 +51,11 @@ module ElasticAPM
 
           context 'with a transaction and span' do
             let(:set) do
-              Metricset.new('transaction.breakdown.count': 1, transaction: { name: 'txn', type: 'app' }, span: { type: 'db', subtype: 'mysql' })
+              Metricset.new(
+                'transaction.breakdown.count': 1,
+                transaction: { name: 'txn', type: 'app' },
+                span: { type: 'db', subtype: 'mysql' }
+              )
             end
 
             it 'matches' do

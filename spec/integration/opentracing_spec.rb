@@ -262,7 +262,8 @@ RSpec.describe 'OpenTracing bridge', :intercept do
 
       context 'when span' do
         let(:elastic_span) do
-          transaction = ElasticAPM::Transaction.new(config: ElasticAPM::Config.new)
+          transaction =
+            ElasticAPM::Transaction.new(config: ElasticAPM::Config.new)
 
           ElasticAPM::Span.new(
             name: 'Span',
@@ -285,7 +286,8 @@ RSpec.describe 'OpenTracing bridge', :intercept do
     describe 'deprecations' do
       describe '#finish with Time' do
         it 'warns and manages' do
-          transaction = ElasticAPM::Transaction.new(config: ElasticAPM::Config.new)
+          transaction =
+            ElasticAPM::Transaction.new(config: ElasticAPM::Config.new)
 
           elastic_span =
             ElasticAPM::Span.new(

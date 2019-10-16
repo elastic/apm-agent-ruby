@@ -72,7 +72,7 @@ module ElasticAPM
           end
         end
 
-        it 'truncates strings to 1024 chars and leaves others unchanged' do
+        it 'truncates string values to 1024 chars and leaves others' do
           obj = { string: 'X' * 2000,
                   bool: true,
                   numerical: 123 }

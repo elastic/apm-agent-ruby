@@ -11,7 +11,7 @@ module ElasticAPM
 
     DEFAULT_TYPE = 'custom'
 
-    # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
     def initialize(
       name = nil,
       type = nil,
@@ -38,7 +38,7 @@ module ElasticAPM
 
       @notifications = [] # for AS::Notifications
     end
-    # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength, Metrics/ParameterLists
 
     attr_accessor :name, :type, :result
 
