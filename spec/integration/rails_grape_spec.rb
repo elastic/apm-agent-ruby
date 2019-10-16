@@ -7,8 +7,6 @@ if (defined?(Rails) && defined?(Grape))
   require 'elastic_apm/railtie'
   require 'elastic_apm/grape'
 
-  SpecLogger = StringIO.new
-
   RSpec.describe 'Rails and Grape integration', :mock_intake do
     include Rack::Test::Methods
 
@@ -16,17 +14,9 @@ if (defined?(Rails) && defined?(Grape))
       @app ||= Rails.application
     end
 
-    after :each do |example|
-      if example.exception
-        puts 'Example failed, dumping log:'
-        SpecLogger.rewind
-        puts SpecLogger.read
-      end
-    end
-
     before :all do
       class RailsGrapeTestApp < Rails::Application
-        config.logger = Logger.new(SpecLogger)
+        config.logger = Logger.new(nil)
         config.logger.level = Logger::DEBUG
 
         config.eager_load = false
