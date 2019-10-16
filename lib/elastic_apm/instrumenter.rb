@@ -246,8 +246,9 @@ module ElasticAPM
       ).inc!
 
       return unless transaction.sampled?
+      return unless transaction.config.breakdown_metrics?
 
-      @metrics.get(:transaction).counter(
+      @metrics.get(:breakdown).counter(
         :'transaction.breakdown.count',
         tags: tags, reset_on_collect: true
       ).inc!
@@ -261,6 +262,8 @@ module ElasticAPM
 
     # rubocop:disable Metrics/MethodLength
     def update_span_metrics(span)
+      return unless span.transaction.config.breakdown_metrics?
+
       tags = {
         'span.type': span.type,
         'transaction.name': span.transaction.name,

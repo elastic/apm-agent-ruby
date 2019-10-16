@@ -6,6 +6,8 @@ module ElasticAPM
     class SpanScopedSet < Set
       def collect
         super.tap do |sets|
+          return unless sets
+
           sets.each do |set|
             move_transaction(set)
             move_span(set)
@@ -34,9 +36,16 @@ module ElasticAPM
       end
     end
 
+    # @api private
     class Breakdown < SpanScopedSet
+      def initialize(config)
+        super
+
+        disable! unless config.breakdown_metrics?
+      end
     end
 
+    # @api private
     class Transaction < SpanScopedSet
     end
   end

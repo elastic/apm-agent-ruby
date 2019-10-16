@@ -22,6 +22,7 @@ module ElasticAPM
     option :api_buffer_size,                   type: :int,    default: 256
     option :api_request_size,                  type: :bytes,  default: '750kb', converter: Bytes.new
     option :api_request_time,                  type: :float,  default: '10s',   converter: Duration.new
+    option :breakdown_metrics,                 type: :bool,   default: true
     option :capture_body,                      type: :string, default: 'off'
     option :capture_headers,                   type: :bool,   default: true
     option :capture_env,                       type: :bool,   default: true
