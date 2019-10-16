@@ -80,4 +80,6 @@ if defined?(Grape)
       end
     end
   end
+else
+  puts '[INFO] Skipping Grape spec'
 end
