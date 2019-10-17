@@ -46,6 +46,8 @@ module ElasticAPM
             type,
             subtype: subtype,
             action: action,
+            backtrace: caller,
+            source_location: payload[:endpoint].source,
             context: context
           )
         end

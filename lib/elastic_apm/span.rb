@@ -102,6 +102,8 @@ module ElasticAPM
     private
 
     def build_stacktrace!
+      # Use the source location to pop items off the backtrace not related to the user's application.
+      # I.e. activesupport library instrumentation internals
       @stacktrace = @stacktrace_builder.build(original_backtrace, type: :span)
     end
 
