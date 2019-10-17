@@ -215,7 +215,7 @@ module ElasticAPM
     def set_sinatra(app)
       self.service_name = format_name(service_name || app.to_s)
       self.framework_name = framework_name || 'Sinatra'
-      self.framework_version = framework_version || Sinatra::VERSION
+      self.framework_version = framework_version || ::Sinatra::VERSION
       self.__root_path = Dir.pwd
     end
 

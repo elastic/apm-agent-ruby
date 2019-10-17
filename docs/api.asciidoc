@@ -204,6 +204,17 @@ ElasticAPM::Rails.start(server_url: 'http://localhost:8200')
 ----
 
 [float]
+[[sinatra-start]]
+=== Sinatra
+
+Start the agent and hook into Sinatra.
+
+[source,ruby]
+----
+ElasticAPM::Sinatra.start(MySinatraApp, server_url: 'http://localhost:8200')
+----
+
+[float]
 === Errors
 
 [float]

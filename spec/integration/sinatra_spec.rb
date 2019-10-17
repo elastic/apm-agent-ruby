@@ -6,49 +6,47 @@ if defined?(Sinatra)
   RSpec.describe 'Sinatra integration', :mock_intake do
     include Rack::Test::Methods
 
-    class FancyError < StandardError; end
-    class BackwardsCompatibleLogger < Logger
-      def write(*args)
-        self.<<(*args)
-      end
-    end
-
-    class SinatraTestApp < ::Sinatra::Base
-      enable :logging
-      disable :protection
-      disable :show_exceptions
-
-      use ElasticAPM::Middleware
-      use Rack::CommonLogger, BackwardsCompatibleLogger.new(nil)
-      # use Rack::CommonLogger, BackwardsCompatibleLogger.new(STDOUT)
-
-      get '/' do
-        'Yes!'
-      end
-
-      get '/inline' do
-        erb 'Inline <%= "t" * 3 %>emplate'
-      end
-
-      template :index do
-        '<%= (1..3).to_a.join(" ") %> hello <%= @name %>'
-      end
-
-      get '/tmpl' do
-        @name = 'you'
-        erb :index
-      end
-
-      get '/error' do
-        raise FancyError, 'Halp!'
-      end
-    end
-
-    def app
-      SinatraTestApp
-    end
+    let(:app) { SinatraTestApp }
 
     before(:all) do
+      class FancyError < StandardError; end
+      class BackwardsCompatibleLogger < Logger
+        def write(*args)
+          self.<<(*args)
+        end
+      end
+
+      class SinatraTestApp < ::Sinatra::Base
+        enable :logging
+        disable :protection
+        disable :show_exceptions
+
+        use ElasticAPM::Middleware
+        use Rack::CommonLogger, BackwardsCompatibleLogger.new(nil)
+        # use Rack::CommonLogger, BackwardsCompatibleLogger.new(STDOUT)
+
+        get '/' do
+          'Yes!'
+        end
+
+        get '/inline' do
+          erb 'Inline <%= "t" * 3 %>emplate'
+        end
+
+        template :index do
+          '<%= (1..3).to_a.join(" ") %> hello <%= @name %>'
+        end
+
+        get '/tmpl' do
+          @name = 'you'
+          erb :index
+        end
+
+        get '/error' do
+          raise FancyError, 'Halp!'
+        end
+      end
+
       ElasticAPM.start(app: SinatraTestApp, api_request_time: '250ms')
     end
 
