@@ -98,6 +98,21 @@ RSpec.describe ElasticAPM do
         expect(ElasticAPM.agent).to receive(:start_span)
         ElasticAPM.start_span 'Test'
       end
+
+      context 'async spans' do
+        it 'can attach a span to a specific transaction' do
+          transaction = ElasticAPM.start_transaction
+          span1 = ElasticAPM.start_span 'Thread1'
+
+          span2 = Thread.new do
+            ElasticAPM.start_span 'Thread2', parent_transaction: transaction
+          end.value
+
+          expect(ElasticAPM.current_transaction.started_spans).to eq(2)
+          expect(span1.parent_id).to eq(span2.parent_id)
+          expect(span2.parent_id).to eq(transaction.trace_context.child.parent_id)
+        end
+      end
     end
 
     describe '.end_span' do

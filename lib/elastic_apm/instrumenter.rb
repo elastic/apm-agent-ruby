@@ -144,10 +144,14 @@ module ElasticAPM
       action: nil,
       backtrace: nil,
       context: nil,
-      trace_context: nil
+      trace_context: nil,
+      parent_transaction: nil
     )
-      return unless (transaction = current_transaction)
+      transaction = parent_transaction || current_transaction
+      return unless transaction
       return unless transaction.sampled?
+
+      parent = parent_transaction || current_span || current_transaction
 
       transaction.inc_started_spans!
 
@@ -155,8 +159,6 @@ module ElasticAPM
         transaction.inc_dropped_spans!
         return
       end
-
-      parent = current_span || transaction
 
       span = Span.new(
         name: name,
