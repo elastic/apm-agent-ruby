@@ -4,8 +4,6 @@ source 'https://rubygems.org'
 
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
-gemspec
-
 gem 'rack-test'
 gem 'rspec'
 gem 'rspec-its'
@@ -34,7 +32,6 @@ else
 end
 
 ## Install Framework
-
 GITHUB_REPOS = { 'grape' => 'ruby-grape/grape'}
 
 frameworks = ENV.fetch('FRAMEWORK', 'rails').split(',')
@@ -66,3 +63,5 @@ group :bench do
   gem 'ruby-prof', require: nil, platforms: %i[ruby]
   gem 'stackprof', require: nil, platforms: %i[ruby]
 end
+
+gemspec

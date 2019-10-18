@@ -4,8 +4,6 @@ require 'spec_helper'
 
 if (defined?(Rails) && defined?(Grape))
   require 'action_controller/railtie'
-  require 'elastic_apm/railtie'
-  require 'elastic_apm/grape'
 
   RSpec.describe 'Rails and Grape integration', :mock_intake do
     include Rack::Test::Methods

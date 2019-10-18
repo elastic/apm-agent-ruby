@@ -3,7 +3,6 @@
 require 'spec_helper'
 
 if defined?(Grape)
-  require 'elastic_apm/grape'
   RSpec.describe 'Grape integration', :mock_intake do
     include Rack::Test::Methods
 
