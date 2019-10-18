@@ -26,6 +26,7 @@ module ElasticAPM
     attr_reader :labels
     attr_reader :service
 
+    # rubocop:disable Metrics/CyclomaticComplexity
     def empty?
       return false if labels.any?
       return false if custom.any?
@@ -35,10 +36,12 @@ module ElasticAPM
 
       true
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def set_service(framework_name: nil, framework_version: nil)
-      @service = Service.new(Framework.new(framework_name,
-                                           framework_version))
+      @service = Service.new(
+        Framework.new(framework_name, framework_version)
+      )
     end
   end
 end

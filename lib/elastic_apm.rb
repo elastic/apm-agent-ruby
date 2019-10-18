@@ -81,7 +81,6 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     end
     # rubocop:enable Metrics/AbcSize
 
-    # rubocop:disable Metrics/MethodLength
     # Start a new transaction
     #
     # @param name [String] A description of the transaction, eg
@@ -103,7 +102,6 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
         trace_context: trace_context
       )
     end
-    # rubocop:enable Metrics/MethodLength
 
     # Ends the current transaction with `result`
     #
@@ -151,6 +149,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     end
     # rubocop:enable Metrics/MethodLength
 
+    # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
     # Start a new span
     #
     # @param name [String] A description of the span, eq `SELECT FROM "users"`

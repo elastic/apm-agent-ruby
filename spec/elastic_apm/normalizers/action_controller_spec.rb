@@ -18,7 +18,11 @@ module ElasticAPM
           it 'sets transaction name from payload' do
             instrumenter = double(Instrumenter)
             subject = ProcessActionNormalizer.new nil
-            transaction = Transaction.new instrumenter, 'Rack', config: Config.new
+            transaction = Transaction.new(
+              instrumenter,
+              'Rack',
+              config: Config.new
+            )
 
             result = subject.normalize(
               transaction,
