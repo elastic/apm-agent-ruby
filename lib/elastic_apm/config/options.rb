@@ -48,6 +48,7 @@ module ElasticAPM
           when :bool then normalize_bool(val)
           when :list then normalize_list(val)
           when :dict then normalize_dict(val)
+          when :url then normalize_url(val)
           else
             # raise "Unknown options type '#{type.inspect}'"
             val
@@ -68,6 +69,11 @@ module ElasticAPM
         def normalize_dict(val)
           return val unless val.is_a?(String)
           Hash[val.split(/[&,]/).map { |kv| kv.split('=') }]
+        end
+
+        def normalize_url(val)
+          return val unless val.is_a?(String)
+          val.end_with?('/') ? val.chomp('/') : val
         end
       end
 

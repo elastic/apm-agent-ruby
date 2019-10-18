@@ -21,7 +21,7 @@ module ElasticAPM
 
     # rubocop:disable Metrics/LineLength, Layout/ExtraSpacing
     option :config_file,                       type: :string, default: 'config/elastic_apm.yml'
-    option :server_url,                        type: :string, default: 'http://localhost:8200'
+    option :server_url,                        type: :url,    default: 'http://localhost:8200'
     option :secret_token,                      type: :string
 
     option :active,                            type: :bool,   default: true
