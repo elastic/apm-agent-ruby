@@ -18,15 +18,11 @@ if (defined?(Rails) && defined?(Grape))
       class RailsGrapeTestApp < Rails::Application
         config.logger = Logger.new(nil)
         config.logger.level = Logger::DEBUG
-
         config.eager_load = false
 
         config.elastic_apm.api_request_time = '100ms'
-        config.elastic_apm.capture_body = 'all'
         config.elastic_apm.pool_size = Concurrent.processor_count
         config.elastic_apm.service_name = 'RailsGrapeTestApp'
-        config.elastic_apm.log_path = 'spec/elastic_apm.log'
-        config.elastic_apm.log_level = Logger::DEBUG
         config.elastic_apm.logger = config.logger
       end
 

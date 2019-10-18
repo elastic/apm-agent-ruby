@@ -30,9 +30,7 @@ if defined?(Grape)
         end
       end
 
-      config = { api_request_time: '100ms',
-                 capture_body: 'all',
-                 pool_size: Concurrent.processor_count }
+      config = { api_request_time: '100ms' }
       ElasticAPM::Grape.start(GrapeTestApp, config)
     end
 
