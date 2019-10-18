@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 if defined?(Grape)
-  require 'elastic_apm/grape'
   RSpec.describe Grape do
     describe '.start' do
       before do

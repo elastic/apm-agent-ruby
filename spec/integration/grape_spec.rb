@@ -5,7 +5,6 @@ require 'spec_helper'
 if defined?(Grape)
   RSpec.describe 'Grape integration', :mock_intake do
     include Rack::Test::Methods
-
     let(:app) { GrapeTestApp }
 
     before(:all) do
