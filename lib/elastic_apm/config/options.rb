@@ -72,7 +72,7 @@ module ElasticAPM
         end
 
         def normalize_url(val)
-          return val unless val.is_a?(String)
+          val = val.to_s
           val.end_with?('/') ? val.chomp('/') : val
         end
       end

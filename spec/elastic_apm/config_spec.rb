@@ -77,11 +77,21 @@ module ElasticAPM
       end
     end
 
-    context 'server_url with a trailing slash' do
-      subject { Config.new(server_url: 'http://localhost:8200/') }
+    context 'server_url' do
+      context 'as a String with a trailing slash' do
+        subject { Config.new(server_url: 'http://localhost:8200/') }
 
-      it 'strips the trailing slash' do
-        expect(subject.server_url).to eq('http://localhost:8200')
+        it 'strips the trailing slash' do
+          expect(subject.server_url).to eq('http://localhost:8200')
+        end
+      end
+
+      context 'as a URI with a trailing slash' do
+        subject { Config.new(server_url: URI('http://localhost:8200/')) }
+
+        it 'strips the trailing slash' do
+          expect(subject.server_url).to eq('http://localhost:8200')
+        end
       end
     end
 
