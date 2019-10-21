@@ -13,6 +13,7 @@ module ElasticAPM
         @config = config
         @metrics = {}
         @disabled = false
+        @lock = Mutex.new
       end
 
       attr_reader :metrics
@@ -37,17 +38,23 @@ module ElasticAPM
         metric(Timer, key, tags: tags, **args)
       end
 
+      # rubocop:disable Metrics/MethodLength
       def metric(kls, key, tags: nil, **args)
         key = key_with_tags(key, tags)
         return metrics[key] if metrics[key]
 
-        metrics[key] =
-          if metrics.length < DISTINCT_LABEL_LIMIT
-            kls.new(key, tags: tags, **args)
-          else
-            NOOP
-          end
+        @lock.synchronize do
+          return metrics[key] if metrics[key]
+
+          metrics[key] =
+            if metrics.length < DISTINCT_LABEL_LIMIT
+              kls.new(key, tags: tags, **args)
+            else
+              NOOP
+            end
+        end
       end
+      # rubocop:enable Metrics/MethodLength
 
       def collect
         return if disabled?

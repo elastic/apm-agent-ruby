@@ -15,10 +15,18 @@ module ElasticAPM
         @value = initial_value
         @tags = tags
         @reset_on_collect = reset_on_collect
+        @mutex = Mutex.new
       end
 
       attr_reader :key, :initial_value, :tags
-      attr_accessor :value
+
+      def value=(value)
+        @mutex.synchronize { @value = value }
+      end
+
+      def value
+        @mutex.synchronize { @value }
+      end
 
       def reset!
         self.value = initial_value
