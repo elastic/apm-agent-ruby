@@ -14,6 +14,10 @@ This project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html
 
 - Log 404s from CentralConfig on debug level ([#553](https://github.com/elastic/apm-agent-ruby/pull/553))
 
+#### Fixed
+
+- Fix Central Config url path ([#578](https://github.com/elastic/apm-agent-ruby/pull/578))
+
 ## 3.0.0 (2019-10-08)
 
 ### Breaking Changes
