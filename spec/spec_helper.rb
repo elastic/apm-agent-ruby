@@ -28,6 +28,8 @@ Concurrent.use_stdlib_logger(Logger::DEBUG)
 Thread.abort_on_exception = true
 
 RSpec.configure do |config|
+  config.order = :random
+
   config.include ExceptionHelpers
   config.include WithAgent
   config.include PlatformHelpers
