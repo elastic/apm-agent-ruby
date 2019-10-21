@@ -165,7 +165,7 @@ module ElasticAPM
     end
 
     def stub_response(body, **opts)
-      stub_request(:post, 'http://localhost:8200/agent/v1/config/')
+      stub_request(:post, 'http://localhost:8200/config/v1/agents')
         .to_return(body: body && body.to_json, **opts)
     end
   end

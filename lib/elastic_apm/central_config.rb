@@ -123,7 +123,7 @@ module ElasticAPM
 
     def perform_request
       Http.post(
-        config.server_url + '/agent/v1/config/',
+        config.server_url + '/config/v1/agents',
         body: @service_info,
         headers: { etag: 1, content_type: 'application/json' }
       )
