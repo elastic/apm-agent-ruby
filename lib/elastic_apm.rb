@@ -180,7 +180,7 @@ module ElasticAPM
       context: nil,
       include_stacktrace: true,
       trace_context: nil,
-      parent_transaction: nil
+      transaction: nil
     )
       agent&.start_span(
         name,
@@ -189,7 +189,7 @@ module ElasticAPM
         action: action,
         context: context,
         trace_context: trace_context,
-        parent_transaction: parent_transaction
+        transaction: transaction
       ).tap do |span|
         break unless span && include_stacktrace
         break unless agent.config.span_frames_min_duration?

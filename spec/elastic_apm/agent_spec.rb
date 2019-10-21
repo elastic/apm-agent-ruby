@@ -78,7 +78,7 @@ module ElasticAPM
               backtrace: nil,
               context: nil,
               trace_context: nil,
-              parent_transaction: nil
+              transaction: nil
             }
           ],
           end_span: nil,

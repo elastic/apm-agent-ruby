@@ -145,15 +145,15 @@ module ElasticAPM
       backtrace: nil,
       context: nil,
       trace_context: nil,
-      parent_transaction: nil
+      transaction: nil
     )
-      transaction = parent_transaction || current_transaction
-      return unless transaction
-      return unless transaction.sampled?
+      parent_transaction = transaction || current_transaction
+      return unless parent_transaction
+      return unless parent_transaction.sampled?
 
-      parent = parent_transaction || current_span || current_transaction
+      parent = transaction || current_span || current_transaction
 
-      return unless transaction.inc_started_spans!
+      return unless parent_transaction.inc_started_spans!
 
       span = Span.new(
         name: name,
@@ -167,7 +167,7 @@ module ElasticAPM
         stacktrace_builder: stacktrace_builder
       )
 
-      if backtrace && transaction.config.span_frames_min_duration?
+      if backtrace && parent_transaction.config.span_frames_min_duration?
         span.original_backtrace = backtrace
       end
 

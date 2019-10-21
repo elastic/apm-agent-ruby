@@ -105,7 +105,7 @@ RSpec.describe ElasticAPM do
           span1 = ElasticAPM.start_span 'Thread1'
 
           span2 = Thread.new do
-            ElasticAPM.start_span 'Thread2', parent_transaction: transaction
+            ElasticAPM.start_span 'Thread2', transaction: transaction
           end.value
 
           expect(ElasticAPM.current_transaction.started_spans).to eq(2)

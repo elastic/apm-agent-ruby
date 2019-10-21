@@ -166,7 +166,7 @@ module ElasticAPM
       backtrace: nil,
       context: nil,
       trace_context: nil,
-      parent_transaction: nil
+      transaction: nil
     )
       instrumenter.start_span(
         name,
@@ -176,7 +176,7 @@ module ElasticAPM
         backtrace: backtrace,
         context: context,
         trace_context: trace_context,
-        parent_transaction: parent_transaction
+        transaction: transaction
       )
     end
     # rubocop:enable Metrics/ParameterLists
