@@ -91,7 +91,8 @@ module ElasticAPM
 
       it 'passes the config when starting a transaction' do
         expect(instrumenter).to receive(:start_transaction).with(
-          nil, nil, { context: nil, trace_context: nil, config: subject.config })
+          nil, nil, context: nil, trace_context: nil, config: subject.config
+        )
         subject.start_transaction
       end
     end

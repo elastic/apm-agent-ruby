@@ -17,7 +17,10 @@ module ElasticAPM
         context 'service' do
           it 'includes the service' do
             context = Context.new
-            context.set_service(framework_name: 'Grape', framework_version: '1.2')
+            context.set_service(
+              framework_name: 'Grape',
+              framework_version: '1.2'
+            )
             result = subject.build(context)
             expect(result[:service][:framework][:name]).to eq('Grape')
             expect(result[:service][:framework][:version]).to eq('1.2')

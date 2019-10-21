@@ -50,7 +50,11 @@ module ElasticAPM
     describe '#start_transaction' do
       it 'returns a new transaction and sets it as current' do
         context = Context.new
-        transaction = subject.start_transaction 'Test', 't', config: config, context: context
+        transaction = subject.start_transaction(
+          'Test', 't',
+          config: config,
+          context: context
+        )
         expect(transaction.name).to eq 'Test'
         expect(transaction.type).to eq 't'
         expect(transaction.id).to be subject.current_transaction.id

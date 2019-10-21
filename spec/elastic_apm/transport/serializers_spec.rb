@@ -17,7 +17,9 @@ module ElasticAPM
 
       describe '#serialize' do
         it 'serializes known objects' do
-          expect(subject.serialize(Transaction.new config: config)).to be_a Hash
+          expect(subject.serialize(
+                   Transaction.new(config: config)
+                 )).to be_a Hash
           expect(subject.serialize(Span.new(name: 'Name',
                                             transaction_id: '',
                                             trace_context: TraceContext.new)))
@@ -66,7 +68,7 @@ module ElasticAPM
           end
         end
 
-        it 'truncates string values to 1024 chars and leaves others unchanged' do
+        it 'truncates strings to 1024 chars and leaves others unchanged' do
           obj = { string: 'X' * 2000,
                   bool: true,
                   numerical: 123 }

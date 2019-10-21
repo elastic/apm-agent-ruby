@@ -13,7 +13,7 @@ module ElasticAPM
 
     DEFAULT_TYPE = 'custom'
 
-    # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
     def initialize(
       name = nil,
       type = nil,
@@ -29,7 +29,9 @@ module ElasticAPM
       @sampled = sampled
 
       @context = context || Context.new # TODO: Lazy generate this?
-      Util.reverse_merge!(@context.labels, config.default_labels) if config.default_labels
+      if config.default_labels
+        Util.reverse_merge!(@context.labels, config.default_labels)
+      end
 
       @trace_context = trace_context || TraceContext.new(recorded: sampled)
 
@@ -38,7 +40,7 @@ module ElasticAPM
 
       @notifications = [] # for AS::Notifications
     end
-    # rubocop:enable Metrics/ParameterLists
+    # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
 
     attr_accessor :name, :type, :result
 
