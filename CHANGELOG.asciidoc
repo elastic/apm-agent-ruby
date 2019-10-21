@@ -21,6 +21,11 @@ endif::[]
 === Unreleased
 
 [float]
+===== Added
+
+- Add `ElasticAPM::Sinatra.start` API. {pull}556[#566]
+
+[float]
 ===== Changes
 
 - Log 404s from CentralConfig on debug level {pull}553[#553]
