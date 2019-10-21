@@ -10,7 +10,8 @@ module ElasticAPM
       :trace_id, :parent_id, :id, :ensure_parent_id
 
     DEFAULT_TYPE = 'custom'
-    MUTEX = Mutex.new
+    STARTED_MUTEX = Mutex.new
+    DROPPED_MUTEX = Mutex.new
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(
@@ -79,15 +80,15 @@ module ElasticAPM
     # spans
 
     def inc_started_spans!
-      MUTEX.synchronize { @started_spans += 1 }
-    end
-
-    def inc_dropped_spans!
-      MUTEX.synchronize { @dropped_spans += 1 }
+      STARTED_MUTEX.synchronize { @started_spans += 1 }
     end
 
     def max_spans_reached?
-      MUTEX.synchronize { @started_spans > config.transaction_max_spans }
+      STARTED_MUTEX.synchronize { @started_spans > config.transaction_max_spans }
+    end
+
+    def inc_dropped_spans!
+      DROPPED_MUTEX.synchronize { @dropped_spans += 1 }
     end
 
     # context
