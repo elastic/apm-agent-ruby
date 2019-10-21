@@ -372,12 +372,12 @@ Version adds support for APM Server 6.5 and needs at least that.
 [float]
 ===== Deprecated
 
-====== APIs:
+*APIs:*
 
 - `ElasticAPM.transaction`
 - `ElasticAPM.span`
 
-====== Options:
+*Options:*
 
 - `compression_level`
 - `compression_minimum_size`
