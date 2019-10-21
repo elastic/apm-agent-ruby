@@ -9,7 +9,14 @@ class MockIntake
     clear!
   end
 
-  attr_reader :requests, :transactions, :spans, :errors, :metadatas
+  attr_reader(
+    :errors,
+    :metadatas,
+    :metricsets,
+    :requests,
+    :spans,
+    :transactions
+  )
 
   def self.instance
     @instance ||= new
@@ -37,10 +44,12 @@ class MockIntake
 
   def clear!
     @requests = []
-    @transactions = []
-    @spans = []
+
     @errors = []
     @metadatas = []
+    @metricsets = []
+    @spans = []
+    @transactions = []
   end
 
   def reset!
@@ -92,6 +101,7 @@ class MockIntake
     when 'transaction' then transactions << obj.values.first
     when 'span' then spans << obj.values.first
     when 'error' then errors << obj.values.first
+    when 'metricset' then metricsets << obj.values.first
     end
   end
 end
@@ -148,6 +158,7 @@ RSpec.configure do |config|
       transactions: @mock_intake.transactions.map { |o| o['name'] },
       spans: @mock_intake.spans.map { |o| o['name'] },
       errors: @mock_intake.errors.map { |o| o['culprit'] },
+      metricsets: @mock_intake.metricsets,
       metadatas: @mock_intake.metadatas.count
     )
   end

@@ -54,9 +54,11 @@ module ElasticAPM
 
         metrics.each_with_object({}) do |(key, metric), sets|
           name, *tags = key
+          next unless (value = metric.collect)
+
           sets[tags] ||= Metricset.new
           set = sets[tags]
-          set.samples[name] = metric.collect
+          set.samples[name] = value
           set.merge_tags! metric.tags
         end.values
       end

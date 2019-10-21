@@ -274,5 +274,39 @@ if enabled
         expect(span).to_not be_nil
       end
     end
+
+
+    describe 'metrics' do
+      it 'gathers metrics' do
+        get '/'
+
+        wait_for transactions: 1, spans: 2, metricsets: 8
+
+        transaction_metrics = @mock_intake.metricsets.select do |set|
+          set['transaction'] && !set['span']
+        end
+
+        expect(transaction_metrics.length).to be 2
+
+        span_metrics = @mock_intake.metricsets.select do |set|
+          set['transaction'] && set['span']
+        end
+
+        expect(span_metrics.length).to be 3
+
+        keys_counts = transaction_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
+          keys[set['samples'].keys] += 1
+        end
+        expect(keys_counts).to match(
+          %w[transaction.duration.sum.us transaction.duration.count] => 1,
+          %w[transaction.breakdown.count] => 1
+        )
+        expect(span_metrics.map { |s| s['samples'].keys }.flatten.uniq).to eq(['span.self_time'])
+      end
+    end
+
+    after :all do
+      ElasticAPM.stop
+    end
   end
 end

@@ -65,6 +65,12 @@ module ElasticAPM
           )
         end
 
+        it 'skips nil metrics' do
+          subject.gauge(:gauge).value = nil
+          set, = subject.collect
+          expect(set).to be nil
+        end
+
         it 'splits sets by tags' do
           subject.gauge('gauge', tags: { a: 1 })
           subject.gauge('gauge', tags: { a: 2 })

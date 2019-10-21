@@ -35,6 +35,9 @@ module ElasticAPM
       def collect
         collected = value
         self.value = initial_value if reset_on_collect?
+
+        return nil if reset_on_collect? && collected == 0
+
         collected
       end
     end

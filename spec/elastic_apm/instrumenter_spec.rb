@@ -135,7 +135,7 @@ module ElasticAPM
 
         # resets on collect
         new_txn_set, = agent.metrics.get(:transaction).collect
-        expect(new_txn_set.samples[:'transaction.duration.count']).to eq 0
+        expect(new_txn_set).to be nil
 
         brk_sets = agent.metrics.get(:breakdown).collect
 

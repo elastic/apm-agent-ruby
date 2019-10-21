@@ -47,6 +47,11 @@ module ElasticAPM
             expect(subject.collect).to eq 321
             expect(subject.collect).to eq 666
           end
+
+          it 'skips 0 values' do
+            subject.value = 0
+            expect(subject.collect).to be nil
+          end
         end
       end
     end
