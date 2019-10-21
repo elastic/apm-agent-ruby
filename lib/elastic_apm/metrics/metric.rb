@@ -40,6 +40,11 @@ module ElasticAPM
     end
 
     # @api private
+    class NoopMetric
+      def method_missing(*args); end
+    end
+
+    # @api private
     class Counter < Metric
       def initialize(key, initial_value: 0, **args)
         super(key, initial_value: initial_value, **args)

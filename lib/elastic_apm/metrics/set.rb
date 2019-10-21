@@ -3,8 +3,12 @@
 module ElasticAPM
   # @api private
   module Metrics
+    NOOP = NoopMetric.new
+
     # @api private
     class Set
+      DISTINCT_LABEL_LIMIT = 1000
+
       def initialize(config)
         @config = config
         @metrics = {}
@@ -22,24 +26,33 @@ module ElasticAPM
       end
 
       def counter(key, tags: nil, **args)
-        @metrics[key_with_tags(key, tags)] ||=
-          Counter.new(key, tags: tags, **args)
+        metric(Counter, key, tags: tags, **args)
       end
 
       def gauge(key, tags: nil, **args)
-        @metrics[key_with_tags(key, tags)] ||=
-          Gauge.new(key, tags: tags, **args)
+        metric(Gauge, key, tags: tags, **args)
       end
 
       def timer(key, tags: nil, **args)
-        @metrics[key_with_tags(key, tags)] ||=
-          Timer.new(key, tags: tags, **args)
+        metric(Timer, key, tags: tags, **args)
+      end
+
+      def metric(kls, key, tags: nil, **args)
+        key = key_with_tags(key, tags)
+        return metrics[key] if metrics[key]
+
+        if metrics.length < DISTINCT_LABEL_LIMIT
+          metrics[key] =
+            kls.new(key, tags: tags, **args)
+        else
+          metrics[key] = NOOP
+        end
       end
 
       def collect
         return if disabled?
 
-        @metrics.each_with_object({}) do |(key, metric), sets|
+        metrics.each_with_object({}) do |(key, metric), sets|
           name, *tags = key
           sets[tags] ||= Metricset.new
           set = sets[tags]
