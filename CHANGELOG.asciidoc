@@ -5,20 +5,34 @@ endif::[]
 
 ////
 [[release-notes-x.x.x]]
-==== x.x.x - YYYY/MM/DD
+==== x.x.x (YYYY-MM-DD)
 
 [float]
 ===== Breaking changes
+- Breaking change
 
 [float]
-===== Features
-* Cool new feature: {pull}2526[#2526]
+===== Deprecated
+- Deprecation {pull}2526[#2526]
 
 [float]
-===== Bug fixes
+===== Added
+- Feature {pull}2526[#2526]
+
+[float]
+===== Changed
+- Change {pull}2526[#2526]
+
+[float]
+===== Fixed
+- Fix {pull}2526[#2526]
 ////
 
-=== Unreleased
+[[release-notes-3.x]]
+=== Ruby Agent version 3.x
+
+[[release-notes-3.1.0]]
+==== 3.1.0 (2019-10-21)
 
 [float]
 ===== Added
@@ -34,9 +48,6 @@ endif::[]
 ===== Fixed
 
 - Fix Central Config url path {pull}578[#578]
-
-[[release-notes-3.x]]
-=== Ruby Agent version 3.x
 
 [[release-notes-3.0.0]]
 ==== 3.0.0 (2019-10-08)
