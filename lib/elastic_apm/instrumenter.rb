@@ -153,12 +153,7 @@ module ElasticAPM
 
       parent = parent_transaction || current_span || current_transaction
 
-      transaction.inc_started_spans!
-
-      if transaction.max_spans_reached?
-        transaction.inc_dropped_spans!
-        return
-      end
+      return unless transaction.inc_started_spans!
 
       span = Span.new(
         name: name,
