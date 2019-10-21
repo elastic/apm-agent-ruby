@@ -1,1 +1,486 @@
-This is a placeholder file. Release notes are published in CHANGELOG.md
+ifdef::env-github[]
+NOTE: Release notes are best read in our documentation at
+https://www.elastic.co/guide/en/apm/agent/ruby/current/release-notes.html[elastic.co]
+endif::[]
+
+////
+[[release-notes-x.x.x]]
+==== x.x.x - YYYY/MM/DD
+
+[float]
+===== Breaking changes
+
+[float]
+===== Features
+* Cool new feature: {pull}2526[#2526]
+
+[float]
+===== Bug fixes
+////
+
+=== Unreleased
+
+[float]
+===== Added
+
+- Add `ElasticAPM::Sinatra.start` API. {pull}556[#566]
+
+[float]
+===== Changes
+
+- Log 404s from CentralConfig on debug level {pull}553[#553]
+
+[float]
+===== Fixed
+
+- Fix Central Config url path {pull}578[#578]
+
+[[release-notes-3.x]]
+=== Ruby Agent version 3.x
+
+[[release-notes-3.0.0]]
+==== 3.0.0 (2019-10-08)
+
+[float]
+===== Breaking Changes
+
+The following changes are breaking, as they may change the way data is grouped or shown in Kibana or how your app
+defines agent settings.
+
+- Decrease stack_trace_limit to 50 {pull}515[#515]
+- Errors' `message` no longer include their `type` {pull}323[#323]
+- External request spans now have type `external.http.{library}` {pull}514[#514]
+- Durations are measured using monotonic time {pull}550[#550]
+- Rename set_tag to set_label {pull}543[#543]
+- Rename disabled_spies to disabled_instrumentations {pull}539[#539]
+
+[[release-notes-2.x]]
+=== Ruby Agent version 2.x
+
+[[release-notes-2.12.0]]
+==== 2.12.0 (2019-10-01)
+
+[float]
+===== Changed
+
+- `disabled_spies` renamed to `disabled_instrumentations` with fallback {pull}539[#539]
+- Rename `set_tag` to `set_label` and deprecate `set_tag` {pull}543[#543]
+- Allow non-String label values {pull}543[#543]
+
+[float]
+===== Fixed
+
+- Handles a case where stacktrace frames are empty {pull}538[#538]
+
+[float]
+===== Deprecated
+
+- Deprecate `set_tag` {pull}543[#543]
+
+[[release-notes-2.11.0]]
+==== 2.11.0 (2019-09-23)
+
+[float]
+===== Added
+
+- Add `Rails` module with `#start` method to run Rails setup explicitly {pull}522[#522]
+- Support for log/trace correlation {pull}527[#527]
+
+[float]
+===== Changed
+
+- Split dot-separated `span.type` into `.type`, `.subtype` and `.action` (auto-upgrades dot style) {pull}531[#531]
+
+[[release-notes-2.10.1]]
+==== 2.10.1
+
+[float]
+===== Fixed
+
+- Fixed loading options from a config file specified by `ELASTIC_APM_CONFIG_FILE` {pull}518[#518]
+- Fixed an issue with CentralConfig polling not starting {pull}525[#525]
+
+[float]
+===== Added
+
+- Support for chained exceptions {pull}488[#488]
+
+[[release-notes-2.10.0]]
+==== 2.10.0
+
+[float]
+===== Added
+
+- Add Ruby specific metrics {pull}437[#437]
+- Support for APM Agent Configuration via Kibana {pull}464[#464]
+- Change span name format and add command to context's db.statement for `MongoSpy` {pull}488[#488]
+
+[float]
+===== Changed
+
+- `ElasticAPM.report` and `ElasticAPM.report_message` return the string ID of the generated `Error` objects {pull}507[#507]
+
+[[release-notes-2.9.1]]
+==== 2.9.1 (2019-06-28)
+
+[float]
+===== Fixed
+
+- Use system CA certificate if none is specified {pull}460[#460]
+
+[[release-notes-2.9.0]]
+==== 2.9.0 (2019-06-25)
+
+[float]
+===== Security
+
+- **NB:** If you are using a custom CA cert via `server_ca_cert`, versions of the agent prior to 2.9.0 may not have validated the certificate of APM Server correctly.
+
+[float]
+===== Added
+
+- Add `transaction.type` to errors {pull}434[#434]
+- Add cookies to `request.cookies` {pull}448[#448]
+
+[float]
+===== Fixed
+
+- Fix support for older versions of Http.rb {pull}438[#438]
+- Strip `Cookie` and `Set-Cookie` from headers {pull}448[#448]
+- Fix disabling SSL verification {pull}449[#449]
+
+[[release-notes-2.8.1]]
+==== 2.8.1 (2019-05-29)
+
+[float]
+===== Fixed
+
+- Database statements are properly truncated {pull}431[#431]
+
+[[release-notes-2.8.0]]
+==== 2.8.0 (2019-05-20)
+
+[float]
+===== Added
+
+- The option `stack_trace_limit` {pull}424[#424]
+
+[float]
+===== Changed
+
+- Use standardized User-Agent {pull}419[#419]
+
+[float]
+===== Fixed
+
+- `error.culprit` is properly truncated to 1024 characters {pull}418[#418]
+- Force convert `transaction.context.response.status_code` to integer {pull}423[#423]
+
+[[release-notes-2.7.0]]
+==== 2.7.0 (2019-05-07)
+
+[float]
+===== Added
+
+- Added `disable_start_message` for those wanting complete silence on boot {pull}397[#397]
+
+[float]
+===== Changed
+
+- Attempt to strip secrets from `request.env` {pull}410[#410]
+
+[float]
+===== Fixed
+
+- Rewritten most of the internal transport code, streaming events to APM Server {pull}372[#372]
+- Re-added `default_tags` {pull}395[#395]
+- A bug in the Faraday spy when disabling the Net::HTTP spy {pull}396[#396]
+- Fix disabling the ActionDispatch spy {pull}399[#399]
+
+[[release-notes-2.6.1]]
+==== 2.6.1 (2019-03-28)
+
+[float]
+===== Fixed
+
+- Setting `config_file` via `ELASTIC_APM_CONFIG_FILE` {pull}363[#363]
+- Stopping the Metrics collector when it is disabled {pull}357[#357]
+- HTTP proxy settings can now be set by ENV variable {pull}367[#367]
+
+[[release-notes-2.6.0]]
+==== 2.6.0 (2019-03-19)
+
+[float]
+===== Deprecated
+
+- `ElasticAPM.build_context` now takes two keyword arguments instead of a single, normal argument. https://www.elastic.co/guide/en/apm/agent/ruby/2.x/api.html#api-agent-build-context[Docs].
+- The option `capture_body` has a string value instead of boolean. https://www.elastic.co/guide/en/apm/agent/ruby/2.x/configuration.html#config-capture-body[Docs].
+
+Both APIs are backwards compatible with fallbacks and deprecation warnings, scheduled for removal in next major release.
+
+[float]
+===== Added
+
+- Configuration options to use an HTTP proxy {pull}352[#352]
+
+[float]
+===== Changed
+
+- Errors get their own contexts, perhaps leading to slightly different (but more correct) results. {pull}335[#335]
+- The agent no longer starts automatically inside Rails' console {pull}343[#343]
+
+[float]
+===== Fixed
+
+- Fixed reading available memory on older Linux kernels {pull}351[#351]
+- Don't apply filters to original response headers {pull}354[#354]
+
+[[release-notes-2.5.0]]
+==== 2.5.0 (2019-03-01)
+
+[float]
+===== Added
+
+- Added the option `active` that will prevent the agent from starting if set to `false` {pull}338[#338]
+
+[float]
+===== Fixed
+
+- Fix error with `capture_body` and nested request bodies {pull}339[#339]
+
+[[release-notes-2.4.0]]
+==== 2.4.0 (2019-02-27)
+
+[float]
+===== Added
+
+- Added option to specify a custom server CA certificate {pull}315[#315]
+
+[float]
+===== Changed
+
+- **NB:** Default value of option `capture_body` flipped to `false` to align with other agents. Set `capture_body: true` in your configuration to get them back. {pull}324[#324]
+
+[float]
+===== Fixed
+
+- Reading CPU stats from `/proc/stat` on RHEL {pull}312[#312]
+- Change TraceContext to differentiate between `id` and `parent_id` {pull}326[#326]
+- `capture_body` will now force encode text bodies to utf-8 when possible {pull}332[#332]
+
+[[release-notes-2.3.1]]
+==== 2.3.1 (2019-01-31)
+
+[float]
+===== Added
+
+- Read container info from Docker or Kupernetes {pull}303[#303]
+
+[float]
+===== Fixed
+
+- Fix logging exceptions when booting via Railtie {pull}306[#306]
+
+[[release-notes-2.3.0]]
+==== 2.3.0 (2019-01-29)
+
+[float]
+===== Added
+
+- Support for Metrics {pull}276[#276]
+
+[[release-notes-2.2.0]]
+==== 2.2.0 (2019-01-22)
+
+[float]
+===== Added
+
+- Support for https://opentracing.io[OpenTracing] {pull}273[#273]
+- Add capture\_\* options {pull}279[#279]
+- Evaluate the config file as ERB {pull}288[#288]
+
+[float]
+===== Changed
+
+- Rename `Traceparent` object to `TraceContext` {pull}271[#271]
+
+[float]
+===== Fixed
+
+- An issue where Spans would not get Stacktraces attached {pull}282[#282]
+- Skip `caller` unless needed {pull}287[#287]
+
+[[release-notes-2.1.2]]
+==== 2.1.2 (2018-12-07)
+
+[float]
+===== Fixed
+
+- Fix truncation of `transaction.request.url` values {pull}267[#267]
+- Fix Faraday calls with `url_prefix` {pull}263[#263]
+- Force `span.context.http.status_code` to be an integer
+
+[[release-notes-2.1.1]]
+==== 2.1.1 (2018-12-04)
+
+[float]
+===== Fixed
+
+- Set traceparent span.id to transaction id when span is missing {pull}261[#261]
+
+[[release-notes-2.1.0]]
+==== 2.1.0 (2018-12-04)
+
+[float]
+===== Added
+
+- Support for Faraday {pull}249[#249]
+
+[float]
+===== Fixed
+
+- Truncate keyword fields to 1024 chars {pull}240[#240]
+- Lazy boot worker threads on first event. Fixes apps using Puma's `preload_app!` {pull}239[#239]
+- Fix missing `disable_send` implementation {pull}257[#257]
+- Add warnings for invalid config options {pull}254[#254]
+
+[[release-notes-2.0.1]]
+==== 2.0.1 (2018-11-15)
+
+[float]
+===== Fixed
+
+- Stop sending `span.start` {pull}234[#234]
+
+[[release-notes-2.0.0]]
+==== 2.0.0 (2018-11-14)
+
+Version adds support for APM Server 6.5 and needs at least that.
+
+[float]
+===== Added
+
+- Support for APM Server 6.5 (Intake v2)
+- Support for Distributed Tracing (beta)
+- Support for RUM Agent correlation (Distributed Tracing)
+- Support for https://github.com/httprb/http[HTTP.rb] (Instrumentation + Distributed Tracing)
+
+[float]
+===== Changed
+
+- Custom instrumentation APIs {pull}209[#209]
+- Tag keys will convert disallowed chars to `_`
+- Default log level changed to `info`
+- Laxed version requirement of concurrent-ruby
+- Change `log_level` to only concern agent log
+
+[float]
+===== Deprecated
+
+*APIs:*
+
+- `ElasticAPM.transaction`
+- `ElasticAPM.span`
+
+*Options:*
+
+- `compression_level`
+- `compression_minimum_size`
+- `debug_http`
+- `debug_transactions`
+- `flush_interval`
+- `http_open_timeout`
+- `http_read_timeout`
+- `enabled_environments`
+- `disable_environment_warning`
+
+Some options that used to take a certain unit for granted now expects explicit units – but will fall back to old default.
+
+[float]
+===== Removed
+
+- Support for APM Server versions prior to 6.5.
+- Support for Ruby 2.2 (eol)
+
+[[release-notes-1.x]]
+=== Ruby Agent version 1.x
+
+[[release-notes-1.1.0]]
+==== 1.1.0 (2018-09-07)
+
+[float]
+===== Added
+
+- Rake task instrumentation {pull}192[#192]
+- `default_tags` option {pull}183[#183]
+
+[float]
+===== Fixed
+
+- Fallback from missing JRUBY_VERSION {pull}180[#180]
+
+[[release-notes-1.0.2]]
+==== 1.0.2 (2018-09-07)
+
+Should've been a minor release -- see 1.1.0
+
+[[release-notes-1.0.1]]
+==== 1.0.1 (2018-07-30)
+
+[float]
+===== Fixed
+
+- Fixed internal LRU cache to be threadsafe {pull}178[#178]
+
+[[release-notes-1.0.0]]
+==== 1.0.0 (2018-06-29)
+
+[float]
+===== Added
+
+- Added config.disable_send {pull}156[#156]
+
+[float]
+===== Changed
+
+- Set the default `span_frame_min_duration` to 5ms
+
+[float]
+===== Fixed
+
+- Fixed some Elasticsearch spans not validating JSON Schema {pull}157[#157]
+
+[[release-notes-0.x]]
+=== Ruby Agent version 0.x
+
+[[release-notes-0.8.0]]
+==== 0.8.0 (2018-06-13)
+
+[float]
+===== Added
+
+- Added an option to disable metrics collection {pull}145[#145]
+- Filters can cancel the entire payload by returning `nil` {pull}148[#148]
+- Added `ENV` version of the logging options {pull}146[#146]
+- Added `config.ignore_url_patterns` {pull}151[#151]
+
+[float]
+===== Changed
+
+- Use concurrent-ruby's TimerTask instead of `Thread#sleep`. Adds dependency on `concurrent-ruby`. {pull}141[#141]
+
+[float]
+===== Fixed
+
+- Remove newline on `hostname`
+- Fixed ActionMailer spans renaming their transaction
+
+[[release-notes-0.7.4]]
+==== 0.7.4 - 2018-06-07
+
+Beginning of this document
+
+[float]
+===== Fixed
+
+- Fix overwriting custom logger with Rails'
