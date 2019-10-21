@@ -5,15 +5,27 @@ https://www.elastic.co/guide/en/apm/agent/ruby/current/introduction.html[elastic
 endif::[]
 
 [[introduction]]
-
 == Introduction
 
-Welcome to the APM Ruby Agent documentation.
-
-The Elastic APM Ruby Agent sends performance metrics and error logs to an
-Elastic APM Server.
+The Elastic APM Ruby Agent sends performance metrics and error logs to the APM Server.
 It has built-in support for <<getting-started-rails,Ruby on Rails>> and other
 <<getting-started-rack,Rack-compatible>> applications.
+It also offers an API which allows you to instrument any application.
+
+[float]
+[[how-it-works]]
+=== How does the Agent work?
+
+The agent auto-instruments <<supported-technologies,supported technologies>> and records interesting events,
+like HTTP requests and database queries. To do this, it uses relevant public APIs when they are provided by the libraries. Otherwise, it carefully wraps the necessary internal methods.
+This means that for the supported technologies, there are no code changes required.
+
+The Agent automatically keeps track of queries to your data stores to measure their duration and metadata (like the DB statement),
+as well as HTTP related information (like the URL, parameters, and headers).
+
+These events, called Transactions and Spans, are sent to the APM Server.
+The APM Server converts them to a format suitable for Elasticsearch, and sends them to an Elasticsearch cluster.
+You can then use the APM app in Kibana to gain insight into latency issues and error culprits within your application.
 
 [float]
 [[additional-components]]
@@ -21,13 +33,3 @@ It has built-in support for <<getting-started-rails,Ruby on Rails>> and other
 
 APM Agents work in conjunction with the {apm-server-ref-v}/index.html[APM Server], {ref}/index.html[Elasticsearch], and {kibana-ref}/index.html[Kibana].
 Please view the {apm-overview-ref-v}/index.html[APM Overview] for details on how these components work together. 
-
-[float]
-[[framework-support]]
-=== Framework Support
-
-The Elastic APM Ruby Agent officially supports Ruby on Rails versions 4.x on
-onwards, see <<getting-started-rails,Getting started with Ruby on Rails>>.
-
-For Sinatra and other Rack compatible frameworks, see
-<<getting-started-rack,Getting started with Rack>>.
