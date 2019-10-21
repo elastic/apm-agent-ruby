@@ -30,6 +30,11 @@ endif::[]
 
 - Log 404s from CentralConfig on debug level {pull}553[#553]
 
+[float]
+===== Fixed
+
+- Fix Central Config url path {pull}578[#578]
+
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
