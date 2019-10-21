@@ -62,6 +62,7 @@ module ElasticAPM
       !!@instance
     end
 
+    # rubocop:disable Metrics/MethodLength
     def initialize(config)
       @stacktrace_builder = StacktraceBuilder.new(config)
       @context_builder = ContextBuilder.new(config)
@@ -76,6 +77,7 @@ module ElasticAPM
         stacktrace_builder: stacktrace_builder
       ) { |event| enqueue event }
     end
+    # rubocop:enable Metrics/MethodLength
 
     attr_reader(
       :central_config,

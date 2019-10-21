@@ -43,7 +43,7 @@ module ElasticAPM
         end
 
         it 'makes noop metrics after reaching max amount' do
-          stub_const("ElasticAPM::Metrics::Set::DISTINCT_LABEL_LIMIT", 3)
+          stub_const('ElasticAPM::Metrics::Set::DISTINCT_LABEL_LIMIT', 3)
           4.times { |i| subject.gauge('gauge', tags: { a: i }) }
           expect(subject.metrics.length).to be 4
           expect(subject.metrics.values.last).to be NOOP

@@ -275,7 +275,6 @@ if enabled
       end
     end
 
-
     describe 'metrics' do
       it 'gathers metrics' do
         get '/'
@@ -294,14 +293,17 @@ if enabled
 
         expect(span_metrics.length).to be 3
 
-        keys_counts = transaction_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
-          keys[set['samples'].keys] += 1
-        end
+        keys_counts =
+          transaction_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
+            keys[set['samples'].keys] += 1
+          end
+
         expect(keys_counts).to match(
           %w[transaction.duration.sum.us transaction.duration.count] => 1,
           %w[transaction.breakdown.count] => 1
         )
-        expect(span_metrics.map { |s| s['samples'].keys }.flatten.uniq).to eq(['span.self_time'])
+        expect(span_metrics.map { |s| s['samples'].keys }.flatten.uniq)
+          .to eq(['span.self_time'])
       end
     end
 

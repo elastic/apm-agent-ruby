@@ -41,12 +41,12 @@ module ElasticAPM
         key = key_with_tags(key, tags)
         return metrics[key] if metrics[key]
 
-        if metrics.length < DISTINCT_LABEL_LIMIT
-          metrics[key] =
+        metrics[key] =
+          if metrics.length < DISTINCT_LABEL_LIMIT
             kls.new(key, tags: tags, **args)
-        else
-          metrics[key] = NOOP
-        end
+          else
+            NOOP
+          end
       end
 
       def collect

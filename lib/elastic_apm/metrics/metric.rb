@@ -44,7 +44,9 @@ module ElasticAPM
 
     # @api private
     class NoopMetric
-      def method_missing(*args); end
+      # rubocop:disable Style/MethodMissingSuper
+      def method_missing(*_); end
+      # rubocop:enable Style/MethodMissingSuper
     end
 
     # @api private

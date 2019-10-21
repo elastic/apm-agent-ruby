@@ -96,6 +96,7 @@ class MockIntake
     gz&.close
   end
 
+  # rubocop:disable Metrics/AbcSize
   def catalog(obj)
     case obj.keys.first
     when 'transaction' then transactions << obj.values.first
@@ -104,6 +105,7 @@ class MockIntake
     when 'metricset' then metricsets << obj.values.first
     end
   end
+  # rubocop:enable Metrics/AbcSize
 end
 
 RSpec.configure do |config|

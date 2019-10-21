@@ -32,7 +32,6 @@ RSpec.configure do |config|
 
     def stop; end
   end
-  # rubocop:enable Metrics/MethodLength
 
   module Methods
     def intercept!
