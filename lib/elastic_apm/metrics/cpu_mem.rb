@@ -63,14 +63,14 @@ module ElasticAPM
         when :linux then Linux.new
         else
           warn "Unsupported platform '#{platform}' - Disabling system metrics"
-          @disabled = true
+          disable!
           nil
         end
       end
 
       # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       def read!
-        return unless @sampler
+        return if disabled?
 
         current = @sampler.sample
 

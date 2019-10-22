@@ -246,16 +246,18 @@ module ElasticAPM
       ).inc!
 
       return unless transaction.sampled?
+      # TODO: remove this check?
       return unless transaction.config.breakdown_metrics?
 
       @metrics.get(:breakdown).counter(
         :'transaction.breakdown.count',
         tags: tags, reset_on_collect: true
       ).inc!
+
+      tags.merge!('span.type': 'app')
       @metrics.get(:breakdown).timer(
         :'span.self_time',
-        tags: tags.merge('span.type': 'app'),
-        reset_on_collect: true
+        tags: tags, reset_on_collect: true
       ).update(transaction.self_time)
     end
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize

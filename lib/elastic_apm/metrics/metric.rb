@@ -18,14 +18,10 @@ module ElasticAPM
         @mutex = Mutex.new
       end
 
-      attr_reader :key, :initial_value, :tags
+      attr_reader :key, :initial_value, :tags, :value
 
       def value=(value)
         @mutex.synchronize { @value = value }
-      end
-
-      def value
-        @mutex.synchronize { @value }
       end
 
       def reset!
@@ -53,6 +49,11 @@ module ElasticAPM
     # @api private
     class NoopMetric
       # rubocop:disable Style/MethodMissingSuper
+      # TODO: Is this expensive
+      # 1. Keep this (not expensive?)
+      # 2. Override #send
+      # 3. Explicitly define all existing methods
+      # 4. Handle one level up
       def method_missing(*_); end
       # rubocop:enable Style/MethodMissingSuper
     end
@@ -88,9 +89,15 @@ module ElasticAPM
 
       attr_accessor :count
 
-      def update(duration, count: 0)
-        self.value += duration
-        self.count += count
+      def update(duration, delta: 0)
+        @mutex.synchronize do
+          @value += duration
+          @count += delta
+        end
+      end
+
+      def count=(value)
+        @mutex.synchronize { @count = value }
       end
 
       def reset!

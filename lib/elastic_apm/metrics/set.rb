@@ -13,6 +13,7 @@ module ElasticAPM
         @config = config
         @metrics = {}
         @disabled = false
+        # TODO: Do we need a lock in Set?
         @lock = Mutex.new
       end
 
@@ -50,6 +51,7 @@ module ElasticAPM
             if metrics.length < DISTINCT_LABEL_LIMIT
               kls.new(key, tags: tags, **args)
             else
+              # TODO: add log message
               NOOP
             end
         end
@@ -60,9 +62,9 @@ module ElasticAPM
         return if disabled?
 
         metrics.each_with_object({}) do |(key, metric), sets|
-          name, *tags = key
           next unless (value = metric.collect)
 
+          name, *tags = key
           sets[tags] ||= Metricset.new
           set = sets[tags]
           set.samples[name] = value
@@ -77,8 +79,7 @@ module ElasticAPM
 
         tuple = tags.keys.zip(tags.values)
         tuple.flatten!
-
-        [key, *tuple]
+        tuple.unshift(key)
       end
     end
   end

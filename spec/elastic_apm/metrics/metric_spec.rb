@@ -74,13 +74,13 @@ module ElasticAPM
       subject { described_class.new(:key) }
 
       it 'updates' do
-        subject.update(10, count: 5)
+        subject.update(10, delta: 5)
         expect(subject.value).to eq 10
         expect(subject.count).to eq 5
       end
 
       it 'resets' do
-        subject.update(10, count: 5)
+        subject.update(10, delta: 5)
         subject.reset!
         expect(subject.value).to eq 0
         expect(subject.count).to eq 0

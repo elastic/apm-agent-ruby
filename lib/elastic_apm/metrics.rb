@@ -18,6 +18,7 @@ module ElasticAPM
       TIMEOUT_INTERVAL = 5 # seconds
 
       # rubocop:disable Metrics/MethodLength
+      # TODO: labels what now?
       def initialize(config, labels: nil, &block)
         @config = config
         @labels = labels
