@@ -17,7 +17,7 @@ endif::[]
 
 [float]
 ===== Added
-- Feature {pull}2526[#2526]
+- Add Grape support ([#562](https://github.com/elastic/apm-agent-ruby/pull/562))
 
 [float]
 ===== Changed
