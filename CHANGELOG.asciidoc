@@ -32,6 +32,7 @@ endif::[]
 
 [float]
 ===== Added
+
 - Add Grape support. {pull}562[#562]
 
 [[release-notes-3.x]]
