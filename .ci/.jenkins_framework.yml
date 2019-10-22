@@ -7,3 +7,7 @@ FRAMEWORK:
 
   - sinatra-2.0
   - sinatra-1.4
+
+  - grape-1.2
+
+  - grape-1.2,rails-6.0

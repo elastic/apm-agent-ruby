@@ -72,3 +72,27 @@ run MySinatraApp
 at_exit { ElasticAPM.stop }
 ----
 
+[float]
+[[getting-started-grape]]
+==== Grape example
+
+[source,ruby]
+----
+# Example config.ru
+
+require 'grape'
+
+module Twitter
+  class API < Grape::API
+    use ElasticAPM::Middleware
+
+  # ...
+  end
+end
+
+# Start the agent and hook in your app
+ElasticAPM::Grape.start(Twitter::API, config)
+
+run Twitter::API
+
+----

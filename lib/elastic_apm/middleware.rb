@@ -13,7 +13,7 @@ module ElasticAPM
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def call(env)
       begin
-        if running? && !path_ignored?(env)
+        if running? && !path_ignored?(env) && !ElasticAPM.current_transaction
           transaction = start_transaction(env)
         end
 

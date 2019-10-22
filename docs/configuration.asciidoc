@@ -67,6 +67,23 @@ ElasticAPM::Sinatra.start(
 See <<getting-started-rack>>.
 
 [float]
+=== Grape and Rack
+
+When using APM with Grape and Rack (without Rails), you can configure it when starting
+the agent:
+
+[source,ruby]
+----
+# config.ru or similar
+ElasticAPM::Grape.start(
+  MyApp,
+  service_name: 'SomeOtherName'
+)
+----
+
+See <<getting-started-rack>>.
+
+[float]
 === Options
 
 Some options can be set with `ENV` variables and all of them may be set in

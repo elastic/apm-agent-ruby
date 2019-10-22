@@ -15,6 +15,7 @@ require 'elastic_apm/middleware'
 
 require 'elastic_apm/railtie' if defined?(::Rails::Railtie)
 require 'elastic_apm/sinatra' if defined?(::Sinatra)
+require 'elastic_apm/grape' if defined?(::Grape)
 
 # ElasticAPM
 module ElasticAPM # rubocop:disable Metrics/ModuleLength

@@ -193,9 +193,9 @@ Returns the built context.
 
 [float]
 [[rails-start]]
-=== Manually hooking into Rails
+=== Rails
 
-Start the agent and hook into Rails explicitly. This is useful if you skip requiring
+Start the agent and hook into Rails manually. This is useful if you skip requiring
 the gem and using the `Railtie`.
 
 [source,ruby]
@@ -212,6 +212,16 @@ Start the agent and hook into Sinatra.
 [source,ruby]
 ----
 ElasticAPM::Sinatra.start(MySinatraApp, server_url: 'http://localhost:8200')
+
+[float]
+[[grape-start]]
+=== Grape
+
+Start the agent and hook into Grape.
+
+[source,ruby]
+----
+ElasticAPM::Grape.start(MyGrapeApp, server_url: 'http://localhost:8200')
 ----
 
 [float]

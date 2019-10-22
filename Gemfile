@@ -4,8 +4,6 @@ source 'https://rubygems.org'
 
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
-gemspec
-
 gem 'rack-test'
 gem 'rspec'
 gem 'rspec-its'
@@ -33,25 +31,37 @@ else
   gem 'sqlite3'
 end
 
-framework, *version = ENV.fetch('FRAMEWORK', 'rails').split('-')
-version = version.join('-')
+## Install Framework
+GITHUB_REPOS = { 'grape' => 'ruby-grape/grape'}
 
-case version
-when 'master'
-  gem framework, github: "#{framework}/#{framework}"
-when /.+/
-  gem framework, "~> #{version}.0"
-else
-  gem framework
+frameworks = ENV.fetch('FRAMEWORK', 'rails').split(',')
+frameworks_versions = frameworks.inject({}) do |frameworks, str|
+  framework, *version = str.split('-')
+  frameworks.merge(framework => version.join('-'))
+end
+
+frameworks_versions.each do |framework, version|
+  case version
+  when 'master'
+    gem framework, github: (GITHUB_REPOS[framework] || "#{framework}/#{framework}")
+  when /.+/
+    gem framework, "~> #{version}.0"
+  else
+    gem framework
+  end
+end
+
+if frameworks_versions.key?('rails')
+  unless frameworks_versions['rails'] =~ /^(master|6)/
+    gem 'delayed_job', require: nil
+  end
 end
 
 gem 'activerecord-jdbcsqlite3-adapter', platform: :jruby
-
-unless version =~ /^(master|6)/
-  gem 'delayed_job', require: nil
-end
 
 group :bench do
   gem 'ruby-prof', require: nil, platforms: %i[ruby]
   gem 'stackprof', require: nil, platforms: %i[ruby]
 end
+
+gemspec

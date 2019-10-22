@@ -5,7 +5,6 @@ require 'spec_helper'
 if defined?(Rails)
   require 'action_controller/railtie'
   require 'action_mailer/railtie'
-  require 'elastic_apm/railtie'
 
   SpecLogger = StringIO.new
 
