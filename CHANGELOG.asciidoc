@@ -29,6 +29,7 @@ endif::[]
 ////
 
 === Unreleased
+
 [float]
 ===== Added
 - Add Grape support. {pull}562[#562]
