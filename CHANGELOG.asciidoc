@@ -17,7 +17,7 @@ endif::[]
 
 [float]
 ===== Added
-- Feature {pull}123[#123]
+- Feature {pull}2526[#2526]
 
 [float]
 ===== Changed
@@ -27,13 +27,6 @@ endif::[]
 ===== Fixed
 - Fix {pull}2526[#2526]
 ////
-
-=== Unreleased
-
-[float]
-===== Added
-
-- Add Grape support {pull}562[#562]
 
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
