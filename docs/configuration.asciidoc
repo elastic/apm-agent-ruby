@@ -69,7 +69,7 @@ See <<getting-started-rack>>.
 [float]
 === Grape and Rack
 
-When using APM with Grape and Rack you can configure it when starting
+When using APM with Grape and Rack (without Rails), you can configure it when starting
 the agent:
 
 [source,ruby]
