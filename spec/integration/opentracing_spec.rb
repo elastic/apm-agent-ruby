@@ -93,8 +93,10 @@ RSpec.describe 'OpenTracing bridge', :intercept do
     describe 'activation' do
       it 'sets the span as active in scope' do
         span = OpenTracing.start_span('name')
-        OpenTracing.scope_manager.activate(span)
+        scope = OpenTracing.scope_manager.activate(span)
         expect(OpenTracing.active_span).to be span
+
+        scope.close
       end
     end
 
