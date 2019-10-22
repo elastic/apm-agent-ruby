@@ -212,6 +212,7 @@ Start the agent and hook into Sinatra.
 [source,ruby]
 ----
 ElasticAPM::Sinatra.start(MySinatraApp, server_url: 'http://localhost:8200')
+----
 
 [float]
 [[grape-start]]
