@@ -73,8 +73,6 @@ module ElasticAPM
     def initialize(options = {})
       @options = load_schema
 
-      custom_logger = options.delete(:logger)
-
       assign(options)
 
       # Pick out config_file specifically as we need it now to load it,
@@ -89,7 +87,7 @@ module ElasticAPM
 
       yield self if block_given?
 
-      self.logger ||= custom_logger || build_logger
+      self.logger ||= build_logger
 
       @__view_paths = []
       @__root_path = Dir.pwd
