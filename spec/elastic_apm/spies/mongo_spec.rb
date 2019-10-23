@@ -1,130 +1,58 @@
-# frozen_string_literal: true
-
-require 'mongo'
-
 module ElasticAPM
   RSpec.describe 'Spy: MongoDB' do
-    before(:context) do
-      start_mongodb
-    end
-
-    after(:context) do
-      stop_mongodb
-    end
-
-    def stop_mongodb
-      `docker-compose -f spec/docker-compose.yml down -v 2>&1`
-    end
-
-    def start_mongodb
-      stop_mongodb
-      `docker-compose -f spec/docker-compose.yml up -d mongodb 2>&1`
-    end
-
-    let(:url) do
-      ENV.fetch('MONGODB_URL') { '127.0.0.1:27017' }
-    end
-
-    it 'instruments db admin commands', :intercept do
-      with_agent do
-        client =
-          Mongo::Client.new(
-            [url],
-            database: 'elastic-apm-test',
-            logger: Logger.new(nil),
-            server_selection_timeout: 5
-          )
-
-        ElasticAPM.with_transaction 'Mongo test' do
-          client.database.collections
-        end
-
-        client.close
+    context 'db admin commands' do
+      let(:event) do
+        double('event', command: { 'listCollections' => 1 },
+               command_name: 'listCollections',
+               database_name: 'elastic-apm-test',
+               operation_id: 123)
       end
+      let(:subscriber) { Spies::MongoSpy::Subscriber.new }
 
-      span, = @intercepted.spans
+      it 'captures command properties' do
+        span = subscriber.started(event)
+        subscriber.succeeded(event)
 
-      expect(span.name).to eq 'elastic-apm-test.listCollections'
-      expect(span.type).to eq 'db'
-      expect(span.subtype).to eq 'mongodb'
-      expect(span.action).to eq 'query'
-      expect(span.duration).to_not be_nil
+        expect(span.name).to eq 'elastic-apm-test.listCollections'
+        expect(span.type).to eq 'db'
+        expect(span.subtype).to eq 'mongodb'
+        expect(span.action).to eq 'query'
+        expect(span.duration).to_not be_nil
 
-      db = span.context.db
-      expect(db.instance).to eq 'elastic-apm-test'
-      expect(db.type).to eq 'mongodb'
-      expect(db.statement).to include '{"listCollections"=>1, "cursor"=>{}, ' \
-        '"nameOnly"=>true'
-      expect(db.user).to be nil
+        db = span.context.db
+        expect(db.instance).to eq 'elastic-apm-test'
+        expect(db.type).to eq 'mongodb'
+        expect(db.statement).to eq('{"listCollections"=>1}')
+        expect(db.user).to be nil
+      end
     end
 
-    it 'instruments commands on collections', :intercept do
-      with_agent do
-        client =
-          Mongo::Client.new(
-            [url],
-            database: 'elastic-apm-test',
-            logger: Logger.new(nil),
-            server_selection_timeout: 5
-          )
-
-        client['testing'].drop
-        client['testing'].create
-        ElasticAPM.with_transaction 'Mongo test' do
-          client['testing'].delete_many
-        end
-
-        client['testing'].drop
-        client.close
+    context 'collection commands' do
+      let(:event) do
+        double('event', command: { 'find' => 'testing',
+                                   'filter' => { 'a' => 'bc'} },
+               command_name: 'find',
+               database_name: 'elastic-apm-test',
+               operation_id: 456)
       end
+      let(:subscriber) { Spies::MongoSpy::Subscriber.new }
 
-      span, = @intercepted.spans
+      it 'captures command properties' do
+        span = subscriber.started(event)
+        subscriber.succeeded(event)
 
-      expect(span.name).to eq 'elastic-apm-test.testing.delete'
-      expect(span.type).to eq 'db'
-      expect(span.subtype).to eq 'mongodb'
-      expect(span.action).to eq 'query'
-      expect(span.duration).to_not be_nil
+        expect(span.name).to eq 'elastic-apm-test.testing.find'
+        expect(span.type).to eq 'db'
+        expect(span.subtype).to eq 'mongodb'
+        expect(span.action).to eq 'query'
+        expect(span.duration).to_not be_nil
 
-      db = span.context.db
-      expect(db.instance).to eq 'elastic-apm-test'
-      expect(db.type).to eq 'mongodb'
-      # ParallelCollectionScan doesn't send 'lsid' in the command so we can
-      # validate the entire command document.
-      expect(db.statement).to match('"delete"=>"testing"')
-      expect(db.user).to be nil
-    end
-
-    it 'instruments commands with special BSON types', :intercept do
-      with_agent do
-        client =
-          Mongo::Client.new(
-            [url],
-            database: 'elastic-apm-test',
-            logger: Logger.new(nil),
-            server_selection_timeout: 5
-          )
-
-        ElasticAPM.with_transaction 'Mongo test' do
-          client['testing'].find(a: BSON::Decimal128.new('1')).to_a
-        end
-
-        client.close
+        db = span.context.db
+        expect(db.instance).to eq 'elastic-apm-test'
+        expect(db.type).to eq 'mongodb'
+        expect(db.statement).to eq('{"find"=>"testing", "filter"=>{"a"=>"bc"}}')
+        expect(db.user).to be nil
       end
-
-      span, = @intercepted.spans
-
-      expect(span.name).to eq 'elastic-apm-test.testing.find'
-      expect(span.type).to eq 'db'
-      expect(span.subtype).to eq 'mongodb'
-      expect(span.action).to eq 'query'
-      expect(span.duration).to_not be_nil
-
-      db = span.context.db
-      expect(db.instance).to eq 'elastic-apm-test'
-      expect(db.type).to eq 'mongodb'
-      expect(db.statement).to include '{"a"=>BSON::Decimal128(\'1\')}'
-      expect(db.user).to be nil
     end
   end
 end
