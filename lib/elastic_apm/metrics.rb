@@ -24,10 +24,6 @@ module ElasticAPM
       def initialize(config, labels: nil, &block)
         @config = config
         @labels = labels
-        @samplers = [CpuMem, VM].map do |kls|
-          debug "Adding metrics collector '#{kls}'"
-          kls.new(config)
-        end
         @callback = block
       end
 
@@ -41,6 +37,11 @@ module ElasticAPM
         end
 
         debug 'Starting metrics'
+
+        @samplers = [CpuMem, VM].map do |kls|
+          debug "Adding metrics collector '#{kls}'"
+          kls.new(config)
+        end
 
         @timer_task = Concurrent::TimerTask.execute(
           run_now: true,

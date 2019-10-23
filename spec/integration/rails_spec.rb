@@ -8,8 +8,19 @@ if defined?(Rails)
 
   SpecLogger = StringIO.new
 
-  RSpec.describe 'Rails integration',
-    :allow_leaking_subscriptions, :mock_intake do
+  def configure_rails_for_test(config)
+    config.secret_key_base = '__secret_key_base'
+    config.consider_all_requests_local = false
+    config.eager_load = false
+
+    # Silence deprecation warning
+    if defined?(ActionView::Railtie::NULL_OPTION)
+      config.action_view.finalize_compiled_template_methods =
+        ActionView::Railtie::NULL_OPTION
+    end
+  end
+
+  RSpec.describe 'Rails integration', :mock_intake do
     include Rack::Test::Methods
 
     def app
@@ -24,26 +35,23 @@ if defined?(Rails)
       end
     end
 
-    before :all do
+    before :each do
       class RailsTestApp < Rails::Application
-        config.secret_key_base = '__secret_key_base'
-        config.consider_all_requests_local = false
+        configure_rails_for_test(config)
 
         config.logger = Logger.new(SpecLogger)
         config.logger.level = Logger::DEBUG
-
-        config.eager_load = false
 
         config.action_mailer.perform_deliveries = false
 
         config.elastic_apm.api_request_time = '100ms'
         config.elastic_apm.capture_body = 'all'
+        config.elastic_apm.disable_start_message = true
+        config.elastic_apm.ignore_url_patterns = '/ping'
+        config.elastic_apm.log_level = Logger::DEBUG
+        config.elastic_apm.log_path = 'spec/elastic_apm.log'
         config.elastic_apm.pool_size = Concurrent.processor_count
         config.elastic_apm.service_name = 'RailsTestApp'
-        config.elastic_apm.log_path = 'spec/elastic_apm.log'
-        config.elastic_apm.log_level = Logger::DEBUG
-        config.elastic_apm.logger = config.logger
-        config.elastic_apm.ignore_url_patterns = '/ping'
       end
 
       class ApplicationController < ActionController::Base
@@ -128,7 +136,9 @@ if defined?(Rails)
       end
     end
 
-    after :all do
+    after :each do
+      ElasticAPM.stop
+
       %i[RailsTestApp ApplicationController].each do |const|
         Object.send(:remove_const, const)
       end
@@ -288,10 +298,6 @@ if defined?(Rails)
         expect(span).to_not be_nil
       end
     end
-
-    after :all do
-      ElasticAPM.stop
-    end
   end
 
   RSpec.describe 'Rails console' do
@@ -299,13 +305,13 @@ if defined?(Rails)
       @app ||= Rails.application
     end
 
-    before :all do
+    before :each do
       class RailsConsoleTestApp < Rails::Application
-        config.secret_key_base = '__secret_key_base'
-        config.logger = Logger.new(nil)
-        config.eager_load = false
+        configure_rails_for_test(config)
 
-        # silence warning
+        config.disable_send = true
+        config.logger = Logger.new(nil)
+
         config.elastic_apm.disable_start_message = true
       end
 
@@ -319,10 +325,13 @@ if defined?(Rails)
       RailsConsoleTestApp.initialize!
     end
 
-    after :all do
+    after :each do
+      ElasticAPM.stop
+
       %i[RailsConsoleTestApp ApplicationController].each do |const|
         Object.send(:remove_const, const)
       end
+
       Rails.send(:remove_const, :Console)
       Rails.application = nil
     end
