@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'http'
 require 'elastic_apm/central_config/cache_control'
 
 module ElasticAPM
