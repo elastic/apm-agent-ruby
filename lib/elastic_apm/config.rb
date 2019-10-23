@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'elastic_apm/util/prefixed_logger'
-
 require 'elastic_apm/config/options'
 require 'elastic_apm/config/duration'
 require 'elastic_apm/config/bytes'
@@ -91,7 +89,7 @@ module ElasticAPM
 
       yield self if block_given?
 
-      @logger ||= custom_logger || build_logger
+      self.logger ||= custom_logger || build_logger
 
       @__view_paths = []
       @__root_path = Dir.pwd
