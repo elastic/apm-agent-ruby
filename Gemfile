@@ -4,6 +4,8 @@ source 'https://rubygems.org'
 
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
+gemspec
+
 gem 'rack-test'
 gem 'rspec'
 gem 'rspec-its'
@@ -63,5 +65,3 @@ group :bench do
   gem 'ruby-prof', require: nil, platforms: %i[ruby]
   gem 'stackprof', require: nil, platforms: %i[ruby]
 end
-
-gemspec
