@@ -91,7 +91,7 @@ module ElasticAPM
 
       yield self if block_given?
 
-      @logger = custom_logger || build_logger
+      @logger ||= custom_logger || build_logger
 
       @__view_paths = []
       @__root_path = Dir.pwd
