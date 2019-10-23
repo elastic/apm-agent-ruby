@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'concurrent'
-require 'zlib'
-
 require 'elastic_apm/transport/connection/http'
 
 module ElasticAPM

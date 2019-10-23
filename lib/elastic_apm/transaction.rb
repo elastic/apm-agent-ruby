@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'securerandom'
-require 'forwardable'
-
 module ElasticAPM
   # @api private
   class Transaction
