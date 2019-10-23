@@ -7,6 +7,8 @@ module ElasticAPM
 
     # @api private
     class Set
+      include Logging
+
       DISTINCT_LABEL_LIMIT = 1000
 
       def initialize(config)
@@ -51,7 +53,15 @@ module ElasticAPM
             if metrics.length < DISTINCT_LABEL_LIMIT
               kls.new(key, tags: tags, **args)
             else
-              # TODO: add log message
+              if !@label_limit_logged
+                warn(
+                  "The limit of %d metricsets has been reached, no new " \
+                   "metricsets will be created.",
+                   DISTINCT_LABEL_LIMIT
+                )
+                @label_limit_logged = true
+              end
+
               NOOP
             end
         end

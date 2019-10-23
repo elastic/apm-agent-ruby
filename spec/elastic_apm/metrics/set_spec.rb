@@ -3,7 +3,7 @@
 module ElasticAPM
   module Metrics
     RSpec.describe Set do
-      let(:config) { nil }
+      let(:config) { Config.new }
       subject { described_class.new config }
 
       describe 'disabled?' do
@@ -43,8 +43,11 @@ module ElasticAPM
         end
 
         it 'makes noop metrics after reaching max amount' do
+          expect(config.logger).to receive(:warn).with(/limit/) { true }
           stub_const('ElasticAPM::Metrics::Set::DISTINCT_LABEL_LIMIT', 3)
+
           4.times { |i| subject.gauge('gauge', tags: { a: i }) }
+
           expect(subject.metrics.length).to be 4
           expect(subject.metrics.values.last).to be NOOP
         end

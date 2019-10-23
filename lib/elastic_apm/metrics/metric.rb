@@ -96,13 +96,11 @@ module ElasticAPM
         end
       end
 
-      def count=(value)
-        @mutex.synchronize { @count = value }
-      end
-
       def reset!
-        super
-        self.count = 0
+        @mutex.synchronize do
+          @value = 0
+          @count = 0
+        end
       end
     end
   end

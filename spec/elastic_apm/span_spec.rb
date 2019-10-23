@@ -93,8 +93,19 @@ module ElasticAPM
       it 'calculates self_time' do
         subject.start
         travel 100
+        child = Span.new(
+          name: 'span',
+          transaction: transaction,
+          trace_context: nil,
+          parent: subject
+        ).start
+        travel 100
+        child.stop
+        travel 100
         subject.stop
-        expect(subject.self_time).to eq 100
+
+        expect(child.self_time).to eq 100
+        expect(subject.self_time).to eq 200
       end
     end
 
