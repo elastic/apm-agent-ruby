@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'concurrent'
-require 'zlib'
-
 module ElasticAPM
   module Transport
     class Connection

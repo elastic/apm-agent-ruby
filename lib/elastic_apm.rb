@@ -1,5 +1,15 @@
 # frozen_string_literal: true
 
+require 'erb'
+require 'http'
+require 'json'
+require 'yaml'
+require 'zlib'
+require 'logger'
+require 'concurrent'
+require 'forwardable'
+require 'securerandom'
+
 require 'elastic_apm/version'
 require 'elastic_apm/internal_error'
 require 'elastic_apm/logging'

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'logger'
-
 module ElasticAPM
   # @api private
   module Logging

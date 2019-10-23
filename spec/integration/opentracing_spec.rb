@@ -35,6 +35,7 @@ RSpec.describe 'OpenTracing bridge', :intercept do
     describe '#start_span' do
       context 'as root' do
         subject! { ::OpenTracing.start_span('namest') }
+        after { subject.finish }
 
         it { should be_an ElasticAPM::OpenTracing::Span }
         its(:elastic_span) { should be_an ElasticAPM::Transaction }
@@ -48,6 +49,10 @@ RSpec.describe 'OpenTracing bridge', :intercept do
       context 'as a child' do
         let(:parent) { ::OpenTracing.start_span('parent') }
         subject! { ::OpenTracing.start_span('namest', child_of: parent) }
+        after do
+          subject.finish
+          parent.finish
+        end
 
         its(:context) { should be parent.context }
         its(:elastic_span) { should be_a ElasticAPM::Span }
@@ -57,6 +62,7 @@ RSpec.describe 'OpenTracing bridge', :intercept do
     describe '#start_active_span' do
       context 'as root' do
         subject! { ::OpenTracing.start_active_span('namest') }
+        after { subject.close }
 
         it { should be_an ElasticAPM::OpenTracing::Scope }
         its(:elastic_span) { should be_a ElasticAPM::Transaction }
@@ -69,6 +75,10 @@ RSpec.describe 'OpenTracing bridge', :intercept do
       context 'as child_of' do
         let(:parent) { ::OpenTracing.start_span('parent') }
         subject! { ::OpenTracing.start_active_span('namest', child_of: parent) }
+        after do
+          subject.close
+          parent.finish
+        end
 
         it 'is the correct span' do
           expect(subject.span.elastic_span).to be_an ElasticAPM::Span
@@ -83,8 +93,10 @@ RSpec.describe 'OpenTracing bridge', :intercept do
     describe 'activation' do
       it 'sets the span as active in scope' do
         span = OpenTracing.start_span('name')
-        OpenTracing.scope_manager.activate(span)
+        scope = OpenTracing.scope_manager.activate(span)
         expect(OpenTracing.active_span).to be span
+
+        scope.close
       end
     end
 
