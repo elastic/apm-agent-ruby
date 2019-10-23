@@ -39,6 +39,9 @@ module ElasticAPM
     end
 
     describe '.collect' do
+      before { subject.start }
+      after { subject.stop }
+
       it 'samples all samplers' do
         subject.samplers.each do |sampler|
           expect(sampler).to receive(:collect)
@@ -48,6 +51,9 @@ module ElasticAPM
     end
 
     describe '.collect_and_send' do
+      before { subject.start }
+      after { subject.stop }
+
       context 'when samples' do
         it 'calls callback' do
           expect(subject.samplers.first).to receive(:collect) { { thing: 1 } }
