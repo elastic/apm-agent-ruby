@@ -340,34 +340,6 @@ if defined?(Rails)
       expect(ElasticAPM.agent).to be nil
     end
   end
-
-  RSpec.describe 'custom agent logger' do
-    before do
-      class RailsLoggerTestApp < Rails::Application
-        configure_rails_for_test(config)
-
-        config.elastic_apm.disable_send = true
-        config.elastic_apm.logger = Logger.new(nil)
-        config.logger = Logger.new(nil)
-      end
-
-      RailsLoggerTestApp.initialize!
-    end
-
-    it 'sets the custom logger' do
-      expect(Rails.logger).not_to be(ElasticAPM.agent.config.logger)
-    end
-
-    after do
-      ElasticAPM.stop
-
-      %i[RailsLoggerTestApp].each do |const|
-        Object.send(:remove_const, const)
-      end
-
-      Rails.application = nil
-    end
-  end
 else
   puts '[INFO] Skipping Rails spec'
 end
