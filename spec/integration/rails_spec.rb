@@ -385,6 +385,17 @@ if defined?(Rails)
         expect(span['stacktrace']).not_to be_nil
       end
     end
+
+    it 'removes lines referencing active_support/notifications' do
+      get '/'
+      wait_for transactions: 1, spans: 2
+
+      @mock_intake.spans.each do |span|
+        expect(span['stacktrace']).not_to match(
+          ElasticAPM::Subscriber::AS_NOTIFICATIONS_REGEX
+        )
+      end
+    end
   end
 else
   puts '[INFO] Skipping Rails spec'
