@@ -34,6 +34,13 @@ module ElasticAPM
         :cause
       )
 
+      def inspect
+        "<ElasticAPM::Error::Exception" \
+          " type:#{type}" \
+          " message:#{message}" \
+          ">"
+      end
+
       class << self
         private
 

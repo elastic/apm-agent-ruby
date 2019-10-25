@@ -7,6 +7,7 @@ module ElasticAPM
   # Module for starting the ElasticAPM agent and hooking into Grape.
   module Grape
     extend self
+
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     # Start the ElasticAPM agent and hook into Grape.
     #
@@ -20,6 +21,7 @@ module ElasticAPM
       ElasticAPM.start(config).tap do |agent|
         attach_subscriber(agent)
       end
+
       ElasticAPM.running?
     rescue StandardError => e
       config.logger.error format('Failed to start: %s', e.message)

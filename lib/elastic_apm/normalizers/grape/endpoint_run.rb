@@ -14,14 +14,22 @@ module ElasticAPM
 
         def normalize(transaction, _name, payload)
           transaction.name = endpoint(payload[:env])
-          unless transaction.config.framework_name == FRAMEWORK_NAME
-            transaction.context.set_service(framework_name: FRAMEWORK_NAME,
-                                            framework_version: ::Grape::VERSION)
+
+          if transaction_from_host_app?(transaction)
+            transaction.context.set_service(
+              framework_name: FRAMEWORK_NAME,
+              framework_version: ::Grape::VERSION
+            )
           end
+
           [transaction.name, TYPE, SUBTYPE, nil, nil]
         end
 
         private
+
+        def transaction_from_host_app?(transaction)
+          transaction.config.framework_name != FRAMEWORK_NAME
+        end
 
         def endpoint(env)
           route_name = env['api.endpoint']&.routes&.first&.pattern&.origin ||
