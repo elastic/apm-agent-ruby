@@ -65,7 +65,9 @@ if (defined?(Rails) && defined?(Grape))
       %i[RailsGrapeTestApp RailsGrapeAppController GrapeTestApp].each do |const|
         Object.send(:remove_const, const)
       end
+
       ElasticAPM.stop
+
       Rails.application = nil
     end
 

@@ -66,7 +66,10 @@ module ElasticAPM
         Config.new(api_request_time: '20ms')
       end
 
-      before { ElasticAPM.start(config) }
+      before do
+        MockIntake.instance.stub!
+        ElasticAPM.start(config)
+      end
       after { ElasticAPM.stop }
 
       it 'instruments jobs' do
