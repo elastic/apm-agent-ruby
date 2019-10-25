@@ -28,14 +28,14 @@ if defined?(Rails)
     end
 
     after :each do |example|
-      if example.exception
-        puts 'Example failed, dumping log:'
-        SpecLogger.rewind
-        puts SpecLogger.read
-      end
+      SpecLogger.rewind
+      next unless example.exception
+
+      puts 'Example failed, dumping log:'
+      puts SpecLogger.read
     end
 
-    before :each do
+    before :all do
       class RailsTestApp < Rails::Application
         configure_rails_for_test(config)
 
@@ -136,7 +136,12 @@ if defined?(Rails)
       end
     end
 
-    after :each do
+    after :all do
+      if ElasticAPM.current_transaction
+        pp ElasticAPM.current_transaction
+        raise 'CURRENT'
+      end
+
       ElasticAPM.stop
 
       %i[RailsTestApp ApplicationController].each do |const|

@@ -90,7 +90,7 @@ module ElasticAPM
 
       if (transaction = current_transaction)
         raise ExistingTransactionError,
-          "Transactions may not be nested.\nAlready inside #{transaction}"
+          "Transactions may not be nested.\nAlready inside #{transaction.inspect}"
       end
 
       sampled = trace_context ? trace_context.recorded? : random_sample?(config)

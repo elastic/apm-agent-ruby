@@ -14,14 +14,12 @@ if (defined?(Rails) && defined?(Grape))
 
     before :all do
       class RailsGrapeTestApp < Rails::Application
+        config.secret_key_base = '__rails_grape'
         config.logger = Logger.new(nil)
         config.logger.level = Logger::DEBUG
         config.eager_load = false
 
         config.elastic_apm.api_request_time = '100ms'
-        config.elastic_apm.pool_size = Concurrent.processor_count
-        config.elastic_apm.service_name = 'RailsGrapeTestApp'
-        config.elastic_apm.logger = config.logger
       end
 
       class RailsGrapeAppController < ActionController::Base
