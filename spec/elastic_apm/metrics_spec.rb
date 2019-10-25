@@ -56,7 +56,9 @@ module ElasticAPM
 
       context 'when samples' do
         it 'calls callback' do
-          expect(subject.samplers.first).to receive(:collect) { { thing: 1 } }
+          expect(subject.samplers.first).to receive(:collect).at_least(:once) do
+            { thing: 1 }
+          end
           expect(callback).to receive(:call).with(Metricset)
 
           subject.collect_and_send

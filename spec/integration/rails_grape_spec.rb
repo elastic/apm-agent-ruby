@@ -41,7 +41,6 @@ if (defined?(Rails) && defined?(Grape))
       end
 
       class GrapeTestApp < ::Grape::API
-        use ElasticAPM::Middleware
         resource :statuses do
           desc 'Return a status.'
           params do
