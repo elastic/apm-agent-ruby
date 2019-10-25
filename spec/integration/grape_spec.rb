@@ -28,7 +28,8 @@ if defined?(Grape)
         end
       end
 
-      config = { api_request_time: '100ms' }
+      config = { api_request_time: '100ms',
+                 span_frames_min_duration: -1 }
       ElasticAPM::Grape.start(GrapeTestApp, config)
     end
 
@@ -46,6 +47,23 @@ if defined?(Grape)
       expect(service['framework']['name']).to eq 'Grape'
       expect(service['framework']['version'])
         .to match(/\d+\.\d+\.\d+(\.\d+)?/)
+    end
+
+    it 'captures span backtraces' do
+      get '/pingpong'
+      wait_for transactions: 1, spans: 1
+      span = @mock_intake.spans.first
+      expect(span['stacktrace']).not_to be_nil
+    end
+
+    it 'removes lines referencing active_support/notifications' do
+      get '/pingpong'
+      wait_for transactions: 1, spans: 1
+
+      span = @mock_intake.spans.first
+      expect(span['stacktrace'].none? do |s|
+        s =~ ElasticAPM::Subscriber::AS_NOTIFICATIONS_REGEX
+      end).to eq(true)
     end
 
     context 'endpoint_run.grape' do
