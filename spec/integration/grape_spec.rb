@@ -28,8 +28,8 @@ if defined?(Grape)
         end
       end
 
-      config = { api_request_time: '100ms' }
-      ElasticAPM::Grape.start(GrapeTestApp, config)
+      MockIntake.instance.stub!
+      ElasticAPM::Grape.start(GrapeTestApp, { api_request_time: '100ms' })
     end
 
     after :all do
