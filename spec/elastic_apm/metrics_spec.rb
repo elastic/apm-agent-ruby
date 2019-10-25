@@ -59,7 +59,7 @@ module ElasticAPM
           expect(subject.samplers.first).to receive(:collect).at_least(:once) do
             { thing: 1 }
           end
-          expect(callback).to receive(:call).with(Metricset)
+          expect(callback).to receive(:call).with(Metricset).at_least(:once)
 
           subject.collect_and_send
         end
