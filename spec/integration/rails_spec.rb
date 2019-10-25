@@ -137,14 +137,9 @@ if defined?(Rails)
     end
 
     after :all do
-      if ElasticAPM.current_transaction
-        pp ElasticAPM.current_transaction
-        raise 'CURRENT'
-      end
-
       ElasticAPM.stop
 
-      %i[RailsTestApp ApplicationController].each do |const|
+      %i[RailsTestApp ApplicationController NotificationsMailer].each do |const|
         Object.send(:remove_const, const)
       end
 
@@ -310,7 +305,7 @@ if defined?(Rails)
       @app ||= Rails.application
     end
 
-    before :each do
+    before :all do
       class RailsConsoleTestApp < Rails::Application
         configure_rails_for_test(config)
 
@@ -330,7 +325,7 @@ if defined?(Rails)
       RailsConsoleTestApp.initialize!
     end
 
-    after :each do
+    after :all do
       ElasticAPM.stop
 
       %i[RailsConsoleTestApp ApplicationController].each do |const|
