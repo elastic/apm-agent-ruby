@@ -44,7 +44,7 @@ module ElasticAPM
 
       it 'samples all samplers' do
         subject.samplers.each do |sampler|
-          expect(sampler).to receive(:collect)
+          expect(sampler).to receive(:collect).at_least(:once)
         end
         subject.collect
       end
