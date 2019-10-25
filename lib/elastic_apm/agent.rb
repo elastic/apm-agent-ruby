@@ -166,7 +166,6 @@ module ElasticAPM
       subtype: nil,
       action: nil,
       backtrace: nil,
-      source_location: nil,
       context: nil,
       trace_context: nil
     )

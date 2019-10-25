@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'active_support/notifications'
-require 'active_support/backtrace_cleaner'
 require 'elastic_apm/normalizers'
 
 module ElasticAPM
