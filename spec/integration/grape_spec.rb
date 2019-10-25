@@ -7,7 +7,7 @@ if defined?(Grape)
     include Rack::Test::Methods
     let(:app) { GrapeTestApp }
 
-    before(:all) do
+    before(:each) do
       class GrapeTestApp < ::Grape::API
         use ElasticAPM::Middleware
 
@@ -32,7 +32,7 @@ if defined?(Grape)
       ElasticAPM::Grape.start(GrapeTestApp, { api_request_time: '100ms' })
     end
 
-    after :all do
+    after :each do
       ElasticAPM.stop
       Object.send(:remove_const, :GrapeTestApp)
     end

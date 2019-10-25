@@ -2,9 +2,9 @@
 
 if defined?(Rails)
   require 'elastic_apm/rails'
-  RSpec.describe Rails do
+  RSpec.describe Rails, :intercept do
     describe '.start' do
-      before :all do
+      before do
         ElasticAPM::Rails.start({})
       end
 
@@ -16,13 +16,13 @@ if defined?(Rails)
         expect(ElasticAPM::Agent).to be_running
       end
 
-      after :all do
+      after do
         ElasticAPM.stop
       end
     end
 
     describe 'Rails console' do
-      before :all do
+      before do
         module Rails
           class Console; end
         end
@@ -30,7 +30,7 @@ if defined?(Rails)
         ElasticAPM::Rails.start({})
       end
 
-      after :all do
+      after do
         ElasticAPM.stop
         Rails.send(:remove_const, :Console)
       end

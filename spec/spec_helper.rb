@@ -35,9 +35,10 @@ RSpec.configure do |config|
   config.include PlatformHelpers
   config.include ElasticSubscribers
 
-  if config.files_to_run.one?
+  # if config.files_to_run.one?
     config.default_formatter = 'documentation'
-  end
+    config.fail_fast = true
+  # end
 
   unless ENV['INCLUDE_SCHEMA_SPECS']
     config.filter_run_excluding(type: 'json_schema')
