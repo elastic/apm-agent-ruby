@@ -36,8 +36,8 @@ RSpec.configure do |config|
   config.before :each, intercept: true do
     @intercepted = Intercept.new
 
-    allow_any_instance_of(ElasticAPM::Transport::Base).to receive(:submit) do |_, event|
-      @intercepted.submit event
+    allow(ElasticAPM::Transport::Base).to receive(:new) do |*_args|
+      @intercepted
     end
   end
 
