@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
 require 'active_support/notifications'
+require 'active_support/backtrace_cleaner'
 require 'elastic_apm/normalizers'
 
 module ElasticAPM
   # @api private
   class Subscriber
     include Logging
+
+    AS_NOTIFICATIONS_REGEX = /active_support\/notifications/
 
     def initialize(agent)
       @agent = agent
@@ -35,6 +38,9 @@ module ElasticAPM
 
       normalized = @normalizers.normalize(transaction, name, payload)
 
+      _caller = caller
+      stacktrace_start = _caller.find_index { |s| !(s =~ AS_NOTIFICATIONS_REGEX) }
+
       span =
         if normalized == :skip
           nil
@@ -46,8 +52,7 @@ module ElasticAPM
             type,
             subtype: subtype,
             action: action,
-            backtrace: caller,
-            source_location: payload[:endpoint].source,
+            backtrace: _caller[stacktrace_start+1..-1],
             context: context
           )
         end

@@ -331,6 +331,61 @@ if defined?(Rails)
       expect(ElasticAPM.agent).to be nil
     end
   end
+
+  RSpec.describe 'Capture span stacktrace', :mock_intake do
+    include Rack::Test::Methods
+    def app
+      @app ||= Rails.application
+    end
+
+    before :all do
+      class RailsSpanStacktrace < Rails::Application
+        config.logger = Logger.new(nil)
+        config.eager_load = false
+
+        config.elastic_apm.span_frames_min_duration = -1
+        config.elastic_apm.api_request_time = '100ms'
+        config.elastic_apm.service_name = 'RailsSpanStacktrace'
+      end
+
+      class ApplicationController < ActionController::Base
+        def index
+          render_ok
+        end
+        def render_ok
+          if Rails.version.start_with?('4')
+            render text: 'Yes!'
+          else
+            render plain: 'Yes!'
+          end
+        end
+      end
+
+      MockIntake.instance.stub!
+
+      RailsSpanStacktrace.initialize!
+      RailsSpanStacktrace.routes.draw do
+        root to: 'application#index'
+      end
+    end
+
+    after :all do
+      %i[RailsSpanStacktrace ApplicationController].each do |const|
+        Object.send(:remove_const, const)
+      end
+      Rails.application = nil
+      ElasticAPM.stop
+    end
+
+    it 'includes stacktrace for spans' do
+      get '/'
+      wait_for transactions: 1, spans: 2
+
+      @mock_intake.spans.each do |span|
+        expect(span['stacktrace']).not_to be_nil
+      end
+    end
+  end
 else
   puts '[INFO] Skipping Rails spec'
 end
