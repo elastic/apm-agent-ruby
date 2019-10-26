@@ -20,7 +20,7 @@ if defined?(Rails)
     end
   end
 
-  RSpec.describe 'Rails integration', :mock_intake do
+  RSpec.describe 'Rails integration', :mock_intake, :allow_running_agent do
     include Rack::Test::Methods
 
     def app

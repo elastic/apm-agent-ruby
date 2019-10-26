@@ -5,7 +5,7 @@ require 'spec_helper'
 if (defined?(Rails) && defined?(Grape))
   require 'action_controller/railtie'
 
-  RSpec.describe 'Rails and Grape integration', :mock_intake do
+  RSpec.describe 'Rails and Grape integration', :mock_intake, :allow_running_agent do
     include Rack::Test::Methods
 
     def app

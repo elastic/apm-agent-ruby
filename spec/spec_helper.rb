@@ -49,11 +49,18 @@ RSpec.configure do |config|
 
   config.backtrace_inclusion_patterns = [/elastic_apm/]
 
+  config.before(:each) do |example|
+    if ElasticAPM.running? && !example.metadata[:allow_running_agent]
+      raise 'someone left an agent running'
+    end
+  end
   config.after(:each) do |example|
-    if elastic_subscribers.any? &&
-       !example.metadata[:allow_leaking_subscriptions] &&
-       example.execution_result.status == :passed
+    if ElasticAPM.running? && !example.metadata[:allow_running_agent]
+      raise 'someone left an agent running'
+    end
 
+    if elastic_subscribers.any? &&
+       !example.metadata[:allow_running_agent]
       raise 'someone leaked subscription'
     end
   end

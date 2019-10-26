@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 if defined?(Sinatra)
-  RSpec.describe 'Sinatra integration', :mock_intake do
+  RSpec.describe 'Sinatra integration', :mock_intake, :allow_running_agent do
     include Rack::Test::Methods
 
     let(:app) { SinatraTestApp }
