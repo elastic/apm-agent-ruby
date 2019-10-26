@@ -37,7 +37,6 @@ RSpec.configure do |config|
 
   if config.files_to_run.one?
     config.default_formatter = 'documentation'
-    config.fail_fast = true
   end
 
   unless ENV['INCLUDE_SCHEMA_SPECS']
