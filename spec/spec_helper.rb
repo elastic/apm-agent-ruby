@@ -35,10 +35,10 @@ RSpec.configure do |config|
   config.include PlatformHelpers
   config.include ElasticSubscribers
 
-  # if config.files_to_run.one?
+  if config.files_to_run.one?
     config.default_formatter = 'documentation'
     config.fail_fast = true
-  # end
+  end
 
   unless ENV['INCLUDE_SCHEMA_SPECS']
     config.filter_run_excluding(type: 'json_schema')
@@ -51,12 +51,13 @@ RSpec.configure do |config|
 
   config.before(:each) do |example|
     if ElasticAPM.running? && !example.metadata[:allow_running_agent]
-      raise 'someone left an agent running'
+      raise 'Previous example left an agent running'
     end
   end
+
   config.after(:each) do |example|
     if ElasticAPM.running? && !example.metadata[:allow_running_agent]
-      raise 'someone left an agent running'
+      raise 'This example left an agent running'
     end
 
     if elastic_subscribers.any? &&
