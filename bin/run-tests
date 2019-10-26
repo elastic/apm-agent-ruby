@@ -1,13 +1,16 @@
 #!/bin/bash
+set -x
 
 base="bundle exec rspec -f progress -f JUnit -o spec/ruby-agent-junit.xml"
 specific_spec=$1
 
 if [[ $specific_spec = '' ]]; then
-  # run all unit tests
+  echo 'Running all specs, including integration'
+
   $base
-  # run each integration test in own process
   find spec/integration -name '*_spec.rb' -exec $base {} \;
 else
+  echo "Running only $specific_spec"
+
   $base $1
 fi
