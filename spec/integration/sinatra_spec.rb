@@ -3,13 +3,22 @@
 require 'spec_helper'
 
 if defined?(Sinatra)
+  enabled = true
+else
+  puts '[INFO] Skipping Sinatra spec'
+end
+
+if enabled
   RSpec.describe 'Sinatra integration', :mock_intake, :allow_running_agent do
     include Rack::Test::Methods
 
-    let(:app) { SinatraTestApp }
+    def app
+      SinatraTestApp
+    end
 
     before(:all) do
       class FancyError < StandardError; end
+
       class BackwardsCompatibleLogger < Logger
         def write(*args)
           self.<<(*args)
@@ -120,6 +129,4 @@ if defined?(Sinatra)
       end
     end
   end
-else
-  puts '[INFO] Skipping Sinatra spec'
 end

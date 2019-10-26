@@ -3,6 +3,12 @@
 require 'spec_helper'
 
 if (defined?(Rails) && defined?(Grape))
+  enabled = true
+else
+  puts '[INFO] Skipping Rails/Grape spec'
+end
+
+if enabled
   require 'action_controller/railtie'
 
   RSpec.describe 'Rails and Grape integration', :mock_intake, :allow_running_agent do
@@ -14,12 +20,11 @@ if (defined?(Rails) && defined?(Grape))
 
     before :all do
       class RailsGrapeTestApp < Rails::Application
+        configure_rails_for_test
+
         config.secret_key_base = '__rails_grape'
         config.logger = Logger.new(nil)
-        config.logger.level = Logger::DEBUG
         config.eager_load = false
-
-        config.elastic_apm.api_request_time = '100ms'
       end
 
       class RailsGrapeAppController < ActionController::Base
@@ -62,13 +67,7 @@ if (defined?(Rails) && defined?(Grape))
     end
 
     after :all do
-      %i[RailsGrapeTestApp RailsGrapeAppController GrapeTestApp].each do |const|
-        Object.send(:remove_const, const)
-      end
-
       ElasticAPM.stop
-
-      Rails.application = nil
     end
 
     context 'grape endpoint' do
@@ -92,6 +91,4 @@ if (defined?(Rails) && defined?(Grape))
       end
     end
   end
-else
-  puts '[INFO] Skipping Rails/Grape spec'
 end

@@ -3,7 +3,13 @@
 require 'spec_helper'
 
 if defined?(Grape)
-  RSpec.describe 'Grape integration', :mock_intake do
+  enabled = true
+else
+  puts '[INFO] Skipping Grape spec'
+end
+
+if enabled
+  RSpec.describe 'Grape integration', :mock_intake, :allow_running_agent do
     include Rack::Test::Methods
 
     def app
@@ -30,19 +36,14 @@ if defined?(Grape)
           end
         end
       end
-    end
 
-    before do
       MockIntake.instance.stub!
+
       ElasticAPM::Grape.start(GrapeTestApp, { api_request_time: '100ms' })
     end
 
-    after do
-      ElasticAPM.stop
-    end
-
     after :all do
-      Object.send(:remove_const, :GrapeTestApp)
+      ElasticAPM.stop
     end
 
     it 'sets the framework metadata' do
@@ -85,6 +86,4 @@ if defined?(Grape)
       end
     end
   end
-else
-  puts '[INFO] Skipping Grape spec'
 end
