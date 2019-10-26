@@ -16,7 +16,7 @@ fi
 
 RUBY_IMAGE=${1}
 FRAMEWORK=${2}
-TEST=${3:-spec}
+TEST=${3}
 VERSION=$(echo "${RUBY_IMAGE}" | cut -d":" -f2)
 
 cd spec
