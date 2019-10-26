@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'elastic_apm/railtie'
 require 'elastic_apm/subscriber'
 require 'elastic_apm/normalizers/rails'
 

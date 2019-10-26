@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'elastic_apm/rails'
-
 module ElasticAPM
   # @api private
   class Railtie < ::Rails::Railtie

@@ -3,7 +3,7 @@
 require 'mongo'
 
 module ElasticAPM
-  RSpec.xdescribe 'Spy: MongoDB' do
+  RSpec.describe 'Spy: MongoDB' do
     before(:context) do
       start_mongodb
     end

@@ -13,28 +13,18 @@ if defined?(Sinatra)
         Object.send(:remove_const, :SinatraTestApp)
       end
 
-      context 'with no overridden config settings' do
-        it 'starts the agent' do
-          begin
-            ElasticAPM::Sinatra.start(SinatraTestApp)
-            expect(ElasticAPM::Agent).to be_running
-            expect(ElasticAPM.agent.config.options[:service_name].value)
-              .to eq 'SinatraTestApp'
-          ensure
-            ElasticAPM.stop
-          end
+      it 'starts the agent' do
+        with_agent(klass: ElasticAPM::Sinatra, args: [SinatraTestApp]) do
+          expect(ElasticAPM::Agent).to be_running
+          expect(ElasticAPM.agent.config.service_name).to eq 'SinatraTestApp'
         end
       end
 
-      context 'a config with settings' do
+      context 'with config' do
         it 'sets the options' do
-          begin
-            ElasticAPM::Sinatra.start(SinatraTestApp, service_name: 'my-app')
+          with_agent(klass: ElasticAPM::Sinatra, args: [SinatraTestApp], service_name: 'my-app') do
             expect(ElasticAPM::Agent).to be_running
-            expect(ElasticAPM.agent.config.options[:service_name].value)
-              .to eq 'my-app'
-          ensure
-            ElasticAPM.stop
+            expect(ElasticAPM.agent.config.service_name).to eq 'my-app'
           end
         end
       end
