@@ -56,7 +56,7 @@ RSpec.configure do |config|
   config.include WithAgent
   config.include PlatformHelpers
   config.include ElasticSubscribers
-  config.include RailsTestHelpers
+  config.include RailsTestHelpers if defined?(Rails)
 
   if config.files_to_run.one?
     config.default_formatter = 'documentation'
