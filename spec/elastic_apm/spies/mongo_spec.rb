@@ -68,7 +68,6 @@ module ElasticAPM
             server_selection_timeout: 5
           )
 
-        # ParallelCollectionScan can only be run on an existing collection.
         client['testing'].drop
         client['testing'].create
         ElasticAPM.with_transaction 'Mongo test' do
