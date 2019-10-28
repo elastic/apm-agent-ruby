@@ -1,16 +1,19 @@
 #!/bin/bash
 set -x
 
-base="bundle exec rspec -f progress -f JUnit -o spec/ruby-agent-junit.xml"
+runBaseCase(){
+  local case=${1:-""}
+  bundle exec rspec -f progress -f JUnit -o spec/ruby-agent-junit${case}.xml ${case}
+}
 specific_spec=$1
 
 if [[ $specific_spec = '' ]]; then
   echo 'Running all specs, including integration'
 
-  $base
-  find spec/integration -name '*_spec.rb' -exec $base {} \;
+  runBaseCase
+  find spec/integration -name '*_spec.rb' -exec runBaseCase {} \;
 else
   echo "Running only $specific_spec"
 
-  $base $1
+  runBaseCase $1
 fi
