@@ -3,7 +3,12 @@ set -x
 
 runRspec(){
   local case=${1:-""}
-  bundle exec rspec -f progress -f JUnit -o spec/ruby-agent-junit${case}.xml ${case}
+  local bn=${case}
+  
+  if [ -n "${case}" ]; then
+    bn="$(basename ${case} _spec.rb)/"
+  fi
+  bundle exec rspec -f progress -f JUnit -o spec/junit-reports/${bn}ruby-agent-junit.xml ${case}
 }
 specific_spec=$1
 
@@ -11,7 +16,10 @@ if [[ $specific_spec = '' ]]; then
   echo 'Running all specs, including integration'
 
   runRspec
-  find spec/integration -name '*_spec.rb' -exec runRspec {} \;
+  for i in $(find spec/integration -name '*_spec.rb')
+  do
+    runRspec "$i"
+  done
 else
   echo "Running only $specific_spec"
 
