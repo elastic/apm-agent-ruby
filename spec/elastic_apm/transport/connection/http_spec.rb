@@ -65,7 +65,7 @@ module ElasticAPM
         end
 
         it "doesn't make a scene if already closed" do
-          build_stub
+          build_stub(headers: headers)
 
           subject.write('{}')
           subject.close(:api_request_size)

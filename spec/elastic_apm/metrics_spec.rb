@@ -39,19 +39,27 @@ module ElasticAPM
     end
 
     describe '.collect' do
+      before { subject.start }
+      after { subject.stop }
+
       it 'samples all samplers' do
         subject.samplers.each do |sampler|
-          expect(sampler).to receive(:collect)
+          expect(sampler).to receive(:collect).at_least(:once)
         end
         subject.collect
       end
     end
 
     describe '.collect_and_send' do
+      before { subject.start }
+      after { subject.stop }
+
       context 'when samples' do
         it 'calls callback' do
-          expect(subject.samplers.first).to receive(:collect) { { thing: 1 } }
-          expect(callback).to receive(:call).with(Metricset)
+          expect(subject.samplers.first).to receive(:collect).at_least(:once) do
+            { thing: 1 }
+          end
+          expect(callback).to receive(:call).with(Metricset).at_least(:once)
 
           subject.collect_and_send
         end
@@ -60,7 +68,7 @@ module ElasticAPM
       context 'when no samples' do
         it 'calls callback' do
           subject.samplers.each do |sampler|
-            expect(sampler).to receive(:collect) { nil }
+            expect(sampler).to receive(:collect).at_least(:once)
           end
           expect(callback).to_not receive(:call)
 

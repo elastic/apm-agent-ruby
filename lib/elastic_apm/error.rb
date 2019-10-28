@@ -18,5 +18,15 @@ module ElasticAPM
     attr_accessor :id, :culprit, :exception, :log, :transaction_id,
       :transaction, :context, :parent_id, :trace_id
     attr_reader :timestamp
+
+    def inspect
+      "<ElasticAPM::Error id:#{id}" \
+        " culprit:#{culprit}" \
+        " timestamp:#{timestamp}" \
+        " transaction_id:#{transaction_id}" \
+        " trace_id:#{trace_id}" \
+        " exception:#{exception.inspect}" \
+        ">"
+    end
   end
 end

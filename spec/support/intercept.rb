@@ -33,12 +33,22 @@ RSpec.configure do |config|
   end
   # rubocop:enable Metrics/MethodLength
 
-  config.before :each, intercept: true do
-    @intercepted = Intercept.new
+  module Methods
+    def intercept!
+      return if @intercepted
 
-    allow(ElasticAPM::Transport::Base).to receive(:new) do |*_args|
-      @intercepted
+      @intercepted = Intercept.new
+
+      allow(ElasticAPM::Transport::Base).to receive(:new) do |*_args|
+        @intercepted
+      end
     end
+  end
+
+  config.include Methods
+
+  config.before :each, intercept: true do
+    intercept!
   end
 
   config.after :each, intercept: true do

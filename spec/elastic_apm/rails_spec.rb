@@ -1,42 +1,35 @@
 # frozen_string_literal: true
 
 if defined?(Rails)
-  require 'elastic_apm/rails'
-  RSpec.describe Rails do
+  RSpec.describe Rails, :intercept do
     describe '.start' do
-      before :all do
-        ElasticAPM::Rails.start({})
-      end
-
       it 'starts the agent' do
-        expect(ElasticAPM::Agent).to be_running
-      end
-
-      it 'registers the ActionDispatchSpy' do
-        expect(ElasticAPM::Agent).to be_running
-      end
-
-      after :all do
-        ElasticAPM.stop
+        begin
+          ElasticAPM::Rails.start({})
+          expect(ElasticAPM::Agent).to be_running
+        ensure
+          ElasticAPM.stop
+        end
       end
     end
 
     describe 'Rails console' do
-      before :all do
+      before do
         module Rails
           class Console; end
         end
-
-        ElasticAPM::Rails.start({})
       end
 
-      after :all do
-        ElasticAPM.stop
-        Rails.send(:remove_const, :Console)
-      end
+      after { Rails.send(:remove_const, :Console) }
 
       it "doesn't start when console" do
-        expect(ElasticAPM.agent).to be nil
+        begin
+          ElasticAPM::Rails.start({})
+          expect(ElasticAPM.agent).to be nil
+          expect(ElasticAPM).to_not be_running
+        ensure
+          ElasticAPM.stop
+        end
       end
     end
   end

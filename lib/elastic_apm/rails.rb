@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'elastic_apm/railtie'
 require 'elastic_apm/subscriber'
 require 'elastic_apm/normalizers/rails'
 
@@ -37,8 +38,13 @@ module ElasticAPM
       end
       ElasticAPM.running?
     rescue StandardError => e
-      config.logger.error format('Failed to start: %s', e.message)
-      config.logger.debug "Backtrace:\n" + e.backtrace.join("\n")
+      if config.disable_start_message?
+        config.logger.error format('Failed to start: %s', e.message)
+        config.logger.debug "Backtrace:\n" + e.backtrace.join("\n")
+      else
+        puts format('Failed to start: %s', e.message)
+        puts "Backtrace:\n" + e.backtrace.join("\n")
+      end
     end
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
     # rubocop:enable Metrics/CyclomaticComplexity

@@ -30,17 +30,6 @@ module ElasticAPM
       end
     end
 
-    if defined?(ActiveJob)
-      class ActiveJobbyJob < ActiveJob::Base
-        self.queue_adapter = :sidekiq
-        self.logger = nil # stay quiet
-
-        def perform
-          'ok'
-        end
-      end
-    end
-
     before :all do
       Sidekiq::Testing.server_middleware do |chain|
         chain.add Spies::SidekiqSpy::Middleware
@@ -62,16 +51,11 @@ module ElasticAPM
     end
 
     context 'with an agent' do
-      let(:config) do
-        Config.new(api_request_time: '20ms')
-      end
-
-      before { ElasticAPM.start(config) }
-      after { ElasticAPM.stop }
-
       it 'instruments jobs' do
-        Sidekiq::Testing.inline! do
-          HardWorker.perform_async
+        with_agent do
+          Sidekiq::Testing.inline! do
+            HardWorker.perform_async
+          end
         end
 
         wait_for transactions: 1
@@ -83,13 +67,13 @@ module ElasticAPM
       end
 
       it 'reports errors' do
-        Sidekiq::Testing.inline! do
-          expect do
-            ExplodingWorker.perform_async
-          end.to raise_error(ZeroDivisionError)
+        with_agent do
+          Sidekiq::Testing.inline! do
+            expect do
+              ExplodingWorker.perform_async
+            end.to raise_error(ZeroDivisionError)
+          end
         end
-
-        ElasticAPM.stop
 
         wait_for transactions: 1, errors: 1
 
@@ -103,16 +87,35 @@ module ElasticAPM
         expect(error.dig('exception', 'type')).to eq 'ZeroDivisionError'
       end
 
-      it 'knows the name of ActiveJob jobs', if: defined?(ActiveJob) do
-        Sidekiq::Testing.inline! do
-          ActiveJobbyJob.perform_later
+      context 'ActiveJob', if: defined?(ActiveJob) do
+        before :all do
+          class ::ActiveJobbyJob < ActiveJob::Base
+            self.queue_adapter = :sidekiq
+            self.logger = nil # stay quiet
+
+            def perform
+              'ok'
+            end
+          end
         end
 
-        wait_for transactions: 1
+        after :all do
+          Object.send(:remove_const, :ActiveJobbyJob)
+        end
 
-        transaction, = @mock_intake.transactions
-        expect(transaction).to_not be_nil
-        expect(transaction['name']).to eq 'ElasticAPM::ActiveJobbyJob'
+        it 'knows the name of ActiveJob jobs', if: defined?(ActiveJob) do
+          with_agent do
+            Sidekiq::Testing.inline! do
+              ActiveJobbyJob.perform_later
+            end
+          end
+
+          wait_for transactions: 1
+
+          transaction, = @mock_intake.transactions
+          expect(transaction).to_not be_nil
+          expect(transaction['name']).to eq 'ActiveJobbyJob'
+        end
       end
     end
   end

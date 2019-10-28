@@ -114,7 +114,7 @@ module ElasticAPM
           end
 
           context 'with a transaction' do
-            it 'includes context' do
+            it 'includes context', :intercept do
               error = with_agent do
                 ElasticAPM.with_transaction do
                   ErrorBuilder

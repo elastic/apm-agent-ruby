@@ -1,15 +1,13 @@
 # frozen_string_literal: true
 
 module ElasticAPM
-  RSpec.describe Middleware do
-    it 'surrounds the request in a transaction', :intercept do
-      ElasticAPM.start
-
-      app = Middleware.new(->(_) { [200, {}, ['ok']] })
-      status, = app.call(Rack::MockRequest.env_for('/'))
-      expect(status).to be 200
-
-      ElasticAPM.stop
+  RSpec.describe Middleware, :intercept do
+    it 'surrounds the request in a transaction' do
+      with_agent do
+        app = Middleware.new(->(_) { [200, {}, ['ok']] })
+        status, = app.call(Rack::MockRequest.env_for('/'))
+        expect(status).to be 200
+      end
 
       expect(@intercepted.transactions.length).to be 1
 
@@ -19,16 +17,14 @@ module ElasticAPM
     end
 
     it 'ignores url patterns' do
-      ElasticAPM.start ignore_url_patterns: %w[/ping]
+      with_agent ignore_url_patterns: %w[/ping] do
+        expect(ElasticAPM).to_not receive(:start_transaction)
 
-      expect(ElasticAPM).to_not receive(:start_transaction)
+        app = Middleware.new(->(_) { [200, {}, ['ok']] })
+        status, = app.call(Rack::MockRequest.env_for('/ping'))
 
-      app = Middleware.new(->(_) { [200, {}, ['ok']] })
-      status, = app.call(Rack::MockRequest.env_for('/ping'))
-
-      expect(status).to be 200
-
-      ElasticAPM.stop
+        expect(status).to be 200
+      end
     end
 
     it 'catches exceptions' do
@@ -48,36 +44,33 @@ module ElasticAPM
         .with(MiddlewareTestError, context: nil, handled: false)
     end
 
-    it 'attaches a new trace_context', :intercept do
-      ElasticAPM.start
+    it 'attaches a new trace_context' do
+      with_agent do
+        app = Middleware.new(->(_) { [200, {}, ['ok']] })
 
-      app = Middleware.new(->(_) { [200, {}, ['ok']] })
-
-      status, = app.call(Rack::MockRequest.env_for('/'))
-      expect(status).to be 200
-
-      ElasticAPM.stop
+        status, = app.call(Rack::MockRequest.env_for('/'))
+        expect(status).to be 200
+      end
 
       trace_context = @intercepted.transactions.first.trace_context
       expect(trace_context).to_not be_nil
       expect(trace_context).to be_recorded
     end
 
-    describe 'Distributed Tracing', :intercept do
-      before(:each) { ElasticAPM.start }
-      after(:each) { ElasticAPM.stop }
-
+    describe 'Distributed Tracing' do
       let(:app) { Middleware.new(->(_) { [200, {}, ['ok']] }) }
 
       context 'with valid header' do
-        it 'recognizes trace_context', :intercept do
-          app.call(
-            Rack::MockRequest.env_for(
-              '/',
-              'HTTP_ELASTIC_APM_TRACEPARENT' =>
-              '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-00'
+        it 'recognizes trace_context' do
+          with_agent do
+            app.call(
+              Rack::MockRequest.env_for(
+                '/',
+                'HTTP_ELASTIC_APM_TRACEPARENT' =>
+                '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-00'
+              )
             )
-          )
+          end
 
           trace_context = @intercepted.transactions.first.trace_context
           expect(trace_context.version).to eq '00'
@@ -89,14 +82,16 @@ module ElasticAPM
       end
 
       context 'with an invalid header' do
-        it 'skips trace_context, makes new', :intercept do
-          app.call(
-            Rack::MockRequest.env_for(
-              '/',
-              'HTTP_ELASTIC_APM_TRACEPARENT' =>
-              '00-0af7651916cd43dd8448eb211c80319c-INVALID##9203331-00'
+        it 'skips trace_context, makes new' do
+          with_agent do
+            app.call(
+              Rack::MockRequest.env_for(
+                '/',
+                'HTTP_ELASTIC_APM_TRACEPARENT' =>
+                '00-0af7651916cd43dd8448eb211c80319c-INVALID##9203331-00'
+              )
             )
-          )
+          end
 
           trace_context = @intercepted.transactions.first.trace_context
           expect(trace_context.trace_id)
@@ -106,10 +101,12 @@ module ElasticAPM
       end
 
       context 'with a blank header' do
-        it 'skips trace_context, makes new', :intercept do
-          app.call(
-            Rack::MockRequest.env_for('/', 'HTTP_ELASTIC_APM_TRACEPARENT' => '')
-          )
+        it 'skips trace_context, makes new' do
+          with_agent do
+            app.call(
+              Rack::MockRequest.env_for('/', 'HTTP_ELASTIC_APM_TRACEPARENT' => '')
+            )
+          end
 
           trace_context = @intercepted.transactions.first.trace_context
           expect(trace_context.trace_id)

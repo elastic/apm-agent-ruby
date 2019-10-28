@@ -5,9 +5,12 @@ require 'spec_helper'
 if defined?(Grape)
   RSpec.describe 'Grape integration', :mock_intake do
     include Rack::Test::Methods
-    let(:app) { GrapeTestApp }
 
-    before(:all) do
+    def app
+      @app ||= GrapeTestApp
+    end
+
+    before :all do
       class GrapeTestApp < ::Grape::API
         use ElasticAPM::Middleware
 
@@ -27,18 +30,24 @@ if defined?(Grape)
           end
         end
       end
+    end
 
-      config = { api_request_time: '100ms' }
-      ElasticAPM::Grape.start(GrapeTestApp, config)
+    before do
+      MockIntake.instance.stub!
+      ElasticAPM::Grape.start(GrapeTestApp, { api_request_time: '100ms' })
+    end
+
+    after do
+      ElasticAPM.stop
     end
 
     after :all do
-      ElasticAPM.stop
       Object.send(:remove_const, :GrapeTestApp)
     end
 
     it 'sets the framework metadata' do
       get '/pingpong'
+
       wait_for transactions: 1, spans: 1
 
       service = @mock_intake.metadatas.first['service']

@@ -91,8 +91,11 @@ module ElasticAPM
 
     # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def start
-      unless config.disable_start_message
-        info '[%s] Starting agent, reporting to %s', VERSION, config.server_url
+      unless config.disable_start_message?
+        config.logger.info format(
+          '[%s] Starting agent, reporting to %s',
+          VERSION, config.server_url
+        )
       end
 
       central_config.start

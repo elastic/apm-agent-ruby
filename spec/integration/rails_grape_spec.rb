@@ -5,7 +5,7 @@ require 'spec_helper'
 if (defined?(Rails) && defined?(Grape))
   require 'action_controller/railtie'
 
-  RSpec.describe 'Rails and Grape integration', :mock_intake do
+  RSpec.describe 'Rails and Grape integration', :mock_intake, :allow_running_agent do
     include Rack::Test::Methods
 
     def app
@@ -14,14 +14,12 @@ if (defined?(Rails) && defined?(Grape))
 
     before :all do
       class RailsGrapeTestApp < Rails::Application
+        config.secret_key_base = '__rails_grape'
         config.logger = Logger.new(nil)
         config.logger.level = Logger::DEBUG
         config.eager_load = false
 
         config.elastic_apm.api_request_time = '100ms'
-        config.elastic_apm.pool_size = Concurrent.processor_count
-        config.elastic_apm.service_name = 'RailsGrapeTestApp'
-        config.elastic_apm.logger = config.logger
       end
 
       class RailsGrapeAppController < ActionController::Base
@@ -41,7 +39,6 @@ if (defined?(Rails) && defined?(Grape))
       end
 
       class GrapeTestApp < ::Grape::API
-        use ElasticAPM::Middleware
         resource :statuses do
           desc 'Return a status.'
           params do
@@ -65,10 +62,12 @@ if (defined?(Rails) && defined?(Grape))
     end
 
     after :all do
-      %i[RailsGrapeTestApp RailsGrapeAppController].each do |const|
+      %i[RailsGrapeTestApp RailsGrapeAppController GrapeTestApp].each do |const|
         Object.send(:remove_const, const)
       end
+
       ElasticAPM.stop
+
       Rails.application = nil
     end
 

@@ -15,5 +15,10 @@ module ElasticAPM
     def empty?
       samples.empty?
     end
+
+    def inspect
+      "<ElasticAPM::Metricset timestamp:#{timestamp}" \
+        " labels:#{labels.inspect} samples:#{samples.inspect}>"
+    end
   end
 end

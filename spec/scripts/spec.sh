@@ -41,5 +41,6 @@ RUBY_VERSION=${VERSION} docker-compose run \
   -v "$(dirname "$(pwd)"):/app" \
   --rm ruby_rspec \
   /bin/bash -c "\
+    gem install rake && \
     bundle install && \
     timeout -s9 5m bundle exec rspec -f progress -f JUnit -o spec/ruby-agent-junit.xml ${TEST}"

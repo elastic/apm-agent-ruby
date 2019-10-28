@@ -9,7 +9,7 @@ module ElasticAPM
     # @param app [Sinatra::Base] A Sinatra app.
     # @param config [Config, Hash] An instance of Config or a Hash config.
     # @return [true, nil] true if the agent was started, nil otherwise.
-    def start(app, config)
+    def start(app, config = {})
       config = Config.new(config) unless config.is_a?(Config)
       configure_app(app, config)
 

@@ -7,8 +7,6 @@ module ElasticAPM
   class Span
     extend Forwardable
 
-    def_delegators :@trace_context, :trace_id, :parent_id, :id
-
     DEFAULT_TYPE = 'custom'
 
     # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
@@ -39,6 +37,8 @@ module ElasticAPM
       @stacktrace_builder = stacktrace_builder
     end
     # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
+
+    def_delegators :@trace_context, :trace_id, :parent_id, :id
 
     attr_accessor(
       :action,
@@ -93,7 +93,7 @@ module ElasticAPM
     # relations
 
     def inspect
-      "<ElasticAPM::Span id:#{id}" \
+      "<ElasticAPM::Span id:#{trace_context&.id}" \
         " name:#{name.inspect}" \
         " type:#{type.inspect}" \
         '>'

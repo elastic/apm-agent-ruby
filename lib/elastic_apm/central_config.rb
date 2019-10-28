@@ -35,7 +35,15 @@ module ElasticAPM
     def start
       return unless config.central_config?
 
+      debug 'Starting CentralConfig'
+
       fetch_and_apply_config
+    end
+
+    def stop
+      debug 'Stopping CentralConfig'
+
+      @scheduled_task&.cancel
     end
 
     def fetch_and_apply_config
@@ -44,10 +52,6 @@ module ElasticAPM
         .execute(&method(:fetch_config))
         .on_success(&method(:handle_success))
         .rescue(&method(:handle_error))
-    end
-
-    def stop
-      @scheduled_task&.cancel
     end
 
     # rubocop:disable Metrics/MethodLength

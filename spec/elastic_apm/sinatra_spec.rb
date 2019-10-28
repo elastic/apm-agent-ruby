@@ -1,34 +1,31 @@
 # frozen_string_literal: true
 
 if defined?(Sinatra)
-  require 'elastic_apm/sinatra'
   RSpec.describe Sinatra do
-    describe '.start' do
+    describe '.start', :intercept do
       before do
         class SinatraTestApp < ::Sinatra::Base
           use ElasticAPM::Middleware
         end
-        ElasticAPM::Sinatra.start(SinatraTestApp, config)
       end
 
       after do
-        ElasticAPM.stop
         Object.send(:remove_const, :SinatraTestApp)
       end
 
-      context 'with no overridden config settings' do
-        let(:config) { {} }
-        it 'starts the agent' do
+      it 'starts the agent' do
+        with_agent(klass: ElasticAPM::Sinatra, args: [SinatraTestApp]) do
           expect(ElasticAPM::Agent).to be_running
+          expect(ElasticAPM.agent.config.service_name).to eq 'SinatraTestApp'
         end
       end
 
-      context 'a config with settings' do
-        let(:config) { { service_name: 'Other Name' } }
-
+      context 'with config' do
         it 'sets the options' do
-          expect(ElasticAPM.agent.config.options[:service_name].value)
-            .to eq('Other Name')
+          with_agent(klass: ElasticAPM::Sinatra, args: [SinatraTestApp], service_name: 'my-app') do
+            expect(ElasticAPM::Agent).to be_running
+            expect(ElasticAPM.agent.config.service_name).to eq 'my-app'
+          end
         end
       end
     end
