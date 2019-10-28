@@ -1,10 +1,11 @@
 #!/bin/bash
 set -x
+set -e
 
 runRspec(){
   local case=${1:-""}
   local bn=${case}
-  
+
   if [ -n "${case}" ]; then
     bn="$(basename ${case} _spec.rb)/"
   fi
