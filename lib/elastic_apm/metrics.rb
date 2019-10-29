@@ -36,7 +36,8 @@ module ElasticAPM
         @sets = {
           system: CpuMem,
           vm: VM,
-          breakdown: Breakdown
+          breakdown: Breakdown,
+          transaction: Transaction
         }.each_with_object({}) do |(key, kls), sets|
           debug "Adding metrics collector '#{kls}'"
           sets[key] = kls.new(config)

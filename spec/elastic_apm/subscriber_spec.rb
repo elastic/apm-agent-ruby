@@ -15,6 +15,8 @@ if enable
     RSpec.describe Subscriber do
       let(:config) { Config.new }
       let(:agent) { Agent.new config }
+      before { agent.start }
+      after { agent.stop }
 
       subject { Subscriber.new(agent) }
 

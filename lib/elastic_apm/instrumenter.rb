@@ -92,7 +92,8 @@ module ElasticAPM
 
       if (transaction = current_transaction)
         raise ExistingTransactionError,
-          "Transactions may not be nested.\nAlready inside #{transaction.inspect}"
+          "Transactions may not be nested.\n" \
+          "Already inside #{transaction.inspect}"
       end
 
       sampled = trace_context ? trace_context.recorded? : random_sample?(config)
@@ -230,6 +231,8 @@ module ElasticAPM
 
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def update_transaction_metrics(transaction)
+      return unless transaction.config.collect_metrics?
+
       tags = {
         'transaction.name': transaction.name,
         'transaction.type': transaction.type

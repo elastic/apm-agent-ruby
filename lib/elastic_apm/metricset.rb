@@ -37,7 +37,10 @@ module ElasticAPM
 
     def inspect
       "<ElasticAPM::Metricset timestamp:#{timestamp}" \
-        " labels:#{labels.inspect} samples:#{samples.inspect}>"
+        " transaction:#{transaction.inspect}" \
+        " span:#{span.inspect}" \
+        " tags:#{tags.inspect}" \
+        " samples:#{samples.inspect}>"
     end
   end
 end
