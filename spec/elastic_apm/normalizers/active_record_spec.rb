@@ -53,6 +53,21 @@ module ElasticAPM
             expect(context_.db.statement).to eq sql
           end
 
+          it 'uses the connection from payload, when available' do
+            sql = 'SELECT  "burgers".* FROM "burgers" ' \
+              'WHERE "burgers"."cheese" = $1 LIMIT 1'
+
+            name, type, subtype, action, context_ = normalize_payload(
+              sql: sql,
+              connection: double(adapter_name: 'MySQL')
+            )
+            expect(name).to eq 'SELECT FROM burgers'
+            expect(type).to eq 'db'
+            expect(subtype).to eq 'mysql'
+            expect(action).to eq 'sql'
+            expect(context_.db.statement).to eq sql
+          end
+
           it 'skips cache queries' do
             result =
               normalize_payload(name: 'CACHE', sql: 'DROP * FROM users')
