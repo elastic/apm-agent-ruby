@@ -44,4 +44,4 @@ RUBY_VERSION=${VERSION} docker-compose run \
   /bin/bash -c "\
     gem install rake && \
     bundle update && \
-    timeout -s9 5m bin/run-tests ${TEST}"
+    timeout -s9 15m bin/run-tests ${TEST}"
