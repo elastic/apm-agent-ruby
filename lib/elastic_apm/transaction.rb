@@ -78,25 +78,6 @@ module ElasticAPM
 
     # spans
 
-    def start_span(
-        name,
-        type = nil,
-        subtype: nil,
-        action: nil,
-        context: nil,
-        include_stacktrace: true,
-        trace_context: nil
-    )
-      ElasticAPM.start_span(name,
-                            type,
-                            subtype: subtype,
-                            action: action,
-                            context: context,
-                            include_stacktrace: include_stacktrace,
-                            trace_context: trace_context,
-                            transaction: self)
-    end
-
     def inc_started_spans!
       MUTEX.synchronize do
         @started_spans += 1
@@ -104,8 +85,8 @@ module ElasticAPM
           @dropped_spans += 1
           return false
         end
-        true
       end
+      true
     end
 
     # context

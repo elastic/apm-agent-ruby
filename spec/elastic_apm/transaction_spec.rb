@@ -135,30 +135,5 @@ module ElasticAPM
         expect(subject.context.response.headers).to match('Ok' => 'yes')
       end
     end
-
-    describe '#start_span' do
-      before { ElasticAPM.start }
-      after { ElasticAPM.stop }
-      context 'async spans' do
-        it 'can attach a span to a specific transaction' do
-          transaction = ElasticAPM.start_transaction
-          span1 = ElasticAPM.start_span 'Thread1'
-
-          span2 = Thread.new do
-            transaction.start_span 'Thread2'
-          end.value
-
-          span3 = Thread.new do
-            transaction.start_span 'Thread3'
-          end.value
-
-          expect(ElasticAPM.current_transaction.started_spans).to eq(3)
-          expect(span1.parent_id).to eq(span2.parent_id)
-          expect(span1.parent_id).to eq(span3.parent_id)
-          expect(span2.parent_id).to eq(transaction.trace_context.child.parent_id)
-          expect(span3.parent_id).to eq(transaction.trace_context.child.parent_id)
-        end
-      end
-    end
   end
 end
