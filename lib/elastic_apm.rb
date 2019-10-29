@@ -226,7 +226,8 @@ module ElasticAPM
       action: nil,
       context: nil,
       include_stacktrace: true,
-      trace_context: nil
+      trace_context: nil,
+      parent: nil
     )
       unless block_given?
         raise ArgumentError,
@@ -244,7 +245,8 @@ module ElasticAPM
             action: action,
             context: context,
             include_stacktrace: include_stacktrace,
-            trace_context: trace_context
+            trace_context: trace_context,
+            parent: parent
           )
         yield span
       ensure

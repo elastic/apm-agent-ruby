@@ -190,6 +190,24 @@ RSpec.describe ElasticAPM do
           expect(span2.parent_id).to eq(transaction.trace_context.child.parent_id)
         end
       end
+
+      context '#with_span' do
+        it 'allows async spans' do
+          transaction = ElasticAPM.start_transaction
+          span1 = Thread.new do
+            ElasticAPM.with_span('job 1', parent: transaction) { |span| span }
+          end.value
+
+          span2 = Thread.new do
+            ElasticAPM.with_span('job 2', parent: transaction) { |span| span }
+          end.value
+
+          expect(ElasticAPM.current_transaction.started_spans).to eq(2)
+          expect(span1.parent_id).to eq(span2.parent_id)
+          expect(span1.parent_id).to eq(transaction.trace_context.child.parent_id)
+          expect(span2.parent_id).to eq(transaction.trace_context.child.parent_id)
+        end
+      end
     end
 
     context 'span parent' do
