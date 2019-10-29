@@ -246,7 +246,6 @@ module ElasticAPM
       ).inc!
 
       return unless transaction.sampled?
-      # TODO: remove this check?
       return unless transaction.config.breakdown_metrics?
 
       @metrics.get(:breakdown).counter(

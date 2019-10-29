@@ -17,18 +17,14 @@ module ElasticAPM
 
       TIMEOUT_INTERVAL = 5 # seconds
 
-      # rubocop:disable Metrics/MethodLength
-      # TODO: labels what now?
-      def initialize(config, labels: nil, &block)
+      def initialize(config, &block)
         @config = config
-        @labels = labels
         @callback = block
       end
-      # rubocop:enable Metrics/MethodLength
 
-      attr_reader :config, :sets, :callback, :labels
+      attr_reader :config, :sets, :callback
 
-      # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       def start
         unless config.collect_metrics?
           debug 'Skipping metrics'
@@ -64,7 +60,7 @@ module ElasticAPM
 
         @running = true
       end
-      # rubocop:enable Metrics/MethodLength
+      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
       def stop
         return unless running?

@@ -90,8 +90,8 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       ids << "trace.id=#{trace_id}" if trace_id
       ids.join(' ')
     end
-
     # rubocop:enable Metrics/AbcSize
+
     # Start a new transaction
     #
     # @param name [String] A description of the transaction, eg

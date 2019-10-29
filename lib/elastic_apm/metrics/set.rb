@@ -15,7 +15,6 @@ module ElasticAPM
         @config = config
         @metrics = {}
         @disabled = false
-        # TODO: Do we need a lock in Set?
         @lock = Mutex.new
       end
 
@@ -41,7 +40,7 @@ module ElasticAPM
         metric(Timer, key, tags: tags, **args)
       end
 
-      # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       def metric(kls, key, tags: nil, **args)
         key = key_with_tags(key, tags)
         return metrics[key] if metrics[key]
@@ -53,11 +52,10 @@ module ElasticAPM
             if metrics.length < DISTINCT_LABEL_LIMIT
               kls.new(key, tags: tags, **args)
             else
-              if !@label_limit_logged
+              unless @label_limit_logged
                 warn(
-                  "The limit of %d metricsets has been reached, no new " \
-                   "metricsets will be created.",
-                   DISTINCT_LABEL_LIMIT
+                  'The limit of %d metricsets has been reached, no new ' \
+                   'metricsets will be created.', DISTINCT_LABEL_LIMIT
                 )
                 @label_limit_logged = true
               end
@@ -66,7 +64,7 @@ module ElasticAPM
             end
         end
       end
-      # rubocop:enable Metrics/MethodLength
+      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
       def collect
         return if disabled?
@@ -74,10 +72,18 @@ module ElasticAPM
         metrics.each_with_object({}) do |(key, metric), sets|
           next unless (value = metric.collect)
 
+          # metrics have a key of name and flat array of key-value pairs
+          #   eg [name, key, value, key, value]
+          # they can be sent in the same metricset but not if they have
+          # differing tags. So, we split the resulting sets by tags first.
           name, *tags = key
           sets[tags] ||= Metricset.new
+
+          # then we set the `samples` value for the metricset
           set = sets[tags]
           set.samples[name] = value
+
+          # and finally we copy the tags from the Metric to the Metricset
           set.merge_tags! metric.tags
         end.values
       end
