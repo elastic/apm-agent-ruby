@@ -42,5 +42,5 @@ RUBY_VERSION=${VERSION} docker-compose run \
   --rm ruby_rspec \
   /bin/bash -c "\
     gem install rake && \
-    bundle install && \
+    bundle update && \
     timeout -s9 5m bin/run-tests ${TEST}"
