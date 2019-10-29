@@ -144,6 +144,8 @@ def runScript(Map params = [:]){
     retry(2){
       sleep randomNumber(min:10, max: 30)
       dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
+      /* Temporal solution to pull the jRuby image from the repo */
+      sh("docker image rm -f docker.elastic.co/observability-ci/jruby:9.2-12-jdk")
       sh("./spec/scripts/spec.sh ${ruby} ${framework}")
     }
   }
