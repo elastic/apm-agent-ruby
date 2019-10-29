@@ -45,7 +45,3 @@ RUBY_VERSION=${VERSION} docker-compose run \
     gem install rake && \
     bundle update && \
     timeout -s9 5m bin/run-tests ${TEST}"
-docker image rm -f "apm-agent-ruby:${VERSION}"
-
-#    bundle config --local disable_platform_warnings true && \
-
