@@ -9,6 +9,7 @@ module ElasticAPM
   # It is recommended to use the Railtie instead.
   module Rails
     extend self
+
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     # rubocop:disable Metrics/CyclomaticComplexity
     # Start the ElasticAPM agent and hook into Rails.
@@ -18,11 +19,13 @@ module ElasticAPM
     # @return [true, nil] true if the agent was started, nil otherwise.
     def start(config)
       config = Config.new(config) unless config.is_a?(Config)
+
       if (reason = should_skip?(config))
         unless config.disable_start_message?
           config.logger.info "Skipping because: #{reason}. " \
             "Start manually with `ElasticAPM.start'"
         end
+
         return
       end
 
@@ -36,6 +39,7 @@ module ElasticAPM
          )
         require 'elastic_apm/spies/action_dispatch'
       end
+
       ElasticAPM.running?
     rescue StandardError => e
       if config.disable_start_message?

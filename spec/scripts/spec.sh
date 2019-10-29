@@ -16,7 +16,7 @@ fi
 
 RUBY_IMAGE=${1}
 FRAMEWORK=${2}
-TEST=${3:-spec}
+TEST=${3}
 VERSION=$(echo "${RUBY_IMAGE}" | cut -d":" -f2)
 
 cd spec
@@ -28,7 +28,8 @@ docker-compose up -d mongodb
 JDK_JAVA_OPTIONS=''
 JRUBY_OPTS=''
 if [[ $RUBY_IMAGE == *"jruby"* ]]; then
-  JDK_JAVA_OPTIONS='--illegal-access=permit'
+  # https://github.com/jruby/jruby/issues/4834#issuecomment-343371742
+  JDK_JAVA_OPTIONS="--illegal-access=permit $(echo --add-opens=java.base/{java.lang,java.security,java.util,java.security.cert,java.util.zip,java.lang.reflect,java.util.regex,java.net,java.io,java.lang}=ALL-UNNAMED)"
   JRUBY_OPTS="--debug"
 fi
 
@@ -42,5 +43,5 @@ RUBY_VERSION=${VERSION} docker-compose run \
   --rm ruby_rspec \
   /bin/bash -c "\
     gem install rake && \
-    bundle install && \
-    timeout -s9 5m bundle exec rspec -f progress -f JUnit -o spec/ruby-agent-junit.xml ${TEST}"
+    bundle update && \
+    timeout -s9 15m bin/run-tests ${TEST}"

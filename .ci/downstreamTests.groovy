@@ -117,7 +117,7 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
         } finally {
           steps.junit(allowEmptyResults: true,
             keepLongStdio: true,
-            testResults: "**/spec/ruby-agent-junit.xml")
+            testResults: "**/spec/junit-reports/**/ruby-agent-junit.xml")
           if (steps.isCodecovEnabled(x, y)) {
             steps.codecov(repo: "${steps.env.REPO}", basedir: "${steps.env.BASE_DIR}",
                           secret: "${steps.env.CODECOV_SECRET}")

@@ -13,6 +13,6 @@
 Gemfile.lock
 /html_docs/
 spec/elastic_apm.log
-spec/ruby-agent-junit.xml
+spec/junit-reports
 .gem
 *.bulk

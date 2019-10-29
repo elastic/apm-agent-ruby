@@ -27,6 +27,28 @@ require 'elastic-apm'
 Concurrent.use_stdlib_logger(Logger::DEBUG)
 Thread.abort_on_exception = true
 
+SpecLogger = StringIO.new
+
+module RailsTestHelpers
+  def self.included(_kls)
+    Rails::Application.class_eval do
+      def configure_rails_for_test
+        config.secret_key_base = '__secret_key_base'
+        config.consider_all_requests_local = false
+        config.eager_load = false
+        config.elastic_apm.api_request_time = '100ms'
+        config.elastic_apm.disable_start_message = true
+
+        # Silence deprecation warning
+        if defined?(ActionView::Railtie::NULL_OPTION)
+          config.action_view.finalize_compiled_template_methods =
+            ActionView::Railtie::NULL_OPTION
+        end
+      end
+    end
+  end
+end
+
 RSpec.configure do |config|
   config.order = :random
 
@@ -34,6 +56,7 @@ RSpec.configure do |config|
   config.include WithAgent
   config.include PlatformHelpers
   config.include ElasticSubscribers
+  config.include RailsTestHelpers if defined?(Rails)
 
   if config.files_to_run.one?
     config.default_formatter = 'documentation'
@@ -63,5 +86,13 @@ RSpec.configure do |config|
        !example.metadata[:allow_running_agent]
       raise 'someone leaked subscription'
     end
+  end
+
+  config.after(:each, spec_logger: true) do |example|
+    SpecLogger.rewind
+    next unless example.exception
+
+    puts 'Example failed, dumping log:'
+    puts SpecLogger.read
   end
 end

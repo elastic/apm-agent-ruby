@@ -3,55 +3,37 @@
 require 'spec_helper'
 
 if defined?(Rails)
+  enabled = true
+else
+  puts '[INFO] Skipping Rails spec'
+end
+
+if enabled
   require 'action_controller/railtie'
   require 'action_mailer/railtie'
 
-  SpecLogger = StringIO.new
-
-  def configure_rails_for_test(config)
-    config.secret_key_base = '__secret_key_base'
-    config.consider_all_requests_local = false
-    config.eager_load = false
-
-    # Silence deprecation warning
-    if defined?(ActionView::Railtie::NULL_OPTION)
-      config.action_view.finalize_compiled_template_methods =
-        ActionView::Railtie::NULL_OPTION
-    end
-  end
-
-  RSpec.describe 'Rails integration', :mock_intake, :allow_running_agent do
+  RSpec.describe 'Rails integration', :mock_intake, :allow_running_agent, :spec_logger do
     include Rack::Test::Methods
 
     def app
       @app ||= Rails.application
     end
 
-    after :each do |example|
-      SpecLogger.rewind
-      next unless example.exception
-
-      puts 'Example failed, dumping log:'
-      puts SpecLogger.read
-    end
-
     before :all do
-      class RailsTestApp < Rails::Application
-        configure_rails_for_test(config)
+      module RailsTestApp
+        class Application < Rails::Application
+          configure_rails_for_test
 
-        config.logger = Logger.new(SpecLogger)
-        config.logger.level = Logger::DEBUG
+          config.action_mailer.perform_deliveries = false
 
-        config.action_mailer.perform_deliveries = false
+          config.logger = Logger.new(SpecLogger)
+          config.logger.level = Logger::DEBUG
 
-        config.elastic_apm.api_request_time = '100ms'
-        config.elastic_apm.capture_body = 'all'
-        config.elastic_apm.disable_start_message = true
-        config.elastic_apm.ignore_url_patterns = '/ping'
-        config.elastic_apm.log_level = Logger::DEBUG
-        config.elastic_apm.log_path = 'spec/elastic_apm.log'
-        config.elastic_apm.pool_size = Concurrent.processor_count
-        config.elastic_apm.service_name = 'RailsTestApp'
+          config.elastic_apm.capture_body = 'all'
+          config.elastic_apm.ignore_url_patterns = '/ping'
+          config.elastic_apm.log_path = 'spec/elastic_apm.log'
+          config.elastic_apm.pool_size = Concurrent.processor_count
+        end
       end
 
       class ApplicationController < ActionController::Base
@@ -124,8 +106,8 @@ if defined?(Rails)
 
       MockIntake.instance.stub!
 
-      RailsTestApp.initialize!
-      RailsTestApp.routes.draw do
+      RailsTestApp::Application.initialize!
+      RailsTestApp::Application.routes.draw do
         get '/error', to: 'application#raise_error'
         get '/report_message', to: 'application#report_message'
         get '/tags_and_context', to: 'application#context'
@@ -138,12 +120,6 @@ if defined?(Rails)
 
     after :all do
       ElasticAPM.stop
-
-      %i[RailsTestApp ApplicationController NotificationsMailer].each do |const|
-        Object.send(:remove_const, const)
-      end
-
-      Rails.application = nil
     end
 
     it 'knows Rails' do
@@ -299,47 +275,4 @@ if defined?(Rails)
       end
     end
   end
-
-  RSpec.describe 'Rails console' do
-    def app
-      @app ||= Rails.application
-    end
-
-    before :all do
-      class RailsConsoleTestApp < Rails::Application
-        configure_rails_for_test(config)
-
-        config.disable_send = true
-        config.logger = Logger.new(nil)
-
-        config.elastic_apm.disable_start_message = true
-      end
-
-      class ApplicationController < ActionController::Base
-      end
-
-      module Rails
-        class Console; end
-      end
-
-      RailsConsoleTestApp.initialize!
-    end
-
-    after :all do
-      ElasticAPM.stop
-
-      %i[RailsConsoleTestApp ApplicationController].each do |const|
-        Object.send(:remove_const, const)
-      end
-
-      Rails.send(:remove_const, :Console)
-      Rails.application = nil
-    end
-
-    it "doesn't start when console" do
-      expect(ElasticAPM.agent).to be nil
-    end
-  end
-else
-  puts '[INFO] Skipping Rails spec'
 end
