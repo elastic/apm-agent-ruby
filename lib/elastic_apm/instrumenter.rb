@@ -160,7 +160,7 @@ module ElasticAPM
       return unless transaction.sampled?
       return unless transaction.inc_started_spans!
 
-      parent ||= current_span || current_transaction
+      parent ||= (current_span || current_transaction)
 
       span = Span.new(
         name: name,
