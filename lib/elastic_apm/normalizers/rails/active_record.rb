@@ -12,6 +12,7 @@ module ElasticAPM
         TYPE = 'db'
         ACTION = 'sql'
         SKIP_NAMES = %w[SCHEMA CACHE].freeze
+        UNKNOWN = 'unknown'.freeze
 
         def initialize(*args)
           super
@@ -31,16 +32,17 @@ module ElasticAPM
         private
 
         def subtype(payload)
-          @subtype ||= (lookup_adapter(payload) || 'unknown')
+          return connection_adapter(payload[:connection]) if payload.key?(:connection)
+
+          @default_adapter ||= connection_adapter(::ActiveRecord::Base.connection)
         end
 
         def summarize(sql)
           @summarizer.summarize(sql)
         end
 
-        def lookup_adapter(payload)
-          connection = payload[:connection] || ::ActiveRecord::Base.connection
-          connection.adapter_name.downcase
+        def connection_adapter(connection)
+          connection.adapter_name.downcase || UNKNOWN
         rescue StandardError
           nil
         end
