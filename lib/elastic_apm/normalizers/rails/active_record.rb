@@ -18,6 +18,7 @@ module ElasticAPM
           super
 
           @summarizer = SqlSummarizer.new
+          @adapters = {}
         end
 
         def normalize(_transaction, _name, payload)
@@ -42,7 +43,6 @@ module ElasticAPM
         end
 
         def connection_adapter(conn)
-          @adapters ||= {}
           return UNKNOWN unless conn.adapter_name
           @adapters[conn.adapter_name] ||
             (@adapters[conn.adapter_name] = conn.adapter_name.downcase)
