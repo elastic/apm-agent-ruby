@@ -27,6 +27,10 @@ module ElasticAPM
         @hash[key] = value
       end
 
+      def merge(other)
+        self.class.new(@config, initial: @hash.merge(other))
+      end
+
       def merge!(other)
         @hash.merge!(other)
         self
@@ -36,8 +40,8 @@ module ElasticAPM
         @hash
       end
 
-      def chunked!
-        self.class.new(@config, initial: hash.dup).merge!(
+      def chunked
+        merge(
           @config.http_compression? ? GZIP_HEADERS : HEADERS
         )
       end

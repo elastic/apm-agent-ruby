@@ -21,7 +21,7 @@ module ElasticAPM
       end
 
       describe '#initialize' do
-        subject { described_class.open(config, url, headers: headers) }
+        subject { described_class.open(config, url) }
 
         it 'is has no active connection' do
           expect(subject.closed?).to be false
@@ -29,7 +29,7 @@ module ElasticAPM
       end
 
       describe 'write and close' do
-        subject { described_class.open(config, url, headers: headers) }
+        subject { described_class.open(config, url) }
 
         it 'sends metadata' do
           stub = build_stub(body: /metadata/, headers: headers)
@@ -79,7 +79,7 @@ module ElasticAPM
       context 'http compression' do
         let(:config) { Config.new }
 
-        subject { described_class.open(config, url, headers: headers) }
+        subject { described_class.open(config, url) }
 
         it 'compresses the payload' do
           stub = build_stub(

@@ -100,6 +100,26 @@ module ElasticAPM
         end
       end
 
+      context 'when server sends etag header' do
+        it 'includes etag in next request' do
+          stub_response(
+            nil,
+            response: { headers: { 'Etag': '___etag___' } }
+          )
+
+          subject.fetch_and_apply_config
+          subject.promise.wait
+
+          stub_response(
+            nil,
+            request: { headers: { 'Etag': '___etag___' } }
+          )
+
+          subject.fetch_and_apply_config
+          subject.promise.wait
+        end
+      end
+
       context 'when server responds 404' do
         it 'schedules a new poll' do
           stub_response('Not found', response: { status: 404 })

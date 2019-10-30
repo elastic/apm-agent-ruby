@@ -20,7 +20,6 @@ module ElasticAPM
 
       def initialize(config)
         @config = config
-        @headers = Headers.new(config).chunked!
         @metadata = JSON.fast_generate(
           Serializers::MetadataSerializer.new(config).build(
             Metadata.new(config)
@@ -82,10 +81,9 @@ module ElasticAPM
         schedule_closing if @config.api_request_time
 
         @http =
-          Http.open(
-            @config, @url,
-            headers: @headers.to_h
-          ).tap { |http| http.write(@metadata) }
+          Http.open(@config, @url).tap do |http|
+            http.write(@metadata)
+          end
       end
       # rubocop:enable
 

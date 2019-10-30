@@ -9,9 +9,9 @@ module ElasticAPM
       class Http
         include Logging
 
-        def initialize(config, headers: {})
+        def initialize(config, headers: nil)
           @config = config
-          @headers = headers
+          @headers = headers || Headers.new(config)
           @client = build_client
         end
 
@@ -21,25 +21,26 @@ module ElasticAPM
           @request = open_request_in_thread(url)
         end
 
-        def self.open(config, url, headers: {})
-          new(config, headers: headers).tap do |http|
+        def self.open(config, url)
+          new(config).tap do |http|
             http.open(url)
           end
         end
 
-        def post(url, body: nil)
-          request(:post, url, body: body)
+        def post(url, body: nil, headers: nil)
+          request(:post, url, body: body, headers: headers)
         end
 
-        def get(url)
-          request(:get, url)
+        def get(url, headers: nil)
+          request(:get, url, headers: headers)
         end
 
-        def request(method, url, body: nil)
+        def request(method, url, body: nil, headers: nil)
           @client.send(
             method,
             url,
             body: body,
+            headers: (headers ? @headers.merge(headers) : @headers).to_h,
             ssl_context: @config.ssl_context
           ).flush
         end
@@ -88,7 +89,7 @@ module ElasticAPM
           debug '%s: Opening new request', thread_str
           Thread.new do
             begin
-              resp = post(url, body: @rd)
+              resp = post(url, body: @rd, headers: @headers.chunked.to_h)
 
               if resp&.status == 202
                 debug 'APM Server responded with status 202'

@@ -4,7 +4,7 @@ require 'elastic_apm/central_config/cache_control'
 
 module ElasticAPM
   # @api private
-  class CentralConfig
+  class CentralConfig # rubocop:disable Metrics/ClassLength
     include Logging
 
     # @api private
@@ -23,7 +23,8 @@ module ElasticAPM
     def initialize(config)
       @config = config
       @modified_options = {}
-      @http = Transport::Connection::Http.new(config, headers: headers)
+      @http = Transport::Connection::Http.new(config)
+      @etag = 1
     end
 
     attr_reader :config
@@ -93,6 +94,10 @@ module ElasticAPM
 
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def handle_success(resp)
+      if (etag = resp.headers['Etag'])
+        @etag = etag
+      end
+
       if resp.status == 304
         info 'Received 304 Not Modified'
       else
@@ -126,7 +131,7 @@ module ElasticAPM
     end
 
     def perform_request
-      @http.get(server_url)
+      @http.get(server_url, headers: headers)
     end
 
     def server_url
@@ -137,10 +142,7 @@ module ElasticAPM
     end
 
     def headers
-      @headers ||=
-        Transport::Headers.new(config).tap do |headers|
-          headers['Etag'] = 1
-        end
+      { 'Etag': @etag }
     end
 
     def schedule_next_fetch(resp)

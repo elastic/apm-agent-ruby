@@ -23,9 +23,9 @@ module ElasticAPM
         end
       end
 
-      describe 'chunked!' do
+      describe 'chunked' do
         it 'returns a modified copy' do
-          chunked = subject.chunked!
+          chunked = subject.chunked
           expect(chunked).to_not be subject
           expect(chunked.hash).to_not be subject.hash
           expect(subject['Transfer-Encoding']).to be nil
@@ -35,7 +35,7 @@ module ElasticAPM
 
         context 'with compression' do
           it 'sets gzip header' do
-            chunked = subject.chunked!
+            chunked = subject.chunked
             expect(chunked['Content-Encoding']).to eq 'gzip'
           end
         end
