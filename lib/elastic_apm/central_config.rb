@@ -91,7 +91,7 @@ module ElasticAPM
       @config = config.dup.tap { |new_config| new_config.assign(new_options) }
     end
 
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def handle_success(resp)
       if resp.status == 304
         info 'Received 304 Not Modified'
@@ -99,7 +99,10 @@ module ElasticAPM
         update = JSON.parse(resp.body.to_s)
         assign(update)
 
-        info 'Updated config from Kibana'
+        if @modified_options.any?
+          info 'Updated config from Kibana'
+          debug 'Modified: %s', @modified_options.inspect
+        end
       end
 
       schedule_next_fetch(resp)
@@ -109,7 +112,7 @@ module ElasticAPM
       error 'Failed to apply remote config, %s', e.inspect
       debug { e.backtrace.join('\n') }
     end
-    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def handle_error(error)
       debug(
