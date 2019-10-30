@@ -9,9 +9,13 @@ module ElasticAPM
       end
       let(:subscriber) { Spies::MongoSpy::Subscriber.new }
 
-      it 'captures command properties' do
-        span = subscriber.started(event)
-        subscriber.succeeded(event)
+      it 'captures command properties', :intercept do
+        span = with_agent do
+          ElasticAPM.with_transaction do
+            subscriber.started(event)
+            subscriber.succeeded(event)
+          end
+        end
 
         expect(span.name).to eq 'elastic-apm-test.listCollections'
         expect(span.type).to eq 'db'
@@ -27,7 +31,7 @@ module ElasticAPM
       end
     end
 
-    context 'collection commands' do
+    context 'collection commands', :intercept do
       let(:event) do
         double('event', command: { 'find' => 'testing',
                                    'filter' => { 'a' => 'bc'} },
@@ -38,8 +42,12 @@ module ElasticAPM
       let(:subscriber) { Spies::MongoSpy::Subscriber.new }
 
       it 'captures command properties' do
-        span = subscriber.started(event)
-        subscriber.succeeded(event)
+        span = with_agent do
+          ElasticAPM.with_transaction do
+            subscriber.started(event)
+            subscriber.succeeded(event)
+          end
+        end
 
         expect(span.name).to eq 'elastic-apm-test.testing.find'
         expect(span.type).to eq 'db'

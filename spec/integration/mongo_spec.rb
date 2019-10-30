@@ -27,17 +27,20 @@ if ENV['CI']
       end
 
       it 'instruments db admin commands', :intercept do
-        ElasticAPM.start
-        client =
-          Mongo::Client.new(
-            [url],
-            database: 'elastic-apm-test',
-            logger: Logger.new(nil),
-            server_selection_timeout: 5
-          )
+        with_agent do
+          client =
+            Mongo::Client.new(
+              [url],
+              database: 'elastic-apm-test',
+              logger: Logger.new(nil),
+              server_selection_timeout: 5
+            )
 
-        ElasticAPM.with_transaction 'Mongo test' do
-          client.database.collections
+          ElasticAPM.with_transaction 'Mongo test' do
+            client.database.collections
+          end
+
+          client.close
         end
 
         span, = @intercepted.spans
@@ -61,25 +64,28 @@ if ENV['CI']
       end
 
       it 'instruments commands on collections', :intercept do
-        ElasticAPM.start
-        client =
-          Mongo::Client.new(
-            [url],
-            database: 'elastic-apm-test',
-            logger: Logger.new(nil),
-            server_selection_timeout: 5
-          )
+        with_agent do
+          client =
+            Mongo::Client.new(
+              [url],
+              database: 'elastic-apm-test',
+              logger: Logger.new(nil),
+              server_selection_timeout: 5
+            )
 
-        # ParallelCollectionScan can only be run on an existing collection.
-        client['testing'].drop
-        client['testing'].create
-        ElasticAPM.with_transaction 'Mongo test' do
-          client['testing'].parallel_scan(1).to_a
+          client['testing'].drop
+          client['testing'].create
+          ElasticAPM.with_transaction 'Mongo test' do
+            client['testing'].delete_many
+          end
+
+          client['testing'].drop
+          client.close
         end
 
         span, = @intercepted.spans
 
-        expect(span.name).to eq 'elastic-apm-test.testing.parallelCollectionScan'
+        expect(span.name).to eq 'elastic-apm-test.testing.delete'
         expect(span.type).to eq 'db'
         expect(span.subtype).to eq 'mongodb'
         expect(span.action).to eq 'query'
@@ -88,10 +94,7 @@ if ENV['CI']
         db = span.context.db
         expect(db.instance).to eq 'elastic-apm-test'
         expect(db.type).to eq 'mongodb'
-        # ParallelCollectionScan doesn't send 'lsid' in the command so we can
-        # validate the entire command document.
-        expect(db.statement).to eq '{"parallelCollectionScan"=>"testing", ' \
-          '"numCursors"=>1}'
+        expect(db.statement).to match('"delete"=>"testing"')
         expect(db.user).to be nil
 
         client['testing'].drop
@@ -101,17 +104,20 @@ if ENV['CI']
       end
 
       it 'instruments commands with special BSON types', :intercept do
-        ElasticAPM.start
-        client =
-          Mongo::Client.new(
-            [url],
-            database: 'elastic-apm-test',
-            logger: Logger.new(nil),
-            server_selection_timeout: 5
-          )
+        with_agent do
+          client =
+            Mongo::Client.new(
+              [url],
+              database: 'elastic-apm-test',
+              logger: Logger.new(nil),
+              server_selection_timeout: 5
+            )
 
-        ElasticAPM.with_transaction 'Mongo test' do
-          client['testing'].find(a: BSON::Decimal128.new('1')).to_a
+          ElasticAPM.with_transaction 'Mongo test' do
+            client['testing'].find(a: BSON::Decimal128.new('1')).to_a
+          end
+
+          client.close
         end
 
         span, = @intercepted.spans
