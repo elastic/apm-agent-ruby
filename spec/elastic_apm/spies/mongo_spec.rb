@@ -1,12 +1,16 @@
+# frozen_string_literal: true
+
+require 'mongo'
+
 module ElasticAPM
   RSpec.describe 'Spy: MongoDB' do
     context 'db admin commands' do
       let(:event) do
         double('event',
-               command: { 'listCollections' => 1 },
-               command_name: 'listCollections',
-               database_name: 'elastic-apm-test',
-               operation_id: 123)
+          command: { 'listCollections' => 1 },
+          command_name: 'listCollections',
+          database_name: 'elastic-apm-test',
+          operation_id: 123)
       end
       let(:subscriber) { Spies::MongoSpy::Subscriber.new }
 
@@ -35,11 +39,11 @@ module ElasticAPM
     context 'collection commands', :intercept do
       let(:event) do
         double('event',
-               command: { 'find' => 'testing',
-                          'filter' => { 'a' => 'bc'} },
-               command_name: 'find',
-               database_name: 'elastic-apm-test',
-               operation_id: 456)
+          command: { 'find' => 'testing',
+                     'filter' => { 'a' => 'bc' } },
+          command_name: 'find',
+          database_name: 'elastic-apm-test',
+          operation_id: 456)
       end
       let(:subscriber) { Spies::MongoSpy::Subscriber.new }
 
