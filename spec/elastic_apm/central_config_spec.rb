@@ -46,7 +46,7 @@ module ElasticAPM
         subject.fetch_and_apply_config
         subject.promise.wait
 
-        stub_response('Not found', status: 404)
+        stub_response('Not found', response: { status: 404 })
 
         subject.fetch_and_apply_config
         subject.promise.wait
@@ -58,7 +58,9 @@ module ElasticAPM
         it 'schedules a new poll' do
           stub_response(
             {},
-            headers: { 'Cache-Control': 'must-revalidate, max-age=123' }
+            response: {
+              headers: { 'Cache-Control': 'must-revalidate, max-age=123' }
+            }
           )
 
           subject.fetch_and_apply_config
@@ -73,7 +75,9 @@ module ElasticAPM
         it 'doesn\'t restore config, schedules a new poll' do
           stub_response(
             { transaction_sample_rate: 0.5 },
-            headers: { 'Cache-Control': 'must-revalidate, max-age=0.1' }
+            response: {
+              headers: { 'Cache-Control': 'must-revalidate, max-age=0.1' }
+            }
           )
 
           subject.fetch_and_apply_config
@@ -81,8 +85,10 @@ module ElasticAPM
 
           stub_response(
             nil,
-            status: 304,
-            headers: { 'Cache-Control': 'must-revalidate, max-age=123' }
+            response: {
+              status: 304,
+              headers: { 'Cache-Control': 'must-revalidate, max-age=123' }
+            }
           )
 
           subject.fetch_and_apply_config
@@ -96,7 +102,7 @@ module ElasticAPM
 
       context 'when server responds 404' do
         it 'schedules a new poll' do
-          stub_response('Not found', status: 404)
+          stub_response('Not found', response: { status: 404 })
 
           subject.fetch_and_apply_config
           subject.promise.wait
@@ -118,7 +124,7 @@ module ElasticAPM
 
       context 'when not found' do
         before do
-          stub_response('Not found', status: 404)
+          stub_response('Not found', response: { status: 404 })
         end
 
         it 'raises an error' do
@@ -137,10 +143,23 @@ module ElasticAPM
 
       context 'when server error' do
         it 'raises an error' do
-          stub_response('Server error', status: 500)
+          stub_response('Server error', response: { status: 500 })
 
           expect { subject.fetch_config }
             .to raise_error(CentralConfig::ServerError)
+        end
+      end
+
+      context 'with a secret token' do
+        before { config.secret_token = 'zecret' }
+
+        it 'sets auth header' do
+          stub_response(
+            {},
+            request: { headers: { 'Authorization': 'Bearer zecret' } }
+          )
+
+          subject.fetch_config
         end
       end
     end
@@ -165,9 +184,13 @@ module ElasticAPM
       end
     end
 
-    def stub_response(body, **opts)
-      stub_request(:get, 'http://localhost:8200/config/v1/agents?service.name=MyApp')
-        .to_return(body: body && body.to_json, **opts)
+    def stub_response(body, request: {}, response: {})
+      url = 'http://localhost:8200/config/v1/agents?service.name=MyApp'
+
+      stub_request(:get, url).tap do |stub|
+        stub.with(request) if request.any?
+        stub.to_return(body: body && body.to_json, **response)
+      end
     end
   end
 end
