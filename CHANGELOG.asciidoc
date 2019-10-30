@@ -35,6 +35,11 @@ endif::[]
 
 - Add Grape support. {pull}562[#562]
 
+[float]
+===== Fixed
+
+- Fixed pulling config from Kibana {pull}594[#594]
+
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 

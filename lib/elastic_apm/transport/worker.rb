@@ -25,8 +25,7 @@ module ElasticAPM
         @serializers = serializers
         @filters = filters
 
-        metadata = serializers.serialize(Metadata.new(config))
-        @connection = conn_adapter.new(config, metadata)
+        @connection = conn_adapter.new(config)
       end
 
       attr_reader :queue, :filters, :name, :connection, :serializers

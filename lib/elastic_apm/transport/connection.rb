@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
-require 'elastic_apm/transport/connection/http'
-
 module ElasticAPM
   module Transport
-    # rubocop:disable Metrics/ClassLength
     # @api private
     class Connection
       include Logging
@@ -21,20 +18,14 @@ module ElasticAPM
       # with ongoing write requests to `http`, write and close
       # requests have to be synchronized.
 
-      HEADERS = {
-        'Content-Type' => 'application/x-ndjson',
-        'Transfer-Encoding' => 'chunked'
-      }.freeze
-      GZIP_HEADERS = HEADERS.merge(
-        'Content-Encoding' => 'gzip'
-      ).freeze
-
-      def initialize(config, metadata)
+      def initialize(config)
         @config = config
-        @headers = build_headers(metadata)
-        @metadata = JSON.fast_generate(metadata)
+        @metadata = JSON.fast_generate(
+          Serializers::MetadataSerializer.new(config).build(
+            Metadata.new(config)
+          )
+        )
         @url = config.server_url + '/intake/v2/events'
-        @ssl_context = build_ssl_context
         @mutex = Mutex.new
       end
 
@@ -90,11 +81,9 @@ module ElasticAPM
         schedule_closing if @config.api_request_time
 
         @http =
-          Http.open(
-            @config, @url,
-            headers: @headers,
-            ssl_context: @ssl_context
-          ).tap { |http| http.write(@metadata) }
+          Http.open(@config, @url).tap do |http|
+            http.write(@metadata)
+          end
       end
       # rubocop:enable
 
@@ -105,49 +94,6 @@ module ElasticAPM
             flush(:timeout)
           end
       end
-
-      def build_headers(metadata)
-        (
-          @config.http_compression? ? GZIP_HEADERS : HEADERS
-        ).dup.tap do |headers|
-          headers['User-Agent'] = build_user_agent(metadata)
-
-          if (token = @config.secret_token)
-            headers['Authorization'] = "Bearer #{token}"
-          end
-        end
-      end
-
-      def build_user_agent(metadata)
-        runtime = metadata.dig(:metadata, :service, :runtime)
-
-        [
-          "elastic-apm-ruby/#{VERSION}",
-          HTTP::Request::USER_AGENT,
-          [runtime[:name], runtime[:version]].join('/')
-        ].join(' ')
-      end
-
-      def build_ssl_context # rubocop:disable Metrics/MethodLength
-        return unless @config.use_ssl?
-
-        OpenSSL::SSL::SSLContext.new.tap do |context|
-          if @config.server_ca_cert
-            context.ca_file = @config.server_ca_cert
-          else
-            context.cert_store =
-              OpenSSL::X509::Store.new.tap(&:set_default_paths)
-          end
-
-          context.verify_mode =
-            if @config.verify_server_cert
-              OpenSSL::SSL::VERIFY_PEER
-            else
-              OpenSSL::SSL::VERIFY_NONE
-            end
-        end
-      end
     end
-    # rubocop:enable Metrics/ClassLength
   end
 end

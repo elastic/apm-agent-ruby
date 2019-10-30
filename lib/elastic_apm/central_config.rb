@@ -4,7 +4,7 @@ require 'elastic_apm/central_config/cache_control'
 
 module ElasticAPM
   # @api private
-  class CentralConfig
+  class CentralConfig # rubocop:disable Metrics/ClassLength
     include Logging
 
     # @api private
@@ -23,10 +23,8 @@ module ElasticAPM
     def initialize(config)
       @config = config
       @modified_options = {}
-      @service_info = {
-        'service.name': config.service_name,
-        'service.environment': config.environment
-      }.to_json
+      @http = Transport::Connection::Http.new(config)
+      @etag = 1
     end
 
     attr_reader :config
@@ -94,15 +92,22 @@ module ElasticAPM
       @config = config.dup.tap { |new_config| new_config.assign(new_options) }
     end
 
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def handle_success(resp)
+      if (etag = resp.headers['Etag'])
+        @etag = etag
+      end
+
       if resp.status == 304
         info 'Received 304 Not Modified'
       else
         update = JSON.parse(resp.body.to_s)
         assign(update)
 
-        info 'Updated config from Kibana'
+        if @modified_options.any?
+          info 'Updated config from Kibana'
+          debug 'Modified: %s', @modified_options.inspect
+        end
       end
 
       schedule_next_fetch(resp)
@@ -112,7 +117,7 @@ module ElasticAPM
       error 'Failed to apply remote config, %s', e.inspect
       debug { e.backtrace.join('\n') }
     end
-    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def handle_error(error)
       debug(
@@ -126,11 +131,18 @@ module ElasticAPM
     end
 
     def perform_request
-      HTTP.post(
-        config.server_url + '/config/v1/agents',
-        body: @service_info,
-        headers: { etag: 1, content_type: 'application/json' }
-      )
+      @http.get(server_url, headers: headers)
+    end
+
+    def server_url
+      @server_url ||=
+        config.server_url +
+        '/config/v1/agents' \
+        "?service.name=#{config.service_name}"
+    end
+
+    def headers
+      { 'Etag': @etag }
     end
 
     def schedule_next_fetch(resp)
