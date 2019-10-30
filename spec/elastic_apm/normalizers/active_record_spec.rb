@@ -61,9 +61,35 @@ module ElasticAPM
               sql: sql,
               connection: double(adapter_name: 'MySQL')
             )
+
             expect(name).to eq 'SELECT FROM burgers'
             expect(type).to eq 'db'
             expect(subtype).to eq 'mysql'
+            expect(action).to eq 'sql'
+            expect(context_.db.statement).to eq sql
+
+            name, type, subtype, action, context_ = normalize_payload(
+              sql: sql,
+              connection: double(adapter_name: 'Postgres')
+            )
+
+            expect(name).to eq 'SELECT FROM burgers'
+            expect(type).to eq 'db'
+            expect(subtype).to eq 'postgres'
+            expect(action).to eq 'sql'
+            expect(context_.db.statement).to eq sql
+
+            sql = 'SELECT  "burgers".* FROM "burgers" ' \
+              'WHERE "burgers"."cheese" = $1 LIMIT 1'
+
+            name, type, subtype, action, context_ = normalize_payload(
+              sql: sql,
+              connection: double(adapter_name: nil)
+            )
+
+            expect(name).to eq 'SELECT FROM burgers'
+            expect(type).to eq 'db'
+            expect(subtype).to eq 'unknown'
             expect(action).to eq 'sql'
             expect(context_.db.statement).to eq sql
           end
