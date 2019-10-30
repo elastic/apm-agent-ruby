@@ -12,7 +12,7 @@ module ElasticAPM
         TYPE = 'db'
         ACTION = 'sql'
         SKIP_NAMES = %w[SCHEMA CACHE].freeze
-        UNKNOWN = 'unknown'.freeze
+        UNKNOWN = 'unknown'
 
         def initialize(*args)
           super
