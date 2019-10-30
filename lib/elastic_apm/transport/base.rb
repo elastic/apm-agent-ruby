@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
 require 'elastic_apm/metadata'
+require 'elastic_apm/transport/user_agent'
+require 'elastic_apm/transport/headers'
 require 'elastic_apm/transport/connection'
 require 'elastic_apm/transport/worker'
 require 'elastic_apm/transport/serializers'
 require 'elastic_apm/transport/filters'
+require 'elastic_apm/transport/connection/http'
+
 require 'elastic_apm/util/throttle'
 
 module ElasticAPM

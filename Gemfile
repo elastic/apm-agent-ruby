@@ -32,10 +32,14 @@ else
 end
 
 ## Install Framework
-GITHUB_REPOS = { 'grape' => 'ruby-grape/grape'}
+GITHUB_REPOS = {
+  'grape' => 'ruby-grape/grape',
+  'rails' => 'rails/rails',
+  'sinatra' => 'sinatra/sinatra'
+}.freeze
 
-frameworks = ENV.fetch('FRAMEWORK', 'rails').split(',')
-frameworks_versions = frameworks.inject({}) do |frameworks, str|
+parsed_frameworks = ENV.fetch('FRAMEWORK', 'rails').split(',')
+frameworks_versions = parsed_frameworks.inject({}) do |frameworks, str|
   framework, *version = str.split('-')
   frameworks.merge(framework => version.join('-'))
 end
@@ -43,7 +47,7 @@ end
 frameworks_versions.each do |framework, version|
   case version
   when 'master'
-    gem framework, github: (GITHUB_REPOS[framework] || "#{framework}/#{framework}")
+    gem framework, github: GITHUB_REPOS.fetch[framework]
   when /.+/
     gem framework, "~> #{version}.0"
   else

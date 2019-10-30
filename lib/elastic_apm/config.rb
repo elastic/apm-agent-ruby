@@ -165,6 +165,29 @@ module ElasticAPM
       @span_frames_min_duration_us ||= span_frames_min_duration * 1_000_000
     end
 
+    # rubocop:disable Metrics/MethodLength
+    def ssl_context
+      return unless use_ssl?
+
+      @ssl_context ||=
+        OpenSSL::SSL::SSLContext.new.tap do |context|
+          if server_ca_cert
+            context.ca_file = server_ca_cert
+          else
+            context.cert_store =
+              OpenSSL::X509::Store.new.tap(&:set_default_paths)
+          end
+
+          context.verify_mode =
+            if verify_server_cert
+              OpenSSL::SSL::VERIFY_PEER
+            else
+              OpenSSL::SSL::VERIFY_NONE
+            end
+        end
+    end
+    # rubocop:enable Metrics/MethodLength
+
     def inspect
       super.split.first + '>'
     end

@@ -23,6 +23,7 @@ module ElasticAPM
     def initialize(config)
       @config = config
       @modified_options = {}
+      @http = Transport::Connection::Http.new(config, headers: headers)
     end
 
     attr_reader :config
@@ -122,7 +123,7 @@ module ElasticAPM
     end
 
     def perform_request
-      HTTP.get(server_url, headers: headers)
+      @http.get(server_url)
     end
 
     def server_url
@@ -134,13 +135,8 @@ module ElasticAPM
 
     def headers
       @headers ||=
-        {
-          etag: 1,
-          content_type: 'application/json'
-        }.tap do |headers|
-          if (token = config.secret_token)
-            headers['Authorization'] = "Bearer #{token}"
-          end
+        Transport::Headers.new(config).tap do |headers|
+          headers['Etag'] = 1
         end
     end
 
