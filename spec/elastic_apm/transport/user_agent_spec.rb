@@ -10,9 +10,9 @@ module ElasticAPM
         it 'builds a string' do
           expect(subject.to_s).to match(
             %r{
-              elastic-apm-ruby/\d+\.\d+\.\d+\s
-              http\.rb/\d+\.\d+\.\d+\s
-              ruby/\d+\.\d+\.\d+
+              \Aelastic-apm-ruby/(\d+\.)+\d+\s
+              http.rb/(\d+\.)+\d+\s
+              j?ruby/(\d+\.)+\d+\z
             }x
           )
         end
