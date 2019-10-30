@@ -15,14 +15,15 @@ module ElasticAPM
       private
 
       def build(config)
-        serializer = Serializers::MetadataSerializer.new(config)
-        metadata = serializer.build(Metadata.new(config))
-        runtime = metadata.dig(:metadata, :service, :runtime)
+        metadata = Metadata.new(config)
 
         [
           "elastic-apm-ruby/#{VERSION}",
           HTTP::Request::USER_AGENT,
-          [runtime[:name], runtime[:version]].join('/')
+          [
+            metadata.service.runtime.name,
+            metadata.service.runtime.version
+          ].join('/')
         ].join(' ')
       end
     end
