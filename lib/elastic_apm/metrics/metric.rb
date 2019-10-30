@@ -48,14 +48,23 @@ module ElasticAPM
 
     # @api private
     class NoopMetric
-      # rubocop:disable Style/MethodMissingSuper
-      # TODO: Is this expensive
-      # 1. Keep this (not expensive?)
-      # 2. Override #send
-      # 3. Explicitly define all existing methods
-      # 4. Handle one level up
-      def method_missing(*_); end
-      # rubocop:enable Style/MethodMissingSuper
+      def value; end
+
+      def value=(_); end
+
+      def collect; end
+
+      def reset!; end
+
+      def tags?; end
+
+      def reset_on_collect?; end
+
+      def inc!; end
+
+      def dec!; end
+
+      def update(_, delta: nil); end
     end
 
     # @api private
