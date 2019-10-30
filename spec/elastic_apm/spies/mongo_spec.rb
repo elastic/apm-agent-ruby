@@ -2,7 +2,8 @@ module ElasticAPM
   RSpec.describe 'Spy: MongoDB' do
     context 'db admin commands' do
       let(:event) do
-        double('event', command: { 'listCollections' => 1 },
+        double('event',
+               command: { 'listCollections' => 1 },
                command_name: 'listCollections',
                database_name: 'elastic-apm-test',
                operation_id: 123)
@@ -33,8 +34,9 @@ module ElasticAPM
 
     context 'collection commands', :intercept do
       let(:event) do
-        double('event', command: { 'find' => 'testing',
-                                   'filter' => { 'a' => 'bc'} },
+        double('event',
+               command: { 'find' => 'testing',
+                          'filter' => { 'a' => 'bc'} },
                command_name: 'find',
                database_name: 'elastic-apm-test',
                operation_id: 456)
