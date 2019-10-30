@@ -2,7 +2,7 @@
 
 module ElasticAPM
   RSpec.describe CentralConfig do
-    let(:config) { Config.new }
+    let(:config) { Config.new service_name: 'MyApp' }
     subject { described_class.new(config) }
 
     describe '#start' do
@@ -166,7 +166,7 @@ module ElasticAPM
     end
 
     def stub_response(body, **opts)
-      stub_request(:post, 'http://localhost:8200/config/v1/agents')
+      stub_request(:get, 'http://localhost:8200/config/v1/agents?service.name=MyApp')
         .to_return(body: body && body.to_json, **opts)
     end
   end

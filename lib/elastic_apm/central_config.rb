@@ -23,10 +23,6 @@ module ElasticAPM
     def initialize(config)
       @config = config
       @modified_options = {}
-      @service_info = {
-        'service.name': config.service_name,
-        'service.environment': config.environment
-      }.to_json
     end
 
     attr_reader :config
@@ -126,11 +122,26 @@ module ElasticAPM
     end
 
     def perform_request
-      HTTP.post(
-        config.server_url + '/config/v1/agents',
-        body: @service_info,
-        headers: { etag: 1, content_type: 'application/json' }
-      )
+      HTTP.get(server_url, headers: headers)
+    end
+
+    def server_url
+      @server_url ||=
+        config.server_url +
+        '/config/v1/agents' \
+        "?service.name=#{config.service_name}"
+    end
+
+    def headers
+      @headers ||=
+        {
+          etag: 1,
+          content_type: 'application/json'
+        }.tap do |headers|
+          if (token = config.secret_token)
+            headers['Authorization'] = "Bearer #{token}"
+          end
+        end
     end
 
     def schedule_next_fetch(resp)
