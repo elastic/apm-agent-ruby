@@ -42,6 +42,8 @@ module ElasticAPM
           end
 
           it 'normalizes queries' do
+            allow(::ActiveRecord::Base)
+                .to receive(:connection) { double(adapter_name: nil) }
             sql = 'SELECT  "hotdogs".* FROM "hotdogs" ' \
               'WHERE "hotdogs"."topping" = $1 LIMIT 1'
 
@@ -54,6 +56,8 @@ module ElasticAPM
           end
 
           it 'uses the connection from payload, when available' do
+            allow(::ActiveRecord::Base)
+              .to receive(:connection) { double(adapter_name: nil) }
             sql = 'SELECT  "burgers".* FROM "burgers" ' \
               'WHERE "burgers"."cheese" = $1 LIMIT 1'
 
@@ -79,15 +83,15 @@ module ElasticAPM
             expect(action).to eq 'sql'
             expect(context_.db.statement).to eq sql
 
-            sql = 'SELECT  "burgers".* FROM "burgers" ' \
-              'WHERE "burgers"."cheese" = $1 LIMIT 1'
+            sql = 'SELECT  "pizza".* FROM "pizza" ' \
+              'WHERE "pizza"."topping" = $1 LIMIT 1'
 
             name, type, subtype, action, context_ = normalize_payload(
               sql: sql,
               connection: double(adapter_name: nil)
             )
 
-            expect(name).to eq 'SELECT FROM burgers'
+            expect(name).to eq 'SELECT FROM pizza'
             expect(type).to eq 'db'
             expect(subtype).to eq 'unknown'
             expect(action).to eq 'sql'
