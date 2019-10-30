@@ -43,7 +43,7 @@ module ElasticAPM
 
           it 'normalizes queries' do
             allow(::ActiveRecord::Base)
-                .to receive(:connection) { double(adapter_name: nil) }
+              .to receive(:connection) { double(adapter_name: nil) }
             sql = 'SELECT  "hotdogs".* FROM "hotdogs" ' \
               'WHERE "hotdogs"."topping" = $1 LIMIT 1'
 

@@ -33,7 +33,7 @@ module ElasticAPM
 
         def subtype(payload)
           connection_adapter(
-            payload[:connection] ||::ActiveRecord::Base.connection
+            payload[:connection] || ::ActiveRecord::Base.connection
           )
         end
 
@@ -41,11 +41,11 @@ module ElasticAPM
           @summarizer.summarize(sql)
         end
 
-        def connection_adapter(connection)
+        def connection_adapter(conn)
           @adapters ||= {}
-          return UNKNOWN unless connection.adapter_name
-          @adapters[connection.adapter_name] ||
-            (@adapters[connection.adapter_name] = connection.adapter_name.downcase)
+          return UNKNOWN unless conn.adapter_name
+          @adapters[conn.adapter_name] ||
+            (@adapters[conn.adapter_name] = conn.adapter_name.downcase)
         rescue StandardError
           nil
         end
