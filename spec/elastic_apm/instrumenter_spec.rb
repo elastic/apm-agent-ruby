@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-###
-# I realise this spec looks horrible now with all the manual agent starting and
-# stopping will fix before merging
-###
-
 module ElasticAPM
   RSpec.describe Instrumenter, :intercept do
     let(:config) { Config.new }
-    let(:agent) { Agent.new config }
+    let(:agent) { ElasticAPM.agent }
 
     before do
+      ElasticAPM.start config
       allow(agent).to receive(:enqueue) { nil }
+    end
+
+    after do
+      ElasticAPM.stop
     end
 
     subject do
@@ -39,14 +39,6 @@ module ElasticAPM
         it 'unregisters subscriber' do
           expect(subscriber).to have_received(:unregister!)
         end
-      end
-    end
-
-    describe '#subscriber=' do
-      it 'registers the subscriber' do
-        subscriber = double(register!: true)
-        subject.subscriber = subscriber
-        expect(subscriber).to have_received(:register!)
       end
     end
 
@@ -105,13 +97,8 @@ module ElasticAPM
       end
 
       it 'ends and enqueues current transaction' do
-        begin
-          agent.start
-          transaction = subject.start_transaction(config: config)
-          return_value = subject.end_transaction('result')
-        ensure
-          agent.stop
-        end
+        transaction = subject.start_transaction(config: config)
+        return_value = subject.end_transaction('result')
 
         expect(return_value).to be transaction
         expect(transaction).to be_stopped
@@ -121,9 +108,57 @@ module ElasticAPM
       end
 
       it 'reports metrics', :mock_time do
-        begin
-          agent.start
+        subject.start_transaction('a_transaction', config: config)
+        travel 100
+        subject.start_span('a_span', 'a', subtype: 'b')
+        travel 100
+        subject.end_span
+        travel 100
+        subject.end_transaction('result')
 
+        txn_set, = agent.metrics.get(:transaction).collect
+
+        expect(txn_set.samples[:'transaction.duration.sum.us']).to eq 300
+        expect(txn_set.samples[:'transaction.duration.count']).to eq 1
+        expect(txn_set.transaction).to match(
+          name: 'a_transaction',
+          type: 'custom'
+        )
+        expect(txn_set.transaction).to match(
+          name: 'a_transaction',
+          type: 'custom'
+        )
+
+        # resets on collect
+        new_txn_set, = agent.metrics.get(:transaction).collect
+        expect(new_txn_set).to be nil
+
+        brk_sets = agent.metrics.get(:breakdown).collect
+
+        txn_self_time = brk_sets.find do |d|
+          d.span&.fetch(:type) == 'app' &&
+            d.samples.key?(:'span.self_time')
+        end
+        expect(txn_self_time.samples[:'span.self_time']).to eq 200
+        expect(txn_self_time.transaction).to match(
+          name: 'a_transaction',
+          type: 'custom'
+        )
+        expect(txn_self_time.span).to match(type: 'app', subtype: nil)
+
+        spn_self_time = brk_sets.find { |d| d.span&.fetch(:type) == 'a' }
+        expect(spn_self_time.samples[:'span.self_time']).to eq 100
+        expect(spn_self_time.transaction).to match(
+          name: 'a_transaction',
+          type: 'custom'
+        )
+        expect(spn_self_time.span).to match(type: 'a', subtype: 'b')
+      end
+
+      context 'with breakdown metrics disabled' do
+        let(:config) { Config.new breakdown_metrics: false }
+
+        it 'skips breakdown but keeps transaction metrics', :mock_time do
           subject.start_transaction('a_transaction', config: config)
           travel 100
           subject.start_span('a_span', 'a', subtype: 'b')
@@ -132,71 +167,11 @@ module ElasticAPM
           travel 100
           subject.end_transaction('result')
 
-          txn_set, = agent.metrics.get(:transaction).collect
-
-          expect(txn_set.samples[:'transaction.duration.sum.us']).to eq 300
-          expect(txn_set.samples[:'transaction.duration.count']).to eq 1
-          expect(txn_set.transaction).to match(
-            name: 'a_transaction',
-            type: 'custom'
-          )
-          expect(txn_set.transaction).to match(
-            name: 'a_transaction',
-            type: 'custom'
-          )
-
-          # resets on collect
-          new_txn_set, = agent.metrics.get(:transaction).collect
-          expect(new_txn_set).to be nil
+          txn_sets = agent.metrics.get(:transaction).collect
+          expect(txn_sets.length).to be 1
 
           brk_sets = agent.metrics.get(:breakdown).collect
-
-          txn_self_time = brk_sets.find do |d|
-            d.span&.fetch(:type) == 'app' &&
-              d.samples.key?(:'span.self_time')
-          end
-          expect(txn_self_time.samples[:'span.self_time']).to eq 200
-          expect(txn_self_time.transaction).to match(
-            name: 'a_transaction',
-            type: 'custom'
-          )
-          expect(txn_self_time.span).to match(type: 'app', subtype: nil)
-
-          spn_self_time = brk_sets.find { |d| d.span&.fetch(:type) == 'a' }
-          expect(spn_self_time.samples[:'span.self_time']).to eq 100
-          expect(spn_self_time.transaction).to match(
-            name: 'a_transaction',
-            type: 'custom'
-          )
-          expect(spn_self_time.span).to match(type: 'a', subtype: 'b')
-        ensure
-          agent.stop
-        end
-      end
-
-      context 'with breakdown metrics disabled' do
-        let(:config) { Config.new breakdown_metrics: false }
-
-        it 'skips breakdown but keeps transaction metrics', :mock_time do
-          begin
-            agent.start
-
-            subject.start_transaction('a_transaction', config: config)
-            travel 100
-            subject.start_span('a_span', 'a', subtype: 'b')
-            travel 100
-            subject.end_span
-            travel 100
-            subject.end_transaction('result')
-
-            txn_sets = agent.metrics.get(:transaction).collect
-            expect(txn_sets.length).to be 1
-
-            brk_sets = agent.metrics.get(:breakdown).collect
-            expect(brk_sets).to be nil
-          ensure
-            agent.stop
-          end
+          expect(brk_sets).to be nil
         end
       end
     end
@@ -220,12 +195,9 @@ module ElasticAPM
 
       context 'inside a sampled transaction' do
         let(:transaction) { subject.start_transaction(config: config) }
+
         before do
-          agent.start
           transaction
-        end
-        after do
-          agent.stop
         end
 
         it "increments transaction's span count" do
@@ -289,13 +261,8 @@ module ElasticAPM
         let(:span) { subject.start_span 'Span' }
 
         before do
-          agent.start
           transaction
           span
-        end
-
-        after do
-          agent.stop
         end
 
         it 'closes span, sets new current, enqueues' do
@@ -373,14 +340,9 @@ module ElasticAPM
       User = Struct.new(:id, :email, :username)
 
       it 'sets user in context' do
-        begin
-          agent.start
-          transaction = subject.start_transaction 'Test', config: config
-          subject.set_user(User.new(1, 'a@a', 'abe'))
-          subject.end_transaction
-        ensure
-          agent.stop
-        end
+        transaction = subject.start_transaction 'Test', config: config
+        subject.set_user(User.new(1, 'a@a', 'abe'))
+        subject.end_transaction
 
         user = transaction.context.user
         expect(user.id).to eq '1'
