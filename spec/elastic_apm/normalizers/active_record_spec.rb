@@ -56,46 +56,28 @@ module ElasticAPM
           end
 
           it 'uses the connection from payload, when available' do
-            allow(::ActiveRecord::Base)
-              .to receive(:connection) { double(adapter_name: nil) }
             sql = 'SELECT  "burgers".* FROM "burgers" ' \
               'WHERE "burgers"."cheese" = $1 LIMIT 1'
 
-            name, type, subtype, action, context_ = normalize_payload(
+            _name, _type, subtype, = normalize_payload(
               sql: sql,
               connection: double(adapter_name: 'MySQL')
             )
-
-            expect(name).to eq 'SELECT FROM burgers'
-            expect(type).to eq 'db'
             expect(subtype).to eq 'mysql'
-            expect(action).to eq 'sql'
-            expect(context_.db.statement).to eq sql
 
-            name, type, subtype, action, context_ = normalize_payload(
+            _name, _type, subtype, = normalize_payload(
               sql: sql,
               connection: double(adapter_name: 'Postgres')
             )
-
-            expect(name).to eq 'SELECT FROM burgers'
-            expect(type).to eq 'db'
             expect(subtype).to eq 'postgres'
-            expect(action).to eq 'sql'
-            expect(context_.db.statement).to eq sql
 
-            sql = 'SELECT  "pizza".* FROM "pizza" ' \
-              'WHERE "pizza"."topping" = $1 LIMIT 1'
-
-            name, type, subtype, action, context_ = normalize_payload(
+            allow(::ActiveRecord::Base)
+              .to receive(:connection) { double(adapter_name: nil) }
+            _name, _type, subtype, = normalize_payload(
               sql: sql,
               connection: double(adapter_name: nil)
             )
-
-            expect(name).to eq 'SELECT FROM pizza'
-            expect(type).to eq 'db'
             expect(subtype).to eq 'unknown'
-            expect(action).to eq 'sql'
-            expect(context_.db.statement).to eq sql
           end
 
           it 'skips cache queries' do
