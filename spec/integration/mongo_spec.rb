@@ -57,8 +57,6 @@ module ElasticAPM
         '"nameOnly"=>true'
       expect(db.user).to be nil
 
-      client.close
-
       ElasticAPM.stop
     end
 
@@ -96,9 +94,6 @@ module ElasticAPM
       expect(db.statement).to match('"delete"=>"testing"')
       expect(db.user).to be nil
 
-      client['testing'].drop
-      client.close
-
       ElasticAPM.stop
     end
 
@@ -132,8 +127,6 @@ module ElasticAPM
       expect(db.type).to eq 'mongodb'
       expect(db.statement).to include '{"a"=>BSON::Decimal128(\'1\')}'
       expect(db.user).to be nil
-
-      client.close
 
       ElasticAPM.stop
     end
