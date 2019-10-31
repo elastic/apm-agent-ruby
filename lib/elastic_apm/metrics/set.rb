@@ -66,27 +66,31 @@ module ElasticAPM
       end
       # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
+      # rubocop:disable Metrics/MethodLength
       def collect
         return if disabled?
 
-        metrics.each_with_object({}) do |(key, metric), sets|
-          next unless (value = metric.collect)
+        @lock.synchronize do
+          metrics.each_with_object({}) do |(key, metric), sets|
+            next unless (value = metric.collect)
 
-          # metrics have a key of name and flat array of key-value pairs
-          #   eg [name, key, value, key, value]
-          # they can be sent in the same metricset but not if they have
-          # differing tags. So, we split the resulting sets by tags first.
-          name, *tags = key
-          sets[tags] ||= Metricset.new
+            # metrics have a key of name and flat array of key-value pairs
+            #   eg [name, key, value, key, value]
+            # they can be sent in the same metricset but not if they have
+            # differing tags. So, we split the resulting sets by tags first.
+            name, *tags = key
+            sets[tags] ||= Metricset.new
 
-          # then we set the `samples` value for the metricset
-          set = sets[tags]
-          set.samples[name] = value
+            # then we set the `samples` value for the metricset
+            set = sets[tags]
+            set.samples[name] = value
 
-          # and finally we copy the tags from the Metric to the Metricset
-          set.merge_tags! metric.tags
-        end.values
+            # and finally we copy the tags from the Metric to the Metricset
+            set.merge_tags! metric.tags
+          end.values
+        end
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 
