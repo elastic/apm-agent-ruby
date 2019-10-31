@@ -42,6 +42,8 @@ module ElasticAPM
           end
 
           it 'normalizes queries' do
+            allow(::ActiveRecord::Base)
+              .to receive(:connection) { double(adapter_name: nil) }
             sql = 'SELECT  "hotdogs".* FROM "hotdogs" ' \
               'WHERE "hotdogs"."topping" = $1 LIMIT 1'
 
@@ -51,6 +53,31 @@ module ElasticAPM
             expect(subtype).to eq 'unknown'
             expect(action).to eq 'sql'
             expect(context_.db.statement).to eq sql
+          end
+
+          it 'uses the connection from payload, when available' do
+            sql = 'SELECT  "burgers".* FROM "burgers" ' \
+              'WHERE "burgers"."cheese" = $1 LIMIT 1'
+
+            _name, _type, subtype, = normalize_payload(
+              sql: sql,
+              connection: double(adapter_name: 'MySQL')
+            )
+            expect(subtype).to eq 'mysql'
+
+            _name, _type, subtype, = normalize_payload(
+              sql: sql,
+              connection: double(adapter_name: 'Postgres')
+            )
+            expect(subtype).to eq 'postgres'
+
+            allow(::ActiveRecord::Base)
+              .to receive(:connection) { double(adapter_name: nil) }
+            _name, _type, subtype, = normalize_payload(
+              sql: sql,
+              connection: double(adapter_name: nil)
+            )
+            expect(subtype).to eq 'unknown'
           end
 
           it 'skips cache queries' do

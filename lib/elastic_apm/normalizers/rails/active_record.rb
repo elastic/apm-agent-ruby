@@ -11,34 +11,41 @@ module ElasticAPM
 
         TYPE = 'db'
         ACTION = 'sql'
+        SKIP_NAMES = %w[SCHEMA CACHE].freeze
+        UNKNOWN = 'unknown'
 
         def initialize(*args)
           super
 
           @summarizer = SqlSummarizer.new
+          @adapters = {}
         end
 
         def normalize(_transaction, _name, payload)
-          return :skip if %w[SCHEMA CACHE].include?(payload[:name])
+          return :skip if SKIP_NAMES.include?(payload[:name])
 
           name = summarize(payload[:sql]) || payload[:name]
           context =
             Span::Context.new(db: { statement: payload[:sql], type: 'sql' })
-          [name, TYPE, subtype, ACTION, context]
+          [name, TYPE, subtype(payload), ACTION, context]
         end
 
         private
 
-        def subtype
-          @subtype ||= (lookup_adapter || 'unknown')
+        def subtype(payload)
+          connection_adapter(
+            payload[:connection] || ::ActiveRecord::Base.connection
+          )
         end
 
         def summarize(sql)
           @summarizer.summarize(sql)
         end
 
-        def lookup_adapter
-          ::ActiveRecord::Base.connection.adapter_name.downcase
+        def connection_adapter(conn)
+          return UNKNOWN unless conn.adapter_name
+          @adapters[conn.adapter_name] ||
+            (@adapters[conn.adapter_name] = conn.adapter_name.downcase)
         rescue StandardError
           nil
         end
