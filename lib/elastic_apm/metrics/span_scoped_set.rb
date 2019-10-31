@@ -35,18 +35,5 @@ module ElasticAPM
         set.tags = nil if set.tags.empty?
       end
     end
-
-    # @api private
-    class Breakdown < SpanScopedSet
-      def initialize(config)
-        super
-
-        disable! unless config.breakdown_metrics?
-      end
-    end
-
-    # @api private
-    class Transaction < SpanScopedSet
-    end
   end
 end

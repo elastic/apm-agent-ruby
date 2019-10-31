@@ -106,6 +106,64 @@ class MockIntake
     end
   end
   # rubocop:enable Metrics/AbcSize
+
+  module WaitFor
+    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    def wait_for(expected = {})
+      if expected.empty? && !block_given?
+        raise ArgumentError, 'Either args or block required'
+      end
+
+      unless MockIntake.stubbed?
+        raise 'Not stubbed – did you forget :mock_intake?'
+      end
+
+      Timeout.timeout(5) do
+        loop do
+          sleep 0.01
+
+          missing = expected.reduce(0) do |total, (kind, count)|
+            total + (count - @mock_intake.send(kind).length)
+          end
+
+          next if missing > 0
+
+          unless missing == 0
+            puts format(
+              'Expected %s. Got %s',
+              expected,
+              missing
+            )
+            print_received
+          end
+
+          if block_given?
+            next unless yield(@mock_intake)
+          end
+
+          break true
+        end
+      end
+    rescue Timeout::Error
+      puts format('Died waiting for %s', expected)
+      puts '--- Received: ---'
+      print_received
+      raise
+    end
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+
+    def print_received
+      pp(
+        transactions: @mock_intake.transactions.map { |o| o['name'] },
+        spans: @mock_intake.spans.map { |o| o['name'] },
+        errors: @mock_intake.errors.map { |o| o['culprit'] },
+        metricsets: @mock_intake.metricsets,
+        metadatas: @mock_intake.metadatas.count
+      )
+    end
+  end
 end
 
 RSpec.configure do |config|
@@ -119,49 +177,5 @@ RSpec.configure do |config|
     @mock_intake = nil
   end
 
-  # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-  def wait_for(expected)
-    unless MockIntake.stubbed?
-      raise 'Not stubbed – did you forget :mock_intake?'
-    end
-
-    Timeout.timeout(5) do
-      loop do
-        sleep 0.01
-
-        missing = expected.reduce(0) do |total, (kind, count)|
-          total + (count - @mock_intake.send(kind).length)
-        end
-
-        next if missing > 0
-
-        unless missing == 0
-          puts format(
-            'Expected %s. Got %s',
-            expected,
-            missing
-          )
-          print_received
-        end
-
-        break true
-      end
-    end
-  rescue Timeout::Error
-    puts format('Died waiting for %s', expected)
-    puts '--- Received: ---'
-    print_received
-    raise
-  end
-  # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
-
-  def print_received
-    pp(
-      transactions: @mock_intake.transactions.map { |o| o['name'] },
-      spans: @mock_intake.spans.map { |o| o['name'] },
-      errors: @mock_intake.errors.map { |o| o['culprit'] },
-      metricsets: @mock_intake.metricsets,
-      metadatas: @mock_intake.metadatas.count
-    )
-  end
+  config.include MockIntake::WaitFor, :mock_intake
 end

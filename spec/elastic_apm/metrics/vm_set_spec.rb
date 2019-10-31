@@ -2,7 +2,7 @@
 
 module ElasticAPM
   module Metrics
-    RSpec.describe VM do
+    RSpec.describe VMSet do
       let(:config) { Config.new }
 
       subject { described_class.new config }

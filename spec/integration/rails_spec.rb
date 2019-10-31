@@ -12,7 +12,10 @@ if enabled
   require 'action_controller/railtie'
   require 'action_mailer/railtie'
 
-  RSpec.describe 'Rails integration', :mock_intake, :allow_running_agent, :spec_logger do
+  RSpec.describe 'Rails integration',
+    :mock_intake,
+    :allow_running_agent,
+    :spec_logger do
     include Rack::Test::Methods
 
     def app
@@ -32,7 +35,9 @@ if enabled
           config.elastic_apm.capture_body = 'all'
           config.elastic_apm.ignore_url_patterns = '/ping'
           config.elastic_apm.log_path = 'spec/elastic_apm.log'
+          config.elastic_apm.log_level = 0
           config.elastic_apm.pool_size = Concurrent.processor_count
+          config.elastic_apm.metrics_interval = '250ms'
         end
       end
 
@@ -120,6 +125,10 @@ if enabled
 
     after :all do
       ElasticAPM.stop
+    end
+
+    before :each do
+      ElasticAPM.agent.metrics.collect_and_send # reset
     end
 
     it 'knows Rails' do
@@ -279,19 +288,14 @@ if enabled
       it 'gathers metrics' do
         get '/'
 
-        wait_for transactions: 1, spans: 2, metricsets: 8
+        wait_for transactions: 1, spans: 2
 
-        transaction_metrics = @mock_intake.metricsets.select do |set|
-          set['transaction'] && !set['span']
+        select_transaction_metrics = lambda do |intake|
+          intake.metricsets.select { |set| set['transaction'] && !set['span'] }
         end
 
-        expect(transaction_metrics.length).to be 2
-
-        span_metrics = @mock_intake.metricsets.select do |set|
-          set['transaction'] && set['span']
-        end
-
-        expect(span_metrics.length).to be 3
+        wait_for { |intake| select_transaction_metrics.call(intake).count == 2 }
+        transaction_metrics = select_transaction_metrics.call(@mock_intake)
 
         keys_counts =
           transaction_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
@@ -302,6 +306,14 @@ if enabled
           %w[transaction.duration.sum.us transaction.duration.count] => 1,
           %w[transaction.breakdown.count] => 1
         )
+
+        select_span_metrics = lambda do |intake|
+          intake.metricsets.select { |set| set['transaction'] && set['span'] }
+        end
+
+        wait_for { |intake| select_span_metrics.call(intake).count == 3 }
+        span_metrics = select_span_metrics.call(@mock_intake)
+
         expect(span_metrics.map { |s| s['samples'].keys }.flatten.uniq)
           .to eq(['span.self_time'])
       end

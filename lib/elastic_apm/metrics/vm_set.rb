@@ -3,7 +3,7 @@
 module ElasticAPM
   module Metrics
     # @api private
-    class VM < Set
+    class VMSet < Set
       include Logging
 
       def collect

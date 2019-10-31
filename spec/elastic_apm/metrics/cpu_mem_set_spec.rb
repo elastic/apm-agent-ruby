@@ -2,7 +2,7 @@
 
 module ElasticAPM
   module Metrics
-    RSpec.describe CpuMem do
+    RSpec.describe CpuMemSet do
       let(:config) { Config.new }
       subject { described_class.new config }
 

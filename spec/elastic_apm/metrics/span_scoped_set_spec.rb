@@ -27,11 +27,11 @@ module ElasticAPM
       end
     end
 
-    RSpec.describe Transaction do
+    RSpec.describe TransactionSet do
       it_behaves_like :span_scope_set
     end
 
-    RSpec.describe Breakdown do
+    RSpec.describe BreakdownSet do
       it_behaves_like :span_scope_set
     end
   end

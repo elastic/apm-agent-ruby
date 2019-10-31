@@ -3,7 +3,7 @@
 module ElasticAPM
   module Metrics
     # @api private
-    class CpuMem < Set
+    class CpuMemSet < Set
       include Logging
 
       # @api private

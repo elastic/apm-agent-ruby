@@ -34,10 +34,10 @@ module ElasticAPM
         debug 'Starting metrics'
 
         @sets = {
-          system: CpuMem,
-          vm: VM,
-          breakdown: Breakdown,
-          transaction: Transaction
+          system: CpuMemSet,
+          vm: VMSet,
+          breakdown: BreakdownSet,
+          transaction: TransactionSet
         }.each_with_object({}) do |(key, kls), sets|
           debug "Adding metrics collector '#{kls}'"
           sets[key] = kls.new(config)
@@ -104,6 +104,8 @@ require 'elastic_apm/metricset'
 require 'elastic_apm/metrics/metric'
 require 'elastic_apm/metrics/set'
 
-require 'elastic_apm/metrics/cpu_mem'
-require 'elastic_apm/metrics/vm'
-require 'elastic_apm/metrics/breakdown'
+require 'elastic_apm/metrics/cpu_mem_set'
+require 'elastic_apm/metrics/vm_set'
+require 'elastic_apm/metrics/span_scoped_set'
+require 'elastic_apm/metrics/transaction_set'
+require 'elastic_apm/metrics/breakdown_set'
