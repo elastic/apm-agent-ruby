@@ -146,7 +146,7 @@ class MockIntake
         end
       end
     rescue Timeout::Error
-      puts format('Died waiting for %s', expected)
+      puts format('Died waiting for %s', block_given? ? 'block' : expected)
       puts '--- Received: ---'
       print_received
       raise

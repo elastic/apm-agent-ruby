@@ -294,7 +294,7 @@ if enabled
           intake.metricsets.select { |set| set['transaction'] && !set['span'] }
         end
 
-        wait_for { |intake| select_transaction_metrics.call(intake).count == 2 }
+        wait_for { |intake| select_transaction_metrics.call(intake).count >= 2 }
         transaction_metrics = select_transaction_metrics.call(@mock_intake)
 
         keys_counts =
@@ -311,7 +311,7 @@ if enabled
           intake.metricsets.select { |set| set['transaction'] && set['span'] }
         end
 
-        wait_for { |intake| select_span_metrics.call(intake).count == 3 }
+        wait_for { |intake| select_span_metrics.call(intake).count >= 3 }
         span_metrics = select_span_metrics.call(@mock_intake)
 
         expect(span_metrics.map { |s| s['samples'].keys }.flatten.uniq)
