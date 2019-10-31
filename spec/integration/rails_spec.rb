@@ -304,10 +304,10 @@ if enabled
             keys[set['samples'].keys] += 1
           end
 
-        expect(keys_counts).to match(
-          %w[transaction.duration.sum.us transaction.duration.count] => 1,
-          %w[transaction.breakdown.count] => 1
-        )
+        expect(keys_counts[
+          %w[transaction.duration.sum.us transaction.duration.count]
+        ]).to be >= 1
+        expect(keys_counts[%w[transaction.breakdown.count]]) .to be >= 1
 
         select_span_metrics = lambda do |intake|
           intake.metricsets.select { |set| set['transaction'] && set['span'] }
