@@ -286,6 +286,8 @@ if enabled
 
     describe 'metrics' do
       it 'gathers metrics' do
+        sleep 0.25 # die down
+
         get '/'
 
         wait_for transactions: 1, spans: 2

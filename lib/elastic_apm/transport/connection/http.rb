@@ -67,6 +67,8 @@ module ElasticAPM
         end
 
         def closed?
+          return true unless @closed
+
           @closed.true?
         end
 

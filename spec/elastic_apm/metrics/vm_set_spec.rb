@@ -54,15 +54,13 @@ module ElasticAPM
         context 'jruby', if: RSpec::Support::Ruby.jruby? do
           it 'collects a metric set and prefixes keys' do
             subject.collect # disable on strict plaforms
+            return if subject.disabled?
 
             set, = subject.collect
 
             expect(set.samples).to match(
-              if subject.disabled?
-                nil
-              else
-                { 'ruby.gc.count': Integer, 'ruby.threads': Integer }
-              end
+              'ruby.gc.count': Integer,
+              'ruby.threads': Integer
             )
           end
         end
