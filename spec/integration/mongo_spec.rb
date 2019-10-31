@@ -56,8 +56,6 @@ module ElasticAPM
       expect(db.statement).to include '{"listCollections"=>1, "cursor"=>{}, ' \
         '"nameOnly"=>true'
       expect(db.user).to be nil
-
-      ElasticAPM.stop
     end
 
     it 'instruments commands on collections', :intercept do
@@ -93,8 +91,6 @@ module ElasticAPM
       expect(db.type).to eq 'mongodb'
       expect(db.statement).to match('"delete"=>"testing"')
       expect(db.user).to be nil
-
-      ElasticAPM.stop
     end
 
     it 'instruments commands with special BSON types', :intercept do
@@ -127,8 +123,6 @@ module ElasticAPM
       expect(db.type).to eq 'mongodb'
       expect(db.statement).to include '{"a"=>BSON::Decimal128(\'1\')}'
       expect(db.user).to be nil
-
-      ElasticAPM.stop
     end
   end
 end
