@@ -57,7 +57,7 @@ module ElasticAPM
       context 'when samples' do
         it 'calls callback' do
           subject.collect_and_send # disable on unsupported jruby
-          next unless subject.sets.values.reject(&:disabled?).any?
+          next unless subject.sets.values.select { |s| s.metrics.any? }.any?
 
           expect(callback).to receive(:call).with(Metricset).at_least(1)
           subject.collect_and_send
