@@ -54,7 +54,7 @@ module ElasticAPM
         context 'jruby', if: RSpec::Support::Ruby.jruby? do
           it 'collects a metric set and prefixes keys' do
             subject.collect # disable on strict plaforms
-            return if subject.disabled?
+            next if subject.disabled?
 
             set, = subject.collect
 
