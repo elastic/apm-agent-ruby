@@ -152,30 +152,11 @@ RSpec.describe ElasticAPM do
     after { ElasticAPM.stop }
   end
 
-  context 'async spans' do
-    before { ElasticAPM.start }
-    after { ElasticAPM.stop }
+  context 'async spans', :intercept do
     context 'transaction parent' do
       it 'allows async spans' do
-        transaction = ElasticAPM.start_transaction
-        span1 = Thread.new do
-          ElasticAPM.start_span('job 1', parent: transaction)
-        end.value
-
-        span2 = Thread.new do
-          ElasticAPM.start_span('job 2', parent: transaction)
-        end.value
-
-        expect(ElasticAPM.current_transaction.started_spans).to eq(2)
-        expect(span1.parent_id).to eq(span2.parent_id)
-        expect(span1.parent_id).to eq(transaction.trace_context.child.parent_id)
-        expect(span2.parent_id).to eq(transaction.trace_context.child.parent_id)
-      end
-
-      context 'span created after transaction is ended' do
-        it 'allows async spans' do
+        with_agent do
           transaction = ElasticAPM.start_transaction
-          transaction.done
           span1 = Thread.new do
             ElasticAPM.start_span('job 1', parent: transaction)
           end.value
@@ -191,44 +172,69 @@ RSpec.describe ElasticAPM do
         end
       end
 
+      context 'span created after transaction is ended' do
+        it 'allows async spans' do
+          with_agent do
+            transaction = ElasticAPM.start_transaction
+            transaction.done
+            span1 = Thread.new do
+              ElasticAPM.start_span('job 1', parent: transaction)
+            end.value
+
+            span2 = Thread.new do
+              ElasticAPM.start_span('job 2', parent: transaction)
+            end.value
+
+            expect(ElasticAPM.current_transaction.started_spans).to eq(2)
+            expect(span1.parent_id).to eq(span2.parent_id)
+            expect(span1.parent_id).to eq(transaction.trace_context.child.parent_id)
+            expect(span2.parent_id).to eq(transaction.trace_context.child.parent_id)
+          end
+        end
+      end
+
       context '#with_span' do
         it 'allows async spans' do
-          transaction = ElasticAPM.start_transaction
-          span1 = Thread.new do
-            ElasticAPM.with_span('job 1', parent: transaction) { |span| span }
-          end.value
+          with_agent do
+            transaction = ElasticAPM.start_transaction
+            span1 = Thread.new do
+              ElasticAPM.with_span('job 1', parent: transaction) { |span| span }
+            end.value
 
-          span2 = Thread.new do
-            ElasticAPM.with_span('job 2', parent: transaction) { |span| span }
-          end.value
+            span2 = Thread.new do
+              ElasticAPM.with_span('job 2', parent: transaction) { |span| span }
+            end.value
 
-          expect(ElasticAPM.current_transaction.started_spans).to eq(2)
-          expect(span1.parent_id).to eq(span2.parent_id)
-          expect(span1.parent_id).to eq(transaction.trace_context.child.parent_id)
-          expect(span2.parent_id).to eq(transaction.trace_context.child.parent_id)
+            expect(ElasticAPM.current_transaction.started_spans).to eq(2)
+            expect(span1.parent_id).to eq(span2.parent_id)
+            expect(span1.parent_id).to eq(transaction.trace_context.child.parent_id)
+            expect(span2.parent_id).to eq(transaction.trace_context.child.parent_id)
+          end
         end
       end
     end
 
     context 'span parent' do
       it 'allows async spans' do
-        transaction = ElasticAPM.start_transaction
-        span1 = ElasticAPM.with_span 'run all the jobs' do |span|
-          allow(span).to receive(:transaction).and_return(transaction)
+        with_agent do
+          transaction = ElasticAPM.start_transaction
+          span1 = ElasticAPM.with_span 'run all the jobs' do |span|
+            allow(span).to receive(:transaction).and_return(transaction)
 
-          span2 = Thread.new do
-            ElasticAPM.start_span('job 1', parent: span)
-          end.value
-          expect(span2.parent_id).to eq(span.trace_context.child.parent_id)
+            span2 = Thread.new do
+              ElasticAPM.start_span('job 1', parent: span)
+            end.value
+            expect(span2.parent_id).to eq(span.trace_context.child.parent_id)
 
-          span3 = Thread.new do
-            ElasticAPM.start_span('job 2', parent: span)
-          end.value
-          expect(span3.parent_id).to eq(span.trace_context.child.parent_id)
-          span
+            span3 = Thread.new do
+              ElasticAPM.start_span('job 2', parent: span)
+            end.value
+            expect(span3.parent_id).to eq(span.trace_context.child.parent_id)
+            span
+          end
+          expect(ElasticAPM.current_transaction.started_spans).to eq(3)
+          expect(span1.parent_id).to eq(transaction.trace_context.child.parent_id)
         end
-        expect(ElasticAPM.current_transaction.started_spans).to eq(3)
-        expect(span1.parent_id).to eq(transaction.trace_context.child.parent_id)
       end
     end
   end
