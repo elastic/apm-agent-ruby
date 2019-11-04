@@ -118,6 +118,7 @@ module ElasticAPM
         sequel
         sidekiq
         sinatra
+        sneakers
         tilt
         rake
       ]
