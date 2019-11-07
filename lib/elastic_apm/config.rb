@@ -89,8 +89,8 @@ module ElasticAPM
 
       self.logger ||= build_logger
 
-      @__view_paths = []
-      @__root_path = Dir.pwd
+      @__view_paths ||= []
+      @__root_path ||= Dir.pwd
     end
     # rubocop:enable Metrics/MethodLength
 
