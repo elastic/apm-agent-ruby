@@ -29,7 +29,7 @@ if defined?(Rails)
       RailsTestApp::Application.initialize!
     end
 
-    after :all do
+    after do
       ElasticAPM.stop
     end
 
