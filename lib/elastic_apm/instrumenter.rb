@@ -168,7 +168,7 @@ module ElasticAPM
         action: action,
         transaction: transaction,
         parent: parent,
-        trace_context: trace_context || parent.trace_context.child,
+        trace_context: trace_context,
         type: type,
         context: context,
         stacktrace_builder: stacktrace_builder

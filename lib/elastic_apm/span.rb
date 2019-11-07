@@ -34,7 +34,7 @@ module ElasticAPM
 
       @transaction = transaction
       @parent = parent
-      @trace_context = trace_context
+      @trace_context = trace_context || parent.trace_context.child
 
       @context = context || Span::Context.new
       @stacktrace_builder = stacktrace_builder
