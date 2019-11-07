@@ -136,10 +136,10 @@ module ElasticAPM
         brk_sets = agent.metrics.get(:breakdown).collect
 
         txn_self_time = brk_sets.find do |d|
-          d.span&.fetch(:type) == 'app' &&
-            d.samples.key?(:'span.self_time')
+          d.span&.fetch(:type) == 'app'
         end
-        expect(txn_self_time.samples[:'span.self_time']).to eq 200
+        expect(txn_self_time.samples[:'span.self_time.sum.us']).to eq 200
+        expect(txn_self_time.samples[:'span.self_time.count']).to eq 1
         expect(txn_self_time.transaction).to match(
           name: 'a_transaction',
           type: 'custom'
@@ -147,7 +147,8 @@ module ElasticAPM
         expect(txn_self_time.span).to match(type: 'app', subtype: nil)
 
         spn_self_time = brk_sets.find { |d| d.span&.fetch(:type) == 'a' }
-        expect(spn_self_time.samples[:'span.self_time']).to eq 100
+        expect(spn_self_time.samples[:'span.self_time.sum.us']).to eq 100
+        expect(spn_self_time.samples[:'span.self_time.count']).to eq 1
         expect(spn_self_time.transaction).to match(
           name: 'a_transaction',
           type: 'custom'
