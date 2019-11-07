@@ -32,9 +32,14 @@ class MockIntake
   end
 
   def stub!
+    @central_config_stub =
+      WebMock
+      .stub_request(:get, %r{^http://localhost:8200/config/v1/agents})
+      .to_return(body: '{}')
+
     @request_stub =
       WebMock.stub_request(
-        :any, %r{^http://localhost:8200/intake/v2/events/?$}
+        :post, %r{^http://localhost:8200/intake/v2/events/?$}
       ).to_rack(self)
   end
 
