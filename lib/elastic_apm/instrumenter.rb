@@ -259,13 +259,18 @@ module ElasticAPM
       span_tags = tags.merge('span.type': 'app')
 
       @metrics.get(:breakdown).timer(
-        :'span.self_time',
+        :'span.self_time.sum.us',
         tags: span_tags, reset_on_collect: true
       ).update(transaction.self_time)
+
+      @metrics.get(:breakdown).counter(
+        :'span.self_time.count',
+        tags: span_tags, reset_on_collect: true
+      ).inc!
     end
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def update_span_metrics(span)
       return unless span.transaction.config.breakdown_metrics?
 
@@ -275,16 +280,19 @@ module ElasticAPM
         'transaction.type': span.transaction.type
       }
 
-      if span.subtype
-        tags[:'span.subtype'] = span.subtype
-      end
+      tags[:'span.subtype'] = span.subtype if span.subtype
 
       @metrics.get(:breakdown).timer(
-        :'span.self_time',
+        :'span.self_time.sum.us',
         tags: tags, reset_on_collect: true
       ).update(span.self_time)
+
+      @metrics.get(:breakdown).counter(
+        :'span.self_time.count',
+        tags: tags, reset_on_collect: true
+      ).inc!
     end
-    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
   end
   # rubocop:enable Metrics/ClassLength
 end

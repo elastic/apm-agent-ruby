@@ -316,8 +316,14 @@ if enabled
         wait_for { |intake| select_span_metrics.call(intake).count >= 3 }
         span_metrics = select_span_metrics.call(@mock_intake)
 
-        expect(span_metrics.map { |s| s['samples'].keys }.flatten.uniq)
-          .to eq(['span.self_time'])
+        keys_counts =
+          span_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
+            keys[set['samples'].keys] += 1
+          end
+
+        expect(keys_counts[
+          %w[span.self_time.sum.us span.self_time.count]
+        ]).to be >= 1
       end
     end
 
