@@ -36,6 +36,9 @@ module ElasticAPM
           start = root.length + 1
           path[start, path.length]
         end
+
+        def stacktrace_top(span); end
+        def source_location(payload); end
       end
 
       # @api private
@@ -47,6 +50,9 @@ module ElasticAPM
         def normalize(_transaction, _name, payload)
           normalize_render(payload, TYPE, SUBTYPE, nil)
         end
+
+        def stacktrace_top(span); end
+        def source_location(payload); end
       end
 
       # @api private
@@ -59,6 +65,9 @@ module ElasticAPM
         def normalize(_transaction, _name, payload)
           normalize_render(payload, TYPE, SUBTYPE, ACTION)
         end
+
+        def stacktrace_top(span); end
+        def source_location(payload); end
       end
 
       # @api private
@@ -71,6 +80,9 @@ module ElasticAPM
         def normalize(_transaction, _name, payload)
           normalize_render(payload, TYPE, SUBTYPE, ACTION)
         end
+
+        def stacktrace_top(span); end
+        def source_location(payload); end
       end
     end
   end

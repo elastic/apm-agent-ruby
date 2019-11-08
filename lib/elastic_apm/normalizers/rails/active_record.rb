@@ -30,6 +30,9 @@ module ElasticAPM
           [name, TYPE, subtype(payload), ACTION, context]
         end
 
+        def stacktrace_top(span); end
+        def source_location(payload); end
+
         private
 
         def subtype(payload)

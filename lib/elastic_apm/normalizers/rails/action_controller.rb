@@ -16,6 +16,9 @@ module ElasticAPM
           [transaction.name, TYPE, SUBTYPE, ACTION, nil]
         end
 
+        def stacktrace_top(span); end
+        def source_location(payload); end
+
         private
 
         def endpoint(payload)

@@ -54,7 +54,7 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/MethodLength
 
-    def finish(_name, id, _payload)
+    def finish(name, id, payload)
       # debug "AS::Notification#finish:#{name}:#{id}"
       return unless (transaction = @agent.current_transaction)
 
@@ -62,6 +62,12 @@ module ElasticAPM
         next unless notification.id == id
 
         if (span = notification.span)
+          _caller = caller
+          if stacktrace_top = @normalizers.stacktrace_top(name, _caller)
+            source_location = @normalizers.source_location(name, payload)
+            span.original_backtrace = _caller[stacktrace_top...-1].
+              unshift(source_location)
+          end
           @agent.end_span if span == @agent.current_span
         end
         return

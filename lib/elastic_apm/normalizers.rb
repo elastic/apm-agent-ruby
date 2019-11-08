@@ -36,6 +36,9 @@ module ElasticAPM # :nodoc:
         def normalize(*_args)
           :skip
         end
+
+        def stacktrace_top(span); end
+        def source_location(payload); end
       end
 
       def initialize(normalizers)
@@ -53,6 +56,14 @@ module ElasticAPM # :nodoc:
 
       def normalize(transaction, name, payload)
         self.for(name).normalize(transaction, name, payload)
+      end
+
+      def stacktrace_top(name, span)
+        self.for(name).stacktrace_top(span)
+      end
+
+      def source_location(name, payload)
+        self.for(name).source_location(payload)
       end
     end
   end
