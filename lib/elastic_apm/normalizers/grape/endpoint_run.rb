@@ -25,13 +25,9 @@ module ElasticAPM
           [transaction.name, TYPE, SUBTYPE, nil, nil]
         end
 
-        def source_location(payload)
+        def backtrace(payload)
           source_location = payload[:endpoint].source.source_location
-          "#{source_location[0]}:#{source_location[1]}"
-        end
-
-        def stacktrace_top(_caller)
-          _caller.find_index { |s| s =~ /.*grape.*\`run\'/ }
+          [ "#{source_location[0]}:#{source_location[1]}" ]
         end
 
         private

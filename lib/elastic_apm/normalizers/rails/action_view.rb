@@ -37,8 +37,7 @@ module ElasticAPM
           path[start, path.length]
         end
 
-        def stacktrace_top(span); end
-        def source_location(payload); end
+        def backtrace(payload); end
       end
 
       # @api private
@@ -51,8 +50,7 @@ module ElasticAPM
           normalize_render(payload, TYPE, SUBTYPE, nil)
         end
 
-        def stacktrace_top(span); end
-        def source_location(payload); end
+        def backtrace(payload); end
       end
 
       # @api private
@@ -66,8 +64,7 @@ module ElasticAPM
           normalize_render(payload, TYPE, SUBTYPE, ACTION)
         end
 
-        def stacktrace_top(span); end
-        def source_location(payload); end
+        def backtrace(payload); end
       end
 
       # @api private
@@ -81,8 +78,7 @@ module ElasticAPM
           normalize_render(payload, TYPE, SUBTYPE, ACTION)
         end
 
-        def stacktrace_top(span); end
-        def source_location(payload); end
+        def backtrace(payload); end
       end
     end
   end

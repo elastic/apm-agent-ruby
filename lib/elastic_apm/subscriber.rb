@@ -62,12 +62,7 @@ module ElasticAPM
         next unless notification.id == id
 
         if (span = notification.span)
-          _caller = caller
-          if stacktrace_top = @normalizers.stacktrace_top(name, _caller)
-            source_location = @normalizers.source_location(name, payload)
-            span.original_backtrace = _caller[stacktrace_top...-1].
-              unshift(source_location)
-          end
+          span.original_backtrace ||= @normalizers.backtrace(name, payload)
           @agent.end_span if span == @agent.current_span
         end
         return

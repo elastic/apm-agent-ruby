@@ -72,7 +72,7 @@ if enabled
         expect(transaction['name']).to eq('GET /pingpong')
       end
 
-      it 'sets the backtrace to the source location' do
+      it 'sets the backtrace' do
         get '/pingpong'
         wait_for transactions: 1, spans: 1
 
