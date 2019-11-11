@@ -12,6 +12,20 @@ services:
     environment:
       MONGODB_URL: 'mongodb:27017'
 
+  runner:
+    build:
+      context: .
+      args:
+        RUBY_IMAGE: ${RUBY_IMAGE}
+    environment:
+      MONGODB_URL: 'mongodb:27017'
+    entrypoint:
+      'spec/entrypoint.sh'
+    volumes:
+      - '..:/app'
+    depends_on:
+      - mongodb
+
 volumes:
   mongodata:
     driver: local
