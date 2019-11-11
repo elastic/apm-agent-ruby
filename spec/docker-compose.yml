@@ -19,7 +19,6 @@ services:
       args:
         RUBY_IMAGE: "ruby:latest"
         BUNDLER_VERSION: '2.0.2'
-    command: "/bin/bash"
     environment:
       MONGODB_URL: 'mongodb:27017'
     entrypoint:
@@ -32,7 +31,7 @@ services:
       - ..:/app:cached
       - vendor:/vendor
     tmpfs:
-      - /tmp
+      - /tmp:exec,mode=1777
 
 volumes:
   mongodata:

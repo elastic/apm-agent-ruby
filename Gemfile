@@ -26,6 +26,7 @@ gem 'yard', require: nil
 gem 'yarjuf'
 
 if RUBY_PLATFORM == 'java'
+  gem 'activerecord-jdbcsqlite3-adapter'
   gem 'jdbc-sqlite3'
 else
   gem 'sqlite3'
@@ -60,8 +61,6 @@ if frameworks_versions.key?('rails')
     gem 'delayed_job', require: nil
   end
 end
-
-gem 'activerecord-jdbcsqlite3-adapter', platform: :jruby
 
 group :bench do
   gem 'ruby-prof', require: nil, platforms: %i[ruby]
