@@ -22,7 +22,7 @@ module ElasticAPM
 
           it 'knows the AR adapter' do
             allow(::ActiveRecord::Base)
-              .to receive(:connection) { double(adapter_name: 'MySQL') }
+              .to receive(:connection_config) { { adapter: 'MySQL' } }
 
             subject = SqlNormalizer.new nil
 
@@ -43,7 +43,7 @@ module ElasticAPM
 
           it 'normalizes queries' do
             allow(::ActiveRecord::Base)
-              .to receive(:connection) { double(adapter_name: nil) }
+              .to receive(:connection_config) { { adapter: nil } }
             sql = 'SELECT  "hotdogs".* FROM "hotdogs" ' \
               'WHERE "hotdogs"."topping" = $1 LIMIT 1'
 
@@ -55,7 +55,7 @@ module ElasticAPM
             expect(context_.db.statement).to eq sql
           end
 
-          it 'uses the connection from payload, when available' do
+          it 'uses the connection from payload, when it\'s available' do
             sql = 'SELECT  "burgers".* FROM "burgers" ' \
               'WHERE "burgers"."cheese" = $1 LIMIT 1'
 
@@ -70,12 +70,30 @@ module ElasticAPM
               connection: double(adapter_name: 'Postgres')
             )
             expect(subtype).to eq 'postgres'
+          end
+
+          it 'uses ActiveRecord::Base when payload is not available' do
+            sql = 'SELECT  "burgers".* FROM "burgers" ' \
+              'WHERE "burgers"."cheese" = $1 LIMIT 1'
 
             allow(::ActiveRecord::Base)
-              .to receive(:connection) { double(adapter_name: nil) }
+              .to receive(:connection_config) { { adapter: 'Postgres' } }
             _name, _type, subtype, = normalize_payload(
-              sql: sql,
-              connection: double(adapter_name: nil)
+                sql: sql
+            )
+            expect(subtype).to eq 'postgres'
+
+            allow(::ActiveRecord::Base)
+              .to receive(:connection_config) { { adapter: '' } }
+            _name, _type, subtype, = normalize_payload(
+                sql: sql
+            )
+            expect(subtype).to eq 'unknown'
+
+            allow(::ActiveRecord::Base)
+              .to receive(:connection_config) { { adapter: nil } }
+            _name, _type, subtype, = normalize_payload(
+                sql: sql
             )
             expect(subtype).to eq 'unknown'
           end
