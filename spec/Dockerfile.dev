@@ -1,0 +1,33 @@
+ARG RUBY_IMAGE
+FROM ${RUBY_IMAGE}
+
+ARG BUNDLER_VERSION
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN [ apt-get ] \
+    && ( apt-get update -qq \
+        && apt-get install -qq -y build-essential libpq-dev git tzdata) \
+    || true
+
+RUN [ yum ] \
+    && ( yum update -y -q \
+        && yum install -y git ) \
+    || true
+
+# Configure bundler and PATH
+ENV LANG=C.UTF-8 \
+  GEM_HOME=/vendor \
+  BUNDLE_JOBS=4 \
+  BUNDLE_RETRY=3
+ENV BUNDLE_PATH $GEM_HOME
+ENV BUNDLE_APP_CONFIG=$BUNDLE_PATH \
+  BUNDLE_BIN=$BUNDLE_PATH/bin
+ENV PATH /app/bin:$BUNDLE_BIN:$PATH
+
+# Upgrade RubyGems and install required Bundler version 
+RUN gem update --system && \
+      gem install bundler:$BUNDLER_VERSION
+
+WORKDIR /app
+

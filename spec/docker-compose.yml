@@ -1,5 +1,5 @@
 ---
-version: '2.1'
+version: '3.4'
 
 services:
   mongodb:
@@ -15,17 +15,26 @@ services:
   runner:
     build:
       context: .
+      dockerfile: 'Dockerfile.dev'
       args:
-        RUBY_IMAGE: ${RUBY_IMAGE}
+        RUBY_IMAGE: "ruby:latest"
+        BUNDLER_VERSION: '2.0.2'
+    command: "/bin/bash"
     environment:
       MONGODB_URL: 'mongodb:27017'
     entrypoint:
       'spec/entrypoint.sh'
-    volumes:
-      - '..:/app'
     depends_on:
       - mongodb
+    stdin_open: true
+    tty: true
+    volumes:
+      - ..:/app:cached
+      - vendor:/vendor
+    tmpfs:
+      - /tmp
 
 volumes:
   mongodata:
+  vendor:
     driver: local
