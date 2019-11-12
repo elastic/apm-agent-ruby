@@ -7,10 +7,10 @@ ARG BUNDLER_VERSION
 # For tzdata
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN [ apt-get ] \
-    && ( apt-get update -qq \
-        && apt-get install -qq -y build-essential libpq-dev git tzdata) \
-    || true
+RUN apt-get update -qq \
+      && apt-get install -qq -y --no-install-recommends \
+        build-essential libpq-dev git tzdata \
+      && rm -rf /var/lib/apt/lists/*
 
 # Configure bundler and PATH
 ENV LANG=C.UTF-8
