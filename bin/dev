@@ -41,10 +41,11 @@ end
 
 unless options[:skip_build]
   run 'docker-compose build ' \
-    " --build-arg USER_ID_GROUP=#{USER_ID_GROUP}" \
     " --build-arg RUBY_IMAGE=#{RUBY_IMAGE}" \
+    " --build-arg USER_ID_GROUP=#{USER_ID_GROUP}" \
     " --build-arg FRAMEWORKS=#{FRAMEWORKS}" \
     " --build-arg VENDOR_PATH=#{VENDOR_PATH}"
+  exit $?.exitstatus unless $?.success?
 end
 
 run 'docker-compose run' \

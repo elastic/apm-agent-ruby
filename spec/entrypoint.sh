@@ -1,6 +1,6 @@
 #!/bin/bash
 
-bundle
+bundle || $(rm Gemfile.lock && bundle)
 
 # If first arg is a spec path, run spec(s)
 if [[ $1 == spec/* ]]; then

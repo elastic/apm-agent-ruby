@@ -26,6 +26,9 @@ ENV PATH=/app/bin:$BUNDLE_BIN:$PATH
 
 ENV FRAMEWORKS $FRAMEWORKS
 
+RUN mkdir -p $VENDOR_PATH \
+      && chown -R $USER_ID_GROUP $VENDOR_PATH
+
 USER $USER_ID_GROUP
 
 # Upgrade RubyGems and install required Bundler version
