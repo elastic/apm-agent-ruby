@@ -1,9 +1,23 @@
-#!/bin/bash
-set -e
-set -x
+#!/usr/bin/env ruby
+# frozen_string_literal: true
 
-RUBY_IMAGE=${1:-"ruby:latest"}
-IMAGE_NAME="apm-agent-ruby_$RUBY_IMAGE"
+require 'optparse'
 
-IMAGE_NAME=$IMAGE_NAME docker-compose build --build-arg RUBY_IMAGE=$RUBY_IMAGE
-IMAGE_NAME=$IMAGE_NAME docker-compose run --rm specs bash
+options = {}
+OptionParser.new do |opts|
+  opts.banner = 'Usage: bin/dev [options] [command]'
+
+  opts.on('-iIMAGE', '--image=IMAGE', 'Specify Docker image') do |val|
+    options[:image] = val
+  end
+end.parse!
+
+IMAGE = options.fetch(:image, 'ruby:latest')
+NAME = "apm-agent-ruby:#{IMAGE.gsub(':', '_')}"
+
+def run(cmd)
+  system "IMAGE_NAME=#{NAME} #{cmd}"
+end
+
+run "docker-compose build --build-arg RUBY_IMAGE=#{IMAGE}"
+run "docker-compose run --rm specs #{ARGV.join}"
