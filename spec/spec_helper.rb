@@ -4,7 +4,7 @@ ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 
 require 'bootsnap'
 Bootsnap.setup(
-  cache_dir: '/tmp/bootsnap',
+  cache_dir: "#{ENV.fetch('VENDOR_PATH', 'tmp')}/bootsnap",
   development_mode: false
 )
 

@@ -1,5 +1,13 @@
-Gemfile.lock
+# docs
 *.asciidoc
 *.md
 docs/
+
+# Jenkins related
 .ci/
+
+# dependencies
+Gemfile.lock
+
+# ignore because already using volume
+vendor/*
