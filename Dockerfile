@@ -37,5 +37,7 @@ RUN gem update --system && \
 
 # Use unpatched, system version for more speed over less security
 RUN gem install nokogiri -- --use-system-libraries
+# Rake is required to build http-parser on some jruby images
+RUN gem install rake
 
 WORKDIR /app
