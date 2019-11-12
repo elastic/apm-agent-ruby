@@ -1,1 +1,5 @@
 Gemfile.lock
+*.asciidoc
+*.md
+docs/
+.ci/
