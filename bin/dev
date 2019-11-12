@@ -26,4 +26,4 @@ end
 run 'docker-compose build ' \
   " --build-arg RUBY_IMAGE=#{IMAGE}" \
   " --build-arg VENDOR_PATH=#{VENDOR_PATH}"
-run "docker-compose run --rm specs #{ARGV.join}"
+run "docker-compose run -u $(id -u):$(id -g) --rm specs #{ARGV.join}"
