@@ -14,6 +14,7 @@ services:
         BUNDLER_VERSION: '2.0.2'
     image: '$IMAGE_NAME'
     environment:
+      HOME: '/tmp'
       MONGODB_URL: 'mongodb:27017'
     entrypoint:
       'spec/entrypoint.sh'
