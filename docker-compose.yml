@@ -11,7 +11,6 @@ services:
     build:
       context: .
       args:
-        RUBY_IMAGE: 'ruby:latest'
         BUNDLER_VERSION: '2.0.2'
     image: '$IMAGE_NAME'
     environment:
@@ -21,7 +20,7 @@ services:
     tty: true
     volumes:
       - .:/app:cached
-      - vendor:/vendor
+      - ./vendor:/vendor
     tmpfs:
       - /tmp:exec,mode=1777
     depends_on:
@@ -30,4 +29,3 @@ services:
 volumes:
   vendor:
   mongodata:
-    driver: local

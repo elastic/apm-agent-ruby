@@ -39,7 +39,9 @@ GITHUB_REPOS = {
   'sinatra' => 'sinatra/sinatra'
 }.freeze
 
-parsed_frameworks = ENV.fetch('FRAMEWORK', 'rails').split(',')
+#                new               || legacy           || default
+env_frameworks = ENV['FRAMEWORKS'] || ENV['FRAMEWORK'] || ''
+parsed_frameworks = env_frameworks.split(',')
 frameworks_versions = parsed_frameworks.inject({}) do |frameworks, str|
   framework, *version = str.split('-')
   frameworks.merge(framework => version.join('-'))
