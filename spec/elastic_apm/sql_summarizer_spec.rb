@@ -53,5 +53,13 @@ module ElasticAPM
       result = subject.summarize(sql)
       expect(result).to eq 'SQL'
     end
+
+    context 'invalid bytes' do
+      it 'replaces invalid bytes' do
+        sql = "INSERT INTO table (a, b) VALUES ('\255','\255')"
+        result = subject.summarize(sql)
+        expect(result).to eq('INSERT INTO table')
+      end
+    end
   end
 end
