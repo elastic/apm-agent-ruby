@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+set -x
+
+RUBY_IMAGE=${1:-"ruby:latest"}
+IMAGE_NAME="apm-agent-ruby_$RUBY_IMAGE"
+
+IMAGE_NAME=$IMAGE_NAME docker-compose build --build-arg RUBY_IMAGE=$RUBY_IMAGE
+IMAGE_NAME=$IMAGE_NAME docker-compose run --rm specs bash

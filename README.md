@@ -35,6 +35,22 @@ The official Rubygem for [Elastic][] [APM][].
 If you find a bug, please [report an issue](https://github.com/elastic/apm-agent-ruby/issues).
 For any other assistance, please open or add to a topic on the [APM discuss forum](https://discuss.elastic.co/c/apm).
 
+## Development
+
+A Docker based setup is provided for development.
+
+To spin up a terminal for testing based on the official `ruby:latest` image:
+
+```sh
+$ bin/dev
+```
+
+To pick a specific Ruby version, specify it as the first argument:
+
+```sh
+$ bin/dev jruby:9.2
+```
+
 ## License
 
 Apache 2.0
