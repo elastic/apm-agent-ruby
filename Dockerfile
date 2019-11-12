@@ -1,7 +1,7 @@
 ARG RUBY_IMAGE
 FROM ${RUBY_IMAGE}
 
-ARG RUBY_IMAGE
+ARG VENDOR_PATH
 ARG BUNDLER_VERSION
 
 # For tzdata
@@ -15,8 +15,12 @@ RUN [ apt-get ] \
 # Configure bundler and PATH
 ENV LANG=C.UTF-8
 
-ENV GEM_HOME=/vendor
-ENV RUBY_IMAGE $RUBY_IMAGE
+ENV GEM_HOME=$VENDOR_PATH
+ENV BUNDLE_PATH=$GEM_HOME \
+  BUNDLE_JOBS=4 BUNDLE_RETRY=3
+ENV BUNDLE_APP_CONFIG=$BUNDLE_PATH \
+  BUNDLE_BIN=$BUNDLE_PATH/bin
+ENV PATH=/app/bin:$BUNDLE_BIN:$PATH
 
 # Upgrade RubyGems and install required Bundler version
 RUN gem update --system && \

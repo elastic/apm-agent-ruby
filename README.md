@@ -39,7 +39,7 @@ For any other assistance, please open or add to a topic on the [APM discuss foru
 
 A Docker based setup is provided for development.
 
-To spin up a terminal for testing based on the official `ruby:latest` image:
+To run all specs in the official `ruby:latest` image:
 
 ```sh
 $ bin/dev

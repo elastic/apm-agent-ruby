@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# GEM_HOME/$(echo $RUBY_IMAGE | sed -e s/:/-/g)
+
 require 'optparse'
 
 options = {}
@@ -13,11 +15,15 @@ OptionParser.new do |opts|
 end.parse!
 
 IMAGE = options.fetch(:image, 'ruby:latest')
-NAME = "apm-agent-ruby:#{IMAGE.gsub(':', '_')}"
+IMAGE_PATH_SAFE = IMAGE.gsub(':', '_')
+IMAGE_NAME = "apm-agent-ruby:#{IMAGE_PATH_SAFE}"
+VENDOR_PATH = "/vendor/#{IMAGE_PATH_SAFE}"
 
 def run(cmd)
-  system "IMAGE_NAME=#{NAME} #{cmd}"
+  system "IMAGE_NAME=#{IMAGE_NAME} #{cmd}"
 end
 
-run "docker-compose build --build-arg RUBY_IMAGE=#{IMAGE}"
+run 'docker-compose build ' \
+  " --build-arg RUBY_IMAGE=#{IMAGE}" \
+  " --build-arg VENDOR_PATH=#{VENDOR_PATH}"
 run "docker-compose run --rm specs #{ARGV.join}"
