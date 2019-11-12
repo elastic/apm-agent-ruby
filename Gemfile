@@ -4,6 +4,8 @@ source 'https://rubygems.org'
 
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
+gem 'bootsnap', require: false
+
 gem 'rack-test'
 gem 'rspec', '~> 3'
 gem 'rspec-its'

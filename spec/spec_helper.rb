@@ -2,6 +2,12 @@
 
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 
+require 'bootsnap'
+Bootsnap.setup(
+  cache_dir: '/tmp/bootsnap',
+  development_mode: false
+)
+
 if ENV['INCLUDE_COVERAGE'] == '1'
   require 'simplecov'
 
