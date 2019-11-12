@@ -27,7 +27,7 @@ module ElasticAPM
 
         def backtrace(payload)
           source_location = payload[:endpoint].source.source_location
-          [ "#{source_location[0]}:#{source_location[1]}" ]
+          ["#{source_location[0]}:#{source_location[1]}"]
         end
 
         private
