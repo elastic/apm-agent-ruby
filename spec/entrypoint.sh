@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 
 bundle || $(rm Gemfile.lock && bundle)
 
