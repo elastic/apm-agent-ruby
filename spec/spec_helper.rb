@@ -4,13 +4,10 @@ ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 
 begin
   require 'bootsnap'
-  Bootsnap.setup(
-    cache_dir: "#{ENV.fetch('VENDOR_PATH', 'tmp')}/bootsnap",
-    # development_mode: false
-  )
+  Bootsnap.setup(cache_dir: "#{ENV.fetch('VENDOR_PATH', 'tmp')}/bootsnap")
 rescue LoadError
   # Bootsnap depends on ActiveSupport, but as AS heavily modifies stdlib
-  # we still want to test grape/sinatra without it
+  # we still want to test Sinatra without it
 end
 
 if ENV['INCLUDE_COVERAGE'] == '1'
