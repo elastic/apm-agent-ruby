@@ -64,43 +64,30 @@ RSpec.describe ElasticAPM do
     end
 
     describe '.start_transaction' do
-      it 'starts a transaction' do
-        transaction = ElasticAPM.start_transaction 'Test'
-        expect(transaction).to be_a ElasticAPM::Transaction
-        expect(transaction.name).to eq 'Test'
+      it 'delegates to agent' do
+        expect(ElasticAPM.agent).to receive(:start_transaction)
+        ElasticAPM.start_transaction
       end
     end
 
-    describe '.end_transaction', :intercept do
-      it 'ends current transaction' do
-        transaction = ElasticAPM.start_transaction 'Test'
-        expect(ElasticAPM.current_transaction).to_not be_nil
-
+    describe '.end_transaction' do
+      it 'delegates to agent' do
+        expect(ElasticAPM.agent).to receive(:end_transaction)
         ElasticAPM.end_transaction
-        expect(ElasticAPM.current_transaction).to be_nil
-        expect(transaction).to be_stopped
-
-        transaction, = @intercepted.transactions
-        expect(transaction.name).to eq 'Test'
       end
     end
 
     describe '.with_transaction' do
-      let(:placeholder) { Struct.new(:transaction).new }
-
       subject do
-        ElasticAPM.with_transaction('Block test') do |transaction|
-          placeholder.transaction = transaction
-
+        ElasticAPM.with_transaction do
           'original result'
         end
       end
 
-      it 'wraps block in transaction' do
+      it 'delegates to agent' do
+        expect(ElasticAPM.agent).to receive(:start_transaction)
+        expect(ElasticAPM.agent).to receive(:end_transaction)
         subject
-
-        expect(placeholder.transaction).to be_a ElasticAPM::Transaction
-        expect(placeholder.transaction.name).to eq 'Block test'
       end
 
       it { should eq 'original result' }
@@ -108,62 +95,29 @@ RSpec.describe ElasticAPM do
 
     describe '.start_span' do
       it 'starts a span' do
-        ElasticAPM.start_transaction
-
-        span = ElasticAPM.start_span 'Test'
-        expect(span).to be_a ElasticAPM::Span
-        expect(span.name).to eq 'Test'
+        expect(ElasticAPM.agent).to receive(:start_span)
+        ElasticAPM.start_span 'Test'
       end
     end
 
     describe '.end_span' do
       it 'ends current span' do
-        ElasticAPM.start_transaction
-
-        span = ElasticAPM.start_span 'Test'
-        expect(ElasticAPM.current_span).to_not be_nil
-
+        expect(ElasticAPM.agent).to receive(:end_span)
         ElasticAPM.end_span
-        expect(ElasticAPM.current_span).to be_nil
-        expect(span).to be_stopped
       end
     end
 
     describe '.with_span' do
-      let(:placeholder) { Struct.new(:spans).new([]) }
-
-      before { ElasticAPM.start_transaction }
-
       subject do
-        ElasticAPM.with_span('Block test') do |span1|
-          placeholder.spans << span1
-
-          ElasticAPM.with_span('All the way down') do |span2|
-            placeholder.spans << span2
-
-            'original result'
-          end
+        ElasticAPM.with_span('Block test') do
+          'original result'
         end
       end
 
       it 'wraps block in span' do
+        expect(ElasticAPM.agent).to receive(:start_span)
+        expect(ElasticAPM.agent).to receive(:end_span)
         subject
-
-        expect(placeholder.spans.length).to be 2
-        span1, span2 = placeholder.spans
-
-        expect(span1.name).to eq 'Block test'
-        expect(span2.name).to eq 'All the way down'
-      end
-
-      it 'includes stacktraces by default' do
-        allow(agent.config).to receive(:span_frames_min_duration_us) { -1 }
-
-        subject
-
-        expect(placeholder.spans.length).to be 2
-        expect(placeholder.spans.map(&:stacktrace))
-          .to all(be_a(ElasticAPM::Stacktrace))
       end
 
       it { should eq 'original result' }

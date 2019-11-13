@@ -237,6 +237,12 @@ module ElasticAPM
     def add_filter(key, callback)
       transport.add_filter(key, callback)
     end
+
+    # misc
+
+    def inspect
+      super.split.first + '>'
+    end
   end
   # rubocop:enable Metrics/ClassLength
 end
