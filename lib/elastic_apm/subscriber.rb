@@ -62,7 +62,9 @@ module ElasticAPM
         next unless notification.id == id
 
         if (span = notification.span)
-          span.original_backtrace ||= @normalizers.backtrace(name, payload)
+          if @agent.config.span_frames_min_duration?
+            span.original_backtrace ||= @normalizers.backtrace(name, payload)
+          end
           @agent.end_span if span == @agent.current_span
         end
         return
