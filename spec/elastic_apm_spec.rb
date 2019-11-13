@@ -4,7 +4,9 @@ require 'spec_helper'
 
 RSpec.describe ElasticAPM do
   describe 'life cycle' do
-    it 'starts and stops the agent' do
+    it 'starts and stops the agent', :mock_intake do
+      MockIntake.instance.stub!
+
       ElasticAPM.start ElasticAPM::Config.new
       expect(ElasticAPM::Agent).to be_running
 
