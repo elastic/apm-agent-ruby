@@ -48,7 +48,7 @@ module ElasticAPM
     option :instrument,                        type: :bool,   default: true
     option :instrumented_rake_tasks,           type: :list,   default: []
     option :log_level,                         type: :int,    default: Logger::INFO
-    option :log_path,                          type: :string
+    option :log_path,                          type: :string, default: '-'
     option :metrics_interval,                  type: :int,    default: '30s',   converter: Duration.new
     option :pool_size,                         type: :int,    default: 1
     option :proxy_address,                     type: :string
