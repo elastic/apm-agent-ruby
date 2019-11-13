@@ -39,7 +39,8 @@ if enabled
 
       MockIntake.instance.stub!
 
-      ElasticAPM::Grape.start(GrapeTestApp, { api_request_time: '100ms' })
+      ElasticAPM::Grape.start(GrapeTestApp, { api_request_time: '100ms',
+                                              span_frames_min_duration: -1 })
     end
 
     after :all do
@@ -69,6 +70,15 @@ if enabled
 
         transaction = @mock_intake.transactions.last
         expect(transaction['name']).to eq('GET /pingpong')
+      end
+
+      it 'sets the backtrace' do
+        get '/pingpong'
+        wait_for transactions: 1, spans: 1
+
+        span = @mock_intake.spans.last
+        expect(span['stacktrace'][0]).not_to be(nil)
+        expect(span['stacktrace'][0]['filename']).to eq('integration/grape_spec.rb')
       end
 
       context 'params specified' do

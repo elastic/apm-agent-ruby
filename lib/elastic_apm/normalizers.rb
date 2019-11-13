@@ -12,6 +12,8 @@ module ElasticAPM # :nodoc:
       def self.register(name)
         Normalizers.register(name, self)
       end
+
+      def backtrace(payload); end
     end
 
     def self.register(name, klass)
@@ -53,6 +55,10 @@ module ElasticAPM # :nodoc:
 
       def normalize(transaction, name, payload)
         self.for(name).normalize(transaction, name, payload)
+      end
+
+      def backtrace(name, payload)
+        self.for(name).backtrace(payload)
       end
     end
   end

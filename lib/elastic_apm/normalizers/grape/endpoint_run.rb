@@ -25,6 +25,11 @@ module ElasticAPM
           [transaction.name, TYPE, SUBTYPE, nil, nil]
         end
 
+        def backtrace(payload)
+          source_location = payload[:endpoint].source.source_location
+          ["#{source_location[0]}:#{source_location[1]}"]
+        end
+
         private
 
         def transaction_from_host_app?(transaction)
