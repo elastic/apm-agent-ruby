@@ -30,8 +30,6 @@ module ElasticAPM
           [name, TYPE, subtype(payload), ACTION, context]
         end
 
-        def backtrace(payload); end
-
         private
 
         def subtype(payload)

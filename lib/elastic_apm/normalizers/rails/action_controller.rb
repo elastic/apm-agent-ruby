@@ -16,8 +16,6 @@ module ElasticAPM
           [transaction.name, TYPE, SUBTYPE, ACTION, nil]
         end
 
-        def backtrace(payload); end
-
         private
 
         def endpoint(payload)

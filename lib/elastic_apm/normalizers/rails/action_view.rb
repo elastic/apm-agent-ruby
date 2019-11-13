@@ -36,8 +36,6 @@ module ElasticAPM
           start = root.length + 1
           path[start, path.length]
         end
-
-        def backtrace(payload); end
       end
 
       # @api private
@@ -49,8 +47,6 @@ module ElasticAPM
         def normalize(_transaction, _name, payload)
           normalize_render(payload, TYPE, SUBTYPE, nil)
         end
-
-        def backtrace(payload); end
       end
 
       # @api private
@@ -63,8 +59,6 @@ module ElasticAPM
         def normalize(_transaction, _name, payload)
           normalize_render(payload, TYPE, SUBTYPE, ACTION)
         end
-
-        def backtrace(payload); end
       end
 
       # @api private
@@ -77,8 +71,6 @@ module ElasticAPM
         def normalize(_transaction, _name, payload)
           normalize_render(payload, TYPE, SUBTYPE, ACTION)
         end
-
-        def backtrace(payload); end
       end
     end
   end
