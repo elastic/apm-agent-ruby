@@ -25,7 +25,7 @@ module ElasticAPM
     end
 
     def summarize(sql)
-      sql = sql.encode(UTF8, invalid: :replace, replace: nil)
+      sql = sql.encode(UTF8, invalid: :replace, undef: :replace)
       self.class.cache[sql] ||=
         REGEXES.find do |regex, sig|
           if (match = sql[0...1000].match(regex))
