@@ -202,6 +202,19 @@ APM Server has its own limit of 30 seconds before it will close requests.
 It has to be provided in *<<config-format-duration, duration format>>*.
 
 [float]
+[[config-breakdown-metrics]]
+==== `breakdown-metrics`
+|============
+| Environment                     | `Config` key        | Default
+| `ELASTIC_APM_BREAKDOWN_METRICS` | `breakdown_metrics` | `true`
+|============
+
+Enable/disable the tracking and collection of breakdown metrics.
+By setting this to `False`, tracking this metric is completely disabled, which can reduce the overhead of the agent.
+
+NOTE: This feature requires APM Server and Kibana >= 7.3.
+
+[float]
 [[config-capture-body]]
 ==== `capture_body`
 |============
