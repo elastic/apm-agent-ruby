@@ -7,7 +7,7 @@ RSpec.describe ElasticAPM do
     it 'starts and stops the agent', :mock_intake do
       MockIntake.instance.stub!
 
-      ElasticAPM.start ElasticAPM::Config.new
+      ElasticAPM.start
       expect(ElasticAPM::Agent).to be_running
 
       ElasticAPM.stop

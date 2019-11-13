@@ -14,7 +14,7 @@ module ElasticAPM
       its(:metrics) { should be_a Metrics::Registry }
     end
 
-    context 'life cycle' do
+    context 'life cycle', :mock_intake do
       describe '.start' do
         it 'starts an instance and only one' do
           first_instance = Agent.start Config.new
@@ -138,7 +138,7 @@ module ElasticAPM
       end
     end
 
-    context 'metrics', :intercept do
+    context 'metrics', :mock_intake do
       it 'starts' do
         subject.start
         expect(subject.metrics).to be_running
