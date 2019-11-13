@@ -6,6 +6,7 @@ module ElasticAPM
     let(:agent) { ElasticAPM.agent }
 
     before do
+      intercept!
       ElasticAPM.start config
       allow(agent).to receive(:enqueue) { nil }
     end

@@ -36,13 +36,12 @@ if defined?(Delayed::Backend)
         Delayed::Worker.backend = MockJobBackend
       end
 
-      before { ElasticAPM.start }
-      after { ElasticAPM.stop }
-
       it 'instruments class-based job transaction' do
         job = TestJob.new
 
-        Delayed::Job.new(job).invoke_job
+        with_agent do
+          Delayed::Job.new(job).invoke_job
+        end
 
         transaction, = @intercepted.transactions
         expect(transaction.name).to eq 'ElasticAPM::TestJob'
@@ -54,7 +53,9 @@ if defined?(Delayed::Backend)
         job = TestJob.new
         invokable = Delayed::PerformableMethod.new(job, :perform, [])
 
-        Delayed::Job.new(invokable).invoke_job
+        with_agent do
+          Delayed::Job.new(invokable).invoke_job
+        end
 
         transaction, = @intercepted.transactions
         expect(transaction.name)
@@ -67,7 +68,9 @@ if defined?(Delayed::Backend)
         job = ExplodingJob.new
 
         expect do
-          Delayed::Job.new(job).invoke_job
+          with_agent do
+            Delayed::Job.new(job).invoke_job
+          end
         end.to raise_error(ZeroDivisionError)
 
         transaction, = @intercepted.transactions

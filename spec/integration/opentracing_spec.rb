@@ -29,7 +29,10 @@ RSpec.describe 'OpenTracing bridge', :intercept do
   end
 
   context 'with an APM Agent' do
-    before { ElasticAPM.start }
+    before do
+      intercept!
+      ElasticAPM.start
+    end
     after { ElasticAPM.stop }
 
     describe '#start_span' do
@@ -158,7 +161,10 @@ RSpec.describe 'OpenTracing bridge', :intercept do
   end
 
   describe 'example', :intercept do
-    before { ElasticAPM.start }
+    before do
+      intercept!
+      ElasticAPM.start
+    end
     after { ElasticAPM.stop }
 
     it 'traces nested spans' do
@@ -195,7 +201,10 @@ RSpec.describe 'OpenTracing bridge', :intercept do
   end
 
   describe ElasticAPM::OpenTracing::Span do
-    before { ElasticAPM.start }
+    before do
+      intercept!
+      ElasticAPM.start
+    end
     after { ElasticAPM.stop }
 
     let(:elastic_span) do

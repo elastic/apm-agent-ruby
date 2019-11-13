@@ -12,18 +12,18 @@ module ElasticAPM
     end
 
     it 'wraps in transaction when enabled' do
-      ElasticAPM.start(instrumented_rake_tasks: %w[test_task])
-      task.invoke
-      ElasticAPM.stop
+      with_agent(instrumented_rake_tasks: %w[test_task]) do
+        task.invoke
+      end
 
       expect(@intercepted.transactions.length).to eq 1
     end
 
     context 'when disabled' do
       it 'wraps in transaction when enabled' do
-        ElasticAPM.start
-        task.invoke
-        ElasticAPM.stop
+        with_agent do
+          task.invoke
+        end
 
         expect(@intercepted.transactions.length).to eq 0
       end
