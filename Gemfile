@@ -4,6 +4,8 @@ source 'https://rubygems.org'
 
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
+gem 'bootsnap', require: false
+
 gem 'rack-test'
 gem 'rspec', '~> 3'
 gem 'rspec-its'
@@ -26,6 +28,7 @@ gem 'yard', require: nil
 gem 'yarjuf'
 
 if RUBY_PLATFORM == 'java'
+  gem 'activerecord-jdbcsqlite3-adapter'
   gem 'jdbc-sqlite3'
 else
   gem 'sqlite3'
@@ -38,7 +41,9 @@ GITHUB_REPOS = {
   'sinatra' => 'sinatra/sinatra'
 }.freeze
 
-parsed_frameworks = ENV.fetch('FRAMEWORK', 'rails').split(',')
+#                new               || legacy           || default
+env_frameworks = ENV['FRAMEWORKS'] || ENV['FRAMEWORK'] || ''
+parsed_frameworks = env_frameworks.split(',')
 frameworks_versions = parsed_frameworks.inject({}) do |frameworks, str|
   framework, *version = str.split('-')
   frameworks.merge(framework => version.join('-'))
@@ -60,8 +65,6 @@ if frameworks_versions.key?('rails')
     gem 'delayed_job', require: nil
   end
 end
-
-gem 'activerecord-jdbcsqlite3-adapter', platform: :jruby
 
 group :bench do
   gem 'ruby-prof', require: nil, platforms: %i[ruby]

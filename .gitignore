@@ -16,3 +16,4 @@ spec/elastic_apm.log
 spec/junit-reports
 .gem
 *.bulk
+vendor/
