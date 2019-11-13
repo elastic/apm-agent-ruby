@@ -15,6 +15,7 @@ RSpec.describe ElasticAPM do
 
   context 'when running', :mock_intake do
     before do
+      MockIntake.instance.stub!
       ElasticAPM.start
     end
 
