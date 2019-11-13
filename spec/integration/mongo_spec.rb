@@ -4,23 +4,6 @@ require 'mongo'
 
 module ElasticAPM
   RSpec.describe 'Spy: MongoDB' do
-    before(:context) do
-      start_mongodb
-    end
-
-    after(:context) do
-      stop_mongodb
-    end
-
-    def stop_mongodb
-      `docker-compose -f spec/docker-compose.yml down -v 2>&1`
-    end
-
-    def start_mongodb
-      stop_mongodb
-      `docker-compose -f spec/docker-compose.yml up -d mongodb 2>&1`
-    end
-
     let(:url) do
       ENV.fetch('MONGODB_URL') { '127.0.0.1:27017' }
     end
