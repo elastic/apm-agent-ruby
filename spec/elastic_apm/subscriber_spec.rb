@@ -12,10 +12,15 @@ if enable
   require 'elastic_apm/subscriber'
 
   module ElasticAPM
-    RSpec.describe Subscriber do
+    RSpec.describe Subscriber, :mock_intake do
       let(:config) { Config.new }
       let(:agent) { Agent.new config }
-      before { agent.start }
+
+      before do
+        MockIntake.stub!
+        agent.start
+      end
+
       after { agent.stop }
 
       subject { Subscriber.new(agent) }
