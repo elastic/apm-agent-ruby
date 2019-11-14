@@ -4,6 +4,8 @@ require 'net/http'
 
 module ElasticAPM
   RSpec.describe 'Spy: NetHTTP', :intercept do
+    after { WebMock.reset! }
+
     it 'spans http calls' do
       WebMock.stub_request(:get, %r{http://example.com/.*})
 

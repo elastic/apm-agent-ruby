@@ -176,12 +176,12 @@ end
 
 RSpec.configure do |config|
   config.before :each, :mock_intake do
-    MockIntake.instance.stub! unless MockIntake.instance.stubbed?
+    MockIntake.stub! unless MockIntake.stubbed?
     @mock_intake = MockIntake.instance
   end
 
   config.after :each, :mock_intake do
-    MockIntake.instance.reset!
+    MockIntake.reset!
     @mock_intake = nil
   end
 

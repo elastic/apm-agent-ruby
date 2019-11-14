@@ -4,6 +4,8 @@ require 'elasticsearch'
 
 module ElasticAPM
   RSpec.describe 'Spy: Elasticsearch' do
+    after { WebMock.reset! }
+
     it 'spans requests', :intercept do
       WebMock.stub_request(:get, %r{http://localhost:9200/.*})
 

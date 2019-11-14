@@ -8,6 +8,8 @@ module ElasticAPM
       let(:config) { Config.new(http_compression: false) }
       subject { described_class.new(config) }
 
+      after { WebMock.reset! }
+
       describe '#initialize' do
         it 'is has no active connection' do
           expect(subject.http).to be nil
