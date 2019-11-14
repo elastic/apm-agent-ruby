@@ -47,7 +47,7 @@ module ElasticAPM
     option :ignore_url_patterns,               type: :list,   default: [],      converter: RegexpList.new
     option :instrument,                        type: :bool,   default: true
     option :instrumented_rake_tasks,           type: :list,   default: []
-    option :log_level,                         type: :int,    default: Logger::INFO
+    option :log_level,                         type: :int,    default: Logger::DEBUG
     option :log_path,                          type: :string, default: '-'
     option :metrics_interval,                  type: :int,    default: '30s',   converter: Duration.new
     option :pool_size,                         type: :int,    default: 1

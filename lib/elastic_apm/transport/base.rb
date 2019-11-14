@@ -60,6 +60,7 @@ module ElasticAPM
       def submit(resource)
         if @stopped.true?
           warn '%s: Transport stopping, no new events accepted', pid_str
+          debug 'Received: %s', resource.inspect
           return false
         end
 
