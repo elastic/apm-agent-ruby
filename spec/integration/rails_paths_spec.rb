@@ -23,9 +23,10 @@ if defined?(Rails)
     end
 
     before do
-      allow(RailsTestApp::Application.config.paths['app/views']).
-        to receive(:existent).and_return(['test/path'])
-      allow(Rails).to receive(:root).and_return('rootz')
+      allow(RailsTestApp::Application.config.paths['app/views'])
+        .to receive(:existent).and_return(['test/path'])
+      allow(Rails).to receive(:root).and_return(Pathname.new('rootz'))
+
       RailsTestApp::Application.initialize!
     end
 
