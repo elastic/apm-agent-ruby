@@ -25,9 +25,6 @@ require 'bundler/setup'
 Bundler.require :default, 'test'
 require 'yarjuf'
 
-require 'webmock/rspec'
-WebMock.hide_stubbing_instructions!
-
 Dir['spec/support/*.rb'].each { |file| require "./#{file}" }
 
 require 'elastic-apm'
@@ -44,7 +41,8 @@ module RailsTestHelpers
         config.secret_key_base = '__secret_key_base'
         config.consider_all_requests_local = false
         config.eager_load = false
-        config.elastic_apm.api_request_time = '100ms'
+
+        config.elastic_apm.api_request_time = '200ms'
         config.elastic_apm.disable_start_message = true
 
         # Silence deprecation warning

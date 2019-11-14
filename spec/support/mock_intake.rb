@@ -33,18 +33,20 @@ class MockIntake
 
   def stub!
     @central_config_stub =
-      WebMock
-      .stub_request(:get, %r{^http://localhost:8200/config/v1/agents})
-      .to_return(body: '{}')
+      WebMock.stub_request(
+        :get, %r{^http://localhost:8200/config/v1/agents/?$}
+      ).to_return(body: '{}')
 
     @request_stub =
       WebMock.stub_request(
         :post, %r{^http://localhost:8200/intake/v2/events/?$}
       ).to_rack(self)
+
+    self
   end
 
   def stubbed?
-    !!@request_stub
+    !!@request_stub && @central_config_stub
   end
 
   def clear!
@@ -61,6 +63,7 @@ class MockIntake
     clear!
     WebMock.reset!
     @request_stub = nil
+    @central_config_stub = nil
   end
 
   def call(env)
@@ -115,7 +118,7 @@ class MockIntake
   module WaitFor
     # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-    def wait_for(expected = {})
+    def wait_for(timeout: 5, **expected)
       if expected.empty? && !block_given?
         raise ArgumentError, 'Either args or block required'
       end
@@ -124,7 +127,7 @@ class MockIntake
         raise 'Not stubbed – did you forget :mock_intake?'
       end
 
-      Timeout.timeout(5) do
+      Timeout.timeout(timeout) do
         loop do
           sleep 0.01
 

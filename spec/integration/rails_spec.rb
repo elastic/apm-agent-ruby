@@ -12,14 +12,22 @@ if enabled
   require 'action_controller/railtie'
   require 'action_mailer/railtie'
 
-  RSpec.describe 'Rails integration',
-    :mock_intake,
-    :allow_running_agent,
-    :spec_logger do
+  # We don't use :mock_intake, as we want the stubs to stay around between
+  # individual examples
+  RSpec.describe 'Rails integration', :allow_running_agent, :spec_logger do
     include Rack::Test::Methods
+    include MockIntake::WaitFor
 
     def app
       @app ||= Rails.application
+    end
+
+    after :each do
+      MockIntake.clear!
+    end
+
+    after :all do
+      ElasticAPM.stop
     end
 
     before :all do
@@ -37,7 +45,8 @@ if enabled
           config.elastic_apm.log_path = 'spec/elastic_apm.log'
           config.elastic_apm.log_level = 0
           config.elastic_apm.pool_size = Concurrent.processor_count
-          config.elastic_apm.metrics_interval = '250ms'
+          config.elastic_apm.api_request_time = '200ms'
+          config.elastic_apm.metrics_interval = '2s'
         end
       end
 
@@ -109,7 +118,7 @@ if enabled
         end
       end
 
-      MockIntake.instance.stub!
+      @mock_intake = MockIntake.stub!
 
       RailsTestApp::Application.initialize!
       RailsTestApp::Application.routes.draw do
@@ -123,18 +132,10 @@ if enabled
       end
     end
 
-    after :all do
-      ElasticAPM.stop
-    end
-
-    before :each do
-      ElasticAPM.agent.metrics.collect_and_send # reset
-    end
-
     it 'knows Rails' do
       responses = Array.new(10).map { get '/' }
 
-      wait_for transactions: 10, spans: 20
+      wait_for transactions: 10, spans: 20, timeout: 10
 
       expect(responses.last.body).to eq 'Yes!'
       expect(@mock_intake.metadatas.length >= 1).to be true
@@ -286,8 +287,6 @@ if enabled
 
     describe 'metrics' do
       it 'gathers metrics' do
-        sleep 0.25 # die down
-
         get '/'
 
         wait_for transactions: 1, spans: 2
@@ -325,10 +324,6 @@ if enabled
           %w[span.self_time.sum.us span.self_time.count]
         ]).to be >= 1
       end
-    end
-
-    after :all do
-      ElasticAPM.stop
     end
   end
 end

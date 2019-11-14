@@ -43,6 +43,8 @@ module ElasticAPM
 
         ensure_watcher_running
         ensure_worker_count
+
+        @stopped.make_false unless @stopped.false?
       end
 
       def stop
