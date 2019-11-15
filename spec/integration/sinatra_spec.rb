@@ -121,6 +121,10 @@ if enabled
 
         wait_for errors: 1, transactions: 1
 
+        unless @mock_intake.requests.length == 1
+          puts @mock_intake.inspect
+        end
+
         expect(@mock_intake.requests.length).to be 1
 
         error_request =
