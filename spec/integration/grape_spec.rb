@@ -50,7 +50,7 @@ if enabled
     it 'sets the framework metadata' do
       get '/pingpong'
 
-      wait_for transactions: 1, spans: 1
+      @mock_intake.wait_for transactions: 1, spans: 1
 
       service = @mock_intake.metadatas.first['service']
       expect(service['name']).to eq 'GrapeTestApp'
@@ -62,7 +62,7 @@ if enabled
     context 'endpoint_run.grape' do
       it 'sets the transaction and span values' do
         get '/pingpong'
-        wait_for transactions: 1, spans: 1
+        @mock_intake.wait_for transactions: 1, spans: 1
 
         span = @mock_intake.spans.last
         expect(span['name']).to eq('GET /pingpong')
@@ -74,7 +74,7 @@ if enabled
 
       it 'sets the backtrace' do
         get '/pingpong'
-        wait_for transactions: 1, spans: 1
+        @mock_intake.wait_for transactions: 1, spans: 1
 
         span = @mock_intake.spans.last
         expect(span['stacktrace'][0]).not_to be(nil)
@@ -84,7 +84,7 @@ if enabled
       context 'params specified' do
         it 'sets the transaction and span values' do
           get '/statuses/1'
-          wait_for transactions: 1, spans: 1
+          @mock_intake.wait_for transactions: 1, spans: 1
 
           span = @mock_intake.spans.last
           expect(span['name']).to eq('GET /statuses/:id')

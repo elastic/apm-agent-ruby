@@ -135,7 +135,7 @@ if enabled
     it 'knows Rails' do
       responses = Array.new(10).map { get '/' }
 
-      wait_for transactions: 10, spans: 20, timeout: 10
+      @mock_intake.wait_for transactions: 10, spans: 20, timeout: 10
 
       expect(responses.last.body).to eq 'Yes!'
       expect(@mock_intake.metadatas.length >= 1).to be true
@@ -157,7 +157,7 @@ if enabled
       it 'spans action and posts it' do
         get '/'
 
-        wait_for transactions: 1, spans: 2
+        @mock_intake.wait_for transactions: 1, spans: 2
 
         name = @mock_intake.transactions.fetch(0)['name']
         expect(name).to eq 'ApplicationController#index'
@@ -166,7 +166,7 @@ if enabled
       it 'can set tags and custom context' do
         get '/tags_and_context'
 
-        wait_for transactions: 1, spans: 2
+        @mock_intake.wait_for transactions: 1, spans: 2
 
         context = @mock_intake.transactions.fetch(0)['context']
         expect(context['tags']).to eq('things' => 1)
@@ -176,7 +176,7 @@ if enabled
       it 'includes user information' do
         get '/'
 
-        wait_for transactions: 1, spans: 2
+        @mock_intake.wait_for transactions: 1, spans: 2
 
         context = @mock_intake.transactions.fetch(0)['context']
         user = context['user']
@@ -188,7 +188,7 @@ if enabled
         get '/ping'
         get '/'
 
-        wait_for transactions: 1, spans: 2
+        @mock_intake.wait_for transactions: 1, spans: 2
 
         name = @mock_intake.transactions.fetch(0)['name']
         expect(name).to eq 'ApplicationController#index'
@@ -197,7 +197,7 @@ if enabled
       it "filters sensitive looking data, but doesn't touch original" do
         resp = post '/', access_token: 'abc123'
 
-        wait_for transactions: 1, spans: 1
+        @mock_intake.wait_for transactions: 1, spans: 1
 
         expect(resp.body).to eq("HTTP Basic: Access denied.\n")
         expect(resp.original_headers['WWW-Authenticate']).to_not be nil
@@ -215,7 +215,7 @@ if enabled
       it 'validates json schema', type: :json_schema do
         get '/'
 
-        wait_for transactions: 1, spans: 1, metadatas: 1
+        @mock_intake.wait_for transactions: 1, spans: 1, metadatas: 1
 
         metadata = @mock_intake.metadatas.fetch(0)
         expect(metadata).to match_json_schema(:metadatas),
@@ -235,7 +235,7 @@ if enabled
       it 'handles exceptions and posts transaction' do
         response = get '/error'
 
-        wait_for transactions: 1, errors: 1, spans: 1
+        @mock_intake.wait_for transactions: 1, errors: 1, spans: 1
 
         expect(response.status).to be 500
 
@@ -252,7 +252,7 @@ if enabled
       it 'validates json schema', type: :json_schema do
         get '/error'
 
-        wait_for transactions: 1, errors: 1
+        @mock_intake.wait_for transactions: 1, errors: 1
 
         payload = @mock_intake.errors.fetch(0)
         expect(payload).to match_json_schema(:errors),
@@ -262,7 +262,7 @@ if enabled
       it 'sends messages that validate' do
         get '/report_message'
 
-        wait_for transactions: 1, errors: 1, spans: 2
+        @mock_intake.wait_for transactions: 1, errors: 1, spans: 2
 
         error, = @mock_intake.errors
         expect(error['log']).to be_a Hash
@@ -273,7 +273,7 @@ if enabled
       it 'spans mails' do
         get '/send_notification'
 
-        wait_for transactions: 1, spans: 3
+        @mock_intake.wait_for transactions: 1, spans: 3
 
         transaction, = @mock_intake.transactions
         expect(transaction['name'])
@@ -289,13 +289,13 @@ if enabled
       it 'gathers metrics' do
         get '/'
 
-        wait_for transactions: 1, spans: 2
+        @mock_intake.wait_for transactions: 1, spans: 2
 
         select_transaction_metrics = lambda do |intake|
           intake.metricsets.select { |set| set['transaction'] && !set['span'] }
         end
 
-        wait_for { |intake| select_transaction_metrics.call(intake).count >= 2 }
+        @mock_intake.wait_for { |intake| select_transaction_metrics.call(intake).count >= 2 }
         transaction_metrics = select_transaction_metrics.call(@mock_intake)
 
         keys_counts =
@@ -312,7 +312,7 @@ if enabled
           intake.metricsets.select { |set| set['transaction'] && set['span'] }
         end
 
-        wait_for { |intake| select_span_metrics.call(intake).count >= 3 }
+        @mock_intake.wait_for { |intake| select_span_metrics.call(intake).count >= 3 }
         span_metrics = select_span_metrics.call(@mock_intake)
 
         keys_counts =

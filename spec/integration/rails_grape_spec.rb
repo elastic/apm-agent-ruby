@@ -74,7 +74,7 @@ if enabled
       it 'sets the framework name on the event' do
         get '/api/statuses/1'
 
-        wait_for transactions: 1, spans: 1
+        @mock_intake.wait_for transactions: 1, spans: 1
         context = @mock_intake.transactions.fetch(0)['context']
         expect(context['service']['framework']['name']).to eq('Grape')
         expect(context['service']['framework']['version']).to eq(::Grape::VERSION)
@@ -85,7 +85,7 @@ if enabled
       it 'does not set the framework name on the event' do
         get '/'
 
-        wait_for transactions: 1, spans: 2
+        @mock_intake.wait_for transactions: 1, spans: 2
         context = @mock_intake.transactions.fetch(0)['context']
         expect(context['service']).to be_nil
       end

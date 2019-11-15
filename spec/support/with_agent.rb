@@ -7,7 +7,7 @@ module WithAgent
       raise 'Using with_agent but neither MockIntake nor Intercepted'
     end
 
-    klass.start(*args, **config.merge(DEFAULT_AGENT_OPTIONS))
+    klass.start(*args, DISABLED_SEND_AGENT_OPTIONS.merge(**config))
     yield
   ensure
     ElasticAPM.stop

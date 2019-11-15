@@ -68,7 +68,7 @@ if enabled
     it 'knows Sinatra' do
       response = get '/'
 
-      wait_for metadatas: 1
+      @mock_intake.wait_for metadatas: 1
 
       expect(response.body).to eq 'Yes!'
 
@@ -83,7 +83,7 @@ if enabled
       it 'wraps requests in a transaction named after route' do
         get '/'
 
-        wait_for transactions: 1
+        @mock_intake.wait_for transactions: 1
 
         expect(@mock_intake.requests.length).to be 1
         transaction = @mock_intake.transactions.first
@@ -93,7 +93,7 @@ if enabled
       it 'spans inline templates' do
         get '/inline'
 
-        wait_for transactions: 1, spans: 1
+        @mock_intake.wait_for transactions: 1, spans: 1
 
         span = @mock_intake.spans.last
         expect(span['name']).to eq 'Inline erb'
@@ -103,7 +103,7 @@ if enabled
       it 'spans templates' do
         response = get '/tmpl'
 
-        wait_for transactions: 1, spans: 1
+        @mock_intake.wait_for transactions: 1, spans: 1
 
         expect(response.body).to eq '1 2 3 hello you'
 
@@ -120,7 +120,7 @@ if enabled
         rescue FancyError
         end
 
-        wait_for errors: 1, transactions: 1
+        @mock_intake.wait_for errors: 1, transactions: 1
 
         unless @mock_intake.requests.length == 1
           @mock_intake.requests.each { |r| puts r.inspect }

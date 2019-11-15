@@ -32,8 +32,12 @@ require 'elastic-apm'
 Concurrent.use_stdlib_logger(Logger::DEBUG)
 Thread.abort_on_exception = true
 
-DEFAULT_AGENT_OPTIONS = {
-                          central_config: false,
+DISABLED_SEND_AGENT_OPTIONS = { central_config: false,
+                                http_compression: false,
+                                disable_send: true
+                              }.freeze
+
+DEFAULT_AGENT_OPTIONS = { central_config: false,
                           http_compression: false
                         }.freeze
 

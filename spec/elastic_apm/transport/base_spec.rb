@@ -30,7 +30,7 @@ module ElasticAPM
           subject.submit Transaction.new config: config
           subject.stop
 
-          wait_for transactions: 6
+          @mock_intake.wait_for transactions: 6
 
           expect(subject.send(:workers).length).to be 0
         end

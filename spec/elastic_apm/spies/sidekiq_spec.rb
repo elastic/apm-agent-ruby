@@ -52,13 +52,13 @@ module ElasticAPM
 
     context 'with an agent' do
       it 'instruments jobs' do
-        with_agent do
+        with_agent(disable_send: false) do
           Sidekiq::Testing.inline! do
             HardWorker.perform_async
           end
         end
 
-        wait_for transactions: 1
+        @mock_intake.wait_for transactions: 1
 
         transaction, = @mock_intake.transactions
         expect(transaction).to_not be_nil
@@ -67,7 +67,7 @@ module ElasticAPM
       end
 
       it 'reports errors' do
-        with_agent do
+        with_agent(disable_send: false) do
           Sidekiq::Testing.inline! do
             expect do
               ExplodingWorker.perform_async
@@ -75,7 +75,7 @@ module ElasticAPM
           end
         end
 
-        wait_for transactions: 1, errors: 1
+        @mock_intake.wait_for transactions: 1, errors: 1
 
         transaction, = @mock_intake.transactions
         error, = @mock_intake.errors
@@ -104,13 +104,13 @@ module ElasticAPM
         end
 
         it 'knows the name of ActiveJob jobs', if: defined?(ActiveJob) do
-          with_agent do
+          with_agent(disable_send: false) do
             Sidekiq::Testing.inline! do
               ActiveJobbyJob.perform_later
             end
           end
 
-          wait_for transactions: 1
+          @mock_intake.wait_for transactions: 1
 
           transaction, = @mock_intake.transactions
           expect(transaction).to_not be_nil
