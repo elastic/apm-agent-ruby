@@ -266,6 +266,9 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
     # @param handled [Boolean] Whether the exception was rescued
     # @return [String] ID of the generated [Error]
     def report(exception, context: nil, handled: true)
+      puts "reporting exception"
+      puts exception.inspect
+      puts exception.backtrace
       agent&.report(exception, context: context, handled: handled)
     end
 

@@ -127,7 +127,7 @@ RSpec.describe ElasticAPM do
 
     it do
       should delegate :report,
-        to: agent, args: ['E', { context: nil, handled: nil }]
+        to: agent, args: [Exception.new, { context: nil, handled: nil }]
     end
     it do
       should delegate :report_message,
