@@ -16,7 +16,6 @@ if enabled
   # individual examples
   RSpec.describe 'Rails integration', :allow_running_agent, :spec_logger do
     include Rack::Test::Methods
-    include MockIntake::WaitFor
 
     def app
       @app ||= Rails.application
