@@ -2,15 +2,15 @@
 
 module ElasticAPM
   module Metrics
-    RSpec.describe VM do
+    RSpec.describe VMSet do
       let(:config) { Config.new }
 
       subject { described_class.new config }
 
       describe 'collect' do
         context 'when disabled' do
-          it 'returns nil' do
-            subject.disabled = true
+          it 'returns' do
+            subject.disable!
             expect(subject.collect).to be nil
           end
         end
@@ -26,7 +26,9 @@ module ElasticAPM
 
         context 'mri', unless: RSpec::Support::Ruby.jruby? do
           it 'collects a metric set and prefixes keys' do
-            expect(subject.collect).to match(
+            set, = subject.collect
+
+            expect(set.samples).to match(
               'ruby.gc.count': Integer,
               'ruby.heap.slots.live': Integer,
               'ruby.heap.slots.free': Integer,
@@ -43,7 +45,8 @@ module ElasticAPM
             end
 
             it 'adds time spent' do
-              expect(subject.collect).to have_key(:'ruby.gc.time')
+              set, = subject.collect
+              expect(set.samples).to have_key(:'ruby.gc.time')
             end
           end
         end
@@ -51,13 +54,13 @@ module ElasticAPM
         context 'jruby', if: RSpec::Support::Ruby.jruby? do
           it 'collects a metric set and prefixes keys' do
             subject.collect # disable on strict plaforms
+            next if subject.disabled?
 
-            expect(subject.collect).to match(
-              if subject.disabled?
-                nil
-              else
-                { 'ruby.gc.count': Integer, 'ruby.threads': Integer }
-              end
+            set, = subject.collect
+
+            expect(set.samples).to match(
+              'ruby.gc.count': Integer,
+              'ruby.threads': Integer
             )
           end
         end

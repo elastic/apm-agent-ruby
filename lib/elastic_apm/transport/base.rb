@@ -43,6 +43,8 @@ module ElasticAPM
 
         ensure_watcher_running
         ensure_worker_count
+
+        @stopped.make_false unless @stopped.false?
       end
 
       def stop
@@ -58,6 +60,7 @@ module ElasticAPM
       def submit(resource)
         if @stopped.true?
           warn '%s: Transport stopping, no new events accepted', pid_str
+          debug 'Dropping: %s', resource.inspect
           return false
         end
 

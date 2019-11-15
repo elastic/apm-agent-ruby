@@ -12,11 +12,22 @@ if enabled
   require 'action_controller/railtie'
   require 'action_mailer/railtie'
 
-  RSpec.describe 'Rails integration', :mock_intake, :allow_running_agent, :spec_logger do
+  # We don't use :mock_intake, as we want the stubs to stay around between
+  # individual examples
+  RSpec.describe 'Rails integration', :allow_running_agent, :spec_logger do
     include Rack::Test::Methods
+    include MockIntake::WaitFor
 
     def app
       @app ||= Rails.application
+    end
+
+    after :each do
+      MockIntake.clear!
+    end
+
+    after :all do
+      ElasticAPM.stop
     end
 
     before :all do
@@ -32,7 +43,10 @@ if enabled
           config.elastic_apm.capture_body = 'all'
           config.elastic_apm.ignore_url_patterns = '/ping'
           config.elastic_apm.log_path = 'spec/elastic_apm.log'
+          config.elastic_apm.log_level = 0
           config.elastic_apm.pool_size = Concurrent.processor_count
+          config.elastic_apm.api_request_time = '200ms'
+          config.elastic_apm.metrics_interval = '2s'
         end
       end
 
@@ -104,7 +118,7 @@ if enabled
         end
       end
 
-      MockIntake.instance.stub!
+      @mock_intake = MockIntake.stub!
 
       RailsTestApp::Application.initialize!
       RailsTestApp::Application.routes.draw do
@@ -118,14 +132,10 @@ if enabled
       end
     end
 
-    after :all do
-      ElasticAPM.stop
-    end
-
     it 'knows Rails' do
       responses = Array.new(10).map { get '/' }
 
-      wait_for transactions: 10, spans: 20
+      wait_for transactions: 10, spans: 20, timeout: 10
 
       expect(responses.last.body).to eq 'Yes!'
       expect(@mock_intake.metadatas.length >= 1).to be true
@@ -272,6 +282,47 @@ if enabled
           payload['name'] == 'NotificationsMailer#ping'
         end
         expect(span).to_not be_nil
+      end
+    end
+
+    describe 'metrics' do
+      it 'gathers metrics' do
+        get '/'
+
+        wait_for transactions: 1, spans: 2
+
+        select_transaction_metrics = lambda do |intake|
+          intake.metricsets.select { |set| set['transaction'] && !set['span'] }
+        end
+
+        wait_for { |intake| select_transaction_metrics.call(intake).count >= 2 }
+        transaction_metrics = select_transaction_metrics.call(@mock_intake)
+
+        keys_counts =
+          transaction_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
+            keys[set['samples'].keys] += 1
+          end
+
+        expect(keys_counts[
+          %w[transaction.duration.sum.us transaction.duration.count]
+        ]).to be >= 1
+        expect(keys_counts[%w[transaction.breakdown.count]]) .to be >= 1
+
+        select_span_metrics = lambda do |intake|
+          intake.metricsets.select { |set| set['transaction'] && set['span'] }
+        end
+
+        wait_for { |intake| select_span_metrics.call(intake).count >= 3 }
+        span_metrics = select_span_metrics.call(@mock_intake)
+
+        keys_counts =
+          span_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
+            keys[set['samples'].keys] += 1
+          end
+
+        expect(keys_counts[
+          %w[span.self_time.sum.us span.self_time.count]
+        ]).to be >= 1
       end
     end
   end

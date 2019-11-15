@@ -56,6 +56,7 @@ if enabled
         end
       end
 
+      MockIntake.stub!
       ElasticAPM.start(app: SinatraTestApp, api_request_time: '250ms')
     end
 

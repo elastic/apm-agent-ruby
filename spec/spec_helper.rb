@@ -4,13 +4,10 @@ ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 
 begin
   require 'bootsnap'
-  Bootsnap.setup(
-    cache_dir: "#{ENV.fetch('VENDOR_PATH', 'tmp')}/bootsnap",
-    # development_mode: false
-  )
+  Bootsnap.setup(cache_dir: "#{ENV.fetch('VENDOR_PATH', 'tmp')}/bootsnap")
 rescue LoadError
   # Bootsnap depends on ActiveSupport, but as AS heavily modifies stdlib
-  # we still want to test grape/sinatra without it
+  # we still want to test Sinatra without it
 end
 
 if ENV['INCLUDE_COVERAGE'] == '1'
@@ -28,9 +25,6 @@ require 'bundler/setup'
 Bundler.require :default, 'test'
 require 'yarjuf'
 
-require 'webmock/rspec'
-WebMock.hide_stubbing_instructions!
-
 Dir['spec/support/*.rb'].each { |file| require "./#{file}" }
 
 require 'elastic-apm'
@@ -47,7 +41,8 @@ module RailsTestHelpers
         config.secret_key_base = '__secret_key_base'
         config.consider_all_requests_local = false
         config.eager_load = false
-        config.elastic_apm.api_request_time = '100ms'
+
+        config.elastic_apm.api_request_time = '200ms'
         config.elastic_apm.disable_start_message = true
 
         # Silence deprecation warning

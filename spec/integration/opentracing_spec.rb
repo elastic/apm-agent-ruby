@@ -29,7 +29,10 @@ RSpec.describe 'OpenTracing bridge', :intercept do
   end
 
   context 'with an APM Agent' do
-    before { ElasticAPM.start }
+    before do
+      intercept!
+      ElasticAPM.start
+    end
     after { ElasticAPM.stop }
 
     describe '#start_span' do
@@ -158,7 +161,10 @@ RSpec.describe 'OpenTracing bridge', :intercept do
   end
 
   describe 'example', :intercept do
-    before { ElasticAPM.start }
+    before do
+      intercept!
+      ElasticAPM.start
+    end
     after { ElasticAPM.stop }
 
     it 'traces nested spans' do
@@ -195,7 +201,10 @@ RSpec.describe 'OpenTracing bridge', :intercept do
   end
 
   describe ElasticAPM::OpenTracing::Span do
-    before { ElasticAPM.start }
+    before do
+      intercept!
+      ElasticAPM.start
+    end
     after { ElasticAPM.stop }
 
     let(:elastic_span) do
@@ -262,9 +271,15 @@ RSpec.describe 'OpenTracing bridge', :intercept do
 
       context 'when span' do
         let(:elastic_span) do
-          ElasticAPM::Span.new(name: 'Span',
-                               transaction_id: 'transaction_id',
-                               trace_context: trace_context)
+          transaction =
+            ElasticAPM::Transaction.new(config: ElasticAPM::Config.new)
+
+          ElasticAPM::Span.new(
+            name: 'Span',
+            transaction: transaction,
+            parent: transaction,
+            trace_context: trace_context
+          )
         end
         let(:trace_context) { nil }
 
@@ -280,10 +295,14 @@ RSpec.describe 'OpenTracing bridge', :intercept do
     describe 'deprecations' do
       describe '#finish with Time' do
         it 'warns and manages' do
+          transaction =
+            ElasticAPM::Transaction.new(config: ElasticAPM::Config.new)
+
           elastic_span =
             ElasticAPM::Span.new(
               name: 'Span',
-              transaction_id: 'transaction_id',
+              transaction: transaction,
+              parent: transaction,
               trace_context: nil
             ).start
           span = described_class.new(elastic_span, nil)

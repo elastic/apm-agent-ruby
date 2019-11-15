@@ -6,17 +6,16 @@ module ElasticAPM
   RSpec.describe 'Spy: Redis' do
     it 'spans queries', :intercept do
       redis = ::Redis.new
-      ElasticAPM.start
 
-      ElasticAPM.with_transaction 'T' do
-        redis.lrange('some:where', 0, -1)
+      with_agent do
+        ElasticAPM.with_transaction 'T' do
+          redis.lrange('some:where', 0, -1)
+        end
       end
 
       span, = @intercepted.spans
 
       expect(span.name).to eq 'LRANGE'
-
-      ElasticAPM.stop
     end
   end
 end

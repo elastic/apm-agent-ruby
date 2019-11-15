@@ -4,14 +4,17 @@ require 'elasticsearch'
 
 module ElasticAPM
   RSpec.describe 'Spy: Elasticsearch' do
+    after { WebMock.reset! }
+
     it 'spans requests', :intercept do
-      ElasticAPM.start
       WebMock.stub_request(:get, %r{http://localhost:9200/.*})
 
       client = Elasticsearch::Client.new log: false
 
-      ElasticAPM.with_transaction do
-        client.search q: 'test'
+      with_agent do
+        ElasticAPM.with_transaction do
+          client.search q: 'test'
+        end
       end
 
       net_span, span = @intercepted.spans
@@ -20,9 +23,6 @@ module ElasticAPM
       expect(span.context.db.statement).to eq('{"q":"test"}')
 
       expect(net_span.name).to eq 'GET localhost'
-
-      WebMock.reset!
-      ElasticAPM.stop
     end
   end
 end

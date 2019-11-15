@@ -16,12 +16,12 @@ module ElasticAPM
         describe '#build', :mock_time do
           context 'a transaction without spans', :intercept do
             let(:transaction) do
-              ElasticAPM.start
-              ElasticAPM.with_transaction('GET /something', 'request') do |t|
-                travel 10_000
-                t.result = '200'
+              with_agent do
+                ElasticAPM.with_transaction('GET /something', 'request') do |t|
+                  travel 10_000
+                  t.result = '200'
+                end
               end
-              ElasticAPM.stop
 
               @intercepted.transactions.first
             end
@@ -52,13 +52,13 @@ module ElasticAPM
 
           context 'with dropped spans', :intercept do
             it 'includes count' do
-              ElasticAPM.start(transaction_max_spans: 2)
-              ElasticAPM.with_transaction 'T' do
-                ElasticAPM.with_span('1') {}
-                ElasticAPM.with_span('2') {}
-                ElasticAPM.with_span('dropped') {}
+              with_agent(transaction_max_spans: 2) do
+                ElasticAPM.with_transaction 'T' do
+                  ElasticAPM.with_span('1') {}
+                  ElasticAPM.with_span('2') {}
+                  ElasticAPM.with_span('dropped') {}
+                end
               end
-              ElasticAPM.stop
 
               transaction = @intercepted.transactions.first
               result = described_class.new(Config.new).build(transaction)

@@ -5,21 +5,24 @@ module ElasticAPM
     subject do
       described_class.new(
         name: 'Spannest name',
-        transaction_id: transaction_id,
+        transaction: transaction,
+        parent: transaction,
         trace_context: trace_context
       )
     end
+
     let(:trace_context) do
       TraceContext.parse("00-#{'1' * 32}-#{'2' * 16}-01")
     end
-    let(:transaction_id) { 'transaction_id' }
+
+    let(:transaction) { Transaction.new config: Config.new }
 
     describe '#initialize' do
       its(:name) { should eq 'Spannest name' }
       its(:type) { should eq 'custom' }
       its(:subtype) { should be nil }
       its(:action) { should be nil }
-      its(:transaction_id) { should eq transaction_id }
+      its(:transaction) { should eq transaction }
       its(:trace_context) { should eq trace_context }
       its(:timestamp) { should be_nil }
       its(:context) { should be_a Span::Context }
@@ -33,7 +36,8 @@ module ElasticAPM
             described_class.new(
               name: 'Spannest name',
               type: 'typest.subest.actionest',
-              transaction_id: transaction_id,
+              transaction: transaction,
+              parent: transaction,
               trace_context: trace_context
             )
 
@@ -50,7 +54,8 @@ module ElasticAPM
       subject do
         described_class.new(
           name: 'Spannest name',
-          transaction_id: transaction.id,
+          transaction: transaction.id,
+          parent: transaction,
           trace_context: trace_context
         )
       end
@@ -69,7 +74,8 @@ module ElasticAPM
       subject do
         described_class.new(
           name: 'Spannest name',
-          transaction_id: transaction.id,
+          transaction: transaction.id,
+          parent: transaction,
           trace_context: trace_context
         )
       end
@@ -83,6 +89,24 @@ module ElasticAPM
         expect(subject).to be_stopped
         expect(subject.duration).to be 100
       end
+
+      it 'calculates self_time' do
+        subject.start
+        travel 100
+        child = Span.new(
+          name: 'span',
+          transaction: transaction,
+          trace_context: nil,
+          parent: subject
+        ).start
+        travel 100
+        child.stop
+        travel 100
+        subject.stop
+
+        expect(child.self_time).to eq 100
+        expect(subject.self_time).to eq 200
+      end
     end
 
     describe '#done', :mock_time do
@@ -95,7 +119,8 @@ module ElasticAPM
       subject do
         described_class.new(
           name: 'Span',
-          transaction_id: transaction_id,
+          transaction: transaction,
+          parent: transaction,
           trace_context: trace_context,
           stacktrace_builder: StacktraceBuilder.new(config)
         )

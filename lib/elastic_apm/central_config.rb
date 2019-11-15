@@ -93,6 +93,7 @@ module ElasticAPM
     end
 
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def handle_success(resp)
       if (etag = resp.headers['Etag'])
         @etag = etag
@@ -101,8 +102,10 @@ module ElasticAPM
       if resp.status == 304
         info 'Received 304 Not Modified'
       else
-        update = JSON.parse(resp.body.to_s)
-        assign(update)
+        if resp.body && !resp.body.empty?
+          update = JSON.parse(resp.body.to_s)
+          assign(update)
+        end
 
         if @modified_options.any?
           info 'Updated config from Kibana'
@@ -117,6 +120,7 @@ module ElasticAPM
       error 'Failed to apply remote config, %s', e.inspect
       debug { e.backtrace.join('\n') }
     end
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def handle_error(error)

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'elastic_apm/trace_context'
+require 'elastic_apm/child_durations'
 require 'elastic_apm/span'
 require 'elastic_apm/transaction'
 require 'elastic_apm/span_helpers'
@@ -39,10 +40,11 @@ module ElasticAPM
       end
     end
 
-    def initialize(config, stacktrace_builder:, &enqueue)
+    def initialize(config, metrics:, stacktrace_builder:, &enqueue)
       @config = config
       @stacktrace_builder = stacktrace_builder
       @enqueue = enqueue
+      @metrics = metrics
 
       @current = Current.new
     end
@@ -90,7 +92,8 @@ module ElasticAPM
 
       if (transaction = current_transaction)
         raise ExistingTransactionError,
-          "Transactions may not be nested.\nAlready inside #{transaction.inspect}"
+          "Transactions may not be nested.\n" \
+          "Already inside #{transaction.inspect}"
       end
 
       sampled = trace_context ? trace_context.recorded? : random_sample?(config)
@@ -119,6 +122,8 @@ module ElasticAPM
       transaction.done result
 
       enqueue.call transaction
+
+      update_transaction_metrics(transaction)
 
       transaction
     end
@@ -161,8 +166,9 @@ module ElasticAPM
         name: name,
         subtype: subtype,
         action: action,
-        transaction_id: transaction.id,
-        trace_context: trace_context || parent.trace_context.child,
+        transaction: transaction,
+        parent: parent,
+        trace_context: trace_context,
         type: type,
         context: context,
         stacktrace_builder: stacktrace_builder
@@ -186,6 +192,8 @@ module ElasticAPM
       span.done
 
       enqueue.call span
+
+      update_span_metrics(span)
 
       span
     end
@@ -220,6 +228,71 @@ module ElasticAPM
     def random_sample?(config)
       rand <= config.transaction_sample_rate
     end
+
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+    def update_transaction_metrics(transaction)
+      return unless transaction.config.collect_metrics?
+
+      tags = {
+        'transaction.name': transaction.name,
+        'transaction.type': transaction.type
+      }
+
+      @metrics.get(:transaction).timer(
+        :'transaction.duration.sum.us',
+        tags: tags, reset_on_collect: true
+      ).update(transaction.duration)
+
+      @metrics.get(:transaction).counter(
+        :'transaction.duration.count',
+        tags: tags, reset_on_collect: true
+      ).inc!
+
+      return unless transaction.sampled?
+      return unless transaction.config.breakdown_metrics?
+
+      @metrics.get(:breakdown).counter(
+        :'transaction.breakdown.count',
+        tags: tags, reset_on_collect: true
+      ).inc!
+
+      span_tags = tags.merge('span.type': 'app')
+
+      @metrics.get(:breakdown).timer(
+        :'span.self_time.sum.us',
+        tags: span_tags, reset_on_collect: true
+      ).update(transaction.self_time)
+
+      @metrics.get(:breakdown).counter(
+        :'span.self_time.count',
+        tags: span_tags, reset_on_collect: true
+      ).inc!
+    end
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+    def update_span_metrics(span)
+      return unless span.transaction.config.breakdown_metrics?
+
+      tags = {
+        'span.type': span.type,
+        'transaction.name': span.transaction.name,
+        'transaction.type': span.transaction.type
+      }
+
+      tags[:'span.subtype'] = span.subtype if span.subtype
+
+      @metrics.get(:breakdown).timer(
+        :'span.self_time.sum.us',
+        tags: tags, reset_on_collect: true
+      ).update(span.self_time)
+
+      @metrics.get(:breakdown).counter(
+        :'span.self_time.count',
+        tags: tags, reset_on_collect: true
+      ).inc!
+    end
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
   end
   # rubocop:enable Metrics/ClassLength
 end

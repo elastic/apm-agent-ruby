@@ -4,18 +4,16 @@ require 'net/http'
 
 module ElasticAPM
   RSpec.describe 'Spy: NetHTTP', :intercept do
-    after do
-      ElasticAPM.stop
-      WebMock.reset!
-    end
+    after { WebMock.reset! }
 
     it 'spans http calls' do
       WebMock.stub_request(:get, %r{http://example.com/.*})
-      ElasticAPM.start
 
-      ElasticAPM.with_transaction 'Net::HTTP test' do
-        Net::HTTP.start('example.com') do |http|
-          http.get '/'
+      with_agent do
+        ElasticAPM.with_transaction 'Net::HTTP test' do
+          Net::HTTP.start('example.com') do |http|
+            http.get '/'
+          end
         end
       end
 
@@ -32,11 +30,11 @@ module ElasticAPM
           expect { TraceContext.parse(header) }.to_not raise_error
         end
 
-      ElasticAPM.start
-
-      ElasticAPM.with_transaction 'Net::HTTP test' do
-        Net::HTTP.start('example.com') do |http|
-          http.get '/'
+      with_agent do
+        ElasticAPM.with_transaction 'Net::HTTP test' do
+          Net::HTTP.start('example.com') do |http|
+            http.get '/'
+          end
         end
       end
 
@@ -46,11 +44,11 @@ module ElasticAPM
     it 'adds traceparent header with no span' do
       req_stub = WebMock.stub_request(:get, %r{http://example.com/.*})
 
-      ElasticAPM.start transaction_max_spans: 0
-
-      ElasticAPM.with_transaction 'Net::HTTP test' do
-        Net::HTTP.start('example.com') do |http|
-          http.get '/'
+      with_agent transaction_max_spans: 0 do
+        ElasticAPM.with_transaction 'Net::HTTP test' do
+          Net::HTTP.start('example.com') do |http|
+            http.get '/'
+          end
         end
       end
 
@@ -59,19 +57,20 @@ module ElasticAPM
 
     it 'can be disabled' do
       WebMock.stub_request(:any, %r{http://example.com/.*})
-      ElasticAPM.start
 
-      expect(ElasticAPM::Spies::NetHTTPSpy).to_not be_disabled
+      with_agent do
+        expect(ElasticAPM::Spies::NetHTTPSpy).to_not be_disabled
 
-      ElasticAPM.with_transaction 'Net::HTTP test' do
-        ElasticAPM::Spies::NetHTTPSpy.disable_in do
-          Net::HTTP.start('example.com') do |http|
-            http.get '/'
+        ElasticAPM.with_transaction 'Net::HTTP test' do
+          ElasticAPM::Spies::NetHTTPSpy.disable_in do
+            Net::HTTP.start('example.com') do |http|
+              http.get '/'
+            end
           end
-        end
 
-        Net::HTTP.start('example.com') do |http|
-          http.post '/', 'a=1'
+          Net::HTTP.start('example.com') do |http|
+            http.post '/', 'a=1'
+          end
         end
       end
 

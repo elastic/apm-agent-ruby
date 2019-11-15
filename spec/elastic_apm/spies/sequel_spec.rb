@@ -20,13 +20,11 @@ module ElasticAPM
 
       db[:users].count # warm up
 
-      ElasticAPM.start
-
-      ElasticAPM.with_transaction 'Sequel test' do
-        db[:users].count
+      with_agent do
+        ElasticAPM.with_transaction 'Sequel test' do
+          db[:users].count
+        end
       end
-
-      ElasticAPM.stop
 
       span, = @intercepted.spans
 

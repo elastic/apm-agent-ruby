@@ -69,9 +69,8 @@ module ElasticAPM
 
       def inspect
         format(
-          '@%s http connection closed? :%s>',
-          super.split.first,
-          http.closed?
+          '<%s url:%s closed:%s >',
+          super.split.first, url, http&.closed?
         )
       end
 

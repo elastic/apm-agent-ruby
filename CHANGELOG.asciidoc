@@ -34,6 +34,7 @@ endif::[]
 ===== Added
 
 - Add Grape support. {pull}562[#562]
+- Add Breakdown Metrics {pull}526[#526]
 
 [float]
 ===== Fixed

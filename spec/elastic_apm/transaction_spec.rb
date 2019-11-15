@@ -42,6 +42,32 @@ module ElasticAPM
         expect(subject.stop.duration).to eq 100
         expect(subject).to be_stopped
       end
+
+      it 'calculates self_time' do
+        subject.start
+        travel 100
+        subject.stop
+        expect(subject.self_time).to eq 100
+      end
+
+      context 'with a child span' do
+        it 'calculates self_time' do
+          transaction = subject.start
+          travel 100
+          span = Span.new(
+            name: 'span',
+            transaction: transaction,
+            trace_context: nil,
+            parent: transaction
+          ).start
+          travel 100
+          span.stop
+          travel 100
+          subject.stop
+          expect(subject.duration).to eq 300
+          expect(subject.self_time).to eq 200
+        end
+      end
     end
 
     describe '#done', :mock_time do

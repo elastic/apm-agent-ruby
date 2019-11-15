@@ -13,10 +13,11 @@ module ElasticAPM
           @config = config
           @headers = headers || Headers.new(config)
           @client = build_client
+          @closed = Concurrent::AtomicBoolean.new(true)
         end
 
         def open(url)
-          @closed = Concurrent::AtomicBoolean.new
+          @closed.make_false
           @rd, @wr = ProxyPipe.pipe(compress: @config.http_compression?)
           @request = open_request_in_thread(url)
         end

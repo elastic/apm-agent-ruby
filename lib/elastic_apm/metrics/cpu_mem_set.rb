@@ -3,89 +3,58 @@
 module ElasticAPM
   module Metrics
     # @api private
-    class CpuMem
+    class CpuMemSet < Set
       include Logging
 
       # @api private
       class Sample
         # rubocop:disable Metrics/ParameterLists
         def initialize(
+          page_size:,
+          process_cpu_usage:,
+          process_memory_rss:,
+          process_memory_size:,
           system_cpu_total:,
           system_cpu_usage:,
-          system_memory_total:,
           system_memory_free:,
-          process_cpu_usage:,
-          process_memory_size:,
-          process_memory_rss:,
-          page_size:
+          system_memory_total:
         )
+          @page_size = page_size
+          @process_cpu_usage = process_cpu_usage
+          @process_memory_rss = process_memory_rss
+          @process_memory_size = process_memory_size
           @system_cpu_total = system_cpu_total
           @system_cpu_usage = system_cpu_usage
-          @system_memory_total = system_memory_total
           @system_memory_free = system_memory_free
-          @process_cpu_usage = process_cpu_usage
-          @process_memory_size = process_memory_size
-          @process_memory_rss = process_memory_rss
-          @page_size = page_size
+          @system_memory_total = system_memory_total
         end
         # rubocop:enable Metrics/ParameterLists
 
-        attr_accessor :system_cpu_total, :system_cpu_usage,
-          :system_memory_total, :system_memory_free, :process_cpu_usage,
-          :process_memory_size, :process_memory_rss, :page_size
-
-        def delta(previous)
-          dup.tap do |sample|
-            sample.system_cpu_total =
-              system_cpu_total - previous.system_cpu_total
-            sample.system_cpu_usage =
-              system_cpu_usage - previous.system_cpu_usage
-            sample.process_cpu_usage =
-              process_cpu_usage - previous.process_cpu_usage
-          end
-        end
+        attr_accessor(
+          :page_size,
+          :process_cpu_usage,
+          :process_memory_rss,
+          :process_memory_size,
+          :system_cpu_total,
+          :system_cpu_usage,
+          :system_memory_free,
+          :system_memory_total
+        )
       end
 
       def initialize(config)
-        @config = config
+        super
+
         @sampler = sampler_for_platform(Metrics.platform)
+        read! # set @previous on boot
       end
 
-      attr_reader :config, :sampler
+      attr_reader :config
 
-      def sample
-        @sampler.sample
-      end
-
-      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       def collect
-        return unless sampler
-
-        current = sample
-
-        unless @previous
-          @previous = current
-          return
-        end
-
-        delta = current.delta(@previous)
-
-        cpu_usage_pct = delta.system_cpu_usage.to_f / delta.system_cpu_total
-        cpu_process_pct = delta.process_cpu_usage.to_f / delta.system_cpu_total
-
-        @previous = current
-
-        {
-          'system.cpu.total.norm.pct': cpu_usage_pct,
-          'system.memory.actual.free': current.system_memory_free,
-          'system.memory.total': current.system_memory_total,
-          'system.process.cpu.total.norm.pct': cpu_process_pct,
-          'system.process.memory.size': current.process_memory_size,
-          'system.process.memory.rss.bytes':
-            current.process_memory_rss * current.page_size
-        }
+        read!
+        super
       end
-      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
       private
 
@@ -93,10 +62,49 @@ module ElasticAPM
         case platform
         when :linux then Linux.new
         else
-          debug "Disabling system metrics: Unsupported platform '%s'", platform
-          @disabled = true
+          warn "Unsupported platform '#{platform}' - Disabling system metrics"
+          disable!
           nil
         end
+      end
+
+      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+      def read!
+        return if disabled?
+
+        current = @sampler.sample
+
+        unless @previous
+          @previous = current
+          return
+        end
+
+        cpu_usage_pct, cpu_process_pct = calculate_deltas(current, @previous)
+
+        gauge(:'system.cpu.total.norm.pct').value = cpu_usage_pct
+        gauge(:'system.memory.actual.free').value = current.system_memory_free
+        gauge(:'system.memory.total').value = current.system_memory_total
+        gauge(:'system.process.cpu.total.norm.pct').value = cpu_process_pct
+        gauge(:'system.process.memory.size').value = current.process_memory_size
+        gauge(:'system.process.memory.rss.bytes').value =
+          current.process_memory_rss * current.page_size
+
+        @previous = current
+      end
+      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+
+      def calculate_deltas(current, previous)
+        system_cpu_total =
+          current.system_cpu_total - previous.system_cpu_total
+        system_cpu_usage =
+          current.system_cpu_usage - previous.system_cpu_usage
+        process_cpu_usage =
+          current.process_cpu_usage - previous.process_cpu_usage
+
+        cpu_usage_pct = system_cpu_usage.to_f / system_cpu_total
+        cpu_process_pct = process_cpu_usage.to_f / system_cpu_total
+
+        [cpu_usage_pct, cpu_process_pct]
       end
 
       # @api private

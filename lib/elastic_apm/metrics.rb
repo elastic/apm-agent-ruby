@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require 'elastic_apm/metricset'
-
 module ElasticAPM
   # @api private
   module Metrics
-    MUTEX = Mutex.new
-
     def self.new(config, &block)
-      Collector.new(config, &block)
+      Registry.new(config, &block)
     end
 
     def self.platform
@@ -16,20 +12,19 @@ module ElasticAPM
     end
 
     # @api private
-    class Collector
+    class Registry
       include Logging
 
       TIMEOUT_INTERVAL = 5 # seconds
 
-      def initialize(config, labels: nil, &block)
+      def initialize(config, &block)
         @config = config
-        @labels = labels
         @callback = block
       end
 
-      attr_reader :config, :samplers, :callback, :labels
+      attr_reader :config, :sets, :callback
 
-      # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       def start
         unless config.collect_metrics?
           debug 'Skipping metrics'
@@ -38,9 +33,14 @@ module ElasticAPM
 
         debug 'Starting metrics'
 
-        @samplers = [CpuMem, VM].map do |kls|
+        @sets = {
+          system: CpuMemSet,
+          vm: VMSet,
+          breakdown: BreakdownSet,
+          transaction: TransactionSet
+        }.each_with_object({}) do |(key, kls), sets|
           debug "Adding metrics collector '#{kls}'"
-          kls.new(config)
+          sets[key] = kls.new(config)
         end
 
         @timer_task = Concurrent::TimerTask.execute(
@@ -61,7 +61,7 @@ module ElasticAPM
 
         @running = true
       end
-      # rubocop:enable Metrics/MethodLength
+      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
       def stop
         return unless running?
@@ -76,24 +76,36 @@ module ElasticAPM
         !!@running
       end
 
-      def collect_and_send
-        metricset = Metricset.new(labels: labels, **collect)
-        return if metricset.empty?
+      def get(key)
+        sets.fetch(key)
+      end
 
-        callback.call(metricset)
+      def collect_and_send
+        metricsets = collect
+        metricsets.compact!
+        metricsets.each do |m|
+          callback.call(m)
+        end
       end
 
       def collect
-        MUTEX.synchronize do
-          samplers.each_with_object({}) do |sampler, samples|
-            next unless (sample = sampler.collect)
-            samples.merge!(sample)
-          end
+        sets.each_value.each_with_object([]) do |set, arr|
+          samples = set.collect
+          next unless samples
+          arr.concat(samples)
         end
       end
     end
   end
 end
 
-require 'elastic_apm/metrics/cpu_mem'
-require 'elastic_apm/metrics/vm'
+require 'elastic_apm/metricset'
+
+require 'elastic_apm/metrics/metric'
+require 'elastic_apm/metrics/set'
+
+require 'elastic_apm/metrics/cpu_mem_set'
+require 'elastic_apm/metrics/vm_set'
+require 'elastic_apm/metrics/span_scoped_set'
+require 'elastic_apm/metrics/transaction_set'
+require 'elastic_apm/metrics/breakdown_set'

@@ -6,14 +6,16 @@ module ElasticAPM
   # @api private
   class Span
     extend Forwardable
+    include ChildDurations::Methods
 
     DEFAULT_TYPE = 'custom'
 
     # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
     def initialize(
       name:,
-      transaction_id:,
+      transaction:,
       trace_context:,
+      parent:,
       type: nil,
       subtype: nil,
       action: nil,
@@ -30,8 +32,9 @@ module ElasticAPM
         @action = action
       end
 
-      @transaction_id = transaction_id
-      @trace_context = trace_context
+      @transaction = transaction
+      @parent = parent
+      @trace_context = trace_context || parent.trace_context.child
 
       @context = context || Span::Context.new
       @stacktrace_builder = stacktrace_builder
@@ -51,9 +54,11 @@ module ElasticAPM
     attr_reader(
       :context,
       :duration,
+      :parent,
+      :self_time,
       :stacktrace,
       :timestamp,
-      :transaction_id
+      :transaction
     )
 
     # life cycle
@@ -61,11 +66,14 @@ module ElasticAPM
     def start(clock_start = Util.monotonic_micros)
       @timestamp = Util.micros
       @clock_start = clock_start
+      @parent.child_started
       self
     end
 
     def stop(clock_end = Util.monotonic_micros)
       @duration ||= (clock_end - @clock_start)
+      @parent.child_stopped
+      @self_time = @duration - child_durations.duration
       self
     end
 

@@ -4,17 +4,15 @@ require 'http'
 
 module ElasticAPM
   RSpec.describe 'Spy: HTTP.rb', :intercept do
-    after do
-      ElasticAPM.stop
-      WebMock.reset!
-    end
+    after { WebMock.reset! }
 
     it 'spans http calls' do
       WebMock.stub_request(:get, %r{http://example.com/.*})
-      ElasticAPM.start
 
-      ElasticAPM.with_transaction 'HTTP test' do
-        HTTP.get('http://example.com')
+      with_agent do
+        ElasticAPM.with_transaction 'HTTP test' do
+          HTTP.get('http://example.com')
+        end
       end
 
       span, = @intercepted.spans
@@ -31,10 +29,10 @@ module ElasticAPM
           expect { TraceContext.parse(header) }.to_not raise_error
         end
 
-      ElasticAPM.start
-
-      ElasticAPM.with_transaction 'HTTP test' do
-        HTTP.get('http://example.com')
+      with_agent do
+        ElasticAPM.with_transaction 'HTTP test' do
+          HTTP.get('http://example.com')
+        end
       end
 
       expect(req_stub).to have_been_requested
@@ -43,10 +41,10 @@ module ElasticAPM
     it 'adds traceparent header with no span' do
       req_stub = WebMock.stub_request(:get, %r{http://example.com/.*})
 
-      ElasticAPM.start transaction_max_spans: 0
-
-      ElasticAPM.with_transaction 'HTTP test' do
-        HTTP.get('http://example.com')
+      with_agent transaction_max_spans: 0 do
+        ElasticAPM.with_transaction 'HTTP test' do
+          HTTP.get('http://example.com')
+        end
       end
 
       expect(req_stub).to have_been_requested

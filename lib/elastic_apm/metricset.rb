@@ -3,14 +3,33 @@
 module ElasticAPM
   # @api private
   class Metricset
-    def initialize(timestamp: Util.micros, labels: nil, **samples)
+    def initialize(
+      timestamp: Util.micros,
+      tags: nil,
+      transaction: nil,
+      span: nil,
+      **samples
+    )
       @timestamp = timestamp
-      @labels = labels
+      @tags = tags
+      @transaction = transaction
+      @span = span
       @samples = samples
     end
 
-    attr_accessor :timestamp
-    attr_reader :samples, :labels
+    attr_accessor :timestamp, :transaction, :span, :tags
+    attr_reader :samples
+
+    def merge_tags!(tags)
+      return unless tags
+
+      @tags ||= {}
+      @tags.merge! tags
+    end
+
+    def tags?
+      tags&.any?
+    end
 
     def empty?
       samples.empty?
@@ -18,7 +37,10 @@ module ElasticAPM
 
     def inspect
       "<ElasticAPM::Metricset timestamp:#{timestamp}" \
-        " labels:#{labels.inspect} samples:#{samples.inspect}>"
+        " transaction:#{transaction.inspect}" \
+        " span:#{span.inspect}" \
+        " tags:#{tags.inspect}" \
+        " samples:#{samples.inspect}>"
     end
   end
 end

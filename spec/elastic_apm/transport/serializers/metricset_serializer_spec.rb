@@ -9,16 +9,73 @@ module ElasticAPM
         subject { described_class.new Config.new }
 
         describe '#build' do
-          let(:set) { Metricset.new(thing: 1.0, other: 321) }
+          let(:set) { Metricset.new(thing: 1.0, other: 321, tags: { a: 1 }) }
           let(:result) { subject.build(set) }
 
           it 'matches' do
-            expect(result[:metricset]).to be_a Hash
-            expect(result[:metricset][:timestamp]).to be_an Integer
-            expect(result[:metricset][:labels]).to be_nil
-            expect(result[:metricset][:samples]).to be_a Hash
-            expect(result[:metricset][:samples][:thing][:value]).to eq 1.0
-            expect(result[:metricset][:samples][:other][:value]).to eq 321
+            expect(result).to match(
+              metricset: {
+                timestamp: Integer,
+                tags: { a: 1 },
+                samples: {
+                  thing: { value: 1.0 },
+                  other: { value: 321 }
+                }
+              }
+            )
+          end
+
+          context 'with a transaction' do
+            let(:set) do
+              Metricset.new(
+                'transaction.breakdown.count': 1,
+                transaction: { name: 'txn', type: 'app' }
+              )
+            end
+
+            it 'matches' do
+              expect(result).to match(
+                metricset: {
+                  timestamp: Integer,
+                  samples: {
+                    'transaction.breakdown.count': { value: 1 }
+                  },
+                  transaction: {
+                    name: 'txn',
+                    type: 'app'
+                  }
+                }
+              )
+            end
+          end
+
+          context 'with a transaction and span' do
+            let(:set) do
+              Metricset.new(
+                'transaction.breakdown.count': 1,
+                transaction: { name: 'txn', type: 'app' },
+                span: { type: 'db', subtype: 'mysql' }
+              )
+            end
+
+            it 'matches' do
+              expect(result).to match(
+                metricset: {
+                  timestamp: Integer,
+                  samples: {
+                    'transaction.breakdown.count': { value: 1 }
+                  },
+                  transaction: {
+                    name: 'txn',
+                    type: 'app'
+                  },
+                  span: {
+                    type: 'db',
+                    subtype: 'mysql'
+                  }
+                }
+              )
+            end
           end
         end
       end
