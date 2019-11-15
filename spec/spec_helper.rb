@@ -32,6 +32,11 @@ require 'elastic-apm'
 Concurrent.use_stdlib_logger(Logger::DEBUG)
 Thread.abort_on_exception = true
 
+DEFAULT_AGENT_OPTIONS = {
+                          central_config: false,
+                          http_compression: false
+                        }.freeze
+
 SpecLogger = StringIO.new
 
 module RailsTestHelpers

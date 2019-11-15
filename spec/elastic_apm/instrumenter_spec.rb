@@ -2,12 +2,12 @@
 
 module ElasticAPM
   RSpec.describe Instrumenter, :intercept do
-    let(:config) { Config.new }
+    let(:config) { Config.new(DEFAULT_AGENT_OPTIONS) }
     let(:agent) { ElasticAPM.agent }
 
     before do
       intercept!
-      ElasticAPM.start config
+      ElasticAPM.start(config)
       allow(agent).to receive(:enqueue) { nil }
     end
 

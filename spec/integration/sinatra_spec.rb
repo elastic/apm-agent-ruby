@@ -57,7 +57,8 @@ if enabled
       end
 
       MockIntake.stub!
-      ElasticAPM.start(app: SinatraTestApp, api_request_time: '250ms')
+      ElasticAPM.start(DEFAULT_AGENT_OPTIONS.merge(app: SinatraTestApp,
+                                                   api_request_time: '250ms'))
     end
 
     after(:all) do
