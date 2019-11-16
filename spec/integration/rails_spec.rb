@@ -43,7 +43,7 @@ if enabled
           config.elastic_apm.ignore_url_patterns = '/ping'
           config.elastic_apm.log_path = 'spec/elastic_apm.log'
           config.elastic_apm.log_level = 0
-          config.elastic_apm.pool_size = Concurrent.processor_count
+          config.elastic_apm.pool_size = 1#Concurrent.processor_count
           config.elastic_apm.api_request_time = '200ms'
           config.elastic_apm.metrics_interval = '2s'
         end
