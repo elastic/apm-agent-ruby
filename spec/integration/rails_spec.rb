@@ -12,6 +12,8 @@ if enabled
   require 'action_controller/railtie'
   require 'action_mailer/railtie'
 
+  puts "Concurrent.processor_count: #{Concurrent.processor_count}"
+
   # We don't use :mock_intake, as we want the stubs to stay around between
   # individual examples
   RSpec.describe 'Rails integration', :allow_running_agent, :spec_logger do
