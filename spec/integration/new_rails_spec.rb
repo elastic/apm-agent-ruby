@@ -109,19 +109,25 @@ if enabled
     end
 
     before(:all) do
-      RailsTestApp::Application.initialize!
-      RailsTestApp::Application.routes.draw do
-        get '/error', to: 'application#raise_error'
-        get '/report_message', to: 'application#report_message'
-        get '/tags_and_context', to: 'application#context'
-        get '/send_notification', to: 'application#send_notification'
-        get '/ping', to: 'application#ping'
-        post '/', to: 'application#create'
-        root to: 'application#index'
-      end
+
     end
 
     before do
+      unless Rails.application.initialized?
+        allow_any_instance_of(ElasticAPM::Transport::Connection::Http).to receive(:write) do |http, str|
+          parser.parse(str)
+        end.and_return(0)
+        RailsTestApp::Application.initialize!
+        RailsTestApp::Application.routes.draw do
+          get '/error', to: 'application#raise_error'
+          get '/report_message', to: 'application#report_message'
+          get '/tags_and_context', to: 'application#context'
+          get '/send_notification', to: 'application#send_notification'
+          get '/ping', to: 'application#ping'
+          post '/', to: 'application#create'
+          root to: 'application#index'
+        end
+      end
       allow_any_instance_of(ElasticAPM::Transport::Connection::Http).to receive(:write) do |http, str|
         parser.parse(str)
       end.and_return(0)
