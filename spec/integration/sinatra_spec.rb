@@ -122,12 +122,6 @@ if enabled
 
         @mock_intake.wait_for errors: 1, transactions: 1
 
-        unless @mock_intake.requests.length == 1
-          @mock_intake.requests.each { |r| puts r.inspect }
-        end
-
-        expect(@mock_intake.requests.length).to be >= 1
-
         error_request =
           @mock_intake.errors.first
         exception = error_request['exception']
