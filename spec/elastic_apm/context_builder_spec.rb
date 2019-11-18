@@ -30,6 +30,8 @@ module ElasticAPM
         expect(request.url.full).to eq 'http://example.org/somewhere/in/there?q=yes'
 
         expect(request.cookies).to eq('things' => '1')
+        # Make sure we have a clone and not the original
+        expect(request.cookies).to_not be env['rack.request.cookie_hash']
 
         expect(request.headers).to eq(
           'Content-Type' => 'application/json',
