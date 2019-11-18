@@ -114,9 +114,8 @@ if enabled
 
     before do
       unless Rails.application.initialized?
-        allow_any_instance_of(ElasticAPM::Transport::Connection::Http).to receive(:write) do |http, str|
-          parser.parse(str)
-        end.and_return(0)
+        allow_any_instance_of(ElasticAPM::Transport::Connection::Http).to receive(:open_new_request_in_thread) do |http, url|
+        end.and_return(true)
         RailsTestApp::Application.initialize!
         RailsTestApp::Application.routes.draw do
           get '/error', to: 'application#raise_error'
@@ -128,6 +127,8 @@ if enabled
           root to: 'application#index'
         end
       end
+      allow_any_instance_of(ElasticAPM::Transport::Connection::Http).to receive(:open_new_request_in_thread) do |http, url|
+      end.and_return(true)
       allow_any_instance_of(ElasticAPM::Transport::Connection::Http).to receive(:write) do |http, str|
         parser.parse(str)
       end.and_return(0)
