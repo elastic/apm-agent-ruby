@@ -45,17 +45,23 @@ To run all specs in the official `ruby:latest` image:
 $ bin/dev
 ```
 
-To pick a specific Ruby version, specify it as the first argument:
+To pick a specific Ruby version, specify it with the `-i` flag:
 
 ```sh
 $ bin/dev -i jruby:9.2 
 ```
 
-If the first argument is a path starting with `spec/`, that/those specs will be run. Otherwise any arguments passed will be run as a command inside the container:
+If the first argument is a path starting with `spec/`, the passed specs will be run. Otherwise any arguments passed will be run as a command inside the container:
 
 ```sh
 $ bin/dev -i jruby:9.2 spec/integration/rails_spec.rb   # ✅
 $ bin/dev -i some_custom_image bash                     # ✅
+```
+
+To see all options:
+
+```sh
+$ bin/dev -h
 ```
 
 ## License
