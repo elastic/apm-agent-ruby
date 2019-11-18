@@ -124,7 +124,7 @@ if enabled
     before do
       allow_any_instance_of(ElasticAPM::Transport::Connection::Http).to receive(:write) do |http, str|
         parser.parse(str)
-      end
+      end.and_return(0)
     end
 
     let(:app) do
