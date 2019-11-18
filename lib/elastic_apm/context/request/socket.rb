@@ -8,7 +8,7 @@ module ElasticAPM
       # @api private
       class Socket
         def initialize(req)
-          @remote_addr = req.ip
+          @remote_addr = req.env['REMOTE_ADDR']
           @encrypted = req.scheme == 'https'
         end
 
