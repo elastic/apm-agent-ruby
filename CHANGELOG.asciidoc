@@ -28,7 +28,11 @@ endif::[]
 - Fix {pull}2526[#2526]
 ////
 
-=== Unreleased
+[[release-notes-3.x]]
+=== Ruby Agent version 3.x
+
+[[release-notes-3.2.0]]
+==== 3.2.0 (2019-11-19)
 
 [float]
 ===== Added
@@ -37,10 +41,16 @@ endif::[]
 - Add Breakdown Metrics {pull}526[#526]
 
 [float]
+===== Changes
+
+- Set remote_addr to immediate socket {pull}615[#615]
+
+[float]
 ===== Fixed
 
 - Fixed pulling config from Kibana {pull}594[#594]
 - Fixed a bug where the agent would alter the original cookies hash {pull}616[#616]
+
 
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
