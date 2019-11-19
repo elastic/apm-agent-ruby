@@ -94,16 +94,6 @@ class MockIntake
       .map { |json| JSON.parse(json) }
   end
 
-  private
-
-  def gunzip(string)
-    sio = StringIO.new(string)
-    gz = Zlib::GzipReader.new(sio, encoding: Encoding::ASCII_8BIT)
-    gz.read
-  ensure
-    gz&.close
-  end
-
   # rubocop:disable Metrics/AbcSize
   def catalog(obj)
     case obj.keys.first
@@ -114,6 +104,16 @@ class MockIntake
     end
   end
   # rubocop:enable Metrics/AbcSize
+
+  private
+
+  def gunzip(string)
+    sio = StringIO.new(string)
+    gz = Zlib::GzipReader.new(sio, encoding: Encoding::ASCII_8BIT)
+    gz.read
+  ensure
+    gz&.close
+  end
 
   module WaitFor
     # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
@@ -176,11 +176,13 @@ end
 
 RSpec.configure do |config|
   config.before :each, :mock_intake do
+    ElasticAPM::Transport::Worker.adapter = TestAdapter
     MockIntake.stub! unless MockIntake.stubbed?
     @mock_intake = MockIntake.instance
   end
 
   config.after :each, :mock_intake do
+    ElasticAPM::Transport::Worker.adapter = nil
     MockIntake.reset!
     @mock_intake = nil
   end

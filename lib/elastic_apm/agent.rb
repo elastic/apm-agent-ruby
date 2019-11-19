@@ -21,6 +21,14 @@ module ElasticAPM
 
     LOCK = Mutex.new
 
+    class << self
+      def transport_adapter
+        @transport_adapter ||= Transport::Base
+      end
+
+      attr_writer :transport_adapter
+    end
+
     # life cycle
 
     def self.instance # rubocop:disable Style/TrivialAccessors
@@ -69,7 +77,7 @@ module ElasticAPM
       @error_builder = ErrorBuilder.new(self)
 
       @central_config = CentralConfig.new(config)
-      @transport = Transport::Base.new(config)
+      @transport = self.class.transport_adapter.new(config)
       @metrics = Metrics.new(config) { |event| enqueue event }
       @instrumenter = Instrumenter.new(
         config,

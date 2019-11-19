@@ -118,7 +118,23 @@ if enabled
         end
       end
 
+      # Two approaches from here
+      #
+      # 1. Make this glue code between mock intake and the testadapter
+      #   - lets us keep a bunch existing code
+      # 2. Rewrite MockIntake/Add third option
+      #   - more clean, gets rid of any_instance_of and the like
       @mock_intake = MockIntake.stub!
+
+      class TestAdapter
+        def initialize(config); end
+
+        def write(payload)
+          MockIntake.instance.catalog JSON.parse(payload)
+        end
+      end
+
+      ElasticAPM::Transport::Worker.adapter = TestAdapter
 
       RailsTestApp::Application.initialize!
       RailsTestApp::Application.routes.draw do

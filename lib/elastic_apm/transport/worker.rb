@@ -6,6 +6,14 @@ module ElasticAPM
     class Worker
       include Logging
 
+      class << self
+        def adapter
+          @adapter ||= Connection
+        end
+
+        attr_writer :adapter
+      end
+
       # @api private
       class StopMessage; end
 
@@ -16,8 +24,7 @@ module ElasticAPM
         config,
         queue,
         serializers:,
-        filters:,
-        conn_adapter: Connection
+        filters:
       )
         @config = config
         @queue = queue
@@ -25,7 +32,7 @@ module ElasticAPM
         @serializers = serializers
         @filters = filters
 
-        @connection = conn_adapter.new(config)
+        @connection = self.class.adapter.new(config)
       end
 
       attr_reader :queue, :filters, :name, :connection, :serializers
