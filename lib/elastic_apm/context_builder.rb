@@ -38,7 +38,7 @@ module ElasticAPM
       request.headers = headers if config.capture_headers?
       request.env = env if config.capture_env?
 
-      request.cookies = req.cookies
+      request.cookies = req.cookies.dup
 
       context
     end
