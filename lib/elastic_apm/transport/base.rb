@@ -30,7 +30,13 @@ module ElasticAPM
         @filters = Filters.new(config)
 
         @stopped = Concurrent::AtomicBoolean.new
-        @workers = Array.new(config.pool_size)
+        @workers = Array.new(config.pool_size) do
+          Worker.new(
+            config, queue,
+            serializers: @serializers,
+            filters: @filters
+          )
+        end
 
         @watcher_mutex = Mutex.new
         @worker_mutex = Mutex.new
@@ -42,7 +48,7 @@ module ElasticAPM
         debug '%s: Starting Transport', pid_str
 
         ensure_watcher_running
-        ensure_worker_count
+        ensure_running_workers
 
         @stopped.make_false unless @stopped.false?
       end
@@ -98,36 +104,15 @@ module ElasticAPM
           @watcher = Concurrent::TimerTask.execute(
             execution_interval: WATCHER_EXECUTION_INTERVAL,
             timeout_interval: WATCHER_TIMEOUT_INTERVAL
-          ) { ensure_worker_count }
+          ) { ensure_running_workers }
         end
       end
 
-      def ensure_worker_count
+      def ensure_running_workers
         @worker_mutex.synchronize do
-          return if all_workers_alive?
-          return if stopped.true?
-
-          @workers.map! do |thread|
-            next thread if thread&.alive?
-
-            boot_worker
+          @workers.each do |worker|
+            worker.ensure_running!
           end
-        end
-      end
-
-      def all_workers_alive?
-        !!workers.all? { |t| t&.alive? }
-      end
-
-      def boot_worker
-        debug '%s: Booting worker...', pid_str
-
-        Thread.new do
-          Worker.new(
-            config, queue,
-            serializers: @serializers,
-            filters: @filters
-          ).work_forever
         end
       end
 
@@ -138,15 +123,14 @@ module ElasticAPM
         send_stop_messages
 
         @worker_mutex.synchronize do
-          workers.each do |thread|
-            next if thread.nil?
-            next if thread.join(WORKER_JOIN_TIMEOUT)
-
-            debug(
-              '%s: Worker did not stop in %ds, killing...',
-              pid_str, WORKER_JOIN_TIMEOUT
-            )
-            thread.kill
+          workers.each do |worker|
+            unless worker.stop!(WORKER_JOIN_TIMEOUT)
+              debug(
+                  '%s: Worker did not stop in %ds, killing...',
+                  pid_str, WORKER_JOIN_TIMEOUT
+              )
+              worker.kill!
+            end
           end
 
           @workers.clear

@@ -30,23 +30,51 @@ module ElasticAPM
 
       attr_reader :queue, :filters, :name, :connection, :serializers
 
-      # rubocop:disable Metrics/MethodLength
-      def work_forever
-        while (msg = queue.pop)
-          case msg
-          when StopMessage
-            debug 'Stopping worker -- %s', self
-            connection.flush(:halt)
-            break
-          else
-            process msg
+      def ensure_running!
+        run! unless alive?
+        self
+      end
+
+      def run!
+        @thread = Thread.new do
+          begin
+            while (msg = queue.pop)
+              case msg
+              when StopMessage
+                debug 'Stopping worker -- %s', self
+                connection.flush(:halt)
+                break
+              else
+                process msg
+              end
+            end
+          rescue Exception => e
+            warn 'Worker died with exception: %s', e.inspect
+            debug e.backtrace.join("\n")
+            kill!
           end
         end
-      rescue Exception => e
-        warn 'Worker died with exception: %s', e.inspect
-        debug e.backtrace.join("\n")
       end
-      # rubocop:enable Metrics/MethodLength
+
+      def alive?
+        !!(@thread && @thread.alive? && !@thread.stop?)
+      end
+
+      def stop!(timeout)
+        if @thread
+          begin
+            @thread.join(timeout)
+            @thread.exit
+          rescue
+          end
+          !@thread.alive?
+        end
+      end
+
+      def kill!
+        @thread && @thread.kill
+        @thread = nil
+      end
 
       def process(resource)
         return unless (json = serialize_and_filter(resource))
