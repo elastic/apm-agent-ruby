@@ -88,11 +88,11 @@ module ElasticAPM
       context 'when the worker is stopped and started again' do
         subject do
           described_class.new(
-              config,
-              queue,
-              serializers: serializers,
-              filters: filters,
-              conn_adapter: MockConnection
+            config,
+            queue,
+            serializers: serializers,
+            filters: filters,
+            conn_adapter: MockConnection
           )
         end
 
@@ -113,11 +113,11 @@ module ElasticAPM
       describe '#kill' do
         subject do
           described_class.new(
-              config,
-              queue,
-              serializers: serializers,
-              filters: filters,
-              conn_adapter: MockConnection
+            config,
+            queue,
+            serializers: serializers,
+            filters: filters,
+            conn_adapter: MockConnection
           )
         end
 
@@ -137,11 +137,11 @@ module ElasticAPM
       describe '#stop' do
         subject do
           described_class.new(
-              config,
-              queue,
-              serializers: serializers,
-              filters: filters,
-              conn_adapter: MockConnection
+            config,
+            queue,
+            serializers: serializers,
+            filters: filters,
+            conn_adapter: MockConnection
           )
         end
 
