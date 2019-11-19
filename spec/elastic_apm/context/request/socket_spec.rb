@@ -17,7 +17,7 @@ module ElasticAPM
         end
 
         # 'Trusted' as per Rack's definition:
-        # https://github.com/rack/rack/blob/2-0-stable/lib/rack/request.rb#L419-L421
+        # https://github.com/rack/rack/blob/2.0.7/lib/rack/request.rb#L419-L421
         context 'with a "trusted" remote addr and forwarding header' do
           let(:req) do
             Rack::Request.new(
