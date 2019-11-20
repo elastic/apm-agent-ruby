@@ -42,6 +42,8 @@ if enabled
           end
           config.elastic_apm.capture_body = 'all'
           config.elastic_apm.pool_size = Concurrent.processor_count
+
+          config.elastic_apm.log_path = 'spec/elastic_apm.log'
         end
       end
 
@@ -77,8 +79,7 @@ if enabled
       end
     end
 
-    context 'simple requests', :allow_running_agent do
-
+    context 'Service metadata', :allow_running_agent do
       it 'knows Rails' do
         responses = Array.new(10).map { get '/' }
 
@@ -93,6 +94,13 @@ if enabled
         expect(service['framework']['name']).to eq 'Ruby on Rails'
         expect(service['framework']['version'])
             .to match(/\d+\.\d+\.\d+(\.\d+)?/)
+      end
+    end
+
+    context 'log path', :allow_running_agent do
+      it 'prepends Rails.root to log_path' do
+        final_log_path = ElasticAPM.agent.config.log_path.to_s
+        expect(final_log_path).to eq "#{Rails.root}/spec/elastic_apm.log"
       end
     end
   end
