@@ -125,9 +125,13 @@ module ElasticAPM
         error.response.body, DEFAULT_MAX_AGE
       )
 
+    ensure
       assign({})
-
-      schedule_next_fetch(error.response)
+      if error.respond_to?(:response)
+        schedule_next_fetch(error.response)
+      else
+        schedule_next_fetch
+      end
     end
 
     def perform_request
@@ -145,9 +149,10 @@ module ElasticAPM
       { 'Etag': @etag }
     end
 
-    def schedule_next_fetch(resp)
+    def schedule_next_fetch(resp=nil)
+      headers = resp ? resp.headers : {}
       seconds =
-        if (cache_header = resp.headers['Cache-Control'])
+        if (cache_header = headers['Cache-Control'])
           CacheControl.new(cache_header).max_age
         else
           DEFAULT_MAX_AGE
