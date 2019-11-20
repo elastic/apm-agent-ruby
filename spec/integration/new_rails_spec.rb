@@ -54,6 +54,10 @@ if enabled
           ElasticAPM.set_user(current_user)
         end
 
+        http_basic_authenticate_with(
+          name: 'dhh', password: 'secret123', only: [:create]
+        )
+
         def index
           render_ok
         end
@@ -164,8 +168,8 @@ if enabled
         end
       end
 
-      context 'when there are ignored url patterns defined' do
-        it 'does not create events for the patterns', :allow_running_agent do
+      context 'when there are ignored url patterns defined', :allow_running_agent do
+        it 'does not create events for the patterns' do
           get '/ping'
           get '/'
 
@@ -173,6 +177,26 @@ if enabled
 
           name = RequestParser.transactions.fetch(0)['name']
           expect(name).to eq 'ApplicationController#index'
+        end
+      end
+
+      context 'when there is sensitive data', :allow_running_agent do
+        it 'filters the data and does not alter the original' do
+          resp = post '/', access_token: 'abc123'
+
+          RequestParser.wait_for transactions: 1, spans: 1
+
+          expect(resp.body).to eq("HTTP Basic: Access denied.\n")
+          expect(resp.original_headers['WWW-Authenticate']).to_not be nil
+          expect(resp.original_headers['WWW-Authenticate']).to_not eq '[FILTERED]'
+
+          transaction, = RequestParser.transactions
+
+          body = transaction.dig('context', 'request', 'body')
+          expect(body['access_token']).to eq '[FILTERED]'
+
+          response_headers = transaction.dig('context', 'response', 'headers')
+          expect(response_headers['WWW-Authenticate']).to eq '[FILTERED]'
         end
       end
     end
