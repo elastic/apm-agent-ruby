@@ -32,6 +32,7 @@ if enabled
           config.consider_all_requests_local = false
           config.eager_load = false
 
+          config.elastic_apm.ignore_url_patterns = '/ping'
           config.elastic_apm.api_request_time = '200ms'
           config.elastic_apm.disable_start_message = true
 
@@ -60,6 +61,10 @@ if enabled
         def context
           ElasticAPM.set_label :things, 1
           ElasticAPM.set_custom_context nested: { banana: 'explosion' }
+          render_ok
+        end
+
+        def create
           render_ok
         end
 
@@ -93,11 +98,12 @@ if enabled
       RailsTestApp::Application.routes.draw do
         root to: 'application#index'
         get '/tags_and_context', to: 'application#context'
+        post '/', to: 'application#create'
       end
     end
 
     context 'Service metadata', :allow_running_agent do
-      it 'knows Rails' do
+      it 'includes Rails info' do
         responses = Array.new(10).map { get '/' }
 
         RequestParser.wait_for transactions: 10, spans: 20, timeout: 10
@@ -122,7 +128,7 @@ if enabled
     end
 
     describe 'transactions' do
-      context 'a simple request', :allow_running_agent do
+      context 'when a simple request is made', :allow_running_agent do
         it 'spans action and posts it' do
           get '/'
 
@@ -133,7 +139,7 @@ if enabled
         end
       end
 
-      context 'tags and context set', :allow_running_agent do
+      context 'when tags and context are set', :allow_running_agent do
         it 'sets the values' do
           get '/tags_and_context'
 
@@ -145,7 +151,7 @@ if enabled
         end
       end
 
-      context 'user information', :allow_running_agent do
+      context 'when there is user information', :allow_running_agent do
         it 'includes the info in transactions' do
           get '/'
 
@@ -155,6 +161,18 @@ if enabled
           user = context['user']
           expect(user['id']).to eq '1'
           expect(user['email']).to eq 'person@example.com'
+        end
+      end
+
+      context 'when there are ignored url patterns defined' do
+        it 'does not create events for the patterns', :allow_running_agent do
+          get '/ping'
+          get '/'
+
+          RequestParser.wait_for transactions: 1, spans: 2
+
+          name = RequestParser.transactions.fetch(0)['name']
+          expect(name).to eq 'ApplicationController#index'
         end
       end
     end
