@@ -103,5 +103,18 @@ if enabled
         expect(final_log_path).to eq "#{Rails.root}/spec/elastic_apm.log"
       end
     end
+
+    describe 'transactions' do
+      context 'a simple request', :allow_running_agent do
+        it 'spans action and posts it' do
+          get '/'
+
+          RequestParser.wait_for transactions: 1, spans: 2
+
+          name = RequestParser.transactions.fetch(0)['name']
+          expect(name).to eq 'ApplicationController#index'
+        end
+      end
+    end
   end
 end
