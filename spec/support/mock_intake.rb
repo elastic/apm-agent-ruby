@@ -277,3 +277,12 @@ class RequestParser
     )
   end
 end
+
+shared_context 'request_parser' do
+  before do
+    RequestParser.clear!
+  end
+  after do
+    RequestParser.clear!
+  end
+end
