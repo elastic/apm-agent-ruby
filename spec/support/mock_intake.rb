@@ -227,4 +227,53 @@ class RequestParser
     @spans = []
     @transactions = []
   end
+
+  def wait_for(timeout: 5, **expected)
+
+    if expected.empty? && !block_given?
+      raise ArgumentError, 'Either args or block required'
+    end
+
+    Timeout.timeout(timeout) do
+      loop do
+        sleep 0.01
+
+        missing = expected.reduce(0) do |total, (kind, count)|
+          total + (count - send(kind).length)
+        end
+
+        next if missing > 0
+
+        unless missing == 0
+          puts format(
+                   'Expected %s. Got %s',
+                   expected,
+                   missing
+               )
+          print_received
+        end
+
+        if block_given?
+          next unless yield(self)
+        end
+
+        break true
+      end
+    end
+  rescue Timeout::Error
+    puts format('Died waiting for %s', block_given? ? 'block' : expected)
+    puts '--- Received: ---'
+    print_received
+    raise
+  end
+
+  def print_received
+    pp(
+        transactions: transactions.map { |o| o['name'] },
+        spans: spans.map { |o| o['name'] },
+        errors: errors.map { |o| o['culprit'] },
+        metricsets: metricsets,
+        metadatas: metadatas.count
+    )
+  end
 end
