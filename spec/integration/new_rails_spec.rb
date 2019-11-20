@@ -49,6 +49,7 @@ if enabled
       end
 
       class ApplicationController < ActionController::Base
+        class FancyError < ::StandardError; end
 
         before_action do
           ElasticAPM.set_user(current_user)
@@ -70,6 +71,10 @@ if enabled
 
         def create
           render_ok
+        end
+
+        def raise_error
+          raise FancyError, "Help! I'm trapped in a specfile!"
         end
 
         private
@@ -103,6 +108,7 @@ if enabled
         root to: 'application#index'
         get '/tags_and_context', to: 'application#context'
         post '/', to: 'application#create'
+        get '/error', to: 'application#raise_error'
       end
     end
 
@@ -217,6 +223,27 @@ if enabled
           span = RequestParser.spans.fetch(0)
           expect(span).to match_json_schema(:spans),
                           span.inspect
+        end
+      end
+    end
+
+    describe 'errors' do
+      context 'when there is an exception', :allow_running_agent do
+        it 'creates an error and transaction event' do
+          response = get '/error'
+
+          RequestParser.wait_for transactions: 1, errors: 1, spans: 1
+
+          expect(response.status).to be 500
+
+          error = RequestParser.errors.fetch(0)
+          expect(error['transaction_id']).to_not be_nil
+          expect(error['transaction']['sampled']).to be true
+          expect(error['context']).to_not be nil
+
+          exception = error['exception']
+          expect(exception['type']).to eq 'ApplicationController::FancyError'
+          expect(exception['handled']).to eq false
         end
       end
     end
