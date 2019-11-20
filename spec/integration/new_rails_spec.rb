@@ -53,6 +53,12 @@ if enabled
           render_ok
         end
 
+        def context
+          ElasticAPM.set_label :things, 1
+          ElasticAPM.set_custom_context nested: { banana: 'explosion' }
+          render_ok
+        end
+
         private
 
         def render_ok
@@ -76,6 +82,7 @@ if enabled
       RailsTestApp::Application.initialize!
       RailsTestApp::Application.routes.draw do
         root to: 'application#index'
+        get '/tags_and_context', to: 'application#context'
       end
     end
 
@@ -113,6 +120,18 @@ if enabled
 
           name = RequestParser.transactions.fetch(0)['name']
           expect(name).to eq 'ApplicationController#index'
+        end
+      end
+
+      context 'tags and context set', :allow_running_agent do
+        it 'sets the values' do
+          get '/tags_and_context'
+
+          RequestParser.wait_for transactions: 1, spans: 2
+
+          context = RequestParser.transactions.fetch(0)['context']
+          expect(context['tags']).to eq('things' => 1)
+          expect(context['custom']).to eq('nested' => {'banana' => 'explosion'})
         end
       end
     end
