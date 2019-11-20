@@ -18,6 +18,7 @@ if [[ $specific_spec = '' ]]; then
   runRspec
   for i in $(find spec/integration -name '*_spec.rb')
   do
+    echo $i
     runRspec "$i"
   done
 else
