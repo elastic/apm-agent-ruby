@@ -199,6 +199,26 @@ if enabled
           expect(response_headers['WWW-Authenticate']).to eq '[FILTERED]'
         end
       end
+
+      context 'when json', :allow_running_agent do
+        it 'the schema is validated', type: :json_schema do
+          get '/'
+
+          RequestParser.wait_for transactions: 1
+
+          metadata = RequestParser.metadatas.fetch(0)
+          expect(metadata).to match_json_schema(:metadatas),
+                              metadata.inspect
+
+          transaction = RequestParser.transactions.fetch(0)
+          expect(transaction).to match_json_schema(:transactions),
+                                 transaction.inspect
+
+          span = RequestParser.spans.fetch(0)
+          expect(span).to match_json_schema(:spans),
+                          span.inspect
+        end
+      end
     end
   end
 end
