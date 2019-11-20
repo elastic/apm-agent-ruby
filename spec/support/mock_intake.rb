@@ -183,3 +183,48 @@ RSpec.configure do |config|
 
   config.include MockIntake::WaitFor, :mock_intake
 end
+
+class RequestParser
+  class << self
+    def method_missing(name, *args, &block)
+      instance.send(name, *args, &block)
+    end
+
+    def instance
+      @instance ||= new
+    end
+  end
+
+  attr_reader(
+      :errors,
+      :metadatas,
+      :metricsets,
+      :requests,
+      :spans,
+      :transactions
+  )
+
+  def initialize
+    clear!
+  end
+
+  def catalog(json)
+    case json.keys.first
+    when 'transaction' then transactions << json.values.first
+    when 'span' then spans << json.values.first
+    when 'error' then errors << json.values.first
+    when 'metricset' then metricsets << json.values.first
+    when 'metadata' then metadatas << json.values.first
+    end
+  end
+
+  def clear!
+    @requests = []
+
+    @errors = []
+    @metadatas = []
+    @metricsets = []
+    @spans = []
+    @transactions = []
+  end
+end
