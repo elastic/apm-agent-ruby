@@ -49,6 +49,10 @@ if enabled
 
       class ApplicationController < ActionController::Base
 
+        before_action do
+          ElasticAPM.set_user(current_user)
+        end
+
         def index
           render_ok
         end
@@ -67,6 +71,12 @@ if enabled
           else
             render plain: 'Yes!'
           end
+        end
+
+        User = Struct.new(:id, :email)
+
+        def current_user
+          @current_user ||= User.new(1, 'person@example.com')
         end
       end
 
@@ -132,6 +142,19 @@ if enabled
           context = RequestParser.transactions.fetch(0)['context']
           expect(context['tags']).to eq('things' => 1)
           expect(context['custom']).to eq('nested' => {'banana' => 'explosion'})
+        end
+      end
+
+      context 'user information', :allow_running_agent do
+        it 'includes the info in transactions' do
+          get '/'
+
+          RequestParser.wait_for transactions: 1, spans: 2
+
+          context = RequestParser.transactions.fetch(0)['context']
+          user = context['user']
+          expect(user['id']).to eq '1'
+          expect(user['email']).to eq 'person@example.com'
         end
       end
     end
