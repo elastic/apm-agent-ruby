@@ -53,6 +53,18 @@ module RailsTestHelpers
       end
     end
   end
+
+  def self.setup_rails_test_config(config)
+    config.secret_key_base = '__secret_key_base'
+    config.consider_all_requests_local = false
+    config.eager_load = false
+    config.action_mailer.perform_deliveries = false
+    # Silence deprecation warning
+    if defined?(ActionView::Railtie::NULL_OPTION)
+      config.action_view.finalize_compiled_template_methods =
+          ActionView::Railtie::NULL_OPTION
+    end
+  end
 end
 
 RSpec.configure do |config|
