@@ -319,6 +319,17 @@ deprecated so please transition to using `global_labels` instead. In the meantim
 that are set will override `global_labels`.
 
 [float]
+[[config-disable_metrics]]
+==== `disable_metrics`
+|============
+| Environment                   | `Config` key      | Default | Example
+| `ELASTIC_APM_DISABLE_METRICS` | `disable_metrics` | []      | `"*.cpu.*,system.memory.total"`
+|============
+
+A comma-separated list of dotted metrics names that should not be sent to the APM Server.
+You can use `*` to match multiple metrics.
+
+[float]
 [[config-disable-send]]
 ==== `disable_send`
 |============
