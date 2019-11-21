@@ -31,6 +31,7 @@ if enabled
           config.secret_key_base = '__secret_key_base'
           config.consider_all_requests_local = false
           config.eager_load = false
+          config.action_mailer.perform_deliveries = false
 
           config.elastic_apm.ignore_url_patterns = '/ping'
           config.elastic_apm.api_request_time = '200ms'
@@ -77,6 +78,16 @@ if enabled
           raise FancyError, "Help! I'm trapped in a specfile!"
         end
 
+        def report_message
+          ElasticAPM.report_message 'Very very message'
+          render_ok
+        end
+
+        def send_notification
+          NotificationsMailer.ping('someone@example.com', 'Hello').deliver_now
+          render_ok
+        end
+
         private
 
         def render_ok
@@ -91,6 +102,14 @@ if enabled
 
         def current_user
           @current_user ||= User.new(1, 'person@example.com')
+        end
+      end
+
+      class NotificationsMailer < ActionMailer::Base
+        def ping(recipient, subject)
+          mail to: [recipient], subject: subject do |format|
+            format.text { 'Hello you!' }
+          end
         end
       end
 
@@ -109,6 +128,8 @@ if enabled
         get '/tags_and_context', to: 'application#context'
         post '/', to: 'application#create'
         get '/error', to: 'application#raise_error'
+        get '/report_message', to: 'application#report_message'
+        get '/send_notification', to: 'application#send_notification'
       end
     end
 
@@ -207,7 +228,7 @@ if enabled
       end
 
       context 'when json', :allow_running_agent do
-        it 'the schema is validated', type: :json_schema do
+        it 'validates the schema', type: :json_schema do
           get '/'
 
           RequestParser.wait_for transactions: 1
@@ -244,6 +265,47 @@ if enabled
           exception = error['exception']
           expect(exception['type']).to eq 'ApplicationController::FancyError'
           expect(exception['handled']).to eq false
+        end
+      end
+
+      context 'when json', :allow_running_agent do
+        it 'validates the schema' do
+          get '/error'
+
+          RequestParser.wait_for transactions: 1, errors: 1
+
+          payload = RequestParser.errors.fetch(0)
+          expect(payload).to match_json_schema(:errors),
+                             payload.inspect
+        end
+      end
+
+      context 'when a message is reported', :allow_running_agent do
+        it 'sends the message' do
+          get '/report_message'
+
+          RequestParser.wait_for transactions: 1, errors: 1, spans: 2
+
+          error, = RequestParser.errors
+          expect(error['log']).to be_a Hash
+        end
+      end
+
+      describe 'mailers' do
+        context 'when a mail is sent', :allow_running_agent do
+          it 'spans the mail' do
+            get '/send_notification'
+
+            RequestParser.wait_for transactions: 1, spans: 3
+
+            transaction, = RequestParser.transactions
+            expect(transaction['name'])
+                .to eq 'ApplicationController#send_notification'
+            span = RequestParser.spans.find do |payload|
+              payload['name'] == 'NotificationsMailer#ping'
+            end
+            expect(span).to_not be_nil
+          end
         end
       end
     end
