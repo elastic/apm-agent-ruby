@@ -303,6 +303,15 @@ if enabled
 
     describe 'metrics' do
       context 'when metrics are collected', :allow_running_agent do
+        after do |example|
+          if example.exception
+            puts "RequestParser:"
+            pp RequestParser.instance.inspect
+            sleep(10)
+            puts "RequestParser after 10 seconds"
+            pp RequestParser.instance.inspect
+          end
+        end
         it 'sends them' do
           get '/'
 
