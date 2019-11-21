@@ -54,6 +54,9 @@ module ElasticAPM
             error 'Error while collecting metrics: %e', e.inspect
             debug { e.backtrace.join("\n") }
             false
+            puts "StandardError in Metrics timer task #{e.inspect}"
+          rescue => ex
+            puts "Error in Metrics timer task #{ex.inspect}"
           end
         end
 
