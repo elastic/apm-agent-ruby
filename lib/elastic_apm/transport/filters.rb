@@ -7,7 +7,6 @@ module ElasticAPM
     # @api private
     module Filters
       SKIP = :skip
-      LOCK = Mutex.new
 
       def self.new(config)
         Container.new(config)
