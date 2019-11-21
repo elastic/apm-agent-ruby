@@ -7,6 +7,7 @@ module ElasticAPM
     # @api private
     module Filters
       SKIP = :skip
+      LOCK = Mutex.new
 
       def self.new(config)
         Container.new(config)
@@ -19,7 +20,9 @@ module ElasticAPM
         end
 
         def add(key, filter)
-          @filters[key] = filter
+          LOCK.synchronize do
+            @filters[key] = filter
+          end
         end
 
         def remove(key)
@@ -27,10 +30,12 @@ module ElasticAPM
         end
 
         def apply!(payload)
-          @filters.reduce(payload) do |result, (_key, filter)|
-            result = filter.call(result)
-            break SKIP if result.nil?
-            result
+          LOCK.synchronize do
+            @filters.reduce(payload) do |result, (_key, filter)|
+              result = filter.call(result)
+              break SKIP if result.nil?
+              result
+            end
           end
         end
 
