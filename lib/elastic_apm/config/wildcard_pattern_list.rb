@@ -11,7 +11,7 @@ module ElasticAPM
         end
 
         def match?(other)
-          !!(@pattern =~ other)
+          !!@pattern.match(other)
         end
 
         private
