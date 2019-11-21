@@ -312,7 +312,7 @@ if enabled
             intake.metricsets.select { |set| set['transaction'] && !set['span'] }
           end
 
-          RequestParser.wait_for(timeout: 10) { |intake| select_transaction_metrics.call(intake).count >= 2 }
+          RequestParser.wait_for { |intake| select_transaction_metrics.call(intake).count >= 2 }
           transaction_metrics = select_transaction_metrics.call(RequestParser)
 
           keys_counts =
@@ -323,13 +323,16 @@ if enabled
           expect(keys_counts[
                      %w[transaction.duration.sum.us transaction.duration.count]
                  ]).to be >= 1
+          unless keys_counts[%w[transaction.breakdown.count]] >= 1
+            puts transaction_metrics
+          end
           expect(keys_counts[%w[transaction.breakdown.count]]).to be >= 1
 
           select_span_metrics = lambda do |intake|
             intake.metricsets.select { |set| set['transaction'] && set['span'] }
           end
 
-          RequestParser.wait_for(timeout: 10) { |intake| select_span_metrics.call(intake).count >= 3 }
+          RequestParser.wait_for { |intake| select_span_metrics.call(intake).count >= 3 }
           span_metrics = select_span_metrics.call(RequestParser)
 
           keys_counts =
