@@ -45,14 +45,18 @@ module ElasticAPM
         end
       end
 
-      describe 'thread safety' do
-        it 'may add filters while applying' do
+      describe 'from multiple threads' do
+        it "doesn't complain" do
           threads =
             (0...100).map do |i|
-              Thread.new { subject.apply!(payload: i) }
+              Thread.new do
+                if i.even?
+                  subject.apply!(payload: i)
+                else
+                  subject.add :"filter_#{i}", ->(_) { '' }
+                end
+              end
             end
-
-          subject.add :new, ->(_) { '' }
 
           threads.each(&:join)
         end

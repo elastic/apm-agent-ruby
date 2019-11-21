@@ -20,7 +20,7 @@ module ElasticAPM
         end
 
         def add(key, filter)
-          @filters = @filters.dup.merge!(key => filter)
+          @filters = @filters.merge(key => filter)
         end
 
         def remove(key)
