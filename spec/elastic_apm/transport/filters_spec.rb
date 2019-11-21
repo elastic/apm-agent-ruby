@@ -44,6 +44,19 @@ module ElasticAPM
           expect(untouched).to_not have_received(:call)
         end
       end
+
+      describe 'thread safety' do
+        it 'may add filters while applying' do
+          threads =
+            (0...100).map do |i|
+              Thread.new { subject.apply!(payload: i) }
+            end
+
+          subject.add :new, ->(_) { '' }
+
+          threads.each(&:join)
+        end
+      end
     end
   end
 end

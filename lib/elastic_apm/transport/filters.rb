@@ -20,9 +20,7 @@ module ElasticAPM
         end
 
         def add(key, filter)
-          LOCK.synchronize do
-            @filters[key] = filter
-          end
+          @filters = @filters.dup.merge!(key => filter)
         end
 
         def remove(key)
@@ -30,12 +28,10 @@ module ElasticAPM
         end
 
         def apply!(payload)
-          LOCK.synchronize do
-            @filters.reduce(payload) do |result, (_key, filter)|
-              result = filter.call(result)
-              break SKIP if result.nil?
-              result
-            end
+          @filters.reduce(payload) do |result, (_key, filter)|
+            result = filter.call(result)
+            break SKIP if result.nil?
+            result
           end
         end
 
