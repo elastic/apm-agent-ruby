@@ -26,7 +26,7 @@ module ElasticAPM
       def parse!(value)
         value.split(',').each do |token|
           k, v = token.split('=').map(&:strip)
-          instance_variable_set(:"@#{k.gsub('-', '_')}", v ? v.to_i : true)
+          instance_variable_set(:"@#{k.tr('-', '_')}", v ? v.to_i : true)
         end
       end
     end
