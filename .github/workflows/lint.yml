@@ -1,12 +1,11 @@
-on: push
-name: Linting
+name: Lint
+
+on: [push]
+
 jobs:
-  rubocop:
-    name: Rubocop
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - name: Rubocop
-        uses: gimenete/rubocop-action@649c2b18b5726302b6b120dad74c25d2b2f391e9
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/checkout@v1
+    - name: Rubocop checks
+      uses: gimenete/rubocop-action@0.0
