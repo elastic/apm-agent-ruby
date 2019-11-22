@@ -26,7 +26,7 @@ module ElasticAPM
         " transaction_id:#{transaction_id}" \
         " trace_id:#{trace_id}" \
         " exception:#{exception.inspect}" \
-        ">"
+        '>'
     end
   end
 end

@@ -9,7 +9,6 @@ module ElasticAPM
           @context_serializer ||= ContextSerializer.new(config)
         end
 
-        # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
         def build(transaction)
           {
             transaction: {
@@ -30,7 +29,6 @@ module ElasticAPM
             }
           }
         end
-        # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
       end
     end
   end

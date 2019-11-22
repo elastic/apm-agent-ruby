@@ -20,7 +20,6 @@ module ElasticAPM
 
         private
 
-        # rubocop:disable Metrics/MethodLength
         def build_request(request)
           return unless request
 
@@ -35,7 +34,6 @@ module ElasticAPM
             url: build_url(request.url)
           }
         end
-        # rubocop:enable Metrics/MethodLength
 
         def build_response(response)
           return unless response

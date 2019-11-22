@@ -29,8 +29,6 @@ module ElasticAPM
       end
 
       attr_reader :queue, :filters, :name, :connection, :serializers
-
-      # rubocop:disable Metrics/MethodLength
       def work_forever
         while (msg = queue.pop)
           case msg
@@ -46,7 +44,6 @@ module ElasticAPM
         warn 'Worker died with exception: %s', e.inspect
         debug e.backtrace.join("\n")
       end
-      # rubocop:enable Metrics/MethodLength
 
       def process(resource)
         return unless (json = serialize_and_filter(resource))

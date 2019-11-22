@@ -35,10 +35,10 @@ module ElasticAPM
       )
 
       def inspect
-        "<ElasticAPM::Error::Exception" \
+        '<ElasticAPM::Error::Exception' \
           " type:#{type}" \
           " message:#{message}" \
-          ">"
+          '>'
       end
 
       class << self

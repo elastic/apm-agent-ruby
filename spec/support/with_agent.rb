@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module WithAgent
-  # rubocop:disable Metrics/MethodLength
   def with_agent(klass: ElasticAPM, args: [], **config)
     unless @mock_intake || @intercepted
       raise 'Using with_agent but neither MockIntake nor Intercepted'
@@ -19,5 +18,4 @@ module WithAgent
 
     @central_config_stub = nil
   end
-  # rubocop:enable Metrics/MethodLength
 end

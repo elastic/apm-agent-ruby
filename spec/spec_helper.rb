@@ -45,11 +45,11 @@ module RailsTestHelpers
         config.elastic_apm.api_request_time = '200ms'
         config.elastic_apm.disable_start_message = true
 
+        return unless defined?(ActionView::Railtie::NULL_OPTION)
+
         # Silence deprecation warning
-        if defined?(ActionView::Railtie::NULL_OPTION)
-          config.action_view.finalize_compiled_template_methods =
-            ActionView::Railtie::NULL_OPTION
-        end
+        config.action_view.finalize_compiled_template_methods =
+          ActionView::Railtie::NULL_OPTION
       end
     end
   end

@@ -19,7 +19,6 @@ module ElasticAPM
         )
       end
 
-      # rubocop:disable Metrics/MethodLength
       def install
         require 'sequel/database/logging'
 
@@ -39,7 +38,6 @@ module ElasticAPM
           end
         end
       end
-      # rubocop:enable Metrics/MethodLength
     end
 
     register 'Sequel', 'sequel', SequelSpy.new

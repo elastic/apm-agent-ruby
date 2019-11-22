@@ -10,7 +10,7 @@ module ElasticAPM
 
     DEFAULT_TYPE = 'custom'
 
-    # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
+    # rubocop:disable Metrics/ParameterLists
     def initialize(
       name:,
       transaction:,
@@ -39,7 +39,7 @@ module ElasticAPM
       @context = context || Span::Context.new
       @stacktrace_builder = stacktrace_builder
     end
-    # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
+    # rubocop:enable Metrics/ParameterLists
 
     def_delegators :@trace_context, :trace_id, :parent_id, :id
 

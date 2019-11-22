@@ -40,7 +40,7 @@ module ElasticAPM
           payload
         end
 
-        # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
+        # rubocop:disable Metrics/CyclomaticComplexity
         def strip_from!(obj)
           return unless obj && obj.is_a?(Hash)
 
@@ -59,7 +59,7 @@ module ElasticAPM
             end
           end
         end
-        # rubocop:enable Metrics/MethodLength, Metrics/CyclomaticComplexity
+        # rubocop:enable Metrics/CyclomaticComplexity
 
         def filter_key?(key)
           @key_filters.any? { |regex| key.match regex }

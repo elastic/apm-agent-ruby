@@ -5,7 +5,6 @@ module ElasticAPM
   module Spies
     # @api private
     class RakeSpy
-      # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
       def install
         ::Rake::Task.class_eval do
           alias execute_without_apm execute
@@ -38,7 +37,6 @@ module ElasticAPM
           end
         end
       end
-      # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
     end
     register 'Rake::Task', 'rake', RakeSpy.new
   end

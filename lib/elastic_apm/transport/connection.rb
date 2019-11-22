@@ -30,8 +30,6 @@ module ElasticAPM
       end
 
       attr_reader :http
-
-      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       def write(str)
         return false if @config.disable_send
 
@@ -57,7 +55,6 @@ module ElasticAPM
           flush(:connection_error)
         end
       end
-      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
       def flush(reason = :force)
         # Could happen from the timertask so we need to sync

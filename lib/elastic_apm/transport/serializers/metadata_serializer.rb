@@ -18,7 +18,6 @@ module ElasticAPM
 
         private
 
-        # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
         def build_service(service)
           {
             name: keyword_field(service.name),
@@ -42,7 +41,6 @@ module ElasticAPM
             }
           }
         end
-        # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
         def build_process(process)
           {

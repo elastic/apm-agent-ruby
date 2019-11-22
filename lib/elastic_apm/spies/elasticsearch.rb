@@ -7,8 +7,6 @@ module ElasticAPM
     class ElasticsearchSpy
       NAME_FORMAT = '%s %s'
       TYPE = 'db.elasticsearch'
-
-      # rubocop:disable Metrics/MethodLength
       def install
         ::Elasticsearch::Transport::Client.class_eval do
           alias perform_request_without_apm perform_request
@@ -24,7 +22,6 @@ module ElasticAPM
           end
         end
       end
-      # rubocop:enable Metrics/MethodLength
     end
 
     register(

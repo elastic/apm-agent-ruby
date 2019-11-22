@@ -20,7 +20,6 @@ module ElasticAPM
 
     private
 
-    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def apply_to_request(context, rack_env:, for_type:)
       req = rails_req?(rack_env) ? rack_env : Rack::Request.new(rack_env)
 
@@ -42,7 +41,6 @@ module ElasticAPM
 
       context
     end
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def should_capture_body?(for_type)
       option = config.capture_body

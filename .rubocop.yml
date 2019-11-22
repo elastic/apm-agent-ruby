@@ -30,13 +30,20 @@ Lint/HandleExceptions:
 Lint/NonLocalExitFromIterator:
   Enabled: false
 
-Metrics/BlockLength:
-  Exclude:
-    - 'spec/**/*.rb'
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
 
 Metrics/ModuleLength:
-  Exclude:
-    - 'spec/**/*.rb'
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
 
 Naming/PredicateName:
   Enabled: false

@@ -28,7 +28,7 @@ require 'elastic_apm/sinatra' if defined?(::Sinatra)
 require 'elastic_apm/grape' if defined?(::Grape)
 
 # ElasticAPM
-module ElasticAPM # rubocop:disable Metrics/ModuleLength
+module ElasticAPM
   class << self
     ### Life cycle
 
@@ -71,7 +71,6 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       agent&.current_span
     end
 
-    # rubocop:disable Metrics/AbcSize
     # Get a formatted string containing transaction, span, and trace ids.
     # If a block is provided, the ids are yielded.
     #
@@ -90,7 +89,6 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       ids << "trace.id=#{trace_id}" if trace_id
       ids.join(' ')
     end
-    # rubocop:enable Metrics/AbcSize
 
     # Start a new transaction
     #
@@ -122,7 +120,6 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       agent&.end_transaction(result)
     end
 
-    # rubocop:disable Metrics/MethodLength
     # Wrap a block in a Transaction, ending it after the block
     #
     # @param name [String] A description of the transaction, eg
@@ -158,9 +155,8 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
         end_transaction
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
-    # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
+    # rubocop:disable Metrics/ParameterLists
     # Start a new span
     #
     # @param name [String] A description of the span, eq `SELECT FROM "users"`
@@ -193,7 +189,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
         span.original_backtrace ||= caller
       end
     end
-    # rubocop:enable Metrics/MethodLength, Metrics/ParameterLists
+    # rubocop:enable Metrics/ParameterLists
 
     # Ends the current span
     #
@@ -202,7 +198,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
       agent&.end_span
     end
 
-    # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
+    # rubocop:disable Metrics/ParameterLists
     # Wrap a block in a Span, ending it after the block
     #
     # @param name [String] A description of the span, eq `SELECT FROM "users"`
@@ -243,7 +239,7 @@ module ElasticAPM # rubocop:disable Metrics/ModuleLength
         end_span
       end
     end
-    # rubocop:enable Metrics/MethodLength, Metrics/ParameterLists
+    # rubocop:enable Metrics/ParameterLists
 
     # Build a [Context] from a Rack `env`. The context may include information
     # about the request, response, current user and more

@@ -8,8 +8,6 @@ module ElasticAPM
       KEY = :__elastic_apm_net_http_disabled
       TYPE = 'ext'
       SUBTYPE = 'net_http'
-
-      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       class << self
         def disabled=(disabled)
           Thread.current[KEY] = disabled
@@ -62,7 +60,6 @@ module ElasticAPM
           end
         end
       end
-      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
     end
 
     register 'Net::HTTP', 'net/http', NetHTTPSpy.new

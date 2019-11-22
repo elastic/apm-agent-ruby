@@ -4,7 +4,7 @@ require 'elastic_apm/central_config/cache_control'
 
 module ElasticAPM
   # @api private
-  class CentralConfig # rubocop:disable Metrics/ClassLength
+  class CentralConfig
     include Logging
 
     # @api private
@@ -52,7 +52,6 @@ module ElasticAPM
         .rescue(&method(:handle_error))
     end
 
-    # rubocop:disable Metrics/MethodLength
     def fetch_config
       resp = perform_request
 
@@ -67,7 +66,6 @@ module ElasticAPM
         raise ServerError, resp
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def assign(update)
       # For each updated option, store the original value,
@@ -92,7 +90,6 @@ module ElasticAPM
       @config = config.dup.tap { |new_config| new_config.assign(new_options) }
     end
 
-    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def handle_success(resp)
       if (etag = resp.headers['Etag'])
@@ -121,7 +118,6 @@ module ElasticAPM
       debug { e.backtrace.join('\n') }
     end
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def handle_error(error)
       debug(

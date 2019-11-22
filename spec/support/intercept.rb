@@ -10,8 +10,6 @@ RSpec.configure do |config|
     end
 
     attr_reader :transactions, :spans, :errors, :metricsets
-
-    # rubocop:disable Metrics/MethodLength
     def submit(obj)
       case obj
       when ElasticAPM::Transaction
@@ -26,7 +24,6 @@ RSpec.configure do |config|
 
       true
     end
-    # rubocop:enable Metrics/MethodLength
 
     def start; end
 

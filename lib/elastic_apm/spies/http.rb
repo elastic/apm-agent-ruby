@@ -7,8 +7,6 @@ module ElasticAPM
     class HTTPSpy
       TYPE = 'ext'
       SUBTYPE = 'http_rb'
-
-      # rubocop:disable Metrics/MethodLength
       def install
         ::HTTP::Client.class_eval do
           alias perform_without_apm perform
@@ -36,7 +34,6 @@ module ElasticAPM
           end
         end
       end
-      # rubocop:enable Metrics/MethodLength
     end
 
     register 'HTTP', 'http', HTTPSpy.new

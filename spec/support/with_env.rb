@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module WithEnv
-  # rubocop:disable Metrics/MethodLength
   def with_env(env)
     current_values = env.keys.each_with_object({}) do |(key, value), current|
       current[key] = ENV.key?(key) ? ENV[value] : :__missing
@@ -20,7 +19,6 @@ module WithEnv
       end
     end
   end
-  # rubocop:enable Metrics/MethodLength
 end
 
 RSpec.configure do |config|

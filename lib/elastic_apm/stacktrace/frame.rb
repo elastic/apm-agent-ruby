@@ -21,8 +21,6 @@ module ElasticAPM
         :module,
         :colno
       )
-
-      # rubocop:disable Metrics/AbcSize
       def build_context(context_line_count)
         return unless abs_path && context_line_count > 0
 
@@ -38,7 +36,6 @@ module ElasticAPM
         self.pre_context  = file_lines.first(padding)
         self.post_context = file_lines.last(padding)
       end
-      # rubocop:enable Metrics/AbcSize
 
       private
 

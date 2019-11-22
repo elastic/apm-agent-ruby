@@ -55,8 +55,6 @@ module ElasticAPM
         end
 
         attr_reader :transaction, :span, :error, :metadata, :metricset
-
-        # rubocop:disable Metrics/MethodLength
         def serialize(resource)
           case resource
           when Transaction
@@ -73,7 +71,6 @@ module ElasticAPM
             raise UnrecognizedResource, resource.inspect
           end
         end
-        # rubocop:enable Metrics/MethodLength
       end
 
       def self.new(config)

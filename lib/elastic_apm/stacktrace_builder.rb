@@ -31,7 +31,6 @@ module ElasticAPM
 
     private
 
-    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def build_frame(cache, keys)
       line, type = keys
       abs_path, lineno, function, _module_name = parse_line(line)
@@ -49,7 +48,6 @@ module ElasticAPM
 
       cache[[line, type]] = frame
     end
-    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
     def parse_line(line)
       ruby_match = line.match(RUBY_FORMAT)

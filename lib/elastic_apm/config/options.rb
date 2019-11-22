@@ -33,7 +33,7 @@ module ElasticAPM
 
         private
 
-        # rubocop:disable Metrics/CyclomaticComplexity, Metrics/MethodLength
+        # rubocop:disable Metrics/CyclomaticComplexity
         def normalize(val)
           return unless val
 
@@ -54,7 +54,7 @@ module ElasticAPM
             val
           end
         end
-        # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
+        # rubocop:enable Metrics/CyclomaticComplexity
 
         def normalize_bool(val)
           return val unless val.is_a?(String)
@@ -97,7 +97,6 @@ module ElasticAPM
           end]
         end
 
-        # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
         def method_missing(name, *value)
           name_str = name.to_s
 
@@ -116,7 +115,6 @@ module ElasticAPM
             super
           end
         end
-        # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
         def [](key)
           options[key]

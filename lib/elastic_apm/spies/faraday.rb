@@ -16,8 +16,7 @@ module ElasticAPM
         end
       end
 
-      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
-      # rubocop:disable Metrics/BlockLength, Metrics/PerceivedComplexity
+      # rubocop:disable Metrics/PerceivedComplexity
       # rubocop:disable Metrics/CyclomaticComplexity
       def install
         ::Faraday::Connection.class_eval do
@@ -61,8 +60,7 @@ module ElasticAPM
         end
       end
       # rubocop:enable Metrics/CyclomaticComplexity
-      # rubocop:enable Metrics/BlockLength, Metrics/PerceivedComplexity
-      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+      # rubocop:enable Metrics/PerceivedComplexity
     end
 
     register 'Faraday', 'faraday', FaradaySpy.new

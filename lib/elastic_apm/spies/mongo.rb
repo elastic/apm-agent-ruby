@@ -36,7 +36,6 @@ module ElasticAPM
 
         private
 
-        # rubocop:disable Metrics/MethodLength
         def push_event(event)
           return unless ElasticAPM.current_transaction
           # Some MongoDB commands are not on collections but rather are db
@@ -60,7 +59,6 @@ module ElasticAPM
 
           @events[event.operation_id] = span
         end
-        # rubocop:enable Metrics/MethodLength
 
         def pop_event(event)
           return unless (curr = ElasticAPM.current_span)

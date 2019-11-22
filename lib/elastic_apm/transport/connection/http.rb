@@ -85,7 +85,6 @@ module ElasticAPM
           format('[THREAD:%s]', Thread.current.object_id)
         end
 
-        # rubocop:disable Metrics/MethodLength
         def open_request_in_thread(url)
           debug '%s: Opening new request', thread_str
           Thread.new do
@@ -104,7 +103,6 @@ module ElasticAPM
             end
           end
         end
-        # rubocop:enable Metrics/MethodLength
 
         def build_client
           client = HTTP.headers(@headers)

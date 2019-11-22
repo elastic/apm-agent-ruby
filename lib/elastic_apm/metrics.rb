@@ -23,8 +23,6 @@ module ElasticAPM
       end
 
       attr_reader :config, :sets, :callback
-
-      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       def start
         unless config.collect_metrics?
           debug 'Skipping metrics'
@@ -61,7 +59,6 @@ module ElasticAPM
 
         @running = true
       end
-      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
       def stop
         return unless running?

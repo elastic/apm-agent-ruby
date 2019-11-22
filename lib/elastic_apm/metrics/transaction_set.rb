@@ -7,5 +7,3 @@ module ElasticAPM
     end
   end
 end
-
-
