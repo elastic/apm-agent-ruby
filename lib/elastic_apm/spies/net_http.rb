@@ -40,7 +40,7 @@ module ElasticAPM
               return request_without_apm(req, body, &block)
             end
 
-            host, = req['host'] && req['host'].split(':')
+            host, = req['host']&.split(':')
             method = req.method
 
             host ||= address

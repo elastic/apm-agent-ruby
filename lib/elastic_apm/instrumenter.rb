@@ -60,7 +60,7 @@ module ElasticAPM
       self.current_transaction = nil
       current_spans.pop until current_spans.empty?
 
-      @subscriber.unregister! if @subscriber
+      @subscriber&.unregister!
     end
 
     def subscriber=(subscriber)

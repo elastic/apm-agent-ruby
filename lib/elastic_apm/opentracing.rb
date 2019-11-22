@@ -238,7 +238,6 @@ module ElasticAPM
 
         if span_context
           trace_context =
-            span_context &&
             span_context.respond_to?(:trace_context) &&
             span_context.trace_context
         end

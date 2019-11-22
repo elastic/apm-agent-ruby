@@ -211,7 +211,7 @@ module ElasticAPM
 
       stub_request(:get, url).tap do |stub|
         stub.with(request) if request.any?
-        stub.to_return(body: body && body.to_json, **response)
+        stub.to_return(body: body&.to_json, **response)
       end
     end
   end
