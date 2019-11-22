@@ -261,8 +261,6 @@ module ElasticAPM
         :'span.self_time.count',
         tags: span_tags, reset_on_collect: true
       ).inc!
-    rescue => ex
-      puts "Error in Instrumenter#update_transaction_metrics #{ex.inspect}"
     end
 
     def update_span_metrics(span)
@@ -285,8 +283,6 @@ module ElasticAPM
         :'span.self_time.count',
         tags: tags, reset_on_collect: true
       ).inc!
-    rescue => ex
-      puts "Error in Instrumenter#update_span_metrics #{ex.inspect}"
     end
   end
 end

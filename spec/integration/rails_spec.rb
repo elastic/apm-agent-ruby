@@ -14,7 +14,7 @@ if enabled
 
   RSpec.describe 'Rails integration' do
     include Rack::Test::Methods
-    include_context 'request_parser'
+    include_context 'event_collector'
 
     let(:app) do
       Rails.application
@@ -106,8 +106,8 @@ if enabled
 
       class TestAdapter < ElasticAPM::Transport::Connection
         def write(payload)
-          RequestParser.catalog(JSON.parse(@metadata))
-          RequestParser.catalog JSON.parse(payload)
+          EventCollector.catalog(JSON.parse(@metadata))
+          EventCollector.catalog JSON.parse(payload)
         end
       end
 
@@ -128,13 +128,13 @@ if enabled
       it 'includes Rails info' do
         responses = Array.new(10).map { get '/' }
 
-        RequestParser.wait_for transactions: 10, spans: 20, timeout: 10
+        EventCollector.wait_for transactions: 10, spans: 20, timeout: 10
 
         expect(responses.last.body).to eq 'Yes!'
-        expect(RequestParser.metadatas.length >= 1).to be true
-        expect(RequestParser.transactions.length).to be 10
+        expect(EventCollector.metadatas.length >= 1).to be true
+        expect(EventCollector.transactions.length).to be 10
 
-        service = RequestParser.metadatas.fetch(0)['service']
+        service = EventCollector.metadatas.fetch(0)['service']
         expect(service['name']).to eq 'RailsTestApp'
         expect(service['framework']['name']).to eq 'Ruby on Rails'
         expect(service['framework']['version'])
@@ -154,9 +154,9 @@ if enabled
         it 'spans action and posts it' do
           get '/'
 
-          RequestParser.wait_for transactions: 1, spans: 2
+          EventCollector.wait_for transactions: 1, spans: 2
 
-          name = RequestParser.transactions.fetch(0)['name']
+          name = EventCollector.transactions.fetch(0)['name']
           expect(name).to eq 'ApplicationController#index'
         end
       end
@@ -165,9 +165,9 @@ if enabled
         it 'sets the values' do
           get '/tags_and_context'
 
-          RequestParser.wait_for transactions: 1, spans: 2
+          EventCollector.wait_for transactions: 1, spans: 2
 
-          context = RequestParser.transactions.fetch(0)['context']
+          context = EventCollector.transactions.fetch(0)['context']
           expect(context['tags']).to eq('things' => 1)
           expect(context['custom']).to eq('nested' => {'banana' => 'explosion'})
         end
@@ -177,9 +177,9 @@ if enabled
         it 'includes the info in transactions' do
           get '/'
 
-          RequestParser.wait_for transactions: 1, spans: 2
+          EventCollector.wait_for transactions: 1, spans: 2
 
-          context = RequestParser.transactions.fetch(0)['context']
+          context = EventCollector.transactions.fetch(0)['context']
           user = context['user']
           expect(user['id']).to eq '1'
           expect(user['email']).to eq 'person@example.com'
@@ -191,9 +191,9 @@ if enabled
           get '/ping'
           get '/'
 
-          RequestParser.wait_for transactions: 1, spans: 2
+          EventCollector.wait_for transactions: 1, spans: 2
 
-          name = RequestParser.transactions.fetch(0)['name']
+          name = EventCollector.transactions.fetch(0)['name']
           expect(name).to eq 'ApplicationController#index'
         end
       end
@@ -202,13 +202,13 @@ if enabled
         it 'filters the data and does not alter the original' do
           resp = post '/', access_token: 'abc123'
 
-          RequestParser.wait_for transactions: 1, spans: 1
+          EventCollector.wait_for transactions: 1, spans: 1
 
           expect(resp.body).to eq("HTTP Basic: Access denied.\n")
           expect(resp.original_headers['WWW-Authenticate']).to_not be nil
           expect(resp.original_headers['WWW-Authenticate']).to_not eq '[FILTERED]'
 
-          transaction, = RequestParser.transactions
+          transaction, = EventCollector.transactions
 
           body = transaction.dig('context', 'request', 'body')
           expect(body['access_token']).to eq '[FILTERED]'
@@ -222,17 +222,17 @@ if enabled
         it 'validates the schema', type: :json_schema do
           get '/'
 
-          RequestParser.wait_for transactions: 1
+          EventCollector.wait_for transactions: 1
 
-          metadata = RequestParser.metadatas.fetch(0)
+          metadata = EventCollector.metadatas.fetch(0)
           expect(metadata).to match_json_schema(:metadatas),
                               metadata.inspect
 
-          transaction = RequestParser.transactions.fetch(0)
+          transaction = EventCollector.transactions.fetch(0)
           expect(transaction).to match_json_schema(:transactions),
                                  transaction.inspect
 
-          span = RequestParser.spans.fetch(0)
+          span = EventCollector.spans.fetch(0)
           expect(span).to match_json_schema(:spans),
                           span.inspect
         end
@@ -244,11 +244,11 @@ if enabled
         it 'creates an error and transaction event' do
           response = get '/error'
 
-          RequestParser.wait_for transactions: 1, errors: 1, spans: 1
+          EventCollector.wait_for transactions: 1, errors: 1, spans: 1
 
           expect(response.status).to be 500
 
-          error = RequestParser.errors.fetch(0)
+          error = EventCollector.errors.fetch(0)
           expect(error['transaction_id']).to_not be_nil
           expect(error['transaction']['sampled']).to be true
           expect(error['context']).to_not be nil
@@ -263,9 +263,9 @@ if enabled
         it 'validates the schema' do
           get '/error'
 
-          RequestParser.wait_for transactions: 1, errors: 1
+          EventCollector.wait_for transactions: 1, errors: 1
 
-          payload = RequestParser.errors.fetch(0)
+          payload = EventCollector.errors.fetch(0)
           expect(payload).to match_json_schema(:errors),
                              payload.inspect
         end
@@ -275,9 +275,9 @@ if enabled
         it 'sends the message' do
           get '/report_message'
 
-          RequestParser.wait_for transactions: 1, errors: 1, spans: 2
+          EventCollector.wait_for transactions: 1, errors: 1, spans: 2
 
-          error, = RequestParser.errors
+          error, = EventCollector.errors
           expect(error['log']).to be_a Hash
         end
       end
@@ -287,12 +287,12 @@ if enabled
           it 'spans the mail' do
             get '/send_notification'
 
-            RequestParser.wait_for transactions: 1, spans: 3
+            EventCollector.wait_for transactions: 1, spans: 3
 
-            transaction, = RequestParser.transactions
+            transaction, = EventCollector.transactions
             expect(transaction['name'])
                 .to eq 'ApplicationController#send_notification'
-            span = RequestParser.spans.find do |payload|
+            span = EventCollector.spans.find do |payload|
               payload['name'] == 'NotificationsMailer#ping'
             end
             expect(span).to_not be_nil
@@ -303,37 +303,17 @@ if enabled
 
     describe 'metrics' do
       context 'when metrics are collected', :allow_running_agent do
-        after do |example|
-          if example.exception
-            puts "RequestParser:"
-            pp RequestParser.instance.inspect
-            sleep(10)
-            puts "RequestParser after 10 seconds"
-            pp RequestParser.instance.inspect
-          end
-        end
         it 'sends them' do
           get '/'
 
-          RequestParser.wait_for transactions: 1, spans: 2
-          RequestParser.wait_for { |parser| parser.transaction_metrics.count >= 2 }
-          RequestParser.wait_for { |parser| parser.span_metrics.count >= 3 }
+          EventCollector.wait_for transactions: 1, spans: 2
+          EventCollector.wait_for { |parser| parser.transaction_metrics.count >= 2 }
+          EventCollector.wait_for { |parser| parser.span_metrics.count >= 3 }
 
           transaction_keys_counts =
-              RequestParser.transaction_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
+              EventCollector.transaction_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
                 keys[set['samples'].keys] += 1
               end
-
-          unless transaction_keys_counts[
-              %w[transaction.duration.sum.us transaction.duration.count]
-          ] >= 100
-
-            puts "transaction keys counts"
-            puts transaction_keys_counts
-            puts "all of RequestParser"
-            puts RequestParser.instance.inspect
-          end
-
 
           expect(transaction_keys_counts[
                      %w[transaction.duration.sum.us transaction.duration.count]
@@ -341,7 +321,7 @@ if enabled
           expect(transaction_keys_counts[%w[transaction.breakdown.count]]).to be >= 1
 
           span_keys_counts =
-              RequestParser.span_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
+              EventCollector.span_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
                 keys[set['samples'].keys] += 1
               end
 

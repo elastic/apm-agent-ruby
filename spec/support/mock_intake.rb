@@ -184,7 +184,7 @@ RSpec.configure do |config|
   config.include MockIntake::WaitFor, :mock_intake
 end
 
-class RequestParser
+class EventCollector
   class << self
     def method_missing(name, *args, &block)
       instance.send(name, *args, &block)
@@ -228,6 +228,14 @@ class RequestParser
     @transactions = []
   end
 
+  def transaction_metrics
+    metricsets.select { |set| set['transaction'] && !set['span'] }
+  end
+
+  def span_metrics
+    metricsets.select { |set| set['transaction'] && set['span'] }
+  end
+
   def wait_for(timeout: 5, **expected)
 
     if expected.empty? && !block_given?
@@ -267,14 +275,6 @@ class RequestParser
     raise
   end
 
-  def transaction_metrics
-    metricsets.select { |set| set['transaction'] && !set['span'] }
-  end
-
-  def span_metrics
-    metricsets.select { |set| set['transaction'] && set['span'] }
-  end
-
   private
 
   def print_received
@@ -288,11 +288,11 @@ class RequestParser
   end
 end
 
-shared_context 'request_parser' do
+shared_context 'event_collector' do
   before do
-    RequestParser.clear!
+    EventCollector.clear!
   end
   after do
-    RequestParser.clear!
+    EventCollector.clear!
   end
 end
