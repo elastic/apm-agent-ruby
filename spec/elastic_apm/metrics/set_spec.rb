@@ -51,6 +51,14 @@ module ElasticAPM
           expect(subject.metrics.length).to be 4
           expect(subject.metrics.values.last).to be NOOP
         end
+
+        context 'with disabled metrics' do
+          let(:config) { Config.new(disable_metrics: 'abc.*') }
+
+          it 'returns noop metric for matches' do
+            expect(subject.counter('abc.def')).to be Metrics::NOOP
+          end
+        end
       end
 
       describe 'collect' do

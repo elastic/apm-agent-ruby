@@ -4,6 +4,7 @@ require 'elastic_apm/config/options'
 require 'elastic_apm/config/duration'
 require 'elastic_apm/config/bytes'
 require 'elastic_apm/config/regexp_list'
+require 'elastic_apm/config/wildcard_pattern_list'
 
 module ElasticAPM
   # rubocop:disable Metrics/ClassLength
@@ -33,6 +34,7 @@ module ElasticAPM
     option :custom_key_filters,                type: :list,   default: [],      converter: RegexpList.new
     option :default_tags,                      type: :dict,   default: {}
     option :default_labels,                    type: :dict,   default: {}
+    option :disable_metrics,                   type: :list,   default: [],      converter: WildcardPatternList.new
     option :disable_send,                      type: :bool,   default: false
     option :disable_start_message,             type: :bool,   default: false
     option :disabled_instrumentations,         type: :list,   default: %w[json]

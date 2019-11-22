@@ -36,6 +36,11 @@ endif::[]
 ==== Unreleased
 
 [float]
+===== Added
+
+- Add option `disable_metrics` {pull}625[#625]
+
+[float]
 ===== Fixed
 
 - Make Filters thread-safe {pull}624[#624]
