@@ -4,8 +4,11 @@ on: [push]
 
 jobs:
   build:
+    name: Rubocop
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - name: Rubocop checks
       uses: gimenete/rubocop-action@0.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
