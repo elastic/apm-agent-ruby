@@ -324,6 +324,17 @@ if enabled
                 keys[set['samples'].keys] += 1
               end
 
+          unless transaction_keys_counts[
+              %w[transaction.duration.sum.us transaction.duration.count]
+          ] >= 100
+
+            puts "transaction keys counts"
+            puts transaction_keys_counts
+            puts "all of RequestParser"
+            puts RequestParser.instance.inspect
+          end
+
+
           expect(transaction_keys_counts[
                      %w[transaction.duration.sum.us transaction.duration.count]
                  ]).to be >= 1

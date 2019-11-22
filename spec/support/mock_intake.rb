@@ -267,6 +267,16 @@ class RequestParser
     raise
   end
 
+  def transaction_metrics
+    metricsets.select { |set| set['transaction'] && !set['span'] }
+  end
+
+  def span_metrics
+    metricsets.select { |set| set['transaction'] && set['span'] }
+  end
+
+  private
+
   def print_received
     pp(
         transactions: transactions.map { |o| o['name'] },
