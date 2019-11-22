@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
+    - run: "gem install rubocop-performance"
     - name: Rubocop checks
       uses: gimenete/rubocop-action@1.0
       env:
