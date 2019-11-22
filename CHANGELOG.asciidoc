@@ -31,6 +31,15 @@ endif::[]
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
+[float]
+[[unreleased]]
+==== Unreleased
+
+[float]
+===== Fixed
+
+- Make Filters thread-safe {pull}624[#624]
+
 [[release-notes-3.2.0]]
 ==== 3.2.0 (2019-11-19)
 

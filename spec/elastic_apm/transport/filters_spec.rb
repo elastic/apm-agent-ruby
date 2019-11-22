@@ -44,6 +44,23 @@ module ElasticAPM
           expect(untouched).to_not have_received(:call)
         end
       end
+
+      describe 'from multiple threads' do
+        it "doesn't complain" do
+          threads =
+            (0...100).map do |i|
+              Thread.new do
+                if i.even?
+                  subject.apply!(payload: i)
+                else
+                  subject.add :"filter_#{i}", ->(_) { '' }
+                end
+              end
+            end
+
+          threads.each(&:join)
+        end
+      end
     end
   end
 end
