@@ -11,6 +11,7 @@ gem 'rack-test'
 gem 'rspec', '~> 3'
 gem 'rspec-its'
 gem 'rubocop', require: nil
+gem 'rubocop-performance', require: nil
 gem 'timecop'
 gem 'webmock'
 

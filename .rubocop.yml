@@ -5,6 +5,9 @@ AllCops:
     - 'vendor/**/*'
     - 'bench/*'
 
+require:
+  - rubocop-performance
+
 # Layout/
 
 Layout/AlignArguments:
