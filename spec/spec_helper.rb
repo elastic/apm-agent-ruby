@@ -114,3 +114,15 @@ RSpec.configure do |config|
     puts SpecLogger.read
   end
 end
+
+RSpec.shared_context 'stubbed_central_config' do
+  before(:all) do
+    WebMock.stub_request(
+        :get, %r{^http://localhost:8200/config/v1/agents/?$}
+    ).to_return(body: '{}')
+  end
+
+  after(:all) do
+    WebMock.reset!
+  end
+end
