@@ -3,7 +3,6 @@
 if defined?(Grape)
   RSpec.describe Grape do
     describe '.start' do
-
       before(:all) do
         class GrapeTestApp < ::Grape::API
           use ElasticAPM::Middleware
