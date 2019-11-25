@@ -149,7 +149,7 @@ module ElasticAPM
       { 'Etag': @etag }
     end
 
-    def schedule_next_fetch(resp=nil)
+    def schedule_next_fetch(resp = nil)
       headers = resp ? resp.headers : {}
       seconds =
         if (cache_header = headers['Cache-Control'])
