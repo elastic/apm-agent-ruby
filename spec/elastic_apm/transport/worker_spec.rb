@@ -59,7 +59,7 @@ module ElasticAPM
           expect(subject.filters).to receive(:apply!)
 
           queue.push Transaction.new config: config
-          Thread.new { subject.work_forever }.join 0.1
+          Thread.new { subject.work_forever }.join 0.2
 
           expect(subject.connection.calls.length).to be 1
         end
@@ -81,7 +81,7 @@ module ElasticAPM
           it 'applies filters, writes resources to the connection' do
             queue.push Transaction.new config: config
 
-            Thread.new { subject.work_forever }.join 0.1
+            Thread.new { subject.work_forever }.join 0.2
 
             expect(subject.connection.calls.length).to be 0
           end
