@@ -48,7 +48,7 @@ if enabled
         end
 
         http_basic_authenticate_with(
-            name: 'dhh', password: 'secret123', only: [:create]
+          name: 'dhh', password: 'secret123', only: [:create]
         )
 
         def index
