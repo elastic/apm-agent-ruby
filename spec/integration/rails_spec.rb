@@ -121,6 +121,7 @@ if enabled
         get '/error', to: 'application#raise_error'
         get '/report_message', to: 'application#report_message'
         get '/send_notification', to: 'application#send_notification'
+        get '/ping', to: 'application#ping'
       end
     end
 
