@@ -24,8 +24,7 @@ module ElasticAPM
         config,
         queue,
         serializers:,
-        filters:,
-        conn_adapter: nil
+        filters:
       )
         @config = config
         @queue = queue
@@ -33,7 +32,7 @@ module ElasticAPM
         @serializers = serializers
         @filters = filters
 
-        @connection = (conn_adapter || self.class.adapter).new(config)
+        @connection = self.class.adapter.new(config)
       end
 
       attr_reader :queue, :filters, :name, :connection, :serializers

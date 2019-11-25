@@ -39,13 +39,19 @@ module ElasticAPM
           def flush; end
         end
 
+        around do |example|
+          original_adapter = described_class.adapter
+          described_class.adapter = MockConnection
+          example.run
+          described_class.adapter = original_adapter
+        end
+
         subject do
           described_class.new(
             config,
             queue,
             serializers: serializers,
-            filters: filters,
-            conn_adapter: MockConnection
+            filters: filters
           )
         end
 
