@@ -11,7 +11,8 @@ end
 if enabled
   require 'action_controller/railtie'
 
-  RSpec.describe 'Rails and Grape integration', :mock_intake,
+  RSpec.describe 'Rails and Grape integration',
+    :mock_intake, :allow_running_agent do
     :allow_running_agent do
     include Rack::Test::Methods
 
