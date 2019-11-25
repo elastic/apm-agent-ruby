@@ -185,6 +185,13 @@ RSpec.configure do |config|
 end
 
 class EventCollector
+  class TestAdapter < ElasticAPM::Transport::Connection
+    def write(payload)
+      EventCollector.catalog(JSON.parse(@metadata))
+      EventCollector.catalog JSON.parse(payload)
+    end
+  end
+
   class << self
     def method_missing(name, *args, &block)
       instance.send(name, *args, &block)

@@ -104,14 +104,7 @@ if enabled
         end
       end
 
-      class TestAdapter < ElasticAPM::Transport::Connection
-        def write(payload)
-          EventCollector.catalog(JSON.parse(@metadata))
-          EventCollector.catalog JSON.parse(payload)
-        end
-      end
-
-      ElasticAPM::Transport::Worker.adapter = TestAdapter
+      ElasticAPM::Transport::Worker.adapter = EventCollector::TestAdapter
 
       RailsTestApp::Application.initialize!
       RailsTestApp::Application.routes.draw do
