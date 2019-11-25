@@ -13,7 +13,6 @@ if enabled
 
   RSpec.describe 'Rails and Grape integration',
     :mock_intake, :allow_running_agent do
-    :allow_running_agent do
     include Rack::Test::Methods
 
     def app
