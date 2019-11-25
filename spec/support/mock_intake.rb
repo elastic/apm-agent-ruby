@@ -229,11 +229,19 @@ class EventCollector
   end
 
   def transaction_metrics
-    metricsets.select { |set| set['transaction'] && !set['span'] }
+    metrics = metricsets.select { |set| set && set['transaction'] && !set['span'] }
+    if metrics.empty?
+      puts metricsets
+    end
+    metrics
   end
 
   def span_metrics
-    metricsets.select { |set| set['transaction'] && set['span'] }
+    metrics = metricsets.select { |set| set && set['transaction'] && set['span'] }
+    if metrics.empty?
+      puts metricsets
+    end
+    metrics
   end
 
   def wait_for(timeout: 5, **expected)
