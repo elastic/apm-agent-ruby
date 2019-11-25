@@ -12,7 +12,7 @@ if enabled
   require 'action_controller/railtie'
   require 'action_mailer/railtie'
 
-  RSpec.describe 'Rails integration' do
+  RSpec.describe 'Rails integration', :allow_running_agent do
     include Rack::Test::Methods
     include_context 'event_collector'
 
@@ -125,7 +125,7 @@ if enabled
       end
     end
 
-    context 'Service metadata', :allow_running_agent do
+    context 'Service metadata' do
       it 'includes Rails info' do
         responses = Array.new(10).map { get '/' }
 
@@ -143,7 +143,7 @@ if enabled
       end
     end
 
-    context 'log path', :allow_running_agent do
+    context 'log path' do
       it 'prepends Rails.root to log_path' do
         final_log_path = ElasticAPM.agent.config.log_path.to_s
         expect(final_log_path).to eq "#{Rails.root}/spec/elastic_apm.log"
@@ -151,7 +151,7 @@ if enabled
     end
 
     describe 'transactions' do
-      context 'when a simple request is made', :allow_running_agent do
+      context 'when a simple request is made' do
         it 'spans action and posts it' do
           get '/'
 
@@ -162,7 +162,7 @@ if enabled
         end
       end
 
-      context 'when tags and context are set', :allow_running_agent do
+      context 'when tags and context are set' do
         it 'sets the values' do
           get '/tags_and_context'
 
@@ -174,7 +174,7 @@ if enabled
         end
       end
 
-      context 'when there is user information', :allow_running_agent do
+      context 'when there is user information' do
         it 'includes the info in transactions' do
           get '/'
 
@@ -187,7 +187,7 @@ if enabled
         end
       end
 
-      context 'when there are ignored url patterns defined', :allow_running_agent do
+      context 'when there are ignored url patterns defined' do
         it 'does not create events for the patterns' do
           get '/ping'
           get '/'
@@ -199,7 +199,7 @@ if enabled
         end
       end
 
-      context 'when there is sensitive data', :allow_running_agent do
+      context 'when there is sensitive data' do
         it 'filters the data and does not alter the original' do
           resp = post '/', access_token: 'abc123'
 
@@ -219,7 +219,7 @@ if enabled
         end
       end
 
-      context 'when json', :allow_running_agent do
+      context 'when json' do
         it 'validates the schema', type: :json_schema do
           get '/'
 
@@ -241,7 +241,7 @@ if enabled
     end
 
     describe 'errors' do
-      context 'when there is an exception', :allow_running_agent do
+      context 'when there is an exception' do
         it 'creates an error and transaction event' do
           response = get '/error'
 
@@ -260,7 +260,7 @@ if enabled
         end
       end
 
-      context 'when json', :allow_running_agent do
+      context 'when json' do
         it 'validates the schema' do
           get '/error'
 
@@ -272,7 +272,7 @@ if enabled
         end
       end
 
-      context 'when a message is reported', :allow_running_agent do
+      context 'when a message is reported' do
         it 'sends the message' do
           get '/report_message'
 
@@ -284,7 +284,7 @@ if enabled
       end
 
       describe 'mailers' do
-        context 'when a mail is sent', :allow_running_agent do
+        context 'when a mail is sent' do
           it 'spans the mail' do
             get '/send_notification'
 
@@ -303,7 +303,7 @@ if enabled
     end
 
     describe 'metrics' do
-      context 'when metrics are collected', :allow_running_agent do
+      context 'when metrics are collected' do
         it 'sends them' do
           get '/'
 

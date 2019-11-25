@@ -260,12 +260,20 @@ class EventCollector
         next if missing > 0
 
         unless missing == 0
-          puts format(
-                   'Expected %s. Got %s',
-                   expected,
-                   missing
-               )
-          print_received
+          if missing < 0
+            puts format(
+                     'Expected %s. Got %s',
+                     expected,
+                     "#{missing.abs} extra"
+                 )
+          else
+            puts format(
+                     'Expected %s. Got %s',
+                     expected,
+                     "missing #{missing}"
+                 )
+            print_received
+          end
         end
 
         if block_given?
