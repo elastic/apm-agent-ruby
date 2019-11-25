@@ -307,7 +307,7 @@ if enabled
         it 'sends them' do
           get '/'
 
-          EventCollector.wait_for transactions: 1, spans: 2, metricsets: 8, timeout: 10
+          EventCollector.wait_for transactions: 1, spans: 2, metricsets: 5, timeout: 10
           EventCollector.wait_for { |parser| parser.transaction_metrics.count >= 2 }
           EventCollector.wait_for { |parser| parser.span_metrics.count >= 3 }
 
