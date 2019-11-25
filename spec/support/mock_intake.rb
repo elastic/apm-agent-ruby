@@ -237,7 +237,6 @@ class EventCollector
   end
 
   def wait_for(timeout: 5, **expected)
-
     if expected.empty? && !block_given?
       raise ArgumentError, 'Either args or block required'
     end
