@@ -45,7 +45,7 @@ module ElasticAPM
           format(
             '%s://%s@%s%s',
             uri.scheme,
-            uri.userinfo.split(':')[0], # username, no password
+            uri.user,
             uri.hostname,
             uri.path
           )
