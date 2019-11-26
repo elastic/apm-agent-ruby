@@ -28,7 +28,7 @@ USER_ID_GROUP = %w[u g].map { |f| `id -#{f}`.chomp }.join(':')
 RUBY_IMAGE = options.fetch(:image, 'ruby:latest')
 FRAMEWORKS = options.fetch(:frameworks, 'rails,sinatra,grape')
 
-IMAGE_PATH_SAFE = RUBY_IMAGE.gsub(':', '_')
+IMAGE_PATH_SAFE = RUBY_IMAGE.tr(':', '_')
 IMAGE_NAME = "apm-agent-ruby:#{IMAGE_PATH_SAFE}"
 VENDOR_PATH = "/vendor/#{IMAGE_PATH_SAFE}"
 

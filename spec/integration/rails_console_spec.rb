@@ -14,10 +14,10 @@ if defined?(Rails)
         config.logger = Logger.new(SpecLogger)
       end
 
-      class ApplicationController < ActionController::Base
-      end
-
-      class Rails::Console; end
+      # rubocop:disable Style/ClassAndModuleChildren
+      class ::ApplicationController < ActionController::Base; end
+      class ::Rails::Console; end
+      # rubocop:enable Style/ClassAndModuleChildren
 
       RailsConsoleTestApp.initialize!
     end

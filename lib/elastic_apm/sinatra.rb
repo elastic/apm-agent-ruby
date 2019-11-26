@@ -30,7 +30,7 @@ module ElasticAPM
     end
 
     def format_name(str)
-      str && str.gsub('::', '_')
+      str&.gsub('::', '_')
     end
   end
 end

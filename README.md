@@ -1,7 +1,7 @@
 # elastic-apm
 ## Elastic APM agent for Ruby
 
-[![Jenkins](https://apm-ci.elastic.co/buildStatus/icon?job=apm-agent-ruby/apm-agent-ruby-mbp/master)](https://apm-ci.elastic.co/job/apm-agent-ruby/job/apm-agent-ruby-mbp/job/master/) [![Gem](https://img.shields.io/gem/v/elastic-apm.svg)](https://rubygems.org/gems/elastic-apm) [![codecov](https://codecov.io/gh/elastic/apm-agent-ruby/branch/master/graph/badge.svg)](https://codecov.io/gh/elastic/apm-agent-ruby)
+[![Jenkins](https://apm-ci.elastic.co/buildStatus/icon?job=apm-agent-ruby/apm-agent-ruby-mbp/master)](https://apm-ci.elastic.co/job/apm-agent-ruby/job/apm-agent-ruby-mbp/job/master/) [![Gem](https://img.shields.io/gem/v/elastic-apm.svg)](https://rubygems.org/gems/elastic-apm)
 
 The official Rubygem for [Elastic][] [APM][].
 
@@ -48,7 +48,7 @@ $ bin/dev
 To pick a specific Ruby version, specify it with the `-i` flag:
 
 ```sh
-$ bin/dev -i jruby:9.2 
+$ bin/dev -i jruby:9.2
 ```
 
 If the first argument is a path starting with `spec/`, the passed specs will be run. Otherwise any arguments passed will be run as a command inside the container:

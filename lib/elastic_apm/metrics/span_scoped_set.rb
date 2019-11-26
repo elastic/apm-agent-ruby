@@ -6,7 +6,7 @@ module ElasticAPM
     class SpanScopedSet < Set
       def collect
         super.tap do |sets|
-          return unless sets
+          next unless sets
 
           sets.each do |set|
             move_transaction(set)

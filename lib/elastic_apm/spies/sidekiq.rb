@@ -10,7 +10,6 @@ module ElasticAPM
 
       # @api private
       class Middleware
-        # rubocop:disable Metrics/MethodLength
         def call(_worker, job, queue)
           name = SidekiqSpy.name_for(job)
           transaction = ElasticAPM.start_transaction(name, 'Sidekiq')
@@ -18,15 +17,14 @@ module ElasticAPM
 
           yield
 
-          transaction.done :success if transaction
+          transaction&.done :success
         rescue ::Exception => e
           ElasticAPM.report(e, handled: false)
-          transaction.done :error if transaction
+          transaction&.done :error
           raise
         ensure
           ElasticAPM.end_transaction
         end
-        # rubocop:enable Metrics/MethodLength
       end
 
       def self.name_for(job)
@@ -48,7 +46,6 @@ module ElasticAPM
         end
       end
 
-      # rubocop:disable Metrics/MethodLength
       def install_processor
         require 'sidekiq/processor'
 
@@ -76,7 +73,6 @@ module ElasticAPM
           end
         end
       end
-      # rubocop:enable Metrics/MethodLength
 
       def install
         install_processor

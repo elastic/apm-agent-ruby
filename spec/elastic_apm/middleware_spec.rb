@@ -104,7 +104,9 @@ module ElasticAPM
         it 'skips trace_context, makes new' do
           with_agent do
             app.call(
-              Rack::MockRequest.env_for('/', 'HTTP_ELASTIC_APM_TRACEPARENT' => '')
+              Rack::MockRequest.env_for(
+                '/', 'HTTP_ELASTIC_APM_TRACEPARENT' => ''
+              )
             )
           end
 

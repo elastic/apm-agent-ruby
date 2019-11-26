@@ -104,7 +104,6 @@ class MockIntake
     gz&.close
   end
 
-  # rubocop:disable Metrics/AbcSize
   def catalog(obj)
     case obj.keys.first
     when 'transaction' then transactions << obj.values.first
@@ -113,10 +112,8 @@ class MockIntake
     when 'metricset' then metricsets << obj.values.first
     end
   end
-  # rubocop:enable Metrics/AbcSize
 
   module WaitFor
-    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def wait_for(timeout: 5, **expected)
       if expected.empty? && !block_given?
@@ -160,7 +157,6 @@ class MockIntake
       raise
     end
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
     def print_received
       pp(

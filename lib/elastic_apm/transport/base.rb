@@ -13,7 +13,6 @@ require 'elastic_apm/util/throttle'
 
 module ElasticAPM
   module Transport
-    # rubocop:disable Metrics/ClassLength
     # @api private
     class Base
       include Logging
@@ -56,7 +55,6 @@ module ElasticAPM
         stop_workers
       end
 
-      # rubocop:disable Metrics/MethodLength
       def submit(resource)
         if @stopped.true?
           warn '%s: Transport stopping, no new events accepted', pid_str
@@ -75,7 +73,6 @@ module ElasticAPM
         error '%s: Failed adding to the transport queue: %p', pid_str, e.inspect
         nil
       end
-      # rubocop:enable Metrics/MethodLength
 
       def add_filter(key, callback)
         @filters.add(key, callback)
@@ -131,7 +128,6 @@ module ElasticAPM
         end
       end
 
-      # rubocop:disable Metrics/MethodLength
       def stop_workers
         debug '%s: Stopping workers', pid_str
 
@@ -152,7 +148,6 @@ module ElasticAPM
           @workers.clear
         end
       end
-      # rubocop:enable Metrics/MethodLength
 
       def send_stop_messages
         config.pool_size.times { queue.push(Worker::StopMessage.new, true) }
@@ -176,6 +171,5 @@ module ElasticAPM
         end).call
       end
     end
-    # rubocop:enable Metrics/ClassLength
   end
 end

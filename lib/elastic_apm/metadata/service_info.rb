@@ -17,8 +17,6 @@ module ElasticAPM
       class Framework < Versioned; end
       class Language < Versioned; end
       class Runtime < Versioned; end
-
-      # rubocop:disable Metrics/MethodLength
       def initialize(config)
         @config = config
 
@@ -33,14 +31,12 @@ module ElasticAPM
         @runtime = lookup_runtime
         @version = @config.service_version || Util.git_sha
       end
-      # rubocop:enable Metrics/MethodLength
 
       attr_reader :name, :environment, :agent, :framework, :language, :runtime,
         :version
 
       private
 
-      # rubocop:disable Metrics/MethodLength
       def lookup_runtime
         case RUBY_ENGINE
         when 'ruby'
@@ -55,7 +51,6 @@ module ElasticAPM
           )
         end
       end
-      # rubocop:enable Metrics/MethodLength
     end
   end
 end

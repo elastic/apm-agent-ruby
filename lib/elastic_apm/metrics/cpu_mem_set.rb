@@ -68,7 +68,6 @@ module ElasticAPM
         end
       end
 
-      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       def read!
         return if disabled?
 
@@ -91,7 +90,6 @@ module ElasticAPM
 
         @previous = current
       end
-      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
       def calculate_deltas(current, previous)
         system_cpu_total =
@@ -109,7 +107,6 @@ module ElasticAPM
 
       # @api private
       class Linux
-        # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
         def sample
           proc_stat = ProcStat.new.read!
           proc_self_stat = ProcSelfStat.new.read!
@@ -126,7 +123,6 @@ module ElasticAPM
             page_size: meminfo.page_size
           )
         end
-        # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
         # @api private
         class ProcStat
@@ -144,8 +140,6 @@ module ElasticAPM
             guest
             guest_nice
           ].freeze
-
-          # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
           def read!
             stat =
               IO.readlines('/proc/stat')
@@ -173,7 +167,6 @@ module ElasticAPM
 
             self
           end
-          # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
         end
 
         UTIME_POS = 13
@@ -204,8 +197,6 @@ module ElasticAPM
         # @api private
         class Meminfo
           attr_reader :total, :available, :page_size
-
-          # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
           # rubocop:disable Metrics/PerceivedComplexity
           # rubocop:disable Metrics/CyclomaticComplexity
           def read!
@@ -240,7 +231,6 @@ module ElasticAPM
           end
           # rubocop:enable Metrics/CyclomaticComplexity
           # rubocop:enable Metrics/PerceivedComplexity
-          # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
         end
       end
     end

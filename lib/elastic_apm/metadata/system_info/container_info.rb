@@ -34,7 +34,6 @@ module ElasticAPM
             end
         end
 
-        # rubocop:disable Metrics/MethodLength
         def kubernetes
           @kubernetes =
             begin
@@ -51,7 +50,6 @@ module ElasticAPM
               kubernetes
             end
         end
-        # rubocop:enable Metrics/MethodLength
 
         private
 
@@ -70,8 +68,8 @@ module ElasticAPM
         KUBEPODS_REGEX = %r{(?:^/kubepods/[^/]+/pod([^/]+)$)|(?:^/kubepods\.slice/kubepods-[^/]+\.slice/kubepods-[^/]+-pod([^/]+)\.slice$)}.freeze # rubocop:disable Metrics/LineLength
         SYSTEMD_SCOPE_SUFFIX = '.scope'
 
-        # rubocop:disable Metrics/MethodLength, Metrics/PerceivedComplexity
-        # rubocop:disable Metrics/CyclomaticComplexity, Metrics/AbcSize
+        # rubocop:disable Metrics/PerceivedComplexity
+        # rubocop:disable Metrics/CyclomaticComplexity
         def read_from_cgroup!
           return unless File.exist?(cgroup_path)
           IO.readlines(cgroup_path).each do |line|
@@ -113,8 +111,8 @@ module ElasticAPM
             end
           end
         end
-        # rubocop:enable Metrics/MethodLength, Metrics/PerceivedComplexity
-        # rubocop:enable Metrics/CyclomaticComplexity, Metrics/AbcSize
+        # rubocop:enable Metrics/PerceivedComplexity
+        # rubocop:enable Metrics/CyclomaticComplexity
       end
     end
   end

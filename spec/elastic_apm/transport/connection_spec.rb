@@ -218,8 +218,6 @@ module ElasticAPM
           end
         end
       end
-
-      # rubocop:disable Metrics/MethodLength
       def build_stub(body: nil, headers: {}, to_return: {}, status: 202, &block)
         opts = {
           headers: {
@@ -235,7 +233,6 @@ module ElasticAPM
           .with(**opts, &block)
           .to_return(to_return.merge(status: status) { |_, old, _| old })
       end
-      # rubocop:enable Metrics/MethodLength
 
       def gunzip(string)
         sio = StringIO.new(string)

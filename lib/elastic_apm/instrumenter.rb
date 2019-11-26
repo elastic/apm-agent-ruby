@@ -7,7 +7,6 @@ require 'elastic_apm/transaction'
 require 'elastic_apm/span_helpers'
 
 module ElasticAPM
-  # rubocop:disable Metrics/ClassLength
   # @api private
   class Instrumenter
     TRANSACTION_KEY = :__elastic_instrumenter_transaction_key
@@ -61,7 +60,7 @@ module ElasticAPM
       self.current_transaction = nil
       current_spans.pop until current_spans.empty?
 
-      @subscriber.unregister! if @subscriber
+      @subscriber&.unregister!
     end
 
     def subscriber=(subscriber)
@@ -80,7 +79,6 @@ module ElasticAPM
       @current.transaction = transaction
     end
 
-    # rubocop:disable Metrics/MethodLength
     def start_transaction(
       name = nil,
       type = nil,
@@ -112,7 +110,6 @@ module ElasticAPM
 
       self.current_transaction = transaction
     end
-    # rubocop:enable Metrics/MethodLength
 
     def end_transaction(result = nil)
       return nil unless (transaction = current_transaction)
@@ -138,8 +135,7 @@ module ElasticAPM
       current_spans.last
     end
 
-    # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/AbcSize, Metrics/PerceivedComplexity
+    # rubocop:disable Metrics/CyclomaticComplexity
     # rubocop:disable Metrics/ParameterLists
     def start_span(
       name,
@@ -183,8 +179,7 @@ module ElasticAPM
       span.start
     end
     # rubocop:enable Metrics/ParameterLists
-    # rubocop:enable Metrics/AbcSize, Metrics/PerceivedComplexity
-    # rubocop:enable Metrics/MethodLength, Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def end_span
       return unless (span = current_spans.pop)
@@ -229,7 +224,6 @@ module ElasticAPM
       rand <= config.transaction_sample_rate
     end
 
-    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def update_transaction_metrics(transaction)
       return unless transaction.config.collect_metrics?
 
@@ -268,9 +262,7 @@ module ElasticAPM
         tags: span_tags, reset_on_collect: true
       ).inc!
     end
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
-    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def update_span_metrics(span)
       return unless span.transaction.config.breakdown_metrics?
 
@@ -292,7 +284,5 @@ module ElasticAPM
         tags: tags, reset_on_collect: true
       ).inc!
     end
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
   end
-  # rubocop:enable Metrics/ClassLength
 end

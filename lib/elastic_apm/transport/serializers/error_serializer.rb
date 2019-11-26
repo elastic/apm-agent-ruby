@@ -9,7 +9,6 @@ module ElasticAPM
           @context_serializer ||= ContextSerializer.new(config)
         end
 
-        # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
         def build(error)
           base = {
             id: error.id,
@@ -36,7 +35,6 @@ module ElasticAPM
 
           { error: base }
         end
-        # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
         private
 

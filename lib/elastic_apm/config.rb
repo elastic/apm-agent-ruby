@@ -7,7 +7,6 @@ require 'elastic_apm/config/regexp_list'
 require 'elastic_apm/config/wildcard_pattern_list'
 
 module ElasticAPM
-  # rubocop:disable Metrics/ClassLength
   # @api private
   class Config
     extend Options
@@ -71,8 +70,6 @@ module ElasticAPM
     option :transaction_sample_rate,           type: :float,  default: 1.0
     option :verify_server_cert,                type: :bool,   default: true
     # rubocop:enable Metrics/LineLength, Layout/ExtraSpacing
-
-    # rubocop:disable Metrics/MethodLength
     def initialize(options = {})
       @options = load_schema
 
@@ -95,7 +92,6 @@ module ElasticAPM
       @__view_paths ||= []
       @__root_path ||= Dir.pwd
     end
-    # rubocop:enable Metrics/MethodLength
 
     attr_accessor :__view_paths, :__root_path
     attr_accessor :logger
@@ -107,7 +103,6 @@ module ElasticAPM
       update.each { |key, value| send(:"#{key}=", value) }
     end
 
-    # rubocop:disable Metrics/MethodLength
     def available_instrumentations
       %w[
         delayed_job
@@ -125,7 +120,6 @@ module ElasticAPM
         rake
       ]
     end
-    # rubocop:enable Metrics/MethodLength
 
     def enabled_instrumentations
       available_instrumentations - disabled_instrumentations
@@ -168,7 +162,6 @@ module ElasticAPM
       @span_frames_min_duration_us ||= span_frames_min_duration * 1_000_000
     end
 
-    # rubocop:disable Metrics/MethodLength
     def ssl_context
       return unless use_ssl?
 
@@ -189,7 +182,6 @@ module ElasticAPM
             end
         end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def inspect
       super.split.first + '>'
@@ -237,7 +229,7 @@ module ElasticAPM
       self.__root_path = Dir.pwd
     end
 
-    def set_rails(app) # rubocop:disable Metrics/AbcSize
+    def set_rails(app)
       self.service_name ||= format_name(service_name || rails_app_name(app))
       self.framework_name ||= 'Ruby on Rails'
       self.framework_version ||= ::Rails::VERSION::STRING
@@ -256,8 +248,7 @@ module ElasticAPM
     end
 
     def format_name(str)
-      str && str.gsub('::', '_')
+      str&.gsub('::', '_')
     end
   end
-  # rubocop:enable Metrics/ClassLength
 end

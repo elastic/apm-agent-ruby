@@ -5,21 +5,24 @@ AllCops:
     - 'vendor/**/*'
     - 'bench/*'
 
+require:
+  - rubocop-performance
+
+# Layout/
+
 Layout/AlignArguments:
   EnforcedStyle: with_fixed_indentation
 
 Layout/AlignParameters:
   EnforcedStyle: with_fixed_indentation
 
+Layout/EmptyLineAfterGuardClause:
+  Enabled: false
+
 Layout/IndentFirstParameter:
   Enabled: false
 
-Layout/AlignHash:
-  Exclude:
-    - 'Gemfile'
-
-Layout/EmptyLinesAroundArguments:
-  Enabled: false
+# Lint/
 
 Lint/RescueException:
   Enabled: false
@@ -27,26 +30,41 @@ Lint/RescueException:
 Lint/HandleExceptions:
   Enabled: false
 
-Lint/NonLocalExitFromIterator:
+# Metrics /
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/ModuleLength:
   Enabled: false
 
 Metrics/BlockLength:
-  Exclude:
-    - 'spec/**/*.rb'
+  Enabled: false
 
-Metrics/ModuleLength:
-  Exclude:
-    - 'spec/**/*.rb'
+Metrics/MethodLength:
+  Enabled: false
+
+# Naming/
 
 Naming/PredicateName:
   Enabled: false
 
 Naming/FileName:
-  Exclude:
-    - 'lib/elastic-apm.rb'
+  Exclude: ['lib/elastic-apm.rb']
 
 Naming/AccessorMethodName:
   Enabled: false
+
+Naming/MemoizedInstanceVariableName:
+  Enabled: false
+
+Naming/UncommunicativeMethodParamName:
+  Enabled: false
+
+# Style/
 
 Style/Alias:
   Enabled: false
@@ -55,9 +73,6 @@ Style/IfUnlessModifier:
   Enabled: false
 
 Style/FormatStringToken:
-  Enabled: false
-
-Style/SafeNavigation:
   Enabled: false
 
 Style/DoubleNegation:
@@ -70,15 +85,6 @@ Style/NumericPredicate:
   Enabled: false
 
 Style/PerlBackrefs:
-  Enabled: false
-
-Layout/EmptyLineAfterGuardClause:
-  Enabled: false
-
-Naming/MemoizedInstanceVariableName:
-  Enabled: false
-
-Naming/UncommunicativeMethodParamName:
   Enabled: false
 
 Style/SpecialGlobalVars:

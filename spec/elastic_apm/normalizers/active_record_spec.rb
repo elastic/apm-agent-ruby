@@ -78,23 +78,20 @@ module ElasticAPM
 
             allow(::ActiveRecord::Base)
               .to receive(:connection_config) { { adapter: 'Postgres' } }
-            _name, _type, subtype, = normalize_payload(
-                sql: sql
-            )
+            _name, _type, subtype, = normalize_payload(sql: sql)
+
             expect(subtype).to eq 'postgres'
 
             allow(::ActiveRecord::Base)
               .to receive(:connection_config) { { adapter: '' } }
-            _name, _type, subtype, = normalize_payload(
-                sql: sql
-            )
+            _name, _type, subtype, = normalize_payload(sql: sql)
+
             expect(subtype).to eq 'unknown'
 
             allow(::ActiveRecord::Base)
               .to receive(:connection_config) { { adapter: nil } }
-            _name, _type, subtype, = normalize_payload(
-                sql: sql
-            )
+            _name, _type, subtype, = normalize_payload(sql: sql)
+
             expect(subtype).to eq 'unknown'
           end
 

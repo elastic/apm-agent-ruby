@@ -53,7 +53,6 @@ module ElasticAPM
       error.culprit = stacktrace.frames.first&.function
     end
 
-    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def add_current_transaction_fields(error, transaction)
       return unless transaction
 
@@ -70,6 +69,5 @@ module ElasticAPM
       Util.reverse_merge!(error.context.labels, transaction.context.labels)
       Util.reverse_merge!(error.context.custom, transaction.context.custom)
     end
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
   end
 end

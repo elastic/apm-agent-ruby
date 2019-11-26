@@ -1,0 +1,14 @@
+name: Lint
+
+on: [push]
+
+jobs:
+  build:
+    name: Rubocop
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Rubocop checks
+      uses: mikker/rubocop-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

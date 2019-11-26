@@ -22,7 +22,6 @@ module ElasticAPM
         @span_context
       end
 
-      # rubocop:disable Metrics/MethodLength
       def set_label(key, val)
         if elastic_span.is_a?(Transaction)
           case key.to_s
@@ -39,7 +38,6 @@ module ElasticAPM
           elastic_span.context.labels[key] = val
         end
       end
-      # rubocop:enable Metrics/MethodLength
 
       def set_baggage_item(_key, _value)
         ElasticAPM.agent.config.logger.warn(
@@ -63,9 +61,8 @@ module ElasticAPM
           ElasticAPM.report_message message
         end
       end
-      # rubocop:enable Lint/UnusedMethodArgument
 
-      # rubocop:disable Metrics/MethodLength
+      # rubocop:enable Lint/UnusedMethodArgument
       def finish(clock_end: Util.monotonic_micros, end_time: nil)
         return unless (agent = ElasticAPM.agent)
 
@@ -86,7 +83,6 @@ module ElasticAPM
 
         agent.enqueue elastic_span
       end
-      # rubocop:enable Metrics/MethodLength
 
       private
 
@@ -179,8 +175,6 @@ module ElasticAPM
         @scope_stack.last
       end
     end
-
-    # rubocop:disable Metrics/ClassLength
     # A custom tracer to use the OpenTracing API with ElasticAPM
     class Tracer
       def initialize
@@ -193,7 +187,7 @@ module ElasticAPM
         scope_manager.active&.span
       end
 
-      # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
+      # rubocop:disable Metrics/ParameterLists
       def start_active_span(
         operation_name,
         child_of: nil,
@@ -224,10 +218,9 @@ module ElasticAPM
 
         scope
       end
-      # rubocop:enable Metrics/MethodLength, Metrics/ParameterLists
+      # rubocop:enable Metrics/ParameterLists
 
-      # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
-      # rubocop:disable Metrics/AbcSize
+      # rubocop:disable Metrics/ParameterLists
       def start_span(
         operation_name,
         child_of: nil,
@@ -245,7 +238,6 @@ module ElasticAPM
 
         if span_context
           trace_context =
-            span_context &&
             span_context.respond_to?(:trace_context) &&
             span_context.trace_context
         end
@@ -279,8 +271,8 @@ module ElasticAPM
 
         Span.new(elastic_span, span_context)
       end
-      # rubocop:enable Metrics/AbcSize
-      # rubocop:enable Metrics/MethodLength, Metrics/ParameterLists
+
+      # rubocop:enable Metrics/ParameterLists
 
       def inject(span_context, format, carrier)
         case format
@@ -341,6 +333,5 @@ module ElasticAPM
         @scope_manager.active&.span&.context
       end
     end
-    # rubocop:enable Metrics/ClassLength
   end
 end

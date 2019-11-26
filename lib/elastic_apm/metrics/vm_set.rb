@@ -11,7 +11,6 @@ module ElasticAPM
         super
       end
 
-      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       def read!
         return if disabled?
 
@@ -37,8 +36,6 @@ module ElasticAPM
 
         disable!
       end
-
-      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
     end
   end
 end

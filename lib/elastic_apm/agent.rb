@@ -13,7 +13,6 @@ require 'elastic_apm/metrics'
 require 'elastic_apm/spies'
 
 module ElasticAPM
-  # rubocop:disable Metrics/ClassLength
   # @api private
   class Agent
     include Logging
@@ -27,7 +26,6 @@ module ElasticAPM
       @instance
     end
 
-    # rubocop:disable Metrics/MethodLength
     def self.start(config)
       return @instance if @instance
 
@@ -47,7 +45,6 @@ module ElasticAPM
         @instance = new(config).start
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def self.stop
       LOCK.synchronize do
@@ -62,7 +59,6 @@ module ElasticAPM
       !!@instance
     end
 
-    # rubocop:disable Metrics/MethodLength
     def initialize(config)
       @stacktrace_builder = StacktraceBuilder.new(config)
       @context_builder = ContextBuilder.new(config)
@@ -77,7 +73,6 @@ module ElasticAPM
         stacktrace_builder: stacktrace_builder
       ) { |event| enqueue event }
     end
-    # rubocop:enable Metrics/MethodLength
 
     attr_reader(
       :central_config,
@@ -91,8 +86,6 @@ module ElasticAPM
     )
 
     def_delegator :@central_config, :config
-
-    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def start
       unless config.disable_start_message?
         config.logger.info format(
@@ -113,7 +106,6 @@ module ElasticAPM
 
       self
     end
-    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
     def stop
       debug 'Stopping agent'
@@ -244,5 +236,4 @@ module ElasticAPM
       super.split.first + '>'
     end
   end
-  # rubocop:enable Metrics/ClassLength
 end

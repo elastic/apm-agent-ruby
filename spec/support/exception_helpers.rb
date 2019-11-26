@@ -10,8 +10,6 @@ module ExceptionHelpers
   class One < StandardError; end
   class Two < StandardError; end
   class Three < StandardError; end
-
-  # rubocop:disable Metrics/MethodLength
   def actual_chained_exception
     raise Three
   rescue Three
@@ -25,5 +23,4 @@ module ExceptionHelpers
       end
     end
   end
-  # rubocop:enable Metrics/MethodLength
 end

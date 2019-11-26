@@ -34,7 +34,7 @@ module ElasticAPM
 
         def subtype(payload)
           cached_adapter_name(
-            payload[:connection] ? payload[:connection].adapter_name :
+            payload[:connection]&.adapter_name ||
               ::ActiveRecord::Base.connection_config[:adapter]
           )
         end

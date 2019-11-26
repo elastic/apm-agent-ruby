@@ -28,8 +28,6 @@ module ElasticAPM
     # AS::Notifications API
 
     Notification = Struct.new(:id, :span)
-
-    # rubocop:disable Metrics/MethodLength
     def start(name, id, payload)
       return unless (transaction = @agent.current_transaction)
 
@@ -52,8 +50,8 @@ module ElasticAPM
 
       transaction.notifications << Notification.new(id, span)
     end
-    # rubocop:enable Metrics/MethodLength
 
+    # rubocop:disable Metrics/CyclomaticComplexity
     def finish(name, id, payload)
       # debug "AS::Notification#finish:#{name}:#{id}"
       return unless (transaction = @agent.current_transaction)
@@ -70,6 +68,7 @@ module ElasticAPM
         return
       end
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     private
 

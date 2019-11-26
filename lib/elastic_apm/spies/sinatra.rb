@@ -5,7 +5,6 @@ module ElasticAPM
   module Spies
     # @api private
     class SinatraSpy
-      # rubocop:disable Metrics/MethodLength
       def install
         ::Sinatra::Base.class_eval do
           alias dispatch_without_apm! dispatch!
@@ -31,7 +30,6 @@ module ElasticAPM
           end
         end
       end
-      # rubocop:enable Metrics/MethodLength
     end
 
     register 'Sinatra::Base', 'sinatra/base', SinatraSpy.new

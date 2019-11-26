@@ -39,8 +39,11 @@ if enabled
 
       MockIntake.instance.stub!
 
-      ElasticAPM::Grape.start(GrapeTestApp, { api_request_time: '100ms',
-                                              span_frames_min_duration: -1 })
+      ElasticAPM::Grape.start(
+        GrapeTestApp,
+        api_request_time: '100ms',
+        span_frames_min_duration: -1
+      )
     end
 
     after :all do
@@ -78,7 +81,8 @@ if enabled
 
         span = @mock_intake.spans.last
         expect(span['stacktrace'][0]).not_to be(nil)
-        expect(span['stacktrace'][0]['filename']).to eq('integration/grape_spec.rb')
+        expect(span['stacktrace'][0]['filename'])
+          .to eq('integration/grape_spec.rb')
       end
 
       context 'params specified' do

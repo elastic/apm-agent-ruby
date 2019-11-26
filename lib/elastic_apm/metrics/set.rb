@@ -40,7 +40,6 @@ module ElasticAPM
         metric(Timer, key, tags: tags, **args)
       end
 
-      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       def metric(kls, key, tags: nil, **args)
         if @config.disable_metrics.any? { |p| p.match? key }
           return NOOP
@@ -68,9 +67,7 @@ module ElasticAPM
             end
         end
       end
-      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
-      # rubocop:disable Metrics/MethodLength
       def collect
         return if disabled?
 
@@ -94,7 +91,6 @@ module ElasticAPM
           end.values
         end
       end
-      # rubocop:enable Metrics/MethodLength
 
       private
 

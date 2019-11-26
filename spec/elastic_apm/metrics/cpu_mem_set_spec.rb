@@ -72,7 +72,7 @@ module ElasticAPM
         end
       end
 
-      # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
+      # rubocop:disable Metrics/ParameterLists
       def mock_proc_files(
         user: 6_410_558,
         idle: 329_434_672,
@@ -99,7 +99,7 @@ module ElasticAPM
           end
         end
       end
-      # rubocop:enable Metrics/MethodLength, Metrics/ParameterLists
+      # rubocop:enable Metrics/ParameterLists
     end
   end
 end

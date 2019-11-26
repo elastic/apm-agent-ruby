@@ -10,7 +10,6 @@ module ElasticAPM
       @app = app
     end
 
-    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def call(env)
       begin
         if running? && !path_ignored?(env)
@@ -35,7 +34,6 @@ module ElasticAPM
 
       resp
     end
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     private
 

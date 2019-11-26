@@ -29,8 +29,6 @@ module ElasticAPM
     attr_accessor :version, :id, :trace_id, :parent_id, :recorded
 
     alias :recorded? :recorded
-
-    # rubocop:disable Metrics/AbcSize
     def self.parse(header)
       raise InvalidTraceparentHeader unless header.length == 55
       raise InvalidTraceparentHeader unless header[0..1] == VERSION
@@ -45,7 +43,6 @@ module ElasticAPM
         raise InvalidTraceparentHeader if HEX_REGEX =~ t.parent_id
       end
     end
-    # rubocop:enable Metrics/AbcSize
 
     def flags=(flags)
       @flags = flags

@@ -22,7 +22,11 @@ if defined?(Sinatra)
 
       context 'with config' do
         it 'sets the options' do
-          with_agent(klass: ElasticAPM::Sinatra, args: [SinatraTestApp], service_name: 'my-app') do
+          with_agent(
+            klass: ElasticAPM::Sinatra,
+            args: [SinatraTestApp],
+            service_name: 'my-app'
+          ) do
             expect(ElasticAPM::Agent).to be_running
             expect(ElasticAPM.agent.config.service_name).to eq 'my-app'
           end

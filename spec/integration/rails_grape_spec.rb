@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-if (defined?(Rails) && defined?(Grape))
+if defined?(Rails) && defined?(Grape)
   enabled = true
 else
   puts '[INFO] Skipping Rails/Grape spec'
@@ -11,7 +11,8 @@ end
 if enabled
   require 'action_controller/railtie'
 
-  RSpec.describe 'Rails and Grape integration', :mock_intake, :allow_running_agent do
+  RSpec.describe 'Rails and Grape integration',
+    :mock_intake, :allow_running_agent do
     include Rack::Test::Methods
 
     def app
@@ -77,7 +78,8 @@ if enabled
         wait_for transactions: 1, spans: 1
         context = @mock_intake.transactions.fetch(0)['context']
         expect(context['service']['framework']['name']).to eq('Grape')
-        expect(context['service']['framework']['version']).to eq(::Grape::VERSION)
+        expect(context['service']['framework']['version'])
+          .to eq(::Grape::VERSION)
       end
     end
 
