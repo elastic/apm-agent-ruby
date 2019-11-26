@@ -31,7 +31,7 @@ module ElasticAPM
             )
           end
 
-          it 'strips the auth part' do
+          it 'omits the password' do
             expect(subject.http.url).to eq 'https://user%40email.com@example.com/q=a@b'
           end
         end
