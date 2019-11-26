@@ -22,6 +22,19 @@ module ElasticAPM
         it 'adds a http object' do
           expect(subject.http.url).to eq 'asd'
         end
+
+        context 'when given auth info' do
+          subject do
+            described_class.new(
+              http: { url: 'https://user%40email.com:pass@example.com/q=a@b' }
+              #                         %40 => @
+            )
+          end
+
+          it 'omits the password' do
+            expect(subject.http.url).to eq 'https://user%40email.com@example.com/q=a@b'
+          end
+        end
       end
     end
   end

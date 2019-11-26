@@ -44,6 +44,7 @@ endif::[]
 ===== Fixed
 
 - Make Filters thread-safe {pull}624[#624]
+- Omit passwords in outgoing urls {pull}629[#629]
 
 [[release-notes-3.2.0]]
 ==== 3.2.0 (2019-11-19)
