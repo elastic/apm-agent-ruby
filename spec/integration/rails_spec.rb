@@ -37,6 +37,7 @@ if enabled
           config.elastic_apm.capture_body = 'all'
           config.elastic_apm.pool_size = Concurrent.processor_count
           config.elastic_apm.log_path = 'spec/elastic_apm.log'
+          config.elastic_apm.disable_metrics = 'vm'
         end
       end
 
@@ -304,6 +305,7 @@ if enabled
           EventCollector.wait_for { |parser| parser.transaction_metrics.count >= 2 }
           EventCollector.wait_for { |parser| parser.span_metrics.count >= 3 }
 
+          puts EventCollector.metricsets
           transaction_keys_counts =
               EventCollector.transaction_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
                 keys[set['samples'].keys] += 1
