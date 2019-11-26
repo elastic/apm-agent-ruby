@@ -16,6 +16,14 @@ module ElasticAPM
         end
       end
 
+      describe '#inspect' do
+        it 'returns a string with the connection\'s attributes' do
+          expect(subject.inspect).to match(
+            /ElasticAPM::Transport::Connection.*url:.*closed:.*/
+          )
+        end
+      end
+
       describe 'write' do
         it 'opens a connection and writes' do
           stub = build_stub(body: /{"msg": "hey!"}/)
