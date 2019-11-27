@@ -323,7 +323,7 @@ if enabled
             end
 
           expect(transaction_keys_counts[
-                   %w[transaction.duration.sum.ustransaction.duration.count]
+                   %w[transaction.duration.sum.us transaction.duration.count]
                  ]).to be >= 1
           expect(transaction_keys_counts[
                   %w[transaction.breakdown.count]
