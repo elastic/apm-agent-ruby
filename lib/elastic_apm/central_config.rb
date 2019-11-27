@@ -120,14 +120,17 @@ module ElasticAPM
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
     def handle_error(error)
+      # For tests, WebMock failures don't have real responses
+      response = error.response if error.respond_to?(:response)
+
       debug(
         'Failed fetching config: %s, trying again in %d seconds',
-        error.response.body, DEFAULT_MAX_AGE
+        response&.body, DEFAULT_MAX_AGE
       )
 
       assign({})
 
-      schedule_next_fetch(error.response)
+      schedule_next_fetch(response)
     end
 
     def perform_request
@@ -145,10 +148,11 @@ module ElasticAPM
       { 'Etag': @etag }
     end
 
-    def schedule_next_fetch(resp)
+    def schedule_next_fetch(resp = nil)
+      headers = resp&.headers
       seconds =
-        if (cache_header = resp.headers['Cache-Control'])
-          CacheControl.new(cache_header).max_age
+        if headers['Cache-Control']
+          CacheControl.new(headers['Cache-Control']).max_age
         else
           DEFAULT_MAX_AGE
         end

@@ -12,41 +12,31 @@ if enabled
   require 'action_controller/railtie'
   require 'action_mailer/railtie'
 
-  # We don't use :mock_intake, as we want the stubs to stay around between
-  # individual examples
-  RSpec.describe 'Rails integration', :allow_running_agent, :spec_logger do
+  RSpec.describe 'Rails integration', :allow_running_agent do
     include Rack::Test::Methods
-    include MockIntake::WaitFor
+    include_context 'event_collector'
 
-    def app
-      @app ||= Rails.application
-    end
-
-    after :each do
-      MockIntake.clear!
+    let(:app) do
+      Rails.application
     end
 
     after :all do
       ElasticAPM.stop
+      ElasticAPM::Transport::Worker.adapter = nil
     end
 
     before :all do
       module RailsTestApp
         class Application < Rails::Application
-          configure_rails_for_test
+          RailsTestHelpers.setup_rails_test_config(config)
 
-          config.action_mailer.perform_deliveries = false
-
-          config.logger = Logger.new(SpecLogger)
-          config.logger.level = Logger::DEBUG
-
-          config.elastic_apm.capture_body = 'all'
           config.elastic_apm.ignore_url_patterns = '/ping'
-          config.elastic_apm.log_path = 'spec/elastic_apm.log'
-          config.elastic_apm.log_level = 0
-          config.elastic_apm.pool_size = Concurrent.processor_count
           config.elastic_apm.api_request_time = '200ms'
+          config.elastic_apm.disable_start_message = true
           config.elastic_apm.metrics_interval = '2s'
+          config.elastic_apm.capture_body = 'all'
+          config.elastic_apm.pool_size = Concurrent.processor_count
+          config.elastic_apm.log_path = 'spec/elastic_apm.log'
         end
       end
 
@@ -57,21 +47,21 @@ if enabled
           ElasticAPM.set_user(current_user)
         end
 
-        def index
-          render_ok
-        end
-
         http_basic_authenticate_with(
           name: 'dhh', password: 'secret123', only: [:create]
         )
 
-        def create
+        def index
           render_ok
         end
 
         def context
           ElasticAPM.set_label :things, 1
           ElasticAPM.set_custom_context nested: { banana: 'explosion' }
+          render_ok
+        end
+
+        def create
           render_ok
         end
 
@@ -86,10 +76,6 @@ if enabled
 
         def send_notification
           NotificationsMailer.ping('someone@example.com', 'Hello').deliver_now
-          render_ok
-        end
-
-        def ping
           render_ok
         end
 
@@ -118,211 +104,241 @@ if enabled
         end
       end
 
-      @mock_intake = MockIntake.stub!
+      ElasticAPM::Transport::Worker.adapter = EventCollector::TestAdapter
 
       RailsTestApp::Application.initialize!
       RailsTestApp::Application.routes.draw do
+        root to: 'application#index'
+        get '/tags_and_context', to: 'application#context'
+        post '/', to: 'application#create'
         get '/error', to: 'application#raise_error'
         get '/report_message', to: 'application#report_message'
-        get '/tags_and_context', to: 'application#context'
         get '/send_notification', to: 'application#send_notification'
         get '/ping', to: 'application#ping'
-        post '/', to: 'application#create'
-        root to: 'application#index'
       end
     end
 
-    it 'knows Rails' do
-      responses = Array.new(10).map { get '/' }
+    context 'Service metadata' do
+      it 'includes Rails info' do
+        responses = Array.new(10).map { get '/' }
 
-      wait_for transactions: 10, spans: 20, timeout: 10
+        EventCollector.wait_for transactions: 10, spans: 20, timeout: 10
 
-      expect(responses.last.body).to eq 'Yes!'
-      expect(@mock_intake.metadatas.length >= 1).to be true
-      expect(@mock_intake.transactions.length).to be 10
+        expect(responses.last.body).to eq 'Yes!'
+        expect(EventCollector.metadatas.length >= 1).to be true
+        expect(EventCollector.transactions.length).to be 10
 
-      service = @mock_intake.metadatas.fetch(0)['service']
-      expect(service['name']).to eq 'RailsTestApp'
-      expect(service['framework']['name']).to eq 'Ruby on Rails'
-      expect(service['framework']['version'])
-        .to match(/\d+\.\d+\.\d+(\.\d+)?/)
+        service = EventCollector.metadatas.fetch(0)['service']
+        expect(service['name']).to eq 'RailsTestApp'
+        expect(service['framework']['name']).to eq 'Ruby on Rails'
+        expect(service['framework']['version'])
+          .to match(/\d+\.\d+\.\d+(\.\d+)?/)
+      end
     end
 
-    it 'prepends Rails.root to log_path' do
-      final_log_path = ElasticAPM.agent.config.log_path.to_s
-      expect(final_log_path).to eq "#{Rails.root}/spec/elastic_apm.log"
+    context 'log path' do
+      it 'prepends Rails.root to log_path' do
+        final_log_path = ElasticAPM.agent.config.log_path.to_s
+        expect(final_log_path).to eq "#{Rails.root}/spec/elastic_apm.log"
+      end
     end
 
     describe 'transactions' do
-      it 'spans action and posts it' do
-        get '/'
+      context 'when a simple request is made' do
+        it 'spans action and posts it' do
+          get '/'
 
-        wait_for transactions: 1, spans: 2
+          EventCollector.wait_for transactions: 1, spans: 2
 
-        name = @mock_intake.transactions.fetch(0)['name']
-        expect(name).to eq 'ApplicationController#index'
+          name = EventCollector.transactions.fetch(0)['name']
+          expect(name).to eq 'ApplicationController#index'
+        end
       end
 
-      it 'can set tags and custom context' do
-        get '/tags_and_context'
+      context 'when tags and context are set' do
+        it 'sets the values' do
+          get '/tags_and_context'
 
-        wait_for transactions: 1, spans: 2
+          EventCollector.wait_for transactions: 1, spans: 2
 
-        context = @mock_intake.transactions.fetch(0)['context']
-        expect(context['tags']).to eq('things' => 1)
-        expect(context['custom']).to eq('nested' => { 'banana' => 'explosion' })
+          context = EventCollector.transactions.fetch(0)['context']
+          expect(context['tags']).to eq('things' => 1)
+          expect(context['custom']).to eq(
+            'nested' => { 'banana' => 'explosion' }
+          )
+        end
       end
 
-      it 'includes user information' do
-        get '/'
+      context 'when there is user information' do
+        it 'includes the info in transactions' do
+          get '/'
 
-        wait_for transactions: 1, spans: 2
+          EventCollector.wait_for transactions: 1, spans: 2
 
-        context = @mock_intake.transactions.fetch(0)['context']
-        user = context['user']
-        expect(user['id']).to eq '1'
-        expect(user['email']).to eq 'person@example.com'
+          context = EventCollector.transactions.fetch(0)['context']
+          user = context['user']
+          expect(user['id']).to eq '1'
+          expect(user['email']).to eq 'person@example.com'
+        end
       end
 
-      it 'ignores url patterns' do
-        get '/ping'
-        get '/'
+      context 'when there are ignored url patterns defined' do
+        it 'does not create events for the patterns' do
+          get '/ping'
+          get '/'
 
-        wait_for transactions: 1, spans: 2
+          EventCollector.wait_for transactions: 1, spans: 2
 
-        name = @mock_intake.transactions.fetch(0)['name']
-        expect(name).to eq 'ApplicationController#index'
+          name = EventCollector.transactions.fetch(0)['name']
+          expect(name).to eq 'ApplicationController#index'
+        end
       end
 
-      it "filters sensitive looking data, but doesn't touch original" do
-        resp = post '/', access_token: 'abc123'
+      context 'when there is sensitive data' do
+        it 'filters the data and does not alter the original' do
+          resp = post '/', access_token: 'abc123'
 
-        wait_for transactions: 1, spans: 1
+          EventCollector.wait_for transactions: 1, spans: 1
 
-        expect(resp.body).to eq("HTTP Basic: Access denied.\n")
-        expect(resp.original_headers['WWW-Authenticate']).to_not be nil
-        expect(resp.original_headers['WWW-Authenticate']).to_not eq '[FILTERED]'
+          expect(resp.body).to eq("HTTP Basic: Access denied.\n")
+          expect(resp.original_headers['WWW-Authenticate']).to_not be nil
+          expect(resp.original_headers['WWW-Authenticate'])
+            .to_not eq '[FILTERED]'
 
-        transaction, = @mock_intake.transactions
+          transaction, = EventCollector.transactions
 
-        body = transaction.dig('context', 'request', 'body')
-        expect(body['access_token']).to eq '[FILTERED]'
+          body = transaction.dig('context', 'request', 'body')
+          expect(body['access_token']).to eq '[FILTERED]'
 
-        response_headers = transaction.dig('context', 'response', 'headers')
-        expect(response_headers['WWW-Authenticate']).to eq '[FILTERED]'
+          response_headers = transaction.dig('context', 'response', 'headers')
+          expect(response_headers['WWW-Authenticate']).to eq '[FILTERED]'
+        end
       end
 
-      it 'validates json schema', type: :json_schema do
-        get '/'
+      context 'when json' do
+        it 'validates the schema', type: :json_schema do
+          get '/'
 
-        wait_for transactions: 1
+          EventCollector.wait_for transactions: 1
 
-        metadata = @mock_intake.metadatas.fetch(0)
-        expect(metadata).to match_json_schema(:metadatas),
-          metadata.inspect
+          metadata = EventCollector.metadatas.fetch(0)
+          expect(metadata).to match_json_schema(:metadatas),
+            metadata.inspect
 
-        transaction = @mock_intake.transactions.fetch(0)
-        expect(transaction).to match_json_schema(:transactions),
-          transaction.inspect
+          transaction = EventCollector.transactions.fetch(0)
+          expect(transaction).to match_json_schema(:transactions),
+            transaction.inspect
 
-        span = @mock_intake.spans.fetch(0)
-        expect(span).to match_json_schema(:spans),
-          span.inspect
+          span = EventCollector.spans.fetch(0)
+          expect(span).to match_json_schema(:spans),
+            span.inspect
+        end
       end
     end
 
     describe 'errors' do
-      it 'handles exceptions and posts transaction' do
-        response = get '/error'
+      context 'when there is an exception' do
+        it 'creates an error and transaction event' do
+          response = get '/error'
 
-        wait_for transactions: 1, errors: 1, spans: 1
+          EventCollector.wait_for transactions: 1, errors: 1, spans: 1
 
-        expect(response.status).to be 500
+          expect(response.status).to be 500
 
-        error = @mock_intake.errors.fetch(0)
-        expect(error['transaction_id']).to_not be_nil
-        expect(error['transaction']['sampled']).to be true
-        expect(error['context']).to_not be nil
+          error = EventCollector.errors.fetch(0)
+          expect(error['transaction_id']).to_not be_nil
+          expect(error['transaction']['sampled']).to be true
+          expect(error['context']).to_not be nil
 
-        exception = error['exception']
-        expect(exception['type']).to eq 'ApplicationController::FancyError'
-        expect(exception['handled']).to eq false
-      end
-
-      it 'validates json schema', type: :json_schema do
-        get '/error'
-
-        wait_for transactions: 1, errors: 1
-
-        payload = @mock_intake.errors.fetch(0)
-        expect(payload).to match_json_schema(:errors),
-          payload.inspect
-      end
-
-      it 'sends messages that validate' do
-        get '/report_message'
-
-        wait_for transactions: 1, errors: 1, spans: 2
-
-        error, = @mock_intake.errors
-        expect(error['log']).to be_a Hash
-      end
-    end
-
-    describe 'mailers' do
-      it 'spans mails' do
-        get '/send_notification'
-
-        wait_for transactions: 1, spans: 3
-
-        transaction, = @mock_intake.transactions
-        expect(transaction['name'])
-          .to eq 'ApplicationController#send_notification'
-        span = @mock_intake.spans.find do |payload|
-          payload['name'] == 'NotificationsMailer#ping'
+          exception = error['exception']
+          expect(exception['type']).to eq 'ApplicationController::FancyError'
+          expect(exception['handled']).to eq false
         end
-        expect(span).to_not be_nil
+      end
+
+      context 'when json' do
+        it 'validates the schema' do
+          get '/error'
+
+          EventCollector.wait_for transactions: 1, errors: 1
+
+          payload = EventCollector.errors.fetch(0)
+          expect(payload).to match_json_schema(:errors),
+            payload.inspect
+        end
+      end
+
+      context 'when a message is reported' do
+        it 'sends the message' do
+          get '/report_message'
+
+          EventCollector.wait_for transactions: 1, errors: 1, spans: 2
+
+          error, = EventCollector.errors
+          expect(error['log']).to be_a Hash
+        end
+      end
+
+      describe 'mailers' do
+        context 'when a mail is sent' do
+          it 'spans the mail' do
+            get '/send_notification'
+
+            EventCollector.wait_for transactions: 1, spans: 3
+
+            transaction, = EventCollector.transactions
+            expect(transaction['name'])
+              .to eq 'ApplicationController#send_notification'
+            span = EventCollector.spans.find do |payload|
+              payload['name'] == 'NotificationsMailer#ping'
+            end
+            expect(span).to_not be_nil
+          end
+        end
       end
     end
 
     describe 'metrics' do
-      it 'gathers metrics' do
-        get '/'
+      context 'when metrics are collected' do
+        it 'sends them' do
+          get '/'
 
-        wait_for transactions: 1, spans: 2
-
-        select_transaction_metrics = lambda do |intake|
-          intake.metricsets.select { |set| set['transaction'] && !set['span'] }
-        end
-
-        wait_for { |intake| select_transaction_metrics.call(intake).count >= 2 }
-        transaction_metrics = select_transaction_metrics.call(@mock_intake)
-
-        keys_counts =
-          transaction_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
-            keys[set['samples'].keys] += 1
+          EventCollector.wait_for(
+            transactions: 1,
+            spans: 2,
+            metricsets: 5,
+            timeout: 10
+          )
+          EventCollector.wait_for do |parser|
+            parser.transaction_metrics.count >= 2
+          end
+          EventCollector.wait_for do |parser|
+            parser.span_metrics.count >= 3
           end
 
-        expect(keys_counts[
-          %w[transaction.duration.sum.us transaction.duration.count]
-        ]).to be >= 1
-        expect(keys_counts[%w[transaction.breakdown.count]]) .to be >= 1
+          transaction_metrics = EventCollector.transaction_metrics
+          transaction_keys_counts =
+            transaction_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
+              keys[set['samples'].keys] += 1
+            end
 
-        select_span_metrics = lambda do |intake|
-          intake.metricsets.select { |set| set['transaction'] && set['span'] }
+          expect(transaction_keys_counts[
+                   %w[transaction.duration.sum.us transaction.duration.count]
+                 ]).to be >= 1
+          expect(transaction_keys_counts[
+                  %w[transaction.breakdown.count]
+                 ]).to be >= 1
+
+          span_metrics = EventCollector.span_metrics
+          span_keys_counts =
+            span_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
+              keys[set['samples'].keys] += 1
+            end
+
+          expect(span_keys_counts[
+                     %w[span.self_time.sum.us span.self_time.count]
+                 ]).to be >= 1
         end
-
-        wait_for { |intake| select_span_metrics.call(intake).count >= 3 }
-        span_metrics = select_span_metrics.call(@mock_intake)
-
-        keys_counts =
-          span_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
-            keys[set['samples'].keys] += 1
-          end
-
-        expect(keys_counts[
-          %w[span.self_time.sum.us span.self_time.count]
-        ]).to be >= 1
       end
     end
   end

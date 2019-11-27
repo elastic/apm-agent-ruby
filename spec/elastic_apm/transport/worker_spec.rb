@@ -39,13 +39,19 @@ module ElasticAPM
           def flush; end
         end
 
+        around do |example|
+          original_adapter = described_class.adapter
+          described_class.adapter = MockConnection
+          example.run
+          described_class.adapter = original_adapter
+        end
+
         subject do
           described_class.new(
             config,
             queue,
             serializers: serializers,
-            filters: filters,
-            conn_adapter: MockConnection
+            filters: filters
           )
         end
 
@@ -53,7 +59,7 @@ module ElasticAPM
           expect(subject.filters).to receive(:apply!)
 
           queue.push Transaction.new config: config
-          Thread.new { subject.work_forever }.join 0.1
+          Thread.new { subject.work_forever }.join 0.2
 
           expect(subject.connection.calls.length).to be 1
         end
@@ -75,7 +81,7 @@ module ElasticAPM
           it 'applies filters, writes resources to the connection' do
             queue.push Transaction.new config: config
 
-            Thread.new { subject.work_forever }.join 0.1
+            Thread.new { subject.work_forever }.join 0.2
 
             expect(subject.connection.calls.length).to be 0
           end

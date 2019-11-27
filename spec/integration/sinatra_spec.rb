@@ -121,8 +121,6 @@ if enabled
 
         wait_for errors: 1, transactions: 1
 
-        expect(@mock_intake.requests.length).to be 1
-
         error_request =
           @mock_intake.errors.first
         exception = error_request['exception']

@@ -53,6 +53,18 @@ module RailsTestHelpers
       end
     end
   end
+
+  def self.setup_rails_test_config(config)
+    config.secret_key_base = '__secret_key_base'
+    config.consider_all_requests_local = false
+    config.eager_load = false
+    config.action_mailer.perform_deliveries = false
+
+    # Silence deprecation warning
+    return unless defined?(ActionView::Railtie::NULL_OPTION)
+    config.action_view.finalize_compiled_template_methods =
+      ActionView::Railtie::NULL_OPTION
+  end
 end
 
 RSpec.configure do |config|
@@ -100,5 +112,17 @@ RSpec.configure do |config|
 
     puts 'Example failed, dumping log:'
     puts SpecLogger.read
+  end
+end
+
+RSpec.shared_context 'stubbed_central_config' do
+  before(:all) do
+    WebMock.stub_request(
+      :get, %r{^http://localhost:8200/config/v1/agents/?$}
+    ).to_return(body: '{}')
+  end
+
+  after(:all) do
+    WebMock.reset!
   end
 end
