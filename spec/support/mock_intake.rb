@@ -310,7 +310,7 @@ class EventCollector
   end
 end
 
-shared_context 'event_collector' do
+RSpec.shared_context 'event_collector' do
   before do
     EventCollector.clear!
   end
