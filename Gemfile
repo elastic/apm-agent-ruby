@@ -45,7 +45,7 @@ GITHUB_REPOS = {
 }.freeze
 
 #                new               || legacy           || default
-env_frameworks = ENV['FRAMEWORKS'] || ENV['FRAMEWORK'] || ''
+env_frameworks = ENV['FRAMEWORKS'] || ENV['FRAMEWORK'] || 'rails'
 parsed_frameworks = env_frameworks.split(',')
 frameworks_versions = parsed_frameworks.inject({}) do |frameworks, str|
   framework, *version = str.split('-')
