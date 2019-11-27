@@ -59,11 +59,11 @@ module RailsTestHelpers
     config.consider_all_requests_local = false
     config.eager_load = false
     config.action_mailer.perform_deliveries = false
+
     # Silence deprecation warning
-    if defined?(ActionView::Railtie::NULL_OPTION)
-      config.action_view.finalize_compiled_template_methods =
-          ActionView::Railtie::NULL_OPTION
-    end
+    return unless defined?(ActionView::Railtie::NULL_OPTION)
+    config.action_view.finalize_compiled_template_methods =
+      ActionView::Railtie::NULL_OPTION
   end
 end
 
@@ -118,7 +118,7 @@ end
 RSpec.shared_context 'stubbed_central_config' do
   before(:all) do
     WebMock.stub_request(
-        :get, %r{^http://localhost:8200/config/v1/agents/?$}
+      :get, %r{^http://localhost:8200/config/v1/agents/?$}
     ).to_return(body: '{}')
   end
 

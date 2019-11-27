@@ -149,9 +149,10 @@ module ElasticAPM
     end
 
     def schedule_next_fetch(resp = nil)
+      headers = resp&.headers
       seconds =
-        if (cache_header = resp&.headers['Cache-Control'])
-          CacheControl.new(cache_header).max_age
+        if headers['Cache-Control']
+          CacheControl.new(headers['Cache-Control']).max_age
         else
           DEFAULT_MAX_AGE
         end

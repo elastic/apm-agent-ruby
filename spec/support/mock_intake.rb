@@ -194,7 +194,11 @@ class EventCollector
 
   class << self
     def method_missing(name, *args, &block)
-      instance.send(name, *args, &block)
+      if instance.respond_to?(name)
+        instance.send(name, *args, &block)
+      else
+        super
+      end
     end
 
     def instance
@@ -203,12 +207,12 @@ class EventCollector
   end
 
   attr_reader(
-      :errors,
-      :metadatas,
-      :metricsets,
-      :requests,
-      :spans,
-      :transactions
+    :errors,
+    :metadatas,
+    :metricsets,
+    :requests,
+    :spans,
+    :transactions
   )
 
   def initialize
@@ -236,7 +240,9 @@ class EventCollector
   end
 
   def transaction_metrics
-    metrics = metricsets.select { |set| set && set['transaction'] && !set['span'] }
+    metrics = metricsets.select do |set|
+      set && set['transaction'] && !set['span']
+    end
     if metrics.empty?
       puts metricsets
     end
@@ -244,13 +250,16 @@ class EventCollector
   end
 
   def span_metrics
-    metrics = metricsets.select { |set| set && set['transaction'] && set['span'] }
+    metrics = metricsets.select do |set|
+      set && set['transaction'] && set['span']
+    end
     if metrics.empty?
       puts metricsets
     end
     metrics
   end
 
+  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def wait_for(timeout: 5, **expected)
     if expected.empty? && !block_given?
       raise ArgumentError, 'Either args or block required'
@@ -269,16 +278,16 @@ class EventCollector
         unless missing == 0
           if missing < 0
             puts format(
-                     'Expected %s. Got %s',
-                     expected,
-                     "#{missing.abs} extra"
-                 )
+              'Expected %s. Got %s',
+              expected,
+              "#{missing.abs} extra"
+            )
           else
             puts format(
-                     'Expected %s. Got %s',
-                     expected,
-                     "missing #{missing}"
-                 )
+              'Expected %s. Got %s',
+              expected,
+              "missing #{missing}"
+            )
             print_received
           end
         end
@@ -296,16 +305,17 @@ class EventCollector
     print_received
     raise
   end
+  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
   private
 
   def print_received
     pp(
-        transactions: transactions.map { |o| o['name'] },
-        spans: spans.map { |o| o['name'] },
-        errors: errors.map { |o| o['culprit'] },
-        metricsets: metricsets,
-        metadatas: metadatas.count
+      transactions: transactions.map { |o| o['name'] },
+      spans: spans.map { |o| o['name'] },
+      errors: errors.map { |o| o['culprit'] },
+      metricsets: metricsets,
+      metadatas: metadatas.count
     )
   end
 end

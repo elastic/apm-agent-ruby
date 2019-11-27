@@ -37,7 +37,6 @@ if enabled
           config.elastic_apm.capture_body = 'all'
           config.elastic_apm.pool_size = Concurrent.processor_count
           config.elastic_apm.log_path = 'spec/elastic_apm.log'
-          #config.elastic_apm.disable_metrics = 'vm'
         end
       end
 
@@ -133,7 +132,7 @@ if enabled
         expect(service['name']).to eq 'RailsTestApp'
         expect(service['framework']['name']).to eq 'Ruby on Rails'
         expect(service['framework']['version'])
-            .to match(/\d+\.\d+\.\d+(\.\d+)?/)
+          .to match(/\d+\.\d+\.\d+(\.\d+)?/)
       end
     end
 
@@ -164,7 +163,9 @@ if enabled
 
           context = EventCollector.transactions.fetch(0)['context']
           expect(context['tags']).to eq('things' => 1)
-          expect(context['custom']).to eq('nested' => {'banana' => 'explosion'})
+          expect(context['custom']).to eq(
+            'nested' => { 'banana' => 'explosion' }
+          )
         end
       end
 
@@ -201,7 +202,8 @@ if enabled
 
           expect(resp.body).to eq("HTTP Basic: Access denied.\n")
           expect(resp.original_headers['WWW-Authenticate']).to_not be nil
-          expect(resp.original_headers['WWW-Authenticate']).to_not eq '[FILTERED]'
+          expect(resp.original_headers['WWW-Authenticate'])
+            .to_not eq '[FILTERED]'
 
           transaction, = EventCollector.transactions
 
@@ -221,15 +223,15 @@ if enabled
 
           metadata = EventCollector.metadatas.fetch(0)
           expect(metadata).to match_json_schema(:metadatas),
-                              metadata.inspect
+            metadata.inspect
 
           transaction = EventCollector.transactions.fetch(0)
           expect(transaction).to match_json_schema(:transactions),
-                                 transaction.inspect
+            transaction.inspect
 
           span = EventCollector.spans.fetch(0)
           expect(span).to match_json_schema(:spans),
-                          span.inspect
+            span.inspect
         end
       end
     end
@@ -262,7 +264,7 @@ if enabled
 
           payload = EventCollector.errors.fetch(0)
           expect(payload).to match_json_schema(:errors),
-                             payload.inspect
+            payload.inspect
         end
       end
 
@@ -286,7 +288,7 @@ if enabled
 
             transaction, = EventCollector.transactions
             expect(transaction['name'])
-                .to eq 'ApplicationController#send_notification'
+              .to eq 'ApplicationController#send_notification'
             span = EventCollector.spans.find do |payload|
               payload['name'] == 'NotificationsMailer#ping'
             end
@@ -301,25 +303,37 @@ if enabled
         it 'sends them' do
           get '/'
 
-          EventCollector.wait_for transactions: 1, spans: 2, metricsets: 5, timeout: 10
-          EventCollector.wait_for { |parser| parser.transaction_metrics.count >= 2 }
-          EventCollector.wait_for { |parser| parser.span_metrics.count >= 3 }
+          EventCollector.wait_for(
+            transactions: 1,
+            spans: 2,
+            metricsets: 5,
+            timeout: 10
+          )
+          EventCollector.wait_for do |parser|
+            parser.transaction_metrics.count >= 2
+          end
+          EventCollector.wait_for do |parser|
+            parser.span_metrics.count >= 3
+          end
 
-          puts EventCollector.metricsets
+          transaction_metrics = EventCollector.transaction_metrics
           transaction_keys_counts =
-              EventCollector.transaction_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
-                keys[set['samples'].keys] += 1
-              end
+            transaction_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
+              keys[set['samples'].keys] += 1
+            end
 
           expect(transaction_keys_counts[
-                     %w[transaction.duration.sum.us transaction.duration.count]
+                   %w[transaction.duration.sum.ustransaction.duration.count]
                  ]).to be >= 1
-          expect(transaction_keys_counts[%w[transaction.breakdown.count]]).to be >= 1
+          expect(transaction_keys_counts[
+                  %w[transaction.breakdown.count]
+                 ]).to be >= 1
 
+          span_metrics = EventCollector.span_metrics
           span_keys_counts =
-              EventCollector.span_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
-                keys[set['samples'].keys] += 1
-              end
+            span_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
+              keys[set['samples'].keys] += 1
+            end
 
           expect(span_keys_counts[
                      %w[span.self_time.sum.us span.self_time.count]
