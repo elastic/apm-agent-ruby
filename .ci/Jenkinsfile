@@ -152,14 +152,14 @@ pipeline {
               }
             }
           }
-          stage('Populate Test failures') {
-            when {
-              expression { return rubyTasksFailed }
-            }
-            steps {
-              error('There were some failures when running the "Test" stage')
-            }
-          }
+        }
+      }
+      stage('Populate Test failures') {
+        when {
+          expression { return rubyTasksFailed }
+        }
+        steps {
+          error('There were some failures when running the "Test" stage')
         }
       }
       stage('Integration Tests') {
