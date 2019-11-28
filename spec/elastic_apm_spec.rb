@@ -204,8 +204,9 @@ RSpec.describe ElasticAPM do
             span2 = Thread.new do
               ElasticAPM.with_span('job 2', parent: transaction) { |span| span }
             end.value
+            transaction.done
 
-            expect(ElasticAPM.current_transaction.started_spans).to eq(2)
+            expect(transaction.started_spans).to eq(2)
             expect(span1.parent_id).to eq(span2.parent_id)
             expect(span1.parent_id).to eq(transaction.trace_context.child.parent_id)
             expect(span2.parent_id).to eq(transaction.trace_context.child.parent_id)
@@ -232,7 +233,8 @@ RSpec.describe ElasticAPM do
             expect(span3.parent_id).to eq(span.trace_context.child.parent_id)
             span
           end
-          expect(ElasticAPM.current_transaction.started_spans).to eq(3)
+          transaction.done
+          expect(transaction.started_spans).to eq(3)
           expect(span1.parent_id).to eq(transaction.trace_context.child.parent_id)
         end
       end

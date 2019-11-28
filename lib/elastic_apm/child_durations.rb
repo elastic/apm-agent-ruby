@@ -24,18 +24,23 @@ module ElasticAPM
         @nesting_level = 0
         @start = nil
         @duration = 0
+        @mutex = Mutex.new
       end
 
       attr_reader :duration
 
       def start
-        @nesting_level += 1
-        @start = Util.micros if @nesting_level == 1
+        @mutex.synchronize do
+          @nesting_level += 1
+          @start = Util.micros if @nesting_level == 1
+        end
       end
 
       def stop
-        @nesting_level -= 1
-        @duration = (Util.micros - @start) if @nesting_level == 0
+        @mutex.synchronize do
+          @nesting_level -= 1
+          @duration = (Util.micros - @start) if @nesting_level == 0
+        end
       end
     end
   end
