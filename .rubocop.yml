@@ -10,16 +10,16 @@ require:
 
 # Layout/
 
-Layout/AlignArguments:
+Layout/ArgumentAlignment:
   EnforcedStyle: with_fixed_indentation
 
-Layout/AlignParameters:
+Layout/ParameterAlignment:
   EnforcedStyle: with_fixed_indentation
 
 Layout/EmptyLineAfterGuardClause:
   Enabled: false
 
-Layout/IndentFirstParameter:
+Layout/FirstParameterIndentation:
   Enabled: false
 
 # Lint/
@@ -27,7 +27,7 @@ Layout/IndentFirstParameter:
 Lint/RescueException:
   Enabled: false
 
-Lint/HandleExceptions:
+Lint/SuppressedException:
   Enabled: false
 
 # Metrics /
@@ -61,7 +61,7 @@ Naming/AccessorMethodName:
 Naming/MemoizedInstanceVariableName:
   Enabled: false
 
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
   Enabled: false
 
 # Style/
