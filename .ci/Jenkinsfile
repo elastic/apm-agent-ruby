@@ -46,11 +46,8 @@ pipeline {
     /**
     Cancel all the previous running old builds for the current PR.
     */
-    stage('cancelPreviousRunningBuilds') {
-      when {
-        beforeAgent true
-        changeRequest()
-      }
+    stage('Cancel old builds') {
+      when { changeRequest() }
       options { skipDefaultCheckout() }
       steps {
         cancelPreviousRunningBuilds()
