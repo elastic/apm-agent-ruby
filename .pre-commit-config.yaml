@@ -15,3 +15,4 @@ repos:
     -   id: check-bash-syntax
     -   id: check-jenkins-pipelines
     -   id: check-jjbb
+    -   id: check-unicode-non-breaking-spaces
