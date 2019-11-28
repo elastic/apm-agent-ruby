@@ -75,11 +75,15 @@ module ElasticAPM
       end
 
       def inc!
-        @value += 1
+        @mutex.synchronize do
+          @value += 1
+        end
       end
 
       def dec!
-        @value -= 1
+        @mutex.synchronize do
+          @value -= 1
+        end
       end
     end
 
