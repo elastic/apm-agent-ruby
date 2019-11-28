@@ -31,6 +31,7 @@ docker build --pull --force-rm --build-arg "RUBY_IMAGE=${RUBY_IMAGE}" -t "apm-ag
 RUBY_VERSION=${VERSION} docker-compose run \
   --user $UID \
   -e HOME=/app \
+  -e FRAMEWORK=rails \
   -w /app \
   -e LOCAL_USER_ID=$UID \
   -v "$local_vendor_path:$container_vendor_path" \
