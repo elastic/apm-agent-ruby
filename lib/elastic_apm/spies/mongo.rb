@@ -41,9 +41,16 @@ module ElasticAPM
           # Some MongoDB commands are not on collections but rather are db
           # admin commands. For these commands, the value at the `command_name`
           # key is the integer 1.
-          unless event.command[event.command_name] == 1
-            collection = event.command[event.command_name]
-          end
+          # For getMore commands, the value at `command_name` is the cursor id
+          # and the collection name is at the key `collection`
+          collection =
+            if event.command[event.command_name] == 1 ||
+               event.command[event.command_name].is_a?(BSON::Int64)
+              event.command[:collection]
+            else
+              event.command[event.command_name]
+            end
+
           name = [event.database_name,
                   collection,
                   event.command_name].compact.join('.')
