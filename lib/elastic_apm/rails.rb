@@ -36,6 +36,7 @@ module ElasticAPM
            'action_dispatch'
          )
         require 'elastic_apm/spies/action_dispatch'
+        require 'elastic_apm/spies/action_controller'
       end
 
       ElasticAPM.running?
