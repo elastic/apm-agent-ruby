@@ -37,6 +37,7 @@ if enabled
           config.elastic_apm.capture_body = 'all'
           config.elastic_apm.pool_size = Concurrent.processor_count
           config.elastic_apm.log_path = 'spec/elastic_apm.log'
+          config.elastic_apm.disable_metrics = 'vm'
         end
       end
 
