@@ -107,5 +107,50 @@ module ElasticAPM
       expect(db.statement).to include '{"a"=>BSON::Decimal128(\'1\')}'
       expect(db.user).to be nil
     end
+
+    it 'instruments getMore comments', :intercept do
+      with_agent do
+        client =
+          Mongo::Client.new(
+            [url],
+            database: 'elastic-apm-test',
+            logger: Logger.new(nil),
+            server_selection_timeout: 5
+          )
+
+        3.times { |i| client['testing'].insert_one(a: i) }
+        ElasticAPM.with_transaction 'Mongo test' do
+          client['testing'].find({}, batch_size: 2).to_a
+        end
+
+        client.close
+      end
+
+      find_span, get_more_span = @intercepted.spans
+
+      expect(find_span.name).to eq 'elastic-apm-test.testing.find'
+      expect(find_span.type).to eq 'db'
+      expect(find_span.subtype).to eq 'mongodb'
+      expect(find_span.action).to eq 'query'
+      expect(find_span.duration).to_not be_nil
+
+      db = find_span.context.db
+      expect(db.instance).to eq 'elastic-apm-test'
+      expect(db.type).to eq 'mongodb'
+      expect(db.statement).to include '{"find"=>"testing"'
+      expect(db.user).to be nil
+
+      expect(get_more_span.name).to eq 'elastic-apm-test.testing.getMore'
+      expect(get_more_span.type).to eq 'db'
+      expect(get_more_span.subtype).to eq 'mongodb'
+      expect(get_more_span.action).to eq 'query'
+      expect(get_more_span.duration).to_not be_nil
+
+      db = get_more_span.context.db
+      expect(db.instance).to eq 'elastic-apm-test'
+      expect(db.type).to eq 'mongodb'
+      expect(db.statement).to include '{"getMore"=>#<BSON::Int64'
+      expect(db.user).to be nil
+    end
   end
 end
