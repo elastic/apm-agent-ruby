@@ -5,10 +5,9 @@ import co.elastic.matrix.*
 import groovy.transform.Field
 
 /**
-This is the parallel tasks generator,
-it is need as field to store the results of the tests.
+ This is required to store the results of the tests.
 */
-@Field def rubyTasksGen
+@Field def rubyTasksFailed = false
 
 pipeline {
   agent { label 'linux && immutable' }
@@ -155,15 +154,21 @@ pipeline {
           }
         }
       }
+      stage('Populate Test failures') {
+        when {
+          expression { return rubyTasksFailed }
+        }
+        steps {
+          error('There were some failures when running the "Test" stage')
+        }
+      }
       stage('Integration Tests') {
         agent none
         when {
           beforeAgent true
-          allOf {
-            anyOf {
-              environment name: 'GIT_BUILD_CAUSE', value: 'pr'
-              expression { return !params.Run_As_Master_Branch }
-            }
+          anyOf {
+            changeRequest()
+            expression { return !params.Run_As_Master_Branch }
           }
         }
         steps {
@@ -186,9 +191,7 @@ pipeline {
         }
         when {
           beforeAgent true
-          anyOf {
-            tag pattern: 'v\\d+.*', comparator: 'REGEXP'
-          }
+          tag pattern: 'v\\d+.*', comparator: 'REGEXP'
         }
         steps {
           withGithubNotify(context: 'Release') {
@@ -258,11 +261,18 @@ def runBenchmark(version){
 }
 
 def runJob(rubyVersion){
-  build( job: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}",
-    parameters: [
-      string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
-      string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}")
-    ],
-    quietPeriod: 15
-  )
+  try {
+    build( job: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}",
+      parameters: [
+        string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
+        string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}")
+      ],
+      quietPeriod: 15
+    )
+  } catch(e) {
+    rubyTasksFailed = true
+    warnError('Test Failures') {
+      error("Downstream job for '${rubyVersion}' failed")
+    }
+  }
 }
