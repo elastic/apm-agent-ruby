@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'json'
-require './lib/elastic_apm/sql/tokenizer'
+require 'elastic_apm/sql/tokenizer'
 
 module ElasticAPM
   module Sql

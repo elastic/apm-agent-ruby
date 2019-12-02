@@ -14,6 +14,7 @@ module ElasticAPM
 
       def initialize(input)
         @input = input
+
         @scanner = StringScanner.new(input)
         @start = 0
       end
@@ -28,7 +29,7 @@ module ElasticAPM
         scanner.skip(SPACE)
 
         @start = scanner.pos
-        @token = next_token
+        @token = next_token(next_char)
 
         true
       end
@@ -36,9 +37,7 @@ module ElasticAPM
       private
 
       # rubocop:disable Metrics/CyclomaticComplexity
-      def next_token
-        char = next_char
-
+      def next_token(char)
         case char
         when '_'   then scan_keyword_or_identifier(possible_keyword: false)
         when '.'   then PERIOD
@@ -65,7 +64,14 @@ module ElasticAPM
       end
 
       def peek_char
-        @scanner.peek(1)
+        # TODO: Unlike getch, this may return incomplete utf chars
+        # Need to figure out a way to detect and seek longer
+        # @scanner.peek(1)
+
+        # Maybe?
+        @scanner.getch.tap do |char|
+          @scanner.pos -= char.bytesize if char
+        end
       end
 
       # rubocop:disable Metrics/CyclomaticComplexity
@@ -119,14 +125,14 @@ module ElasticAPM
                 return STRING
               when SPACE
                 # Unknown token starting with $, consume chars until space.
-                @end -= 1
+                @end -= char.bytesize
                 return OTHER
               end
             end
           end
-
-          break OTHER
         end
+
+        OTHER
       end
       # rubocop:enable Metrics/PerceivedComplexity
       # rubocop:enable Metrics/CyclomaticComplexity
@@ -143,8 +149,8 @@ module ElasticAPM
         end
 
         # Remove quotes from identifier
-        @start += 1
-        @end -= 1
+        @start += char.bytesize
+        @end -= char.bytesize
 
         IDENT
       end
@@ -200,9 +206,29 @@ module ElasticAPM
         end
       end
 
+      # rubocop:disable Metrics/CyclomaticComplexity
       def scan_numeric_literal
+        period = false
+        exponent = false
 
+        while (peek = peek_char)
+          case peek
+          when DIGIT then next_char
+          when '.'
+            return NUMBER if period
+            next_char
+            period = true
+          when 'e', 'E'
+            return NUMBER if exponent
+            next_char
+            next_char if peek_char =~ /[+-]/
+          else break
+          end
+        end
+
+        NUMBER
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
     end
   end
 end
