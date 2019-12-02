@@ -163,7 +163,7 @@ if enabled
           span1, span2 = EventCollector.spans
           expect(span2['stacktrace'][0]).not_to be(nil)
           expect(span2['stacktrace'][0]['filename'])
-              .to eq('abstract_controller/base.rb')
+            .to eq('abstract_controller/base.rb')
         end
       end
 
