@@ -39,7 +39,8 @@ module ElasticAPM
         8 => [TRUNCATE]
       }.freeze
 
-      KEYWORD_MAX_LENGTH = 8
+      KEYWORD_MIN_LENGTH = KEYWORDS.keys.first
+      KEYWORD_MAX_LENGTH = KEYWORDS.keys.last
     end
   end
 end

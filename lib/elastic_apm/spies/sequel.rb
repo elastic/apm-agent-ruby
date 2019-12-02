@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'elastic_apm/sql_summarizer'
-require 'elastic_apm/sql/tokenizer'
 
 module ElasticAPM
   # @api private

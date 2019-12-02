@@ -29,7 +29,11 @@ module ElasticAPM
         scanner.skip(SPACE)
 
         @byte_start = scanner.pos
-        @token = next_token(next_char)
+        char = next_char
+
+        return false unless char
+
+        @token = next_token(char)
 
         true
       end
@@ -105,7 +109,9 @@ module ElasticAPM
 
         snap = text
 
-        return IDENT if snap.length > KEYWORD_MAX_LENGTH
+        if snap.length < KEYWORD_MIN_LENGTH || snap.length > KEYWORD_MAX_LENGTH
+          return IDENT
+        end
 
         keyword = KEYWORDS[snap.length].find { |kw| snap.upcase == kw.to_s }
         return keyword if keyword
@@ -121,7 +127,7 @@ module ElasticAPM
           case peek
           when DIGIT
             next_char while peek_char =~ DIGIT
-          when '$', '_', ALPHA
+          when '$', '_', ALPHA, SPACE
             # PostgreSQL supports dollar-quoted string literal syntax,
             # like $foo$...$foo$. The tag (foo in this case) is optional,
             # and if present follows identifier rules.
@@ -144,6 +150,7 @@ module ElasticAPM
                 return OTHER
               end
             end
+          else break
           end
         end
 
