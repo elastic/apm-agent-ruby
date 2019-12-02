@@ -16,19 +16,19 @@ module ElasticAPM
         @input = input
 
         @scanner = StringScanner.new(input)
-        @start = 0
+        @byte_start = 0
       end
 
       attr_reader :input, :scanner, :token
 
       def text
-        @input[@start...@end]
+        @input.byteslice(@byte_start, @byte_end - @byte_start)
       end
 
       def scan
         scanner.skip(SPACE)
 
-        @start = scanner.pos
+        @byte_start = scanner.pos
         @token = next_token(next_char)
 
         true
@@ -59,7 +59,7 @@ module ElasticAPM
 
       def next_char
         @scanner.getch.tap do
-          @end = @scanner.pos
+          @byte_end = @scanner.pos
         end
       end
 
@@ -92,7 +92,6 @@ module ElasticAPM
       # rubocop:disable Metrics/CyclomaticComplexity
       def scan_keyword_or_identifier(possible_keyword:)
         while (peek = peek_char)
-          pp(peek: peek)
           case peek
           when ALPHA then nil # next
           when DIGIT, '_', '$' then possible_keyword = false
@@ -119,7 +118,6 @@ module ElasticAPM
       # rubocop:disable Metrics/PerceivedComplexity
       def scan_dollar_sign
         while (peek = peek_char)
-          pp(peek: peek)
           case peek
           when DIGIT
             next_char while peek_char =~ DIGIT
@@ -136,13 +134,13 @@ module ElasticAPM
                 index = slice.index(snap)
                 next unless index && index >= 0
 
-                delta = index + snap.length
-                @end += delta
+                delta = index + snap.bytesize
+                @byte_end += delta
                 scanner.pos += delta
                 return STRING
               when SPACE
                 # Unknown token starting with $, consume chars until space.
-                @end -= char.bytesize
+                @byte_end -= char.bytesize
                 return OTHER
               end
             end
@@ -166,8 +164,8 @@ module ElasticAPM
         end
 
         # Remove quotes from identifier
-        @start += char.bytesize
-        @end -= char.bytesize
+        @byte_start += char.bytesize
+        @byte_end -= char.bytesize
 
         IDENT
       end
@@ -229,7 +227,6 @@ module ElasticAPM
         exponent = false
 
         while (peek = peek_char)
-          pp(peek: peek)
           case peek
           when DIGIT then next_char
           when '.'
