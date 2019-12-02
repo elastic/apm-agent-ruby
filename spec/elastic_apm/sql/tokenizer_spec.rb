@@ -10,7 +10,9 @@ module ElasticAPM
           JSON.parse(File.read('spec/fixtures/sql_lexer_examples.json'))
 
         examples.each do |info|
-          it info['comment'] do
+          desc = info['name']
+          desc += ": #{info['comment']}" if info['comment']
+          it desc do
             scanner = described_class.new(info['input'])
 
             info.fetch('tokens', []).each do |expected|
