@@ -5,6 +5,7 @@ module ElasticAPM
   module Spies
     # @api private
     module ActionController
+      # @api private
       class BasicImplicitRenderSpy
         def install
           ::ActionController::BasicImplicitRender.module_eval do
