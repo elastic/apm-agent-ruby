@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'strscan'
 require 'elastic_apm/sql/tokens'
 
 module ElasticAPM
