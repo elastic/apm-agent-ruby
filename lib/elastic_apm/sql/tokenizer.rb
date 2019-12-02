@@ -63,20 +63,36 @@ module ElasticAPM
         end
       end
 
-      def peek_char
-        # TODO: Unlike getch, this may return incomplete utf chars
-        # Need to figure out a way to detect and seek longer
-        # @scanner.peek(1)
+      # TODO: Unlike getch, this may return incomplete utf chars
+      # Need to figure out a way to detect and seek longer
 
-        # Maybe?
-        @scanner.getch.tap do |char|
-          @scanner.pos -= char.bytesize if char
-        end
+      # Returns next byte, fails with multibyte chars
+      # def peek_char
+      #   @scanner.peek(1)
+      # end
+
+      # Works, but messes with pos
+      # def peek_char
+      #   @scanner.getch.tap do |char|
+      #     @scanner.pos -= char.bytesize if char
+      #   end
+      # end
+
+      # Works, but need to check how performant `valid_encoding?` is and needs
+      # to abort if length reaches max unicode char byte size(?)
+      def peek_char(length = 1)
+        char = @scanner.peek(length)
+
+        return nil if char.empty?
+        return char if char.valid_encoding?
+
+        peek_char(length + 1)
       end
 
       # rubocop:disable Metrics/CyclomaticComplexity
       def scan_keyword_or_identifier(possible_keyword:)
         while (peek = peek_char)
+          pp(peek: peek)
           case peek
           when ALPHA then nil # next
           when DIGIT, '_', '$' then possible_keyword = false
@@ -103,6 +119,7 @@ module ElasticAPM
       # rubocop:disable Metrics/PerceivedComplexity
       def scan_dollar_sign
         while (peek = peek_char)
+          pp(peek: peek)
           case peek
           when DIGIT
             next_char while peek_char =~ DIGIT
@@ -212,6 +229,7 @@ module ElasticAPM
         exponent = false
 
         while (peek = peek_char)
+          pp(peek: peek)
           case peek
           when DIGIT then next_char
           when '.'
