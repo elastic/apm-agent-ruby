@@ -248,6 +248,7 @@ RSpec.describe ElasticAPM do
             span
           end
           transaction.done
+
           expect(transaction.started_spans).to eq(3)
           expect(span1.parent_id).to eq(
             transaction.trace_context.child.parent_id
