@@ -168,8 +168,12 @@ RSpec.describe ElasticAPM do
 
           expect(transaction.started_spans).to eq(2)
           expect(span1.parent_id).to eq(span2.parent_id)
-          expect(span1.parent_id).to eq(transaction.trace_context.child.parent_id)
-          expect(span2.parent_id).to eq(transaction.trace_context.child.parent_id)
+          expect(span1.parent_id).to eq(
+            transaction.trace_context.child.parent_id
+          )
+          expect(span2.parent_id).to eq(
+            transaction.trace_context.child.parent_id
+          )
         end
       end
 
@@ -189,8 +193,12 @@ RSpec.describe ElasticAPM do
 
             expect(transaction.started_spans).to eq(2)
             expect(span1.parent_id).to eq(span2.parent_id)
-            expect(span1.parent_id).to eq(transaction.trace_context.child.parent_id)
-            expect(span2.parent_id).to eq(transaction.trace_context.child.parent_id)
+            expect(span1.parent_id).to eq(
+              transaction.trace_context.child.parent_id
+            )
+            expect(span2.parent_id).to eq(
+              transaction.trace_context.child.parent_id
+            )
           end
         end
       end
@@ -210,8 +218,12 @@ RSpec.describe ElasticAPM do
 
             expect(transaction.started_spans).to eq(2)
             expect(span1.parent_id).to eq(span2.parent_id)
-            expect(span1.parent_id).to eq(transaction.trace_context.child.parent_id)
-            expect(span2.parent_id).to eq(transaction.trace_context.child.parent_id)
+            expect(span1.parent_id).to eq(
+              transaction.trace_context.child.parent_id
+            )
+            expect(span2.parent_id).to eq(
+              transaction.trace_context.child.parent_id
+            )
           end
         end
       end
@@ -237,7 +249,9 @@ RSpec.describe ElasticAPM do
           end
           transaction.done
           expect(transaction.started_spans).to eq(3)
-          expect(span1.parent_id).to eq(transaction.trace_context.child.parent_id)
+          expect(span1.parent_id).to eq(
+            transaction.trace_context.child.parent_id
+          )
         end
       end
     end

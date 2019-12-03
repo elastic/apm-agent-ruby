@@ -136,6 +136,7 @@ module ElasticAPM
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
     # rubocop:disable Metrics/ParameterLists
     def start_span(
       name,
@@ -148,14 +149,15 @@ module ElasticAPM
       parent: nil
     )
 
-      transaction = case parent
+      transaction =
+        case parent
         when Span
           parent.transaction
         when Transaction
           parent
         else
           current_transaction
-      end
+        end
       return unless transaction
       return unless transaction.sampled?
       return unless transaction.inc_started_spans!
@@ -184,6 +186,7 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/ParameterLists
     # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/PerceivedComplexity
 
     def end_span
       return unless (span = current_spans.pop)
