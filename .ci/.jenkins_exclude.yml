@@ -1,5 +1,6 @@
 exclude:
-  # Tests fail, but we don't care
+  - RUBY_VERSION: ruby:2.7-rc
+    FRAMEWORK: rails-4.2
   - RUBY_VERSION: jruby:9.2
     FRAMEWORK: rails-4.2
   - RUBY_VERSION: jruby:9.1
