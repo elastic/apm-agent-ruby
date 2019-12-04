@@ -19,14 +19,14 @@ end
 ----
 
 [float]
-==== Adding tags
+==== Adding labels
 
-Tags are special in that they are indexed in your Elasticsearch database and
-therefore searchable.
+Labels are special in that they are indexed in your Elasticsearch database and
+therefore queryable.
 
 [source,ruby]
 ----
-ElasticAPM.set_tag(:company_name, 'Acme, Inc.')
+ElasticAPM.set_label(:company_name, 'Acme, Inc.')
 ----
 
 Note that `.`, `*` and `"` in keys are converted to `_`.
