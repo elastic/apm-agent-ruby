@@ -49,12 +49,22 @@ module ElasticAPM
             cls = use_ssl? ? URI::HTTPS : URI::HTTP
             uri = cls.build([nil, host, port, path, query, nil])
 
+            context =
+              ElasticAPM::Span::Context.new(
+                http: { url: uri },
+                destination: {
+                  name: Util.sanitize_url(uri),
+                  resource: "#{uri.host}:#{uri.port}",
+                  type: 'external'
+                }
+              )
+
             ElasticAPM.with_span(
               "#{method} #{host}",
               TYPE,
               subtype: SUBTYPE,
               action: method.to_s,
-              context: ElasticAPM::Span::Context.from_uri(uri)
+              context: context
             ) do |span|
               trace_context = span&.trace_context || transaction.trace_context
               req['Elastic-Apm-Traceparent'] = trace_context.to_header

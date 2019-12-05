@@ -18,18 +18,15 @@ module ElasticAPM
         @labels = labels
       end
 
-      attr_accessor :sync, :db, :http, :labels
-      attr_reader :destination
+      attr_reader(
+        :db,
+        :destination,
+        :http,
+        :labels,
+        :sync
+      )
 
       def self.from_uri(uri)
-        new(
-          http: { url: uri.to_s },
-          destination: {
-            name: uri.to_s,
-            resource: "#{uri.host}:#{uri.port}",
-            type: 'external'
-          }
-        )
       end
     end
   end
