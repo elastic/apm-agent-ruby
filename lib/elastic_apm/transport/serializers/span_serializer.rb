@@ -34,18 +34,22 @@ module ElasticAPM
           def build(context)
             return unless context
 
-            {}.tap do |base|
-              base[:sync] = context.sync unless context.sync.nil?
-              base[:db] = build_db(context.db) if context.db
-              base[:http] = build_http(context.http) if context.http
+            base = {}
+
+            base[:sync] = context.sync if context.sync
+            base[:db] = build_db(context.db) if context.db
+            base[:http] = build_http(context.http) if context.http
+
+            if context.destination
+              base[:destination] = build_destination(context.destination)
             end
+
+            base
           end
 
           private
 
           def build_db(db)
-            return unless db
-
             {
               instance: db.instance,
               statement: Util.truncate(db.statement, max_length: 10_000),
@@ -55,12 +59,20 @@ module ElasticAPM
           end
 
           def build_http(http)
-            return unless http
-
             {
               url: http.url,
               status_code: http.status_code.to_i,
               method: keyword_field(http.method)
+            }
+          end
+
+          def build_destination(destination)
+            {
+              service: {
+                name: destination.name,
+                resource: destination.resource,
+                type: destination.type
+              }
             }
           end
         end

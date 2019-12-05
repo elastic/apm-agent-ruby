@@ -94,6 +94,26 @@ module ElasticAPM
             end
           end
 
+          context 'with a destination' do
+            it 'adds destination object' do
+              span = Span.new(
+                name: 'Span',
+                transaction: transaction,
+                parent: transaction,
+                trace_context: trace_context,
+                context: Span::Context.new(
+                  destination: { name: 'a', resource: 'b', type: 'c' }
+                )
+              )
+
+              result = subject.build(span)
+
+              expect(result.dig(:span, :context, :destination)).to match(
+                service: { name: 'a', resource: 'b', type: 'c' }
+              )
+            end
+          end
+
           context 'with a large db.statement' do
             it 'truncates to 10k chars' do
               span = Span.new(

@@ -8,6 +8,7 @@ module ElasticAPM
       KEY = :__elastic_apm_net_http_disabled
       TYPE = 'ext'
       SUBTYPE = 'net_http'
+
       class << self
         def disabled=(disabled)
           Thread.current[KEY] = disabled
@@ -36,22 +37,24 @@ module ElasticAPM
             unless (transaction = ElasticAPM.current_transaction)
               return request_without_apm(req, body, &block)
             end
+
             if ElasticAPM::Spies::NetHTTPSpy.disabled?
               return request_without_apm(req, body, &block)
             end
 
-            host, = req['host']&.split(':')
+            host = req['host']&.split(':')&.first || address
             method = req.method
+            path, query = req.path.split('?')
 
-            host ||= address
-
-            name = "#{method} #{host}"
+            cls = use_ssl? ? URI::HTTPS : URI::HTTP
+            uri = cls.build([nil, host, port, path, query, nil])
 
             ElasticAPM.with_span(
-              name,
+              "#{method} #{host}",
               TYPE,
               subtype: SUBTYPE,
-              action: method.to_s
+              action: method.to_s,
+              context: ElasticAPM::Span::Context.from_uri(uri)
             ) do |span|
               trace_context = span&.trace_context || transaction.trace_context
               req['Elastic-Apm-Traceparent'] = trace_context.to_header

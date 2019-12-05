@@ -86,5 +86,25 @@ module ElasticAPM
       ElasticAPM.stop
       WebMock.reset!
     end
+
+    describe 'destination info' do
+      it 'adds to span context' do
+        WebMock.stub_request(:get, %r{http://example.com:1234/.*})
+
+        with_agent do
+          ElasticAPM.with_transaction 'Net::HTTP test' do
+            Net::HTTP.start('example.com', 1234) do |http|
+              http.get '/some/path?a=1'
+            end
+          end
+        end
+
+        span, = @intercepted.spans
+
+        expect(span.context.destination.name).to eq 'http://example.com:1234/some/path?a=1'
+        expect(span.context.destination.resource).to eq 'example.com:1234'
+        expect(span.context.destination.type).to eq 'external'
+      end
+    end
   end
 end
