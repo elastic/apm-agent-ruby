@@ -63,29 +63,20 @@ module ElasticAPM
       # rubocop:enable Metrics/CyclomaticComplexity
 
       def next_char
-        @scanner.getch.tap do
-          @byte_end = @scanner.pos
-        end
+        char = @scanner.getch
+        @byte_end = @scanner.pos
+        char
       end
 
-      # TODO: Unlike getch, this may return incomplete utf chars
-      # Need to figure out a way to detect and seek longer
-
-      # Returns next byte, fails with multibyte chars
-      # def peek_char
-      #   @scanner.peek(1)
-      # end
-
-      # Works, but messes with pos
-      # def peek_char
-      #   @scanner.getch.tap do |char|
-      #     @scanner.pos -= char.bytesize if char
-      #   end
-      # end
-
-      # Works, but need to check how performant `valid_encoding?` is and needs
-      # to abort if length reaches max unicode char byte size(?)
+      # StringScanner#peek returns next byte which could be an incomplete utf
+      # multi-byte character
       def peek_char(length = 1)
+        # The maximum byte count of utf chars is 4:
+        # > In UTF-8, characters from the U+0000..U+10FFFF range (the UTF-16
+        #   accessible range) are encoded using sequences of 1 to 4 octets.
+        # # https://tools.ietf.org/html/rfc3629
+        return nil if length > 4
+
         char = @scanner.peek(length)
 
         return nil if char.empty?
