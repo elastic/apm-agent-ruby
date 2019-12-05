@@ -232,7 +232,8 @@ pipeline {
                 // The opbeans pipeline will trigger a release for the master branch
                 gitPush()
                 // The opbeans pipeline will trigger a release for the release tag
-                gitCreateTag(tag: "${env.BRANCH_NAME}")
+                // It's required to transform the tag value to the gem version
+                gitCreateTag(tag: "${env.BRANCH_NAME.replaceAll('^v', '')}")
               }
             }
           }
