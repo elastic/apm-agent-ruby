@@ -26,14 +26,17 @@ endif::[]
 [float]
 ===== Fixed
 - Fix {pull}2526[#2526]
+
+[float]
+[[unreleased]]
+==== Unreleased
 ////
 
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
-[float]
-[[unreleased]]
-==== Unreleased
+[[release-notes-3.3.0]]
+==== 3.2.0 (2019-12-05)
 
 [float]
 ===== Added
