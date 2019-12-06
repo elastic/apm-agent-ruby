@@ -14,7 +14,11 @@ module ElasticAPM
         @sync = sync
         @db = db && Db.new(db)
         @http = http && Http.new(http)
-        @destination = destination && Destination.new(destination)
+        @destination =
+          case destination
+          when Destination then destination
+          when Hash then Destination.new(**destination)
+          end
         @labels = labels
       end
 

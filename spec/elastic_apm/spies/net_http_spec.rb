@@ -22,6 +22,26 @@ module ElasticAPM
       expect(span.name).to eq 'GET example.com'
     end
 
+    it 'adds http context' do
+      WebMock.stub_request(:get, %r{http://example.com/.*})
+
+      with_agent do
+        ElasticAPM.with_transaction 'Net::HTTP test' do
+          Net::HTTP.start('example.com') do |http|
+            http.get '/page.html'
+          end
+        end
+      end
+
+      span, = @intercepted.spans
+
+      http = span.context.http
+
+      expect(http.url).to match('http://example.com/page.html')
+      expect(http.method).to match('GET')
+      expect(http.status_code).to match('200')
+    end
+
     it 'adds traceparent header' do
       req_stub =
         WebMock.stub_request(:get, %r{http://example.com/.*}).with do |req|

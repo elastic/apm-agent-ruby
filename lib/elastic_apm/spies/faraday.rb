@@ -16,7 +16,6 @@ module ElasticAPM
         end
       end
 
-      # rubocop:disable Metrics/PerceivedComplexity
       # rubocop:disable Metrics/CyclomaticComplexity
       def install
         ::Faraday::Connection.class_eval do
@@ -27,40 +26,59 @@ module ElasticAPM
               return run_request_without_apm(method, url, body, headers, &block)
             end
 
-            host = if url_prefix.is_a?(URI) && url_prefix.host
-                     url_prefix.host
-                   elsif url.nil?
-                     tmp_request = build_request(method) do |req|
-                       yield(req) if block_given?
-                     end
-                     URI(tmp_request.path).host
-                   else
-                     URI(url).host
-                   end
+            uri = URI(build_url(url))
 
-            name = "#{method.upcase} #{host}"
+            # If url is set inside block it isn't available until yield,
+            # so we temporarily build the request to yield. This could be a
+            # problem if the block has side effects as it will be yielded twice
+            # ~mikker
+            unless uri.host
+              tmp_request = build_request(method) do |req|
+                yield(req) if block_given?
+              end
+              uri = URI(tmp_request.path)
+            end
+
+            host = uri.host
+
+            upcased_method = method.to_s.upcase
+
+            destination = ElasticAPM::Span::Context::Destination.from_uri(uri)
+
+            context =
+              ElasticAPM::Span::Context.new(
+                http: { url: uri, method: upcased_method },
+                destination: destination
+              )
 
             ElasticAPM.with_span(
-              name,
+              "#{upcased_method} #{host}",
               TYPE,
               subtype: SUBTYPE,
-              action: method.to_s
+              action: upcased_method,
+              context: context
             ) do |span|
               ElasticAPM::Spies::FaradaySpy.without_net_http do
                 trace_context = span&.trace_context || transaction.trace_context
 
-                run_request_without_apm(method, url, body, headers) do |req|
-                  req['Elastic-Apm-Traceparent'] = trace_context.to_header
+                result =
+                  run_request_without_apm(method, url, body, headers) do |req|
+                    req['Elastic-Apm-Traceparent'] = trace_context.to_header
 
-                  yield req if block_given?
+                    yield req if block_given?
+                  end
+
+                if (http = span&.context&.http)
+                  http.status_code = result.status.to_s
                 end
+
+                result
               end
             end
           end
         end
       end
       # rubocop:enable Metrics/CyclomaticComplexity
-      # rubocop:enable Metrics/PerceivedComplexity
     end
 
     register 'Faraday', 'faraday', FaradaySpy.new

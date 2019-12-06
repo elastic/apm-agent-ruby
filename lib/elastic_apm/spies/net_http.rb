@@ -43,7 +43,7 @@ module ElasticAPM
             end
 
             host = req['host']&.split(':')&.first || address
-            method = req.method
+            method = req.method.to_s.upcase
             path, query = req.path.split('?')
 
             cls = use_ssl? ? URI::HTTPS : URI::HTTP
@@ -51,7 +51,7 @@ module ElasticAPM
 
             context =
               ElasticAPM::Span::Context.new(
-                http: { url: uri },
+                http: { url: uri, method: method },
                 destination: {
                   name: Util.sanitize_url(uri),
                   resource: "#{uri.host}:#{uri.port}",
@@ -63,12 +63,18 @@ module ElasticAPM
               "#{method} #{host}",
               TYPE,
               subtype: SUBTYPE,
-              action: method.to_s,
+              action: method,
               context: context
             ) do |span|
               trace_context = span&.trace_context || transaction.trace_context
               req['Elastic-Apm-Traceparent'] = trace_context.to_header
-              request_without_apm(req, body, &block)
+              result = request_without_apm(req, body, &block)
+
+              if (http = span&.context&.http)
+                http.status_code = result.code
+              end
+
+              result
             end
           end
         end

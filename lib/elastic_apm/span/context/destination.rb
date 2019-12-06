@@ -12,6 +12,14 @@ module ElasticAPM
         end
 
         attr_reader :name, :resource, :type
+
+        def self.from_uri(uri)
+          new(
+            name: Util.sanitize_url(uri),
+            resource: "#{uri.host}:#{uri.port}",
+            type: 'external'
+          )
+        end
       end
     end
   end
