@@ -69,9 +69,9 @@ module ElasticAPM
           def build_destination(destination)
             {
               service: {
-                name: destination.name,
-                resource: destination.resource,
-                type: destination.type
+                name: keyword_field(destination.name),
+                resource: keyword_field(destination.resource),
+                type: keyword_field(destination.type)
               }
             }
           end
