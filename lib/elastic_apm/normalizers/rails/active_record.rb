@@ -25,14 +25,20 @@ module ElasticAPM
           return :skip if SKIP_NAMES.include?(payload[:name])
 
           name = summarize(payload[:sql]) || payload[:name]
+          subtype = subtype_for(payload)
+
           context =
-            Span::Context.new(db: { statement: payload[:sql], type: 'sql' })
-          [name, TYPE, subtype(payload), ACTION, context]
+            Span::Context.new(
+              db: { statement: payload[:sql], type: 'sql' },
+              destination: { name: subtype, resource: subtype, type: TYPE }
+            )
+
+          [name, TYPE, subtype, ACTION, context]
         end
 
         private
 
-        def subtype(payload)
+        def subtype_for(payload)
           cached_adapter_name(
             payload[:connection]&.adapter_name ||
               ::ActiveRecord::Base.connection_config[:adapter]
