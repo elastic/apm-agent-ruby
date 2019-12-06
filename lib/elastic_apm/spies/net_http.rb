@@ -29,6 +29,7 @@ module ElasticAPM
         end
       end
 
+      # rubocop:disable Metrics/CyclomaticComplexity
       def install
         Net::HTTP.class_eval do
           alias request_without_apm request
@@ -79,6 +80,7 @@ module ElasticAPM
           end
         end
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
     end
 
     register 'Net::HTTP', 'net/http', NetHTTPSpy.new

@@ -126,5 +126,24 @@ module ElasticAPM
         expect(span.context.destination.type).to eq 'external'
       end
     end
+
+    it 'handles IPv6 addresses' do
+      WebMock.stub_request(:get, %r{http://\[::1\]/.*})
+
+      with_agent do
+        ElasticAPM.with_transaction 'Net::HTTP test' do
+          Net::HTTP.start('[::1]') do |http|
+            http.get '/path'
+          end
+        end
+      end
+
+      span, = @intercepted.spans
+
+      expect(span.name).to eq 'GET [::1]'
+      expect(span.context.destination.name).to eq 'http://[::1]/path'
+      expect(span.context.destination.resource).to eq '[::1]:80'
+      expect(span.context.destination.type).to eq 'external'
+    end
   end
 end
