@@ -18,6 +18,9 @@ git config --global user.name "${USER_NAME}"
 git fetch --all
 git checkout "${BRANCH_NAME}"
 
+# Checkout the master branch to be able to rebase the *.x branch
+git checkout master
+
 # Ensure the master branch points to the original commit to avoid commit injection
 # when running the release pipeline.
 # used GIT_BASE_COMMIT instead GIT_COMMIT to support the MultiBranchPipelines.
