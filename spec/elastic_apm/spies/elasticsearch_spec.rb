@@ -23,6 +23,11 @@ module ElasticAPM
       expect(span.context.db.statement).to eq('{"q":"test"}')
 
       expect(net_span.name).to eq 'GET localhost'
+
+      destination = span.context.destination
+      expect(destination.name).to eq 'elasticsearch'
+      expect(destination.resource).to eq 'elasticsearch'
+      expect(destination.type).to eq 'db'
     end
   end
 end

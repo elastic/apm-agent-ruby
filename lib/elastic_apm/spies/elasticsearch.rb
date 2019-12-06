@@ -14,7 +14,15 @@ module ElasticAPM
           def perform_request(method, path, *args, &block)
             name = format(NAME_FORMAT, method, path)
             statement = args[0].is_a?(String) ? args[0] : args[0].to_json
-            context = Span::Context.new(db: { statement: statement })
+
+            context = Span::Context.new(
+              db: { statement: statement },
+              destination: {
+                name: 'elasticsearch',
+                resource: 'elasticsearch',
+                type: 'db'
+              }
+            )
 
             ElasticAPM.with_span name, TYPE, context: context do
               perform_request_without_apm(method, path, *args, &block)
