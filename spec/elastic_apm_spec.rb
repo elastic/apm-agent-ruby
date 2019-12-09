@@ -258,7 +258,6 @@ RSpec.describe ElasticAPM do
         with_agent do
           transaction = ElasticAPM.start_transaction
           span1 = ElasticAPM.with_span 'run all the jobs' do |span|
-
             span2 = Thread.new do
               ElasticAPM.with_span('job 1', parent: span) { |s| s }
             end.value
