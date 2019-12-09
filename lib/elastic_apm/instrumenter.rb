@@ -146,7 +146,8 @@ module ElasticAPM
       backtrace: nil,
       context: nil,
       trace_context: nil,
-      parent: nil
+      parent: nil,
+      sync: nil
     )
 
       transaction =
@@ -173,7 +174,8 @@ module ElasticAPM
         trace_context: trace_context,
         type: type,
         context: context,
-        stacktrace_builder: stacktrace_builder
+        stacktrace_builder: stacktrace_builder,
+        sync: sync
       )
 
       if backtrace && transaction.config.span_frames_min_duration?

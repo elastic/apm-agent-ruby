@@ -180,7 +180,8 @@ module ElasticAPM
       context: nil,
       include_stacktrace: true,
       trace_context: nil,
-      parent: nil
+      parent: nil,
+      sync: nil
     )
       agent&.start_span(
         name,
@@ -189,7 +190,8 @@ module ElasticAPM
         action: action,
         context: context,
         trace_context: trace_context,
-        parent: parent
+        parent: parent,
+        sync: sync
       ).tap do |span|
         break unless span && include_stacktrace
         break unless agent.config.span_frames_min_duration?
@@ -227,7 +229,8 @@ module ElasticAPM
       context: nil,
       include_stacktrace: true,
       trace_context: nil,
-      parent: nil
+      parent: nil,
+      sync: nil
     )
       unless block_given?
         raise ArgumentError,
@@ -246,7 +249,8 @@ module ElasticAPM
             context: context,
             include_stacktrace: include_stacktrace,
             trace_context: trace_context,
-            parent: parent
+            parent: parent,
+            sync: sync
           )
         yield span
       ensure

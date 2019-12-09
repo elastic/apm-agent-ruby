@@ -34,7 +34,8 @@ module ElasticAPM
           def build(context)
             return unless context
 
-            { sync: context.sync }.tap do |base|
+            {}.tap do |base|
+              base[:sync] = context.sync unless context.sync.nil?
               base[:db] = build_db(context.db) if context.db
               base[:http] = build_http(context.http) if context.http
             end

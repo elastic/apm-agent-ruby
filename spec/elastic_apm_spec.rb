@@ -158,11 +158,19 @@ RSpec.describe ElasticAPM do
         with_agent do
           transaction = ElasticAPM.start_transaction
           span1 = Thread.new do
-            ElasticAPM.with_span('job 1', parent: transaction) { |span| span }
+            ElasticAPM.with_span(
+              'job 1',
+              parent: transaction,
+              sync: false
+            ) { |span| span }
           end.value
 
           span2 = Thread.new do
-            ElasticAPM.with_span('job 2', parent: transaction) { |span| span }
+            ElasticAPM.with_span(
+              'job 2',
+              parent: transaction,
+              sync: false
+            ) { |span| span }
           end.value
           transaction.done
 
@@ -171,9 +179,11 @@ RSpec.describe ElasticAPM do
           expect(span1.parent_id).to eq(
             transaction.trace_context.child.parent_id
           )
+          expect(span1.context.sync).to be(false)
           expect(span2.parent_id).to eq(
             transaction.trace_context.child.parent_id
           )
+          expect(span2.context.sync).to be(false)
         end
       end
 
@@ -183,19 +193,29 @@ RSpec.describe ElasticAPM do
             transaction = ElasticAPM.start_transaction
             transaction.done
             span1 = Thread.new do
-              ElasticAPM.with_span('job 1', parent: transaction) { |span| span }
+              ElasticAPM.with_span(
+                'job 1',
+                parent: transaction,
+                sync: false
+              ) { |span| span }
             end.value
 
             span2 = Thread.new do
-              ElasticAPM.with_span('job 2', parent: transaction) { |span| span }
+              ElasticAPM.with_span(
+                'job 2',
+                parent: transaction,
+                sync: false
+              ) { |span| span }
             end.value
             transaction.done
 
             expect(transaction.started_spans).to eq(2)
             expect(span1.parent_id).to eq(span2.parent_id)
+            expect(span1.context.sync).to be(false)
             expect(span1.parent_id).to eq(
               transaction.trace_context.child.parent_id
             )
+            expect(span2.context.sync).to be(false)
             expect(span2.parent_id).to eq(
               transaction.trace_context.child.parent_id
             )
@@ -208,7 +228,11 @@ RSpec.describe ElasticAPM do
           with_agent do
             transaction = ElasticAPM.start_transaction
             span1 = Thread.new do
-              ElasticAPM.with_span('job 1', parent: transaction) { |span| span }
+              ElasticAPM.with_span(
+                'job 1',
+                parent: transaction,
+                sync: false
+              ) { |span| span }
             end.value
 
             span2 = Thread.new do
@@ -234,17 +258,18 @@ RSpec.describe ElasticAPM do
         with_agent do
           transaction = ElasticAPM.start_transaction
           span1 = ElasticAPM.with_span 'run all the jobs' do |span|
-            allow(span).to receive(:transaction).and_return(transaction)
 
             span2 = Thread.new do
               ElasticAPM.with_span('job 1', parent: span) { |s| s }
             end.value
             expect(span2.parent_id).to eq(span.trace_context.child.parent_id)
+            expect(span2.context.sync).to be nil
 
             span3 = Thread.new do
               ElasticAPM.with_span('job 2', parent: span) { |s| s }
             end.value
             expect(span3.parent_id).to eq(span.trace_context.child.parent_id)
+            expect(span3.context.sync).to be nil
             span
           end
           transaction.done
@@ -253,6 +278,7 @@ RSpec.describe ElasticAPM do
           expect(span1.parent_id).to eq(
             transaction.trace_context.child.parent_id
           )
+          expect(span1.context.sync).to be nil
         end
       end
     end
