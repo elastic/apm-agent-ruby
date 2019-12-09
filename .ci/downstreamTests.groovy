@@ -121,6 +121,9 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
           if (steps.isCodecovEnabled(x, y)) {
             steps.codecov(repo: "${steps.env.REPO}", basedir: "${steps.env.BASE_DIR}",
                           secret: "${steps.env.CODECOV_SECRET}")
+            steps.coverageReport("${steps.env.BASE_DIR}/coverage/coverage.xml")
+            steps.publishCoverage(adapters: [coberturaAdapter("${steps.env.BASE_DIR}/coverage/coverage.xml")],
+                                  sourceFileResolver: sourceFiles('STORE_ALL_BUILD'))
           }
         }
       }
