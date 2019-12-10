@@ -215,7 +215,7 @@ module ElasticAPM
     # Wrap a block in a Span, ending it after the block
     #
     # @param name [String] A description of the span, eq `SELECT FROM "users"`
-     # @param type [String] The kind of span, eq `db`
+    # @param type [String] The kind of span, eq `db`
     # @param subtype [String] The subtype of span eg. `postgresql`.
     # @param action [String] The action type of span eg. `connect` or `query`.
     # @param context [Span::Context] Context information about the span

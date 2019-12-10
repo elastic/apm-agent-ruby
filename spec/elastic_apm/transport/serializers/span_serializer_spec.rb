@@ -89,7 +89,7 @@ module ElasticAPM
                 expect(result.dig(:span, :context, :db, :statement))
                   .to eq 'asd'
                 expect(result.dig(:span, :context, :http, :url)).to eq 'dsa'
-                expect(result[:span][:context].has_key?(:sync)).to be false
+                expect(result[:span][:context].key?(:sync)).to be false
               end
             end
           end
