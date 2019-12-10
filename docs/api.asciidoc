@@ -159,7 +159,7 @@ You can also set the `sync` flag to `false`, if you'd like the span to be marked
 
 [source,ruby]
 ----
-transaction = ElasticAPM.start_transaction
+transaction = ElasticAPM.current_transaction # or start one with `.start_transaction`
 Thread.new do
   ElasticAPM.start_span(
     'job 1',
