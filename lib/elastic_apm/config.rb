@@ -114,6 +114,7 @@ module ElasticAPM
         net_http
         redis
         sequel
+        shoryuken
         sidekiq
         sinatra
         tilt
