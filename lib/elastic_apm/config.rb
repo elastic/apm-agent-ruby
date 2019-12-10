@@ -119,6 +119,7 @@ module ElasticAPM
         tilt
         rake
         action_controller
+        action_dispatch
       ]
     end
 
