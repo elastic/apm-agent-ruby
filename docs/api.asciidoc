@@ -198,7 +198,7 @@ Arguments:
 
 Returns the return value of the given block.
 
-If you'd like to create an asynchronous span, you have to pass the parent `Span` or `Transaction` to the method.
+If you'd like to create an asynchronous span, you have to pass the parent `Span` or `Transaction` to the `with_span` method.
 You can also set the `sync` flag to `false`, if you'd like the span to be marked as asynchronous.
 
 [source,ruby]
