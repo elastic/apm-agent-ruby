@@ -97,6 +97,8 @@ module ElasticAPM
     # @param type [String] The kind of the transaction, eg `app.request.get` or
     # `db.mysql2.query`
     # @param context [Context] An optional [Context]
+    # @param trace_context [TraceContext] An optional [TraceContext] object for
+    #   Distributed Tracing.
     # @return [Transaction]
     def start_transaction(
       name = nil,
@@ -127,6 +129,8 @@ module ElasticAPM
     # @param type [String] The kind of the transaction, eg `app.request.get` or
     # `db.mysql2.query`
     # @param context [Context] An optional [Context]
+    # @param trace_context [TraceContext] An optional [TraceContext] object for
+    #   Distributed Tracing.
     # @yield [Transaction]
     # @return result of block
     def with_transaction(
@@ -165,6 +169,8 @@ module ElasticAPM
     # @param action [String] The span action type, eq `connect` or `query`
     # @param context [Span::Context] Context information about the span
     # @param include_stacktrace [Boolean] Whether or not to capture a stacktrace
+    # @param trace_context [TraceContext] An optional [TraceContext] object for
+    #   Distributed Tracing.
     # @return [Span]
     def start_span(
       name,
@@ -202,9 +208,13 @@ module ElasticAPM
     # Wrap a block in a Span, ending it after the block
     #
     # @param name [String] A description of the span, eq `SELECT FROM "users"`
-    # @param type [String] The kind of span, eq `db.mysql2.query`
+     # @param type [String] The kind of span, eq `db`
+    # @param subtype [String] The subtype of span eg. `postgresql`.
+    # @param action [String] The action type of span eg. `connect` or `query`.
     # @param context [Span::Context] Context information about the span
     # @param include_stacktrace [Boolean] Whether or not to capture a stacktrace
+    # @param trace_context [TraceContext] An optional [TraceContext] object for
+    #   Distributed Tracing.
     # @yield [Span]
     # @return Result of block
     def with_span(
