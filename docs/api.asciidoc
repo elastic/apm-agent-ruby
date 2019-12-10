@@ -155,7 +155,7 @@ Arguments:
 Returns the created span.
 
 If you'd like to create an asynchronous span, you have to pass the parent `Span` or `Transaction` to the `start_span` method.
-You can also set the `sync` flag to `false`, if you'd like the span to be marked as asynchronous.
+You can also set the `sync` flag to `false`, if you'd like the span to be marked as asynchronous. This has no effect other than being queryable in Elasticsearch.
 
 [source,ruby]
 ----
