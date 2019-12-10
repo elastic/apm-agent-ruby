@@ -155,7 +155,7 @@ if enabled
           expect(name).to eq 'ApplicationController#index'
         end
 
-        it 'captures the stacktrace for the span' do
+        it 'captures the stacktrace for the span', if: ::Rails.version > '5' do
           get '/'
 
           EventCollector.wait_for transactions: 1, spans: 2
