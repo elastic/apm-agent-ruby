@@ -146,6 +146,7 @@ Arguments:
   * `action`: The action type of span eg. `connect` or `query`.
   * `context`: An instance of `Span::Context`.
   * `include_stacktrace`: Whether or not to collect a Stacktrace.
+  * `trace_context:`: An optional `TraceContext` object for Distributed Tracing.
   * `&block`: An optional block to wrap with the span.
   The block is passed the span as an optional argument.
 
@@ -171,6 +172,7 @@ Arguments:
   * `action`: The action type of span eg. `connect` or `query`.
   * `context`: An instance of `Span::Context`.
   * `include_stacktrace`: Whether or not to collect a Stacktrace.
+  * `trace_context:`: An optional `TraceContext` object for Distributed Tracing.
   * `&block`: An optional block to wrap with the span.
   The block is passed the span as an optional argument.
 
