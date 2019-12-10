@@ -118,6 +118,7 @@ module ElasticAPM
         sinatra
         tilt
         rake
+        action_controller
       ]
     end
 
