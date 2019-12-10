@@ -147,10 +147,28 @@ Arguments:
   * `context`: An instance of `Span::Context`.
   * `include_stacktrace`: Whether or not to collect a Stacktrace.
   * `trace_context:`: An optional `TraceContext` object for Distributed Tracing.
+  * `parent:`: An optional parent transaction or span. Relevant when the span is created in another thread.
+  * `sync:`: An boolean to indicate whether the span is created synchronously or not.
   * `&block`: An optional block to wrap with the span.
   The block is passed the span as an optional argument.
 
 Returns the created span.
+
+If you'd like to create an asynchronous span, you have to pass the parent `Span` or `Transaction` to the `start_span` method.
+You can also set the `sync` flag to `false`, if you'd like the span to be marked as asynchronous. This has no effect other than being queryable in Elasticsearch.
+
+[source,ruby]
+----
+transaction = ElasticAPM.current_transaction # or start one with `.start_transaction`
+Thread.new do
+  ElasticAPM.start_span(
+    'job 1',
+    parent: transaction,
+    sync: false
+  ) { Worker.perform }
+  ElasticAPM.end_span
+end
+----
 
 [float]
 [[api-agent-end_span]]
@@ -173,10 +191,27 @@ Arguments:
   * `context`: An instance of `Span::Context`.
   * `include_stacktrace`: Whether or not to collect a Stacktrace.
   * `trace_context:`: An optional `TraceContext` object for Distributed Tracing.
+  * `parent:`: An optional parent transaction or span. Relevant when the span is created in another thread.
+  * `sync:`: An boolean to indicate whether the span is created synchronously or not.
   * `&block`: An optional block to wrap with the span.
   The block is passed the span as an optional argument.
 
 Returns the return value of the given block.
+
+If you'd like to create an asynchronous span, you have to pass the parent `Span` or `Transaction` to the `with_span` method.
+You can also set the `sync` flag to `false`, if you'd like the span to be marked as asynchronous.
+
+[source,ruby]
+----
+transaction = ElasticAPM.current_transaction # or start one with `.start_transaction`
+Thread.new do
+  ElasticAPM.with_span(
+    'job 1',
+    parent: transaction,
+    sync: false
+  ) { Worker.perform }
+end
+----
 
 [float]
 [[api-agent-build-context]]

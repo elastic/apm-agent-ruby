@@ -21,7 +21,8 @@ module ElasticAPM
               name: 'Span',
               transaction: transaction,
               parent: transaction,
-              trace_context: trace_context
+              trace_context: trace_context,
+              sync: true
             ).tap do |span|
               span.start
               travel 10_000
@@ -57,7 +58,8 @@ module ElasticAPM
                 trace_context: trace_context,
                 context: Span::Context.new(
                   db: { statement: 'asd' },
-                  http: { url: 'dsa' }
+                  http: { url: 'dsa' },
+                  sync: false
                 )
               )
             end
@@ -66,6 +68,29 @@ module ElasticAPM
               expect(result.dig(:span, :context, :db, :statement))
                 .to eq 'asd'
               expect(result.dig(:span, :context, :http, :url)).to eq 'dsa'
+              expect(result.dig(:span, :context, :sync)).to eq false
+            end
+
+            context 'when sync is nil' do
+              let(:span) do
+                Span.new(
+                  name: 'Span',
+                  transaction: transaction,
+                  parent: transaction,
+                  trace_context: trace_context,
+                  context: Span::Context.new(
+                    db: { statement: 'asd' },
+                    http: { url: 'dsa' }
+                  )
+                )
+              end
+
+              it 'adds context object' do
+                expect(result.dig(:span, :context, :db, :statement))
+                  .to eq 'asd'
+                expect(result.dig(:span, :context, :http, :url)).to eq 'dsa'
+                expect(result[:span][:context].key?(:sync)).to be false
+              end
             end
           end
 

@@ -136,6 +136,7 @@ module ElasticAPM
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
     # rubocop:disable Metrics/ParameterLists
     def start_span(
       name,
@@ -144,19 +145,25 @@ module ElasticAPM
       action: nil,
       backtrace: nil,
       context: nil,
-      trace_context: nil
+      trace_context: nil,
+      parent: nil,
+      sync: nil
     )
-      return unless (transaction = current_transaction)
+
+      transaction =
+        case parent
+        when Span
+          parent.transaction
+        when Transaction
+          parent
+        else
+          current_transaction
+        end
+      return unless transaction
       return unless transaction.sampled?
+      return unless transaction.inc_started_spans!
 
-      transaction.inc_started_spans!
-
-      if transaction.max_spans_reached?
-        transaction.inc_dropped_spans!
-        return
-      end
-
-      parent = current_span || transaction
+      parent ||= (current_span || current_transaction)
 
       span = Span.new(
         name: name,
@@ -167,7 +174,8 @@ module ElasticAPM
         trace_context: trace_context,
         type: type,
         context: context,
-        stacktrace_builder: stacktrace_builder
+        stacktrace_builder: stacktrace_builder,
+        sync: sync
       )
 
       if backtrace && transaction.config.span_frames_min_duration?
@@ -180,6 +188,7 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/ParameterLists
     # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/PerceivedComplexity
 
     def end_span
       return unless (span = current_spans.pop)
