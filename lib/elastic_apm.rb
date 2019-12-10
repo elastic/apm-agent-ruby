@@ -171,6 +171,9 @@ module ElasticAPM
     # @param include_stacktrace [Boolean] Whether or not to capture a stacktrace
     # @param trace_context [TraceContext] An optional [TraceContext] object for
     #   Distributed Tracing.
+    # @param parent [Transaction,Span] The parent transaction or span.
+    #   Relevant when the span is created in another thread.
+    # @param sync [Boolean] Whether the span is created synchronously or not.
     # @return [Span]
     def start_span(
       name,
@@ -219,6 +222,9 @@ module ElasticAPM
     # @param include_stacktrace [Boolean] Whether or not to capture a stacktrace
     # @param trace_context [TraceContext] An optional [TraceContext] object for
     #   Distributed Tracing.
+    # @param parent [Transaction,Span] The parent transaction or span.
+    #   Relevant when the span is created in another thread.
+    # @param sync [Boolean] Whether the span is created synchronously or not.
     # @yield [Span]
     # @return Result of block
     def with_span(
