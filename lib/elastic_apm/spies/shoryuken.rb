@@ -7,7 +7,7 @@ module ElasticAPM
     class ShoryukenSpy
       class Middleware
         def call(worker_instance, queue, sqs_msg, body)
-          transaction = ElasticAPM.start_transaction(job_class, 'shoryuken.job')
+          transaction = ElasticAPM.start_transaction(job_class(worker_instance, body), 'shoryuken.job')
 
             ElasticAPM.set_label('shoryuken.id', sqs_msg.message_id)
             ElasticAPM.set_label('shoryuken.queue', queue)
