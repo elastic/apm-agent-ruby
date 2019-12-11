@@ -5,7 +5,7 @@ module ElasticAPM
     class Context
       RSpec.describe Destination do
         describe '.from_uri' do
-          let(:uri) { URI('http://example.com') }
+          let(:uri) { URI('http://example.com/path/?a=1') }
 
           subject { described_class.from_uri(uri) }
 
@@ -14,12 +14,12 @@ module ElasticAPM
           its(:type) { is_expected.to eq 'external' }
 
           context 'https' do
-            let(:uri) { URI('https://example.com') }
+            let(:uri) { URI('https://example.com/path?a=1') }
             its(:resource) { is_expected.to eq 'example.com:443' }
           end
 
           context 'non-default port' do
-            let(:uri) { URI('http://example.com:8080') }
+            let(:uri) { URI('http://example.com:8080/path?a=1') }
             its(:resource) { is_expected.to eq 'example.com:8080' }
           end
         end

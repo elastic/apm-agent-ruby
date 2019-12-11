@@ -50,14 +50,13 @@ module ElasticAPM
             cls = use_ssl? ? URI::HTTPS : URI::HTTP
             uri = cls.build([nil, host, port, path, query, nil])
 
+            destination =
+              ElasticAPM::Span::Context::Destination.from_uri(uri)
+
             context =
               ElasticAPM::Span::Context.new(
                 http: { url: uri, method: method },
-                destination: {
-                  name: Util.sanitize_url(uri),
-                  resource: "#{uri.host}:#{uri.port}",
-                  type: 'external'
-                }
+                destination: destination
               )
 
             ElasticAPM.with_span(

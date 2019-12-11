@@ -13,12 +13,19 @@ module ElasticAPM
 
         attr_reader :name, :resource, :type
 
-        def self.from_uri(uri)
+        def self.from_uri(uri, type: 'external')
           new(
-            name: Util.sanitize_url(uri),
+            name: only_scheme_and_host(uri),
             resource: "#{uri.host}:#{uri.port}",
-            type: 'external'
+            type: type
           )
+        end
+
+        def self.only_scheme_and_host(uri_or_str)
+          uri = uri_or_str.is_a?(URI) ? uri_or_str.dup : URI(uri_or_str)
+          uri.path = ''
+          uri.password = uri.query = uri.fragment = nil
+          uri.to_s
         end
       end
     end

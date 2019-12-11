@@ -33,11 +33,5 @@ module ElasticAPM
 
       value[0...(max_length - 1)] + '…'
     end
-
-    def self.sanitize_url(uri)
-      uri = URI(uri) # accepts String or URI
-      uri.password = nil
-      uri.to_s
-    end
   end
 end

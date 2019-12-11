@@ -50,7 +50,7 @@ module ElasticAPM
       span, = @intercepted.spans
 
       destination = span.context.destination
-      expect(destination.name).to match('http://example.com/page.html')
+      expect(destination.name).to match('http://example.com')
       expect(destination.resource).to match('example.com:80')
       expect(destination.type).to match('external')
     end

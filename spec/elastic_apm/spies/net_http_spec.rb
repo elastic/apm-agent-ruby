@@ -22,6 +22,20 @@ module ElasticAPM
       expect(span.name).to eq 'GET example.com'
     end
 
+    it 'spans inline http calls' do
+      WebMock.stub_request(:get, %r{http://example.com/.*})
+
+      with_agent do
+        ElasticAPM.with_transaction 'Net::HTTP test' do
+          Net::HTTP.get('example.com', '/index.html')
+        end
+      end
+
+      span, = @intercepted.spans
+
+      expect(span.name).to eq 'GET example.com'
+    end
+
     it 'adds http context' do
       WebMock.stub_request(:get, %r{http://example.com/.*})
 
@@ -121,7 +135,7 @@ module ElasticAPM
 
         span, = @intercepted.spans
 
-        expect(span.context.destination.name).to eq 'http://example.com:1234/some/path?a=1'
+        expect(span.context.destination.name).to eq 'http://example.com:1234'
         expect(span.context.destination.resource).to eq 'example.com:1234'
         expect(span.context.destination.type).to eq 'external'
       end
@@ -141,7 +155,7 @@ module ElasticAPM
       span, = @intercepted.spans
 
       expect(span.name).to eq 'GET [::1]'
-      expect(span.context.destination.name).to eq 'http://[::1]/path'
+      expect(span.context.destination.name).to eq 'http://[::1]'
       expect(span.context.destination.resource).to eq '[::1]:80'
       expect(span.context.destination.type).to eq 'external'
     end
