@@ -15,6 +15,8 @@ module ElasticAPM
           ElasticAPM.set_label('shoryuken.body', body)
 
           yield
+
+          transaction&.done :success
         rescue ::Exception => e
           ElasticAPM.report(e, handled: false)
           transaction&.done :error
