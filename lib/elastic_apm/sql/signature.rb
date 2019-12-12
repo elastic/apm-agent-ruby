@@ -8,6 +8,16 @@ module ElasticAPM
     class Signature
       include Tokens
 
+      # Mostly here to provide a similar API to new SqlSummarizer for easier
+      # swapping out
+      #
+      # @api private
+      class Summarizer
+        def summarize(sql)
+          Signature.parse(sql)
+        end
+      end
+
       def initialize(sql)
         @sql = sql
         @tokenizer = Tokenizer.new(sql)
