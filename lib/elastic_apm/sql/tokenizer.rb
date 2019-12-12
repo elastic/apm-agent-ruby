@@ -85,16 +85,17 @@ module ElasticAPM
         peek_char(length + 1)
       end
 
-      # rubocop:disable Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       def scan_keyword_or_identifier(possible_keyword:)
         while (peek = peek_char)
-          case peek
-          when ALPHA then nil # next
-          when DIGIT, '_', '$' then possible_keyword = false
-          else break
+          if peek == '_' || peek == '$' || peek =~ DIGIT
+            possible_keyword = false
+            next next_char
           end
 
-          next_char
+          next next_char if peek =~ ALPHA
+
+          break
         end
 
         return IDENT unless possible_keyword
@@ -110,10 +111,9 @@ module ElasticAPM
 
         IDENT
       end
-      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
-      # rubocop:disable Metrics/CyclomaticComplexity
-      # rubocop:disable Metrics/PerceivedComplexity
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       def scan_dollar_sign
         while (peek = peek_char)
           case peek
@@ -148,8 +148,7 @@ module ElasticAPM
 
         OTHER
       end
-      # rubocop:enable Metrics/PerceivedComplexity
-      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
 
       def scan_quoted_indentifier(delimiter)
         while (char = next_char)
