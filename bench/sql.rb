@@ -31,3 +31,17 @@ benchmark(CAPTION, 7, FORMAT, 'avg/ex:') do |bm|
 
   [(new - old) / examples.length]
 end
+
+## Stackprof
+
+require 'stackprof'
+
+puts 'Running stackprof'
+profile = StackProf.run(mode: :cpu) do
+  10.times do
+    examples.map { |i| ElasticAPM::Sql::Signature.parse(i) }
+  end
+end
+puts ''
+
+StackProf::Report.new(profile).print_text

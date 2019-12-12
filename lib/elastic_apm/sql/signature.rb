@@ -107,6 +107,7 @@ module ElasticAPM
       # rubocop:enable Metrics/CyclomaticComplexity
       # rubocop:enable Metrics/PerceivedComplexity
 
+      # Scans until finding token of `kind`
       def scan_until(kind)
         while @tokenizer.scan
           break true if @tokenizer.token == kind
@@ -114,6 +115,8 @@ module ElasticAPM
         end
       end
 
+      # Scans next token, ignoring comments
+      # Returns whether next token is of `kind`
       def scan_token(kind)
         while @tokenizer.scan
           next if @tokenizer.token == COMMENT
