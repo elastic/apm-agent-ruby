@@ -15,11 +15,13 @@ module ElasticAPM
 
           context 'https' do
             let(:uri) { URI('https://example.com/path?a=1') }
+            its(:name) { is_expected.to eq 'https://example.com' }
             its(:resource) { is_expected.to eq 'example.com:443' }
           end
 
           context 'non-default port' do
             let(:uri) { URI('http://example.com:8080/path?a=1') }
+            its(:name) { is_expected.to eq 'http://example.com:8080' }
             its(:resource) { is_expected.to eq 'example.com:8080' }
           end
         end
