@@ -39,7 +39,7 @@ require 'stackprof'
 puts 'Running stackprof'
 profile = StackProf.run(mode: :cpu) do
   10.times do
-    examples.map { |i| ElasticAPM::Sql::Signature.parse(i) }
+    examples.each { |i| ElasticAPM::Sql::Signature.parse(i) }
   end
 end
 puts ''
