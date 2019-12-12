@@ -120,6 +120,10 @@
     "output": "SELECT"
   },
   {
+    "input": "SELECT REPLACE('this','is','at') FROM users",
+    "output": "SELECT FROM users"
+  },
+  {
     "input": "INSERT COIN TO PLAY",
     "output": "INSERT"
   },
