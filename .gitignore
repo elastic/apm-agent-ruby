@@ -17,3 +17,6 @@ spec/junit-reports
 .gem
 *.bulk
 vendor/
+
+.idea/
+log/
