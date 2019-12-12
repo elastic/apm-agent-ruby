@@ -12,6 +12,7 @@ module ElasticAPM
         end
 
         attr_reader :context_serializer
+
         def build(span)
           {
             span: {
@@ -36,7 +37,7 @@ module ElasticAPM
 
             base = {}
 
-            base[:sync] = context.sync if context.sync
+            base[:sync] = context.sync unless context.sync.nil?
             base[:db] = build_db(context.db) if context.db
             base[:http] = build_http(context.http) if context.http
 
