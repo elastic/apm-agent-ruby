@@ -9,7 +9,6 @@ begin
 rescue LoadError
 end
 
-
 module ElasticAPM
   RSpec.describe 'Spy: Shoryuken', :mock_intake do
     class TestingWorker
@@ -31,18 +30,12 @@ module ElasticAPM
     end
 
     before :all do
-      Shoryuken.worker_executor = Shoryuken::Worker::InlineExecutor
+      #Shoryuken.worker_executor = Shoryuken::Worker::InlineExecutor
     end
-
-    subject(:call) do
-      worker.perform(sqs_msg, body)
-    end
-
-    let(:worker) { TestingWorker.new }
 
     it 'instruments jobs' do
       with_agent do
-        HardWorker.perform_async
+        HardWorker.perform_async('data')
       end
 
       wait_for transactions: 1
@@ -50,14 +43,14 @@ module ElasticAPM
       transaction, = @mock_intake.transactions
       expect(transaction).to_not be_nil
       expect(transaction['name']).to eq 'ElasticAPM::HardWorker'
-      expect(transaction['type']).to eq 'Sidekiq'
+      expect(transaction['type']).to eq 'Shoryuken'
     end
 
     it 'reports errors' do
       with_agent do
-          expect do
-            ExplodingWorker.perform_async
-          end.to raise_error(ZeroDivisionError)
+        expect do
+          ExplodingWorker.perform_async('data')
+        end.to raise_error(ZeroDivisionError)
       end
 
       wait_for transactions: 1, errors: 1
@@ -67,7 +60,7 @@ module ElasticAPM
 
       expect(transaction).to_not be_nil
       expect(transaction['name']).to eq 'ElasticAPM::ExplodingWorker'
-      expect(transaction['type']).to eq 'Sidekiq'
+      expect(transaction['type']).to eq 'Shoryuken'
 
       expect(error.dig('exception', 'type')).to eq 'ZeroDivisionError'
     end
