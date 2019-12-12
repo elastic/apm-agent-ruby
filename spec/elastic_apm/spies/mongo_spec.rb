@@ -33,6 +33,11 @@ module ElasticAPM
         expect(db.type).to eq 'mongodb'
         expect(db.statement).to eq('{"listCollections"=>1}')
         expect(db.user).to be nil
+
+        destination = span.context.destination
+        expect(destination.name).to eq 'mongodb'
+        expect(destination.resource).to eq 'mongodb'
+        expect(destination.type).to eq 'db'
       end
     end
 
