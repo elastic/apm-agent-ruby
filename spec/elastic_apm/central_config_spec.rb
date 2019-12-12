@@ -184,6 +184,26 @@ module ElasticAPM
           subject.fetch_config
         end
       end
+
+      context 'with an api key' do
+        before do
+          config.api_key = 'E3q29W4BmlaQDpZqVAif:yOpkmzvFQ9SyO54ChjIcgg'
+        end
+
+        it 'sets auth header' do
+          stub_response(
+            {},
+            request: {
+              headers: {
+                'Authorization': 'ApiKey RTNxMjlXNEJtbGFRRHBacVZBaWY6eU' \
+                                   '9wa216dkZROVN5TzU0Q2hqSWNnZw=='
+              }
+            }
+          )
+
+          subject.fetch_config
+        end
+      end
     end
 
     describe '#assign' do

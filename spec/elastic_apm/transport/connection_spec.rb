@@ -83,6 +83,24 @@ module ElasticAPM
         end
       end
 
+      describe 'api key' do
+        let(:config) do
+          Config.new(api_key: 'E3q29W4BmlaQDpZqVAif:yOpkmzvFQ9SyO54ChjIcgg')
+        end
+
+        it 'adds an Authorization header if api key provided' do
+          stub = build_stub(
+            headers: {
+              'Authorization' => 'ApiKey RTNxMjlXNEJtbGFRRHBacVZBaWY6' \
+                                   'eU9wa216dkZROVN5TzU0Q2hqSWNnZw=='
+            }
+          )
+          subject.write('{}')
+          subject.flush
+          expect(stub).to have_been_requested
+        end
+      end
+
       context 'max request time' do
         let(:config) { Config.new(api_request_time: '100ms') }
 
