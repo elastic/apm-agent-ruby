@@ -8,7 +8,7 @@ Feature: Api Key
     When an api key is set in the config
     Then the api key is sent in the Authorization header
 
-  Scenario: An configured api key take precedence over a secret token
+  Scenario: An configured api key takes precedence over a secret token
     When an api key is set in the config
     When a secret_token is set in the config
     Then the api key is sent in the Authorization header
