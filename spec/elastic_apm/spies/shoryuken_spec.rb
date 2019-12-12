@@ -30,7 +30,7 @@ module ElasticAPM
     end
 
     before :all do
-      #Shoryuken.worker_executor = Shoryuken::Worker::InlineExecutor
+      # Shoryuken.worker_executor = Shoryuken::Worker::InlineExecutor
     end
 
     it 'instruments jobs' do

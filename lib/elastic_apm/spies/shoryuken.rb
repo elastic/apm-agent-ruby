@@ -5,13 +5,19 @@ module ElasticAPM
   module Spies
     # @api private
     class ShoryukenSpy
+      # @api private
       class Middleware
         def call(worker_instance, queue, sqs_msg, body)
-          transaction = ElasticAPM.start_transaction(job_class(worker_instance, body), 'shoryuken.job')
+          transaction = ElasticAPM.start_transaction(
+            job_class(worker_instance, body),
+            'shoryuken.job'
+          )
 
           ElasticAPM.set_label('shoryuken.id', sqs_msg.message_id)
           ElasticAPM.set_label('shoryuken.queue', queue)
-          ElasticAPM.set_label('shoryuken.attributes',  sqs_msg.attributes) if sqs_msg.respond_to?(:attributes)
+          if sqs_msg.respond_to?(:attributes)
+            ElasticAPM.set_label('shoryuken.attributes', sqs_msg.attributes)
+          end
           ElasticAPM.set_label('shoryuken.body', body)
 
           yield
@@ -43,4 +49,3 @@ module ElasticAPM
     register 'Shoryuken', 'shoryuken', ShoryukenSpy.new
   end
 end
-
