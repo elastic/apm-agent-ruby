@@ -2,7 +2,7 @@ Feature: Api Key
 
   Scenario: An api key is set in the Authorization header as a base64 encoded string
     When an api key is set to 'E3q29W4BmlaQDpZqVAif:yOpkmzvFQ9SyO54ChjIcgg' in the config
-    Then the Authorization header includes api key as a Base64 encoded string
+    Then the Authorization header includes the api key as a Base64 encoded string
 
   Scenario: An configured api key is sent in the Authorization header
     When an api key is set in the config

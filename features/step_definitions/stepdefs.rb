@@ -4,7 +4,7 @@ When("an api key is set to {string} in the config") do |string|
   @api_key = string
 end
 
-Then("the Authorization header includes api key as a Base64 encoded string") do
+Then("the Authorization header includes the api key as a Base64 encoded string") do
   headers = ElasticAPM::Transport::Headers.new(@config).to_h
   headers[:Authorization].include?(Base64.strict_encode64(@api_key))
 end
