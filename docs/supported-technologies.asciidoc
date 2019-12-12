@@ -67,3 +67,13 @@ requests using these libraries:
 - `net/http`
 - Http.rb (v0.6+)
 - Faraday (v0.2.1+)
+
+[float]
+[[supported-technologies-http]]
+=== External HTTP requests
+
+We automatically instrument background processing using:
+
+- DelayedJob
+- Sidekiq
+- Shoryuken
