@@ -12,7 +12,7 @@ module ElasticAPM
             alias send_action_without_apm send_action
 
             def send_action(method_name, *args)
-              ElasticAPM.current_span.original_backtrace ||= caller
+              ElasticAPM.current_span&.original_backtrace ||= caller
               send_action_without_apm method_name, *args
             end
           end
