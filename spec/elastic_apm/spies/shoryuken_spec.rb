@@ -21,7 +21,7 @@ module ElasticAPM
     class ShoryukenTestingWorker
       include Shoryuken::Worker
 
-      def perform(*options)
+      def perform(*_options)
         'ok'
       end
     end
@@ -41,13 +41,11 @@ module ElasticAPM
 
     def call(queue)
       sqs_message = double Shoryuken::Message,
-             queue_url: Shoryuken::Client.queues(queue).url,
-             message_attributes: {},
-             message_id: SecureRandom.uuid,
-             receipt_handle: SecureRandom.uuid,
-             body: 'test'
-
-      puts Shoryuken::Client.queues(queue).url
+        queue_url: Shoryuken::Client.queues(queue).url,
+        message_attributes: {},
+        message_id: SecureRandom.uuid,
+        receipt_handle: SecureRandom.uuid,
+        body: 'test'
 
       Shoryuken::Processor.process(queue, sqs_message)
     end
@@ -55,7 +53,7 @@ module ElasticAPM
     before do
       # Mock this function used in the middleware chain
       allow(::ActiveRecord::Base)
-          .to receive(:clear_active_connections!)
+        .to receive(:clear_active_connections!)
 
       Aws.config[:stub_responses] = true
       Aws.config[:region] = 'us-east-1'
@@ -76,7 +74,7 @@ module ElasticAPM
 
     it 'instruments jobs' do
       with_agent do
-        ShoryukenHardWorker.perform_async("test")
+        ShoryukenHardWorker.perform_async('test')
       end
 
       wait_for transactions: 1
@@ -94,7 +92,7 @@ module ElasticAPM
     it 'reports errors' do
       with_agent do
         expect do
-          ShoryukenExplodingWorker.perform_async("test")
+          ShoryukenExplodingWorker.perform_async('test')
         end.to raise_error(ZeroDivisionError)
       end
 
@@ -112,7 +110,6 @@ module ElasticAPM
 
     context 'ActiveJob', if: defined?(ActiveJob) do
       before :all do
-
         # rubocop:disable Style/ClassAndModuleChildren
         class ::ActiveJobbyJob < ActiveJob::Base
           queue_as 'active_job'
