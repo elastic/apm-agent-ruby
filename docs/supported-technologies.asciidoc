@@ -69,8 +69,8 @@ requests using these libraries:
 - Faraday (v0.2.1+)
 
 [float]
-[[supported-technologies-http]]
-=== External HTTP requests
+[[supported-technologies-backgroud-processing]]
+=== Background Processing
 
 We automatically instrument background processing using:
 
