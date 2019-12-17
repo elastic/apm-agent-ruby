@@ -5,7 +5,6 @@ require 'elastic_apm/config/duration'
 require 'elastic_apm/config/bytes'
 require 'elastic_apm/config/regexp_list'
 require 'elastic_apm/config/wildcard_pattern_list'
-require 'elastic_apm/config/base64_encoder'
 
 module ElasticAPM
   # @api private
@@ -18,7 +17,7 @@ module ElasticAPM
     option :config_file,                       type: :string, default: 'config/elastic_apm.yml'
     option :server_url,                        type: :url,    default: 'http://localhost:8200'
     option :secret_token,                      type: :string
-    option :api_key,                           type: :string,                   converter: Base64Encoder.new
+    option :api_key,                           type: :string
 
     option :active,                            type: :bool,   default: true
     option :api_buffer_size,                   type: :int,    default: 256

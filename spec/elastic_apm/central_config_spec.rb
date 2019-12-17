@@ -187,7 +187,7 @@ module ElasticAPM
 
       context 'with an api key' do
         before do
-          config.api_key = 'E3q29W4BmlaQDpZqVAif:yOpkmzvFQ9SyO54ChjIcgg'
+          config.api_key = 'a_base64_encoded_string'
         end
 
         it 'sets auth header' do
@@ -195,8 +195,7 @@ module ElasticAPM
             {},
             request: {
               headers: {
-                'Authorization': 'ApiKey RTNxMjlXNEJtbGFRRHBacVZBaWY6eU' \
-                                   '9wa216dkZROVN5TzU0Q2hqSWNnZw=='
+                'Authorization': 'ApiKey a_base64_encoded_string'
               }
             }
           )

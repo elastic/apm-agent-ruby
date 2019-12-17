@@ -85,14 +85,13 @@ module ElasticAPM
 
       describe 'api key' do
         let(:config) do
-          Config.new(api_key: 'E3q29W4BmlaQDpZqVAif:yOpkmzvFQ9SyO54ChjIcgg')
+          Config.new(api_key: 'a_base64_encoded_string')
         end
 
         it 'adds an Authorization header if api key provided' do
           stub = build_stub(
             headers: {
-              'Authorization' => 'ApiKey RTNxMjlXNEJtbGFRRHBacVZBaWY6' \
-                                   'eU9wa216dkZROVN5TzU0Q2hqSWNnZw=='
+              'Authorization' => 'ApiKey a_base64_encoded_string'
             }
           )
           subject.write('{}')

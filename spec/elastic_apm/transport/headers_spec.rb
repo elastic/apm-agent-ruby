@@ -24,14 +24,13 @@ module ElasticAPM
 
         context 'with an api key' do
           let(:config) do
-            Config.new api_key: 'E3q29W4BmlaQDpZqVAif:yOpkmzvFQ9SyO54ChjIcgg'
+            Config.new api_key: 'a_base64_encoded_string'
           end
 
           it 'includes api key' do
             expect(subject.to_h).to match(
               'User-Agent': String,
-              'Authorization': 'ApiKey RTNxMjlXNEJtbGFRRHBacVZ' \
-                                 'BaWY6eU9wa216dkZROVN5TzU0Q2hqSWNnZw=='
+              'Authorization': 'ApiKey a_base64_encoded_string'
             )
           end
         end
