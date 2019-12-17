@@ -11,13 +11,7 @@ module ElasticAPM
       ACTION = 'query'
 
       def self.summarizer
-        @summarizer ||=
-          if ElasticAPM.agent&.config&.use_experimental_sql_parsing
-            require 'elastic_apm/sql/signature'
-            Sql::Signature::Summarizer.new
-          else
-            SqlSummarizer.new
-          end
+        @summarizer = Sql.summarizer
       end
 
       def install

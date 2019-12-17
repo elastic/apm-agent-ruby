@@ -20,7 +20,7 @@ module ElasticAPM
 
       db[:users].count # warm up
 
-      with_agent(use_experimental_sql_parsing: true) do
+      with_agent(use_experimental_sql_parser: true) do
         ElasticAPM.with_transaction 'Sequel test' do
           db[:users].count
         end
