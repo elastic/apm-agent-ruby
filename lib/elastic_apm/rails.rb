@@ -30,14 +30,6 @@ module ElasticAPM
       ElasticAPM.start(config).tap do |agent|
         attach_subscriber(agent)
       end
-
-      if ElasticAPM.running? &&
-         !ElasticAPM.agent.config.disabled_instrumentations.include?(
-           'action_dispatch'
-         )
-        require 'elastic_apm/spies/action_dispatch'
-      end
-
       ElasticAPM.running?
     rescue StandardError => e
       if config.disable_start_message?

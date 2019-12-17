@@ -35,6 +35,14 @@ endif::[]
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
+[float]
+[[unreleased]]
+==== Unreleased
+
+[float]
+===== Fixed
+- Stacktraces are generated for Rails controller action spans {pull}639[#639]
+
 [[release-notes-3.3.0]]
 ==== 3.3.0 (2019-12-05)
 
