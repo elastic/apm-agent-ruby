@@ -9,7 +9,6 @@ module ElasticAPM
   # It is recommended to use the Railtie instead.
   module Rails
     extend self
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     # Start the ElasticAPM agent and hook into Rails.
     # Note that the agent won't be started if the Rails console is being used.
     #
@@ -40,7 +39,6 @@ module ElasticAPM
         puts "Backtrace:\n" + e.backtrace.join("\n")
       end
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
     private
 
