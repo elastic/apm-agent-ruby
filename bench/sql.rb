@@ -12,10 +12,8 @@ require 'elastic_apm/sql/signature'
 
 examples =
   JSON
-  .parse(File.read('./spec/fixtures/sql_signature_examples.json'))
+  .parse(File.read('../apm/tests/random_sql_query_set.json'))
   .map { |ex| ex['input'] }
-
-examples = Array.new(100).map { examples }.flatten
 
 puts "#{'=' * 14} Parsing #{examples.length} examples #{'=' * 14}"
 
@@ -38,9 +36,7 @@ require 'stackprof'
 
 puts 'Running stackprof'
 profile = StackProf.run(mode: :cpu) do
-  10.times do
-    examples.each { |i| ElasticAPM::Sql::Signature.parse(i) }
-  end
+  examples.each { |i| ElasticAPM::Sql::Signature.parse(i) }
 end
 puts ''
 
