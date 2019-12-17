@@ -11,9 +11,7 @@ module ElasticAPM
 
           ElasticAPM.set_label('shoryuken.id', sqs_msg.message_id)
           ElasticAPM.set_label('shoryuken.queue', queue)
-          ElasticAPM.set_label('shoryuken.attributes',  sqs_msg.attributes) if sqs_msg.respond_to?(:attributes)
-          ElasticAPM.set_label('shoryuken.body', body)
-
+          
           yield
 
           transaction&.done :success
