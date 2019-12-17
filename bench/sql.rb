@@ -19,23 +19,29 @@ puts "#{'=' * 14} Parsing #{examples.length} examples #{'=' * 14}"
 
 summarizer = ElasticAPM::SqlSummarizer.new
 
+result_old = nil
+result_new = nil
+
 benchmark(CAPTION, 7, FORMAT, 'avg/ex:') do |bm|
   old = bm.report('old:') do
-    examples.map { |i| summarizer.summarize(i) }
+    result_old = examples.map { |i| summarizer.summarize(i) }
   end
   new = bm.report('new:') do
-    examples.map { |i| ElasticAPM::Sql::Signature.parse(i) }
+    result_new = examples.map { |i| ElasticAPM::Sql::Signature.parse(i) }
   end
 
   [(new - old) / examples.length]
 end
+
+pp(result_old.count { |res| res == 'SQL' })
+pp(result_new.count { |res| res =~ /(--|\/\*\*)/ })
 
 ## Stackprof
 
 require 'stackprof'
 
 puts 'Running stackprof'
-profile = StackProf.run(mode: :cpu) do
+profile = StackProf.run(mode: :wall, interval: 1) do
   examples.each { |i| ElasticAPM::Sql::Signature.parse(i) }
 end
 puts ''
