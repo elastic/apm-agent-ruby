@@ -11,6 +11,7 @@ module ElasticAPM
           require 'elastic_apm/sql/signature'
           Sql::Signature::Summarizer.new
         else
+          require 'elastic_apm/sql_summarizer'
           SqlSummarizer.new
         end
     end
