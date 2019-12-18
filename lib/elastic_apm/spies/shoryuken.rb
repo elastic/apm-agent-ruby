@@ -15,7 +15,7 @@ module ElasticAPM
 
           ElasticAPM.set_label('shoryuken.id', sqs_msg.message_id)
           ElasticAPM.set_label('shoryuken.queue', queue)
-          
+
           yield
 
           transaction&.done :success
