@@ -34,8 +34,6 @@ We test against all supported minor versions of Rails and Sinatra.
 
 We currently support all versions of Rails since 4.2.
 This follows Rails' own https://rubyonrails.org/security/[Security policy].
-Please note, however, that we only generate stacktraces for controller
-action spans in Rails versions 5.x and up.
 
 See <<getting-started-rails>>.
 

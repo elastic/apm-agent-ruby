@@ -37,7 +37,6 @@ if enabled
           config.elastic_apm.capture_body = 'all'
           config.elastic_apm.pool_size = Concurrent.processor_count
           config.elastic_apm.log_path = 'spec/elastic_apm.log'
-          config.elastic_apm.span_frames_min_duration = '-1'
         end
       end
 
@@ -153,17 +152,6 @@ if enabled
 
           name = EventCollector.transactions.fetch(0)['name']
           expect(name).to eq 'ApplicationController#index'
-        end
-
-        it 'captures the stacktrace for the span', if: ::Rails.version > '5' do
-          get '/'
-
-          EventCollector.wait_for transactions: 1, spans: 2
-
-          _, span = EventCollector.spans
-          expect(span['stacktrace'][0]).not_to be(nil)
-          expect(span['stacktrace'][0]['filename'])
-            .to eq('abstract_controller/base.rb')
         end
       end
 
