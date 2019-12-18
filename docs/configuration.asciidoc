@@ -736,7 +736,7 @@ context information, tags, or spans.
 
 Use a newer, more precise but still experimental approach to generating summaries of
 your app's SQL statements.
-Without this your SQL statements will still be summarized albeit less accurately.
+Without this, your SQL statements will still be summarized albeit less accurately.
 
 The summaries become the spans' names -- what it says in the waterfall view in Kibana.
 
