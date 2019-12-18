@@ -34,7 +34,7 @@ module ElasticAPM
 
             context = ElasticAPM::Span::Context.new(
               db: { statement: sql, type: 'sql', user: opts[:user] },
-              destination: { name: subtype, resource: subtype, type: 'db' }
+              destination: { name: subtype, resource: subtype, type: TYPE }
             )
 
             ElasticAPM.with_span(

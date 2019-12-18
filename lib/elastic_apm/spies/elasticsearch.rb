@@ -20,9 +20,9 @@ module ElasticAPM
             context = Span::Context.new(
               db: { statement: statement },
               destination: {
-                name: 'elasticsearch',
-                resource: 'elasticsearch',
-                type: 'db'
+                name: SUBTYPE,
+                resource: SUBTYPE,
+                type: TYPE
               }
             )
 
