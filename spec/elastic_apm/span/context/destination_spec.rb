@@ -24,6 +24,14 @@ module ElasticAPM
             its(:name) { is_expected.to eq 'http://example.com:8080' }
             its(:resource) { is_expected.to eq 'example.com:8080' }
           end
+
+          context 'when given a string' do
+            let(:uri) { 'http://example.com/path?a=1' }
+
+            its(:name) { is_expected.to eq 'http://example.com' }
+            its(:resource) { is_expected.to eq 'example.com:80' }
+            its(:type) { is_expected.to eq 'external' }
+          end
         end
       end
     end
