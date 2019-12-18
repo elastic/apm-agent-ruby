@@ -29,9 +29,6 @@ module ElasticAPM
         :labels,
         :sync
       )
-
-      def self.from_uri(uri)
-      end
     end
   end
 end
