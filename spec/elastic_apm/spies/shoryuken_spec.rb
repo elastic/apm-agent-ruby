@@ -57,6 +57,9 @@ module ElasticAPM
       Shoryuken.add_queue('hard', 1, 'default')
       Shoryuken.add_queue('exploding', 1, 'default')
 
+      # Disable log pollution with Shoryuken
+      Shoryuken.logger.level = Logger::UNKNOWN
+
       Shoryuken.register_worker('hard', ShoryukenHardWorker)
       Shoryuken.register_worker('exploding', ShoryukenExplodingWorker)
     end
