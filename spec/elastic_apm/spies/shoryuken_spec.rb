@@ -12,12 +12,6 @@ require 'shoryuken/processor'
 
 module ElasticAPM
   RSpec.describe 'Spy: Shoryuken', :mock_intake do
-    unless defined? ::ActiveRecord::Base
-      class ::ActiveRecord # rubocop:disable Style/ClassAndModuleChildren
-        class Base; end
-      end
-    end
-
     class ShoryukenTestingWorker
       include Shoryuken::Worker
 
@@ -39,9 +33,9 @@ module ElasticAPM
       end
     end
 
-    def call(queue)
+    def process_message_double(queue)
       sqs_message = double Shoryuken::Message,
-        queue_url: Shoryuken::Client.queues(queue).url,
+        queue_url: 'https://sqs.ap-northeast-1.amazonaws.com/123456789123/test',
         message_attributes: {},
         message_id: SecureRandom.uuid,
         receipt_handle: SecureRandom.uuid,
@@ -57,16 +51,11 @@ module ElasticAPM
 
       Aws.config[:stub_responses] = true
       Aws.config[:region] = 'us-east-1'
-
-      Shoryuken::Client.sqs.create_queue(queue_name: 'hard')
-      Shoryuken::Client.sqs.create_queue(queue_name: 'exploding')
+      Shoryuken.sqs_client.stub_responses(:get_queue_url, queue_url: 'https://sqs.ap-northeast-1.amazonaws.com/123456789123/test')
 
       Shoryuken.add_group('default', 1)
       Shoryuken.add_queue('hard', 1, 'default')
       Shoryuken.add_queue('exploding', 1, 'default')
-
-      ShoryukenHardWorker.get_shoryuken_options['queue'] = 'hard'
-      ShoryukenExplodingWorker.get_shoryuken_options['queue'] = 'exploding'
 
       Shoryuken.register_worker('hard', ShoryukenHardWorker)
       Shoryuken.register_worker('exploding', ShoryukenExplodingWorker)
@@ -74,25 +63,24 @@ module ElasticAPM
 
     it 'instruments jobs' do
       with_agent do
-        ShoryukenHardWorker.perform_async('test')
+        process_message_double('hard')
       end
 
       wait_for transactions: 1
 
       transaction, = @mock_intake.transactions
-      expect(transaction).to_not be_nil
-      expect(transaction['name']).to eq 'ElasticAPM::HardWorker'
-      expect(transaction['type']).to eq 'shoryuken.job'
-    end
 
-    after do
-      puts Shoryuken::Client.sqs.api_requests
+      expect(transaction).to_not be_nil
+      expect(transaction['name']).to eq 'ElasticAPM::ShoryukenHardWorker'
+      expect(transaction['type']).to eq 'shoryuken.job'
+      expect(transaction['context']['tags']['shoryuken_queue']).to eq 'hard'
+      expect(transaction['result']).to eq 'success'
     end
 
     it 'reports errors' do
       with_agent do
         expect do
-          ShoryukenExplodingWorker.perform_async('test')
+          process_message_double('exploding')
         end.to raise_error(ZeroDivisionError)
       end
 
@@ -104,41 +92,10 @@ module ElasticAPM
       expect(transaction).to_not be_nil
       expect(transaction['name']).to eq 'ElasticAPM::ShoryukenExplodingWorker'
       expect(transaction['type']).to eq 'shoryuken.job'
+      expect(transaction['context']['tags']['shoryuken_queue']).to eq 'exploding'
+      expect(transaction['result']).to eq 'error'
 
       expect(error.dig('exception', 'type')).to eq 'ZeroDivisionError'
-    end
-
-    context 'ActiveJob', if: defined?(ActiveJob) do
-      before :all do
-        # rubocop:disable Style/ClassAndModuleChildren
-        class ::ActiveJobbyJob < ActiveJob::Base
-          queue_as 'active_job'
-
-          # rubocop:enable Style/ClassAndModuleChildren
-          self.queue_adapter = :shoryuken
-          self.logger = nil # stay quiet
-
-          def perform
-            'ok'
-          end
-        end
-      end
-
-      after :all do
-        Object.send(:remove_const, :ActiveJobbyJob)
-      end
-
-      it 'knows the name of ActiveJob jobs', if: defined?(ActiveJob) do
-        with_agent do
-          ActiveJobbyJob.perform_later
-        end
-
-        wait_for transactions: 1
-
-        transaction, = @mock_intake.transactions
-        expect(transaction).to_not be_nil
-        expect(transaction['name']).to eq 'ActiveJobbyJob'
-      end
     end
   end
 end
