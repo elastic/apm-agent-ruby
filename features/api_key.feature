@@ -1,8 +1,8 @@
 Feature: Api Key
 
-  Scenario: An configured api key is sent in the Authorization header
-    When an api key is set in the config
-    Then the api key is sent in the Authorization header
+  Scenario: A configured api key is sent in the Authorization header
+    When an api key is set to 'RTNxMjlXNEJt' in the config
+    Then the Authorization header is 'ApiKey RTNxMjlXNEJt'
 
   Scenario: An configured api key takes precedence over a secret token
     When an api key is set in the config
