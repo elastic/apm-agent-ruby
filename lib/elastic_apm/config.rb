@@ -118,6 +118,7 @@ module ElasticAPM
         sinatra
         tilt
         rake
+        action_dispatch
       ]
     end
 
