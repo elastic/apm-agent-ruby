@@ -105,6 +105,7 @@ module ElasticAPM
 
     def available_instrumentations
       %w[
+        action_dispatch
         delayed_job
         elasticsearch
         faraday
@@ -112,13 +113,12 @@ module ElasticAPM
         json
         mongo
         net_http
+        rake
         redis
         sequel
         sidekiq
         sinatra
         tilt
-        rake
-        action_dispatch
       ]
     end
 
