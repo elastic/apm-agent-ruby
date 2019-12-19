@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+Given('an agent') do
+end
+
 When('an api key is set to {string} in the config') do |api_key|
   @config ||= ElasticAPM::Config.new
   @config.api_key = api_key
