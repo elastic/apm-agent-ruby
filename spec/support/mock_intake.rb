@@ -105,11 +105,16 @@ class MockIntake
   end
 
   def catalog(obj)
-    case obj.keys.first
-    when 'transaction' then transactions << obj.values.first
-    when 'span' then spans << obj.values.first
-    when 'error' then errors << obj.values.first
-    when 'metricset' then metricsets << obj.values.first
+    if obj.values.empty?
+      puts "Values are empty, dumping json:"
+      puts json
+    else
+      case obj.keys.first
+      when 'transaction' then transactions << obj.values.first
+      when 'span' then spans << obj.values.first
+      when 'error' then errors << obj.values.first
+      when 'metricset' then metricsets << obj.values.first
+      end
     end
   end
 
@@ -220,12 +225,17 @@ class EventCollector
   end
 
   def catalog(json)
-    case json.keys.first
-    when 'transaction' then transactions << json.values.first
-    when 'span' then spans << json.values.first
-    when 'error' then errors << json.values.first
-    when 'metricset' then metricsets << json.values.first
-    when 'metadata' then metadatas << json.values.first
+    if json.values.empty?
+      puts "Values are empty, dumping json:"
+      puts json
+    else
+      case json.keys.first
+      when 'transaction' then transactions << json.values.first
+      when 'span' then spans << json.values.first
+      when 'error' then errors << json.values.first
+      when 'metricset' then metricsets << json.values.first
+      when 'metadata' then metadatas << json.values.first
+      end
     end
   end
 
