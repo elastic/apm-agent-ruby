@@ -26,7 +26,7 @@ https://www.ruby-lang.org/en/downloads/branches/[Ruby Maintenance Branches].
 We have automatic support for Ruby on Rails and all Rack compatible web
 frameworks.
 
-We test against all supported minor versions of Rails and Sinatra.
+We test against all supported minor versions of Rails, Sinatra, and Grape.
 
 [float]
 [[supported-technologies-rails]]
@@ -44,6 +44,14 @@ See <<getting-started-rails>>.
 We currently support all versions of Sinatra since 1.0.
 
 See <<getting-started-rack>>.
+
+[float]
+[[supported-technologies-grape]]
+==== Grape
+
+We currently support all versions of Grape since 1.2.
+
+See <<getting-started-grape>>.
 
 [float]
 [[supported-technologies-databases]]
