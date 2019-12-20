@@ -43,6 +43,7 @@ endif::[]
 ===== Added
 
 - Add `span.context.destination` fields {pull}647[#647]
+- Add more precise (experimental) SQL summarizer {pull}640[#640]
 
 [float]
 ===== Changed

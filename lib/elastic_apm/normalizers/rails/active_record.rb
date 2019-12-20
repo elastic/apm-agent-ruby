@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'elastic_apm/sql_summarizer'
+require 'elastic_apm/sql'
 
 module ElasticAPM
   module Normalizers
@@ -17,7 +17,8 @@ module ElasticAPM
         def initialize(*args)
           super
 
-          @summarizer = SqlSummarizer.new
+          @summarizer = Sql.summarizer
+
           @adapters = {}
         end
 

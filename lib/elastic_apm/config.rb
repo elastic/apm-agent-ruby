@@ -69,6 +69,9 @@ module ElasticAPM
     option :transaction_max_spans,             type: :int,    default: 500
     option :transaction_sample_rate,           type: :float,  default: 1.0
     option :verify_server_cert,                type: :bool,   default: true
+
+    option :use_experimental_sql_parser,      type: :bool,   default: false
+
     # rubocop:enable Metrics/LineLength, Layout/ExtraSpacing
     def initialize(options = {})
       @options = load_schema

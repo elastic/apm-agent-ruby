@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'elastic_apm/sql_summarizer'
+require 'elastic_apm/sql'
 
 module ElasticAPM
   # @api private
@@ -11,7 +11,7 @@ module ElasticAPM
       ACTION = 'query'
 
       def self.summarizer
-        @summarizer ||= SqlSummarizer.new
+        @summarizer = Sql.summarizer
       end
 
       def install
