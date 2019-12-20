@@ -59,6 +59,7 @@ module RailsTestHelpers
     config.consider_all_requests_local = false
     config.eager_load = false
     config.action_mailer.perform_deliveries = false
+    config.logger = Logger.new(SpecLogger)
 
     # Silence deprecation warning
     return unless defined?(ActionView::Railtie::NULL_OPTION)
