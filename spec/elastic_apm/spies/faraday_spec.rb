@@ -25,7 +25,41 @@ module ElasticAPM
       expect(span.name).to eq 'GET example.com'
       expect(span.type).to eq 'ext'
       expect(span.subtype).to eq 'faraday'
-      expect(span.action).to eq 'get'
+      expect(span.action).to eq 'GET'
+    end
+
+    it 'adds http context' do
+      WebMock.stub_request(:get, %r{http://example.com/.*})
+
+      with_agent do
+        ElasticAPM.with_transaction 'Faraday test' do
+          client.get('http://example.com/page.html')
+        end
+      end
+
+      span, = @intercepted.spans
+
+      http = span.context.http
+      expect(http.url).to match('http://example.com/page.html')
+      expect(http.method).to match('GET')
+      expect(http.status_code).to match('200')
+    end
+
+    it 'adds destination information' do
+      WebMock.stub_request(:get, %r{http://example.com/.*})
+
+      with_agent do
+        ElasticAPM.with_transaction 'Faraday test' do
+          client.get('http://example.com/page.html')
+        end
+      end
+
+      span, = @intercepted.spans
+
+      destination = span.context.destination
+      expect(destination.name).to match('http://example.com')
+      expect(destination.resource).to match('example.com:80')
+      expect(destination.type).to match('external')
     end
 
     it 'spans http calls with prefix' do
@@ -43,7 +77,7 @@ module ElasticAPM
       expect(span.name).to eq 'GET example.com'
       expect(span.type).to eq 'ext'
       expect(span.subtype).to eq 'faraday'
-      expect(span.action).to eq 'get'
+      expect(span.action).to eq 'GET'
     end
 
     it 'spans http calls when url in block' do
@@ -64,7 +98,7 @@ module ElasticAPM
       expect(span.name).to eq 'GET example.com'
       expect(span.type).to eq 'ext'
       expect(span.subtype).to eq 'faraday'
-      expect(span.action).to eq 'get'
+      expect(span.action).to eq 'GET'
     end
 
     it 'adds traceparent header' do

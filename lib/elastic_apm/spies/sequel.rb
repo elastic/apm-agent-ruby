@@ -7,16 +7,11 @@ module ElasticAPM
   module Spies
     # @api private
     class SequelSpy
-      TYPE = 'db.sequel.sql'
+      TYPE = 'db'
+      ACTION = 'query'
 
       def self.summarizer
         @summarizer ||= SqlSummarizer.new
-      end
-
-      def self.build_context(sql, opts)
-        Span::Context.new(
-          db: { statement: sql, type: 'sql', user: opts[:user] }
-        )
       end
 
       def install
@@ -25,16 +20,31 @@ module ElasticAPM
         ::Sequel::Database.class_eval do
           alias log_connection_yield_without_apm log_connection_yield
 
-          def log_connection_yield(sql, *args, &block)
+          def log_connection_yield(sql, connection, args = nil, &block)
             unless ElasticAPM.current_transaction
-              return log_connection_yield_without_apm(sql, *args, &block)
+              return log_connection_yield_without_apm(
+                sql, connection, args, &block
+              )
             end
 
-            summarizer = ElasticAPM::Spies::SequelSpy.summarizer
-            name = summarizer.summarize sql
-            context = ElasticAPM::Spies::SequelSpy.build_context(sql, opts)
+            subtype = database_type.to_s
 
-            ElasticAPM.with_span(name, TYPE, context: context, &block)
+            name =
+              ElasticAPM::Spies::SequelSpy.summarizer.summarize sql
+
+            context = ElasticAPM::Span::Context.new(
+              db: { statement: sql, type: 'sql', user: opts[:user] },
+              destination: { name: subtype, resource: subtype, type: TYPE }
+            )
+
+            ElasticAPM.with_span(
+              name,
+              TYPE,
+              subtype: subtype,
+              action: ACTION,
+              context: context,
+              &block
+            )
           end
         end
       end
