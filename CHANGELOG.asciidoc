@@ -46,6 +46,7 @@ endif::[]
 - Add more precise (experimental) SQL summarizer {pull}640[#640]
 - Add support for Shoryuken (AWS SQS) {pull}674[#674]
 - Add support for Sneakers (Experimental) {pull}676[#676]
+- Add option `api_key` to specify an Api key to use with the apm server {pull}655[#655]
 
 [float]
 ===== Changed
