@@ -40,6 +40,11 @@ endif::[]
 ==== Unreleased
 
 [float]
+===== Added
+
+- Add `span.context.destination` fields {pull}647[#647]
+
+[float]
 ===== Changed
 
 - Allow action dispatch spy to be disabled via `disabled_instrumentations` {pull}657[#657]
