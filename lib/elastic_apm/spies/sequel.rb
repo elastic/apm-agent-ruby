@@ -37,14 +37,20 @@ module ElasticAPM
               destination: { name: subtype, resource: subtype, type: TYPE }
             )
 
-            ElasticAPM.with_span(
+            span = ElasticAPM.start_span(
               name,
               TYPE,
               subtype: subtype,
               action: ACTION,
-              context: context,
-              &block
+              context: context
             )
+            yield.tap do
+              if name =~ /^(UPDATE|DELETE)/
+                span.context.db.rows_affected = connection.changes
+              end
+            end
+          ensure
+            ElasticAPM.end_span
           end
         end
       end
