@@ -21,7 +21,7 @@ if [[ $specific_spec = '' ]]; then
     echo "========================================"
     echo $i
     echo "========================================"
-    runRspec "$i"
+    RUBYOPT=-W:no-deprecated runRspec "$i"
   done
 else
   echo "Running only $specific_spec"
