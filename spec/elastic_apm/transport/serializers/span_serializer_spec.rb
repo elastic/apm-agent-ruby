@@ -81,7 +81,7 @@ module ElasticAPM
                   parent: transaction,
                   trace_context: trace_context,
                   context: Span::Context.new(
-                    db: { rows_affected: 2 },
+                    db: { rows_affected: 2 }
                   )
                 )
               end
