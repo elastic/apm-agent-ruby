@@ -95,3 +95,6 @@ Style/SpecialGlobalVars:
 
 Style/MissingRespondToMissing:
   Enabled: false
+
+Style/BracesAroundHashParameters:
+  Enabled: false
