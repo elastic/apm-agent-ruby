@@ -62,8 +62,8 @@ module ElasticAPM
           end
         end
 
-        def self.pipe(*args)
-          pipe = new(*args)
+        def self.pipe(**args)
+          pipe = new(**args)
           [pipe.read, pipe.write]
         end
       end
