@@ -44,9 +44,13 @@ module ElasticAPM
               action: ACTION,
               context: context
             )
-            yield.tap do
+            yield.tap do |result|
               if name =~ /^(UPDATE|DELETE)/
-                span.context.db.rows_affected = connection.changes
+                if connection.respond_to?(:changes)
+                  span.context.db.rows_affected = connection.changes
+                elsif result.is_a?(Integer)
+                  span.context.db.rows_affected = result
+                end
               end
             end
           ensure
