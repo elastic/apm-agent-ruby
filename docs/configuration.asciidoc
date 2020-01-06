@@ -727,6 +727,23 @@ We still record overall time and the result for unsampled transactions, but no
 context information, tags, or spans.
 
 [float]
+[[config-use-experimental-sql-parser]]
+==== `use_experimental_sql_parser`
+|============
+| Environment                               | `Config` key                  | Default
+| `ELASTIC_APM_USE_EXPERIMENTAL_SQL_PARSER` | `use_experimental_sql_parser` | `false`
+|============
+
+Use a newer, more precise but still experimental approach to generating summaries of
+your app's SQL statements.
+Without this, your SQL statements will still be summarized albeit less accurately.
+
+The summaries become the spans' names -- what it says in the waterfall view in Kibana.
+
+NOTE: This should work just fine but is still deamed experimental. That means it is
+subject to change. Please let us know if you come across any issues.
+
+[float]
 [[config-verify-server-cert]]
 ==== `verify_server_cert`
 |============

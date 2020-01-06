@@ -19,4 +19,4 @@ spec/junit-reports
 vendor/
 
 .idea/
-log/
+log/test.log

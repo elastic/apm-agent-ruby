@@ -12,7 +12,7 @@ if enabled
   require 'action_controller/railtie'
   require 'action_mailer/railtie'
 
-  RSpec.describe 'Rails integration', :allow_running_agent do
+  RSpec.describe 'Rails integration', :allow_running_agent, :spec_logger do
     include Rack::Test::Methods
     include_context 'event_collector'
 

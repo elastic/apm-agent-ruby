@@ -35,8 +35,23 @@ endif::[]
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
+[float]
+[[unreleased]]
+==== Unreleased
+
+[float]
+===== Added
+
+- Add `span.context.destination` fields {pull}647[#647]
+- Add more precise (experimental) SQL summarizer {pull}640[#640]
+
+[float]
+===== Changed
+
+- Allow action dispatch spy to be disabled via `disabled_instrumentations` {pull}657[#657]
+
 [[release-notes-3.3.0]]
-==== 3.2.0 (2019-12-05)
+==== 3.3.0 (2019-12-05)
 
 [float]
 ===== Added

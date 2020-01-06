@@ -44,6 +44,9 @@ Metrics/ModuleLength:
 Metrics/BlockLength:
   Enabled: false
 
+Metrics/BlockNesting:
+  Enabled: false
+
 Metrics/MethodLength:
   Enabled: false
 

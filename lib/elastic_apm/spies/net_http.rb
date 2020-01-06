@@ -8,6 +8,7 @@ module ElasticAPM
       KEY = :__elastic_apm_net_http_disabled
       TYPE = 'ext'
       SUBTYPE = 'net_http'
+
       class << self
         def disabled=(disabled)
           Thread.current[KEY] = disabled
@@ -28,6 +29,7 @@ module ElasticAPM
         end
       end
 
+      # rubocop:disable Metrics/CyclomaticComplexity
       def install
         Net::HTTP.class_eval do
           alias request_without_apm request
@@ -36,30 +38,48 @@ module ElasticAPM
             unless (transaction = ElasticAPM.current_transaction)
               return request_without_apm(req, body, &block)
             end
+
             if ElasticAPM::Spies::NetHTTPSpy.disabled?
               return request_without_apm(req, body, &block)
             end
 
-            host, = req['host']&.split(':')
-            method = req.method
+            host = req['host']&.split(':')&.first || address
+            method = req.method.to_s.upcase
+            path, query = req.path.split('?')
 
-            host ||= address
+            cls = use_ssl? ? URI::HTTPS : URI::HTTP
+            uri = cls.build([nil, host, port, path, query, nil])
 
-            name = "#{method} #{host}"
+            destination =
+              ElasticAPM::Span::Context::Destination.from_uri(uri)
+
+            context =
+              ElasticAPM::Span::Context.new(
+                http: { url: uri, method: method },
+                destination: destination
+              )
 
             ElasticAPM.with_span(
-              name,
+              "#{method} #{host}",
               TYPE,
               subtype: SUBTYPE,
-              action: method.to_s
+              action: method,
+              context: context
             ) do |span|
               trace_context = span&.trace_context || transaction.trace_context
               req['Elastic-Apm-Traceparent'] = trace_context.to_header
-              request_without_apm(req, body, &block)
+              result = request_without_apm(req, body, &block)
+
+              if (http = span&.context&.http)
+                http.status_code = result.code
+              end
+
+              result
             end
           end
         end
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
     end
 
     register 'Net::HTTP', 'net/http', NetHTTPSpy.new
