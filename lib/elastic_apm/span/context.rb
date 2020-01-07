@@ -12,8 +12,8 @@ module ElasticAPM
         sync: nil
       )
         @sync = sync
-        @db = db && Db.new(db)
-        @http = http && Http.new(http)
+        @db = db && Db.new(**db)
+        @http = http && Http.new(**http)
         @destination =
           case destination
           when Destination then destination

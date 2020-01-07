@@ -91,8 +91,8 @@ module ElasticAPM
 
     # context
 
-    def add_response(*args)
-      context.response = Context::Response.new(*args)
+    def add_response(status = nil, **args)
+      context.response = Context::Response.new(status, **args)
     end
 
     def set_user(user)
