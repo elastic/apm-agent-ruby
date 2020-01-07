@@ -50,6 +50,11 @@ endif::[]
 
 - Allow action dispatch spy to be disabled via `disabled_instrumentations` {pull}657[#657]
 
+[float]
+===== Fixed
+
+- Fix Rails Console detection when top-level `Console` constant defined {pull}664[#664]
+
 [[release-notes-3.3.0]]
 ==== 3.3.0 (2019-12-05)
 
