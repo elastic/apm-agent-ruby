@@ -59,7 +59,8 @@ module ElasticAPM
                 context: Span::Context.new(
                   db: { statement: 'asd' },
                   http: { url: 'dsa' },
-                  sync: false
+                  sync: false,
+                  labels: { foo: 'bar' }
                 )
               )
             end
@@ -69,6 +70,7 @@ module ElasticAPM
                 .to eq 'asd'
               expect(result.dig(:span, :context, :http, :url)).to eq 'dsa'
               expect(result.dig(:span, :context, :sync)).to eq false
+              expect(result.dig(:span, :context, :tags, :foo)).to eq 'bar'
             end
 
             context 'when sync is nil' do

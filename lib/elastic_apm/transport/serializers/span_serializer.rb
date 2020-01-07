@@ -32,11 +32,13 @@ module ElasticAPM
 
         # @api private
         class ContextSerializer < Serializer
+          # rubocop:disable Metrics/CyclomaticComplexity
           def build(context)
             return unless context
 
             base = {}
 
+            base[:tags] = mixed_object(context.labels) if context.labels.any?
             base[:sync] = context.sync unless context.sync.nil?
             base[:db] = build_db(context.db) if context.db
             base[:http] = build_http(context.http) if context.http
@@ -47,6 +49,7 @@ module ElasticAPM
 
             base
           end
+          # rubocop:enable Metrics/CyclomaticComplexity
 
           private
 
