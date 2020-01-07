@@ -50,6 +50,11 @@ endif::[]
 
 - Allow action dispatch spy to be disabled via `disabled_instrumentations` {pull}657[#657]
 
+[float]
+===== Fixed
+
+- Fix a few Ruby 2.7 related deprecation warnings {pull}667[#667]
+
 [[release-notes-3.3.0]]
 ==== 3.3.0 (2019-12-05)
 
