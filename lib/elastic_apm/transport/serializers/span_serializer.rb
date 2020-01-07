@@ -35,7 +35,7 @@ module ElasticAPM
           def build(context)
             return unless context
 
-            base = {}
+            base = { tags: mixed_object(context.labels) }
 
             base[:sync] = context.sync unless context.sync.nil?
             base[:db] = build_db(context.db) if context.db
