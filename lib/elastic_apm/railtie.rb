@@ -7,7 +7,7 @@ module ElasticAPM
 
     Config.schema.each do |key, args|
       next unless args.length > 1
-      config.elastic_apm[key] = args.last[:default]
+      config.elastic_apm[key] = args[:default]
     end
 
     initializer 'elastic_apm.initialize' do |app|
