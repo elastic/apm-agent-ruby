@@ -29,7 +29,7 @@ gem 'shoryuken', require: nil
 gem 'sidekiq', require: nil
 gem 'simplecov', require: false, group: :test
 gem 'simplecov-cobertura', require: false, group: :test
-gem 'sneakers', require: nil
+gem "sneakers", "~> 2.12.0", require: nil
 gem 'yard', require: nil
 gem 'yarjuf'
 
