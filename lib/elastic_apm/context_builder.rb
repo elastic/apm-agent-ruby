@@ -76,9 +76,9 @@ module ElasticAPM
         next unless key == key.upcase
 
         if key.start_with?('HTTP_')
-          http[camel_key(key)] = value.to_s
+          http[camel_key(key)] = value
         else
-          env[key] = value.to_s
+          env[key] = value
         end
       end
     end
