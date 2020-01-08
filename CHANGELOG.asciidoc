@@ -56,6 +56,7 @@ endif::[]
 
 - Fix Rails Console detection when top-level `Console` constant defined {pull}664[#664]
 - Fix a few Ruby 2.7 related deprecation warnings {pull}667[#667]
+- Fix response header values not being converted to strings {pull}675[#675]
 
 [[release-notes-3.3.0]]
 ==== 3.3.0 (2019-12-05)
