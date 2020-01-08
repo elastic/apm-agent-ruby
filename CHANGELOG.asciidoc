@@ -53,6 +53,7 @@ endif::[]
 [float]
 ===== Fixed
 
+- Fix Rails Console detection when top-level `Console` constant defined {pull}664[#664]
 - Fix a few Ruby 2.7 related deprecation warnings {pull}667[#667]
 
 [[release-notes-3.3.0]]

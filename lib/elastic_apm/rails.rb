@@ -44,7 +44,7 @@ module ElasticAPM
     private
 
     def should_skip?(_config)
-      if ::Rails.const_defined? 'Rails::Console'
+      if ::Rails.const_defined?('Console', false)
         return 'Rails console'
       end
 
