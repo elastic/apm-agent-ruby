@@ -51,7 +51,10 @@ module ElasticAPM
 
       Aws.config[:stub_responses] = true
       Aws.config[:region] = 'us-east-1'
-      Shoryuken.sqs_client.stub_responses(:get_queue_url, queue_url: 'https://sqs.ap-northeast-1.amazonaws.com/123456789123/test')
+      Shoryuken.sqs_client.stub_responses(
+        :get_queue_url,
+        queue_url: 'https://sqs.ap-northeast-1.amazonaws.com/123456789123/test'
+      )
 
       Shoryuken.add_group('default', 1)
       Shoryuken.add_queue('hard', 1, 'default')
@@ -95,7 +98,8 @@ module ElasticAPM
       expect(transaction).to_not be_nil
       expect(transaction['name']).to eq 'ElasticAPM::ShoryukenExplodingWorker'
       expect(transaction['type']).to eq 'shoryuken.job'
-      expect(transaction['context']['tags']['shoryuken_queue']).to eq 'exploding'
+      expect(transaction['context']['tags']['shoryuken_queue'])
+        .to eq 'exploding'
       expect(transaction['result']).to eq 'error'
 
       expect(error.dig('exception', 'type')).to eq 'ZeroDivisionError'

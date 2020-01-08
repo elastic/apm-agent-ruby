@@ -16,6 +16,7 @@ gem 'timecop'
 gem 'webmock'
 
 # Integrations
+gem 'aws-sdk-sqs', require: nil
 gem 'elasticsearch', require: nil
 gem 'fakeredis', require: nil
 gem 'faraday', require: nil
@@ -23,12 +24,11 @@ gem 'json-schema', require: nil
 gem 'mongo', require: nil
 gem 'opentracing', require: nil
 gem 'rake', require: nil
-gem 'shoryuken', require: nil
 gem 'sequel', require: nil
+gem 'shoryuken', require: nil
 gem 'sidekiq', require: nil
 gem 'simplecov', require: false, group: :test
 gem 'simplecov-cobertura', require: false, group: :test
-gem 'aws-sdk-sqs', require: nil
 gem 'yard', require: nil
 gem 'yarjuf'
 
