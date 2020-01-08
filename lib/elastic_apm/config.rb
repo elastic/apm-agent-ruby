@@ -119,6 +119,7 @@ module ElasticAPM
         rake
         redis
         sequel
+        shoryuken
         sidekiq
         sinatra
         tilt
