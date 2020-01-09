@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# @api private
 module Helpers
   def config
     @agent.config
@@ -9,7 +10,7 @@ end
 World(Helpers)
 
 After do
-  @agent.stop if @agent
+  @agent&.stop
 end
 
 Given('an agent') do
