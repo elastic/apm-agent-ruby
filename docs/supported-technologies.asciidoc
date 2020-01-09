@@ -85,3 +85,4 @@ We automatically instrument background processing using:
 - DelayedJob
 - Sidekiq
 - Shoryuken
+- Sneakers (v2.12.0+) (Experimental, see {pull}676[#676])

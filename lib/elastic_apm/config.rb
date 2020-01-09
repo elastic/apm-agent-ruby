@@ -122,6 +122,7 @@ module ElasticAPM
         shoryuken
         sidekiq
         sinatra
+        sneakers
         tilt
       ]
     end

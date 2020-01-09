@@ -45,6 +45,7 @@ endif::[]
 - Add `span.context.destination` fields {pull}647[#647]
 - Add more precise (experimental) SQL summarizer {pull}640[#640]
 - Add support for Shoryuken (AWS SQS) {pull}674[#674]
+- Add support for Sneakers (Experimental) {pull}676[#676]
 
 [float]
 ===== Changed
