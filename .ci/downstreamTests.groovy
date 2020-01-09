@@ -119,6 +119,8 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
             keepLongStdio: true,
             testResults: "**/spec/junit-reports/**/ruby-agent-junit.xml")
           if (steps.isCodecovEnabled(x, y)) {
+            // For debugging purposes only
+            steps.archiveArtifacts allowEmptyArchive: true, artifacts: "${steps.env.BASE_DIR}/coverage", defaultExcludes: false
             steps.codecov(repo: "${steps.env.REPO}", basedir: "${steps.env.BASE_DIR}",
                           secret: "${steps.env.CODECOV_SECRET}")
             steps.catchError(message: 'publishCoverage', stageResult: 'UNSTABLE') {
