@@ -20,7 +20,8 @@ module ElasticAPM
       subtype: nil,
       action: nil,
       context: nil,
-      stacktrace_builder: nil
+      stacktrace_builder: nil,
+      sync: nil
     )
       @name = name
 
@@ -36,7 +37,7 @@ module ElasticAPM
       @parent = parent
       @trace_context = trace_context || parent.trace_context.child
 
-      @context = context || Span::Context.new
+      @context = context || Span::Context.new(sync: sync)
       @stacktrace_builder = stacktrace_builder
     end
     # rubocop:enable Metrics/ParameterLists

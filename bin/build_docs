@@ -2,4 +2,4 @@
 set -ex
 
 # Requires elastic/docs to be checked out at ../docs
-../docs/build_docs.pl --doc docs/index.asciidoc --chunk 1
+../docs/build_docs --doc docs/index.asciidoc --chunk 1

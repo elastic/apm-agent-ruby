@@ -83,9 +83,8 @@ module ElasticAPM
           @schema ||= {}
         end
 
-        def option(*args)
-          key = args.shift
-          schema[key] = *args
+        def option(key, **args)
+          schema[key] = args
         end
       end
 
@@ -93,7 +92,7 @@ module ElasticAPM
       module InstanceMethods
         def load_schema
           Hash[self.class.schema.map do |key, args|
-            [key, Option.new(key, *args)]
+            [key, Option.new(key, **args)]
           end]
         end
 

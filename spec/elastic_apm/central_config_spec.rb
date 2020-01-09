@@ -9,7 +9,7 @@ module ElasticAPM
 
     describe '#start' do
       it 'polls for config' do
-        req_stub = stub_response(transaction_sample_rate: '0.5')
+        req_stub = stub_response({ transaction_sample_rate: '0.5' })
         subject.start
         subject.promise.wait
         expect(req_stub).to have_been_requested.at_least_once
@@ -20,7 +20,7 @@ module ElasticAPM
         let(:config) { Config.new(central_config: false) }
 
         it 'does nothing' do
-          req_stub = stub_response(transaction_sample_rate: '0.5')
+          req_stub = stub_response({ transaction_sample_rate: '0.5' })
           subject.start
           expect(subject.promise).to be nil
           expect(req_stub).to_not have_been_requested
@@ -31,7 +31,7 @@ module ElasticAPM
 
     describe '#fetch_and_apply_config' do
       it 'queries APM Server and applies config' do
-        req_stub = stub_response(transaction_sample_rate: '0.5')
+        req_stub = stub_response({ transaction_sample_rate: '0.5' })
         expect(config.logger).to receive(:info)
 
         subject.fetch_and_apply_config
@@ -43,7 +43,7 @@ module ElasticAPM
       end
 
       it 'reverts config if later 404' do
-        stub_response(transaction_sample_rate: '0.5')
+        stub_response({ transaction_sample_rate: '0.5' })
 
         subject.fetch_and_apply_config
         subject.promise.wait
@@ -138,7 +138,7 @@ module ElasticAPM
     describe '#fetch_config' do
       context 'when successful' do
         it 'returns response object' do
-          stub_response(ok: 1)
+          stub_response({ ok: 1 })
 
           expect(subject.fetch_config).to be_a(HTTP::Response)
         end
@@ -179,6 +179,25 @@ module ElasticAPM
           stub_response(
             {},
             request: { headers: { 'Authorization': 'Bearer zecret' } }
+          )
+
+          subject.fetch_config
+        end
+      end
+
+      context 'with an api key' do
+        before do
+          config.api_key = 'a_base64_encoded_string'
+        end
+
+        it 'sets auth header' do
+          stub_response(
+            {},
+            request: {
+              headers: {
+                'Authorization': 'ApiKey a_base64_encoded_string'
+              }
+            }
           )
 
           subject.fetch_config

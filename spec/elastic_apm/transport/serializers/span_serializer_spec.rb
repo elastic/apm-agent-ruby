@@ -21,7 +21,8 @@ module ElasticAPM
               name: 'Span',
               transaction: transaction,
               parent: transaction,
-              trace_context: trace_context
+              trace_context: trace_context,
+              sync: true
             ).tap do |span|
               span.start
               travel 10_000
@@ -57,7 +58,9 @@ module ElasticAPM
                 trace_context: trace_context,
                 context: Span::Context.new(
                   db: { statement: 'asd' },
-                  http: { url: 'dsa' }
+                  http: { url: 'dsa' },
+                  sync: false,
+                  labels: { foo: 'bar' }
                 )
               )
             end
@@ -66,6 +69,50 @@ module ElasticAPM
               expect(result.dig(:span, :context, :db, :statement))
                 .to eq 'asd'
               expect(result.dig(:span, :context, :http, :url)).to eq 'dsa'
+              expect(result.dig(:span, :context, :sync)).to eq false
+              expect(result.dig(:span, :context, :tags, :foo)).to eq 'bar'
+            end
+
+            context 'when sync is nil' do
+              let(:span) do
+                Span.new(
+                  name: 'Span',
+                  transaction: transaction,
+                  parent: transaction,
+                  trace_context: trace_context,
+                  context: Span::Context.new(
+                    db: { statement: 'asd' },
+                    http: { url: 'dsa' }
+                  )
+                )
+              end
+
+              it 'adds context object' do
+                expect(result.dig(:span, :context, :db, :statement))
+                  .to eq 'asd'
+                expect(result.dig(:span, :context, :http, :url)).to eq 'dsa'
+                expect(result[:span][:context].key?(:sync)).to be false
+              end
+            end
+          end
+
+          context 'with a destination' do
+            it 'adds destination object' do
+              span = Span.new(
+                name: 'Span',
+                transaction: transaction,
+                parent: transaction,
+                trace_context: trace_context,
+                context: Span::Context.new(
+                  destination: { name: 'a', resource: 'b', type: 'c' }
+                )
+              )
+
+              result = subject.build(span)
+
+              expect(result.dig(:span, :context, :destination)).to match(
+                service: { name: 'a', resource: 'b', type: 'c' }
+              )
             end
           end
 

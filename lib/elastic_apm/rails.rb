@@ -9,7 +9,6 @@ module ElasticAPM
   # It is recommended to use the Railtie instead.
   module Rails
     extend self
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     # Start the ElasticAPM agent and hook into Rails.
     # Note that the agent won't be started if the Rails console is being used.
     #
@@ -31,13 +30,6 @@ module ElasticAPM
         attach_subscriber(agent)
       end
 
-      if ElasticAPM.running? &&
-         !ElasticAPM.agent.config.disabled_instrumentations.include?(
-           'action_dispatch'
-         )
-        require 'elastic_apm/spies/action_dispatch'
-      end
-
       ElasticAPM.running?
     rescue StandardError => e
       if config.disable_start_message?
@@ -48,12 +40,11 @@ module ElasticAPM
         puts "Backtrace:\n" + e.backtrace.join("\n")
       end
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
     private
 
     def should_skip?(_config)
-      if ::Rails.const_defined? 'Rails::Console'
+      if ::Rails.const_defined?('Console', false)
         return 'Rails console'
       end
 

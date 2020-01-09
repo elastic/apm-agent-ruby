@@ -55,6 +55,10 @@ module ElasticAPM
           headers[:Authorization] = "Bearer #{token}"
         end
 
+        if (api_key = @config.api_key)
+          headers[:Authorization] = "ApiKey #{api_key}"
+        end
+
         headers
       end
     end

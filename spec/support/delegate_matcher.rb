@@ -15,7 +15,12 @@ RSpec::Matchers.define :delegate do |method, opts|
       expect(to).to receive(method).at_least(:once).with(no_args) { true }
     end
 
-    delegator.send method, *args
+    if args&.last.is_a?(Hash)
+      kw = args.pop
+      delegator.send method, *args, **kw
+    else
+      delegator.send method, *args
+    end
   end
 
   description do

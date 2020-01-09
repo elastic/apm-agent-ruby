@@ -18,14 +18,13 @@ module ElasticAPM
     }.freeze
 
     FORMAT = '%s%s'
-    UTF8 = 'UTF-8'
 
     def self.cache
       @cache ||= Util::LruCache.new
     end
 
     def summarize(sql)
-      sql = sql.encode(UTF8, invalid: :replace, undef: :replace)
+      sql = sql.encode('utf-8', invalid: :replace, undef: :replace)
       self.class.cache[sql] ||=
         REGEXES.find do |regex, sig|
           if (match = sql[0...1000].match(regex))

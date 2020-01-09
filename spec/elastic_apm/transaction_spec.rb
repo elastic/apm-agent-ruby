@@ -103,30 +103,28 @@ module ElasticAPM
     end
 
     describe '#inc_started_spans!' do
-      it 'increments count' do
-        expect { subject.inc_started_spans! }
-          .to change(subject, :started_spans).by 1
-      end
-    end
-
-    describe '#inc_dropped_spans!' do
-      it 'increments count' do
-        expect { subject.inc_dropped_spans! }
-          .to change(subject, :dropped_spans).by 1
-      end
-    end
-
-    describe '#max_spans_reached?' do
-      let(:config) { Config.new(transaction_max_spans: 3) }
-      let(:result) { subject.max_spans_reached? }
-
-      context 'when below max' do
-        it { expect(result).to be false }
+      let!(:result) { subject.inc_started_spans! }
+      it 'increments started count' do
+        expect(subject.started_spans).to be(1)
       end
 
-      context 'when maximum reached' do
-        before { 4.times { subject.inc_started_spans! } }
-        it { expect(result).to be true }
+      it 'returns true' do
+        expect(result).to be true
+      end
+
+      context 'when max spans is reached' do
+        let(:config) { Config.new(transaction_max_spans: 3) }
+        let!(:result) do
+          3.times { subject.inc_started_spans! }
+          subject.inc_started_spans!
+        end
+        it 'increments dropped spans' do
+          expect(subject.dropped_spans).to be(1)
+        end
+
+        it 'returns false' do
+          expect(result).to be false
+        end
       end
     end
 

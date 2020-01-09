@@ -22,6 +22,40 @@ module ElasticAPM
       expect(span.name).to eq 'GET example.com'
     end
 
+    it 'spans inline http calls' do
+      WebMock.stub_request(:get, %r{http://example.com/.*})
+
+      with_agent do
+        ElasticAPM.with_transaction 'Net::HTTP test' do
+          Net::HTTP.get('example.com', '/index.html')
+        end
+      end
+
+      span, = @intercepted.spans
+
+      expect(span.name).to eq 'GET example.com'
+    end
+
+    it 'adds http context' do
+      WebMock.stub_request(:get, %r{http://example.com/.*})
+
+      with_agent do
+        ElasticAPM.with_transaction 'Net::HTTP test' do
+          Net::HTTP.start('example.com') do |http|
+            http.get '/page.html'
+          end
+        end
+      end
+
+      span, = @intercepted.spans
+
+      http = span.context.http
+
+      expect(http.url).to match('http://example.com/page.html')
+      expect(http.method).to match('GET')
+      expect(http.status_code).to match('200')
+    end
+
     it 'adds traceparent header' do
       req_stub =
         WebMock.stub_request(:get, %r{http://example.com/.*}).with do |req|
@@ -85,6 +119,45 @@ module ElasticAPM
 
       ElasticAPM.stop
       WebMock.reset!
+    end
+
+    describe 'destination info' do
+      it 'adds to span context' do
+        WebMock.stub_request(:get, %r{http://example.com:1234/.*})
+
+        with_agent do
+          ElasticAPM.with_transaction 'Net::HTTP test' do
+            Net::HTTP.start('example.com', 1234) do |http|
+              http.get '/some/path?a=1'
+            end
+          end
+        end
+
+        span, = @intercepted.spans
+
+        expect(span.context.destination.name).to eq 'http://example.com:1234'
+        expect(span.context.destination.resource).to eq 'example.com:1234'
+        expect(span.context.destination.type).to eq 'external'
+      end
+    end
+
+    it 'handles IPv6 addresses' do
+      WebMock.stub_request(:get, %r{http://\[::1\]/.*})
+
+      with_agent do
+        ElasticAPM.with_transaction 'Net::HTTP test' do
+          Net::HTTP.start('[::1]') do |http|
+            http.get '/path'
+          end
+        end
+      end
+
+      span, = @intercepted.spans
+
+      expect(span.name).to eq 'GET [::1]'
+      expect(span.context.destination.name).to eq 'http://[::1]'
+      expect(span.context.destination.resource).to eq '[::1]:80'
+      expect(span.context.destination.type).to eq 'external'
     end
   end
 end

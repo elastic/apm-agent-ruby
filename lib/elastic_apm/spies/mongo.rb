@@ -81,6 +81,11 @@ module ElasticAPM
               statement: event.command.to_s,
               type: 'mongodb',
               user: nil
+            },
+            destination: {
+              name: SUBTYPE,
+              resource: SUBTYPE,
+              type: TYPE
             }
           )
         end

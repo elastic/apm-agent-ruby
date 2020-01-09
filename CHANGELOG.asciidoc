@@ -35,8 +35,33 @@ endif::[]
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
+[float]
+[[unreleased]]
+==== Unreleased
+
+[float]
+===== Added
+
+- Add `span.context.destination` fields {pull}647[#647]
+- Add more precise (experimental) SQL summarizer {pull}640[#640]
+- Add support for Shoryuken (AWS SQS) {pull}674[#674]
+- Add support for Sneakers (Experimental) {pull}676[#676]
+- Add option `api_key` to specify an Api key to use with the apm server {pull}655[#655]
+
+[float]
+===== Changed
+
+- Allow action dispatch spy to be disabled via `disabled_instrumentations` {pull}657[#657]
+
+[float]
+===== Fixed
+
+- Fix Rails Console detection when top-level `Console` constant defined {pull}664[#664]
+- Fix a few Ruby 2.7 related deprecation warnings {pull}667[#667]
+- Fix response header values not being converted to strings {pull}675[#675]
+
 [[release-notes-3.3.0]]
-==== 3.2.0 (2019-12-05)
+==== 3.3.0 (2019-12-05)
 
 [float]
 ===== Added

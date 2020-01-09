@@ -1,5 +1,5 @@
 exclude:
-  - RUBY_VERSION: ruby:2.7-rc
+  - RUBY_VERSION: ruby:2.7
     FRAMEWORK: rails-4.2
   - RUBY_VERSION: jruby:9.2
     FRAMEWORK: rails-4.2
@@ -26,7 +26,7 @@ exclude:
     FRAMEWORK: rails-6.0
 
   # Only test master on newest ruby
-  - RUBY_VERSION: ruby:2.7-rc
+  - RUBY_VERSION: ruby:2.6
     FRAMEWORK: rails-master
   - RUBY_VERSION: ruby:2.5
     FRAMEWORK: rails-master
@@ -70,7 +70,7 @@ exclude:
   - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.1-7-jdk
     FRAMEWORK: sinatra-master
 
-  - RUBY_VERSION: ruby:2.7-rc
+  - RUBY_VERSION: ruby:2.6
     FRAMEWORK: grape-master
   - RUBY_VERSION: ruby:2.5
     FRAMEWORK: grape-master
@@ -93,7 +93,7 @@ exclude:
   - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.1-7-jdk
     FRAMEWORK: grape-master
 
-  - RUBY_VERSION: ruby:2.7-rc
+  - RUBY_VERSION: ruby:2.6
     FRAMEWORK: grape-1.2,sinatra-2.0,rails-6.0
   - RUBY_VERSION: ruby:2.5
     FRAMEWORK: grape-1.2,sinatra-2.0,rails-6.0
