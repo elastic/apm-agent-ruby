@@ -17,6 +17,7 @@ module ElasticAPM
     option :config_file,                       type: :string, default: 'config/elastic_apm.yml'
     option :server_url,                        type: :url,    default: 'http://localhost:8200'
     option :secret_token,                      type: :string
+    option :api_key,                           type: :string
 
     option :active,                            type: :bool,   default: true
     option :api_buffer_size,                   type: :int,    default: 256

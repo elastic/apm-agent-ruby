@@ -21,6 +21,19 @@ module ElasticAPM
             )
           end
         end
+
+        context 'with an api key' do
+          let(:config) do
+            Config.new api_key: 'a_base64_encoded_string'
+          end
+
+          it 'includes api key' do
+            expect(subject.to_h).to match(
+              'User-Agent': String,
+              'Authorization': 'ApiKey a_base64_encoded_string'
+            )
+          end
+        end
       end
 
       describe 'chunked' do

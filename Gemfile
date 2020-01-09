@@ -6,6 +6,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 # Tools
 gem 'bootsnap', require: false
+gem 'cucumber', require: false
 gem 'pry'
 gem 'rack-test'
 gem 'rspec', '~> 3'
@@ -27,9 +28,9 @@ gem 'rake', require: nil
 gem 'sequel', require: nil
 gem 'shoryuken', require: nil
 gem 'sidekiq', require: nil
-gem 'simplecov', require: false, group: :test
-gem 'simplecov-cobertura', require: false, group: :test
 gem 'sneakers', '~> 2.12', require: nil
+gem 'simplecov', require: false
+gem 'simplecov-cobertura', require: false
 gem 'yard', require: nil
 gem 'yarjuf'
 

@@ -145,7 +145,7 @@ One example to generate a secure secret token is:
 ruby -r securerandom -e 'print SecureRandom.uuid'
 ----
 
-WARNING: Secret tokens only provide any real security if your APM server use TLS.
+WARNING: Secret tokens only provide any real security if your APM server uses TLS.
 
 [float]
 [[config-active]]
