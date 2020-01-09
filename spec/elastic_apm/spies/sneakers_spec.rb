@@ -5,25 +5,25 @@ require 'elastic_apm/spies/sneakers'
 
 module ElasticAPM
   RSpec.describe 'Spy: Sneakers', :intercept do
-    class Queue
+    class MockQueue
       def name
         'q1'
       end
     end
 
-    class Consumer
+    class MockConsumer
       def queue
-        Queue.new
+        MockQueue.new
       end
     end
 
-    class DeliveryInfo
+    class MockDeliveryInfo
       def routing_key
         'r1234'
       end
 
       def consumer
-        Consumer.new
+        MockConsumer.new
       end
     end
 
@@ -54,7 +54,7 @@ module ElasticAPM
     it 'instruments job transaction' do
       with_agent do
         worker = TestWorker.new
-        worker.process_work(DeliveryInfo.new, nil, nil, nil)
+        worker.process_work(MockDeliveryInfo.new, nil, nil, nil)
       end
 
       transaction, = @intercepted.transactions
@@ -70,7 +70,7 @@ module ElasticAPM
     it 'reports errors' do
       with_agent do
         worker = TestErrorWorker.new
-        worker.process_work(DeliveryInfo.new, nil, nil, nil)
+        worker.process_work(MockDeliveryInfo.new, nil, nil, nil)
       end
 
       transaction, = @intercepted.transactions
