@@ -26,6 +26,7 @@ require 'elastic_apm/middleware'
 require 'elastic_apm/rails' if defined?(::Rails::Railtie)
 require 'elastic_apm/sinatra' if defined?(::Sinatra)
 require 'elastic_apm/grape' if defined?(::Grape)
+require 'elastic_apm/grpc' if defined?(::GRPC)
 
 # ElasticAPM
 module ElasticAPM
@@ -272,9 +273,14 @@ module ElasticAPM
     # @return [Context] The built context
     def build_context(
       rack_env: nil,
+      grpc_request: nil,
       for_type: :transaction
     )
-      agent&.build_context(rack_env: rack_env, for_type: for_type)
+      agent&.build_context(
+        rack_env: rack_env,
+        grpc_request: grpc_request,
+        for_type: for_type
+      )
     end
 
     ### Errors

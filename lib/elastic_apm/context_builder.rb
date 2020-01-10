@@ -12,15 +12,28 @@ module ElasticAPM
 
     attr_reader :config
 
-    def build(rack_env:, for_type:)
+    def build(rack_env:, grpc_request:, for_type:)
       Context.new.tap do |context|
-        apply_to_request(context, rack_env: rack_env, for_type: for_type)
+        apply_to_request(
+          context,
+          rack_env: rack_env,
+          grpc_request: grpc_request,
+          for_type: for_type
+        )
       end
     end
 
     private
 
-    def apply_to_request(context, rack_env:, for_type:)
+    def apply_to_request(context, rack_env:, grpc_request:, for_type:)
+      if rack_env
+        rack_context(context, rack_env: rack_env, for_type: for_type)
+      else
+        grpc_context(context, grpc_request: grpc_request, for_type: for_type)
+      end
+    end
+
+    def rack_context(context, rack_env:, for_type:)
       req = rails_req?(rack_env) ? rack_env : Rack::Request.new(rack_env)
 
       context.request = Context::Request.new unless context.request
@@ -39,6 +52,11 @@ module ElasticAPM
 
       request.cookies = req.cookies.dup
 
+      context
+    end
+
+    def grpc_context(context, grpc_request:, for_type:)
+      # Todo
       context
     end
 

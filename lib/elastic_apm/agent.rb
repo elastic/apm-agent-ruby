@@ -200,8 +200,12 @@ module ElasticAPM
       instrumenter.set_user(user)
     end
 
-    def build_context(rack_env:, for_type:)
-      @context_builder.build(rack_env: rack_env, for_type: for_type)
+    def build_context(rack_env:, grpc_request:, for_type:)
+      @context_builder.build(
+        rack_env: rack_env,
+        grpc_request: grpc_request,
+        for_type: for_type
+      )
     end
 
     # errors
