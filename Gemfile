@@ -21,6 +21,7 @@ gem 'aws-sdk-sqs', require: nil
 gem 'elasticsearch', require: nil
 gem 'fakeredis', require: nil
 gem 'faraday', require: nil
+gem 'grpc', require: nil
 gem 'json-schema', require: nil
 gem 'mongo', require: nil
 gem 'opentracing', require: nil

@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
+require 'grpc'
+
 module ElasticAPM
   # @api private
-
   class GRPC
     # @api private
     class ClientInterceptor < ::GRPC::ClientInterceptor
@@ -11,8 +12,39 @@ module ElasticAPM
         # Create span context
         # Create traceparent context
         # Start span
-        # yield
-        # End span
+        elastic_span =
+            if ElasticAPM.current_transaction
+              ElasticAPM.start_span(
+                  'grpc',
+                  trace_context: trace_context(metadata)
+              )
+            else
+              ElasticAPM.start_transaction(
+                  'grpc',
+                  trace_context: trace_context(metadata)
+              )
+            end
+        resp = yield
+      rescue InternalError
+        raise # Don't report ElasticAPM errors
+      rescue ::Exception => e
+        context = ElasticAPM.build_context(grpc_request: call, for_type: :error)
+        ElasticAPM.report(e, context: context, handled: false)
+        raise
+      ensure
+        if resp && ElasticAPM.current_transaction
+          #status, headers, _body = resp
+          #transaction.add_response(status, headers: headers.dup)
+          ElasticAPM.end_transaction
+        end
+      end
+
+      def trace_context(call)
+        return unless (header = call['HTTP_ELASTIC_APM_TRACEPARENT'])
+        TraceContext.parse(header)
+      rescue TraceContext::InvalidTraceparentHeader
+        warn "Couldn't parse invalid traceparent header: #{header.inspect}"
+        nil
       end
     end
 
@@ -23,7 +55,6 @@ module ElasticAPM
         # check if path is ignored
         #   - Is this relevant?
         # start a transaction using info from the args
-        binding.pry
         if running? && !path_ignored?(request)
           transaction = start_transaction(request)
         end
@@ -65,14 +96,6 @@ module ElasticAPM
         ElasticAPM.start_transaction 'GRPC', 'request',
                                      context: context,
                                      trace_context: trace_context(call)
-      end
-
-      def trace_context(call)
-        return unless (header = call['HTTP_ELASTIC_APM_TRACEPARENT'])
-        TraceContext.parse(header)
-      rescue TraceContext::InvalidTraceparentHeader
-        warn "Couldn't parse invalid traceparent header: #{header.inspect}"
-        nil
       end
 
       def running?
