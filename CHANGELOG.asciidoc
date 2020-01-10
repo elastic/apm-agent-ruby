@@ -35,9 +35,8 @@ endif::[]
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
-[float]
-[[unreleased]]
-==== Unreleased
+[[release-notes-3.4.0]]
+==== 3.4.0 (2020-01-10)
 
 [float]
 ===== Added
@@ -57,8 +56,8 @@ endif::[]
 ===== Fixed
 
 - Fix Rails Console detection when top-level `Console` constant defined {pull}664[#664]
-- Fix a few Ruby 2.7 related deprecation warnings {pull}667[#667]
-- Fix response header values not being converted to strings {pull}675[#675]
+- Fix Ruby 2.7 related deprecation warnings {pull}667[#667]
+- Fix HTTP response header values not being converted to strings {pull}675[#675]
 
 [[release-notes-3.3.0]]
 ==== 3.3.0 (2019-12-05)
