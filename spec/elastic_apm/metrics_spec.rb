@@ -97,9 +97,19 @@ module ElasticAPM
               metrics.get(:breakdown).counter('b').inc!
               metrics.get(:breakdown).counter('c').dec!
               metrics.get(:transaction).counter(
-                :with_tags,
-                tags: { 'name': names.sample } # ,
-                # reset_on_collect: true
+                :a_with_tags,
+                tags: { 'name': names.sample },
+                reset_on_collect: true
+              ).inc!
+              metrics.get(:transaction).counter(
+                :b_with_tags,
+                tags: { 'name': names.sample },
+                reset_on_collect: true
+              ).inc!
+              metrics.get(:transaction).counter(
+                :c_with_tags,
+                tags: { 'name': names.sample },
+                reset_on_collect: true
               ).inc!
 
               sleep 0.15 # longer than metrics_interval
@@ -118,8 +128,10 @@ module ElasticAPM
         expect(samples['a']['value']).to eq(thread_count)
         expect(samples['b']['value']).to eq(thread_count)
         expect(samples['c']['value']).to eq(0 - thread_count)
-        #                                (thread_count/names.length) +/- random
-        expect(samples['with_tags']['value']).to match(150..250)
+
+        expect(samples['a_with_tags']['value']).to be > 0
+        expect(samples['b_with_tags']['value']).to be > 0
+        expect(samples['c_with_tags']['value']).to be > 0
       end
     end
   end
