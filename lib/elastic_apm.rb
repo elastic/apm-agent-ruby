@@ -273,14 +273,9 @@ module ElasticAPM
     # @return [Context] The built context
     def build_context(
       rack_env: nil,
-      grpc_request: nil,
       for_type: :transaction
     )
-      agent&.build_context(
-        rack_env: rack_env,
-        grpc_request: grpc_request,
-        for_type: for_type
-      )
+      agent&.build_context(rack_env: rack_env, for_type: for_type)
     end
 
     ### Errors

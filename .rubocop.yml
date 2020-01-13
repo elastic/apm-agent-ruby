@@ -4,6 +4,8 @@ AllCops:
     - 'elastic-apm.gemspec'
     - 'vendor/**/*'
     - 'bench/*'
+    - 'spec/support/helloworld_pb.rb'
+    - 'spec/support/helloworld_services_pb.rb'
 
 require:
   - rubocop-performance

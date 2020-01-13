@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'grpc'
+
 module ElasticAPM
   RSpec.describe GRPC, :intercept do
     class GreeterServer < Helloworld::Greeter::Service
@@ -17,21 +19,127 @@ module ElasticAPM
         )
       end
 
+      let(:server) do
+        ::GRPC::RpcServer.new.tap do |s|
+          s.add_http2_port('0.0.0.0:50051', :this_port_is_insecure)
+          s.handle(GreeterServer)
+        end
+      end
+
       it 'creates a span' do
-        server = ::GRPC::RpcServer.new
-        server.add_http2_port('0.0.0.0:50051', :this_port_is_insecure)
-        server.handle(GreeterServer)
         thread = Thread.new { server.run }
         server.wait_till_running
 
         message = with_agent do
-          stub.say_hello(Helloworld::HelloRequest.new(name: 'world')).message
+          ElasticAPM.with_transaction 'GRPC test' do
+            stub.say_hello(
+              Helloworld::HelloRequest.new(name: 'goodbye')
+            ).message
+          end
         end
-        expect(message).to eq('Hello world')
-        expect(@intercepted.transactions.size).to eq(1)
+        expect(message).to eq('Hello goodbye')
+
+        span, = @intercepted.spans
+        expect(span.name).to eq('/helloworld.Greeter/SayHello')
+        expect(span.type).to eq('external')
+        expect(span.subtype).to eq('grpc')
 
         server.stop
         thread.kill
+      end
+
+      context 'when the transaction is not sampled' do
+        let(:config) { { transaction_sample_rate: 0.0 } }
+
+        it 'does not create a span' do
+          thread = Thread.new { server.run }
+          server.wait_till_running
+
+          message = with_agent(**config) do
+            ElasticAPM.with_transaction 'GRPC test' do
+              stub.say_hello(
+                Helloworld::HelloRequest.new(name: 'goodbye')
+              ).message
+            end
+          end
+          expect(message).to eq('Hello goodbye')
+          expect(@intercepted.spans.size).to eq(0)
+
+          server.stop
+          thread.kill
+        end
+      end
+
+      context 'when no transaction is started' do
+        let(:config) { { transaction_sample_rate: 0.0 } }
+
+        it 'does not create a span' do
+          thread = Thread.new { server.run }
+          server.wait_till_running
+
+          message = with_agent do
+            stub.say_hello(
+              Helloworld::HelloRequest.new(name: 'goodbye')
+            ).message
+          end
+          expect(message).to eq('Hello goodbye')
+          expect(@intercepted.spans.size).to eq(0)
+          expect(@intercepted.transactions.size).to eq(0)
+
+          server.stop
+          thread.kill
+        end
+      end
+
+      context 'when max spans is reached' do
+        let(:config) { { transaction_max_spans: 1 } }
+
+        it 'does not create a span' do
+          thread = Thread.new { server.run }
+          server.wait_till_running
+
+          message = with_agent(**config) do
+            ElasticAPM.with_transaction 'GRPC test' do
+              stub.say_hello(
+                Helloworld::HelloRequest.new(name: 'bonjour')
+              ).message
+              stub.say_hello(
+                Helloworld::HelloRequest.new(name: 'goodbye')
+              ).message
+            end
+          end
+          expect(message).to eq('Hello goodbye')
+          expect(@intercepted.spans.size).to eq(1)
+          expect(@intercepted.transactions.size).to eq(1)
+
+          server.stop
+          thread.kill
+        end
+      end
+
+      context 'trace_context' do
+        let(:trace_context) { TraceContext.new(trace_id: '123') }
+        it 'passes it to the span' do
+          thread = Thread.new { server.run }
+          server.wait_till_running
+
+          message = with_agent do
+            ElasticAPM.with_transaction(
+              'GRPC test', { trace_context: trace_context }
+            ) do
+              stub.say_hello(
+                Helloworld::HelloRequest.new(name: 'goodbye')
+              ).message
+            end
+          end
+          expect(message).to eq('Hello goodbye')
+
+          span, = @intercepted.spans
+          expect(span.trace_id).to eq('123')
+
+          server.stop
+          thread.kill
+        end
       end
     end
   end
