@@ -20,9 +20,7 @@ module ElasticAPM
       end
 
       let(:server) do
-        ::GRPC::RpcServer.new(
-          interceptors: [ElasticAPM::GRPC::ServerInterceptor.new]
-        ).tap do |s|
+        ::GRPC::RpcServer.new.tap do |s|
           s.add_http2_port('0.0.0.0:50051', :this_port_is_insecure)
           s.handle(GreeterServer)
         end
@@ -154,7 +152,9 @@ module ElasticAPM
       end
 
       let(:server) do
-        ::GRPC::RpcServer.new(interceptors: [described_class.new]).tap do |s|
+        ::GRPC::RpcServer.new(
+          interceptors: [ElasticAPM::GRPC::ServerInterceptor.new]
+        ).tap do |s|
           s.add_http2_port('0.0.0.0:50051', :this_port_is_insecure)
           s.handle(GreeterServer)
         end
