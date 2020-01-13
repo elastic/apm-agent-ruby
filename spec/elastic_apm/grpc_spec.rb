@@ -10,17 +10,19 @@ module ElasticAPM
       end
     end
 
-    context 'client request' do
+    describe GRPC::ClientInterceptor do
       let(:stub) do
         Helloworld::Greeter::Stub.new(
           'localhost:50051',
           :this_channel_is_insecure,
-          interceptors: [ElasticAPM::GRPC::ClientInterceptor.new]
+          interceptors: [described_class.new]
         )
       end
 
       let(:server) do
-        ::GRPC::RpcServer.new.tap do |s|
+        ::GRPC::RpcServer.new(
+          interceptors: [ElasticAPM::GRPC::ServerInterceptor.new]
+        ).tap do |s|
           s.add_http2_port('0.0.0.0:50051', :this_port_is_insecure)
           s.handle(GreeterServer)
         end
@@ -136,6 +138,69 @@ module ElasticAPM
 
           span, = @intercepted.spans
           expect(span.trace_id).to eq('123')
+
+          server.stop
+          thread.kill
+        end
+      end
+    end
+
+    describe GRPC::ServerInterceptor do
+      let(:stub) do
+        Helloworld::Greeter::Stub.new(
+          'localhost:50051',
+          :this_channel_is_insecure
+        )
+      end
+
+      let(:server) do
+        ::GRPC::RpcServer.new(interceptors: [described_class.new]).tap do |s|
+          s.add_http2_port('0.0.0.0:50051', :this_port_is_insecure)
+          s.handle(GreeterServer)
+        end
+      end
+
+      it 'creates a transaction' do
+        thread = Thread.new { server.run }
+        server.wait_till_running
+
+        message = with_agent do
+          stub.say_hello(
+            Helloworld::HelloRequest.new(name: 'goodbye')
+          ).message
+        end
+        expect(message).to eq('Hello goodbye')
+
+        transaction, = @intercepted.transactions
+        expect(transaction.name).to eq('grpc')
+        expect(transaction.type).to eq('request')
+
+        server.stop
+        thread.kill
+      end
+
+      context 'trace_context' do
+        let(:trace_context) do
+          TraceContext.parse("00-#{'1' * 32}-#{'2' * 16}-01")
+        end
+
+        it 'sets it on the transaction' do
+          thread = Thread.new { server.run }
+          server.wait_till_running
+
+          message = with_agent do
+            stub.say_hello(
+              Helloworld::HelloRequest.new(name: 'goodbye'),
+              metadata: { 'elastic-apm-traceparent' => trace_context.to_header }
+            ).message
+          end
+          expect(message).to eq('Hello goodbye')
+
+          transaction, = @intercepted.transactions
+          expect(transaction.name).to eq('grpc')
+          expect(transaction.type).to eq('request')
+          expect(transaction.trace_id).to eq(trace_context.trace_id)
+          expect(transaction.parent_id).to eq(trace_context.id)
 
           server.stop
           thread.kill

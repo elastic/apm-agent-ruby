@@ -19,5 +19,42 @@ module ElasticAPM
       end
       # rubocop:enable Lint/UnusedMethodArgument
     end
+
+    # @api private
+    class ServerInterceptor < ::GRPC::ClientInterceptor
+      TYPE = 'request'
+
+      # rubocop:disable Lint/UnusedMethodArgument
+      def request_response(request:, call:, method:)
+        transaction = start_transaction(call)
+        yield
+        transaction.done 'success'
+      rescue ::Exception => e
+        ElasticAPM.report(e, handled: false)
+        transaction.done 'error'
+        raise
+      ensure
+        ElasticAPM.end_transaction
+      end
+      # rubocop:enable Lint/UnusedMethodArgument
+
+      private
+
+      def start_transaction(call)
+        ElasticAPM.start_transaction(
+          'grpc',
+          'request',
+          trace_context: trace_context(call)
+        )
+      end
+
+      def trace_context(call)
+        return unless (header = call.metadata['elastic-apm-traceparent'])
+        TraceContext.parse(header)
+      rescue TraceContext::InvalidTraceparentHeader
+        warn "Couldn't parse invalid traceparent header: #{header.inspect}"
+        nil
+      end
+    end
   end
 end

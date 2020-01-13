@@ -29,8 +29,8 @@ gem 'rake', require: nil
 gem 'sequel', require: nil
 gem 'shoryuken', require: nil
 gem 'sidekiq', require: nil
-gem 'sneakers', '~> 2.12', require: nil
 gem 'simplecov', require: false
+gem 'sneakers', '~> 2.12', require: nil
 gem 'simplecov-cobertura', require: false
 gem 'yard', require: nil
 gem 'yarjuf'
