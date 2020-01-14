@@ -21,7 +21,7 @@ module ElasticAPM
       attr_reader :headers
 
       def headers=(headers)
-        @headers = headers.each_with_object({}) do |(k, v), hsh|
+        @headers = headers&.each_with_object({}) do |(k, v), hsh|
           hsh[k] = v.to_s
         end
       end
