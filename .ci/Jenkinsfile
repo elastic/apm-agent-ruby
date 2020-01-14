@@ -302,6 +302,7 @@ def runJob(rubyVersion){
                       )
   } catch(e) {
     rubyTasksFailed = true
+    buildObject = e
     warnError('Test Failures') {
       error("Downstream job for '${rubyVersion}' failed")
     }
