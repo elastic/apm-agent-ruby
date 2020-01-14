@@ -113,11 +113,15 @@ if enabled
             pp set
             raise 'Unmatched metric type'
           end
-
-          # nothing
         end
 
       pp summary
+      # # =>
+      # {:template_span_self_times=>1000,
+      #  :app_span_self_times__controller=>1000,
+      #  :transaction_breakdowns=>1000,
+      #  :app_span_self_times__nil=>1000,
+      #  :transaction_durations=>1000}
 
       expect(summary.values.uniq).to eq([request_count])
     end
