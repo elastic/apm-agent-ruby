@@ -1,4 +1,5 @@
 # elastic-apm
+
 ## Elastic APM agent for Ruby
 
 [![Jenkins](https://apm-ci.elastic.co/buildStatus/icon?job=apm-agent-ruby/apm-agent-ruby-mbp/master)](https://apm-ci.elastic.co/job/apm-agent-ruby/job/apm-agent-ruby-mbp/job/master/) [![Gem](https://img.shields.io/gem/v/elastic-apm.svg)](https://rubygems.org/gems/elastic-apm)
@@ -11,21 +12,69 @@ The official Rubygem for [Elastic][] [APM][].
 
 ## Documentation
 
-[Full documentation at elastic.co](https://www.elastic.co/guide/en/apm/agent/ruby/2.x/index.html).
+[Full documentation at elastic.co](https://www.elastic.co/guide/en/apm/agent/ruby/current/index.html).
 
 <ul>
-  <li><a href="https://www.elastic.co/guide/en/apm/agent/ruby/2.x/introduction.html">Introduction</a></li>
-<li><a href="https://www.elastic.co/guide/en/apm/agent/ruby/2.x/getting-started-rails.html">Getting started with Rails</a></li>
-<li><a href="https://www.elastic.co/guide/en/apm/agent/ruby/2.x/getting-started-rack.html">Getting started with Rack</a></li>
-<li><a href="https://www.elastic.co/guide/en/apm/agent/ruby/2.x/configuration.html">Configuration</a></li>
-<li>
-<a href="https://www.elastic.co/guide/en/apm/agent/ruby/2.x/advanced.html">Advanced Topics</a>
-<ul>
-<li><a href="https://www.elastic.co/guide/en/apm/agent/ruby/2.x/custom-instrumentation.html">Custom instrumentation</a></li>
-</ul>
-</li>
-<li><a href="https://www.elastic.co/guide/en/apm/agent/ruby/2.x/supported-technologies.html">Supported Technologies</a></li>
-<li><a href="https://www.elastic.co/guide/en/apm/agent/ruby/2.x/api.html">Public API</a></li>
+  <li>
+    <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/set-up.html">Set up the Agent</a>
+    <ul>
+      <li>
+        <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/getting-started-rails.html">Getting started with Rails</a>
+      </li>
+      <li>
+        <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/getting-started-rack.html">Getting started with Rack</a>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/supported-technologies.html">Supported technologies</a>
+  </li>
+  <li>
+    <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/configuration.html">Configuration</a>
+  </li>
+  <li>
+    <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/advanced.html">Advanced Topics</a>
+    <ul>
+      <li>
+        <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/context.html">Adding additional context</a>
+      </li>
+      <li>
+        <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/custom-instrumentation.html">Custom instrumentation</a>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/api.html">API reference</a>
+  </li>
+  <li>
+    <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/metrics.html">Metrics</a>
+  </li>
+  <li>
+    <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/opentracing.html">OpenTracing API</a>
+  </li>
+  <li>
+    <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/log-correlation.html">Log correlation</a>
+  </li>
+  <li>
+    <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/debugging.html">Troubleshooting</a>
+  </li>
+  <li class="collapsible">
+    <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/release-notes.html">Release notes</a>
+    <ul>
+      <li>
+        <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/release-notes-3.x.html">Ruby Agent version 3.x</a>
+      </li>
+      <li>
+        <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/release-notes-2.x.html">Ruby Agent version 2.x</a>
+      </li>
+      <li>
+        <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/release-notes-1.x.html">Ruby Agent version 1.x</a>
+      </li>
+      <li>
+        <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/release-notes-0.x.html">Ruby Agent version 0.x</a>
+      </li>
+    </ul>
+  </li>
 </ul>
 
 ---
