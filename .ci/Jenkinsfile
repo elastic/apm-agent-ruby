@@ -7,7 +7,7 @@ import groovy.transform.Field
 /**
  This is required to store the results of the tests.
 */
-@Field def rubyTasksFailed = [:]
+@Field def rubyTasksFailed = false
 
 pipeline {
   agent { label 'linux && immutable' }
@@ -159,15 +159,10 @@ pipeline {
       }
       stage('Populate Test failures') {
         when {
-          expression { return !rubyTasksFailed.isEmpty() }
+          expression { return rubyTasksFailed }
         }
         steps {
-          script {
-            if (rubyTasksFailed.find { k, v -> v.contains('timeout') }) {
-              currentBuild.description = 'Issue: timeout checkout in downstreams'
-            }
-          }
-          error("There were some failures when running the 'Test' stage. See ${rubyTasksFailed}")
+          error('There were some failures when running the "Test" stage')
         }
       }
       stage('Integration Tests') {
@@ -290,19 +285,17 @@ def runBenchmark(version){
   }
 }
 
-def runJob(rubyVersion) {
-  def downstreamBuild
+def runJob(rubyVersion){
   try {
-    downstreamBuild = build(job: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}",
-                            parameters: [
-                              string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
-                              string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}")
-                            ],
-                            quietPeriod: 15
-                          )
+    build( job: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}",
+      parameters: [
+        string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
+        string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}")
+      ],
+      quietPeriod: 15
+    )
   } catch(e) {
-    // This will help to report the status for the failure in the downstreams.
-    rubyTasksFailed["${rubyVersion}"] = downstreamBuild?.description?.trim() ? downstreamBuild?.description : 'failed'
+    rubyTasksFailed = true
     warnError('Test Failures') {
       error("Downstream job for '${rubyVersion}' failed")
     }
