@@ -174,6 +174,7 @@ module ElasticAPM
         transaction, = @intercepted.transactions
         expect(transaction.name).to eq('grpc')
         expect(transaction.type).to eq('request')
+        expect(transaction.result).to eq('success')
 
         server.stop
         thread.kill
@@ -199,8 +200,65 @@ module ElasticAPM
           transaction, = @intercepted.transactions
           expect(transaction.name).to eq('grpc')
           expect(transaction.type).to eq('request')
+          expect(transaction.result).to eq('success')
           expect(transaction.trace_id).to eq(trace_context.trace_id)
           expect(transaction.parent_id).to eq(trace_context.id)
+
+          server.stop
+          thread.kill
+        end
+      end
+
+      context 'when there\'s and error' do
+        class FancyError < ::StandardError; end
+
+        class GreeterErrorServer < Helloworld::Greeter::Service
+          # rubocop:disable Lint/UnusedMethodArgument
+          def say_hello(hello_req, _unused_call)
+            raise FancyError, 'boom!'
+          end
+          # rubocop:enable Lint/UnusedMethodArgument
+        end
+
+        let(:server) do
+          ::GRPC::RpcServer.new(
+            interceptors: [ElasticAPM::GRPC::ServerInterceptor.new]
+          ).tap do |s|
+            s.add_http2_port('0.0.0.0:50051', :this_port_is_insecure)
+            s.handle(GreeterErrorServer)
+          end
+        end
+
+        around do |example|
+          # This is necessary, otherwise there will be a warning
+          # that the server thread died because of an exception.
+          original_value = Thread.report_on_exception
+          Thread.report_on_exception = false
+          example.run
+          Thread.report_on_exception = original_value
+        end
+
+        it 'reports the error', :mock_time do
+          thread = Thread.new { server.run }
+          server.wait_till_running
+
+          expect do
+            with_agent do
+              stub.say_hello(Helloworld::HelloRequest.new(name: 'goodbye'))
+            end
+          end.to raise_exception(Exception)
+
+          transaction, = @intercepted.transactions
+          expect(transaction.name).to eq('grpc')
+          expect(transaction.type).to eq('request')
+          expect(transaction.result).to eq('error')
+
+          error, = @intercepted.errors
+          expect(error.culprit).to eq 'say_hello'
+          expect(error.timestamp).to eq 694_224_000_000_000
+          expect(error.exception.message).to eq 'boom!'
+          expect(error.exception.type).to eq 'ElasticAPM::FancyError'
+          expect(error.exception.handled).to be false
 
           server.stop
           thread.kill
