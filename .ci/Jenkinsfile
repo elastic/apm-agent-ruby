@@ -5,9 +5,14 @@ import co.elastic.matrix.*
 import groovy.transform.Field
 
 /**
- This is required to store the results of the tests.
+ This is required know if there any failures when running the downstream jobs.
 */
 @Field def rubyTasksFailed = false
+
+/**
+ This is required to store the build status for the downstream jobs.
+*/
+@Field def rubyDownstreamJobs = [:]
 
 pipeline {
   agent { label 'linux && immutable' }
@@ -243,7 +248,7 @@ pipeline {
     }
     post {
       cleanup {
-        notifyBuildResult()
+        notifyBuildResult(downstreamJobs: rubyDownstreamJobs)
       }
     }
   }
@@ -286,18 +291,21 @@ def runBenchmark(version){
 }
 
 def runJob(rubyVersion){
+  def buildObject
   try {
-    build( job: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}",
-      parameters: [
-        string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
-        string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}")
-      ],
-      quietPeriod: 15
-    )
+    buildObject = build(job: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}",
+                        parameters: [
+                          string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
+                          string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}")
+                        ],
+                        quietPeriod: 15
+                      )
   } catch(e) {
     rubyTasksFailed = true
     warnError('Test Failures') {
       error("Downstream job for '${rubyVersion}' failed")
     }
+  } finally {
+    rubyDownstreamJobs["${rubyVersion}"] = buildObject
   }
 }
