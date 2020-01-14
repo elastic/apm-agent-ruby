@@ -93,6 +93,10 @@ exclude:
   - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.1-7-jdk
     FRAMEWORK: grape-master
 
+  # Unsupported
+  - RUBY_VERSION: ruby:2.3
+    FRAMEWORK: grape-1.3
+
   - RUBY_VERSION: ruby:2.6
     FRAMEWORK: grape-1.3,sinatra-2.0,rails-6.0
   - RUBY_VERSION: ruby:2.5
