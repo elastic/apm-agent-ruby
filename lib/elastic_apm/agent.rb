@@ -201,10 +201,7 @@ module ElasticAPM
     end
 
     def build_context(rack_env:, for_type:)
-      @context_builder.build(
-        rack_env: rack_env,
-        for_type: for_type
-      )
+      @context_builder.build(rack_env: rack_env, for_type: for_type)
     end
 
     # errors
