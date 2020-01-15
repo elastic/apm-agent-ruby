@@ -297,9 +297,10 @@ def runBenchmark(version){
   }
 }
 
-def runJob(rubyVersion, int sleep = 1){
+def runJob(String rubyVersion, int sleep = 1){
   def buildObject
   try {
+    def quiet = (sleep * randomNumber(min: 2, max: 6)) + 5
     buildObject = build(job: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}",
                         parameters: [
                           string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
