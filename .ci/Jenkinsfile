@@ -162,12 +162,18 @@ pipeline {
           }
         }
       }
-      stage('Populate Test failures') {
+      stage('Populate Downstream failures') {
         when {
           expression { return rubyTasksFailed }
         }
         steps {
-          error('There were some failures when running the "Test" stage')
+          script {
+            def message = 'Failures when running the "Test" stage'
+            if (notifyBuildResult.isAnyDownstreamJobFailedWithTimeout(rubyDownstreamJobs)) {
+              message += ' related to a timeout issue'
+            }
+            error(message)
+          }
         }
       }
       stage('Integration Tests') {
