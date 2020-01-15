@@ -28,8 +28,12 @@ if enabled
       module RailsTestApp
         class Application < Rails::Application
           RailsTestHelpers.setup_rails_test_config(config)
-          config.elastic_apm.metrics_interval = '200ms'
+          config.logger = Logger.new(nil)
+          config.elastic_apm.metrics_interval = '1s' # '200ms'
           config.elastic_apm.pool_size = Concurrent.processor_count
+          config.elastic_apm.logger = Logger.new($stdout)
+          config.elastic_apm.log_level = 0
+          config.disable_metrics = 'vm'
         end
       end
 
@@ -63,16 +67,18 @@ if enabled
     end
 
     it 'handles multiple threads' do
-      request_count = 1000
+      request_count = 100
 
       paths = ['/', '/other']
 
       pool = Concurrent::FixedThreadPool.new(Concurrent.processor_count)
+      count = Concurrent::AtomicFixnum.new
 
       request_count.times do
         pool.post do
           print '.'
           get(paths.sample)
+          count.increment
           # sleep rand(0.0..0.3)
         end
       end
@@ -81,7 +87,13 @@ if enabled
       pool.wait_for_termination
       puts ''
 
-      sleep 0.3 # wait for metrics to collect
+      sleep 1.3 # wait for metrics to collect
+
+      pp(
+        atomic_count: count,
+        metrics_count: ElasticAPM.agent.metrics.sets.count,
+        transaction_count: EventCollector.transactions.count
+      )
 
       summary =
         EventCollector.metricsets.each_with_object(
@@ -123,7 +135,7 @@ if enabled
       #  :app_span_self_times__nil=>1000,
       #  :transaction_durations=>1000}
 
-      expect(summary.values.uniq).to eq([request_count])
+      expect(summary.values).to eq(Array.new(5).map { request_count })
     end
   end
 end
