@@ -94,8 +94,9 @@ pipeline {
             script {
               def ruby = readYaml(file: '.ci/.jenkins_ruby.yml')
               def testTasks = [:]
+              def i = 0
               ruby['RUBY_VERSION'].each{ rubyVersion ->
-                testTasks[rubyVersion] = { runJob(rubyVersion) }
+                testTasks[rubyVersion] = { runJob(rubyVersion, i++) }
               }
               parallel(testTasks)
               }
@@ -285,14 +286,15 @@ def runBenchmark(version){
   }
 }
 
-def runJob(rubyVersion){
+def runJob(String rubyVersion, int sleep = 1){
   try {
+    def quiet = (sleep * randomNumber(min: 2, max: 6)) + 5
     build( job: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}",
       parameters: [
         string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
         string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}")
       ],
-      quietPeriod: 15
+      quietPeriod: quiet
     )
   } catch(e) {
     rubyTasksFailed = true
