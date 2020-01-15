@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-@Library('apm@7b341f35859bcefeead9a7f9646c638b1bc53bf0') _
+@Library('apm@test-downstream-notification') _
 
 import co.elastic.matrix.*
 import groovy.transform.Field
