@@ -298,12 +298,11 @@ def runJob(rubyVersion){
                           string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
                           string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}")
                         ],
-                        quietPeriod: 15
-                      )
+                        quietPeriod: 15)
   } catch(e) {
     rubyTasksFailed = true
     buildObject = e
-    warnError('Test Failures') {
+    warnError('Downstream Failed') {
       error("Downstream job for '${rubyVersion}' failed")
     }
   } finally {
