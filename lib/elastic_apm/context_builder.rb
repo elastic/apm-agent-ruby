@@ -5,6 +5,7 @@ module ElasticAPM
   class ContextBuilder
     MAX_BODY_LENGTH = 2048
     SKIPPED = '[SKIPPED]'
+    MUTEX = Mutex.new
 
     def initialize(config)
       @config = config
@@ -37,7 +38,9 @@ module ElasticAPM
       request.headers = headers if config.capture_headers?
       request.env = env if config.capture_env?
 
-      request.cookies = req.cookies.dup
+      MUTEX.synchronize do
+        request.cookies = req.cookies.dup
+      end
 
       context
     end

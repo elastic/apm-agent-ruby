@@ -28,6 +28,7 @@ if enabled
       module RailsTestApp
         class Application < Rails::Application
           RailsTestHelpers.setup_rails_test_config(config)
+
           config.logger = Logger.new(nil)
           config.elastic_apm.metrics_interval = '1s' # '200ms'
           config.elastic_apm.pool_size = Concurrent.processor_count
@@ -71,28 +72,39 @@ if enabled
 
       paths = ['/', '/other']
 
-      pool = Concurrent::FixedThreadPool.new(Concurrent.processor_count)
       count = Concurrent::AtomicFixnum.new
 
-      request_count.times do
-        pool.post do
+      Array.new(request_count).map do
+        Thread.new do
           print '.'
           get(paths.sample)
           count.increment
-          # sleep rand(0.0..0.3)
         end
-      end
-
-      pool.shutdown
-      pool.wait_for_termination
+      end.each(&:join)
       puts ''
+
+      # pool = Concurrent::FixedThreadPool.new(Concurrent.processor_count)
+      # count = Concurrent::AtomicFixnum.new
+
+      # request_count.times do
+      #   pool.post do
+      #     print '.'
+      #     get(paths.sample)
+      #     count.increment
+      #     # sleep rand(0.0..0.3)
+      #   end
+      # end
+
+      # pool.shutdown
+      # pool.wait_for_termination
 
       sleep 1.3 # wait for metrics to collect
 
       pp(
         atomic_count: count,
         metrics_count: ElasticAPM.agent.metrics.sets.count,
-        transaction_count: EventCollector.transactions.count
+        transaction_count: EventCollector.transactions.count,
+        event_requests_count: EventCollector.requests.count
       )
 
       summary =
