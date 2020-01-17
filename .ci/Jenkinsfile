@@ -300,20 +300,43 @@ def runBenchmark(version){
 def runJob(String rubyVersion, int sleep = 1){
   def buildObject
   try {
-    def quiet = (sleep * randomNumber(min: 2, max: 6)) + 5
-    buildObject = build(job: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}",
-                        parameters: [
-                          string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
-                          string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}")
-                        ],
-                        quietPeriod: quiet)
+    buildObject = runSimpleJob(rubyVersion, sleep)
   } catch(e) {
-    rubyTasksFailed = true
-    buildObject = e
-    warnError('Downstream Failed') {
-      error("Downstream job for '${rubyVersion}' failed")
-    }
+    buildObject = retryBuildIfTimeout(rubyVersion, buildObject)
   } finally {
     rubyDownstreamJobs["${rubyVersion}"] = buildObject
   }
+}
+
+def retryBuildIfTimeout(String rubyVersion, buildObject) {
+  def runObject = buildObject
+  if (notifyBuildResult.isAnyDownstreamJobFailedWithTimeout([ "${rubyVersion}" : runObject ])) {
+    try {
+      runObject = runSimpleJob(rubyVersion)
+    } catch(e) {
+      rubyTasksFailed = true
+      runObject = e
+      // Let's try once if timeout
+      warnError('Downstream Failed') {
+        error("Downstream job for '${rubyVersion}' failed")
+      }
+    }
+  } else {
+    rubyTasksFailed = true
+    // Let's try once if timeout
+    warnError('Downstream Failed') {
+      error("Downstream job for '${rubyVersion}' failed")
+    }
+  }
+  return runObject
+}
+
+def runSimpleJob(String rubyVersion, int sleep = 1){
+  def quiet = (sleep * randomNumber(min: 2, max: 6)) + 5
+  return build(job: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}",
+              parameters: [
+                string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
+                string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}")
+              ],
+              quietPeriod: quiet)
 }
