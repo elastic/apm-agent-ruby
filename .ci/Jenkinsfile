@@ -5,9 +5,14 @@ import co.elastic.matrix.*
 import groovy.transform.Field
 
 /**
- This is required to store the results of the tests.
+ This is required to know if there any failures when running the downstream jobs.
 */
 @Field def rubyTasksFailed = false
+
+/**
+ This is required to store the build status for the downstream jobs.
+*/
+@Field def rubyDownstreamJobs = [:]
 
 pipeline {
   agent { label 'linux && immutable' }
@@ -158,12 +163,18 @@ pipeline {
           }
         }
       }
-      stage('Populate Test failures') {
+      stage('Populate Downstream failures') {
         when {
           expression { return rubyTasksFailed }
         }
         steps {
-          error('There were some failures when running the "Test" stage')
+          script {
+            def message = 'Failures when running the "Test" stage'
+            if (notifyBuildResult.isAnyDownstreamJobFailedWithTimeout(rubyDownstreamJobs)) {
+              message += ' related to a timeout issue'
+            }
+            error(message)
+          }
         }
       }
       stage('Integration Tests') {
@@ -244,7 +255,7 @@ pipeline {
     }
     post {
       cleanup {
-        notifyBuildResult()
+        notifyBuildResult(downstreamJobs: rubyDownstreamJobs)
       }
     }
   }
@@ -287,19 +298,22 @@ def runBenchmark(version){
 }
 
 def runJob(String rubyVersion, int sleep = 1){
+  def buildObject
   try {
     def quiet = (sleep * randomNumber(min: 2, max: 6)) + 5
-    build( job: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}",
-      parameters: [
-        string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
-        string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}")
-      ],
-      quietPeriod: quiet
-    )
+    buildObject = build(job: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}",
+                        parameters: [
+                          string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
+                          string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}")
+                        ],
+                        quietPeriod: quiet)
   } catch(e) {
     rubyTasksFailed = true
-    warnError('Test Failures') {
+    buildObject = e
+    warnError('Downstream Failed') {
       error("Downstream job for '${rubyVersion}' failed")
     }
+  } finally {
+    rubyDownstreamJobs["${rubyVersion}"] = buildObject
   }
 }
