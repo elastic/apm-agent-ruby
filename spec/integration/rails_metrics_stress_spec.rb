@@ -68,7 +68,7 @@ if enabled
     end
 
     it 'handles multiple threads' do
-      request_count = 100
+      request_count = 1000
 
       paths = ['/', '/other']
 

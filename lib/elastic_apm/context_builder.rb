@@ -38,9 +38,7 @@ module ElasticAPM
       request.headers = headers if config.capture_headers?
       request.env = env if config.capture_env?
 
-      # req.cookies looks like a property but it's actually mutating the env, so
-      # we lock around it, ~mikker
-      MUTEX.synchronize { request.cookies = req.cookies.dup }
+      request.cookies = req.cookies.dup
 
       context
     end
