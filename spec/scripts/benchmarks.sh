@@ -44,7 +44,7 @@ RUBY_VERSION=${VERSION} docker-compose run \
     cp -rf ${container_vendor_path} /tmp/.vendor
     gem update --system
     gem install bundler
-    bundle config set path '/tmp/.vendor'
+    bundle config --global set path '/tmp/.vendor'
     bundle install
     bench/benchmark.rb 2> benchmark-${TRANSFORMED_VERSION}.error > benchmark-${TRANSFORMED_VERSION}.raw
     bench/report.rb < benchmark-${TRANSFORMED_VERSION}.raw > benchmark-${TRANSFORMED_VERSION}.bulk"
