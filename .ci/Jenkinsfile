@@ -86,8 +86,44 @@ pipeline {
         }
       }
     }
-    stage('Benchmarks') {
+    /**
+    Execute unit tests.
+    */
+    stage('Test') {
+      options { skipDefaultCheckout() }
+      steps {
+        withGithubNotify(context: 'Tests', tab: 'tests') {
+          deleteDir()
+          unstash "source"
+          dir("${BASE_DIR}"){
+            script {
+              def ruby = readYaml(file: '.ci/.jenkins_ruby.yml')
+              def testTasks = [:]
+              def i = 0
+              ruby['RUBY_VERSION'].each{ rubyVersion ->
+                testTasks[rubyVersion] = { runJob(rubyVersion, i++) }
+              }
+              parallel(testTasks)
+              }
+            }
+          }
+        }
+      }
+      stage('Benchmarks') {
         options { skipDefaultCheckout() }
+        when {
+          beforeAgent true
+          allOf {
+            anyOf {
+              branch 'master'
+              branch "\\d+\\.\\d+"
+              branch "v\\d?"
+              tag "v\\d+\\.\\d+\\.\\d+*"
+              expression { return params.Run_As_Master_Branch }
+            }
+            expression { return params.bench_ci }
+          }
+        }
         stages {
           stage('Clean Workspace') {
             agent { label 'metal' }
@@ -119,29 +155,6 @@ pipeline {
                     parallel(benchmarkTask)
                   }
                 }
-              }
-            }
-          }
-        }
-      }
-    /**
-    Execute unit tests.
-    */
-    stage('Test') {
-      options { skipDefaultCheckout() }
-      steps {
-        withGithubNotify(context: 'Tests', tab: 'tests') {
-          deleteDir()
-          unstash "source"
-          dir("${BASE_DIR}"){
-            script {
-              def ruby = readYaml(file: '.ci/.jenkins_ruby.yml')
-              def testTasks = [:]
-              def i = 0
-              ruby['RUBY_VERSION'].each{ rubyVersion ->
-                testTasks[rubyVersion] = { runJob(rubyVersion, i++) }
-              }
-              parallel(testTasks)
               }
             }
           }
@@ -272,6 +285,8 @@ def runBenchmark(version){
               allowEmptyArchive: true,
               artifacts: "**/benchmark-${transformedVersion}.raw,**/benchmark-${transformedVersion}.error",
               onlyIfSuccessful: false)
+            sendBenchmarks(file: "benchmark-${transformedVersion}.bulk",
+              index: "benchmark-ruby", archive: true)
           }
         }
       }
