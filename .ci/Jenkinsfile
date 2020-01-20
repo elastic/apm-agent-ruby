@@ -86,47 +86,6 @@ pipeline {
         }
       }
     }
-    stage('Benchmarks') {
-      options { skipDefaultCheckout() }
-      stages {
-        stage('Clean Workspace') {
-          agent { label 'metal' }
-          steps {
-            echo "Cleaning Workspace"
-          }
-          post {
-            always {
-              cleanWs()
-            }
-          }
-        }
-        /**
-          Run the benchmarks and store the results on ES.
-          The result JSON files are also archive into Jenkins.
-        */
-        stage('Run Benchmarks') {
-          steps {
-            withGithubNotify(context: 'Run Benchmarks') {
-              deleteDir()
-              unstash 'source'
-              dir("${BASE_DIR}"){
-                script {
-                  def versions = readYaml(file: ".ci/.jenkins_ruby.yml")
-                  def benchmarkTask = [:]
-                  // TODO: benchmark for the jruby:9.2 and similar versions got some issues with
-                  //       NoMethodError: undefined method `[]' for nil:NilClass
-                  //      <main> at bench/report.rb:48
-                  versions['RUBY_VERSION'].findAll { !it.contains('9.2') }.each{ v ->
-                    benchmarkTask[v] = runBenchmark(v)
-                  }
-                  parallel(benchmarkTask)
-                }
-              }
-            }
-          }
-        }
-      }
-    }
     /**
     Execute unit tests.
     */
@@ -145,6 +104,60 @@ pipeline {
                 testTasks[rubyVersion] = { runJob(rubyVersion, i++) }
               }
               parallel(testTasks)
+              }
+            }
+          }
+        }
+      }
+      stage('Benchmarks') {
+        options { skipDefaultCheckout() }
+        when {
+          beforeAgent true
+          allOf {
+            anyOf {
+              branch 'master'
+              branch "\\d+\\.\\d+"
+              branch "v\\d?"
+              tag "v\\d+\\.\\d+\\.\\d+*"
+              expression { return params.Run_As_Master_Branch }
+            }
+            expression { return params.bench_ci }
+          }
+        }
+        stages {
+          stage('Clean Workspace') {
+            agent { label 'metal' }
+            steps {
+              echo "Cleaning Workspace"
+            }
+            post {
+              always {
+                cleanWs()
+              }
+            }
+          }
+          /**
+            Run the benchmarks and store the results on ES.
+            The result JSON files are also archive into Jenkins.
+          */
+          stage('Run Benchmarks') {
+            steps {
+              withGithubNotify(context: 'Run Benchmarks') {
+                deleteDir()
+                unstash 'source'
+                dir("${BASE_DIR}"){
+                  script {
+                    def versions = readYaml(file: ".ci/.jenkins_ruby.yml")
+                    def benchmarkTask = [:]
+                    // TODO: benchmark for the jruby:9.2 and similar versions got some issues with
+                    //       NoMethodError: undefined method `[]' for nil:NilClass
+                    //      <main> at bench/report.rb:48
+                    versions['RUBY_VERSION'].findAll { !it.contains('9.2') }.each{ v ->
+                      benchmarkTask[v] = runBenchmark(v)
+                    }
+                    parallel(benchmarkTask)
+                  }
+                }
               }
             }
           }
@@ -275,6 +288,8 @@ def runBenchmark(version){
               allowEmptyArchive: true,
               artifacts: "**/benchmark-${transformedVersion}.raw,**/benchmark-${transformedVersion}.error",
               onlyIfSuccessful: false)
+            sendBenchmarks(file: "benchmark-${transformedVersion}.bulk",
+              index: "benchmark-ruby", archive: true)
           }
         }
       }
