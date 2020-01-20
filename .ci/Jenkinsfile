@@ -149,10 +149,7 @@ pipeline {
                   script {
                     def versions = readYaml(file: ".ci/.jenkins_ruby.yml")
                     def benchmarkTask = [:]
-                    // TODO: benchmark for the jruby:9.2 and similar versions got some issues with
-                    //       NoMethodError: undefined method `[]' for nil:NilClass
-                    //      <main> at bench/report.rb:48
-                    versions['RUBY_VERSION'].findAll { !it.contains('9.2') }.each{ v ->
+                    versions['RUBY_VERSION'].each{ v ->
                       benchmarkTask[v] = runBenchmark(v)
                     }
                     parallel(benchmarkTask)
