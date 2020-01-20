@@ -30,7 +30,7 @@ cd spec
 docker build --pull --force-rm --build-arg "RUBY_IMAGE=${RUBY_IMAGE}" -t "apm-agent-ruby:${VERSION}" .
 RUBY_VERSION=${VERSION} docker-compose run \
   --user $UID \
-  -e HOME=/app \
+  -e HOME=/tmp \
   -e FRAMEWORK=rails \
   -w /app \
   -e LOCAL_USER_ID=$UID \
@@ -38,9 +38,10 @@ RUBY_VERSION=${VERSION} docker-compose run \
   -v "$(dirname "$(pwd)"):/app" \
   --rm ruby_rspec \
   /bin/bash -c "set -x
+    cp -rf ${container_vendor_path} /tmp/.vendor
     gem update --system
     gem install bundler
-    bundle config set path ${container_vendor_path}
+    bundle config set path '/tmp/.vendor'
     bundle install
     bench/benchmark.rb 2> benchmark-${TRANSFORMED_VERSION}.error > benchmark-${TRANSFORMED_VERSION}.raw
     bench/report.rb < benchmark-${TRANSFORMED_VERSION}.raw > benchmark-${TRANSFORMED_VERSION}.bulk"
