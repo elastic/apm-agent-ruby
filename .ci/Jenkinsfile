@@ -280,7 +280,7 @@ def runBenchmark(version){
             dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
           }
           try{
-            sh "./spec/scripts/benchmarks.sh ${version}"
+            sh """./spec/scripts/benchmarks.sh "${version}" "${REFERENCE_REPO}" """
           } catch(e){
             throw e
           } finally {
