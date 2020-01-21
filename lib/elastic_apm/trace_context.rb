@@ -69,6 +69,12 @@ module ElasticAPM
       end
     end
 
+    def apply_headers
+      yield 'Traceparent', to_header
+      return unless ElasticAPM.agent.config.use_elastic_traceparent_header
+      yield 'Elastic-Apm-Traceparent', to_header
+    end
+
     def to_header
       format('%s-%s-%s-%s', version, trace_id, id, hex_flags)
     end

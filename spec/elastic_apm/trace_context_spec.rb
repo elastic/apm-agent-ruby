@@ -111,6 +111,49 @@ module ElasticAPM
       end
     end
 
+    describe '#apply_headers' do
+      subject do
+        described_class.new.tap do |tp|
+          tp.trace_id = '1' * 32
+          tp.id = '2' * 16
+          tp.flags = '00000011'
+        end
+      end
+
+      context 'when prefixed disable', :intercept do
+        it 'yields twice' do
+          calls = {}
+          block = ->(k, v) { calls[k] = v }
+
+          with_agent(use_elastic_traceparent_header: false) do
+            subject.apply_headers(&block)
+          end
+
+          expect(calls).to match(
+            'Traceparent' => String
+          )
+          expect(calls.length).to be 1
+        end
+      end
+
+      context 'when prefixed enabled', :intercept do
+        it 'yields twice' do
+          calls = {}
+          block = ->(k, v) { calls[k] = v }
+
+          with_agent do
+            subject.apply_headers(&block)
+          end
+
+          expect(calls).to match(
+            'Traceparent' => String,
+            'Elastic-Apm-Traceparent' => String
+          )
+          expect(calls.values.uniq.length).to be 1
+        end
+      end
+    end
+
     describe '#to_header' do
       subject do
         described_class.new.tap do |tp|
