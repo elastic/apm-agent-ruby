@@ -77,7 +77,9 @@ if enabled
       Array.new(request_count).map do
         Thread.new do
           print '.'
-          get(paths.sample)
+          env = Rack::MockRequest.env_for(paths.sample)
+          status, = Rails.application.call(env)
+          expect(status).to be 200
           count.increment
         end
       end.each(&:join)
@@ -98,7 +100,7 @@ if enabled
       # pool.shutdown
       # pool.wait_for_termination
 
-      sleep 1.3 # wait for metrics to collect
+      sleep 5 # wait for metrics to collect
 
       pp(
         atomic_count: count,
