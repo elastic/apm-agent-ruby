@@ -57,7 +57,11 @@ module ElasticAPM
 
     def trace_context(env)
       return unless (header = get_traceparent_header(env))
-      TraceContext.parse(header)
+
+      TraceContext.parse(header).tap do |tc|
+        next unless (header = env['HTTP_TRACESTATE'])
+        tc.tracestate = TraceContext::Tracestate.parse(header)
+      end
     rescue TraceContext::InvalidTraceparentHeader
       warn "Couldn't parse invalid traceparent header: #{header.inspect}"
       nil

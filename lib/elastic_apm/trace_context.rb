@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'elastic_apm/trace_context/tracestate'
+
 module ElasticAPM
   # @api private
   class TraceContext
@@ -11,22 +13,26 @@ module ElasticAPM
     TRACE_ID_LENGTH = 16
     ID_LENGTH = 8
 
+    # rubocop:disable Metrics/ParameterLists
     def initialize(
       version: VERSION,
       trace_id: nil,
       span_id: nil,
       id: nil,
-      recorded: true
+      recorded: true,
+      tracestate: nil
     )
       @version = version
       @trace_id = trace_id || hex(TRACE_ID_LENGTH)
-      # TODO: rename to parent_id with next major version bump
+      # TODO: rename span_id kw arg to parent_id with next major version bump
       @parent_id = span_id
       @id = id || hex(ID_LENGTH)
       @recorded = recorded
+      @tracestate = tracestate
     end
+    # rubocop:enable Metrics/ParameterLists
 
-    attr_accessor :version, :id, :trace_id, :parent_id, :recorded
+    attr_accessor :version, :id, :trace_id, :parent_id, :recorded, :tracestate
 
     alias :recorded? :recorded
     def self.parse(header)

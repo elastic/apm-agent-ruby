@@ -81,6 +81,25 @@ module ElasticAPM
         end
       end
 
+      context 'with tracestate' do
+        it 'recognizes trace_context' do
+          with_agent do
+            app.call(
+              Rack::MockRequest.env_for(
+                '/',
+                'HTTP_ELASTIC_APM_TRACEPARENT' =>
+                '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-00',
+                'HTTP_TRACESTATE' => 'thing=value'
+              )
+            )
+          end
+
+          trace_context = @intercepted.transactions.first.trace_context
+          expect(trace_context.tracestate).to be_a(TraceContext::Tracestate)
+          expect(trace_context.tracestate.values).to match(['thing=value'])
+        end
+      end
+
       context 'with an invalid header' do
         it 'skips trace_context, makes new' do
           with_agent do
