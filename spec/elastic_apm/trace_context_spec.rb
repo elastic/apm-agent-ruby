@@ -152,6 +152,25 @@ module ElasticAPM
           expect(calls.values.uniq.length).to be 1
         end
       end
+
+      context 'with tracestate', :intercept do
+        it 'sets tracestate header' do
+          calls = {}
+          block = ->(k, v) { calls[k] = v }
+
+          subject.tracestate = TraceContext::Tracestate.parse('a=b')
+
+          with_agent do
+            subject.apply_headers(&block)
+          end
+
+          expect(calls).to match(
+            'Traceparent' => String,
+            'Elastic-Apm-Traceparent' => String,
+            'Tracestate' => 'a=b'
+          )
+        end
+      end
     end
 
     describe '#to_header' do

@@ -17,6 +17,10 @@ module ElasticAPM
         # by newlines, see https://www.rubydoc.info/github/rack/rack/file/SPEC
         new(String(header).split("\n"))
       end
+
+      def to_header
+        values.join(',')
+      end
     end
   end
 end
