@@ -35,6 +35,15 @@ endif::[]
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
+[float]
+[[unreleased]]
+==== Unreleased
+
+[float]
+===== Changed
+
+- Rename disabled_instrumentations to disable_instrumentations {pull}695[#695]
+
 [[release-notes-3.4.0]]
 ==== 3.4.0 (2020-01-10)
 
