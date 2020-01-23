@@ -120,8 +120,8 @@ module ElasticAPM
         end
       end
 
-      context 'when prefixed disable', :intercept do
-        it 'yields twice' do
+      context 'when prefixed is disabled', :intercept do
+        it 'applies only prefix-less header' do
           calls = {}
           block = ->(k, v) { calls[k] = v }
 
@@ -136,8 +136,8 @@ module ElasticAPM
         end
       end
 
-      context 'when prefixed enabled', :intercept do
-        it 'yields twice' do
+      context 'when prefixed is enabled', :intercept do
+        it 'applies both headers' do
           calls = {}
           block = ->(k, v) { calls[k] = v }
 
