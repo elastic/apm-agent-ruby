@@ -37,7 +37,7 @@ module ElasticAPM
     option :disable_metrics,                   type: :list,   default: [],      converter: WildcardPatternList.new
     option :disable_send,                      type: :bool,   default: false
     option :disable_start_message,             type: :bool,   default: false
-    option :disabled_instrumentations,         type: :list,   default: %w[json]
+    option :disable_instrumentations,          type: :list,   default: %w[json]
     option :disabled_spies,                    type: :list,   default: []
     option :environment,                       type: :string, default: ENV['RAILS_ENV'] || ENV['RACK_ENV']
     option :framework_name,                    type: :string
@@ -129,7 +129,7 @@ module ElasticAPM
     end
 
     def enabled_instrumentations
-      available_instrumentations - disabled_instrumentations
+      available_instrumentations - disable_instrumentations
     end
 
     def method_missing(name, *args)
@@ -154,6 +154,16 @@ module ElasticAPM
 
     def collect_metrics?
       metrics_interval > 0
+    end
+
+    def disabled_instrumentations
+      disable_instrumentations
+    end
+
+    def disabled_instrumentations=(value)
+      warn '[DEPRECATED] The option disabled_instrumentations has been ' \
+        'renamed to disable_instrumentations to align with other agents.'
+      self.disable_instrumentations = value
     end
 
     def span_frames_min_duration?
