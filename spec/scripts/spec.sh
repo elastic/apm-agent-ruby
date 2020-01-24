@@ -33,7 +33,7 @@ if [[ $RUBY_IMAGE == *"jruby"* ]]; then
   JRUBY_OPTS="--debug"
 fi
 
-docker build --pull --build-arg "RUBY_IMAGE=${RUBY_IMAGE}" -t "apm-agent-ruby:${VERSION}" .
+docker build --build-arg "RUBY_IMAGE=${RUBY_IMAGE}" -t "apm-agent-ruby:${VERSION}" .
 RUBY_VERSION=${VERSION} docker-compose run \
   -e FRAMEWORK="${FRAMEWORK}" \
   -e INCLUDE_SCHEMA_SPECS=1 \
