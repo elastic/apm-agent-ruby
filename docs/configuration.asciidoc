@@ -351,12 +351,12 @@ Disables the agent's startup message announcing itself.
 
 [float]
 [[config-disabled-instrumentations]]
-==== `disabled_instrumentations`
+==== `disable_instrumentations`
 
 [options="header"]
 |============
-| Environment                             | `Config` key                | Default
-| `ELASTIC_APM_DISABLED_INSTRUMENTATIONS` | `disabled_instrumentations` | `['json']`
+| Environment                            | `Config` key               | Default
+| `ELASTIC_APM_DISABLE_INSTRUMENTATIONS` | `disable_instrumentations` | `['json']`
 |============
 
 Elastic APM automatically instruments select third party libraries.
