@@ -1,83 +1,83 @@
 # frozen_string_literal: true
 
 require 'elastic_apm/trace_context/tracestate'
+require 'elastic_apm/trace_context/traceparent'
 
 module ElasticAPM
   # @api private
   class TraceContext
     class InvalidTraceparentHeader < StandardError; end
 
-    VERSION = '00'
-    HEX_REGEX = /[^[:xdigit:]]/.freeze
-
-    TRACE_ID_LENGTH = 16
-    ID_LENGTH = 8
-
-    # rubocop:disable Metrics/ParameterLists
     def initialize(
-      version: VERSION,
-      trace_id: nil,
-      span_id: nil,
-      id: nil,
-      recorded: true,
-      tracestate: nil
+      traceparent: nil,
+      tracestate: nil,
+      **legacy_traceparent_attrs
     )
-      @version = version
-      @trace_id = trace_id || hex(TRACE_ID_LENGTH)
-      # TODO: rename span_id kw arg to parent_id with next major version bump
-      @parent_id = span_id
-      @id = id || hex(ID_LENGTH)
-      @recorded = recorded
+      @traceparent = traceparent || Traceparent.new(**legacy_traceparent_attrs)
       @tracestate = tracestate
     end
-    # rubocop:enable Metrics/ParameterLists
 
-    attr_accessor :version, :id, :trace_id, :parent_id, :recorded, :tracestate
+    attr_accessor :traceparent, :tracestate
 
-    alias :recorded? :recorded
-
-    def self.parse(header)
-      raise InvalidTraceparentHeader unless header.length == 55
-      raise InvalidTraceparentHeader unless header[0..1] == VERSION
-
-      new.tap do |t|
-        t.version, t.trace_id, t.parent_id, t.flags =
-          header.split('-').tap do |values|
-            values[-1] = Util.hex_to_bits(values[-1])
-          end
-
-        raise InvalidTraceparentHeader if HEX_REGEX =~ t.trace_id
-        raise InvalidTraceparentHeader if HEX_REGEX =~ t.parent_id
+    def self.parse(legacy_header = nil, env: nil)
+      if !legacy_header && !env
+        raise ArgumentError, 'TraceContext expects either env: or single ' \
+          'argument header string'
       end
+
+      if legacy_header
+        return legacy_parse_from_header(legacy_header)
+      end
+
+      return unless (header = get_traceparent_header(env))
+
+      parent = TraceContext::Traceparent.parse(header)
+
+      state =
+        if (header = env['HTTP_TRACESTATE'])
+          TraceContext::Tracestate.parse(header)
+        end
+
+      new(traceparent: parent, tracestate: state)
     end
 
-    def flags=(flags)
-      @flags = flags
-
-      self.recorded = flags[7] == '1'
+    def self.legacy_parse_from_header(header)
+      parent = Traceparent.parse(header)
+      new(traceparent: parent)
     end
 
-    def flags
-      format('0000000%d', recorded? ? 1 : 0)
+    def version
+      traceparent.version
     end
 
-    def hex_flags
-      format('%02x', flags.to_i(2))
+    def trace_id
+      traceparent.trace_id
+    end
+
+    def id
+      traceparent.id
+    end
+
+    def parent_id
+      traceparent.parent_id
     end
 
     def ensure_parent_id
-      @parent_id ||= hex(ID_LENGTH)
+      traceparent.ensure_parent_id
+    end
+
+    def recorded?
+      traceparent.recorded?
     end
 
     def child
       dup.tap do |tc|
-        tc.parent_id = tc.id
-        tc.id = hex(ID_LENGTH)
+        tc.traceparent = tc.traceparent.child
       end
     end
 
     def apply_headers
-      yield 'Traceparent', to_header
+      yield 'Traceparent', traceparent.to_header
 
       if tracestate
         yield 'Tracestate', tracestate.to_header
@@ -85,17 +85,23 @@ module ElasticAPM
 
       return unless ElasticAPM.agent.config.use_elastic_traceparent_header
 
-      yield 'Elastic-Apm-Traceparent', to_header
+      yield 'Elastic-Apm-Traceparent', traceparent.to_header
     end
 
-    def to_header
-      format('%s-%s-%s-%s', version, trace_id, id, hex_flags)
-    end
+    class << self
+      private
 
-    private
+      def get_traceparent_header(env)
+        if (header = env['HTTP_ELASTIC_APM_TRACEPARENT'])
+          return header
+        end
 
-    def hex(len)
-      SecureRandom.hex(len)
+        if (header = env['HTTP_TRACEPARENT'])
+          return header
+        end
+
+        nil
+      end
     end
   end
 end
