@@ -74,6 +74,21 @@ module ElasticAPM
         super(key, initial_value: initial_value, **args)
       end
 
+      def collect
+        @mutex.synchronize do
+          collected = @value
+          @value = initial_value if reset_on_collect?
+          return nil if reset_on_collect? && collected == 0
+          collected
+        end
+      end
+
+      def value
+        @mutex.synchronize do
+          @value
+        end
+      end
+
       def inc!
         @mutex.synchronize do
           @value += 1
