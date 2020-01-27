@@ -36,6 +36,7 @@ if enabled
           config.elastic_apm.logger = Logger.new($stdout)
           config.elastic_apm.log_level = 0
           config.disable_metrics = 'vm'
+          config.api_buffer_size = 500
           #config.metrics_interval = 0
           #config.breakdown_metrics = false
         end
@@ -71,7 +72,7 @@ if enabled
     end
 
     it 'handles multiple threads' do
-      request_count = 500
+      request_count = 200
 
       paths = ['/', '/other']
 
