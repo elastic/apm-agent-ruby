@@ -31,8 +31,7 @@ if enabled
 
           config.logger = Logger.new(nil)
           config.elastic_apm.metrics_interval = '1s' # '200ms'
-          puts "processor count: #{Concurrent.processor_count}"
-          config.elastic_apm.pool_size = 8#Concurrent.processor_count
+          config.elastic_apm.pool_size = Concurrent.processor_count
           config.elastic_apm.logger = Logger.new($stdout)
           config.elastic_apm.log_level = 0
           config.elastic_apm.api_buffer_size = 500
@@ -69,7 +68,7 @@ if enabled
     end
 
     it 'handles multiple threads' do
-      request_count = 100
+      request_count = 50
 
       paths = ['/', '/other']
 
