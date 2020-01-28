@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class EventCollector
   class TestAdapter < ElasticAPM::Transport::Connection
     def write(payload)
@@ -21,12 +23,12 @@ class EventCollector
   end
 
   attr_reader(
-      :errors,
-      :metadatas,
-      :metricsets,
-      :requests,
-      :spans,
-      :transactions
+    :errors,
+    :metadatas,
+    :metricsets,
+    :requests,
+    :spans,
+    :transactions
   )
 
   def initialize
@@ -95,16 +97,16 @@ class EventCollector
         unless missing == 0
           if missing < 0
             puts format(
-                     'Expected %s. Got %s',
-                     expected,
-                     "#{missing.abs} extra"
-                 )
+              'Expected %s. Got %s',
+              expected,
+              "#{missing.abs} extra"
+            )
           else
             puts format(
-                     'Expected %s. Got %s',
-                     expected,
-                     "missing #{missing}"
-                 )
+              'Expected %s. Got %s',
+              expected,
+              "missing #{missing}"
+            )
             print_received
           end
         end
@@ -128,11 +130,11 @@ class EventCollector
 
   def print_received
     pp(
-        transactions: transactions.map { |o| o['name'] },
-        spans: spans.map { |o| o['name'] },
-        errors: errors.map { |o| o['culprit'] },
-        metricsets: metricsets,
-        metadatas: metadatas.count
+      transactions: transactions.map { |o| o['name'] },
+      spans: spans.map { |o| o['name'] },
+      errors: errors.map { |o| o['culprit'] },
+      metricsets: metricsets,
+      metadatas: metadatas.count
     )
   end
 end

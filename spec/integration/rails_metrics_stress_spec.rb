@@ -80,8 +80,7 @@ if enabled
         Array.new(request_count).map do
           threads << Thread.new do
             print '.'
-            #get(paths.sample)
-            env = Rack::MockRequest.env_for('/')
+            env = Rack::MockRequest.env_for(paths.sample)
             status, = Rails.application.call(env)
             expect(status).to be 200
             expect(env)
@@ -90,7 +89,7 @@ if enabled
         end
         threads.each(&:join)
         puts ''
-      rescue => e
+      rescue StandardError => e
         puts "got error: #{e}"
       end
 
@@ -112,44 +111,44 @@ if enabled
       sleep 2 # wait for metrics to collect
 
       pp(
-          atomic_count: count,
-          metrics_count: ElasticAPM.agent.metrics.sets.count,
-          transaction_count: EventCollector.transactions.count,
-          span_count: EventCollector.spans.count,
-          event_requests_count: EventCollector.requests.count
+        atomic_count: count,
+        metrics_count: ElasticAPM.agent.metrics.sets.count,
+        transaction_count: EventCollector.transactions.count,
+        span_count: EventCollector.spans.count,
+        event_requests_count: EventCollector.requests.count
       )
 
       summary =
-          EventCollector.metricsets.each_with_object(
-              Hash.new { 0 }
-          ) do |set, totals|
-            next unless set['transaction']
+        EventCollector.metricsets.each_with_object(
+          Hash.new { 0 }
+        ) do |set, totals|
+          next unless set['transaction']
 
-            samples = set['samples']
+          samples = set['samples']
 
-            if (count = samples['transaction.duration.count'])
-              next totals[:transaction_durations] += count['value']
-            end
-
-            if (count = samples['transaction.breakdown.count'])
-              next totals[:transaction_breakdowns] += count['value']
-            end
-
-            count = set['samples']['span.self_time.count']
-
-            case set.dig('span', 'type')
-            when 'app'
-              subtype = set.dig('span', 'subtype')
-              key = :"app_span_self_times__#{subtype || 'nil'}"
-              next totals && totals[key] += count['value']
-            when 'template'
-              totals && totals[:template_span_self_times] += count['value']
-              next
-            else
-              pp set
-              raise 'Unmatched metric type'
-            end
+          if (count = samples['transaction.duration.count'])
+            next totals[:transaction_durations] += count['value']
           end
+
+          if (count = samples['transaction.breakdown.count'])
+            next totals[:transaction_breakdowns] += count['value']
+          end
+
+          count = set['samples']['span.self_time.count']
+
+          case set.dig('span', 'type')
+          when 'app'
+            subtype = set.dig('span', 'subtype')
+            key = :"app_span_self_times__#{subtype || 'nil'}"
+            next totals && totals[key] += count['value']
+          when 'template'
+            totals && totals[:template_span_self_times] += count['value']
+            next
+          else
+            pp set
+            raise 'Unmatched metric type'
+          end
+        end
 
       pp summary
 
