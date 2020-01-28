@@ -18,7 +18,7 @@ module ElasticAPM
         @mutex = Mutex.new
       end
 
-      attr_reader :key, :initial_value, :tags
+      attr_reader :key, :initial_value, :tags, :value
 
       def value=(value)
         @mutex.synchronize { @value = value }
