@@ -91,7 +91,6 @@ module ElasticAPM
           metrics = ElasticAPM.agent.metrics
 
           Array.new(thread_count).map do
-            print '.'
             Thread.new do
               metrics.get(:breakdown).counter('a').inc!
               metrics.get(:breakdown).counter('b').inc!
@@ -115,15 +114,12 @@ module ElasticAPM
               sleep 0.15 # longer than metrics_interval
             end
           end.each(&:join)
-          puts ''
         end
 
         samples =
           @mock_intake.metricsets.each_with_object({}) do |set, result|
             result.merge! set['samples']
           end
-
-        pp samples
 
         expect(samples['a']['value']).to eq(thread_count)
         expect(samples['b']['value']).to eq(thread_count)

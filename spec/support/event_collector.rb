@@ -126,6 +126,39 @@ class EventCollector
   end
   # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
+  def metricsets_summary
+    metricsets.each_with_object(
+        Hash.new { 0 }
+    ) do |set, totals|
+      next unless set['transaction']
+
+      samples = set['samples']
+
+      if (count = samples['transaction.duration.count'])
+        next totals[:transaction_durations] += count['value']
+      end
+
+      if (count = samples['transaction.breakdown.count'])
+        next totals[:transaction_breakdowns] += count['value']
+      end
+
+      count = set['samples']['span.self_time.count']
+
+      case set.dig('span', 'type')
+      when 'app'
+        subtype = set.dig('span', 'subtype')
+        key = :"app_span_self_times__#{subtype || 'nil'}"
+        next totals && totals[key] += count['value']
+      when 'template'
+        totals && totals[:template_span_self_times] += count['value']
+        next
+      else
+        pp set
+        raise 'Unmatched metric type'
+      end
+    end
+  end
+
   private
 
   def print_received
