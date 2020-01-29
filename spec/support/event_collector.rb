@@ -126,9 +126,10 @@ class EventCollector
   end
   # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
+  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def metricsets_summary
     metricsets.each_with_object(
-        Hash.new { 0 }
+      Hash.new { 0 }
     ) do |set, totals|
       next unless set['transaction']
 
@@ -158,6 +159,7 @@ class EventCollector
       end
     end
   end
+  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
   private
 
