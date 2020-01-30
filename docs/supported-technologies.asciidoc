@@ -86,3 +86,9 @@ We automatically instrument background processing using:
 - Sidekiq
 - Shoryuken
 - Sneakers (v2.12.0+) (Experimental, see https://github.com/elastic/apm-agent-ruby/pull/676[#676])
+
+[float]
+[[supported-technologies-grpc]]
+=== gRPC
+
+We automatically instrument gRPC using the `grpc` gem.
