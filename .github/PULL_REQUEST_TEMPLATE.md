@@ -37,6 +37,7 @@ List here all the items you have verified BEFORE sending this PR. Please DO NOT 
 -->
 
 - [ ] I have signed the [Contributor License Agreement](https://www.elastic.co/contributor-agreement/). 
+- [ ] My code follows the style guidelines of this project (See `.rubocop.yml`)
 - [ ] I have rebased my changes on top of the latest master branch
 <!--
 Update your local repository with the most recent code from the main repo, and rebase your branch on top of the latest master branch. We prefer your initial changes to be squashed into a single commit. Later, if we ask you to make changes, add them as separate commits. This makes them easier to review.
