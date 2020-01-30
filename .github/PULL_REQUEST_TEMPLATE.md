@@ -1,12 +1,12 @@
 ## What does this pull request do?
 
-<!-- Comment:
+<!--
 Explain here the changes you made on the PR. Please explain the WHAT: patterns used, algorithms implemented, design architecture, message processing, etc.
 -->
 
 ## Why is it important?
 
-<!-- Comment:
+<!--
 Explain here the WHY, or the rationale/motivation for the changes, and how it will impact the funcionality of the agent
 -->
 
