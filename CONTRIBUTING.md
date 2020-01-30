@@ -18,26 +18,6 @@ Talk about what you would like to do.
 It may be that somebody is already working on it,
 or that there are particular issues that you should know about before implementing the change.
 
-### Submitting your changes
-
-Generally, we require that you test any code you are adding or modifying.
-Once your changes are ready to submit for review:
-
-1. Submit a pull request
-
-    Push your local changes to your forked copy of the repository and [submit a pull request](https://help.github.com/articles/using-pull-requests).
-    In the pull request,
-    choose a title which sums up the changes that you have made,
-    and in the body provide more details about what your changes do.
-    Also mention the number of the issue where discussion has taken place,
-    eg "Closes #123".
-
-1. Be patient
-
-    We might not be able to review your code as fast as we would like to,
-    but we'll do our best to dedicate it the attention it deserves.
-    Your effort is much appreciated!
-
 ### Workflow
 
 All feature development and most bug fixes hit the master branch first.

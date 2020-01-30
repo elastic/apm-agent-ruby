@@ -1,3 +1,20 @@
+<!--
+A few suggestions about filling out this PR
+
+1. Use a descriptive title for the PR.
+2. If this pull request is work in progress, create a draft PR instead of prefixing the title with WIP.
+3. Please label this PR at least one of the following labels, depending on the scope of your change:
+- feature request, which adds new behavior
+- bug fix
+- enhancement, which modifies existing behavior
+- breaking change
+4. Remove those recommended/optional sections if you don't need them. Only "What does this PR do", "Why is it important?" and "Checklist" are mandatory.
+5. Generally, we require that you test any code you are adding or modifying.
+Once your changes are ready to submit for review:
+6. Submit the pull request: Push your local changes to your forked copy of the repository and submit a pull request (https://help.github.com/articles/using-pull-requests).
+7. Please be patient. We might not be able to review your code as fast as we would like to, but we'll do our best to dedicate to it the attention it deserves. Your effort is much appreciated!
+-->
+
 ## What does this pull request do?
 
 <!--
