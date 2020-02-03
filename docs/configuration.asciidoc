@@ -148,6 +148,23 @@ ruby -r securerandom -e 'print SecureRandom.uuid'
 WARNING: Secret tokens only provide any real security if your APM server uses TLS.
 
 [float]
+[[config-api-key]]
+==== `api_key`
+
+[options="header"]
+|============
+| Environment           | `Config` key | Default | Example
+| `ELASTIC_APM_API_KEY` | `api_key`    | `nil`   | A base64-encoded string
+|============
+
+This base64-encoded string is used to ensure that only your agents can send data to your APM server.
+You must have created the api key using the APM server command line tool. Please see the APM server
+documentation for details on how to do that. Please note that this feature is experimental in the
+APM server in version 7.6.
+
+WARNING: Api keys only provide any real security if your APM server uses TLS.
+
+[float]
 [[config-active]]
 ==== `active`
 |============
