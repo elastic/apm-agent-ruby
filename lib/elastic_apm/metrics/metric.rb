@@ -37,13 +37,15 @@ module ElasticAPM
       end
 
       def collect
-        collected = value
+        @mutex.synchronize do
+          collected = @value
 
-        self.value = initial_value if reset_on_collect?
+          @value = initial_value if reset_on_collect?
 
-        return nil if reset_on_collect? && collected == 0
+          return nil if reset_on_collect? && collected == 0
 
-        collected
+          collected
+        end
       end
     end
 
