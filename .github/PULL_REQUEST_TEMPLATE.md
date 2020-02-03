@@ -18,13 +18,13 @@ Once your changes are ready to submit for review:
 ## What does this pull request do?
 
 <!--
-Explain here the changes you made on the PR. Please explain the WHAT: patterns used, algorithms implemented, design architecture, message processing, etc.
+Use this space to describe what the proposed code _does_, ie. what precisely will be done differently from this change.
 -->
 
 ## Why is it important?
 
 <!--
-Explain here the WHY, or the rationale/motivation for the changes, and how it will impact the funcionality of the agent
+Optionally provide an explanation of why this is important.
 -->
 
 ## Checklist
