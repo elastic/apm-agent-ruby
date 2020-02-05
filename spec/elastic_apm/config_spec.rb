@@ -222,6 +222,17 @@ module ElasticAPM
             .to eq(subject.disable_instrumentations)
         end
       end
+
+      describe 'custom_key_filters' do
+        subject { Config.new }
+
+        it 'logs a warning' do
+          expect(subject).to receive(:warn).with(/DEPRECATED/)
+          subject.custom_key_filters = ['oh no']
+
+          expect(subject.custom_key_filters).to eq([/oh no/])
+        end
+      end
     end
   end
 end

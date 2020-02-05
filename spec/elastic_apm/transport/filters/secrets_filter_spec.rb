@@ -81,6 +81,28 @@ module ElasticAPM
             )
           end
         end
+
+        context 'with sanitize_field_names' do
+          let(:config) { Config.new(sanitize_field_names: 'Auth*ion') }
+
+          it 'removes Authorization header' do
+            payload = { transaction: { context: { request: { headers: {
+              Authorization: 'Bearer some',
+              Authentication: 'Polar Bearer some',
+              SomeHeader: 'some'
+            } } } } }
+
+            subject.call(payload)
+
+            headers = payload.dig(:transaction, :context, :request, :headers)
+
+            expect(headers).to match(
+              Authorization: '[FILTERED]',
+              Authentication: '[FILTERED]',
+              SomeHeader: 'some'
+            )
+          end
+        end
       end
     end
   end

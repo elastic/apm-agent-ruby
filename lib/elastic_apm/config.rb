@@ -58,6 +58,7 @@ module ElasticAPM
     option :proxy_password,                    type: :string
     option :proxy_port,                        type: :int
     option :proxy_username,                    type: :string
+    option :sanitize_field_names,              type: :list,   default: [],      converter: WildcardPatternList.new
     option :server_ca_cert,                    type: :string
     option :service_name,                      type: :string
     option :service_version,                   type: :string
@@ -154,6 +155,12 @@ module ElasticAPM
 
     def collect_metrics?
       metrics_interval > 0
+    end
+
+    def custom_key_filters=(value)
+      warn '[DEPRECATED] The option custom_key_filters is being removed. ' \
+        'See sanitize_field_names for an alternative.'
+      set(:custom_key_filters, value)
     end
 
     def disabled_instrumentations
