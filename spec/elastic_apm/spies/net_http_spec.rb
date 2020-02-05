@@ -56,7 +56,7 @@ module ElasticAPM
       expect(http.status_code).to match('200')
     end
 
-    it 'adds both traceparent headers' do
+    it 'adds both TraceContext headers' do
       req_stub =
         WebMock.stub_request(:get, %r{http://example.com/.*}).with do |req|
           header = req.headers['Traceparent']
