@@ -6,6 +6,8 @@ require 'elastic_apm/trace_context/traceparent'
 module ElasticAPM
   # @api private
   class TraceContext
+    extend Forwardable
+
     class InvalidTraceparentHeader < StandardError; end
 
     def initialize(
@@ -19,55 +21,40 @@ module ElasticAPM
 
     attr_accessor :traceparent, :tracestate
 
-    def self.parse(legacy_header = nil, env: nil)
-      if !legacy_header && !env
-        raise ArgumentError, 'TraceContext expects either env: or single ' \
-          'argument header string'
-      end
+    def_delegators :traceparent,
+      :version, :trace_id, :id, :parent_id, :ensure_parent_id, :recorded?
 
-      if legacy_header
-        return legacy_parse_from_header(legacy_header)
-      end
-
-      return unless (header = get_traceparent_header(env))
-
-      parent = TraceContext::Traceparent.parse(header)
-
-      state =
-        if (header = env['HTTP_TRACESTATE'])
-          TraceContext::Tracestate.parse(header)
+    class << self
+      def parse(legacy_header = nil, env: nil)
+        if !legacy_header && !env
+          raise ArgumentError, 'TraceContext expects either env: or single ' \
+            'argument header string'
         end
 
-      new(traceparent: parent, tracestate: state)
-    end
+        return legacy_parse_from_header(legacy_header) if legacy_header
 
-    def self.legacy_parse_from_header(header)
-      parent = Traceparent.parse(header)
-      new(traceparent: parent)
-    end
+        return unless (header = get_traceparent_header(env))
 
-    def version
-      traceparent.version
-    end
+        parent = TraceContext::Traceparent.parse(header)
 
-    def trace_id
-      traceparent.trace_id
-    end
+        state =
+          if (header = env['HTTP_TRACESTATE'])
+            TraceContext::Tracestate.parse(header)
+          end
 
-    def id
-      traceparent.id
-    end
+        new(traceparent: parent, tracestate: state)
+      end
 
-    def parent_id
-      traceparent.parent_id
-    end
+      private
 
-    def ensure_parent_id
-      traceparent.ensure_parent_id
-    end
+      def legacy_parse_from_header(header)
+        parent = Traceparent.parse(header)
+        new(traceparent: parent)
+      end
 
-    def recorded?
-      traceparent.recorded?
+      def get_traceparent_header(env)
+        env['HTTP_ELASTIC_APM_TRACEPARENT'] || env['HTTP_TRACEPARENT']
+      end
     end
 
     def child
@@ -86,22 +73,6 @@ module ElasticAPM
       return unless ElasticAPM.agent.config.use_elastic_traceparent_header
 
       yield 'Elastic-Apm-Traceparent', traceparent.to_header
-    end
-
-    class << self
-      private
-
-      def get_traceparent_header(env)
-        if (header = env['HTTP_ELASTIC_APM_TRACEPARENT'])
-          return header
-        end
-
-        if (header = env['HTTP_TRACEPARENT'])
-          return header
-        end
-
-        nil
-      end
     end
   end
 end
