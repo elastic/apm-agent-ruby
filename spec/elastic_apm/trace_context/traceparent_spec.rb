@@ -3,24 +3,6 @@
 require 'spec_helper'
 
 module ElasticAPM
-  RSpec.describe TraceContext do
-    describe '.parse' do
-      subject { described_class.parse(env: env) }
-
-      context 'with a valid traceparent' do
-        let(:env) do
-          Rack::MockRequest.env_for(
-            '/',
-            'HTTP_ELASTIC_APM_TRACEPARENT' =>
-            '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-00'
-          )
-        end
-
-        its(:traceparent) { is_expected.to be_a TraceContext::Traceparent }
-      end
-    end
-  end
-
   RSpec.describe TraceContext::Traceparent do
     describe '.new' do
       subject { described_class.new }
