@@ -4,26 +4,28 @@ about: Create a report to help us improve
 
 ---
 
-**Describe the bug**: ...
+## Describe the bug
 
-**To Reproduce**
-
+## Steps to reproduce
+<!--
 1. ...
 2. ...
 3. ...
 4. ...
+-->
 
-**Expected behavior**: ...
+## Expected behavior
 
-**Environment (please complete the following information)**
-- OS: [e.g. Linux]
-- Ruby version:
-- Framework and version [e.g. Rails 6.0.1]: 
-- APM Server version:
-- Agent version:
+## Environment
+<!-- Please complete the following information -->
+- **OS**: <!-- [e.g. Linux] -->
+- **Ruby version**:
+- **Framework and version**: <!-- [e.g. Rails 6.0.1] -->
+- **APM Server version**:
+- **Agent version**:
 
 
-**Additional context**
+## Additional context
 
 Add any other context about the problem here.
 
