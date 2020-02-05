@@ -23,8 +23,6 @@ module ElasticAPM
 
   RSpec.describe TraceContext::Traceparent do
     describe '.new' do
-      let(:transaction) { Transaction.new }
-
       subject { described_class.new }
 
       its(:version) { should eq '00' }
