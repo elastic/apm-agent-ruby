@@ -104,7 +104,7 @@ module ElasticAPM
     it 'adds traceparent header' do
       req_stub =
         WebMock.stub_request(:get, %r{http://example.com/.*}).with do |req|
-          header = req.headers['Elastic-Apm-Traceparent']
+          header = req.headers['Traceparent']
           expect(header).to_not be nil
           expect { TraceContext.parse(header) }.to_not raise_error
         end

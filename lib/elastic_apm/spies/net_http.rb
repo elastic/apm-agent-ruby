@@ -67,7 +67,8 @@ module ElasticAPM
               context: context
             ) do |span|
               trace_context = span&.trace_context || transaction.trace_context
-              req['Elastic-Apm-Traceparent'] = trace_context.to_header
+              trace_context.apply_headers { |key, value| req[key] = value }
+
               result = request_without_apm(req, body, &block)
 
               if (http = span&.context&.http)

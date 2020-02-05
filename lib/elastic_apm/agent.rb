@@ -86,6 +86,7 @@ module ElasticAPM
     )
 
     def_delegator :@central_config, :config
+
     def start
       unless config.disable_start_message?
         config.logger.info format(
