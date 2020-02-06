@@ -14,6 +14,8 @@ module ElasticAPM
           !!@pattern.match(other)
         end
 
+        alias :match :match?
+
         private
 
         def convert(str)

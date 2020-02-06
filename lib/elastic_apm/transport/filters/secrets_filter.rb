@@ -63,7 +63,7 @@ module ElasticAPM
         end
 
         def filter_key?(key)
-          @key_filters.any? { |regex| regex.match?(key) }
+          @key_filters.any? { |regex| regex.match(key) }
         end
 
         def filter_value?(value)
