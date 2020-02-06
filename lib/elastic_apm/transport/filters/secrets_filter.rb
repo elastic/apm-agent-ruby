@@ -67,7 +67,7 @@ module ElasticAPM
         end
 
         def filter_value?(value)
-          VALUE_FILTERS.any? { |regex| regex.match?(value) }
+          VALUE_FILTERS.any? { |regex| regex.match(value) }
         end
       end
     end
