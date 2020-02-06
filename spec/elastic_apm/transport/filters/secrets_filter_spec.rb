@@ -63,6 +63,11 @@ module ElasticAPM
         end
 
         context 'with custom_key_filters' do
+          before do
+            # silence deprecation warning
+            allow_any_instance_of(Config).to receive(:warn).with(/DEPRECATED/)
+          end
+
           let(:config) { Config.new(custom_key_filters: [/Authorization/]) }
 
           it 'removes Authorization header' do

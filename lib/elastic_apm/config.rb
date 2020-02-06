@@ -32,7 +32,6 @@ module ElasticAPM
     option :current_user_id_method,            type: :string, default: 'id'
     option :current_user_username_method,      type: :string, default: 'username'
     option :custom_key_filters,                type: :list,   default: [],      converter: RegexpList.new
-    option :default_tags,                      type: :dict,   default: {}
     option :default_labels,                    type: :dict,   default: {}
     option :disable_metrics,                   type: :list,   default: [],      converter: WildcardPatternList.new
     option :disable_send,                      type: :bool,   default: false
@@ -157,22 +156,6 @@ module ElasticAPM
       metrics_interval > 0
     end
 
-    def custom_key_filters=(value)
-      warn '[DEPRECATED] The option custom_key_filters is being removed. ' \
-        'See sanitize_field_names for an alternative.'
-      set(:custom_key_filters, value)
-    end
-
-    def disabled_instrumentations
-      disable_instrumentations
-    end
-
-    def disabled_instrumentations=(value)
-      warn '[DEPRECATED] The option disabled_instrumentations has been ' \
-        'renamed to disable_instrumentations to align with other agents.'
-      self.disable_instrumentations = value
-    end
-
     def span_frames_min_duration?
       span_frames_min_duration != 0
     end
@@ -209,6 +192,33 @@ module ElasticAPM
 
     def inspect
       super.split.first + '>'
+    end
+
+    # Deprecations
+
+    def default_tags=(value)
+      warn '[DEPRECATED] The option default_tags has been renamed to ' \
+        'default_labels.'
+      self.default_labels = value
+    end
+
+    def custom_key_filters=(value)
+      unless value == self.class.schema[:custom_key_filters].default
+        warn '[DEPRECATED] The option custom_key_filters is being removed. ' \
+          'See sanitize_field_names for an alternative.'
+      end
+
+      set(:custom_key_filters, value)
+    end
+
+    def disabled_instrumentations
+      disable_instrumentations
+    end
+
+    def disabled_instrumentations=(value)
+      warn '[DEPRECATED] The option disabled_instrumentations has been ' \
+        'renamed to disable_instrumentations to align with other agents.'
+      self.disable_instrumentations = value
     end
 
     private
