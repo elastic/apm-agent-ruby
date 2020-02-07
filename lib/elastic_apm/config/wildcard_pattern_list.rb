@@ -14,6 +14,8 @@ module ElasticAPM
           !!@pattern.match(other)
         end
 
+        alias :match :match?
+
         private
 
         def convert(str)
@@ -22,7 +24,7 @@ module ElasticAPM
               arr << (char == '*' ? '.*' : Regexp.escape(char))
             end
 
-          Regexp.new('\A' + parts.join + '\Z')
+          Regexp.new('\A' + parts.join + '\Z', Regexp::IGNORECASE)
         end
       end
 

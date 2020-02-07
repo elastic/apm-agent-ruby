@@ -90,7 +90,7 @@ Some options can be set with `ENV` variables and all of them may be set in
 your source code.
 
 When setting values for lists using `ENV` variables, strings are split by comma
-eg `ELASTIC_APM_CUSTOM_KEY_FILTERS="a,b" # => [/a/, /b/]`.
+eg `ELASTIC_APM_SANITIZE_FIELD_NAMES="a,b" # => [/a/, /b/]`.
 
 [float]
 [[config-config-file]]
@@ -303,6 +303,8 @@ Use this option to add your own custom header keys to the list of filtered keys.
 When setting this option via `ENV`, use a comma separated string.
 Eg. `ELASTIC_APM_CUSTOM_KEY_FILTERS="a,b" # => [/a/, /b/]`
 
+NOTE: This option is being removed. See <<config-sanitize-field-names>> instead.
+
 [float]
 [[config-default-tags]]
 ==== `default_tags`
@@ -345,6 +347,7 @@ that are set will override `global_labels`.
 
 A comma-separated list of dotted metrics names that should not be sent to the APM Server.
 You can use `*` to match multiple metrics.
+Matching is case-insensitive.
 
 [float]
 [[config-disable-send]]
@@ -607,6 +610,24 @@ Options available are:
 There are also `ENV` version of these following the same pattern of putting `ELASTIC_APM_` in front.
 
 See https://github.com/httprb/http/wiki/Proxy-Support[Http.rb's docs].
+
+[float]
+[[config-sanitize-field-names]]
+==== `sanitize_field_names`
+
+[options="header"]
+|============
+| Environment                        | `Config` key           | Default | Example
+| `ELASTIC_APM_SANITIZE_FIELD_NAMES` | `sanitize_field_names` | `[]`    | `Auth*tion,abc*,*xyz`
+|============
+
+Sometimes it is necessary to sanitize the data sent to Elastic APM, e.g. remove sensitive data.
+
+Configure a list of wildcard patterns of field names which should be sanitized. These apply to HTTP headers and bodies (if you're capturing those.)
+
+Supports the wildcard `*`, which matches zero or more characters.
+Examples: `/foo/*/bar/*/baz*`, `*foo*`.
+Matching is case insensitive.
 
 [float]
 [[config-service-name]]
