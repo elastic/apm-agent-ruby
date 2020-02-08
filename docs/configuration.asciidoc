@@ -14,7 +14,6 @@ The recommended way to configure Elastic APM is to create a file
 
 [source,yaml]
 ----
----
 server_url: 'http://localhost:8200'
 secret_token: <%= ENV["VERY_SECRET_TOKEN"] %>
 ----
@@ -288,7 +287,7 @@ NOTE: This feature requires APM Server v7.3 or later and that the APM Server is 
 
 [float]
 [[config-custom-key-filters]]
-==== `custom_key_filters`
+==== `custom_key_filters` deprecated:[3.5.0,See <<config-sanitize-field-names>> instead.]
 [options="header"]
 |============
 | Environment                      | `Config` key         | Default | Example
