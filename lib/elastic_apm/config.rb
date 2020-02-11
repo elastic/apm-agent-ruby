@@ -203,7 +203,7 @@ module ElasticAPM
     end
 
     def custom_key_filters=(value)
-      unless value == self.class.schema[:custom_key_filters].default
+      unless value == self.class.schema[:custom_key_filters][:default]
         warn '[DEPRECATED] The option custom_key_filters is being removed. ' \
           'See sanitize_field_names for an alternative.'
       end
