@@ -17,6 +17,7 @@ module ElasticAPM
     option :config_file,                       type: :string, default: 'config/elastic_apm.yml'
     option :server_url,                        type: :url,    default: 'http://localhost:8200'
     option :secret_token,                      type: :string
+    option :api_key,                           type: :string
 
     option :active,                            type: :bool,   default: true
     option :api_buffer_size,                   type: :int,    default: 256
@@ -31,12 +32,11 @@ module ElasticAPM
     option :current_user_id_method,            type: :string, default: 'id'
     option :current_user_username_method,      type: :string, default: 'username'
     option :custom_key_filters,                type: :list,   default: [],      converter: RegexpList.new
-    option :default_tags,                      type: :dict,   default: {}
     option :default_labels,                    type: :dict,   default: {}
     option :disable_metrics,                   type: :list,   default: [],      converter: WildcardPatternList.new
     option :disable_send,                      type: :bool,   default: false
     option :disable_start_message,             type: :bool,   default: false
-    option :disabled_instrumentations,         type: :list,   default: %w[json]
+    option :disable_instrumentations,          type: :list,   default: %w[json]
     option :disabled_spies,                    type: :list,   default: []
     option :environment,                       type: :string, default: ENV['RAILS_ENV'] || ENV['RACK_ENV']
     option :framework_name,                    type: :string
@@ -57,6 +57,7 @@ module ElasticAPM
     option :proxy_password,                    type: :string
     option :proxy_port,                        type: :int
     option :proxy_username,                    type: :string
+    option :sanitize_field_names,              type: :list,   default: [],      converter: WildcardPatternList.new
     option :server_ca_cert,                    type: :string
     option :service_name,                      type: :string
     option :service_version,                   type: :string
@@ -68,9 +69,9 @@ module ElasticAPM
     option :stack_trace_limit,                 type: :int,    default: 999_999
     option :transaction_max_spans,             type: :int,    default: 500
     option :transaction_sample_rate,           type: :float,  default: 1.0
+    option :use_elastic_traceparent_header,    type: :bool,   default: true
+    option :use_experimental_sql_parser,       type: :bool,   default: false
     option :verify_server_cert,                type: :bool,   default: true
-
-    option :use_experimental_sql_parser,      type: :bool,   default: false
 
     # rubocop:enable Metrics/LineLength, Layout/ExtraSpacing
     def initialize(options = {})
@@ -122,12 +123,13 @@ module ElasticAPM
         shoryuken
         sidekiq
         sinatra
+        sneakers
         tilt
       ]
     end
 
     def enabled_instrumentations
-      available_instrumentations - disabled_instrumentations
+      available_instrumentations - disable_instrumentations
     end
 
     def method_missing(name, *args)
@@ -190,6 +192,33 @@ module ElasticAPM
 
     def inspect
       super.split.first + '>'
+    end
+
+    # Deprecations
+
+    def default_tags=(value)
+      warn '[DEPRECATED] The option default_tags has been renamed to ' \
+        'default_labels.'
+      self.default_labels = value
+    end
+
+    def custom_key_filters=(value)
+      unless value == self.class.schema[:custom_key_filters][:default]
+        warn '[DEPRECATED] The option custom_key_filters is being removed. ' \
+          'See sanitize_field_names for an alternative.'
+      end
+
+      set(:custom_key_filters, value)
+    end
+
+    def disabled_instrumentations
+      disable_instrumentations
+    end
+
+    def disabled_instrumentations=(value)
+      warn '[DEPRECATED] The option disabled_instrumentations has been ' \
+        'renamed to disable_instrumentations to align with other agents.'
+      self.disable_instrumentations = value
     end
 
     private

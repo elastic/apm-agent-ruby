@@ -4,7 +4,7 @@ module ElasticAPM
   RSpec.describe 'Spy: JSON', :intercept do
     before do
       intercept!
-      ElasticAPM.start disabled_instrumentations: []
+      ElasticAPM.start disable_instrumentations: []
     end
 
     after do

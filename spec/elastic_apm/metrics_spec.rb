@@ -75,5 +75,60 @@ module ElasticAPM
         end
       end
     end
+
+    context 'thread safety stress test', :mock_intake do
+      it 'handles multiple threads reporting and collecting at the same time' do
+        config = Config.new(metrics_interval: '100ms')
+        queue = Queue.new
+        metrics = Metrics.new(config) { queue.push metricset }
+        thread_count = 1_000
+
+        names = Array.new(5).map do
+          SecureRandom.hex(5)
+        end
+
+        with_agent(metrics_interval: '100ms') do
+          metrics = ElasticAPM.agent.metrics
+
+          Array.new(thread_count).map do
+            Thread.new do
+              metrics.get(:breakdown).counter('a').inc!
+              metrics.get(:breakdown).counter('b').inc!
+              metrics.get(:breakdown).counter('c').dec!
+              metrics.get(:transaction).counter(
+                :a_with_tags,
+                tags: { 'name': names.sample },
+                reset_on_collect: true
+              ).inc!
+              metrics.get(:transaction).counter(
+                :b_with_tags,
+                tags: { 'name': names.sample },
+                reset_on_collect: true
+              ).inc!
+              metrics.get(:transaction).counter(
+                :c_with_tags,
+                tags: { 'name': names.sample },
+                reset_on_collect: true
+              ).inc!
+
+              sleep 0.15 # longer than metrics_interval
+            end
+          end.each(&:join)
+        end
+
+        samples =
+          @mock_intake.metricsets.each_with_object({}) do |set, result|
+            result.merge! set['samples']
+          end
+
+        expect(samples['a']['value']).to eq(thread_count)
+        expect(samples['b']['value']).to eq(thread_count)
+        expect(samples['c']['value']).to eq(0 - thread_count)
+
+        expect(samples['a_with_tags']['value']).to be > 0
+        expect(samples['b_with_tags']['value']).to be > 0
+        expect(samples['c_with_tags']['value']).to be > 0
+      end
+    end
   end
 end

@@ -63,7 +63,7 @@ module ElasticAPM
 
                 result =
                   run_request_without_apm(method, url, body, headers) do |req|
-                    req['Elastic-Apm-Traceparent'] = trace_context.to_header
+                    trace_context.apply_headers { |k, v| req[k] = v }
 
                     yield req if block_given?
                   end

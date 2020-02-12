@@ -31,8 +31,6 @@ module ElasticAPM
     end
 
     it 'converts certain env values to Ruby types' do
-      allow_any_instance_of(Config).to receive(:warn)
-        .with(/default_tags=.*removed./)
       [
         # [ 'NAME', 'VALUE', 'EXPECTED' ]
         ['ELASTIC_APM_SOURCE_LINES_ERROR_APP_FRAMES', '666', 666],
@@ -44,13 +42,7 @@ module ElasticAPM
         ['ELASTIC_APM_VERIFY_SERVER_CERT', 'true', true],
         ['ELASTIC_APM_VERIFY_SERVER_CERT', '0', false],
         ['ELASTIC_APM_VERIFY_SERVER_CERT', 'false', false],
-        ['ELASTIC_APM_DISABLED_INSTRUMENTATIONS', 'json,http', %w[json http]],
-        ['ELASTIC_APM_CUSTOM_KEY_FILTERS', 'Auth,Other', [/Auth/, /Other/]],
-        [
-          'ELASTIC_APM_DEFAULT_TAGS',
-          'test=something something&other=ok',
-          { 'test' => 'something something', 'other' => 'ok' }
-        ],
+        ['ELASTIC_APM_DISABLE_INSTRUMENTATIONS', 'json,http', %w[json http]],
         [
           'ELASTIC_APM_DEFAULT_LABELS',
           'wave=something erlking&brother=ok',
@@ -127,13 +119,6 @@ module ElasticAPM
       end
     end
 
-    context 'custom_key_filters' do
-      it 'sets custom_key_filters to array of regexp' do
-        config = Config.new(custom_key_filters: [/Authorization/, 'String'])
-        expect(config.custom_key_filters).to eq [/Authorization/, /String/]
-      end
-    end
-
     context 'ignore_url_patterns' do
       it 'sets ignore_url_patterns to array of regexp' do
         config = Config.new(
@@ -157,7 +142,7 @@ module ElasticAPM
     it 'has spies and may disable them' do
       expect(Config.new.available_instrumentations).to_not be_empty
 
-      config = Config.new disabled_instrumentations: ['json']
+      config = Config.new disable_instrumentations: ['json']
       expect(config.enabled_instrumentations).to_not include('json')
     end
 
@@ -205,6 +190,43 @@ module ElasticAPM
           expect_any_instance_of(Config)
             .to receive(:warn).with(/Unknown option/)
           Config.new(config_file: 'spec/fixtures/unknown_option.yml')
+        end
+      end
+    end
+
+    context 'DEPRECATED' do
+      describe 'default_tags' do
+        subject { Config.new }
+
+        it 'logs a warning and redirects' do
+          expect(subject).to receive(:warn).with(/DEPRECATED/)
+          subject.default_tags = 'oh_no=its_gone'
+
+          expect(subject.default_labels).to eq('oh_no' => 'its_gone')
+        end
+      end
+
+      describe 'disabled_instrumentations' do
+        subject { Config.new }
+
+        it 'logs a warning and redirects' do
+          expect(subject).to receive(:warn).with(/DEPRECATED/)
+          subject.disabled_instrumentations = ['oh no']
+
+          expect(subject.disable_instrumentations).to eq(['oh no'])
+          expect(subject.disabled_instrumentations)
+            .to eq(subject.disable_instrumentations)
+        end
+      end
+
+      describe 'custom_key_filters' do
+        subject { Config.new }
+
+        it 'logs a warning' do
+          expect(subject).to receive(:warn).with(/DEPRECATED/)
+          subject.custom_key_filters = ['oh no']
+
+          expect(subject.custom_key_filters).to eq([/oh no/])
         end
       end
     end

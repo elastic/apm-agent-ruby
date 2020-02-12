@@ -446,7 +446,7 @@ JavaScript RUM agent with the value of this method allows analyzing the time
 spent in the browser vs in the backend services.
 
 To enable the JavaScript RUM agent, initilialize the RUM agent with the Ruby
-agent'a current transaction:
+agent's current transaction:
 
 [source,html]
 ----

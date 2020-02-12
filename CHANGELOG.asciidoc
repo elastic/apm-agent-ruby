@@ -42,10 +42,31 @@ endif::[]
 [float]
 ===== Added
 
+- Pass along tracestate headers and add prefixless Traceparent header {pull}694[#694]
+- Add sanitize_field_names to replace custom_key_filters {pull}708[#708]
+- Add `rows_affected` to span db context {pull}668[#668]
+
+[float]
+===== Changed
+
+- Rename disabled_instrumentations to disable_instrumentations {pull}695[#695]
+
+[float]
+===== Fixed
+
+- Fix thread race condition in Metric#collect method {pull}669[#669]
+
+[[release-notes-3.4.0]]
+==== 3.4.0 (2020-01-10)
+
+[float]
+===== Added
+
 - Add `span.context.destination` fields {pull}647[#647]
 - Add more precise (experimental) SQL summarizer {pull}640[#640]
 - Add support for Shoryuken (AWS SQS) {pull}674[#674]
-- Add `rows_affected` to span db context {pull}668[#668]
+- Add support for Sneakers (Experimental) {pull}676[#676]
+- Add option `api_key` (experimental) to specify an Api key to use with the apm server {pull}655[#655]
 
 [float]
 ===== Changed
@@ -56,7 +77,8 @@ endif::[]
 ===== Fixed
 
 - Fix Rails Console detection when top-level `Console` constant defined {pull}664[#664]
-- Fix a few Ruby 2.7 related deprecation warnings {pull}667[#667]
+- Fix Ruby 2.7 related deprecation warnings {pull}667[#667]
+- Fix HTTP response header values not being converted to strings {pull}675[#675]
 
 [[release-notes-3.3.0]]
 ==== 3.3.0 (2019-12-05)

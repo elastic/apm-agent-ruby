@@ -63,6 +63,11 @@ module ElasticAPM
         end
 
         context 'with custom_key_filters' do
+          before do
+            # silence deprecation warning
+            allow_any_instance_of(Config).to receive(:warn).with(/DEPRECATED/)
+          end
+
           let(:config) { Config.new(custom_key_filters: [/Authorization/]) }
 
           it 'removes Authorization header' do
@@ -77,6 +82,28 @@ module ElasticAPM
 
             expect(headers).to match(
               Authorization: '[FILTERED]',
+              SomeHeader: 'some'
+            )
+          end
+        end
+
+        context 'with sanitize_field_names' do
+          let(:config) { Config.new(sanitize_field_names: 'Auth*ion') }
+
+          it 'removes Authorization header' do
+            payload = { transaction: { context: { request: { headers: {
+              Authorization: 'Bearer some',
+              Authentication: 'Polar Bearer some',
+              SomeHeader: 'some'
+            } } } } }
+
+            subject.call(payload)
+
+            headers = payload.dig(:transaction, :context, :request, :headers)
+
+            expect(headers).to match(
+              Authorization: '[FILTERED]',
+              Authentication: '[FILTERED]',
               SomeHeader: 'some'
             )
           end

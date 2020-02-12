@@ -4,136 +4,147 @@ require 'spec_helper'
 
 module ElasticAPM
   RSpec.describe TraceContext do
-    describe '.new' do
-      let(:transaction) { Transaction.new }
-
-      subject { described_class.new }
-
-      its(:version) { should eq '00' }
-      its(:trace_id) { should match(/.{16}/) }
-      its(:id) { should match(/.{8}/) }
-      its(:parent_id) { should be_nil }
-      it { should be_recorded }
-    end
-
     describe '.parse' do
-      let(:header) { '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-00' }
+      subject { described_class.parse(env: env) }
 
-      subject { described_class.parse header }
+      context 'with a valid traceparent' do
+        let(:env) do
+          Rack::MockRequest.env_for(
+            '/',
+            'HTTP_ELASTIC_APM_TRACEPARENT' =>
+            '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-00'
+          )
+        end
 
-      context 'with a common header' do
-        it { expect { subject }.to_not raise_error }
-        its(:version) { should eq '00' }
-        its(:trace_id) { should eq '0af7651916cd43dd8448eb211c80319c' }
-        its(:parent_id) { should eq 'b7ad6b7169203331' }
-        its(:id) { should_not be_nil }
-        its(:id) { should_not eq 'b7ad6b7169203331' }
-        its(:flags) { should eq '00000000' }
+        its(:traceparent) { is_expected.to be_a TraceContext::Traceparent }
       end
 
-      context 'with a blank header' do
-        let(:header) { '' }
-        it do
+      context 'with an invalid traceparent' do
+        let(:env) do
+          Rack::MockRequest.env_for(
+            '/',
+            'HTTP_ELASTIC_APM_TRACEPARENT' =>
+            '0asdf0-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-00'
+          )
+        end
+
+        it 'raises error' do
           expect { subject }
             .to raise_error(TraceContext::InvalidTraceparentHeader)
         end
       end
 
-      context 'when recorded' do
-        let(:header) do
-          '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01'
+      context 'with both traceparent and tracestate' do
+        let(:env) do
+          Rack::MockRequest.env_for(
+            '/',
+            'HTTP_ELASTIC_APM_TRACEPARENT' =>
+            '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-00',
+            'HTTP_TRACESTATE' => 'thing=value'
+          )
         end
-        it { should be_recorded }
+
+        its(:traceparent) { is_expected.to be_a TraceContext::Traceparent }
+        its(:tracestate) { is_expected.to be_a TraceContext::Tracestate }
       end
 
-      context 'with unknown version' do
-        let(:header) do
-          '01-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-03'
+      context 'with neither' do
+        let(:env) do
+          Rack::MockRequest.env_for('/')
         end
-        it do
-          expect { subject }
-            .to raise_error(TraceContext::InvalidTraceparentHeader)
-        end
+
+        it { is_expected.to be nil }
       end
 
-      context 'with non-hex trace id' do
-        let(:header) do
-          '00-Ggf7651916cd43dd8448eb211c80319c-b7ad6b7169203331-03'
+      context 'with only tracestate' do
+        let(:env) do
+          Rack::MockRequest.env_for(
+            '/',
+            'HTTP_TRACESTATE' => 'thing=value'
+          )
         end
-        it do
-          expect { subject }
-            .to raise_error(TraceContext::InvalidTraceparentHeader)
-        end
-      end
 
-      context 'with non-hex span id' do
-        let(:header) do
-          '00-0af7651916cd43dd8448eb211c80319c-XXad6b7169203331-03'
-        end
-        it do
-          expect { subject }
-            .to raise_error(TraceContext::InvalidTraceparentHeader)
-        end
-      end
-    end
-
-    describe '#ensure_parent_id' do
-      let(:parent_id) { nil }
-      subject(:tc) { described_class.new span_id: parent_id }
-
-      context 'parent_id set' do
-        let(:parent_id) { 'b7ad6b7169203331' }
-        it "doesn't change parent_id" do
-          expect(tc.ensure_parent_id).to eq parent_id
-          expect(tc.parent_id).to eq parent_id
-        end
-      end
-
-      it 'sets and returns parent_id' do
-        pid = tc.ensure_parent_id
-        expect(tc.parent_id).to eq pid
+        it { is_expected.to be nil }
       end
     end
 
     describe '#child' do
-      let(:header) { '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-00' }
-      subject(:tc) { described_class.parse header }
-      subject(:tc) do
-        described_class.new span_id: 'b7ad6b7169203331', id: 'c8ad6b7169203331'
+      let(:parent) do
+        described_class.new.tap do |tp|
+          tp.traceparent.trace_id = '1' * 32
+          tp.traceparent.id = '2' * 16
+          tp.traceparent.flags = '00000011'
+        end
       end
 
-      it 'sets id and parent_id' do
-        child = tc.child
-        expect(tc.parent_id).to eq 'b7ad6b7169203331'
-        expect(tc.id).to eq 'c8ad6b7169203331'
-        expect(child.parent_id).to eq 'c8ad6b7169203331'
-        expect(child.id).not_to eq tc.parent_id
+      subject { parent.child }
+
+      it 'makes a child copy' do
+        expect(subject.traceparent).to_not be parent.traceparent
       end
     end
 
-    describe '#to_header' do
+    describe '#apply_headers' do
       subject do
         described_class.new.tap do |tp|
-          tp.trace_id = '1' * 32
-          tp.id = '2' * 16
-          tp.flags = '00000011'
+          tp.traceparent.trace_id = '1' * 32
+          tp.traceparent.id = '2' * 16
+          tp.traceparent.flags = '00000011'
         end
       end
 
-      its(:to_header) do
-        should match('00-11111111111111111111111111111111-2222222222222222-01')
-      end
-    end
+      context 'when prefixed is disabled', :intercept do
+        it 'applies only prefix-less header' do
+          calls = {}
+          block = ->(k, v) { calls[k] = v }
 
-    describe '#flags' do
-      context 'with flags as props' do
-        subject do
-          described_class.new.tap do |tp|
-            tp.recorded = true
+          with_agent(use_elastic_traceparent_header: false) do
+            subject.apply_headers(&block)
           end
+
+          expect(calls).to match(
+            'Traceparent' => String
+          )
+          expect(calls.length).to be 1
         end
-        its(:flags) { should eq '00000001' }
+      end
+
+      context 'when prefixed is enabled', :intercept do
+        it 'applies both headers' do
+          calls = {}
+          block = ->(k, v) { calls[k] = v }
+
+          with_agent do
+            subject.apply_headers(&block)
+          end
+
+          expect(calls).to match(
+            'Traceparent' => String,
+            'Elastic-Apm-Traceparent' => String
+          )
+          expect(calls.values.uniq.length).to be 1
+        end
+      end
+
+      context 'with tracestate', :intercept do
+        it 'sets tracestate header' do
+          calls = {}
+          block = ->(k, v) { calls[k] = v }
+
+          subject.tracestate = TraceContext::Tracestate.parse('a=b')
+
+          with_agent do
+            subject.apply_headers(&block)
+          end
+
+          expect(calls).to match(
+            'Traceparent' => String,
+            'Elastic-Apm-Traceparent' => String,
+            'Tracestate' => 'a=b'
+          )
+        end
       end
     end
+
   end
 end

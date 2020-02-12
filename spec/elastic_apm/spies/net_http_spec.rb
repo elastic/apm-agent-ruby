@@ -56,11 +56,12 @@ module ElasticAPM
       expect(http.status_code).to match('200')
     end
 
-    it 'adds traceparent header' do
+    it 'adds both TraceContext headers' do
       req_stub =
         WebMock.stub_request(:get, %r{http://example.com/.*}).with do |req|
-          header = req.headers['Elastic-Apm-Traceparent']
+          header = req.headers['Traceparent']
           expect(header).to_not be nil
+          expect(req.headers['Elastic-Apm-Traceparent']).to_not be nil
           expect { TraceContext.parse(header) }.to_not raise_error
         end
 
@@ -79,6 +80,24 @@ module ElasticAPM
       req_stub = WebMock.stub_request(:get, %r{http://example.com/.*})
 
       with_agent transaction_max_spans: 0 do
+        ElasticAPM.with_transaction 'Net::HTTP test' do
+          Net::HTTP.start('example.com') do |http|
+            http.get '/'
+          end
+        end
+      end
+
+      expect(req_stub).to have_been_requested
+    end
+
+    it 'skips prefixed traceparent header when disabled' do
+      req_stub =
+        WebMock.stub_request(:get, %r{http://example.com/.*}).with do |req|
+          expect(req.headers['Elastic-Apm-Traceparent']).to be nil
+          expect(req.headers['Traceparent']).to_not be nil
+        end
+
+      with_agent(use_elastic_traceparent_header: false) do
         ElasticAPM.with_transaction 'Net::HTTP test' do
           Net::HTTP.start('example.com') do |http|
             http.get '/'

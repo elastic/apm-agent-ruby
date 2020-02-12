@@ -20,3 +20,6 @@ vendor/
 
 .idea/
 log/
+
+benchmark-*.error
+benchmark-*.raw

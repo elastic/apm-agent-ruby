@@ -10,8 +10,8 @@ git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
 # Force the git user details when pushing using the last commit details
 USER_MAIL=$(git log -1 --pretty=format:'%ae')
 USER_NAME=$(git log -1 --pretty=format:'%an')
-git config --global user.email "${USER_MAIL}"
-git config --global user.name "${USER_NAME}"
+git config user.email "${USER_MAIL}"
+git config user.name "${USER_NAME}"
 
 # Checkout the branch as it's detached based by default.
 # See https://issues.jenkins-ci.org/browse/JENKINS-33171
