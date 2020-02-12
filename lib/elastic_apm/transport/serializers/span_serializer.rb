@@ -58,7 +58,8 @@ module ElasticAPM
               instance: db.instance,
               statement: Util.truncate(db.statement, max_length: 10_000),
               type: db.type,
-              user: db.user
+              user: db.user,
+              rows_affected: db.rows_affected
             }
           end
 

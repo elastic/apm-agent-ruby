@@ -44,6 +44,7 @@ endif::[]
 
 - Pass along tracestate headers and add prefixless Traceparent header {pull}694[#694]
 - Add sanitize_field_names to replace custom_key_filters {pull}708[#708]
+- Add `rows_affected` to span db context {pull}668[#668]
 
 [float]
 ===== Changed
