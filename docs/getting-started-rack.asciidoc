@@ -11,7 +11,7 @@ Add the gem to your `Gemfile`:
 
 [source,ruby]
 ----
-gem 'elastic-apm'
+gem install 'elastic-apm'
 ----
 
 Create a file `config/elastic_apm.yml`:
