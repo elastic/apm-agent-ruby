@@ -85,4 +85,4 @@ We automatically instrument background processing using:
 - DelayedJob
 - Sidekiq
 - Shoryuken
-- Sneakers (v2.12.0+) (Experimental, see {pull}676[#676])
+- Sneakers (v2.12.0+) (Experimental, see https://github.com/elastic/apm-agent-ruby/pull/676[#676])
