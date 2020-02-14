@@ -29,5 +29,7 @@ include::./log-correlation.asciidoc[]
 
 include::./debugging.asciidoc[]
 
+include::./upgrading.asciidoc[]
+
 include::./release-notes.asciidoc[]
 
