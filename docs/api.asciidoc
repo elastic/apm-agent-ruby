@@ -425,7 +425,7 @@ end
 
 [float]
 [[api-transaction-sampled_]]
-==== Sampled?
+==== `#sampled?`
 
 Whether the transaction is _sampled_ eg. it includes stacktraces for its spans.
 
