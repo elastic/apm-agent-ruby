@@ -184,14 +184,12 @@ pipeline {
           }
         }
         steps {
-          log(level: 'INFO', text: 'Launching Async ITs')
           build(job: env.ITS_PIPELINE, propagate: false, wait: false,
                 parameters: [string(name: 'AGENT_INTEGRATION_TEST', value: 'Ruby'),
-                             string(name: 'BUILD_OPTS', value: "--ruby-agent-version ${env.GIT_BASE_COMMIT} --ruby-agent-version-state ${env.GIT_BUILD_CAUSE} --ruby-agent-repo ${env.CHANGE_FORK?.trim() ?: 'elastic'}/${env.REPO}"),
+                             string(name: 'BUILD_OPTS', value: "--ruby-agent-version ${env.GIT_BASE_COMMIT} --ruby-agent-version-state ${env.GIT_BUILD_CAUSE} --ruby-agent-repo ${env.CHANGE_FORK?.trim() ?: 'elastic'}/${env.REPO} --opbeans-ruby-agent-branch ${env.GIT_BASE_COMMIT}"),
                              string(name: 'GITHUB_CHECK_NAME', value: env.GITHUB_CHECK_ITS_NAME),
                              string(name: 'GITHUB_CHECK_REPO', value: env.REPO),
-                             string(name: 'GITHUB_CHECK_SHA1', value: env.GIT_BASE_COMMIT)]
-          )
+                             string(name: 'GITHUB_CHECK_SHA1', value: env.GIT_BASE_COMMIT)])
           githubNotify(context: "${env.GITHUB_CHECK_ITS_NAME}", description: "${env.GITHUB_CHECK_ITS_NAME} ...", status: 'PENDING', targetUrl: "${env.JENKINS_URL}search/?q=${env.ITS_PIPELINE.replaceAll('/','+')}")
         }
       }
