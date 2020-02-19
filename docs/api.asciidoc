@@ -425,13 +425,13 @@ end
 
 [float]
 [[api-transaction-sampled_]]
-==== #sampled?
+==== `#sampled?`
 
 Whether the transaction is _sampled_ eg. it includes stacktraces for its spans.
 
 [float]
 [[api-transaction-ensure_parent_id]]
-==== #ensure_parent_id
+==== `#ensure_parent_id`
 
 If the transaction does not have a parent-ID yet, calling this method generates
 a new ID, sets it as the parent-ID of this transaction, and returns it as a
