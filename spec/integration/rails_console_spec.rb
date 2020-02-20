@@ -10,7 +10,7 @@ if defined?(Rails)
       class RailsConsoleTestApp < Rails::Application
         configure_rails_for_test
 
-        config.disable_send = true
+        config.elastic_apm.disable_send = true
         config.logger = Logger.new(SpecLogger)
       end
 
