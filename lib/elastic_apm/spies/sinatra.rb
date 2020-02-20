@@ -6,6 +6,8 @@ module ElasticAPM
     # @api private
     class SinatraSpy
       def install
+        require 'elastic_apm/sinatra'
+
         ::Sinatra::Base.class_eval do
           alias dispatch_without_apm! dispatch!
           alias compile_template_without_apm compile_template
