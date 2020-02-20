@@ -22,7 +22,7 @@ if enabled
 
       ActiveRecord::Base.establish_connection(
         adapter: 'sqlite3',
-        database: '/tmp/bench.sqlite3'
+        database: '/tmp/graphql.sqlite3'
       )
 
       ActiveRecord::Schema.define do
