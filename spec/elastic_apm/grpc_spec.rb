@@ -192,7 +192,9 @@ module ElasticAPM
           message = with_agent do
             stub.say_hello(
               Helloworld::HelloRequest.new(name: 'goodbye'),
-              metadata: { 'elastic-apm-traceparent' => trace_context.to_header }
+              metadata: {}.tap do |m|
+                trace_context.apply_headers { |k, v| m[k.downcase] = v }
+              end
             ).message
           end
           expect(message).to eq('Hello goodbye')

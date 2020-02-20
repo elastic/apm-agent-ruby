@@ -11,7 +11,7 @@ module ElasticAPM
       def request_response(request:, call:, method:, metadata:)
         return yield unless (transaction = ElasticAPM.current_transaction)
         if (trace_context = transaction.trace_context)
-          metadata['elastic-apm-traceparent'] = trace_context.to_header
+          trace_context.apply_headers { |k, v| metadata[k.downcase] = v }
         end
         ElasticAPM.with_span(method, TYPE) do
           yield
@@ -49,8 +49,7 @@ module ElasticAPM
       end
 
       def trace_context(call)
-        return unless (header = call.metadata['elastic-apm-traceparent'])
-        TraceContext.parse(header)
+        TraceContext.parse(metadata: call.metadata)
       rescue TraceContext::InvalidTraceparentHeader
         warn "Couldn't parse invalid traceparent header: #{header.inspect}"
         nil
