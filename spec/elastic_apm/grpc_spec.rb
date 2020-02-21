@@ -263,13 +263,15 @@ require 'grpc'
             end
           end
 
-          around do |example|
-            # This is necessary, otherwise there will be a warning
-            # that the server thread died because of an exception.
-            original_value = Thread.report_on_exception
-            Thread.report_on_exception = false
-            example.run
-            Thread.report_on_exception = original_value
+          if Thread.respond_to?(:report_on_exception)
+            around do |example|
+              # This is necessary, otherwise there will be a warning
+              # that the server thread died because of an exception.
+              original_value = Thread.report_on_exception
+              Thread.report_on_exception = false
+              example.run
+              Thread.report_on_exception = original_value
+            end
           end
 
           it 'reports the error', :mock_time do
