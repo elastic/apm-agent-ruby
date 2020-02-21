@@ -145,6 +145,5 @@ module ElasticAPM
         end
       end
     end
-
   end
 end

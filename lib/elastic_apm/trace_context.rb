@@ -25,15 +25,30 @@ module ElasticAPM
       :version, :trace_id, :id, :parent_id, :ensure_parent_id, :recorded?
 
     class << self
-      def parse(legacy_header = nil, env: nil)
-        if !legacy_header && !env
-          raise ArgumentError, 'TraceContext expects either env: or single ' \
-            'argument header string'
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      def parse(legacy_header = nil, env: nil, metadata: nil)
+        unless legacy_header || env || metadata
+          raise ArgumentError, 'TraceContext expects env:, metadata: ' \
+            'or single argument header string'
         end
 
-        return legacy_parse_from_header(legacy_header) if legacy_header
+        if legacy_header
+          legacy_parse_from_header(legacy_header)
+        elsif env
+          trace_context_from_env(env)
+        elsif metadata
+          trace_context_from_metadata(metadata)
+        end
+      end
+      # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
-        return unless (header = get_traceparent_header(env))
+      private
+
+      def trace_context_from_env(env)
+        return unless (
+          header =
+            env['HTTP_ELASTIC_APM_TRACEPARENT'] || env['HTTP_TRACEPARENT']
+        )
 
         parent = TraceContext::Traceparent.parse(header)
 
@@ -45,15 +60,23 @@ module ElasticAPM
         new(traceparent: parent, tracestate: state)
       end
 
-      private
+      def trace_context_from_metadata(metadata)
+        return unless (header = metadata['elastic-apm-traceparent'] ||
+          metadata['traceparent'])
+
+        parent = TraceContext::Traceparent.parse(header)
+
+        state =
+          if (header = metadata['tracestate'])
+            TraceContext::Tracestate.parse(header)
+          end
+
+        new(traceparent: parent, tracestate: state)
+      end
 
       def legacy_parse_from_header(header)
         parent = Traceparent.parse(header)
         new(traceparent: parent)
-      end
-
-      def get_traceparent_header(env)
-        env['HTTP_ELASTIC_APM_TRACEPARENT'] || env['HTTP_TRACEPARENT']
       end
     end
 

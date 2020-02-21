@@ -86,3 +86,27 @@ We automatically instrument background processing using:
 - Sidekiq
 - Shoryuken
 - Sneakers (v2.12.0+) (Experimental, see https://github.com/elastic/apm-agent-ruby/pull/676[#676])
+
+[float]
+[[supported-technologies-grpc]]
+=== gRPC
+
+We automatically instrument gRPC using the `grpc` gem. Note that this is experimental, as the `grpc` gem's
+support for `Interceptors` is experimental as of version 1.27.0.
+
+To instrument a client, add the `ElasticAPM::GRPC::ClientInterceptor` as an `interceptor` at Stub creation.
+
+[source,ruby]
+----
+Helloworld::Greeter::Stub.new(
+  'localhost:50051',
+  interceptors: [ElasticAPM::GRPC::ClientInterceptor.new]
+)
+----
+
+To instrument a server, add the `ElasticAPM::GRPC::ServerInterceptor`.
+
+[source,ruby]
+----
+GRPC::RpcServer.new(interceptors: [ElasticAPM::GRPC::ServerInterceptor.new])
+----
