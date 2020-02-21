@@ -114,10 +114,7 @@ if enabled
           variables = params[:variables]
           query = params[:query]
           operation_name = params[:operationName]
-          context = {
-            # Query context goes here, for example:
-            # current_user: current_user,
-          }
+          context = {}
           result = Types::GraphQLTestAppSchema.execute(
             query,
             variables: variables,
@@ -128,14 +125,10 @@ if enabled
           render json: result
         rescue => e
           logger.error e.message
-          # logger.error e.backtrace.join("\n")
 
           render(
             status: 500,
-            json: {
-              error: { message: e.message, backtrace: e.backtrace },
-              data: {}
-            }
+            json: { error: { message: e.message }, data: {} }
           )
         end
       end
