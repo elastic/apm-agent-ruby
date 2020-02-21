@@ -11,7 +11,7 @@ module ElasticAPM
       def request_response(request:, call:, method:, metadata:)
         return yield unless (transaction = ElasticAPM.current_transaction)
         if (trace_context = transaction.trace_context)
-          trace_context.apply_headers { |k,v| metadata[k.downcase] = v }
+          trace_context.apply_headers { |k, v| metadata[k.downcase] = v }
         end
         ElasticAPM.with_span(method, TYPE) do
           yield
