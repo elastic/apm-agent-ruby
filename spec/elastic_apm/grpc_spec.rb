@@ -153,7 +153,7 @@ module ElasticAPM
 
       let(:server) do
         ::GRPC::RpcServer.new(
-          interceptors: [ElasticAPM::GRPC::ServerInterceptor.new]
+          interceptors: [described_class.new]
         ).tap do |s|
           s.add_http2_port('0.0.0.0:50051', :this_port_is_insecure)
           s.handle(GreeterServer)
@@ -193,7 +193,7 @@ module ElasticAPM
             stub.say_hello(
               Helloworld::HelloRequest.new(name: 'goodbye'),
               metadata: {}.tap do |m|
-                trace_context.apply_headers { |k, v| m[k.downcase] = v }
+                trace_context.apply_headers { |k,v| m[k.downcase] = v }
               end
             ).message
           end
@@ -208,6 +208,38 @@ module ElasticAPM
 
           server.stop
           thread.kill
+        end
+
+        context 'with tracestate' do
+          before do
+            trace_context.tracestate = TraceContext::Tracestate.parse('a=b')
+          end
+
+          it 'sets it on the transaction' do
+            thread = Thread.new { server.run }
+            server.wait_till_running
+
+            message = with_agent do
+              stub.say_hello(
+                Helloworld::HelloRequest.new(name: 'goodbye'),
+                metadata: {}.tap do |m|
+                  trace_context.apply_headers { |k,v| m[k.downcase] = v }
+                end
+              ).message
+            end
+            expect(message).to eq('Hello goodbye')
+
+            transaction, = @intercepted.transactions
+            expect(transaction.name).to eq('grpc')
+            expect(transaction.type).to eq('request')
+            expect(transaction.result).to eq('success')
+            expect(transaction.trace_id).to eq(trace_context.trace_id)
+            expect(transaction.parent_id).to eq(trace_context.id)
+            expect(transaction.trace_context.tracestate.values).to eq(['a=b'])
+
+            server.stop
+            thread.kill
+          end
         end
       end
 

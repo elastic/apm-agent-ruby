@@ -50,8 +50,8 @@ module ElasticAPM
 
       def trace_context(call)
         TraceContext.parse(metadata: call.metadata)
-      rescue TraceContext::InvalidTraceparentHeader
-        warn "Couldn't parse invalid traceparent header: #{header.inspect}"
+      rescue ArgumentError, TraceContext::InvalidTraceparentHeader
+        warn "Couldn't parse invalid trace context header: #{header.inspect}"
         nil
       end
     end
