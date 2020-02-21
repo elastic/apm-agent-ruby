@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-if RUBY_VERSION < '2.7'
+if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.7'
 require 'grpc'
   module ElasticAPM
     RSpec.describe GRPC, :intercept do
