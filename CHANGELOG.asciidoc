@@ -42,7 +42,7 @@ endif::[]
 [float]
 ===== Added
 
-- Support for gRPC using the `grpc` gem {pull}669[#669]
+- Support for gRPC using the `grpc` gem (Experimental) {pull}669[#669]
 
 [[release-notes-3.5.0]]
 ==== 3.5.0 (2020-02-12)
