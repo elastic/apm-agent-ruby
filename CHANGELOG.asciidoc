@@ -43,6 +43,7 @@ endif::[]
 ===== Added
 
 - Support for gRPC using the `grpc` gem (Experimental) {pull}669[#669]
+- Add `span.context.destination.address` and `span.context.destination.port` when available. {pull}722[#722]
 
 [[release-notes-3.5.0]]
 ==== 3.5.0 (2020-02-12)
