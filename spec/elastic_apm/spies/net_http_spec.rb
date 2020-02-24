@@ -157,6 +157,8 @@ module ElasticAPM
         expect(span.context.destination.name).to eq 'http://example.com:1234'
         expect(span.context.destination.resource).to eq 'example.com:1234'
         expect(span.context.destination.type).to eq 'external'
+        expect(span.context.destination.address).to eq 'example.com'
+        expect(span.context.destination.port).to eq 1234
       end
 
       it 'adds IPv6 info to span context' do
