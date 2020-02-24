@@ -123,15 +123,23 @@ module ElasticAPM
                 parent: transaction,
                 trace_context: trace_context,
                 context: Span::Context.new(
-                  destination: { name: 'a', resource: 'b', type: 'c' }
+                  destination: {
+                    name: 'a',
+                    resource: 'b',
+                    type: 'c',
+                    address: 'd',
+                    port: 8080
+                  }
                 )
               )
 
               result = subject.build(span)
 
-              expect(result.dig(:span, :context, :destination)).to match(
-                service: { name: 'a', resource: 'b', type: 'c' }
-              )
+              expect(result.dig(:span, :context, :destination)).to match({
+                service: { name: 'a', resource: 'b', type: 'c' },
+                address: 'd',
+                port: '8080'
+              })
             end
           end
 
