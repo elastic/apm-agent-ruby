@@ -135,11 +135,17 @@ module ElasticAPM
 
               result = subject.build(span)
 
-              expect(result.dig(:span, :context, :destination)).to match({
-                service: { name: 'a', resource: 'b', type: 'c' },
-                address: 'd',
-                port: '8080'
-              })
+              expect(result.dig(:span, :context, :destination)).to match(
+                {
+                  service: {
+                    name: 'a',
+                    resource: 'b',
+                    type: 'c'
+                  },
+                  address: 'd',
+                  port: '8080'
+                }
+              )
             end
           end
 
