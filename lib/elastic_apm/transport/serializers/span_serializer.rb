@@ -80,7 +80,7 @@ module ElasticAPM
               }
             }.tap do |dest|
               dest[:address] = keyword_field(destination.address)
-              dest[:port] = keyword_field(destination.port.to_s)
+              dest[:port] = destination.port
             end
           end
         end

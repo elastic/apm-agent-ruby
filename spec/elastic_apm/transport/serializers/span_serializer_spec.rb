@@ -143,7 +143,7 @@ module ElasticAPM
                     type: 'c'
                   },
                   address: 'd',
-                  port: '8080'
+                  port: 8080
                 }
               )
             end
