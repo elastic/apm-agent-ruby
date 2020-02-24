@@ -55,6 +55,25 @@ module ElasticAPM
       expect(destination.type).to match('external')
     end
 
+    it 'adds destination information with IPv6' do
+      WebMock.stub_request(:get, %r{http://\[::1\]:8080/.*})
+
+      with_agent do
+        ElasticAPM.with_transaction 'Http.rb test IPv6' do
+          HTTP.get('http://[::1]:8080/page.html')
+        end
+      end
+
+      span, = @intercepted.spans
+
+      destination = span.context.destination
+      expect(destination.name).to match('http://[::1]:8080')
+      expect(destination.resource).to match('[::1]:8080')
+      expect(destination.type).to match('external')
+      expect(destination.address).to match('::1')
+      expect(destination.port).to match(8080)
+    end
+
     it 'adds traceparent header' do
       req_stub =
         WebMock.stub_request(:get, %r{http://example.com/.*}).with do |req|
