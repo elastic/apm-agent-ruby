@@ -53,6 +53,8 @@ module ElasticAPM
       expect(destination.name).to match('http://example.com')
       expect(destination.resource).to match('example.com:80')
       expect(destination.type).to match('external')
+      expect(destination.address).to match('example.com')
+      expect(destination.port).to match(80)
     end
 
     it 'adds destination information with IPv6' do
