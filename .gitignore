@@ -22,4 +22,6 @@ vendor/
 log/
 
 benchmark-*.error
-benchmark-*.raw.ci/docker/jruby/output.log
+benchmark-*.raw
+
+.ci/docker/jruby/output.log
