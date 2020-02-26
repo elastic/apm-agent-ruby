@@ -8,34 +8,37 @@ else
   puts '[INFO] Skipping Rails spec'
 end
 
-
 if enabled
   require 'active_record'
   require 'action_controller/railtie'
   require 'graphql'
+  require 'elastic_apm/graphql'
 
   RSpec.describe 'GraphQL', :allow_running_agent, :spec_logger, :mock_intake do
     include Rack::Test::Methods
 
     def setup_database
       ActiveRecord::Base.logger = Logger.new(SpecLogger)
+      ActiveRecord::Base.logger = Logger.new(nil)
 
       ActiveRecord::Base.establish_connection(
         adapter: 'sqlite3',
         database: '/tmp/graphql.sqlite3'
       )
 
-      ActiveRecord::Schema.define do
-        create_table :posts, force: true do |t|
-          t.string :slug, null: false
-          t.string :title, null: false
-          t.timestamps
-        end
+      ActiveRecord::Migration.suppress_messages do
+        ActiveRecord::Schema.define do
+          create_table :posts, force: true do |t|
+            t.string :slug, null: false
+            t.string :title, null: false
+            t.timestamps
+          end
 
-        create_table :comments, force: true do |t|
-          t.text :body, null: false
-          t.belongs_to :post, null: false, index: true
-          t.timestamps
+          create_table :comments, force: true do |t|
+            t.text :body, null: false
+            t.belongs_to :post, null: false, index: true
+            t.timestamps
+          end
         end
       end
 
@@ -79,6 +82,8 @@ if enabled
 
           use GraphQL::Execution::Interpreter
           use GraphQL::Analysis::AST
+
+          tracer ElasticAPM::GraphQL
         end
       end
 
@@ -99,6 +104,7 @@ if enabled
           config.elastic_apm.disable_metrics = '*'
           config.elastic_apm.api_request_time = '200ms'
           config.logger = Logger.new(SpecLogger)
+          # config.logger = Logger.new(nil)
         end
       end
 
@@ -115,15 +121,25 @@ if enabled
           query = params[:query]
           operation_name = params[:operationName]
           context = {}
-          result = Types::GraphQLTestAppSchema.execute(
-            query,
-            variables: variables,
-            context: context,
-            operation_name: operation_name
-          )
+
+          result =
+            if (multi = params[:queries])
+              Types::GraphQLTestAppSchema.multiplex(
+                multi.map do |q|
+                  { query: q, variables: variables, context: context }
+                end
+              )
+            else
+              Types::GraphQLTestAppSchema.execute(
+                query,
+                variables: variables,
+                context: context,
+                operation_name: operation_name
+              )
+            end
 
           render json: result
-        rescue => e
+        rescue StandardError => e
           logger.error e.message
 
           render(
@@ -138,7 +154,7 @@ if enabled
 
       GraphQLTestApp::Application.initialize!
       GraphQLTestApp::Application.routes.draw do
-        post "/graphql", to: "graphql#execute"
+        post '/graphql', to: 'graphql#execute'
         root to: 'application#index'
       end
     end
@@ -147,23 +163,53 @@ if enabled
       ElasticAPM.stop
     end
 
-    it "doesn't start when console" do
-      resp = post '/graphql', query: """
-        {
-          posts {
-            title
-            comments { body }
+    context 'a query with an Operation Name' do
+      it 'adds spans and renames transaction' do
+        resp = post '/graphql', query: '
+          query PostsWithComments {
+            posts {
+              title
+              comments { body }
+            }
           }
-        }
-      """
+        '
 
-      wait_for transactions: 1
+        wait_for transactions: 1, spans: 13
 
-      expect(resp.status).to be 200
-      pp JSON.parse(resp.body)
+        expect(resp.status).to be 200
 
-      pp @mock_intake.transactions
-      pp @mock_intake.spans
+        transaction, = @mock_intake.transactions
+        expect(transaction['name']).to eq 'graphql: PostsWithComments'
+      end
+    end
+
+    context 'with an unnamed query' do
+      it 'renames to [unnamed]' do
+        resp = post '/graphql', query: '{ posts { title } }'
+
+        wait_for transactions: 1
+
+        expect(resp.status).to be 200
+
+        transaction, = @mock_intake.transactions
+        expect(transaction['name']).to eq 'graphql: [unnamed]'
+      end
+    end
+
+    context 'with multiple queries' do
+      it 'renames and concattenates' do
+        resp = post '/graphql', queries: [
+          'query Posts { posts { title } }',
+          'query PostA($slug: String!) { post(slug: $slug) { title } }'
+        ], variables: { slug: 'a' }
+
+        wait_for transactions: 1
+
+        expect(resp.status).to be 200
+
+        transaction, = @mock_intake.transactions
+        expect(transaction['name']).to eq 'graphql: Posts+PostA'
+      end
     end
   end
 end

@@ -113,6 +113,7 @@ module ElasticAPM
         delayed_job
         elasticsearch
         faraday
+        graphql
         http
         json
         mongo

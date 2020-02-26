@@ -6,7 +6,7 @@ module WithEnv
       current[key] = ENV.key?(key) ? ENV[value] : :__missing
     end
 
-    env.keys.each { |key| ENV[key] = env[key] }
+    env.each_key { |key| ENV[key] = env[key] }
 
     yield
   ensure
