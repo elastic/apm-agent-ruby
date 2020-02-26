@@ -5,7 +5,8 @@ module ElasticAPM
   class GRPC
     # @api private
     class ClientInterceptor < ::GRPC::ClientInterceptor
-      TYPE = 'external.grpc'
+      TYPE = 'external'
+      SUBTYPE = 'grpc'
 
       # rubocop:disable Lint/UnusedMethodArgument
       def request_response(request:, call:, method:, metadata:)
@@ -13,7 +14,23 @@ module ElasticAPM
         if (trace_context = transaction.trace_context)
           trace_context.apply_headers { |k, v| metadata[k.downcase] = v }
         end
-        ElasticAPM.with_span(method, TYPE) do
+
+        peer = call.instance_variable_get(:@wrapped)&.peer
+        context =
+          if peer
+            destination = ElasticAPM::Span::Context::Destination.new(
+              type: TYPE,
+              name: SUBTYPE,
+              resource: peer
+            )
+            ElasticAPM::Span::Context.new(destination: destination)
+          end
+
+        ElasticAPM.with_span(
+          method, TYPE,
+          subtype: SUBTYPE,
+          context: context
+        ) do
           yield
         end
       end
