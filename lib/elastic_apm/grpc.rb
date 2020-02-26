@@ -18,10 +18,13 @@ module ElasticAPM
         peer = call.instance_variable_get(:@wrapped)&.peer
         context =
           if peer
+            split_peer = URI.split(peer)
             destination = ElasticAPM::Span::Context::Destination.new(
               type: TYPE,
               name: SUBTYPE,
-              resource: peer
+              resource: peer,
+              address: split_peer[0],
+              port: split_peer[6]
             )
             ElasticAPM::Span::Context.new(destination: destination)
           end

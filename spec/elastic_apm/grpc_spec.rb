@@ -46,6 +46,8 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.7'
           expect(span.context.destination.type).to eq('external')
           expect(span.context.destination.name).to eq('grpc')
           expect(span.context.destination.resource).to eq('localhost:50051')
+          expect(span.context.destination.address).to eq('localhost')
+          expect(span.context.destination.port).to eq('50051')
 
           server.stop
           thread.kill
