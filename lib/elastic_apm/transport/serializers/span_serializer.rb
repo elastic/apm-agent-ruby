@@ -77,7 +77,9 @@ module ElasticAPM
                 name: keyword_field(destination.name),
                 resource: keyword_field(destination.resource),
                 type: keyword_field(destination.type)
-              }
+              },
+              address: keyword_field(destination.address),
+              port: destination.port
             }
           end
         end

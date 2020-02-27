@@ -157,6 +157,28 @@ module ElasticAPM
         expect(span.context.destination.name).to eq 'http://example.com:1234'
         expect(span.context.destination.resource).to eq 'example.com:1234'
         expect(span.context.destination.type).to eq 'external'
+        expect(span.context.destination.address).to eq 'example.com'
+        expect(span.context.destination.port).to eq 1234
+      end
+
+      it 'adds IPv6 info to span context' do
+        WebMock.stub_request(:get, %r{http://\[::1\]:8080/.*})
+
+        with_agent(central_config: false) do
+          ElasticAPM.with_transaction 'Net::HTTP test IPv6' do
+            Net::HTTP.start('[::1]', 8080) do |http|
+              http.get '/some/path?a=1'
+            end
+          end
+        end
+
+        span, = @intercepted.spans
+
+        expect(span.context.destination.name).to eq 'http://[::1]:8080'
+        expect(span.context.destination.resource).to eq '[::1]:8080'
+        expect(span.context.destination.type).to eq 'external'
+        expect(span.context.destination.address).to eq '::1'
+        expect(span.context.destination.port).to eq 8080
       end
     end
 
