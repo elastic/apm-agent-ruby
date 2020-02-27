@@ -15,29 +15,32 @@ module ElasticAPM
           trace_context.apply_headers { |k, v| metadata[k.downcase] = v }
         end
 
-        peer = call.instance_variable_get(:@wrapped)&.peer
-        context =
-          if peer
-            split_peer = URI.split(peer)
-            destination = ElasticAPM::Span::Context::Destination.new(
-              type: TYPE,
-              name: SUBTYPE,
-              resource: peer,
-              address: split_peer[0],
-              port: split_peer[6]
-            )
-            ElasticAPM::Span::Context.new(destination: destination)
-          end
-
         ElasticAPM.with_span(
           method, TYPE,
           subtype: SUBTYPE,
-          context: context
+          context: span_context(call)
         ) do
           yield
         end
       end
       # rubocop:enable Lint/UnusedMethodArgument
+
+      private
+
+      def span_context(call)
+        peer = call.instance_variable_get(:@wrapped)&.peer
+        return unless peer
+
+        split_peer = URI.split(peer)
+        destination = ElasticAPM::Span::Context::Destination.new(
+          type: TYPE,
+          name: SUBTYPE,
+          resource: peer,
+          address: split_peer[0],
+          port: split_peer[6]
+        )
+        ElasticAPM::Span::Context.new(destination: destination)
+      end
     end
 
     # @api private
