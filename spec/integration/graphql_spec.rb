@@ -211,5 +211,25 @@ if enabled
         expect(transaction['name']).to eq 'graphql: Posts+PostA'
       end
     end
+
+    context 'with too many queries to list' do
+      it 'renames and concattenates' do
+        resp = post '/graphql', queries: [
+          'query Posts { posts { title } }',
+          'query PostsWithComments { posts { title comments { body } } }',
+          'query PostA($a: String!) { post(slug: $a) { title } }',
+          'query PostB($b: String!) { post(slug: $b) { title } }',
+          'query PostC($c: String!) { post(slug: $c) { title } }',
+          'query MorePosts { posts { title } }'
+        ], variables: { a: 'a', b: 'b', c: 'c' }
+
+        wait_for transactions: 1
+
+        expect(resp.status).to be 200
+
+        transaction, = @mock_intake.transactions
+        expect(transaction['name']).to eq 'graphql: [more-than-five-queries]'
+      end
+    end
   end
 end

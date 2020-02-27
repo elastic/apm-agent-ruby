@@ -26,7 +26,7 @@ module ElasticAPM
 
       if key == 'execute_query'
         transaction.name =
-          "graphql: #{data[:query].operation_name || '[unnamed]'}"
+          "graphql: #{query_name(data[:query])}"
       end
 
       results =
@@ -35,16 +35,28 @@ module ElasticAPM
         end
 
       if key == 'execute_multiplex'
-        names =
-          results.map do |result|
-            result.query.operation_name || '[unnamed]'
-          end
-
-        transaction.name =
-          "graphql: #{names.join('+')}"
+        transaction.name = "graphql: #{concat_names(results)}"
       end
 
       results
+    end
+
+    class << self
+      private
+
+      def query_name(query)
+        query.operation_name || '[unnamed]'
+      end
+
+      def concat_names(results)
+        if results.length > 5
+          return '[more-than-five-queries]'
+        end
+
+        results.map do |result|
+          query_name(result.query)
+        end.join('+')
+      end
     end
   end
 end
