@@ -77,11 +77,10 @@ module ElasticAPM
                 name: keyword_field(destination.name),
                 resource: keyword_field(destination.resource),
                 type: keyword_field(destination.type)
-              }
-            }.tap do |dest|
-              dest[:address] = keyword_field(destination.address)
-              dest[:port] = destination.port
-            end
+              },
+              address: keyword_field(destination.address),
+              port: destination.port
+            }
           end
         end
 
