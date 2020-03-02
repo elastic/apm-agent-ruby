@@ -3,6 +3,9 @@
 module ElasticAPM
   # @api private
   module GraphQL
+    TYPE = 'app'
+    SUBTYPE = 'graphql'
+
     PREFIX = 'GraphQL: '
     UNNAMED = '[unnamed]'
     MORE_THAN_FIVE = '[more-than-five-queries]'
@@ -35,9 +38,10 @@ module ElasticAPM
       end
 
       results =
-        ElasticAPM.with_span(KEYS_TO_NAME.fetch(key, key), 'app.graphql') do
-          yield
-        end
+        ElasticAPM.with_span(
+          KEYS_TO_NAME.fetch(key, key),
+          TYPE, subtype: SUBTYPE, action: key
+        ) { yield }
 
       if key == 'execute_multiplex'
         transaction.name = "#{PREFIX}#{concat_names(results)}"
