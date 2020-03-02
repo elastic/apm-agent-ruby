@@ -144,7 +144,7 @@ def runScript(Map params = [:]){
     retry(2){
       sleep randomNumber(min:10, max: 30)
       dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
-      sh("./spec/scripts/spec.sh ${ruby} ${framework}")
+      sh("bin/dev -i ${ruby} -f ${framework}")
     }
   }
 }
