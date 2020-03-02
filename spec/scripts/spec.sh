@@ -34,13 +34,14 @@ if [[ $RUBY_IMAGE == *"jruby"* ]]; then
 fi
 
 docker build --build-arg "RUBY_IMAGE=${RUBY_IMAGE}" -t "apm-agent-ruby:${VERSION}" .
-RUBY_VERSION=${VERSION} docker-compose run \
+RUBY_VERSION=${VERSION} docker-compose -f ../docker-compose.yml run \
   -e FRAMEWORK="${FRAMEWORK}" \
   -e INCLUDE_SCHEMA_SPECS=1 \
   -e JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS}" \
   -e JRUBY_OPTS="${JRUBY_OPTS}" \
   -v "$(dirname "$(pwd)"):/app" \
   --rm ruby_rspec \
+  ruby_rspec \
   /bin/bash -c "\
     gem install rake && \
     bundle update && \

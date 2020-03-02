@@ -30,7 +30,7 @@ mkdir -p "${local_vendor_path}"
 cd spec
 
 docker build --pull --force-rm --build-arg "RUBY_IMAGE=${RUBY_IMAGE}" -t "apm-agent-ruby:${VERSION}" .
-RUBY_VERSION=${VERSION} docker-compose run \
+RUBY_VERSION=${VERSION} docker-compose -f ../docker-compose.yml run \
   --user $UID \
   -e HOME=/tmp \
   -e FRAMEWORK=rails \
