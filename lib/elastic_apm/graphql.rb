@@ -3,6 +3,11 @@
 module ElasticAPM
   # @api private
   module GraphQL
+    PREFIX = 'GraphQL: '
+    UNNAMED = '[unnamed]'
+    MORE_THAN_FIVE = '[more-than-five-queries]'
+    CONCATENATOR = '+'
+
     KEYS_TO_NAME = {
       'lex' => 'graphql.lex',
       'parse' => 'graphql.parse',
@@ -26,7 +31,7 @@ module ElasticAPM
 
       if key == 'execute_query'
         transaction.name =
-          "graphql: #{query_name(data[:query])}"
+          "#{PREFIX}#{query_name(data[:query])}"
       end
 
       results =
@@ -35,7 +40,7 @@ module ElasticAPM
         end
 
       if key == 'execute_multiplex'
-        transaction.name = "graphql: #{concat_names(results)}"
+        transaction.name = "#{PREFIX}#{concat_names(results)}"
       end
 
       results
@@ -45,17 +50,17 @@ module ElasticAPM
       private
 
       def query_name(query)
-        query.operation_name || '[unnamed]'
+        query.operation_name || UNNAMED
       end
 
       def concat_names(results)
         if results.length > 5
-          return '[more-than-five-queries]'
+          return MORE_THAN_FIVE
         end
 
         results.map do |result|
           query_name(result.query)
-        end.join('+')
+        end.join(CONCATENATOR)
       end
     end
   end
