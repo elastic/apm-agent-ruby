@@ -43,6 +43,7 @@ endif::[]
 ===== Added
 
 - Support for gRPC using the `grpc` gem (Experimental) {pull}669[#669]
+- GraphQL support (experimental) {pull}721[#721]
 - Add `span.context.destination.address` and `span.context.destination.port` when available. {pull}722[#722]
 - Add support for Resque. {pull}729[#729]
 
