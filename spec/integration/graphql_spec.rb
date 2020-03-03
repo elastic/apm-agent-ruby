@@ -12,7 +12,6 @@ if enabled
   require 'active_record'
   require 'action_controller/railtie'
   require 'graphql'
-  require 'elastic_apm/graphql'
 
   RSpec.describe 'GraphQL', :allow_running_agent, :spec_logger, :mock_intake do
     include Rack::Test::Methods
