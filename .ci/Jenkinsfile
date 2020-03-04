@@ -5,9 +5,14 @@ import co.elastic.matrix.*
 import groovy.transform.Field
 
 /**
- This is required to store the results of the tests.
+ This is required to know if there any failures when running the downstream jobs.
 */
 @Field def rubyTasksFailed = false
+
+/**
+ This is required to store the build status for the downstream jobs.
+*/
+@Field def rubyDownstreamJobs = [:]
 
 pipeline {
   agent { label 'linux && immutable' }
@@ -24,6 +29,7 @@ pipeline {
     ITS_PIPELINE = 'apm-integration-tests-selector-mbp/master'
     RELEASE_SECRET = 'secret/apm-team/ci/apm-agent-ruby-rubygems-release'
     OPBEANS_REPO = 'opbeans-ruby'
+    REFERENCE_REPO = '/var/lib/jenkins/.git-references/apm-agent-ruby.git'
   }
   options {
     timeout(time: 2, unit: 'HOURS')
@@ -51,7 +57,7 @@ pipeline {
       steps {
         pipelineManager([ cancelPreviousRunningBuilds: [ when: 'PR' ] ])
         deleteDir()
-        gitCheckout(basedir: "${BASE_DIR}", githubNotifyFirstTimeContributor: true, reference: '/var/lib/jenkins/.git-references/apm-agent-ruby.git')
+        gitCheckout(basedir: "${BASE_DIR}", githubNotifyFirstTimeContributor: true, reference: "${env.REFERENCE_REPO}")
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }
@@ -93,8 +99,9 @@ pipeline {
             script {
               def ruby = readYaml(file: '.ci/.jenkins_ruby.yml')
               def testTasks = [:]
+              def i = 0
               ruby['RUBY_VERSION'].each{ rubyVersion ->
-                testTasks[rubyVersion] = { runJob(rubyVersion) }
+                testTasks[rubyVersion] = { runJob(rubyVersion, i++) }
               }
               parallel(testTasks)
               }
@@ -142,10 +149,7 @@ pipeline {
                   script {
                     def versions = readYaml(file: ".ci/.jenkins_ruby.yml")
                     def benchmarkTask = [:]
-                    // TODO: benchmark for the jruby:9.2 and similar versions got some issues with
-                    //       NoMethodError: undefined method `[]' for nil:NilClass
-                    //      <main> at bench/report.rb:48
-                    versions['RUBY_VERSION'].findAll { !it.contains('9.2') }.each{ v ->
+                    versions['RUBY_VERSION'].each{ v ->
                       benchmarkTask[v] = runBenchmark(v)
                     }
                     parallel(benchmarkTask)
@@ -156,12 +160,18 @@ pipeline {
           }
         }
       }
-      stage('Populate Test failures') {
+      stage('Populate Downstream failures') {
         when {
           expression { return rubyTasksFailed }
         }
         steps {
-          error('There were some failures when running the "Test" stage')
+          script {
+            def message = 'Failures when running the "Test" stage'
+            if (notifyBuildResult.isAnyDownstreamJobFailedWithTimeout(rubyDownstreamJobs)) {
+              message += ' related to a timeout issue'
+            }
+            error(message)
+          }
         }
       }
       stage('Integration Tests') {
@@ -174,14 +184,12 @@ pipeline {
           }
         }
         steps {
-          log(level: 'INFO', text: 'Launching Async ITs')
           build(job: env.ITS_PIPELINE, propagate: false, wait: false,
-                parameters: [string(name: 'AGENT_INTEGRATION_TEST', value: 'Ruby'),
-                             string(name: 'BUILD_OPTS', value: "--ruby-agent-version ${env.GIT_BASE_COMMIT} --ruby-agent-version-state ${env.GIT_BUILD_CAUSE} --ruby-agent-repo ${env.CHANGE_FORK?.trim() ?: 'elastic'}/${env.REPO}"),
+                parameters: [string(name: 'INTEGRATION_TEST', value: 'Ruby'),
+                             string(name: 'BUILD_OPTS', value: "--ruby-agent-version ${env.GIT_BASE_COMMIT} --ruby-agent-version-state ${env.GIT_BUILD_CAUSE} --ruby-agent-repo ${env.CHANGE_FORK?.trim() ?: 'elastic'}/${env.REPO} --opbeans-ruby-agent-branch ${env.GIT_BASE_COMMIT}"),
                              string(name: 'GITHUB_CHECK_NAME', value: env.GITHUB_CHECK_ITS_NAME),
                              string(name: 'GITHUB_CHECK_REPO', value: env.REPO),
-                             string(name: 'GITHUB_CHECK_SHA1', value: env.GIT_BASE_COMMIT)]
-          )
+                             string(name: 'GITHUB_CHECK_SHA1', value: env.GIT_BASE_COMMIT)])
           githubNotify(context: "${env.GITHUB_CHECK_ITS_NAME}", description: "${env.GITHUB_CHECK_ITS_NAME} ...", status: 'PENDING', targetUrl: "${env.JENKINS_URL}search/?q=${env.ITS_PIPELINE.replaceAll('/','+')}")
         }
       }
@@ -203,7 +211,7 @@ pipeline {
                 unstash 'source'
                 script {
                   dir(BASE_DIR){
-                    docker.image("${env.RUBY_DOCKER_TAG}").inside('-v /etc/passwd:/etc/passwd -v ${HOME}/.ssh:${HOME}/.ssh') {
+                    docker.image("${env.RUBY_DOCKER_TAG}").inside('-v ${REFERENCE_REPO}:${REFERENCE_REPO} -v /etc/passwd:/etc/passwd -v ${HOME}/.ssh:${HOME}/.ssh') {
                       withEnv(["HOME=${env.WORKSPACE}/${env.BASE_DIR ?: ''}"]) {
                         rubygemsLogin.withApi(secret: "${env.RELEASE_SECRET}") {
                           sshagent(['f6c7695a-671e-4f4f-a331-acdce44ff9ba']) {
@@ -222,14 +230,17 @@ pipeline {
           stage('Opbeans') {
             environment {
               REPO_NAME = "${OPBEANS_REPO}"
+              VERSION = "${env.BRANCH_NAME.replaceAll('^v', '')}"
             }
             steps {
               deleteDir()
+              // Let's wait for the Gem to be available
+              sh "(retry 10 curl --silent --show-error --fail -I https://rubygems.org/gems/elastic-apm/versions/${env.VERSION})"
               dir("${OPBEANS_REPO}"){
                 git credentialsId: 'f6c7695a-671e-4f4f-a331-acdce44ff9ba',
                     url: "git@github.com:elastic/${OPBEANS_REPO}.git"
                 // It's required to transform the tag value to the gem version
-                sh script: ".ci/bump-version.sh ${env.BRANCH_NAME.replaceAll('^v', '')}", label: 'Bump version'
+                sh script: ".ci/bump-version.sh ${env.VERSION}", label: 'Bump version'
                 // The opbeans pipeline will trigger a release for the master branch
                 gitPush()
                 // The opbeans pipeline will trigger a release for the release tag
@@ -242,7 +253,7 @@ pipeline {
     }
     post {
       cleanup {
-        notifyBuildResult()
+        notifyBuildResult(downstreamJobs: rubyDownstreamJobs)
       }
     }
   }
@@ -267,7 +278,7 @@ def runBenchmark(version){
             dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
           }
           try{
-            sh "./spec/scripts/benchmarks.sh ${version}"
+            sh """./spec/scripts/benchmarks.sh "${version}" "${REFERENCE_REPO}" """
           } catch(e){
             throw e
           } finally {
@@ -284,19 +295,23 @@ def runBenchmark(version){
   }
 }
 
-def runJob(rubyVersion){
+def runJob(String rubyVersion, int sleep = 1){
+  def buildObject
   try {
-    build( job: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}",
-      parameters: [
-        string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
-        string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}")
-      ],
-      quietPeriod: 15
-    )
+    def quiet = (sleep * randomNumber(min: 2, max: 6)) + 5
+    buildObject = build(job: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}",
+                        parameters: [
+                          string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
+                          string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}")
+                        ],
+                        quietPeriod: quiet)
   } catch(e) {
     rubyTasksFailed = true
-    warnError('Test Failures') {
+    buildObject = e
+    warnError('Downstream Failed') {
       error("Downstream job for '${rubyVersion}' failed")
     }
+  } finally {
+    rubyDownstreamJobs["${rubyVersion}"] = buildObject
   }
 }

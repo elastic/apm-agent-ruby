@@ -81,6 +81,25 @@ module ElasticAPM
         end
       end
 
+      context 'with tracestate' do
+        it 'recognizes trace_context' do
+          with_agent do
+            app.call(
+              Rack::MockRequest.env_for(
+                '/',
+                'HTTP_ELASTIC_APM_TRACEPARENT' =>
+                '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-00',
+                'HTTP_TRACESTATE' => 'thing=value'
+              )
+            )
+          end
+
+          trace_context = @intercepted.transactions.first.trace_context
+          expect(trace_context.tracestate).to be_a(TraceContext::Tracestate)
+          expect(trace_context.tracestate.values).to match(['thing=value'])
+        end
+      end
+
       context 'with an invalid header' do
         it 'skips trace_context, makes new' do
           with_agent do
@@ -113,6 +132,50 @@ module ElasticAPM
           trace_context = @intercepted.transactions.first.trace_context
           expect(trace_context.trace_id)
             .to_not eq '0af7651916cd43dd8448eb211c80319c'
+        end
+      end
+
+      context 'with a prefix-less header' do
+        it 'recognizes trace_context' do
+          with_agent do
+            app.call(
+              Rack::MockRequest.env_for(
+                '/',
+                'HTTP_TRACEPARENT' =>
+                '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-00'
+              )
+            )
+          end
+
+          trace_context = @intercepted.transactions.first.trace_context
+          expect(trace_context.version).to eq '00'
+          expect(trace_context.trace_id)
+            .to eq '0af7651916cd43dd8448eb211c80319c'
+          expect(trace_context.parent_id).to eq 'b7ad6b7169203331'
+          expect(trace_context).to_not be_recorded
+        end
+      end
+
+      context 'with both types of headers' do
+        it 'picks the prefixed' do
+          with_agent do
+            app.call(
+              Rack::MockRequest.env_for(
+                '/',
+                'HTTP_TRACEPARENT' =>
+                '00-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-aaaaaaaaaaaaaaaa-00',
+                'HTTP_ELASTIC_APM_TRACEPARENT' =>
+                '00-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb-bbbbbbbbbbbbbbbb-00'
+              )
+            )
+          end
+
+          trace_context = @intercepted.transactions.first.trace_context
+          expect(trace_context.version).to eq '00'
+          expect(trace_context.trace_id)
+            .to eq 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+          expect(trace_context.parent_id).to eq 'bbbbbbbbbbbbbbbb'
+          expect(trace_context).to_not be_recorded
         end
       end
     end

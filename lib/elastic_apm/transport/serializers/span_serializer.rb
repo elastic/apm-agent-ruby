@@ -58,7 +58,8 @@ module ElasticAPM
               instance: db.instance,
               statement: Util.truncate(db.statement, max_length: 10_000),
               type: db.type,
-              user: db.user
+              user: db.user,
+              rows_affected: db.rows_affected
             }
           end
 
@@ -76,7 +77,9 @@ module ElasticAPM
                 name: keyword_field(destination.name),
                 resource: keyword_field(destination.resource),
                 type: keyword_field(destination.type)
-              }
+              },
+              address: keyword_field(destination.address),
+              port: destination.port
             }
           end
         end

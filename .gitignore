@@ -20,3 +20,8 @@ vendor/
 
 .idea/
 log/
+
+benchmark-*.error
+benchmark-*.raw
+
+.ci/docker/jruby/output.log

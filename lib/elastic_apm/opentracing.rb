@@ -277,7 +277,8 @@ module ElasticAPM
       def inject(span_context, format, carrier)
         case format
         when ::OpenTracing::FORMAT_RACK
-          carrier['elastic-apm-traceparent'] = span_context.to_header
+          carrier['elastic-apm-traceparent'] =
+            span_context.traceparent.to_header
         else
           warn 'Only injection via HTTP headers and Rack is available'
         end

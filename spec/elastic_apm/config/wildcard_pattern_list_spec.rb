@@ -12,7 +12,8 @@ module ElasticAPM
         ['*d', 'abcd', true],
         ['ab*', 'abcd', true],
         ['a.cd', 'abcd', false],
-        ['a?cd', 'abcd', false]
+        ['a?cd', 'abcd', false],
+        ['AbC', 'abc', true]
       ].each do |(pattern, string, expectation)|
         context pattern do
           let(:pattern) { pattern }

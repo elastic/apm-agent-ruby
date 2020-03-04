@@ -58,7 +58,9 @@ module RailsTestHelpers
     config.secret_key_base = '__secret_key_base'
     config.consider_all_requests_local = false
     config.eager_load = false
-    config.action_mailer.perform_deliveries = false
+    if config.respond_to?(:action_mailer)
+      config.action_mailer.perform_deliveries = false
+    end
     config.logger = Logger.new(SpecLogger)
 
     # Silence deprecation warning

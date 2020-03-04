@@ -118,7 +118,8 @@ RSpec.describe 'OpenTracing bridge', :intercept do
 
         it 'sets a header' do
           subject
-          expect(carrier['elastic-apm-traceparent']).to eq context.to_header
+          expect(carrier['elastic-apm-traceparent'])
+            .to eq context.traceparent.to_header
         end
       end
 

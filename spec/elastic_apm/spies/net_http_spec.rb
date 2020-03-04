@@ -56,11 +56,12 @@ module ElasticAPM
       expect(http.status_code).to match('200')
     end
 
-    it 'adds traceparent header' do
+    it 'adds both TraceContext headers' do
       req_stub =
         WebMock.stub_request(:get, %r{http://example.com/.*}).with do |req|
-          header = req.headers['Elastic-Apm-Traceparent']
+          header = req.headers['Traceparent']
           expect(header).to_not be nil
+          expect(req.headers['Elastic-Apm-Traceparent']).to_not be nil
           expect { TraceContext.parse(header) }.to_not raise_error
         end
 
@@ -79,6 +80,24 @@ module ElasticAPM
       req_stub = WebMock.stub_request(:get, %r{http://example.com/.*})
 
       with_agent transaction_max_spans: 0 do
+        ElasticAPM.with_transaction 'Net::HTTP test' do
+          Net::HTTP.start('example.com') do |http|
+            http.get '/'
+          end
+        end
+      end
+
+      expect(req_stub).to have_been_requested
+    end
+
+    it 'skips prefixed traceparent header when disabled' do
+      req_stub =
+        WebMock.stub_request(:get, %r{http://example.com/.*}).with do |req|
+          expect(req.headers['Elastic-Apm-Traceparent']).to be nil
+          expect(req.headers['Traceparent']).to_not be nil
+        end
+
+      with_agent(use_elastic_traceparent_header: false) do
         ElasticAPM.with_transaction 'Net::HTTP test' do
           Net::HTTP.start('example.com') do |http|
             http.get '/'
@@ -138,6 +157,28 @@ module ElasticAPM
         expect(span.context.destination.name).to eq 'http://example.com:1234'
         expect(span.context.destination.resource).to eq 'example.com:1234'
         expect(span.context.destination.type).to eq 'external'
+        expect(span.context.destination.address).to eq 'example.com'
+        expect(span.context.destination.port).to eq 1234
+      end
+
+      it 'adds IPv6 info to span context' do
+        WebMock.stub_request(:get, %r{http://\[::1\]:8080/.*})
+
+        with_agent(central_config: false) do
+          ElasticAPM.with_transaction 'Net::HTTP test IPv6' do
+            Net::HTTP.start('[::1]', 8080) do |http|
+              http.get '/some/path?a=1'
+            end
+          end
+        end
+
+        span, = @intercepted.spans
+
+        expect(span.context.destination.name).to eq 'http://[::1]:8080'
+        expect(span.context.destination.resource).to eq '[::1]:8080'
+        expect(span.context.destination.type).to eq 'external'
+        expect(span.context.destination.address).to eq '::1'
+        expect(span.context.destination.port).to eq 8080
       end
     end
 

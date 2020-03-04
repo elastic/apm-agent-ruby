@@ -92,7 +92,7 @@ module ElasticAPM
 
       it 'keeps and returns current parent id if set' do
         trace_context = TraceContext.new
-        trace_context.parent_id = 'things'
+        trace_context.traceparent.parent_id = 'things'
         subject = Transaction.new config: config, trace_context: trace_context
 
         parent_id = subject.ensure_parent_id

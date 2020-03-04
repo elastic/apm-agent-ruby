@@ -21,6 +21,7 @@ gem 'aws-sdk-sqs', require: nil
 gem 'elasticsearch', require: nil
 gem 'fakeredis', require: nil
 gem 'faraday', require: nil
+gem 'grpc' if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.7'
 gem 'json-schema', require: nil
 gem 'mongo', require: nil
 gem 'opentracing', require: nil
@@ -28,9 +29,9 @@ gem 'rake', require: nil
 gem 'sequel', require: nil
 gem 'shoryuken', require: nil
 gem 'sidekiq', require: nil
-gem 'sneakers', '~> 2.12', require: nil
 gem 'simplecov', require: false
 gem 'simplecov-cobertura', require: false
+gem 'sneakers', '~> 2.12', require: nil
 gem 'yard', require: nil
 gem 'yarjuf'
 

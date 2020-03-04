@@ -73,6 +73,25 @@ module ElasticAPM
               expect(result.dig(:span, :context, :tags, :foo)).to eq 'bar'
             end
 
+            context 'with rows_affected' do
+              let(:span) do
+                Span.new(
+                  name: 'Span',
+                  transaction: transaction,
+                  parent: transaction,
+                  trace_context: trace_context,
+                  context: Span::Context.new(
+                    db: { rows_affected: 2 }
+                  )
+                )
+              end
+
+              it 'adds rows_affected' do
+                expect(result.dig(:span, :context, :db, :rows_affected))
+                  .to eq 2
+              end
+            end
+
             context 'when sync is nil' do
               let(:span) do
                 Span.new(
@@ -104,14 +123,28 @@ module ElasticAPM
                 parent: transaction,
                 trace_context: trace_context,
                 context: Span::Context.new(
-                  destination: { name: 'a', resource: 'b', type: 'c' }
+                  destination: {
+                    name: 'a',
+                    resource: 'b',
+                    type: 'c',
+                    address: 'd',
+                    port: 8080
+                  }
                 )
               )
 
               result = subject.build(span)
 
               expect(result.dig(:span, :context, :destination)).to match(
-                service: { name: 'a', resource: 'b', type: 'c' }
+                {
+                  service: {
+                    name: 'a',
+                    resource: 'b',
+                    type: 'c'
+                  },
+                  address: 'd',
+                  port: 8080
+                }
               )
             end
           end
