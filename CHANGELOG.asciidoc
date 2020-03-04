@@ -45,6 +45,11 @@ endif::[]
 - Support for gRPC using the `grpc` gem (Experimental) {pull}669[#669]
 - Add `span.context.destination.address` and `span.context.destination.port` when available. {pull}722[#722]
 
+[float]
+===== Changed
+
+- The new SQL parser is used by default {pull}730[#730]
+
 [[release-notes-3.5.0]]
 ==== 3.5.0 (2020-02-12)
 

@@ -70,7 +70,7 @@ module ElasticAPM
     option :transaction_max_spans,             type: :int,    default: 500
     option :transaction_sample_rate,           type: :float,  default: 1.0
     option :use_elastic_traceparent_header,    type: :bool,   default: true
-    option :use_experimental_sql_parser,       type: :bool,   default: false
+    option :use_legacy_sql_parser,             type: :bool,   default: false
     option :verify_server_cert,                type: :bool,   default: true
 
     # rubocop:enable Metrics/LineLength, Layout/ExtraSpacing
@@ -219,6 +219,11 @@ module ElasticAPM
       warn '[DEPRECATED] The option disabled_instrumentations has been ' \
         'renamed to disable_instrumentations to align with other agents.'
       self.disable_instrumentations = value
+    end
+
+    def use_experimental_sql_parser=(value)
+      warn '[DEPRECATED] The new SQL parser is now the default. To use the old one, '
+        'use use_legacy_sql_parser and please report why you wish to do so.'
     end
 
     private
