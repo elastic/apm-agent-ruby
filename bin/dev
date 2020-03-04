@@ -50,6 +50,5 @@ end
 
 run 'docker-compose run' \
   " -u #{USER_ID_GROUP}" \
-  " -e JRUBY_OPTS=--debug" \
   ' --rm' \
   " specs #{ARGV.join}"
