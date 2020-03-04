@@ -218,6 +218,9 @@ pipeline {
                             sh '.ci/prepare-git-context.sh'
                             sh 'gem install rake yard rspec'
                             sh 'rake release'
+                            catchError(buildResult: 'SUCCESS', message: 'Syncup branches failed', stageResult: 'UNSTABLE') {
+                              sh 'rake syncup'
+                            }
                           }
                         }
                       }

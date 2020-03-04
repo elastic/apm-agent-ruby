@@ -2,7 +2,10 @@
 
 require 'bundler/gem_tasks'
 
-Rake::Task[:release].enhance do
+desc """Post release action:
+Update `3.x` branch to be at released commit and push it to GitHub.
+"""
+task :syncup => :environment do
   `git checkout 3.x &&
   git rebase master &&
   git push origin 3.x &&
