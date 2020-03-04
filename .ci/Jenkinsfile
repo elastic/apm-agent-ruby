@@ -206,27 +206,27 @@ pipeline {
         stages {
           stage('Release') {
             steps {
-              withGithubNotify(context: 'Release') {
-                deleteDir()
-                unstash 'source'
-                script {
-                  dir(BASE_DIR){
-                    docker.image("${env.RUBY_DOCKER_TAG}").inside('-v ${REFERENCE_REPO}:${REFERENCE_REPO} -v /etc/passwd:/etc/passwd -v ${HOME}/.ssh:${HOME}/.ssh') {
-                      withEnv(["HOME=${env.WORKSPACE}/${env.BASE_DIR ?: ''}"]) {
-                        rubygemsLogin.withApi(secret: "${env.RELEASE_SECRET}") {
-                          sshagent(['f6c7695a-671e-4f4f-a331-acdce44ff9ba']) {
-                            sh '.ci/prepare-git-context.sh'
-                            sh 'gem install rake yard rspec'
-                            sh 'rake release'
-                            catchError(buildResult: 'SUCCESS', message: 'Syncup branches failed', stageResult: 'UNSTABLE') {
-                              sh 'rake syncup'
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
+              deleteDir()
+              unstash 'source'
+              prepareRelease(){
+                sh 'rake release'
+              }
+            }
+          }
+          stage('Syncup') {
+            steps {
+              deleteDir()
+              unstash 'source'
+              prepareRelease(){
+                catchError(buildResult: 'SUCCESS', message: 'Syncup branches failed', stageResult: 'UNSTABLE') {
+                  sh 'rake syncup'
                 }
+              }
+            }
+            post {
+              unsuccessful {
+                emailext subject: "[${env.REPO}] Syncup post-release stage failed.", to: "${NOTIFY_TO}",
+                         body: "Please go to ${env.BUILD_URL} to review the logs. Most likely you need to syncup the branches manually."
               }
             }
           }
@@ -316,5 +316,21 @@ def runJob(String rubyVersion, int sleep = 1){
     }
   } finally {
     rubyDownstreamJobs["${rubyVersion}"] = buildObject
+  }
+}
+
+def prepareRelease(Closure body){
+  dir("${env.BASE_DIR}"){
+    docker.image("${env.RUBY_DOCKER_TAG}").inside('-v ${REFERENCE_REPO}:${REFERENCE_REPO} -v /etc/passwd:/etc/passwd -v ${HOME}/.ssh:${HOME}/.ssh') {
+      withEnv(["HOME=${env.WORKSPACE}/${env.BASE_DIR ?: ''}"]) {
+        rubygemsLogin.withApi(secret: "${env.RELEASE_SECRET}") {
+          sshagent(['f6c7695a-671e-4f4f-a331-acdce44ff9ba']) {
+            sh '.ci/prepare-git-context.sh'
+            sh 'gem install rake yard rspec'
+            body()
+          }
+        }
+      }
+    }
   }
 }
