@@ -14,14 +14,14 @@ if [ $# -lt 2 ]; then
   exit 2
 fi
 
-RUBY_IMAGE=${1}
+IMAGE_NAME=${1}
 FRAMEWORK=${2}
 TEST=${3}
-VERSION=$(echo "${RUBY_IMAGE}" | cut -d":" -f2)
+VERSION=$(echo "${IMAGE_NAME}" | cut -d":" -f2)
 
 cd spec
 
-docker-compose up -d mongodb
+IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} docker-compose up -d mongodb
 
 ## Customise the docker container to enable the access to the internal of the jdk
 ## for the jruby docker images.
@@ -33,8 +33,10 @@ if [[ $RUBY_IMAGE == *"jruby"* ]]; then
   JRUBY_OPTS="--debug"
 fi
 
-docker build --build-arg "RUBY_IMAGE=${RUBY_IMAGE}" -t "apm-agent-ruby:${VERSION}" .
-RUBY_VERSION=${VERSION} docker-compose run \
+docker build --build-arg "RUBY_IMAGE=${IMAGE_NAME}" -t "apm-agent-ruby:${VERSION}" .
+
+IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} \
+  docker-compose -f ../docker-compose.yml run \
   -e FRAMEWORK="${FRAMEWORK}" \
   -e INCLUDE_SCHEMA_SPECS=1 \
   -e JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS}" \

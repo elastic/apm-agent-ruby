@@ -27,6 +27,11 @@ services:
     depends_on:
       - mongodb
 
+  ruby_rspec:
+    image: apm-agent-ruby:${RUBY_VERSION}
+    environment:
+      MONGODB_URL: 'mongodb:27017'
+
 volumes:
   vendor:
   mongodata:
