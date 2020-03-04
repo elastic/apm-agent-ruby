@@ -7,12 +7,12 @@ module ElasticAPM
     # both implementations ~mikker
     def self.summarizer
       @summarizer ||=
-        if ElasticAPM.agent&.config&.use_experimental_sql_parser
-          require 'elastic_apm/sql/signature'
-          Sql::Signature::Summarizer.new
-        else
+        if ElasticAPM.agent&.config&.use_legacy_sql_parser
           require 'elastic_apm/sql_summarizer'
           SqlSummarizer.new
+        else
+          require 'elastic_apm/sql/signature'
+          Sql::Signature::Summarizer.new
         end
     end
   end
