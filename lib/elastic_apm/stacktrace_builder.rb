@@ -12,7 +12,12 @@ module ElasticAPM
     RUBY_VERS_REGEX = %r{ruby(/gems)?[-/](\d+\.)+\d}.freeze
     JRUBY_ORG_REGEX = %r{org/jruby}.freeze
 
-    GEMS_PATH = defined?(Bundler) ? Bundler.bundle_path.to_s : Gem.dir
+    GEMS_PATH =
+      if defined?(Bundler) && Bundler.default_bundle_dir
+        Bundler.bundle_path.to_s
+      else
+        Gem.dir
+      end
 
     def initialize(config)
       @config = config
