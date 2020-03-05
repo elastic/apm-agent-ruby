@@ -23,9 +23,15 @@ module ElasticAPM
           alias :perform_without_elastic_apm :perform
 
           def perform
-            ElasticAPM.with_transaction(nil, TYPE) do
-              perform_without_elastic_apm
-            end
+            transaction = ElasticAPM.start_transaction(nil, TYPE)
+            perform_without_elastic_apm
+            transaction.done 'success'
+          rescue ::Exception => e
+            ElasticAPM.report(e, handled: false)
+            transaction.done 'error'
+            raise
+          ensure
+            ElasticAPM.end_transaction
           end
         end
       end

@@ -4,11 +4,19 @@ require 'spec_helper'
 require 'resque'
 
 module ElasticAPM
-  RSpec.describe 'Spy: Resque' do
+  RSpec.describe 'Spy: Resque', :intercept do
     class TestJob
       @queue = :resque_test
 
       def self.perform; end
+    end
+
+    class ErrorJob
+      @queue = :resque_error
+
+      def self.perform
+        1 / 0
+      end
     end
 
     around do |example|
@@ -18,7 +26,7 @@ module ElasticAPM
       ::Resque.inline = original_value
     end
 
-    it 'creates a transaction for each job', :intercept do
+    it 'creates a transaction for each job' do
       with_agent do
         ::Resque.enqueue(TestJob)
         ::Resque.enqueue(TestJob)
@@ -29,6 +37,24 @@ module ElasticAPM
       transaction, = @intercepted.transactions
       expect(transaction.name).to be(nil)
       expect(transaction.type).to eq 'Resque'
+      expect(transaction.result).to eq 'success'
+    end
+
+    context 'when there is an error' do
+      it 'reports the error' do
+        with_agent do
+          expect do
+            ::Resque.enqueue(ErrorJob)
+          end.to raise_error(ZeroDivisionError)
+        end
+
+        transaction, = @intercepted.transactions
+        expect(transaction.name).to be(nil)
+        expect(transaction.type).to eq 'Resque'
+
+        error, = @intercepted.errors
+        expect(error.exception.type).to eq 'ZeroDivisionError'
+      end
     end
   end
 end
