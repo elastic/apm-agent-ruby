@@ -46,6 +46,16 @@ module ElasticAPM
       Agent.stop
     end
 
+    # Restarts the ElasticAPM Agent using the same config or a new
+    # one, if it is provided.
+    # Starts the agent if it is not running.
+    # Stops and starts the agent if it is running.
+    def restart(config = {})
+      config ||= agent&.config
+      stop if running?
+      start(config)
+    end
+
     # @return [Boolean] Whether there's an [Agent] running
     def running?
       Agent.running?
