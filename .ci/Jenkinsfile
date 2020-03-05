@@ -213,20 +213,20 @@ pipeline {
             }
           }
         }
-        stage('Syncup') {
+        stage('Update Branch') {
           steps {
             deleteDir()
             unstash 'source'
             prepareRelease(){
-              catchError(buildResult: 'SUCCESS', message: 'Syncup branches failed', stageResult: 'UNSTABLE') {
-                sh 'rake syncup'
+              catchError(buildResult: 'SUCCESS', message: 'Update branch task failed', stageResult: 'UNSTABLE') {
+                sh 'rake release:update_branch'
               }
             }
           }
           post {
             unsuccessful {
               emailext subject: "[${env.REPO}] Syncup post-release stage failed.", to: "${NOTIFY_TO}",
-                        body: "Please go to ${env.BUILD_URL} to review the logs. Most likely you need to syncup the branches manually."
+                        body: "Please go to ${env.BUILD_URL} to review the logs. Most likely you need to update the branch manually."
             }
           }
         }
