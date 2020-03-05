@@ -229,6 +229,15 @@ module ElasticAPM
           expect(subject.custom_key_filters).to eq([/oh no/])
         end
       end
+
+      describe 'use_legacy_sql_parser' do
+        subject { Config.new }
+
+        it 'logs a warning' do
+          expect(subject).to receive(:warn).with(/DEPRECATED/)
+          subject.use_experimental_sql_parser = true
+        end
+      end
     end
   end
 end
