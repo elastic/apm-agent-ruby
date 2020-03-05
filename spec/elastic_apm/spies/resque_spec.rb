@@ -35,7 +35,7 @@ module ElasticAPM
       expect(@intercepted.transactions.size).to eq 2
 
       transaction, = @intercepted.transactions
-      expect(transaction.name).to be(nil)
+      expect(transaction.name).to eq 'ElasticAPM::TestJob'
       expect(transaction.type).to eq 'Resque'
       expect(transaction.result).to eq 'success'
     end
@@ -49,7 +49,7 @@ module ElasticAPM
         end
 
         transaction, = @intercepted.transactions
-        expect(transaction.name).to be(nil)
+        expect(transaction.name).to eq 'ElasticAPM::ErrorJob'
         expect(transaction.type).to eq 'Resque'
 
         error, = @intercepted.errors

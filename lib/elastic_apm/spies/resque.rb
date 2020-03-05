@@ -23,7 +23,8 @@ module ElasticAPM
           alias :perform_without_elastic_apm :perform
 
           def perform
-            transaction = ElasticAPM.start_transaction(nil, TYPE)
+            name = @payload && @payload['class'].name
+            transaction = ElasticAPM.start_transaction(name, TYPE)
             perform_without_elastic_apm
             transaction.done 'success'
           rescue ::Exception => e
