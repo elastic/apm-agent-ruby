@@ -92,8 +92,9 @@ We automatically instrument background processing using:
 [[supported-technologies-resque]]
 === Resque
 
-You should require `elastic_apm/resque` in the Rakefile where the Resque rake tasks are required.
-For example, in your `Rakefile`:
+To make the agent work with Resque, you need to require `elastic_apm/resque` before you boot your Resque worker process.
+
+For example in your `Rakefile`:
 
 [source,ruby]
 ----
