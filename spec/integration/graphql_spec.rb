@@ -227,7 +227,7 @@ if enabled
         expect(resp.status).to be 200
 
         transaction, = @mock_intake.transactions
-        expect(transaction['name']).to eq 'GraphQL: [more-than-five-queries]'
+        expect(transaction['name']).to eq 'GraphQL: [multiple-queries]'
       end
     end
   end
