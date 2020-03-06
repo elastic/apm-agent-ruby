@@ -2,11 +2,16 @@
 
 require 'bundler/gem_tasks'
 
-Rake::Task[:release].enhance do
-  `git checkout 3.x &&
-  git rebase master &&
-  git push origin 3.x &&
-  git checkout master`
+desc """Post release action:
+Update `3.x` branch to be at released commit and push it to GitHub.
+"""
+namespace :release do
+  task :update_branch do
+    `echo hi && false && git checkout 3.x &&
+    git rebase master &&
+    git push origin 3.x &&
+    git checkout master`
+  end
 end
 
 require 'rspec/core/rake_task'

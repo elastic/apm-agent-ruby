@@ -206,24 +206,27 @@ pipeline {
       stages {
         stage('Release') {
           steps {
-            withGithubNotify(context: 'Release') {
-              deleteDir()
-              unstash 'source'
-              script {
-                dir(BASE_DIR){
-                  docker.image("${env.RUBY_DOCKER_TAG}").inside('-v ${REFERENCE_REPO}:${REFERENCE_REPO} -v /etc/passwd:/etc/passwd -v ${HOME}/.ssh:${HOME}/.ssh') {
-                    withEnv(["HOME=${env.WORKSPACE}/${env.BASE_DIR ?: ''}"]) {
-                      rubygemsLogin.withApi(secret: "${env.RELEASE_SECRET}") {
-                        sshagent(['f6c7695a-671e-4f4f-a331-acdce44ff9ba']) {
-                          sh '.ci/prepare-git-context.sh'
-                          sh 'gem install rake yard rspec'
-                          sh 'rake release'
-                        }
-                      }
-                    }
-                  }
-                }
+            deleteDir()
+            unstash 'source'
+            prepareRelease(){
+              sh 'rake release'
+            }
+          }
+        }
+        stage('Update Branch') {
+          steps {
+            deleteDir()
+            unstash 'source'
+            prepareRelease(){
+              catchError(buildResult: 'SUCCESS', message: 'Update branch task failed', stageResult: 'UNSTABLE') {
+                sh 'rake release:update_branch'
               }
+            }
+          }
+          post {
+            unsuccessful {
+              emailext subject: "[${env.REPO}] Syncup post-release stage failed.", to: "${NOTIFY_TO}",
+                        body: "Please go to ${env.BUILD_URL} to review the logs. Most likely you need to update the branch manually."
             }
           }
         }
@@ -313,5 +316,21 @@ def runJob(String rubyVersion, int sleep = 1){
     }
   } finally {
     rubyDownstreamJobs["${rubyVersion}"] = buildObject
+  }
+}
+
+def prepareRelease(Closure body){
+  dir("${env.BASE_DIR}"){
+    docker.image("${env.RUBY_DOCKER_TAG}").inside('-v ${REFERENCE_REPO}:${REFERENCE_REPO} -v /etc/passwd:/etc/passwd -v ${HOME}/.ssh:${HOME}/.ssh') {
+      withEnv(["HOME=${env.WORKSPACE}/${env.BASE_DIR ?: ''}"]) {
+        rubygemsLogin.withApi(secret: "${env.RELEASE_SECRET}") {
+          sshagent(['f6c7695a-671e-4f4f-a331-acdce44ff9ba']) {
+            sh '.ci/prepare-git-context.sh'
+            sh 'gem install rake yard rspec'
+            body()
+          }
+        }
+      }
+    }
   }
 }

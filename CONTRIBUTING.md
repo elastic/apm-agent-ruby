@@ -48,4 +48,5 @@ To release a new version:
     1. Tag the current commit as new version.
     2. Push the tag to GitHub.
     3. Build the gem and upload to Rubygems (local user needs to be signed in and authorized.)
-    4. Update `2.x` branch to be at released commit and push it to GitHub.
+1. Run `rake release:update_branch`. This will...
+    1. Update `3.x` branch to be at released commit and push it to GitHub.
