@@ -1,12 +1,18 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+enabled = true
 
-if defined?(Rails)
-  enabled = true
-else
-  puts '[INFO] Skipping Rails spec'
+begin
+  require 'rails'
+rescue LoadError
+  enabled = false
 end
+
+if Gem.loaded_specs['rails'].version <= Gem::Version.create('5.0')
+  enabled = false
+end
+
+require 'spec_helper'
 
 if enabled
   require 'active_record'
@@ -231,4 +237,6 @@ if enabled
       end
     end
   end
+else
+  puts '[INFO] Skipping GraphQL spec'
 end

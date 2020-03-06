@@ -41,7 +41,7 @@ if RUBY_PLATFORM == 'java'
   gem 'activerecord-jdbcsqlite3-adapter'
   gem 'jdbc-sqlite3'
 else
-  gem 'sqlite3'
+  gem 'sqlite3', '~> 1.3.6' # Rails 5.0 wants 1.3
 end
 
 ## Install Framework
