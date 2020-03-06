@@ -10,6 +10,7 @@ module ElasticAPM
     UNNAMED = '[unnamed]'
     MULTIPLE_QUERIES = '[multiple-queries]'
     CONCATENATOR = '+'
+    MAX_NUMBER_OF_QUERIES_FOR_NAME = 5
 
     KEYS_TO_NAME = {
       'lex' => 'graphql.lex',
@@ -60,7 +61,7 @@ module ElasticAPM
       end
 
       def concat_names(results)
-        if results.length > 5
+        if results.length > MAX_NUMBER_OF_QUERIES_FOR_NAME
           return MULTIPLE_QUERIES
         end
 
