@@ -8,7 +8,7 @@ module ElasticAPM
 
     PREFIX = 'GraphQL: '
     UNNAMED = '[unnamed]'
-    MORE_THAN_FIVE = '[more-than-five-queries]'
+    MULTIPLE_QUERIES = '[multiple-queries]'
     CONCATENATOR = '+'
 
     KEYS_TO_NAME = {
@@ -20,12 +20,14 @@ module ElasticAPM
       'execute_multiplex' => 'graphql.execute_multiplex',
       'execute_query' => 'graphql.execute_query',
       'execute_query_lazy' => 'graphql.execute_query_lazy',
-      # "execute_field" => "graphql.execute_field",
-      # "execute_field_lazy" => "graphql.execute_field_lazy",
-      # "authorized" => "graphql.authorized",
       'authorized_lazy' => 'graphql.authorized_lazy',
       'resolve_type' => 'graphql.resolve_type',
       'resolve_type_lazy' => 'graphql.resolve_type_lazy'
+
+      # These are available but deliberately left out as they are mostly noise.
+      # "execute_field" => "graphql.execute_field",
+      # "execute_field_lazy" => "graphql.execute_field_lazy",
+      # "authorized" => "graphql.authorized",
     }.freeze
 
     def self.trace(key, data)
@@ -59,7 +61,7 @@ module ElasticAPM
 
       def concat_names(results)
         if results.length > 5
-          return MORE_THAN_FIVE
+          return MULTIPLE_QUERIES
         end
 
         results.map do |result|
