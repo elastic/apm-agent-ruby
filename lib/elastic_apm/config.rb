@@ -119,6 +119,7 @@ module ElasticAPM
         net_http
         rake
         redis
+        resque
         sequel
         shoryuken
         sidekiq

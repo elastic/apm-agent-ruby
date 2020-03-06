@@ -15,6 +15,35 @@ RSpec.describe ElasticAPM do
     end
   end
 
+  describe '.restart', :mock_intake do
+    before { MockIntake.instance.stub! }
+    after { ElasticAPM.stop }
+    context 'when the agent is not running' do
+      it 'starts the agent' do
+        ElasticAPM.restart
+        expect(ElasticAPM::Agent).to be_running
+      end
+    end
+    context 'when the agent is already running' do
+      before { ElasticAPM.start }
+      it 'restarts the agent' do
+        expect(ElasticAPM::Agent).to receive(:stop)
+          .at_least(:once).and_call_original
+        expect(ElasticAPM::Agent).to receive(:start)
+          .once.and_call_original
+        ElasticAPM.restart
+        expect(ElasticAPM::Agent).to be_running
+      end
+    end
+    context 'when a new config is passed' do
+      it 'restarts the agent with the new config' do
+        ElasticAPM.restart(api_buffer_size: 10)
+        expect(ElasticAPM::Agent).to be_running
+        expect(ElasticAPM.agent.config.api_buffer_size).to be(10)
+      end
+    end
+  end
+
   context 'when running', :mock_intake do
     before do
       MockIntake.instance.stub!

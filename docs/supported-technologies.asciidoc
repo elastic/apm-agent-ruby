@@ -86,6 +86,32 @@ We automatically instrument background processing using:
 - Sidekiq
 - Shoryuken
 - Sneakers (v2.12.0+) (Experimental, see https://github.com/elastic/apm-agent-ruby/pull/676[#676])
+- Resque (v2.0.0+)
+
+[float]
+[[supported-technologies-resque]]
+=== Resque
+
+To make the agent work with Resque, you need to require `elastic_apm/resque` before you boot your Resque worker process.
+
+For example in your `Rakefile`:
+
+[source,ruby]
+----
+require 'resque'
+require 'elastic_apm'
+require 'elastic_apm/resque'
+----
+
+When you start Resque, you should see a series of messages like the following in the Resque logs:
+
+[source,ruby]
+----
+I, [XXX #81227]  INFO -- : Starting worker main
+D, [XXX #81227] DEBUG -- : Registered signals
+I, [XXX #81227]  INFO -- : Running before_first_fork hooks
+D, [XXX #81227] DEBUG -- : Starting ElasticAPM agent
+----
 
 [float]
 [[supported-technologies-grpc]]
