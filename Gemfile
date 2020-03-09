@@ -55,7 +55,7 @@ end
 frameworks_versions.each do |framework, version|
   case version
   when 'master'
-    gem framework, github: GITHUB_REPOS.fetch[framework]
+    gem framework, github: GITHUB_REPOS.fetch(framework)
   when /.+/
     gem framework, "~> #{version}.0"
   else
