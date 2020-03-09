@@ -45,5 +45,6 @@ IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} \
   --rm ruby_rspec \
   /bin/bash -c "\
     gem install rake && \
+    rm -f Gemfile.lock && \
     bundle update && \
     timeout -s9 15m bin/run-tests ${TEST}"
