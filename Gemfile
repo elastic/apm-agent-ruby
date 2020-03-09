@@ -72,7 +72,7 @@ end
 if RUBY_PLATFORM == 'java'
   gem 'activerecord-jdbcsqlite3-adapter'
   gem 'jdbc-sqlite3'
-elsif frameworks_versions['rails'] =~ /^5/
+elsif frameworks_versions['rails'] =~ /^(4|5)/
   gem 'sqlite3', '~> 1.3.6'
 else
   gem 'sqlite3' # rubocop:disable Bundler/DuplicatedGem
