@@ -37,13 +37,6 @@ gem 'sneakers', '~> 2.12', require: nil
 gem 'yard', require: nil
 gem 'yarjuf'
 
-if RUBY_PLATFORM == 'java'
-  gem 'activerecord-jdbcsqlite3-adapter'
-  gem 'jdbc-sqlite3'
-else
-  gem 'sqlite3', '~> 1.3.6' # Rails 5.0 wants 1.3
-end
-
 ## Install Framework
 GITHUB_REPOS = {
   'grape' => 'ruby-grape/grape',
@@ -74,6 +67,15 @@ if frameworks_versions.key?('rails')
   unless frameworks_versions['rails'] =~ /^(master|6)/
     gem 'delayed_job', require: nil
   end
+end
+
+if RUBY_PLATFORM == 'java'
+  gem 'activerecord-jdbcsqlite3-adapter'
+  gem 'jdbc-sqlite3'
+elsif frameworks_versions['rails'] =~ /^5/
+  gem 'sqlite3', '~> 1.3.6'
+else
+  gem 'sqlite3' # rubocop:disable Bundler/DuplicatedGem
 end
 
 group :bench do
