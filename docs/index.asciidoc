@@ -25,6 +25,8 @@ include::./metrics.asciidoc[]
 
 include::./opentracing.asciidoc[]
 
+include::./graphql.asciidoc[]
+
 include::./log-correlation.asciidoc[]
 
 include::./debugging.asciidoc[]

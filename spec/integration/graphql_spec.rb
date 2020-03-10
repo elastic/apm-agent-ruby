@@ -1,0 +1,234 @@
+# frozen_string_literal: true
+
+require 'spec_helper'
+
+if defined?(Rails)
+  enabled = true
+else
+  puts '[INFO] Skipping Rails spec'
+end
+
+if enabled
+  require 'active_record'
+  require 'action_controller/railtie'
+  require 'graphql'
+
+  RSpec.describe 'GraphQL', :allow_running_agent, :spec_logger, :mock_intake do
+    include Rack::Test::Methods
+
+    def setup_database
+      ActiveRecord::Base.logger = Logger.new(SpecLogger)
+      ActiveRecord::Base.logger = Logger.new(nil)
+
+      ActiveRecord::Base.establish_connection(
+        adapter: 'sqlite3',
+        database: '/tmp/graphql.sqlite3'
+      )
+
+      ActiveRecord::Migration.suppress_messages do
+        ActiveRecord::Schema.define do
+          create_table :posts, force: true do |t|
+            t.string :slug, null: false
+            t.string :title, null: false
+            t.timestamps
+          end
+
+          create_table :comments, force: true do |t|
+            t.text :body, null: false
+            t.belongs_to :post, null: false, index: true
+            t.timestamps
+          end
+        end
+      end
+
+      a = Post.create!(slug: 'a', title: 'A')
+      Post.create!(slug: 'b', title: 'B')
+      Post.create!(slug: 'c', title: 'C')
+      Comment.create!(post: a, body: 'So good')
+    end
+
+    let(:app) { Rails.application }
+
+    before :all do
+      module Types
+        class CommentType < GraphQL::Schema::Object
+          field :body, String, null: false
+        end
+
+        class PostType < GraphQL::Schema::Object
+          field :slug, String, null: false
+          field :title, String, null: false
+          field :comments, [CommentType], null: false
+        end
+
+        class QueryType < GraphQL::Schema::Object
+          field :posts, [PostType], null: false
+          field :post, PostType, null: false do
+            argument :slug, String, required: true
+          end
+
+          def posts
+            Post.all
+          end
+
+          def post(slug:)
+            Post.find_by(slug: slug)
+          end
+        end
+
+        class GraphQLTestAppSchema < GraphQL::Schema
+          query QueryType
+
+          use GraphQL::Execution::Interpreter
+          use GraphQL::Analysis::AST
+
+          tracer ElasticAPM::GraphQL
+        end
+      end
+
+      class Post < ActiveRecord::Base
+        has_many :comments
+      end
+
+      class Comment < ActiveRecord::Base
+        belongs_to :post
+      end
+
+      setup_database
+
+      module GraphQLTestApp
+        class Application < Rails::Application
+          configure_rails_for_test
+
+          config.elastic_apm.disable_metrics = '*'
+          config.elastic_apm.api_request_time = '200ms'
+          config.logger = Logger.new(SpecLogger)
+          # config.logger = Logger.new(nil)
+        end
+      end
+
+      # rubocop:disable Style/ClassAndModuleChildren
+      class ::ApplicationController < ActionController::Base
+        def index
+          render plain: 'ok'
+        end
+      end
+
+      class ::GraphqlController < ApplicationController
+        def execute
+          variables = params[:variables]
+          query = params[:query]
+          operation_name = params[:operationName]
+          context = {}
+
+          result =
+            if (multi = params[:queries])
+              Types::GraphQLTestAppSchema.multiplex(
+                multi.map do |q|
+                  { query: q, variables: variables, context: context }
+                end
+              )
+            else
+              Types::GraphQLTestAppSchema.execute(
+                query,
+                variables: variables,
+                context: context,
+                operation_name: operation_name
+              )
+            end
+
+          render json: result
+        rescue StandardError => e
+          logger.error e.message
+
+          render(
+            status: 500,
+            json: { error: { message: e.message }, data: {} }
+          )
+        end
+      end
+      # rubocop:enable Style/ClassAndModuleChildren
+
+      MockIntake.stub!
+
+      GraphQLTestApp::Application.initialize!
+      GraphQLTestApp::Application.routes.draw do
+        post '/graphql', to: 'graphql#execute'
+        root to: 'application#index'
+      end
+    end
+
+    after :all do
+      ElasticAPM.stop
+    end
+
+    context 'a query with an Operation Name' do
+      it 'adds spans and renames transaction' do
+        resp = post '/graphql', query: '
+          query PostsWithComments {
+            posts {
+              title
+              comments { body }
+            }
+          }
+        '
+
+        wait_for transactions: 1, spans: 13
+
+        expect(resp.status).to be 200
+
+        transaction, = @mock_intake.transactions
+        expect(transaction['name']).to eq 'GraphQL: PostsWithComments'
+      end
+    end
+
+    context 'with an unnamed query' do
+      it 'renames to [unnamed]' do
+        resp = post '/graphql', query: '{ posts { title } }'
+
+        wait_for transactions: 1
+
+        expect(resp.status).to be 200
+
+        transaction, = @mock_intake.transactions
+        expect(transaction['name']).to eq 'GraphQL: [unnamed]'
+      end
+    end
+
+    context 'with multiple queries' do
+      it 'renames and concattenates' do
+        resp = post '/graphql', queries: [
+          'query Posts { posts { title } }',
+          'query PostA($slug: String!) { post(slug: $slug) { title } }'
+        ], variables: { slug: 'a' }
+
+        wait_for transactions: 1
+
+        expect(resp.status).to be 200
+
+        transaction, = @mock_intake.transactions
+        expect(transaction['name']).to eq 'GraphQL: Posts+PostA'
+      end
+    end
+
+    context 'with too many queries to list' do
+      it 'renames and concattenates' do
+        resp = post '/graphql', queries: [
+          'query Posts { posts { title } }',
+          'query PostsWithComments { posts { title comments { body } } }',
+          'query PostA($a: String!) { post(slug: $a) { title } }',
+          'query PostB($b: String!) { post(slug: $b) { title } }',
+          'query PostC($c: String!) { post(slug: $c) { title } }',
+          'query MorePosts { posts { title } }'
+        ], variables: { a: 'a', b: 'b', c: 'c' }
+
+        wait_for transactions: 1
+
+        expect(resp.status).to be 200
+
+        transaction, = @mock_intake.transactions
+        expect(transaction['name']).to eq 'GraphQL: [multiple-queries]'
+      end
+    end
+  end
+end

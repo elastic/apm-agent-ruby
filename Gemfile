@@ -21,6 +21,7 @@ gem 'aws-sdk-sqs', require: nil
 gem 'elasticsearch', require: nil
 gem 'fakeredis', require: nil
 gem 'faraday', require: nil
+gem 'graphql', require: nil
 gem 'grpc' if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.7'
 gem 'json-schema', require: nil
 gem 'mongo', require: nil
@@ -35,13 +36,6 @@ gem 'simplecov-cobertura', require: false
 gem 'sneakers', '~> 2.12', require: nil
 gem 'yard', require: nil
 gem 'yarjuf'
-
-if RUBY_PLATFORM == 'java'
-  gem 'activerecord-jdbcsqlite3-adapter'
-  gem 'jdbc-sqlite3'
-else
-  gem 'sqlite3'
-end
 
 ## Install Framework
 GITHUB_REPOS = {
@@ -61,7 +55,7 @@ end
 frameworks_versions.each do |framework, version|
   case version
   when 'master'
-    gem framework, github: GITHUB_REPOS.fetch[framework]
+    gem framework, github: GITHUB_REPOS.fetch(framework)
   when /.+/
     gem framework, "~> #{version}.0"
   else
@@ -73,6 +67,15 @@ if frameworks_versions.key?('rails')
   unless frameworks_versions['rails'] =~ /^(master|6)/
     gem 'delayed_job', require: nil
   end
+end
+
+if RUBY_PLATFORM == 'java'
+  gem 'activerecord-jdbcsqlite3-adapter'
+  gem 'jdbc-sqlite3'
+elsif frameworks_versions['rails'] =~ /^(4|5)/
+  gem 'sqlite3', '~> 1.3.6'
+else
+  gem 'sqlite3' # rubocop:disable Bundler/DuplicatedGem
 end
 
 group :bench do
