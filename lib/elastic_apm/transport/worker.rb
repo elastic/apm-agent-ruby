@@ -36,6 +36,7 @@ module ElasticAPM
       end
 
       attr_reader :queue, :filters, :name, :connection, :serializers
+
       def work_forever
         while (msg = queue.pop)
           case msg
