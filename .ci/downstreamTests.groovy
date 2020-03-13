@@ -69,6 +69,10 @@ pipeline {
   }
   post {
     cleanup {
+      dir("${BASE_DIR}"){
+        sh(script: "./spec/scripts/coverage_converge.sh")
+        cobertura coberturaReportFile: "coverage/coverage.xml"
+      }
       script{
         if(rubyTasksGen?.results){
           writeJSON(file: 'results.json', json: toJSON(rubyTasksGen.results), pretty: 2)
@@ -118,10 +122,6 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
           steps.junit(allowEmptyResults: true,
             keepLongStdio: true,
             testResults: "**/spec/junit-reports/**/ruby-agent-junit.xml")
-          if (steps.isCodecovEnabled(x, y)) {
-            steps.codecov(repo: "${steps.env.REPO}", basedir: "${steps.env.BASE_DIR}",
-                          secret: "${steps.env.CODECOV_SECRET}")
-          }
         }
       }
     }
@@ -146,17 +146,6 @@ def runScript(Map params = [:]){
       dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
       sh("./spec/scripts/spec.sh ${ruby} ${framework}")
     }
-  }
-}
-
-/**
-* Whether the given ruby version and framework are in charge of sending the
-* codecov results. It does require the workspace.
-*/
-def isCodecovEnabled(ruby, framework){
-  dir(BASE_DIR){
-    def codecovVersions = readYaml(file: '.ci/.jenkins_codecov.yml')
-    return codecovVersions['ENABLED'].any { it.trim() == "${ruby?.trim()}#${framework?.trim()}" }
   }
 }
 

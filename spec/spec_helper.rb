@@ -1,4 +1,7 @@
 # frozen_string_literal: true
+require 'simplecov'
+SimpleCov.coverage_dir("coverage/matrix_results/" + ENV["TEST_MATRIX"])
+SimpleCov.start
 
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 
