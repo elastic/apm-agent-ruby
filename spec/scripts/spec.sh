@@ -38,7 +38,7 @@ docker build --build-arg "RUBY_IMAGE=${IMAGE_NAME}" -t "apm-agent-ruby:${VERSION
 IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} \
   docker-compose -f ../docker-compose.yml run \
   -e FRAMEWORK="${FRAMEWORK}" \
-  -e TEST_MATRIX="${IMAGE_NAME}-${VERSION}" \
+  -e TEST_MATRIX="${FRAMEWORK}-${IMAGE_NAME}" \
   -e INCLUDE_SCHEMA_SPECS=1 \
   -e JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS}" \
   -e JRUBY_OPTS="${JRUBY_OPTS}" \
