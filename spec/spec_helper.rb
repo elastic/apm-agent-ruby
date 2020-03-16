@@ -124,8 +124,4 @@ RSpec.shared_context 'stubbed_central_config' do
       :get, %r{^http://localhost:8200/config/v1/agents/?$}
     ).to_return(body: '{}')
   end
-
-  after(:all) do
-    WebMock.reset!
-  end
 end
