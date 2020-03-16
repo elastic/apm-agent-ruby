@@ -2,8 +2,6 @@
 
 module ElasticAPM
   RSpec.describe CentralConfig do
-    after { WebMock.reset! }
-
     let(:config) { Config.new service_name: 'MyApp' }
     subject { described_class.new(config) }
 
