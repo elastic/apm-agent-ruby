@@ -77,9 +77,8 @@ if enabled
         Thread.new do
           env = Rack::MockRequest.env_for(paths.sample)
           status, = Rails.application.call(env)
-          expect(status).to be 200
-          expect(env)
-          count.increment
+          count.increment if status == 200
+          count
         end
       end.each(&:join)
 
