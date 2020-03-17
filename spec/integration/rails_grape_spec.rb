@@ -76,7 +76,7 @@ if enabled
         get '/api/statuses/1'
 
         wait_for transactions: 1, spans: 1
-        context = @mock_intake.transactions.fetch(0)['context']
+        context = MockIntake.transactions.fetch(0)['context']
         expect(context['service']['framework']['name']).to eq('Grape')
         expect(context['service']['framework']['version'])
           .to eq(::Grape::VERSION)
@@ -88,7 +88,7 @@ if enabled
         get '/'
 
         wait_for transactions: 1, spans: 2
-        context = @mock_intake.transactions.fetch(0)['context']
+        context = MockIntake.transactions.fetch(0)['context']
         expect(context['service']).to be_nil
       end
     end

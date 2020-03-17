@@ -71,7 +71,7 @@ if enabled
 
       expect(response.body).to eq 'Yes!'
 
-      service = @mock_intake.metadatas.first['service']
+      service = MockIntake.metadatas.first['service']
       expect(service['name']).to eq 'SinatraTestApp'
       expect(service['framework']['name']).to eq 'Sinatra'
       expect(service['framework']['version'])
@@ -84,8 +84,8 @@ if enabled
 
         wait_for transactions: 1
 
-        expect(@mock_intake.requests.length).to be 1
-        transaction = @mock_intake.transactions.first
+        expect(MockIntake.requests.length).to be 1
+        transaction = MockIntake.transactions.first
         expect(transaction['name']).to eq 'GET /'
       end
 
@@ -94,7 +94,7 @@ if enabled
 
         wait_for transactions: 1, spans: 1
 
-        span = @mock_intake.spans.last
+        span = MockIntake.spans.last
         expect(span['name']).to eq 'Inline erb'
         expect(span['type']).to eq 'template.tilt'
       end
@@ -106,7 +106,7 @@ if enabled
 
         expect(response.body).to eq '1 2 3 hello you'
 
-        span = @mock_intake.spans.last
+        span = MockIntake.spans.last
         expect(span['name']).to eq 'index'
         expect(span['type']).to eq 'template.tilt'
       end
@@ -122,7 +122,7 @@ if enabled
         wait_for errors: 1, transactions: 1
 
         error_request =
-          @mock_intake.errors.first
+          MockIntake.errors.first
         exception = error_request['exception']
         expect(exception['type']).to eq 'FancyError'
       end

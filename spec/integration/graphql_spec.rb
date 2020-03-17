@@ -177,7 +177,7 @@ if enabled
 
         expect(resp.status).to be 200
 
-        transaction, = @mock_intake.transactions
+        transaction, = MockIntake.transactions
         expect(transaction['name']).to eq 'GraphQL: PostsWithComments'
       end
     end
@@ -190,7 +190,7 @@ if enabled
 
         expect(resp.status).to be 200
 
-        transaction, = @mock_intake.transactions
+        transaction, = MockIntake.transactions
         expect(transaction['name']).to eq 'GraphQL: [unnamed]'
       end
     end
@@ -206,7 +206,7 @@ if enabled
 
         expect(resp.status).to be 200
 
-        transaction, = @mock_intake.transactions
+        transaction, = MockIntake.transactions
         expect(transaction['name']).to eq 'GraphQL: Posts+PostA'
       end
     end
@@ -226,7 +226,7 @@ if enabled
 
         expect(resp.status).to be 200
 
-        transaction, = @mock_intake.transactions
+        transaction, = MockIntake.transactions
         expect(transaction['name']).to eq 'GraphQL: [multiple-queries]'
       end
     end

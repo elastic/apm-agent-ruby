@@ -222,9 +222,10 @@ module ElasticAPM
       self.disable_instrumentations = value
     end
 
-    def use_experimental_sql_parser=(value)
-      warn '[DEPRECATED] The new SQL parser is now the default. To use the old one, '
-        'use use_legacy_sql_parser and please report why you wish to do so.'
+    def use_experimental_sql_parser=(_value)
+      warn '[DEPRECATED] The new SQL parser is now the default. To use the ' \
+        'old one, use use_legacy_sql_parser and please report why you wish ' \
+        'to do so.'
     end
 
     private

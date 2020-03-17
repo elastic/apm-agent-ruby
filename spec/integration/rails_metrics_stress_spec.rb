@@ -11,9 +11,9 @@ end
 if enabled
   require 'action_controller/railtie'
 
-  RSpec.describe 'Rails integration', :allow_running_agent, :spec_logger do
+  RSpec.describe 'Rails integration',
+    :mock_intake, :allow_running_agent, :spec_logger do
     include Rack::Test::Methods
-    include_context 'event_collector'
 
     let(:app) do
       Rails.application
@@ -57,7 +57,7 @@ if enabled
         end
       end
 
-      ElasticAPM::Transport::Worker.adapter = EventCollector::TestAdapter
+      MockIntake.stub!
 
       RailsTestApp::Application.initialize!
       RailsTestApp::Application.routes.draw do
@@ -84,8 +84,41 @@ if enabled
         end
       end.each(&:join)
 
-      sleep 2 # wait for metrics to collect
-      expect(EventCollector.metricsets_summary.values).to eq(
+      sleep 2 # wait for metrics to settle
+
+      metricsets_summary =
+        MockIntake.metricsets.each_with_object(
+          Hash.new { 0 }
+        ) do |set, totals|
+          next unless set['transaction']
+
+          samples = set['samples']
+
+          if (count = samples['transaction.duration.count'])
+            next totals[:transaction_durations] += count['value']
+          end
+
+          if (count = samples['transaction.breakdown.count'])
+            next totals[:transaction_breakdowns] += count['value']
+          end
+
+          count = set['samples']['span.self_time.count']
+
+          case set.dig('span', 'type')
+          when 'app'
+            subtype = set.dig('span', 'subtype')
+            key = :"app_span_self_times__#{subtype || 'nil'}"
+            next totals && totals[key] += count['value']
+          when 'template'
+            totals && totals[:template_span_self_times] += count['value']
+            next
+          else
+            pp set
+            raise 'Unmatched metric type'
+          end
+        end
+
+      expect(metricsets_summary.values).to eq(
         Array.new(5).map { count.value }
       )
     end

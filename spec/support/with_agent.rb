@@ -2,7 +2,7 @@
 
 module WithAgent
   def with_agent(klass: ElasticAPM, args: [], **config)
-    unless @mock_intake || @intercepted
+    unless MockIntake.stubbed? || @intercepted
       raise 'Using with_agent but neither MockIntake nor Intercepted'
     end
 

@@ -55,7 +55,7 @@ if enabled
 
       wait_for transactions: 1, spans: 1
 
-      service = @mock_intake.metadatas.first['service']
+      service = MockIntake.metadatas.first['service']
       expect(service['name']).to eq 'GrapeTestApp'
       expect(service['framework']['name']).to eq 'Grape'
       expect(service['framework']['version'])
@@ -67,11 +67,11 @@ if enabled
         get '/pingpong'
         wait_for transactions: 1, spans: 1
 
-        span = @mock_intake.spans.last
+        span = MockIntake.spans.last
         expect(span['name']).to eq('GET /pingpong')
         expect(span['type']).to eq('app.resource')
 
-        transaction = @mock_intake.transactions.last
+        transaction = MockIntake.transactions.last
         expect(transaction['name']).to eq('GET /pingpong')
       end
 
@@ -79,7 +79,7 @@ if enabled
         get '/pingpong'
         wait_for transactions: 1, spans: 1
 
-        span = @mock_intake.spans.last
+        span = MockIntake.spans.last
         expect(span['stacktrace'][0]).not_to be(nil)
         expect(span['stacktrace'][0]['filename'])
           .to eq('integration/grape_spec.rb')
@@ -90,11 +90,11 @@ if enabled
           get '/statuses/1'
           wait_for transactions: 1, spans: 1
 
-          span = @mock_intake.spans.last
+          span = MockIntake.spans.last
           expect(span['name']).to eq('GET /statuses/:id')
           expect(span['type']).to eq('app.resource')
 
-          transaction = @mock_intake.transactions.last
+          transaction = MockIntake.transactions.last
           expect(transaction['name']).to eq('GET /statuses/:id')
         end
       end

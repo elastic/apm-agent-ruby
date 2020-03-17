@@ -74,7 +74,7 @@ module ElasticAPM
 
       wait_for transactions: 1
 
-      transaction, = @mock_intake.transactions
+      transaction, = MockIntake.transactions
 
       expect(transaction).to_not be_nil
       expect(transaction['name']).to eq 'ElasticAPM::ShoryukenHardWorker'
@@ -92,8 +92,8 @@ module ElasticAPM
 
       wait_for transactions: 1, errors: 1
 
-      transaction, = @mock_intake.transactions
-      error, = @mock_intake.errors
+      transaction, = MockIntake.transactions
+      error, = MockIntake.errors
 
       expect(transaction).to_not be_nil
       expect(transaction['name']).to eq 'ElasticAPM::ShoryukenExplodingWorker'

@@ -117,7 +117,7 @@ module ElasticAPM
         end
 
         samples =
-          @mock_intake.metricsets.each_with_object({}) do |set, result|
+          MockIntake.metricsets.each_with_object({}) do |set, result|
             result.merge! set['samples']
           end
 

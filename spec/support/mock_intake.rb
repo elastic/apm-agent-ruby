@@ -25,10 +25,18 @@ class MockIntake
   class << self
     extend Forwardable
 
-    def_delegator :instance, :stub!
-    def_delegator :instance, :stubbed?
-    def_delegator :instance, :clear!
-    def_delegator :instance, :reset!
+    def_delegators(
+      :instance,
+      :stub!,
+      :stubbed?,
+      :clear!,
+      :reset!,
+      :metadatas,
+      :errors,
+      :metricsets,
+      :spans,
+      :transactions
+    )
   end
 
   def stub!
@@ -129,7 +137,7 @@ class MockIntake
           sleep 0.01
 
           missing = expected.reduce(0) do |total, (kind, count)|
-            total + (count - @mock_intake.send(kind).length)
+            total + (count - MockIntake.send(kind).length)
           end
 
           next if missing > 0
@@ -144,7 +152,7 @@ class MockIntake
           end
 
           if block_given?
-            next unless yield(@mock_intake)
+            next unless yield(MockIntake)
           end
 
           break true
@@ -160,11 +168,11 @@ class MockIntake
 
     def print_received
       pp(
-        transactions: @mock_intake.transactions.map { |o| o['name'] },
-        spans: @mock_intake.spans.map { |o| o['name'] },
-        errors: @mock_intake.errors.map { |o| o['culprit'] },
-        metricsets: @mock_intake.metricsets,
-        metadatas: @mock_intake.metadatas.count
+        transactions: MockIntake.transactions.map { |o| o['name'] },
+        spans: MockIntake.spans.map { |o| o['name'] },
+        errors: MockIntake.errors.map { |o| o['culprit'] },
+        metricsets: MockIntake.metricsets,
+        metadatas: MockIntake.metadatas.count
       )
     end
   end
@@ -173,12 +181,10 @@ end
 RSpec.configure do |config|
   config.before :each, :mock_intake do
     MockIntake.stub! unless MockIntake.stubbed?
-    @mock_intake = MockIntake.instance
   end
 
   config.after :each, :mock_intake do
     MockIntake.reset!
-    @mock_intake = nil
   end
 
   config.include MockIntake::WaitFor, :mock_intake
