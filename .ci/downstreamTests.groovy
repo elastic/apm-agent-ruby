@@ -44,12 +44,18 @@ pipeline {
     stage('Checkout') {
       options { skipDefaultCheckout() }
       steps {
-        deleteDir()
-        gitCheckout(basedir: "${BASE_DIR}",
-          branch: "${params.BRANCH_SPECIFIER}",
-          repo: "${REPO}",
-          credentialsId: "${JOB_GIT_CREDENTIALS}")
+        
+        // gitCheckout(basedir: "${BASE_DIR}",
+        //   branch: "${params.BRANCH_SPECIFIER}",
+        //   repo: "${REPO}",
+        //   credentialsId: "${JOB_GIT_CREDENTIALS}")
+        dir("${BASE_DIR}"){
+          // deleteDir()
+          git(url: '/var/apm-agent-ruby', branch: 'coverage')
+          
+        }
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
+
       }
     }
     stage('Test') {
@@ -66,13 +72,29 @@ pipeline {
         }
       }
     }
+    stage('Coverge coverage') {
+      steps{
+        dir("${BASE_DIR}/coverage/matrix-results"){
+          sh(script: "pwd && ls -larth")
+          script{
+            def matrixDump = RubyParallelTaskGenerator.dumpMatrix("-")
+            for(vector in matrixDump) {
+              unstash("coverage-${vector}")
+            }
+          }
+        }
+        dir("${BASE_DIR}"){
+          sh(script: "./spec/scripts/coverage_converge.sh")
+          cobertura coberturaReportFile: "coverage/coverage.xml"
+        }
+      }
+    }
   }
+      
+
+      
   post {
     cleanup {
-      dir("${BASE_DIR}"){
-        sh(script: "./spec/scripts/coverage_converge.sh")
-        cobertura coberturaReportFile: "coverage/coverage.xml"
-      }
       script{
         if(rubyTasksGen?.results){
           writeJSON(file: 'results.json', json: toJSON(rubyTasksGen.results), pretty: 2)
@@ -115,6 +137,7 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
         try {
           steps.runScript(label: label, ruby: x, framework: y)
           saveResult(x, y, 1)
+          saveCoverage(x, y)
         } catch(e){
           saveResult(x, y, 0)
           steps.error("${label} tests failed : ${e.toString()}\n")
@@ -126,6 +149,14 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
       }
     }
   }
+}
+
+def saveCoverage(x, y){
+  stash(
+    name: "coverage-${x}-${y}",
+    includes: "coverage/matrix-results/${x}-${y}",
+    allowEmpty: false
+    )
 }
 
 /**
@@ -145,6 +176,7 @@ def runScript(Map params = [:]){
       sleep randomNumber(min:10, max: 30)
       dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
       sh("./spec/scripts/spec.sh ${ruby} ${framework}")
+      stash()
     }
   }
 }
@@ -157,6 +189,7 @@ def runTests(frameworkFile) {
   unstash "source"
   dir("${BASE_DIR}"){
     script {
+      // echo "Starting script"
       rubyTasksGen = new RubyParallelTaskGenerator(
         xVersions: [ "${params.RUBY_VERSION}" ],
         xKey: 'RUBY_VERSION',
@@ -167,8 +200,11 @@ def runTests(frameworkFile) {
         name: 'Ruby',
         steps: this
       )
+      // echo "Task gen created"
       def mapPatallelTasks = rubyTasksGen.generateParallelTests()
+      // echo "Map created"
       parallel(mapPatallelTasks)
+      // echo "Paralell tests finished"
     }
   }
 }
