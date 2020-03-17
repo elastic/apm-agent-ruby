@@ -124,7 +124,7 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
   }
 
   public saveCoverage(x, y){
-    stash(
+    steps.stash(
       name: "coverage-${x}-${y}",
       includes: "coverage/matrix-results/${x}-${y}",
       allowEmpty: false
