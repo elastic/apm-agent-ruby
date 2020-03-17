@@ -67,6 +67,14 @@ module ElasticAPM
       Agent.instance
     end
 
+    # Returns the config of the running agent.
+    #
+    # @return [Config] The config of the running agent.
+    # Returns nil if the agent is not running.
+    def config
+      Agent.config
+    end
+
     ### Metrics
 
     # Returns the currently active transaction (if any)

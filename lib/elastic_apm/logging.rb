@@ -36,8 +36,8 @@ module ElasticAPM
     private
 
     def log(lvl, msg, *args)
-      return unless (logger = @config&.logger)
-      return unless LEVELS[lvl] >= (@config&.log_level || 0)
+      return unless (logger = config&.logger)
+      return unless LEVELS[lvl] >= (config&.log_level || 0)
 
       formatted_msg = prepend_prefix(format(msg.to_s, *args))
 
@@ -48,6 +48,10 @@ module ElasticAPM
 
     def prepend_prefix(str)
       "#{PREFIX}#{str}"
+    end
+
+    def config
+      ElasticAPM.config
     end
   end
 end

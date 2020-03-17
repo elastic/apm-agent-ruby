@@ -212,6 +212,10 @@ module ElasticAPM
           Config.new(server_url: 'https://self-signed.badssl.com')
         end
 
+        before do
+          allow(ElasticAPM).to receive(:config).and_return(config)
+        end
+
         it 'is enabled by default' do
           expect(config.logger)
             .to receive(:error)

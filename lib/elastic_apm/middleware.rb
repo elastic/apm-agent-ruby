@@ -65,9 +65,5 @@ module ElasticAPM
     def running?
       ElasticAPM.running?
     end
-
-    def config
-      @config ||= ElasticAPM.agent.config
-    end
   end
 end

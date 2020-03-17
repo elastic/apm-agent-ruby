@@ -42,7 +42,11 @@ module ElasticAPM
           return
         end
 
-        @instance = new(config).start
+        # It's important that the @instance variable is set before calling #start.
+        # Objects rely on the config being available via ElasticAPM.agent.config
+        # while starting.
+        @instance = new(config)
+        @instance.start
       end
     end
 
@@ -57,6 +61,10 @@ module ElasticAPM
 
     def self.running?
       !!@instance
+    end
+
+    def self.config
+      @instance&.config
     end
 
     def initialize(config)

@@ -15,6 +15,10 @@ module ElasticAPM
       end
 
       describe 'metrics' do
+        before do
+          allow(ElasticAPM).to receive(:config).and_return(config)
+        end
+
         it 'can have metrics' do
           subject.gauge('gauge').value = 0
           subject.counter('counter').value = 0

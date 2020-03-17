@@ -89,20 +89,20 @@ module ElasticAPM
       end
 
       describe '#process' do
-        it 'rescues exceptions' do
-          event = Transaction.new(
-            "What's in a name ⁉️",
-            (+'👏').force_encoding('ascii-8bit'),
-            config: config
-          )
+        it 'rescues exceptions', :mock_intake do
+          with_agent(config: config) do
+            event = Transaction.new(
+              "What's in a name ⁉️",
+              (+'👏').force_encoding('ascii-8bit'),
+              config: config
+            )
 
-          expect(config.logger).to receive(:error).twice.and_call_original
+            expect(ElasticAPM.config.logger).to receive(:error).twice.and_call_original
 
-          expect do
-            subject.process event
-          end.to_not raise_error
-
-          subject.connection.flush
+            expect do
+              subject.process event
+            end.to_not raise_error
+          end
         end
       end
     end

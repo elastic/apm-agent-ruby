@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module WithAgent
-  def with_agent(klass: ElasticAPM, args: [], **config)
+  def with_agent(klass: ElasticAPM, args: [], config: config, **config_hash)
     unless @mock_intake || @intercepted
       raise 'Using with_agent but neither MockIntake nor Intercepted'
     end
@@ -11,7 +11,11 @@ module WithAgent
         :get, %r{^http://localhost:8200/config/v1/agents/?$}
       ).to_return(body: '{}')
 
-    klass.start(*args, **config)
+    if config_hash
+      klass.start(*args, **config_hash)
+    else
+      klass.start(*args, config)
+    end
     yield
   ensure
     ElasticAPM.stop

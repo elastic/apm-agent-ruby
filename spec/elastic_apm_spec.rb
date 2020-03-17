@@ -47,10 +47,18 @@ RSpec.describe ElasticAPM do
   context 'when running', :mock_intake do
     before do
       MockIntake.instance.stub!
-      ElasticAPM.start
+      ElasticAPM.start(config)
     end
 
+    let(:config) { ElasticAPM::Config.new }
+
     let(:agent) { ElasticAPM.agent }
+
+    describe '.config' do
+      it 'returns the agent config' do
+        expect(ElasticAPM.config).to be(config)
+      end
+    end
 
     describe '.log_ids' do
       context 'with no current_transaction' do
