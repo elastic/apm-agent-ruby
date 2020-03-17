@@ -123,6 +123,14 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
     super(params)
   }
 
+  public saveCoverage(x, y){
+    stash(
+      name: "coverage-${x}-${y}",
+      includes: "coverage/matrix-results/${x}-${y}",
+      allowEmpty: false
+      )
+  }
+
   /**
   build a clousure that launch and agent and execute the corresponding test script,
   then store the results.
@@ -151,13 +159,7 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
   }
 }
 
-def saveCoverage(x, y){
-  stash(
-    name: "coverage-${x}-${y}",
-    includes: "coverage/matrix-results/${x}-${y}",
-    allowEmpty: false
-    )
-}
+
 
 /**
   Run tests for a Ruby version and framework version.
