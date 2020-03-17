@@ -2,9 +2,11 @@
 
 require 'bundler/gem_tasks'
 
-desc """Post release action:
-Update `3.x` branch to be at released commit and push it to GitHub.
-"""
+desc <<~DESCRIPTION
+  Post release action:
+  Update `3.x` branch to be at released commit and push it to GitHub.
+DESCRIPTION
+
 namespace :release do
   task :update_branch do
     `git checkout 3.x &&
