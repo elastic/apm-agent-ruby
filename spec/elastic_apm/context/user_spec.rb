@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require 'logger'
+
+require 'elastic_apm/context/user'
+require 'elastic_apm/config'
+
 module ElasticAPM
   RSpec.describe Context::User do
     describe '.infer' do

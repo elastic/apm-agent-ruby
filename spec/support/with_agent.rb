@@ -19,3 +19,5 @@ module WithAgent
     @central_config_stub = nil
   end
 end
+
+RSpec.configure { |c| c.include WithAgent }

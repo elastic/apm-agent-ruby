@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 require 'sneakers'
 require 'elastic_apm/spies/sneakers'
 

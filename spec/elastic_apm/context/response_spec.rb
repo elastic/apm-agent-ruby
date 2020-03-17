@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'elastic_apm/context/response'
+
 module ElasticAPM
   RSpec.describe Context::Response do
     let(:response) do

@@ -10,6 +10,7 @@ module ExceptionHelpers
   class One < StandardError; end
   class Two < StandardError; end
   class Three < StandardError; end
+
   def actual_chained_exception
     raise Three
   rescue Three
@@ -23,4 +24,8 @@ module ExceptionHelpers
       end
     end
   end
+end
+
+RSpec.configure do |config|
+  config.include ExceptionHelpers
 end

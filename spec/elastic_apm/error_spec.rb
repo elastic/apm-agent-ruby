@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require 'rspec/its'
+require 'securerandom'
+require 'elastic_apm/util'
+require 'elastic_apm/error'
+
 module ElasticAPM
   RSpec.describe Error do
     describe 'initialization' do

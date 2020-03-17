@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'rspec/its'
+require 'elastic_apm/central_config/cache_control'
+
 module ElasticAPM
   RSpec.describe CentralConfig::CacheControl do
     let(:header) { nil }

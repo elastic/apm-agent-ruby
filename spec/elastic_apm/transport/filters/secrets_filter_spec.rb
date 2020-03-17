@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'logger'
+require 'elastic_apm/config'
+require 'elastic_apm/transport/filters/secrets_filter'
+
 module ElasticAPM
   module Transport
     module Filters

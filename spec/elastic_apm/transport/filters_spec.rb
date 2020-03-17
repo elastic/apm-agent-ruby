@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'logger'
+require 'elastic_apm/config'
+require 'elastic_apm/transport/filters'
+
 module ElasticAPM
   module Transport
     RSpec.describe Filters do

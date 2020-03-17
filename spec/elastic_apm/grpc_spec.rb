@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.7'
   require 'grpc'
 

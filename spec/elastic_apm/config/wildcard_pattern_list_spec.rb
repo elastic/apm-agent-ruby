@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'elastic_apm/config/wildcard_pattern_list'
+
 module ElasticAPM
   class Config
     RSpec.describe WildcardPatternList::WildcardPattern do

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'elastic_apm/transport/connection'
+require 'spec_helper'
 
 module ElasticAPM
   module Transport

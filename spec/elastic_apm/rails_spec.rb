@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 if defined?(Rails)
   RSpec.describe Rails, :intercept do
     describe '.start' do

@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require 'timecop'
+require 'elastic_apm/util'
+require 'support/mock_time'
+
 module ElasticAPM
-  RSpec.describe Util do
+  RSpec.describe Util, :mock_time do
     describe '.micros', mock_time: true do
       it 'returns current µs since unix epoch' do
         expect(Util.micros).to eq 694_224_000_000_000

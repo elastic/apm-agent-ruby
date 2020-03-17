@@ -73,8 +73,6 @@ end
 RSpec.configure do |config|
   config.order = :random
 
-  config.include ExceptionHelpers
-  config.include WithAgent
   config.include PlatformHelpers
   config.include ElasticSubscribers
   config.include RailsTestHelpers if defined?(Rails)

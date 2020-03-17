@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'elastic_apm/naively_hashable'
+
 module ElasticAPM
   RSpec.describe NaivelyHashable do
     class Outer

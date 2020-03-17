@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'elastic_apm/error/exception'
+require 'support/exception_helpers'
+
 module ElasticAPM
   RSpec.describe Error::Exception do
     describe '#initialize' do

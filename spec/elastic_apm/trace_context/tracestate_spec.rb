@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'rspec/its'
+require 'elastic_apm/trace_context/tracestate'
+
 module ElasticAPM
   RSpec.describe TraceContext::Tracestate do
     describe '.parse' do

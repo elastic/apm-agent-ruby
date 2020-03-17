@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'elastic_apm/error/log'
+
 module ElasticAPM
   RSpec.describe Error::Log do
     describe '#initialize' do

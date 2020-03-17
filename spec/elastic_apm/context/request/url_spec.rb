@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'rspec/its'
+require 'rack/test'
+require 'elastic_apm/context/request/url'
+
 module ElasticAPM
   class Context
     class Request

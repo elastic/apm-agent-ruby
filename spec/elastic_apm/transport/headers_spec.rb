@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'elastic_apm'
+
 module ElasticAPM
   module Transport
     RSpec.describe Headers do

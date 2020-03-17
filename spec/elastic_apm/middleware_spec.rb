@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   RSpec.describe Middleware, :intercept do
     it 'surrounds the request in a transaction' do

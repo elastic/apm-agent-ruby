@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require 'rspec/its'
+require 'tempfile'
+require 'support/with_env'
+require 'elastic_apm/metadata/system_info/container_info'
+
 module ElasticAPM
   class Metadata
     RSpec.describe SystemInfo::ContainerInfo do

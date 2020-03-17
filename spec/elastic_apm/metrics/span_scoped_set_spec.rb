@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   module Metrics
     RSpec.shared_examples(:span_scope_set) do

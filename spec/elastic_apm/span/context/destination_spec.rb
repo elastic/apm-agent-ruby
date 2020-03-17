@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'rspec/its'
+require 'elastic_apm/span/context/destination'
+
 module ElasticAPM
   class Span
     class Context

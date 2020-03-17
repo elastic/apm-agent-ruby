@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'logger'
+
+require 'elastic_apm/config'
+require 'elastic_apm/util'
+require 'elastic_apm/metadata'
 
 module ElasticAPM
   RSpec.describe Metadata do

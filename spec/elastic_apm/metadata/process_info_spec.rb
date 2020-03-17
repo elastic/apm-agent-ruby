@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'logger'
+require 'elastic_apm/config'
+require 'elastic_apm/metadata/process_info'
+
 module ElasticAPM
   RSpec.describe Metadata::ProcessInfo do
     describe '#initialize' do

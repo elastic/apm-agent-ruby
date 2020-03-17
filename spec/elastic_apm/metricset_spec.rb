@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'rspec/its'
+require 'elastic_apm/util'
+require 'elastic_apm/metricset'
+
 module ElasticAPM
   RSpec.describe Metricset do
     describe 'initialize' do
