@@ -176,7 +176,6 @@ def runScript(Map params = [:]){
       sleep randomNumber(min:10, max: 30)
       dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
       sh("./spec/scripts/spec.sh ${ruby} ${framework}")
-      stash()
     }
   }
 }
