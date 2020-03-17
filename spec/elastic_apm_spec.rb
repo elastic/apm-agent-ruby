@@ -328,5 +328,11 @@ RSpec.describe ElasticAPM do
 
       expect(ran).to be true
     end
+
+    describe '.config' do
+      it 'returns nil' do
+        expect(ElasticAPM.config).to be nil
+      end
+    end
   end
 end

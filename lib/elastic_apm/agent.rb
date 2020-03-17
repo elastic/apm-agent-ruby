@@ -42,9 +42,9 @@ module ElasticAPM
           return
         end
 
-        # It's important that the @instance variable is set before calling #start.
-        # Objects rely on the config being available via ElasticAPM.agent.config
-        # while starting.
+        # It's important that the @instance variable is set before
+        # calling #start. Objects rely on the config being available
+        # via ElasticAPM.agent.config while starting.
         @instance = new(config)
         @instance.start
       end

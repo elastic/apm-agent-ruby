@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module WithAgent
-  def with_agent(klass: ElasticAPM, args: [], config: config, **config_hash)
+  def with_agent(klass: ElasticAPM, args: [], config: nil, **config_hash)
     unless @mock_intake || @intercepted
       raise 'Using with_agent but neither MockIntake nor Intercepted'
     end
