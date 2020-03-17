@@ -3,7 +3,8 @@
 module ElasticAPM
   RSpec.describe Metadata::ProcessInfo do
     describe '#initialize' do
-      subject { described_class.new(Config.new) }
+      subject { described_class.new }
+      before { allow(ElasticAPM).to receive(:config).and_return(Config.new) }
 
       it 'knows about the process' do
         expect(subject.argv).to be_a Array

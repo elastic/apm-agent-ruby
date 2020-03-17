@@ -4,9 +4,7 @@ module ElasticAPM
   class Metadata
     # @api private
     class ProcessInfo
-      def initialize(config)
-        @config = config
-
+      def initialize
         @argv = ARGV
         @pid = $PID || Process.pid
         @title = $PROGRAM_NAME

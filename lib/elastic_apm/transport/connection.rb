@@ -22,7 +22,7 @@ module ElasticAPM
         @config = config
         @metadata = JSON.fast_generate(
           Serializers::MetadataSerializer.new(config).build(
-            Metadata.new(config)
+            Metadata.new
           )
         )
         @url = config.server_url + '/intake/v2/events'

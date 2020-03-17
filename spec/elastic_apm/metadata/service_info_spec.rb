@@ -5,7 +5,8 @@ require 'spec_helper'
 module ElasticAPM
   RSpec.describe Metadata::ServiceInfo do
     describe '#initialize' do
-      subject { described_class.new(Config.new) }
+      subject { described_class.new }
+      before { allow(ElasticAPM).to receive(:config).and_return(Config.new) }
 
       it 'knows the runtime (mri)', unless: RSpec::Support::Ruby.jruby? do
         expect(subject.runtime.name).to eq 'ruby'

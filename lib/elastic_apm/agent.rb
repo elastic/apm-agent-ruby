@@ -69,14 +69,13 @@ module ElasticAPM
 
     def initialize(config)
       @stacktrace_builder = StacktraceBuilder.new(config)
-      @context_builder = ContextBuilder.new(config)
-      @error_builder = ErrorBuilder.new(self)
+      @context_builder = ContextBuilder.new
+      @error_builder = ErrorBuilder.new
 
       @central_config = CentralConfig.new(config)
       @transport = Transport::Base.new(config)
-      @metrics = Metrics.new(config) { |event| enqueue event }
+      @metrics = Metrics.new { |event| enqueue event }
       @instrumenter = Instrumenter.new(
-        config,
         metrics: metrics,
         stacktrace_builder: stacktrace_builder
       ) { |event| enqueue event }
@@ -156,7 +155,6 @@ module ElasticAPM
       instrumenter.start_transaction(
         name,
         type,
-        config: config,
         context: context,
         trace_context: trace_context
       )

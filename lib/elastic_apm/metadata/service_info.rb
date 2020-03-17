@@ -17,23 +17,24 @@ module ElasticAPM
       class Framework < Versioned; end
       class Language < Versioned; end
       class Runtime < Versioned; end
-      def initialize(config)
-        @config = config
-
-        @name = @config.service_name
-        @environment = @config.environment
+      def initialize
+        @name = config.service_name
         @agent = Agent.new(name: 'ruby', version: VERSION)
         @framework = Framework.new(
-          name: @config.framework_name,
-          version: @config.framework_version
+          name: config.framework_name,
+          version: config.framework_version
         )
         @language = Language.new(name: 'ruby', version: RUBY_VERSION)
         @runtime = lookup_runtime
-        @version = @config.service_version || Util.git_sha
+        @version = config.service_version || Util.git_sha
       end
 
       attr_reader :name, :environment, :agent, :framework, :language, :runtime,
         :version
+
+      def environment
+        config.environment
+      end
 
       private
 
@@ -50,6 +51,10 @@ module ElasticAPM
             version: JRUBY_VERSION || RUBY_ENGINE_VERSION
           )
         end
+      end
+
+      def config
+        ElasticAPM.config
       end
     end
   end

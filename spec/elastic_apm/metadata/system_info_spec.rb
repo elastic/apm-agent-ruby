@@ -3,7 +3,8 @@
 module ElasticAPM
   RSpec.describe Metadata::SystemInfo do
     describe '#initialize' do
-      subject { described_class.new(Config.new) }
+      subject { described_class.new }
+      before { allow(ElasticAPM).to receive(:config).and_return(Config.new) }
 
       it 'has values' do
         %i[hostname architecture platform].each do |key|

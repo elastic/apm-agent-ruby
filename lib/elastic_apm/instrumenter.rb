@@ -39,8 +39,7 @@ module ElasticAPM
       end
     end
 
-    def initialize(config, metrics:, stacktrace_builder:, &enqueue)
-      @config = config
+    def initialize(metrics:, stacktrace_builder:, &enqueue)
       @stacktrace_builder = stacktrace_builder
       @enqueue = enqueue
       @metrics = metrics
@@ -82,11 +81,12 @@ module ElasticAPM
     def start_transaction(
       name = nil,
       type = nil,
-      config:,
       context: nil,
       trace_context: nil
     )
-      return nil unless config.instrument?
+      local_config = config
+
+      return nil unless local_config.instrument?
 
       if (transaction = current_transaction)
         raise ExistingTransactionError,
@@ -94,7 +94,7 @@ module ElasticAPM
           "Already inside #{transaction.inspect}"
       end
 
-      sampled = trace_context ? trace_context.recorded? : random_sample?(config)
+      sampled = trace_context ? trace_context.recorded? : random_sample?(local_config)
 
       transaction =
         Transaction.new(
@@ -103,7 +103,7 @@ module ElasticAPM
           context: context,
           trace_context: trace_context,
           sampled: sampled,
-          config: config
+          config: local_config
         )
 
       transaction.start
@@ -292,6 +292,10 @@ module ElasticAPM
         :'span.self_time.count',
         tags: tags, reset_on_collect: true
       ).inc!
+    end
+
+    def config
+      ElasticAPM.config
     end
   end
 end

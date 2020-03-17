@@ -4,8 +4,8 @@ module ElasticAPM
   module Transport
     # @api private
     class UserAgent
-      def initialize(config)
-        @built = build(config)
+      def initialize
+        @built = build
       end
 
       def to_s
@@ -14,8 +14,8 @@ module ElasticAPM
 
       private
 
-      def build(config)
-        metadata = Metadata.new(config)
+      def build
+        metadata = Metadata.new
 
         [
           "elastic-apm-ruby/#{VERSION}",

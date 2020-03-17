@@ -5,7 +5,8 @@ require 'spec_helper'
 module ElasticAPM
   RSpec.describe Metadata do
     let(:config) { Config.new(global_labels: { apples: 'oranges' }) }
-    subject { described_class.new(config) }
+    before { allow(ElasticAPM).to receive(:config).and_return(config) }
+    subject { described_class.new }
 
     describe '#labels' do
       it 'accesses the config\'s labels' do

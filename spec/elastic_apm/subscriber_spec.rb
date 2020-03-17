@@ -14,16 +14,15 @@ if enable
   module ElasticAPM
     RSpec.describe Subscriber, :mock_intake do
       let(:config) { Config.new }
-      let(:agent) { Agent.new config }
 
       before do
         MockIntake.stub!
-        agent.start
+        ElasticAPM.start(config)
       end
 
-      after { agent.stop }
+      after { ElasticAPM.stop }
 
-      subject { Subscriber.new(agent) }
+      subject { Subscriber.new }
 
       describe '#register!' do
         it 'subscribes to AS::Notifications' do
@@ -48,7 +47,7 @@ if enable
 
       describe 'AS::Notifications API' do
         it 'adds spans from notifications', :intercept do
-          agent.start_transaction 'Test'
+          ElasticAPM.start_transaction 'Test'
 
           subject.start(
             'process_action.action_controller',
@@ -56,7 +55,7 @@ if enable
             controller: 'UsersController', action: 'index'
           )
 
-          span = agent.current_span
+          span = ElasticAPM.current_span
           expect(span).to be_running
           expect(span.name).to eq 'UsersController#index'
 
@@ -66,20 +65,23 @@ if enable
             nil
           )
 
-          agent.end_transaction
+          ElasticAPM.end_transaction
 
           expect(span).to_not be_running
           expect(span).to be_stopped
         end
 
-        it 'ignores unknown notifications' do
-          agent = Agent.new Config.new(disable_send: true)
-          subject = Subscriber.new agent
-          agent.start_transaction 'Test'
+        context 'with unknown notifications' do
+          let(:config) { Config.new(disable_send: true) }
 
-          expect do
-            subject.start('unknown.notification', nil, {})
-          end.to_not change(agent, :current_span)
+          it 'ignores unknown notifications' do
+            subject = Subscriber.new
+            ElasticAPM.start_transaction 'Test'
+
+            expect do
+              subject.start('unknown.notification', nil, {})
+            end.to_not change(ElasticAPM, :current_span)
+          end
         end
       end
     end

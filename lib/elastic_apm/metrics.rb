@@ -3,8 +3,8 @@
 module ElasticAPM
   # @api private
   module Metrics
-    def self.new(config, &block)
-      Registry.new(config, &block)
+    def self.new(&block)
+      Registry.new(&block)
     end
 
     def self.platform
@@ -17,8 +17,7 @@ module ElasticAPM
 
       TIMEOUT_INTERVAL = 5 # seconds
 
-      def initialize(config, &block)
-        @config = config
+      def initialize(&block)
         @callback = block
       end
 
@@ -91,6 +90,10 @@ module ElasticAPM
           next unless samples
           arr.concat(samples)
         end
+      end
+
+      def config
+        ElasticAPM.config
       end
     end
   end

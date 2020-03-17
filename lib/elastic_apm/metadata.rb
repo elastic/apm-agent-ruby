@@ -3,14 +3,20 @@
 module ElasticAPM
   # @api private
   class Metadata
-    def initialize(config)
-      @service = ServiceInfo.new(config)
-      @process = ProcessInfo.new(config)
-      @system = SystemInfo.new(config)
+    def initialize
+      @service = ServiceInfo.new
+      @process = ProcessInfo.new
+      @system = SystemInfo.new
       @labels = config.global_labels
     end
 
     attr_reader :service, :process, :system, :labels
+
+    private
+
+    def config
+      ElasticAPM.config
+    end
   end
 end
 

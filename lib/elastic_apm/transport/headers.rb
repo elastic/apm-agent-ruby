@@ -49,7 +49,7 @@ module ElasticAPM
       private
 
       def build!(headers)
-        headers[:'User-Agent'] = UserAgent.new(@config).to_s
+        headers[:'User-Agent'] = UserAgent.new.to_s
 
         if (token = @config.secret_token)
           headers[:Authorization] = "Bearer #{token}"

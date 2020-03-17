@@ -8,7 +8,7 @@ module ElasticAPM
     module ActionController
       RSpec.describe ProcessActionNormalizer do
         it 'registers for name' do
-          normalizers = Normalizers.build(nil)
+          normalizers = Normalizers.build
           subject = normalizers.for('process_action.action_controller')
 
           expect(subject).to be_a ProcessActionNormalizer
@@ -17,7 +17,7 @@ module ElasticAPM
         describe '#normalize' do
           it 'sets transaction name from payload' do
             instrumenter = double(Instrumenter)
-            subject = ProcessActionNormalizer.new nil
+            subject = ProcessActionNormalizer.new
             transaction = Transaction.new instrumenter,
               'Rack', config: Config.new
 

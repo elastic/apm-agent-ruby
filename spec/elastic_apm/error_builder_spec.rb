@@ -3,19 +3,20 @@
 module ElasticAPM
   RSpec.describe ErrorBuilder do
     let(:config) { Config.new }
+    subject { ErrorBuilder.new }
 
-    subject { ErrorBuilder.new Agent.new(config) }
-
-    context 'with an exception' do
-      it 'builds an error from an exception', :mock_time,
+    context 'with an exception', :intercept do
+      it 'builds an error from an exception', :intercept, :mock_time,
         unless: PlatformHelpers.jruby_92? do
-        error = subject.build_exception(actual_exception)
+        with_agent do
+          error = subject.build_exception(actual_exception)
 
-        expect(error.culprit).to eq '/'
-        expect(error.timestamp).to eq 694_224_000_000_000
-        expect(error.exception.message).to eq 'divided by 0'
-        expect(error.exception.type).to eq 'ZeroDivisionError'
-        expect(error.exception.handled).to be true
+          expect(error.culprit).to eq '/'
+          expect(error.timestamp).to eq 694_224_000_000_000
+          expect(error.exception.message).to eq 'divided by 0'
+          expect(error.exception.type).to eq 'ZeroDivisionError'
+          expect(error.exception.handled).to be true
+        end
       end
 
       it 'sets properties from current transaction', :intercept do
@@ -51,15 +52,17 @@ module ElasticAPM
     end
 
     context 'with a log' do
-      it 'builds an error from a message', :mock_time,
+      it 'builds an error from a message', :intercept, :mock_time,
         unless: PlatformHelpers.jruby_92? do
-        error = subject.build_log 'Things went BOOM', backtrace: caller
+        with_agent do
+          error = subject.build_log 'Things went BOOM', backtrace: caller
 
-        expect(error.culprit).to eq 'instance_exec'
-        expect(error.log.message).to eq 'Things went BOOM'
-        expect(error.timestamp).to eq 694_224_000_000_000
-        expect(error.log.stacktrace).to be_a Stacktrace
-        expect(error.log.stacktrace.length).to be > 0
+          expect(error.culprit).to eq 'with_agent'
+          expect(error.log.message).to eq 'Things went BOOM'
+          expect(error.timestamp).to eq 694_224_000_000_000
+          expect(error.log.stacktrace).to be_a Stacktrace
+          expect(error.log.stacktrace.length).to be > 0
+        end
       end
     end
   end

@@ -4,7 +4,8 @@ module ElasticAPM
   RSpec.describe ContextBuilder do
     describe '#build' do
       let(:config) { Config.new }
-      let(:subject) { described_class.new(config) }
+      let(:subject) { described_class.new }
+      before { allow(ElasticAPM).to receive(:config).and_return(config) }
 
       it 'enriches request' do
         env = Rack::MockRequest.env_for(

@@ -7,11 +7,16 @@ module ElasticAPM
   module Normalizers
     RSpec.describe ActionView do
       let(:normalizers) do
-        config = Config.new.tap do |c|
+        Normalizers.build
+      end
+      
+      let(:config) do
+        Config.new.tap do |c|
           c.__view_paths = ['/var/www/app/views']
         end
-        Normalizers.build(config)
       end
+      
+      before { allow(ElasticAPM).to receive(:config).and_return(config) }
 
       shared_examples_for :action_view_normalizer do |key|
         describe '#normalize' do

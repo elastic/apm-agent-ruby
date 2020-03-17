@@ -8,7 +8,7 @@ module ElasticAPM
     module ActiveRecord
       RSpec.describe SqlNormalizer do
         it 'registers for name' do
-          normalizers = Normalizers.build nil
+          normalizers = Normalizers.build
           subject = normalizers.for('sql.active_record')
           expect(subject).to be_a SqlNormalizer
         end
@@ -24,7 +24,7 @@ module ElasticAPM
             allow(::ActiveRecord::Base)
               .to receive(:connection_config) { { adapter: 'MySQL' } }
 
-            subject = SqlNormalizer.new nil
+            subject = SqlNormalizer.new
 
             _, _, subtype, =
               subject.normalize(nil, nil, sql: 'DROP * FROM users')
@@ -35,7 +35,7 @@ module ElasticAPM
 
         describe '#normalize' do
           let(:key) { 'sql.active_record' }
-          subject { SqlNormalizer.new nil }
+          subject { SqlNormalizer.new }
 
           def normalize_payload(payload)
             subject.normalize(nil, 'sql.active_record', payload)

@@ -19,7 +19,7 @@ module ElasticAPM
         end
 
         def view_path(path)
-          root = @config.__view_paths.find { |vp| path.start_with?(vp) }
+          root = config.__view_paths.find { |vp| path.start_with?(vp) }
           return unless root
 
           strip_root(root, path)
@@ -35,6 +35,10 @@ module ElasticAPM
         def strip_root(root, path)
           start = root.length + 1
           path[start, path.length]
+        end
+
+        def config
+          ElasticAPM.config
         end
       end
 

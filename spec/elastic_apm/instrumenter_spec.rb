@@ -26,7 +26,7 @@ module ElasticAPM
         before do
           subject.subscriber = subscriber
 
-          subject.start_transaction(config: config)
+          subject.start_transaction
           subject.stop
         end
 
@@ -48,7 +48,7 @@ module ElasticAPM
         context = Context.new
         transaction =
           subject.start_transaction 'Test', 't',
-            config: config, context: context
+            context: context
         expect(transaction.name).to eq 'Test'
         expect(transaction.type).to eq 't'
         expect(transaction.id).to be subject.current_transaction.id
@@ -58,9 +58,9 @@ module ElasticAPM
       end
 
       it 'explodes if called inside other transaction' do
-        subject.start_transaction 'Test', config: config
+        subject.start_transaction 'Test'
 
-        expect { subject.start_transaction 'Test', config: config }
+        expect { subject.start_transaction 'Test' }
           .to raise_error(ExistingTransactionError)
       end
 
@@ -68,7 +68,7 @@ module ElasticAPM
         let(:config) { Config.new(instrument: false) }
 
         it 'is nil' do
-          expect(subject.start_transaction(config: config)).to be nil
+          expect(subject.start_transaction).to be nil
           expect(subject.current_transaction).to be nil
         end
       end
@@ -77,7 +77,7 @@ module ElasticAPM
         let(:config) { Config.new(default_labels: { more: 'yes!' }) }
 
         it 'adds them to transaction context' do
-          transaction = subject.start_transaction 'Test', 't', config: config
+          transaction = subject.start_transaction 'Test', 't'
           expect(transaction.context.labels).to match(more: 'yes!')
         end
       end
@@ -86,7 +86,7 @@ module ElasticAPM
         let(:config) { Config.new(default_labels: { more: 'yes!' }) }
 
         it 'adds them to transaction context' do
-          transaction = subject.start_transaction 'Test', 't', config: config
+          transaction = subject.start_transaction 'Test', 't'
           expect(transaction.context.labels).to match(more: 'yes!')
         end
       end
@@ -98,7 +98,7 @@ module ElasticAPM
       end
 
       it 'ends and enqueues current transaction' do
-        transaction = subject.start_transaction(config: config)
+        transaction = subject.start_transaction
         return_value = subject.end_transaction('result')
 
         expect(return_value).to be transaction
@@ -109,7 +109,7 @@ module ElasticAPM
       end
 
       it 'reports metrics', :mock_time do
-        subject.start_transaction('a_transaction', config: config)
+        subject.start_transaction('a_transaction')
         travel 100
         subject.start_span('a_span', 'a', subtype: 'b')
         travel 100
@@ -134,6 +134,7 @@ module ElasticAPM
         new_txn_set, = agent.metrics.get(:transaction).collect
         expect(new_txn_set).to be nil
 
+        binding.pry
         brk_sets = agent.metrics.get(:breakdown).collect
 
         txn_self_time = brk_sets.find do |d|
@@ -161,7 +162,7 @@ module ElasticAPM
         let(:config) { Config.new breakdown_metrics: false }
 
         it 'skips breakdown but keeps transaction metrics', :mock_time do
-          subject.start_transaction('a_transaction', config: config)
+          subject.start_transaction('a_transaction')
           travel 100
           subject.start_span('a_span', 'a', subtype: 'b')
           travel 100
@@ -187,7 +188,7 @@ module ElasticAPM
         let(:config) { Config.new(transaction_sample_rate: 0.0) }
 
         it 'skips spans' do
-          transaction = subject.start_transaction(config: config)
+          transaction = subject.start_transaction
           expect(transaction).to_not be_sampled
 
           span = subject.start_span 'Span'
@@ -196,7 +197,7 @@ module ElasticAPM
       end
 
       context 'inside a sampled transaction' do
-        let(:transaction) { subject.start_transaction(config: config) }
+        let(:transaction) { subject.start_transaction }
 
         before do
           transaction
@@ -254,12 +255,12 @@ module ElasticAPM
 
     describe '#end_span' do
       context 'when missing span' do
-        before { subject.start_transaction(config: config) }
+        before { subject.start_transaction }
         it { expect(subject.end_span).to be nil }
       end
 
       context 'inside transaction and span' do
-        let(:transaction) { subject.start_transaction(config: config) }
+        let(:transaction) { subject.start_transaction }
         let(:span) { subject.start_span 'Span' }
 
         before do
@@ -291,14 +292,14 @@ module ElasticAPM
 
     describe '#set_label' do
       it 'sets tag on current transaction' do
-        transaction = subject.start_transaction 'Test', config: config
+        transaction = subject.start_transaction 'Test'
         subject.set_label :things, 'are all good!'
 
         expect(transaction.context.labels).to match(things: 'are all good!')
       end
 
       it 'de-dots keys' do
-        transaction = subject.start_transaction 'Test', config: config
+        transaction = subject.start_transaction 'Test'
         subject.set_label 'th.ings', 'are all good!'
         subject.set_label 'thi"ngs', 'are all good!'
         subject.set_label 'thin*gs', 'are all good!'
@@ -311,14 +312,14 @@ module ElasticAPM
       end
 
       it 'allows boolean values' do
-        transaction = subject.start_transaction 'Test', config: config
+        transaction = subject.start_transaction 'Test'
         subject.set_label :things, true
 
         expect(transaction.context.labels).to match(things: true)
       end
 
       it 'allows numerical values' do
-        transaction = subject.start_transaction 'Test', config: config
+        transaction = subject.start_transaction 'Test'
         subject.set_label :things, 123
 
         expect(transaction.context.labels).to match(things: 123)
@@ -327,7 +328,7 @@ module ElasticAPM
 
     describe '#set_custom_context' do
       it 'sets custom context on transaction' do
-        transaction = subject.start_transaction 'Test', config: config
+        transaction = subject.start_transaction 'Test'
         subject.set_custom_context(one: 'is in', two: 2, three: false)
 
         expect(transaction.context.custom).to match(
@@ -342,7 +343,7 @@ module ElasticAPM
       User = Struct.new(:id, :email, :username)
 
       it 'sets user in context' do
-        transaction = subject.start_transaction 'Test', config: config
+        transaction = subject.start_transaction 'Test'
         subject.set_user(User.new(1, 'a@a', 'abe'))
         subject.end_transaction
 

@@ -3,16 +3,13 @@
 module ElasticAPM
   # @api private
   class ErrorBuilder
-    def initialize(agent)
-      @agent = agent
-    end
 
     def build_exception(exception, context: nil, handled: true)
       error = Error.new context: context || Context.new
       error.exception =
         Error::Exception.from_exception(exception, handled: handled)
 
-      Util.reverse_merge!(error.context.labels, @agent.config.default_labels)
+      Util.reverse_merge!(error.context.labels, config.default_labels)
 
       if exception.backtrace
         add_stacktrace error, :exception, exception.backtrace
@@ -40,7 +37,7 @@ module ElasticAPM
 
     def add_stacktrace(error, kind, backtrace)
       stacktrace =
-        @agent.stacktrace_builder.build(backtrace, type: :error)
+          ElasticAPM.agent.stacktrace_builder.build(backtrace, type: :error)
       return unless stacktrace
 
       case kind
@@ -68,6 +65,10 @@ module ElasticAPM
 
       Util.reverse_merge!(error.context.labels, transaction.context.labels)
       Util.reverse_merge!(error.context.custom, transaction.context.custom)
+    end
+
+    def config
+      ElasticAPM.config
     end
   end
 end

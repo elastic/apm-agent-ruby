@@ -5,9 +5,6 @@ module ElasticAPM # :nodoc:
   module Normalizers
     # @api privagte
     class Normalizer
-      def initialize(config)
-        @config = config
-      end
 
       def self.register(name)
         Normalizers.register(name, self)
@@ -21,9 +18,9 @@ module ElasticAPM # :nodoc:
       @registered[name] = klass
     end
 
-    def self.build(config)
+    def self.build
       normalizers = @registered.each_with_object({}) do |(name, klass), built|
-        built[name] = klass.new(config)
+        built[name] = klass.new
       end
 
       Collection.new(normalizers)

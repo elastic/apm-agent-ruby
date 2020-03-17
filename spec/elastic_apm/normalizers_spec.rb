@@ -19,7 +19,7 @@ if enable
             register 'something'
           end
 
-          built = Normalizers.build nil
+          built = Normalizers.build
           expect(built.for('something')).to be_a TestNormalizer
           expect(built.keys).to include 'something'
         end

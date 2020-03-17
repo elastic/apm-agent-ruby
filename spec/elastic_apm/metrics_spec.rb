@@ -6,7 +6,8 @@ module ElasticAPM
   RSpec.describe Metrics do
     let(:config) { Config.new }
     let(:callback) { ->(_) {} }
-    subject { described_class.new(config, &callback) }
+    subject { described_class.new(&callback) }
+    before { allow(ElasticAPM).to receive(:config).and_return(config) }
 
     describe 'life cycle' do
       describe '#start' do
@@ -77,10 +78,10 @@ module ElasticAPM
     end
 
     context 'thread safety stress test', :mock_intake do
+      let(:config) { Config.new(metrics_interval: '100ms') }
       it 'handles multiple threads reporting and collecting at the same time' do
-        config = Config.new(metrics_interval: '100ms')
         queue = Queue.new
-        metrics = Metrics.new(config) { queue.push metricset }
+        metrics = Metrics.new { queue.push metricset }
         thread_count = 1_000
 
         names = Array.new(5).map do
