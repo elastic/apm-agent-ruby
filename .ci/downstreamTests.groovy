@@ -161,8 +161,8 @@ def runScript(Map params = [:]){
         def clean_ruby = cleanName("${ruby}", ":", "-")
         def clean_framework = cleanName("{$framework}", "/", "-")
         stash(
-          name: "coverage-${clean_ruby}-${framework}",
-          includes: "coverage/matrix_results/${clean_framework}-${clean_ruby}/**",
+          name: "coverage-${clean_ruby}-${clean_framework}",
+          includes: "coverage/matrix_results/${framework}-${clean_ruby}/**",
           allowEmpty: false
         )
       }
