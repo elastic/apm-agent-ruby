@@ -85,9 +85,6 @@ pipeline {
       }
     }
   }
-      
-
-      
   post {
     cleanup {
       script{
@@ -144,9 +141,6 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
     }
   }
 }
-
-
-
 /**
   Run tests for a Ruby version and framework version.
 */
@@ -164,9 +158,7 @@ def runScript(Map params = [:]){
       sleep randomNumber(min:10, max: 30)
       dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
       sh("./spec/scripts/spec.sh ${ruby} ${framework}")
-
       sh(script: "pwd && ls -larth coverage/matrix_results")
-     
       script{
         def clean_ruby = cleanName("${ruby}", "-")
         stash(
