@@ -123,13 +123,14 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
     super(params)
   }
 
-  public saveCoverage(x, y){
-    steps.stash(
-      name: "coverage-${x}-${y}",
-      includes: "coverage/matrix-results/${x}-${y}",
-      allowEmpty: false
-      )
-  }
+  // public saveCoverage(x, y){
+  //   steps.sh(script: "pwd && ls -larth coverage/matrix_results")
+  //   steps.stash(
+  //     name: "coverage-${y}-${x}",
+  //     includes: "coverage/matrix-results/${y}-${x}",
+  //     allowEmpty: false
+  //     )
+  // }
 
   /**
   build a clousure that launch and agent and execute the corresponding test script,
@@ -145,7 +146,7 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
         try {
           steps.runScript(label: label, ruby: x, framework: y)
           saveResult(x, y, 1)
-          saveCoverage(x, y)
+          // saveCoverage(x, y)
         } catch(e){
           saveResult(x, y, 0)
           steps.error("${label} tests failed : ${e.toString()}\n")
@@ -178,8 +179,24 @@ def runScript(Map params = [:]){
       sleep randomNumber(min:10, max: 30)
       dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
       sh("./spec/scripts/spec.sh ${ruby} ${framework}")
+
+      sh(script: "pwd && ls -larth coverage/matrix_results")
+     
+      script{
+        def clean_ruby = cleanName("${ruby}", "-")
+        echo("Attempting to archive file: coverage/matrix_results/${framework}-${clean_ruby}")
+        stash(
+          name: "coverage-${framework}-${clean_ruby}",
+          includes: "coverage/matrix_results/${framework}-${clean_ruby}/**",
+          allowEmpty: false
+        )
+      }
     }
   }
+}
+
+def cleanName(name, marker){
+    return name.replaceAll(':', marker)
 }
 
 /**
