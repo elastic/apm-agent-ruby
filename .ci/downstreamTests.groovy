@@ -72,7 +72,7 @@ pipeline {
           script{
             def matrixDump = rubyTasksGen.dumpMatrix("-")
             for(vector in matrixDump) {
-              def clean_vector = cleanName("${vector}", "-")
+              def clean_vector = cleanName(cleanName("${vector}", ":", "-"), "/", "-")
               unstash("coverage-${clean_vector}")
             }
           }
@@ -158,10 +158,11 @@ def runScript(Map params = [:]){
       dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
       sh("./spec/scripts/spec.sh ${ruby} ${framework}")
       script{
-        def clean_ruby = cleanName("${ruby}", "-")
+        def clean_ruby = cleanName("${ruby}", ":", "-")
+        def clean_framework = cleanName("{$framework}", "/", "-")
         stash(
           name: "coverage-${clean_ruby}-${framework}",
-          includes: "coverage/matrix_results/${framework}-${clean_ruby}/**",
+          includes: "coverage/matrix_results/${clean_framework}-${clean_ruby}/**",
           allowEmpty: false
         )
       }
@@ -169,8 +170,8 @@ def runScript(Map params = [:]){
   }
 }
 
-def cleanName(name, marker){
-    return name.replaceAll(':', marker)
+def cleanName(name, search, replace){
+    return name.replaceAll(search, replace)
 }
 
 /**
