@@ -83,8 +83,8 @@ pipeline {
               echo "Vector: ${vector}"
               sh(script: "pwd && ls -larth")
               def clean_vector = cleanName("${vector}", "-")
-              echo "Unstashing: coverage-${vector}"
-              unstash("coverage-${vector}")
+              echo "Unstashing: coverage-${clean_vector}"
+              unstash("coverage-${clean_vector}")
             }
           }
         }
