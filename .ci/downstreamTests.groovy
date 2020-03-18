@@ -158,10 +158,9 @@ def runScript(Map params = [:]){
       dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
       sh("./spec/scripts/spec.sh ${ruby} ${framework}")
       script{
-        def clean_ruby = cleanName("${ruby}", ":", "-")
-        def clean_framework = cleanName("{$framework}", "/", "-")
+        def clean_ruby = cleanName(cleanName("${ruby}", ":", "-"), "/", "-")
         stash(
-          name: "coverage-${clean_ruby}-${clean_framework}",
+          name: "coverage-${clean_ruby}-${framework}",
           includes: "coverage/matrix_results/${framework}-${clean_ruby}/**",
           allowEmpty: false
         )
