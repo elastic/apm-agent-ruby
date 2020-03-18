@@ -82,6 +82,7 @@ pipeline {
             for(vector in matrixDump) {
               echo "Vector: ${vector}"
               sh(script: "pwd && ls -larth")
+              def clean_vector = cleanName("${vector}", "-")
               echo "Unstashing: coverage-${vector}"
               unstash("coverage-${vector}")
             }
@@ -178,9 +179,9 @@ def runScript(Map params = [:]){
      
       script{
         def clean_ruby = cleanName("${ruby}", "-")
-        echo("Attempting to archive file: coverage/matrix_results/${framework}-${clean_ruby}")
+        echo("Attempting to archive file: coverage/matrix_results/${clean_ruby}-${framework}")
         stash(
-          name: "coverage-${framework}-${clean_ruby}",
+          name: "coverage-${clean_ruby}-${framework}",
           includes: "coverage/matrix_results/${framework}-${clean_ruby}/**",
           allowEmpty: false
         )
