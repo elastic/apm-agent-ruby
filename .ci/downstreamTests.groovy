@@ -77,8 +77,10 @@ pipeline {
         dir("${BASE_DIR}/coverage/matrix-results"){
           sh(script: "pwd && ls -larth")
           script{
-            def matrixDump = RubyParallelTaskGenerator.dumpMatrix("-")
+            def matrixDump = rubyTasksGen.dumpMatrix("-")
             for(vector in matrixDump) {
+              sh(script: "pwd && ls -larth")
+              echo "Unstashing: coverage-${vector}"
               unstash("coverage-${vector}")
             }
           }
@@ -123,15 +125,6 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
     super(params)
   }
 
-  // public saveCoverage(x, y){
-  //   steps.sh(script: "pwd && ls -larth coverage/matrix_results")
-  //   steps.stash(
-  //     name: "coverage-${y}-${x}",
-  //     includes: "coverage/matrix-results/${y}-${x}",
-  //     allowEmpty: false
-  //     )
-  // }
-
   /**
   build a clousure that launch and agent and execute the corresponding test script,
   then store the results.
@@ -146,7 +139,6 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
         try {
           steps.runScript(label: label, ruby: x, framework: y)
           saveResult(x, y, 1)
-          // saveCoverage(x, y)
         } catch(e){
           saveResult(x, y, 0)
           steps.error("${label} tests failed : ${e.toString()}\n")
