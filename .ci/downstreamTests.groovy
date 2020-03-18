@@ -72,13 +72,15 @@ pipeline {
         }
       }
     }
-    stage('Coverge coverage') {
+    stage('Coverage converge') {
       steps{
         dir("${BASE_DIR}/coverage/matrix-results"){
           sh(script: "pwd && ls -larth")
+          echo "Dumping results"
           script{
             def matrixDump = rubyTasksGen.dumpMatrix("-")
             for(vector in matrixDump) {
+              echo "Vector: ${vector}"
               sh(script: "pwd && ls -larth")
               echo "Unstashing: coverage-${vector}"
               unstash("coverage-${vector}")
