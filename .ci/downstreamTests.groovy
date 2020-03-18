@@ -50,7 +50,6 @@ pipeline {
           repo: "${REPO}",
           credentialsId: "${JOB_GIT_CREDENTIALS}")
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
-
       }
     }
     stage('Test') {
