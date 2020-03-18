@@ -44,16 +44,11 @@ pipeline {
     stage('Checkout') {
       options { skipDefaultCheckout() }
       steps {
-        
-        // gitCheckout(basedir: "${BASE_DIR}",
-        //   branch: "${params.BRANCH_SPECIFIER}",
-        //   repo: "${REPO}",
-        //   credentialsId: "${JOB_GIT_CREDENTIALS}")
-        dir("${BASE_DIR}"){
-          // deleteDir()
-          git(url: '/var/apm-agent-ruby', branch: 'coverage')
-          
-        }
+        deleteDir()
+        gitCheckout(basedir: "${BASE_DIR}",
+          branch: "${params.BRANCH_SPECIFIER}",
+          repo: "${REPO}",
+          credentialsId: "${JOB_GIT_CREDENTIALS}")
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
 
       }
@@ -75,15 +70,10 @@ pipeline {
     stage('Coverage converge') {
       steps{
         dir("${BASE_DIR}/coverage/matrix-results"){
-          sh(script: "pwd && ls -larth")
-          echo "Dumping results"
           script{
             def matrixDump = rubyTasksGen.dumpMatrix("-")
             for(vector in matrixDump) {
-              echo "Vector: ${vector}"
-              sh(script: "pwd && ls -larth")
               def clean_vector = cleanName("${vector}", "-")
-              echo "Unstashing: coverage-${clean_vector}"
               unstash("coverage-${clean_vector}")
             }
           }
@@ -179,7 +169,6 @@ def runScript(Map params = [:]){
      
       script{
         def clean_ruby = cleanName("${ruby}", "-")
-        echo("Attempting to archive file: coverage/matrix_results/${clean_ruby}-${framework}")
         stash(
           name: "coverage-${clean_ruby}-${framework}",
           includes: "coverage/matrix_results/${framework}-${clean_ruby}/**",
@@ -202,7 +191,6 @@ def runTests(frameworkFile) {
   unstash "source"
   dir("${BASE_DIR}"){
     script {
-      // echo "Starting script"
       rubyTasksGen = new RubyParallelTaskGenerator(
         xVersions: [ "${params.RUBY_VERSION}" ],
         xKey: 'RUBY_VERSION',
@@ -213,11 +201,8 @@ def runTests(frameworkFile) {
         name: 'Ruby',
         steps: this
       )
-      // echo "Task gen created"
       def mapPatallelTasks = rubyTasksGen.generateParallelTests()
-      // echo "Map created"
       parallel(mapPatallelTasks)
-      // echo "Paralell tests finished"
     }
   }
 }
