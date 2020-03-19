@@ -32,6 +32,8 @@ require 'elastic_apm/grpc' if defined?(::GRPC)
 # ElasticAPM
 module ElasticAPM
   class << self
+    class AgentRequired < RuntimeError; end
+
     ### Life cycle
 
     # Starts the ElasticAPM Agent
@@ -65,6 +67,16 @@ module ElasticAPM
     # @return [Agent] Currently running [Agent] if any
     def agent
       Agent.instance
+    end
+
+    # Returns the config of the running agent.
+    #
+    # @return [Config] The config of the running agent.
+    # Returns nil if the agent is not running.
+    def config
+      raise AgentRequired unless agent
+      raise RuntimeError, 'Config for agent is missing' unless Agent.config
+      Agent.config
     end
 
     ### Metrics

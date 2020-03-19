@@ -93,6 +93,9 @@ module ElasticAPM
           end
 
           context 'with a context' do
+            before { ElasticAPM.start(disable_send: true) }
+            after { ElasticAPM.stop }
+
             it 'includes context' do
               env = Rack::MockRequest.env_for('/')
 

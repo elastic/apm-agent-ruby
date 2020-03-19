@@ -42,7 +42,11 @@ module ElasticAPM
           return
         end
 
-        @instance = new(config).start
+        # It's important that the @instance variable is set before
+        # calling #start. Objects rely on the config being available
+        # via ElasticAPM.agent.config while starting.
+        @instance = new(config)
+        @instance.start
       end
     end
 
@@ -59,9 +63,13 @@ module ElasticAPM
       !!@instance
     end
 
+    def self.config
+      @instance&.config
+    end
+
     def initialize(config)
       @stacktrace_builder = StacktraceBuilder.new(config)
-      @context_builder = ContextBuilder.new(config)
+      @context_builder = ContextBuilder.new
       @error_builder = ErrorBuilder.new(self)
 
       @central_config = CentralConfig.new(config)

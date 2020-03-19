@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 module ElasticAPM
-  RSpec.describe ContextBuilder do
+  RSpec.describe ContextBuilder, :intercept do
     describe '#build' do
       let(:config) { Config.new }
-      let(:subject) { described_class.new(config) }
+      let(:subject) { described_class.new }
+      before { ElasticAPM.start(config) }
+      after { ElasticAPM.stop }
 
       it 'enriches request' do
         env = Rack::MockRequest.env_for(

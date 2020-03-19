@@ -6,12 +6,6 @@ module ElasticAPM
     MAX_BODY_LENGTH = 2048
     SKIPPED = '[SKIPPED]'
 
-    def initialize(config)
-      @config = config
-    end
-
-    attr_reader :config
-
     def build(rack_env:, for_type:)
       Context.new.tap do |context|
         apply_to_request(context, rack_env: rack_env, for_type: for_type)
@@ -43,7 +37,7 @@ module ElasticAPM
     end
 
     def should_capture_body?(for_type)
-      option = config.capture_body
+      option = config.capture_body?
 
       return true if option == 'all'
       return true if option == 'transactions' && for_type == :transaction
@@ -90,6 +84,10 @@ module ElasticAPM
     def build_http_version(rack_env)
       return unless (http_version = rack_env['HTTP_VERSION'])
       http_version.gsub(%r{HTTP/}, '')
+    end
+
+    def config
+      ElasticAPM.config
     end
   end
 end
