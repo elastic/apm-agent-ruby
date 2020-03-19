@@ -7,8 +7,10 @@ module ElasticAPM
     module Serializers
       RSpec.describe ErrorSerializer do
         let(:config) { Config.new }
-        let(:agent) { Agent.new(config) }
-        let(:builder) { ErrorBuilder.new(agent) }
+        let(:builder) { ElasticAPM.agent.error_builder }
+        let(:config) { Config.new(disable_send: true) }
+        before { ElasticAPM.start(config) }
+        after { ElasticAPM.stop }
 
         subject { described_class.new(config) }
 
@@ -93,14 +95,13 @@ module ElasticAPM
           end
 
           context 'with a context' do
-            before { ElasticAPM.start(disable_send: true) }
-            after { ElasticAPM.stop }
-
             it 'includes context' do
               env = Rack::MockRequest.env_for('/')
 
               context =
-                agent.context_builder.build(rack_env: env, for_type: :error)
+                ElasticAPM.agent
+                          .context_builder
+                          .build(rack_env: env, for_type: :error)
 
               error =
                 builder.build_exception(actual_exception, context: context)
@@ -117,13 +118,10 @@ module ElasticAPM
           end
 
           context 'with a transaction' do
-            it 'includes context', :intercept do
-              error = with_agent do
-                ElasticAPM.with_transaction do
-                  ErrorBuilder
-                    .new(ElasticAPM.agent)
-                    .build_exception(actual_exception)
-                end
+            it 'includes context' do
+              error = ElasticAPM.with_transaction do
+                ElasticAPM.agent.error_builder
+                          .build_exception(actual_exception)
               end
 
               transaction =

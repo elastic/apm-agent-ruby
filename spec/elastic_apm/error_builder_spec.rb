@@ -2,9 +2,13 @@
 
 module ElasticAPM
   RSpec.describe ErrorBuilder do
-    let(:config) { Config.new }
-
-    subject { ErrorBuilder.new Agent.new(config) }
+    let(:config) do
+      Config.new(default_labels: { more: 'totes' },
+                 disable_send: true)
+    end
+    subject { ElasticAPM.agent.error_builder }
+    before { ElasticAPM.start(config) }
+    after { ElasticAPM.stop }
 
     context 'with an exception' do
       it 'builds an error from an exception', :mock_time,
@@ -25,12 +29,11 @@ module ElasticAPM
         )
         env['HTTP_CONTENT_TYPE'] = 'application/json'
 
-        transaction =
-          with_agent(default_labels: { more: 'totes' }) do
+
             context =
               ElasticAPM.build_context rack_env: env, for_type: :transaction
 
-            ElasticAPM.with_transaction context: context do |txn|
+        transaction = ElasticAPM.with_transaction context: context do |txn|
               ElasticAPM.set_label(:my_tag, '123')
               ElasticAPM.set_custom_context(all_the_other_things: 'blah blah')
               ElasticAPM.set_user(Struct.new(:id).new(321))
@@ -38,7 +41,6 @@ module ElasticAPM
 
               txn
             end
-          end
 
         error = @intercepted.errors.last
         expect(error.transaction).to eq(sampled: true, type: 'custom')
