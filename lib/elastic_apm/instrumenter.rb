@@ -39,8 +39,7 @@ module ElasticAPM
       end
     end
 
-    def initialize(config, metrics:, stacktrace_builder:, &enqueue)
-      @config = config
+    def initialize(metrics:, stacktrace_builder:, &enqueue)
       @stacktrace_builder = stacktrace_builder
       @enqueue = enqueue
       @metrics = metrics
