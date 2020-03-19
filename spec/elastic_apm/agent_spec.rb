@@ -100,6 +100,10 @@ module ElasticAPM
     end
 
     context 'reporting', :intercept do
+      before { ElasticAPM.start(config) }
+      after { ElasticAPM.stop }
+      subject { ElasticAPM.agent }
+
       describe '#report' do
         it 'queues a request' do
           expect { subject.report(actual_exception) }
