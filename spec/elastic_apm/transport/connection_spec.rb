@@ -6,7 +6,8 @@ module ElasticAPM
   module Transport
     RSpec.describe Connection do
       let(:config) { Config.new(http_compression: false) }
-      subject { described_class.new(config) }
+      subject { described_class.new }
+      before { allow(ElasticAPM).to receive(:config).and_return(config) }
 
       after { WebMock.reset! }
 
@@ -164,8 +165,8 @@ module ElasticAPM
         context 'and gzip off' do
           let(:config) { Config.new(http_compression: false) }
           let(:metadata) do
-            Serializers::MetadataSerializer.new(config).build(
-              Metadata.new(config)
+            Serializers::MetadataSerializer.new.build(
+              Metadata.new
             )
           end
 

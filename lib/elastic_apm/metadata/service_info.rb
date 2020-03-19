@@ -13,27 +13,39 @@ module ElasticAPM
 
         attr_reader :name, :version
       end
+
+      class Framework
+        def name
+          @name ||= ElasticAPM.config.framework_name
+        end
+
+        def version
+          @version ||= ElasticAPM.config.framework_version
+        end
+      end
+
       class Agent < Versioned; end
-      class Framework < Versioned; end
       class Language < Versioned; end
       class Runtime < Versioned; end
       def initialize
-        @name = config.service_name
         @agent = Agent.new(name: 'ruby', version: VERSION)
-        @framework = Framework.new(
-          name: config.framework_name,
-          version: config.framework_version
-        )
+        @framework = Framework.new
         @language = Language.new(name: 'ruby', version: RUBY_VERSION)
         @runtime = lookup_runtime
-        @version = config.service_version || Util.git_sha
       end
 
-      attr_reader :name, :environment, :agent, :framework, :language, :runtime,
-        :version
+      attr_reader :environment, :agent, :framework, :language, :runtime
 
       def environment
         config.environment
+      end
+
+      def name
+        @name ||= config.service_name
+      end
+
+      def version
+        @version ||= config.service_version || Util.git_sha
       end
 
       private

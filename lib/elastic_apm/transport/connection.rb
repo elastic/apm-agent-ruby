@@ -18,10 +18,9 @@ module ElasticAPM
       # with ongoing write requests to `http`, write and close
       # requests have to be synchronized.
 
-      def initialize(config)
-        @config = config
+      def initialize
         @metadata = JSON.fast_generate(
-          Serializers::MetadataSerializer.new(config).build(
+          Serializers::MetadataSerializer.new.build(
             Metadata.new
           )
         )
@@ -31,7 +30,7 @@ module ElasticAPM
 
       attr_reader :http
       def write(str)
-        return false if @config.disable_send
+        return false if config.disable_send
 
         begin
           bytes_written = 0
@@ -43,7 +42,7 @@ module ElasticAPM
             bytes_written = http.write(str)
           end
 
-          flush(:api_request_size) if bytes_written >= @config.api_request_size
+          flush(:api_request_size) if bytes_written >= config.api_request_size
         rescue IOError => e
           error('Connection error: %s', e.inspect)
           flush(:ioerror)
@@ -74,10 +73,10 @@ module ElasticAPM
       private
 
       def connect
-        schedule_closing if @config.api_request_time
+        schedule_closing if config.api_request_time
 
         @http =
-          Http.open(@config, @url).tap do |http|
+          Http.open(config, @url).tap do |http|
             http.write(@metadata)
           end
       end
@@ -86,9 +85,13 @@ module ElasticAPM
       def schedule_closing
         @close_task&.cancel
         @close_task =
-          Concurrent::ScheduledTask.execute(@config.api_request_time) do
+          Concurrent::ScheduledTask.execute(config.api_request_time) do
             flush(:timeout)
           end
+      end
+
+      def config
+        ElasticAPM.config
       end
     end
   end

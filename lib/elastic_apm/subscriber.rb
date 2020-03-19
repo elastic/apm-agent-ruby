@@ -28,7 +28,7 @@ module ElasticAPM
 
     Notification = Struct.new(:id, :span)
     def start(name, id, payload)
-      return unless (transaction = @agent.current_transaction)
+      return unless (transaction = ElasticAPM.current_transaction)
 
       normalized = @normalizers.normalize(transaction, name, payload)
 
@@ -38,7 +38,7 @@ module ElasticAPM
         else
           name, type, subtype, action, context = normalized
 
-          @agent.start_span(
+          ElasticAPM.start_span(
             name,
             type,
             subtype: subtype,

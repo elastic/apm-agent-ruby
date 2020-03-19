@@ -5,12 +5,14 @@ require 'spec_helper'
 module ElasticAPM
   module Transport
     module Serializers
-      RSpec.describe ErrorSerializer do
+      RSpec.describe ErrorSerializer, :intercept do
         let(:config) { Config.new }
         let(:agent) { Agent.new(config) }
-        let(:builder) { ErrorBuilder.new(agent) }
+        let(:builder) { ErrorBuilder.new }
+        before { ElasticAPM.start }
+        after { ElasticAPM.stop }
 
-        subject { described_class.new(config) }
+        subject { described_class.new }
 
         context 'with an exception', :mock_time do
           it 'matches format' do
@@ -118,7 +120,7 @@ module ElasticAPM
               error = with_agent do
                 ElasticAPM.with_transaction do
                   ErrorBuilder
-                    .new(ElasticAPM.agent)
+                    .new
                     .build_exception(actual_exception)
                 end
               end

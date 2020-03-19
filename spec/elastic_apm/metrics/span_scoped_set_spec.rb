@@ -4,7 +4,9 @@ module ElasticAPM
   module Metrics
     RSpec.shared_examples(:span_scope_set) do
       let(:config) { Config.new }
-      subject { described_class.new config }
+      subject { described_class.new }
+      before { ElasticAPM.start(config) }
+      after { ElasticAPM.stop }
 
       describe 'collect' do
         it 'moves transaction info from tags to props' do
@@ -27,11 +29,11 @@ module ElasticAPM
       end
     end
 
-    RSpec.describe TransactionSet do
+    RSpec.describe TransactionSet, :intercept do
       it_behaves_like :span_scope_set
     end
 
-    RSpec.describe BreakdownSet do
+    RSpec.describe BreakdownSet, :intercept do
       it_behaves_like :span_scope_set
     end
   end

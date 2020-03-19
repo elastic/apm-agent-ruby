@@ -2,9 +2,11 @@
 
 module ElasticAPM
   module Metrics
-    RSpec.describe Set do
+    RSpec.describe Set, :intercept do
       let(:config) { Config.new }
-      subject { described_class.new config }
+      subject { described_class.new }
+      before { ElasticAPM.start(config) }
+      after { ElasticAPM.stop }
 
       describe 'disabled?' do
         it 'can be disabled' do
@@ -15,9 +17,6 @@ module ElasticAPM
       end
 
       describe 'metrics' do
-        before do
-          allow(ElasticAPM).to receive(:config).and_return(config)
-        end
 
         it 'can have metrics' do
           subject.gauge('gauge').value = 0

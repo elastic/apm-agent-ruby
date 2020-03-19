@@ -4,7 +4,8 @@ module ElasticAPM
   module Metrics
     RSpec.describe CpuMemSet do
       let(:config) { Config.new }
-      subject { described_class.new config }
+      subject { described_class.new }
+      before { allow(ElasticAPM).to receive(:config).and_return(config) }
 
       context 'Linux' do
         before { allow(Metrics).to receive(:platform) { :linux } }

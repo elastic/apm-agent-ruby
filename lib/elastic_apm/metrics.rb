@@ -21,7 +21,7 @@ module ElasticAPM
         @callback = block
       end
 
-      attr_reader :config, :sets, :callback
+      attr_reader :sets, :callback
       def start
         unless config.collect_metrics?
           debug 'Skipping metrics'
@@ -37,7 +37,7 @@ module ElasticAPM
           transaction: TransactionSet
         }.each_with_object({}) do |(key, kls), sets|
           debug "Adding metrics collector '#{kls}'"
-          sets[key] = kls.new(config)
+          sets[key] = kls.new
         end
 
         @timer_task = Concurrent::TimerTask.execute(

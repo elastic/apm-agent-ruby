@@ -2,10 +2,11 @@
 
 module ElasticAPM
   module Metrics
-    RSpec.describe VMSet do
+    RSpec.describe VMSet, :intercept do
       let(:config) { Config.new }
-
-      subject { described_class.new config }
+      subject { described_class.new  }
+      before { ElasticAPM.start(config) }
+      after { ElasticAPM.stop }
 
       describe 'collect' do
         context 'when disabled' do

@@ -42,14 +42,12 @@ module ElasticAPM
         )
       end
 
-      def initialize(config)
+      def initialize
         super
 
         @sampler = sampler_for_platform(Metrics.platform)
         read! # set @previous on boot
       end
-
-      attr_reader :config
 
       def collect
         read!

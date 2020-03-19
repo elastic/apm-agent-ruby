@@ -5,7 +5,6 @@ module ElasticAPM
     # @api private
     class SystemInfo
       def initialize
-        @hostname = config.hostname || `hostname`.chomp
         @architecture = gem_platform.cpu
         @platform = gem_platform.os
 
@@ -14,7 +13,11 @@ module ElasticAPM
         @kubernetes = container_info.kubernetes
       end
 
-      attr_reader :hostname, :architecture, :platform, :container, :kubernetes
+      attr_reader :architecture, :platform, :container, :kubernetes
+
+      def hostname
+        @hostname ||= config.hostname || `hostname`.chomp
+      end
 
       private
 

@@ -9,11 +9,6 @@ module ElasticAPM
 
       # @api private
       class Serializer
-        def initialize(config)
-          @config = config
-        end
-
-        attr_reader :config
 
         private
 
@@ -41,6 +36,10 @@ module ElasticAPM
               hash[k] = v.is_a?(String) ? keyword_field(v) : v
             end
           end
+        end
+
+        def config
+          ElasticAPM.config
         end
       end
 

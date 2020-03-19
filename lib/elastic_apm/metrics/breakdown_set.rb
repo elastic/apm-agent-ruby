@@ -4,7 +4,7 @@ module ElasticAPM
   module Metrics
     # @api private
     class BreakdownSet < SpanScopedSet
-      def initialize(config)
+      def initialize
         super
 
         disable! unless config.breakdown_metrics?
