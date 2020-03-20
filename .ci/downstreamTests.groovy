@@ -78,6 +78,8 @@ pipeline {
           }
         }
         dir("${BASE_DIR}"){
+          sh(script: "pwd && ls -larth")
+          sh(script: "ls -R coverage/")
           sh(script: "./spec/scripts/coverage_converge.sh")
           cobertura coberturaReportFile: "coverage/coverage.xml"
         }
