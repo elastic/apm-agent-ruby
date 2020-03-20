@@ -4,10 +4,8 @@ module ElasticAPM
   class Metadata
     # @api private
     class SystemInfo
-      def initialize(config)
-        @config = config
-
-        @hostname = @config.hostname || `hostname`.chomp
+      def initialize(hostname:)
+        @hostname = hostname || `hostname`.chomp
         @architecture = gem_platform.cpu
         @platform = gem_platform.os
 

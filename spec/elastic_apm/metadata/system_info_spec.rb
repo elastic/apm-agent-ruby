@@ -3,7 +3,8 @@
 module ElasticAPM
   RSpec.describe Metadata::SystemInfo do
     describe '#initialize' do
-      subject { described_class.new(Config.new) }
+      let(:config) { Config.new }
+      subject { described_class.new(hostname: config.hostname) }
 
       it 'has values' do
         %i[hostname architecture platform].each do |key|

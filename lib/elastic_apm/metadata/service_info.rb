@@ -17,23 +17,31 @@ module ElasticAPM
       class Framework < Versioned; end
       class Language < Versioned; end
       class Runtime < Versioned; end
-      def initialize(config)
-        @config = config
-
-        @name = @config.service_name
-        @environment = @config.environment
+      def initialize(
+        service_name:,
+        framework_name:,
+        framework_version:,
+        service_version:
+      )
+        @name = service_name
         @agent = Agent.new(name: 'ruby', version: VERSION)
         @framework = Framework.new(
-          name: @config.framework_name,
-          version: @config.framework_version
+          name: framework_name,
+          version: framework_version
         )
         @language = Language.new(name: 'ruby', version: RUBY_VERSION)
         @runtime = lookup_runtime
-        @version = @config.service_version || Util.git_sha
+        @version = service_version || Util.git_sha
       end
 
-      attr_reader :name, :environment, :agent, :framework, :language, :runtime,
+      attr_reader :name, :agent, :framework, :language, :runtime,
         :version
+
+      def environment
+        # This value can be changed in the remote config so we
+        # get it via ElasticAPM
+        ElasticAPM.config.environment
+      end
 
       private
 

@@ -4,9 +4,14 @@ module ElasticAPM
   # @api private
   class Metadata
     def initialize(config)
-      @service = ServiceInfo.new(config)
-      @process = ProcessInfo.new(config)
-      @system = SystemInfo.new(config)
+      @service = ServiceInfo.new(
+        service_name: config.service_name,
+        framework_name: config.framework_name,
+        framework_version: config.framework_version,
+        service_version: config.service_version
+      )
+      @process = ProcessInfo.new
+      @system = SystemInfo.new(hostname: config.hostname)
       @labels = config.global_labels
     end
 
