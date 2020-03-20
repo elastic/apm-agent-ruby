@@ -10,6 +10,7 @@ module ElasticAPM
       def initialize(config)
         @config = config
       end
+      attr_reader :config
     end
 
     let(:config) do
