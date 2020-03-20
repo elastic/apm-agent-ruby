@@ -6,7 +6,7 @@ module ElasticAPM
       # @api private
       class ErrorSerializer < Serializer
         def context_serializer
-          @context_serializer ||= ContextSerializer.new(config)
+          @context_serializer ||= ContextSerializer.new
         end
 
         def build(error)

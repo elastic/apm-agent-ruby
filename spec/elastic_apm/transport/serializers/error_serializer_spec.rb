@@ -6,13 +6,12 @@ module ElasticAPM
   module Transport
     module Serializers
       RSpec.describe ErrorSerializer do
-        let(:config) { Config.new }
         let(:builder) { ElasticAPM.agent.error_builder }
         let(:config) { Config.new(disable_send: true) }
         before { ElasticAPM.start(config) }
         after { ElasticAPM.stop }
 
-        subject { described_class.new(config) }
+        subject { described_class.new }
 
         context 'with an exception', :mock_time do
           it 'matches format' do

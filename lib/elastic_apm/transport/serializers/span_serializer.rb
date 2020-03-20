@@ -5,10 +5,10 @@ module ElasticAPM
     module Serializers
       # @api private
       class SpanSerializer < Serializer
-        def initialize(config)
+        def initialize
           super
 
-          @context_serializer = ContextSerializer.new(config)
+          @context_serializer = ContextSerializer.new
         end
 
         attr_reader :context_serializer

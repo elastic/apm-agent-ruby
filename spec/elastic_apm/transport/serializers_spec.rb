@@ -4,9 +4,9 @@ module ElasticAPM
   module Transport
     RSpec.describe Serializers do
       let(:config) { Config.new }
-      subject { described_class.new(config) }
+      subject { described_class.new }
 
-      it 'initializes with config' do
+      it 'initializes serializers' do
         expect(subject).to be_a Serializers::Container
         expect(subject.transaction).to be_a Serializers::TransactionSerializer
         expect(subject.span).to be_a Serializers::SpanSerializer
@@ -46,7 +46,7 @@ module ElasticAPM
 
         it 'truncates values to 1024 chars' do
           obj = { test: 'X' * 2000 }
-          thing = TruncateSerializer.new(Config.new).serialize(obj)
+          thing = TruncateSerializer.new.serialize(obj)
           expect(thing[:test]).to match(/X{1023}…/)
         end
       end
@@ -60,7 +60,7 @@ module ElasticAPM
 
         it 'truncates values to 1024 chars' do
           obj = { test: 'X' * 2000 }
-          thing = TruncateSerializer.new(Config.new).serialize(obj)
+          thing = TruncateSerializer.new.serialize(obj)
           expect(thing[:test]).to match(/X{1023}…/)
         end
       end
@@ -76,7 +76,7 @@ module ElasticAPM
           obj = { string: 'X' * 2000,
                   bool: true,
                   numerical: 123 }
-          thing = TruncateSerializer.new(Config.new).serialize(obj)
+          thing = TruncateSerializer.new.serialize(obj)
           expect(thing[:string]).to match(/X{1023}…/)
           expect(thing[:bool]).to match(true)
           expect(thing[:numerical]).to match(123)

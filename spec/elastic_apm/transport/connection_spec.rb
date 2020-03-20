@@ -164,7 +164,7 @@ module ElasticAPM
         context 'and gzip off' do
           let(:config) { Config.new(http_compression: false) }
           let(:metadata) do
-            Serializers::MetadataSerializer.new(config).build(
+            Serializers::MetadataSerializer.new.build(
               Metadata.new(config)
             )
           end

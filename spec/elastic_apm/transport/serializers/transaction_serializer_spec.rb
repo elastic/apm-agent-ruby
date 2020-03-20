@@ -6,7 +6,7 @@ module ElasticAPM
   module Transport
     module Serializers
       RSpec.describe TransactionSerializer do
-        let(:builder) { described_class.new Config.new }
+        let(:builder) { described_class.new }
 
         before do
           @mock_uuid = SecureRandom.uuid
@@ -61,7 +61,7 @@ module ElasticAPM
               end
 
               transaction = @intercepted.transactions.first
-              result = described_class.new(Config.new).build(transaction)
+              result = described_class.new.build(transaction)
 
               span_count = result.dig(:transaction, :span_count)
               expect(span_count[:started]).to be 3

@@ -7,7 +7,7 @@ module ElasticAPM
     module Serializers
       RSpec.describe SpanSerializer do
         let(:config) { Config.new }
-        subject { described_class.new config }
+        subject { described_class.new }
 
         describe '#build', :mock_time do
           let(:transaction) { Transaction.new(config: config).start }

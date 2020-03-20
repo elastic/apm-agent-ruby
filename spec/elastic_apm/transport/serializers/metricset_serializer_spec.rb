@@ -6,7 +6,7 @@ module ElasticAPM
   module Transport
     module Serializers
       RSpec.describe MetricsetSerializer do
-        subject { described_class.new Config.new }
+        subject { described_class.new }
 
         describe '#build' do
           let(:set) { Metricset.new(thing: 1.0, other: 321, tags: { a: 1 }) }

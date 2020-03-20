@@ -4,8 +4,7 @@ module ElasticAPM
   module Transport
     module Serializers
       RSpec.describe ContextSerializer do
-        let(:config) { Config.new }
-        subject { described_class.new config }
+        subject { described_class.new }
 
         it 'converts response.status_code to int' do
           context = Context.new

@@ -25,7 +25,7 @@ module ElasticAPM
         @config = config
         @queue = SizedQueue.new(config.api_buffer_size)
 
-        @serializers = Serializers.new(config)
+        @serializers = Serializers.new
         @filters = Filters.new(config)
 
         @stopped = Concurrent::AtomicBoolean.new

@@ -6,7 +6,7 @@ module ElasticAPM
   module Transport
     module Serializers
       RSpec.describe MetadataSerializer do
-        subject { described_class.new Config.new }
+        subject { described_class.new }
         let(:result) { subject.build(metadata) }
 
         describe '#build' do

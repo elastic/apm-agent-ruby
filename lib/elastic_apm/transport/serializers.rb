@@ -9,11 +9,6 @@ module ElasticAPM
 
       # @api private
       class Serializer
-        def initialize(config)
-          @config = config
-        end
-
-        attr_reader :config
 
         private
 
@@ -46,12 +41,12 @@ module ElasticAPM
 
       # @api private
       class Container
-        def initialize(config)
-          @transaction = Serializers::TransactionSerializer.new(config)
-          @span = Serializers::SpanSerializer.new(config)
-          @error = Serializers::ErrorSerializer.new(config)
-          @metadata = Serializers::MetadataSerializer.new(config)
-          @metricset = Serializers::MetricsetSerializer.new(config)
+        def initialize
+          @transaction = Serializers::TransactionSerializer.new
+          @span = Serializers::SpanSerializer.new
+          @error = Serializers::ErrorSerializer.new
+          @metadata = Serializers::MetadataSerializer.new
+          @metricset = Serializers::MetricsetSerializer.new
         end
 
         attr_reader :transaction, :span, :error, :metadata, :metricset
@@ -73,8 +68,8 @@ module ElasticAPM
         end
       end
 
-      def self.new(config)
-        Container.new(config)
+      def self.new
+        Container.new
       end
     end
   end

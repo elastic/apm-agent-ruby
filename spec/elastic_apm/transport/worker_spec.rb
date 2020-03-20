@@ -7,7 +7,7 @@ module ElasticAPM
     RSpec.describe Worker do
       let(:config) { Config.new }
       let(:queue) { Queue.new }
-      let(:serializers) { Serializers.new config }
+      let(:serializers) { Serializers.new }
       let(:filters) { Filters.new config }
       subject do
         described_class.new(
