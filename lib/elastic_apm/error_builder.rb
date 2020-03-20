@@ -3,8 +3,9 @@
 module ElasticAPM
   # @api private
   class ErrorBuilder
-    def initialize(default_labels: nil)
-      @default_labels = default_labels
+    def initialize(config, stacktrace_builder:)
+      @default_labels = config.default_labels
+      @stacktrace_builder = stacktrace_builder
     end
 
     def build_exception(exception, context: nil, handled: true)
@@ -40,7 +41,7 @@ module ElasticAPM
 
     def add_stacktrace(error, kind, backtrace)
       stacktrace =
-        ElasticAPM.agent.stacktrace_builder.build(backtrace, type: :error)
+        @stacktrace_builder.build(backtrace, type: :error)
       return unless stacktrace
 
       case kind

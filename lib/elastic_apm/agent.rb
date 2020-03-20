@@ -70,7 +70,10 @@ module ElasticAPM
     def initialize(config)
       @stacktrace_builder = StacktraceBuilder.new(config)
       @context_builder = ContextBuilder.new
-      @error_builder = ErrorBuilder.new(default_labels: config.default_labels)
+      @error_builder = ErrorBuilder.new(
+        config,
+        stacktrace_builder: @stacktrace_builder
+      )
 
       @central_config = CentralConfig.new(config)
       @transport = Transport::Base.new(config)
