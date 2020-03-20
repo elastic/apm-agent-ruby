@@ -70,6 +70,7 @@ pipeline {
       steps{
         sh(script: "mkdir -p ${BASE_DIR}/coverage/matrix-results")
         dir("${BASE_DIR}/coverage/matrix-results"){
+          echo("Unstashing coverage reports")
           script{
             def matrixDump = rubyTasksGen.dumpMatrix("-")
             for(vector in matrixDump) {
