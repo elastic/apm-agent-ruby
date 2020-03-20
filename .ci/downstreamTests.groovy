@@ -164,7 +164,7 @@ def runScript(Map params = [:]){
         sh(script: "ls -R coverage/")
         stash(
           name: "coverage-${clean_ruby}-${framework}",
-          includes: "coverage/matrix_results/${framework}-${clean_ruby}/**",
+          includes: "coverage/matrix_results/${framework}-${ruby}/**",
           allowEmpty: false
         )
       }
