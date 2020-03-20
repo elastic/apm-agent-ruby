@@ -159,7 +159,9 @@ def runScript(Map params = [:]){
       sh("./spec/scripts/spec.sh ${ruby} ${framework}")
       script{
         def clean_ruby = cleanName(cleanName("${ruby}", ":", "-"), "/", "-")
-        echo("Preparing stash to include: coverage/matrix_results/${framework}-${clean_ruby}/**")
+        echo("Framework: ${framework}")
+        echo("Ruby: ${ruby}")
+        echo("Preparing stash to include: coverage/matrix_results/${framework}-${ruby}/**")
         sh(script: "pwd && ls -larth")
         sh(script: "ls -R coverage/")
         stash(
