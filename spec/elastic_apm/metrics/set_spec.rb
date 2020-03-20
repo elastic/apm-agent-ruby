@@ -5,6 +5,8 @@ module ElasticAPM
     RSpec.describe Set do
       let(:config) { Config.new }
       subject { described_class.new config }
+      before { ElasticAPM.start(config) }
+      after { ElasticAPM.stop }
 
       describe 'disabled?' do
         it 'can be disabled' do

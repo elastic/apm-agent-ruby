@@ -7,6 +7,7 @@ module ElasticAPM
     let(:config) { Config.new }
     let(:callback) { ->(_) {} }
     subject { described_class.new(config, &callback) }
+    before { allow(ElasticAPM).to receive(:config).and_return(config) }
 
     describe 'life cycle' do
       describe '#start' do

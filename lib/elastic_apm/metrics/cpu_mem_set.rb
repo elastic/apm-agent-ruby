@@ -49,8 +49,6 @@ module ElasticAPM
         read! # set @previous on boot
       end
 
-      attr_reader :config
-
       def collect
         read!
         super

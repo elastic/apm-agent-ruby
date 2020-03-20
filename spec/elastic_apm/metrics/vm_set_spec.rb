@@ -4,6 +4,8 @@ module ElasticAPM
   module Metrics
     RSpec.describe VMSet do
       let(:config) { Config.new }
+      before { ElasticAPM.start(config) }
+      after { ElasticAPM.stop }
 
       subject { described_class.new config }
 

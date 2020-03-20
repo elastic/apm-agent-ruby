@@ -12,7 +12,7 @@ module ElasticAPM
       DISTINCT_LABEL_LIMIT = 1000
 
       def initialize(config)
-        @config = config
+        @disable_metrics = config.disable_metrics
         @metrics = {}
         @disabled = false
         @lock = Mutex.new
@@ -41,7 +41,7 @@ module ElasticAPM
       end
 
       def metric(kls, key, tags: nil, **args)
-        if @config.disable_metrics.any? { |p| p.match? key }
+        if @disable_metrics.any? { |p| p.match? key }
           return NOOP
         end
 
