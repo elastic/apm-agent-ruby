@@ -24,7 +24,6 @@ module ElasticAPM
         ].freeze
 
         def initialize(config)
-          @config = config
           @key_filters =
             KEY_FILTERS +
             config.custom_key_filters +
