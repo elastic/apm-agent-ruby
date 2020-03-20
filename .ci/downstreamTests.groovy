@@ -68,6 +68,7 @@ pipeline {
     }
     stage('Coverage converge') {
       steps{
+        sh(script: "mkdir -p ${BASE_DIR}/coverage/matrix-results")
         dir("${BASE_DIR}/coverage/matrix-results"){
           script{
             def matrixDump = rubyTasksGen.dumpMatrix("-")
