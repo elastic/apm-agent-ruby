@@ -166,7 +166,7 @@ def runScript(Map params = [:]){
       sh("./spec/scripts/spec.sh ${ruby} ${framework}")
       script{
         def clean_ruby = cleanName(cleanName("${ruby}", ":", "-"), "/", "-")
-        def clean_ruby_no_colon = cleanName("${ruby}", ":", "-")
+        def clean_ruby_no_colon = cleanName(cleanName("${ruby}", ":", "-"), ",", "-")
         echo("Framework: ${framework}")
         echo("Ruby: ${ruby}")
         echo("Preparing stash to include: coverage/matrix_results/${framework}-${ruby}/**")
