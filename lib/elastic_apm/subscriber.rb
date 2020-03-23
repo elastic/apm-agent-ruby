@@ -8,9 +8,8 @@ module ElasticAPM
   class Subscriber
     include Logging
 
-    def initialize(agent)
-      @agent = agent
-      @normalizers = Normalizers.build(agent.config)
+    def initialize(config)
+      @normalizers = Normalizers.build(config)
     end
 
     def register!
@@ -29,7 +28,7 @@ module ElasticAPM
 
     Notification = Struct.new(:id, :span)
     def start(name, id, payload)
-      return unless (transaction = @agent.current_transaction)
+      return unless (transaction = ElasticAPM.current_transaction)
 
       normalized = @normalizers.normalize(transaction, name, payload)
 
@@ -39,7 +38,7 @@ module ElasticAPM
         else
           name, type, subtype, action, context = normalized
 
-          @agent.start_span(
+          ElasticAPM.start_span(
             name,
             type,
             subtype: subtype,
@@ -54,16 +53,16 @@ module ElasticAPM
     # rubocop:disable Metrics/CyclomaticComplexity
     def finish(name, id, payload)
       # debug "AS::Notification#finish:#{name}:#{id}"
-      return unless (transaction = @agent.current_transaction)
+      return unless (transaction = ElasticAPM.current_transaction)
 
       while (notification = transaction.notifications.pop)
         next unless notification.id == id
 
         if (span = notification.span)
-          if @agent.config.span_frames_min_duration?
+          if config.span_frames_min_duration?
             span.original_backtrace ||= @normalizers.backtrace(name, payload)
           end
-          @agent.end_span if span == @agent.current_span
+          ElasticAPM.end_span if span == ElasticAPM.current_span
         end
         return
       end
@@ -74,6 +73,10 @@ module ElasticAPM
 
     def notifications_regex
       @notifications_regex ||= /(#{@normalizers.keys.join('|')})/
+    end
+
+    def config
+      ElasticAPM.config
     end
   end
 end
