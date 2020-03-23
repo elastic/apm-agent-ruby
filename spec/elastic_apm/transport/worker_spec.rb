@@ -17,6 +17,7 @@ module ElasticAPM
           filters: filters
         )
       end
+      before { allow(ElasticAPM).to receive(:config).and_return(config) }
 
       describe '#initialize' do
         its(:filters) { should be_a Filters::Container }

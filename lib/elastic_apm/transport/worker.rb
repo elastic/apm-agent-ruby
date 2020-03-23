@@ -26,7 +26,6 @@ module ElasticAPM
         serializers:,
         filters:
       )
-        @config = config
         @queue = queue
 
         @serializers = serializers
