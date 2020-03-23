@@ -272,6 +272,21 @@ pipeline {
         }
       }
     }
+    stage('Coverage converge') {
+      steps{
+        sh(script: "mkdir -p ${BASE_DIR}/coverage/matrix-results")
+        dir("${BASE_DIR}/coverage/matrix-results"){
+          echo("Unstashing coverage reports")
+          coverageConverage()
+        }
+        dir("${BASE_DIR}"){
+          sh(script: "pwd && ls -larth")
+          sh(script: "ls -R coverage/")
+          sh(script: "./spec/scripts/coverage_converge.sh")
+          cobertura coberturaReportFile: "coverage/coverage.xml"
+        }
+      }
+    }
   }
   post {
     cleanup {
@@ -313,6 +328,30 @@ def runBenchmark(version){
           }
         }
       }
+    }
+  }
+}
+
+def cleanName(name, search, replace){
+    return name.replaceAll(search, replace)
+}
+
+def coverageConverage(){
+  def ruby = readYaml(file: '.ci/.jenkins_ruby.yml')
+  def frameworks = readYaml(file: '.ci/.jenkins_framework.yml')
+  ruby['RUBY_VERSION'].each{ rubyVersion ->
+    // Try all combinations. Some will be excluded and therefore not stashed, so just ignore those.
+    frameworks['FRAMEWORK'].each{ framework ->
+      def clean_ruby = cleanName(cleanName("${rubyVersion}", ":", "-"), "/", "-")
+      try {
+        unstash("coverage-${clean-ruby}-${framework}")
+      } catch(e) {
+        echo("Could not unstash a coverage archive for coverage-${clean-ruby}-${framework}. Continuing.")
+      }
+      sh(script: "pwd && ls -larth")
+      sh(script: "ls -R coverage/")
+      sh(script: "./spec/scripts/coverage_converge.sh")
+      cobertura coberturaReportFile: "coverage/coverage.xml"
     }
   }
 }

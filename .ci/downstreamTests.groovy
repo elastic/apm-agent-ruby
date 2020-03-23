@@ -66,30 +66,6 @@ pipeline {
         }
       }
     }
-    stage('Coverage converge') {
-      steps{
-        sh(script: "mkdir -p ${BASE_DIR}/coverage/matrix-results")
-        dir("${BASE_DIR}/coverage/matrix-results"){
-          echo("Unstashing coverage reports")
-          script{
-            def matrixDump = rubyTasksGen.dumpMatrix("-")
-            for(vector in matrixDump) {
-              echo("Unstashing: ${vector}")
-              def clean_vector = cleanName(cleanName("${vector}", ":", "-"), "/", "-")
-              echo("Unstashing (clean): ${clean_vector}")
-              echo("Unstashing (full): coverage-${clean_vector}")
-              unstash("coverage-${clean_vector}")
-            }
-          }
-        }
-        dir("${BASE_DIR}"){
-          sh(script: "pwd && ls -larth")
-          sh(script: "ls -R coverage/")
-          sh(script: "./spec/scripts/coverage_converge.sh")
-          cobertura coberturaReportFile: "coverage/coverage.xml"
-        }
-      }
-    }
   }
   post {
     cleanup {
