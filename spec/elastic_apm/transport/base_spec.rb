@@ -18,6 +18,7 @@ module ElasticAPM
 
       describe '#stop' do
         let(:config) { Config.new(pool_size: 2) }
+        before { allow(ElasticAPM).to receive(:config).and_return(config) }
 
         it 'stops all workers', :mock_intake do
           subject.start
