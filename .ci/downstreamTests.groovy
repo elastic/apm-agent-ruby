@@ -74,7 +74,10 @@ pipeline {
           script{
             def matrixDump = rubyTasksGen.dumpMatrix("-")
             for(vector in matrixDump) {
+              echo("Unstashing: ${vector}")
               def clean_vector = cleanName(cleanName("${vector}", ":", "-"), "/", "-")
+              echo("Unstashing (clean): ${clean_vector}")
+              echo("Unstashing (full): coverage-${clean_vector}")
               unstash("coverage-${clean_vector}")
             }
           }
