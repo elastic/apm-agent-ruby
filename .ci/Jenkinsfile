@@ -342,9 +342,9 @@ def coverageConverage(){
     frameworks['FRAMEWORK'].each{ framework ->
       def clean_ruby = cleanName(cleanName("${rubyVersion}", ":", "-"), "/", "-")
       try {
-        unstash("coverage-${clean-ruby}-${framework}")
+        unstash("coverage-${clean_ruby}-${framework}")
       } catch(e) {
-        echo("Could not unstash a coverage archive for coverage-${clean-ruby}-${framework}. Continuing.")
+        echo("Could not unstash a coverage archive for coverage-${clean_ruby}-${framework}. Continuing.")
       }
       sh(script: "pwd && ls -larth")
       sh(script: "ls -R coverage/")
