@@ -275,11 +275,10 @@ pipeline {
     stage('Coverage converge') {
       steps{
         sh(script: "mkdir -p ${BASE_DIR}/coverage/matrix-results")
-        dir("${BASE_DIR}/coverage/matrix-results"){
+        // dir("${BASE_DIR}/coverage/matrix-results"){
+        dir("${BASE_DIR}"){
           echo("Unstashing coverage reports")
           coverageConverage()
-        }
-        dir("${BASE_DIR}"){
           sh(script: "pwd && ls -larth")
           sh(script: "ls -R coverage/")
           sh(script: "./spec/scripts/coverage_converge.sh")
