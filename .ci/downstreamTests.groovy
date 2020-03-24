@@ -143,6 +143,7 @@ def runScript(Map params = [:]){
       script{
         def clean_ruby = cleanName(cleanName("${ruby}", ":", "-"), "/", "-")
         def clean_ruby_no_colon = cleanName("${ruby}", ":", "-")
+        def clean_framework = cleanName("${framework}", ",", "?")
         echo("Framework: ${framework}")
         echo("Ruby: ${ruby}")
         echo("Preparing stash to include: coverage/matrix_results/${framework}-${clean_ruby_no_colon}/**")
@@ -150,7 +151,7 @@ def runScript(Map params = [:]){
         sh(script: "ls -R coverage/")
         stash(
           name: "coverage-${clean_ruby}-${framework}",
-          includes: "coverage/matrix_results/${framework}-${clean_ruby_no_colon}/**",
+          includes: "coverage/matrix_results/${clean_framework}-${clean_ruby_no_colon}/**",
           allowEmpty: false
         )
       }
