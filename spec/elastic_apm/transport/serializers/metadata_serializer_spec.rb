@@ -8,9 +8,11 @@ module ElasticAPM
       RSpec.describe MetadataSerializer do
         subject { described_class.new }
         let(:result) { subject.build(metadata) }
+        before { allow(ElasticAPM).to receive(:config).and_return(config) }
 
         describe '#build' do
-          let(:metadata) { Metadata.new Config.new }
+          let(:config) { Config.new }
+          let(:metadata) { Metadata.new config }
 
           it 'is a bunch of hashes and no labels' do
             expect(result[:metadata]).to be_a Hash
@@ -21,9 +23,8 @@ module ElasticAPM
           end
 
           context 'when there are global_labels' do
-            let(:metadata) do
-              Metadata.new Config.new(global_labels: { apples: 'oranges' })
-            end
+            let(:config) { Config.new(global_labels: { apples: 'oranges' }) }
+            let(:metadata) { Metadata.new config }
 
             it 'is a bunch of hashes' do
               expect(result[:metadata]).to be_a Hash

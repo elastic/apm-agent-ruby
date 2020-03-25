@@ -6,6 +6,7 @@ module ElasticAPM
   module Transport
     RSpec.describe Connection::Http do
       after { WebMock.reset! }
+      before { allow(ElasticAPM).to receive(:config).and_return(config) }
 
       let(:config) { Config.new(http_compression: false) }
 

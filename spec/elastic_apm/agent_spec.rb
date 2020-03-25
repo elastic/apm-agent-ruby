@@ -16,6 +16,7 @@ module ElasticAPM
 
     context 'life cycle', :mock_intake do
       describe '.start' do
+        before { allow(ElasticAPM).to receive(:config).and_return(config) }
         it 'starts an instance and only one' do
           first_instance = Agent.start Config.new
           expect(Agent.instance).to_not be_nil
@@ -145,6 +146,7 @@ module ElasticAPM
     end
 
     context 'metrics', :mock_intake do
+      before { allow(ElasticAPM).to receive(:config).and_return(config) }
       it 'starts' do
         subject.start
         expect(subject.metrics).to be_running
