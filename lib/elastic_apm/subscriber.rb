@@ -38,7 +38,9 @@ module ElasticAPM
         else
           name, type, subtype, action, context = normalized
 
-          ElasticAPM.start_span(
+          # We call #start_span on the agent, otherwise original_backtrace
+          # will be set on the span.
+          ElasticAPM.agent.start_span(
             name,
             type,
             subtype: subtype,
