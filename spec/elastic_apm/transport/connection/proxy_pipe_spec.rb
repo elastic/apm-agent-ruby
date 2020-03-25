@@ -3,6 +3,8 @@
 module ElasticAPM
   module Transport
     RSpec.describe Connection::ProxyPipe do
+      before { allow(ElasticAPM).to receive(:config).and_return(Config.new) }
+
       describe '.pipe' do
         it 'returns a reader and a writer' do
           begin

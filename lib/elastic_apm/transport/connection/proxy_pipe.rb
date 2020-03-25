@@ -27,7 +27,6 @@ module ElasticAPM
             @io = io
             @compress = compress
             @bytes_sent = Concurrent::AtomicFixnum.new(0)
-            @config = ElasticAPM.agent&.config # this is silly, fix Logging
 
             return unless compress
             enable_compression!
