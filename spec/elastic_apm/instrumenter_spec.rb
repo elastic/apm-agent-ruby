@@ -110,16 +110,16 @@ module ElasticAPM
 
       it 'reports metrics', :mock_time do
         subject.start_transaction('a_transaction', config: config)
-        travel 100
+        travel 150
         subject.start_span('a_span', 'a', subtype: 'b')
-        travel 100
+        travel 150
         subject.end_span
-        travel 100
+        travel 150
         subject.end_transaction('result')
 
         txn_set, = agent.metrics.get(:transaction).collect
 
-        expect(txn_set.samples[:'transaction.duration.sum.us']).to eq 300
+        expect(txn_set.samples[:'transaction.duration.sum.us']).to eq 450
         expect(txn_set.samples[:'transaction.duration.count']).to eq 1
         expect(txn_set.transaction).to match(
           name: 'a_transaction',
@@ -139,7 +139,7 @@ module ElasticAPM
         txn_self_time = brk_sets.find do |d|
           d.span&.fetch(:type) == 'app'
         end
-        expect(txn_self_time.samples[:'span.self_time.sum.us']).to eq 200
+        expect(txn_self_time.samples[:'span.self_time.sum.us']).to eq 300
         expect(txn_self_time.samples[:'span.self_time.count']).to eq 1
         expect(txn_self_time.transaction).to match(
           name: 'a_transaction',
@@ -148,7 +148,7 @@ module ElasticAPM
         expect(txn_self_time.span).to match(type: 'app', subtype: nil)
 
         spn_self_time = brk_sets.find { |d| d.span&.fetch(:type) == 'a' }
-        expect(spn_self_time.samples[:'span.self_time.sum.us']).to eq 100
+        expect(spn_self_time.samples[:'span.self_time.sum.us']).to eq 150
         expect(spn_self_time.samples[:'span.self_time.count']).to eq 1
         expect(spn_self_time.transaction).to match(
           name: 'a_transaction',
