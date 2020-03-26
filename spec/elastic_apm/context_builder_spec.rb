@@ -5,8 +5,7 @@ module ElasticAPM
     describe '#build' do
       let(:config) { Config.new }
       let(:subject) { described_class.new }
-      before { ElasticAPM.start(config) }
-      after { ElasticAPM.stop }
+      before { allow(ElasticAPM).to receive(:config).and_return(config) }
 
       it 'enriches request' do
         env = Rack::MockRequest.env_for(

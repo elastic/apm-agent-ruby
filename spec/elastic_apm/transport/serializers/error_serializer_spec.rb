@@ -8,6 +8,8 @@ module ElasticAPM
       RSpec.describe ErrorSerializer do
         let(:builder) { ElasticAPM.agent.error_builder }
         let(:config) { Config.new(disable_send: true) }
+        # We start an agent so that we can easily get an error_builder,
+        # context_builder, and start a transaction below
         before { ElasticAPM.start(config) }
         after { ElasticAPM.stop }
 

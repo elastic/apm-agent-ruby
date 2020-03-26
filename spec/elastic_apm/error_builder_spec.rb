@@ -7,6 +7,7 @@ module ElasticAPM
                  disable_send: true)
     end
     subject { ElasticAPM.agent.error_builder }
+    # We start an agent in this test so real request errors can be captured
     before { ElasticAPM.start(config) }
     after { ElasticAPM.stop }
 
@@ -34,13 +35,13 @@ module ElasticAPM
               ElasticAPM.build_context rack_env: env, for_type: :transaction
 
         transaction = ElasticAPM.with_transaction context: context do |txn|
-              ElasticAPM.set_label(:my_tag, '123')
-              ElasticAPM.set_custom_context(all_the_other_things: 'blah blah')
-              ElasticAPM.set_user(Struct.new(:id).new(321))
-              ElasticAPM.report actual_exception
+          ElasticAPM.set_label(:my_tag, '123')
+          ElasticAPM.set_custom_context(all_the_other_things: 'blah blah')
+          ElasticAPM.set_user(Struct.new(:id).new(321))
+          ElasticAPM.report actual_exception
 
-              txn
-            end
+          txn
+        end
 
         error = @intercepted.errors.last
         expect(error.transaction).to eq(sampled: true, type: 'custom')
