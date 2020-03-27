@@ -10,6 +10,9 @@ module ElasticAPM
         trace_context: trace_context
       )
     end
+    let(:config) { Config.new(disable_send: true) }
+    before { ElasticAPM.start(config) }
+    after { ElasticAPM.stop }
 
     let(:trace_context) do
       TraceContext.parse("00-#{'1' * 32}-#{'2' * 16}-01")

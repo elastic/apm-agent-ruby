@@ -120,7 +120,7 @@ module ElasticAPM
 
     def long_enough_for_stacktrace?
       min_duration =
-        @stacktrace_builder.config.span_frames_min_duration_us
+        ElasticAPM.config.span_frames_min_duration_us
 
       return true if min_duration < 0
       return false if min_duration == 0
