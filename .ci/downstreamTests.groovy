@@ -149,7 +149,7 @@ def runScript(Map params = [:]){
         // echo("Preparing stash named coverage-${clean_ruby}-${framework} to include: coverage/matrix_results/${framework}-${clean_ruby_no_colon}/**")
         sh(script: "pwd && ls -larth")
         sh(script: "ls -R coverage/")
-        archiveArtifacts(artifacts: "coverage/matrix_results/${framework}-${clean_ruby_no_colon}/coverage.xml")
+        archiveArtifacts(artifacts: "coverage/matrix_results/")
 
         // stash(
         //   name: "coverage-${clean_ruby}-${framework}",
