@@ -277,7 +277,7 @@ pipeline {
       steps{
         sh(script: "mkdir -p ${BASE_DIR}/coverage/matrix-results")
         dir("${BASE_DIR}/coverage/matrix-results"){
-          copyArtifacts(projectName: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}", selector: specific(buildId))
+          copyArtifacts(projectName: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}", selector: specific(buildNumber: buildId))
         }
         dir("${BASE_DIR}"){
           // echo("Unstashing coverage reports")
@@ -384,7 +384,7 @@ def runJob(String rubyVersion, int sleep = 1){
     }
   } finally {
     rubyDownstreamJobs["${rubyVersion}"] = buildObject
-  buildId = buildObject.number 
+    buildId = buildObject.number 
   }
 }
 
