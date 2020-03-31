@@ -29,6 +29,6 @@ namespace :coverage do
       require 'simplecov'
       require 'simplecov-cobertura'
       SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
-      SimpleCov.collate Dir["coverage/matrix_results/*/.resultset.json"]
+      SimpleCov.collate Dir["coverage/matrix_results/**/.resultset.json"]
     end
   end
