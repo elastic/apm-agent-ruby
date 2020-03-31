@@ -144,7 +144,7 @@ def runScript(Map params = [:]){
         def clean_ruby = cleanName(cleanName("${ruby}", ":", "-"), "/", "-")
         def clean_ruby_no_colon = cleanName("${ruby}", ":", "-")
         def clean_framework = cleanName("${framework}", ",", "?"
-        archiveArtifacts(artifacts: "coverage/matrix_results/", defaultExcludes: false
+        archiveArtifacts(artifacts: "coverage/matrix_results/", defaultExcludes: false)
       }
     }
   }
