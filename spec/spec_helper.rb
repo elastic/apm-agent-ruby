@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'simplecov'
 SimpleCov.coverage_dir("coverage/matrix_results/" + ENV["TEST_MATRIX"])
-SimpleCov.start
+SimpleCov.start { add_filter('/spec/') }
 
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 
@@ -13,16 +13,16 @@ rescue LoadError
   # we still want to test Sinatra without it
 end
 
-if ENV['INCLUDE_COVERAGE'] == '1'
-  require 'simplecov'
+# if ENV['INCLUDE_COVERAGE'] == '1'
+#   require 'simplecov'
 
-  if ENV['CI'] == '1'
-    require 'simplecov-cobertura'
-    SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
-  end
+#   if ENV['CI'] == '1'
+#     require 'simplecov-cobertura'
+#     SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
+#   end
 
-  SimpleCov.start { add_filter('/spec/') }
-end
+#   SimpleCov.start { add_filter('/spec/') }
+# end
 
 require 'bundler/setup'
 Bundler.require :default, 'test'
