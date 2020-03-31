@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 pwd
 ls -larth
-ls -R coverage/
+ls -Ra coverage/
 bundle
 rake coverage:report
