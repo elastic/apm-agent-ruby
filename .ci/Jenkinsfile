@@ -341,12 +341,7 @@ def runJob(String rubyVersion, int sleep = 1){
   def buildObject
   try {
     def quiet = (sleep * randomNumber(min: 2, max: 6)) + 5
-    // buildObject will contain build id
 
-    // downstream jobs should archive artifacts
-    // upstream (current) should copy artifacts using the build id which is in the map buildObject
-    // maybe an alternative to archive?
-    // s3 buckets could be another option if this gets crazy
     buildObject = build(job: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}",
                         parameters: [
                           string(name: 'RUBY_VERSION', value: "${rubyVersion}"),

@@ -144,7 +144,6 @@ def runScript(Map params = [:]){
         def clean_ruby = cleanName(cleanName("${ruby}", ":", "-"), "/", "-")
         def clean_ruby_no_colon = cleanName("${ruby}", ":", "-")
         def clean_framework = cleanName("${framework}", ",", "?")
-        sh(script: 'find coverage/ -name .resultset.json -exec ls {} \\; -exec cat {} \\;')
         archiveArtifacts(artifacts: "coverage/matrix_results/", defaultExcludes: false)
       }
     }
