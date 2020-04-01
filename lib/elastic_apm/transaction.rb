@@ -25,11 +25,20 @@ module ElasticAPM
       @type = type || DEFAULT_TYPE
       @config = config
 
+      # Cache these values in case they are changed during the
+      # transaction's lifetime via the remote config
+      @span_frames_min_duration = config.span_frames_min_duration
+      @collect_metrics = config.collect_metrics?
+      @breakdown_metrics = config.breakdown_metrics?
+      @framework_name = config.framework_name
+      @transaction_max_spans = config.transaction_max_spans
+      @default_labels = config.default_labels
+
       @sampled = sampled
 
       @context = context || Context.new # TODO: Lazy generate this?
-      if config.default_labels
-        Util.reverse_merge!(@context.labels, config.default_labels)
+      if @default_labels
+        Util.reverse_merge!(@context.labels, @default_labels)
       end
 
       @trace_context = trace_context || TraceContext.new(recorded: sampled)
@@ -44,7 +53,9 @@ module ElasticAPM
     attr_accessor :name, :type, :result
 
     attr_reader :context, :duration, :started_spans, :dropped_spans,
-      :timestamp, :trace_context, :notifications, :self_time, :config
+      :timestamp, :trace_context, :notifications, :self_time,
+      :span_frames_min_duration, :collect_metrics, :breakdown_metrics,
+      :framework_name, :transaction_max_spans
 
     def sampled?
       @sampled
@@ -81,7 +92,7 @@ module ElasticAPM
     def inc_started_spans!
       MUTEX.synchronize do
         @started_spans += 1
-        if @started_spans > config.transaction_max_spans
+        if @started_spans > transaction_max_spans
           @dropped_spans += 1
           return false
         end
@@ -96,7 +107,7 @@ module ElasticAPM
     end
 
     def set_user(user)
-      context.user = Context::User.infer(config, user)
+      context.user = Context::User.infer(@config, user)
     end
 
     def inspect
