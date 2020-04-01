@@ -13,7 +13,6 @@ import groovy.transform.Field
  This is required to store the build status for the downstream jobs.
 */
 @Field def rubyDownstreamJobs = [:]
-@Field def buildId = ''
 
 pipeline {
   agent { label 'linux && immutable' }
@@ -276,7 +275,8 @@ pipeline {
     stage('Coverage converge') {
       steps{
         dir("${BASE_DIR}"){
-          copyArtifacts(projectName: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}", selector: specific(buildNumber: buildId.toString()))
+          // copyArtifacts(projectName: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}", selector: specific(buildNumber: buildId.toString()))
+          unpack_artifacts(rubyDownstreamJobs)
           sh(script: "ls -Ra coverage/")
           sh(script: "./spec/scripts/coverage_converge.sh")
           cobertura coberturaReportFile: "coverage/coverage.xml"
@@ -289,6 +289,12 @@ pipeline {
       notifyBuildResult(downstreamJobs: rubyDownstreamJobs)
     }
   }
+}
+
+def unpack_artifacts(builds) {
+    builds.values().each() { build ->
+      copyArtifacts(projectName: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}", selector: specific(buildNumber: build.number.toString()))
+    }
 }
 
 /**
@@ -378,7 +384,7 @@ def runJob(String rubyVersion, int sleep = 1){
     }
   } finally {
     rubyDownstreamJobs["${rubyVersion}"] = buildObject
-    buildId = buildObject.number 
+
   }
 }
 
