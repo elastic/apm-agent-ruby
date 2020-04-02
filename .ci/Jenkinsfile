@@ -332,10 +332,6 @@ def runBenchmark(version){
   }
 }
 
-def cleanName(name, search, replace){
-    return name.replaceAll(search, replace)
-}
-
 def runJob(String rubyVersion, int sleep = 1){
   def buildObject
   try {
