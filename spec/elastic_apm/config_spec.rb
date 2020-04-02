@@ -239,5 +239,21 @@ module ElasticAPM
         end
       end
     end
+
+    describe '#replace_options' do
+      subject { Config.new }
+
+      it 'replaces the option values' do
+        subject.replace_options(api_request_time: '1s', api_buffer_size: 100)
+        expect(subject.api_request_time).to eq(1)
+        expect(subject.api_buffer_size).to eq(100)
+      end
+
+      it 'replaces the options object' do
+        original_options = subject.options
+        subject.replace_options(api_request_time: '1s')
+        expect(subject.options).not_to be(original_options)
+      end
+    end
   end
 end
