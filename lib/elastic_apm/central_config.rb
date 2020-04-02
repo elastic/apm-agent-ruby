@@ -81,14 +81,10 @@ module ElasticAPM
         update[key] = @modified_options.delete(key)
       end
 
-      update_config(update)
+      @config.replace_options(update)
     end
 
     private
-
-    def update_config(new_options)
-      @config = config.dup.tap { |new_config| new_config.assign(new_options) }
-    end
 
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def handle_success(resp)

@@ -138,6 +138,15 @@ module ElasticAPM
       warn "The option `#{name}' has been removed."
     end
 
+    def replace_options(new_options)
+      return unless new_options
+      options_copy = @options.dup
+      new_options.each do |key, value|
+        options_copy.fetch(key.to_sym).set(value)
+      end
+      @options = options_copy
+    end
+
     def app=(app)
       case app_type?(app)
       when :sinatra

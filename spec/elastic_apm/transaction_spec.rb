@@ -13,7 +13,11 @@ module ElasticAPM
       it { should be_sampled }
       its(:trace_context) { should be_a TraceContext }
       its(:context) { should be_a Context }
-      its(:config) { should be_a Config }
+      its(:span_frames_min_duration) { should be_a Float }
+      its(:collect_metrics) { should be true }
+      its(:breakdown_metrics) { should be true }
+      its(:framework_name) { should be nil }
+      its(:transaction_max_spans) { should be_a Integer }
       its(:started_spans) { should be 0 }
       its(:dropped_spans) { should be 0 }
       its(:notifications) { should be_empty }
