@@ -241,12 +241,17 @@ module ElasticAPM
     end
 
     describe '#replace_options' do
-      subject { Config.new }
+      subject { Config.new(server_url: 'somewhere-else.com') }
 
       it 'replaces the option values' do
         subject.replace_options(api_request_time: '1s', api_buffer_size: 100)
         expect(subject.api_request_time).to eq(1)
         expect(subject.api_buffer_size).to eq(100)
+      end
+
+      it 'leaves existing config values unchanged' do
+        subject.replace_options(api_request_time: '1s')
+        expect(subject.server_url).to eq('somewhere-else.com')
       end
 
       it 'replaces the options object' do
