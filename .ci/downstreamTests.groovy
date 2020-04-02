@@ -147,10 +147,6 @@ def runScript(Map params = [:]){
   }
 }
 
-def cleanName(name, search, replace){
-    return name.replaceAll(search, replace)
-}
-
 /**
   Run all the tests for the given ruby version and file with the frameworks to test
 */
