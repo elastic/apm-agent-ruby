@@ -141,9 +141,6 @@ def runScript(Map params = [:]){
       dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
       sh("./spec/scripts/spec.sh ${ruby} ${framework}")
       script{
-        def clean_ruby = cleanName(cleanName("${ruby}", ":", "-"), "/", "-")
-        def clean_ruby_no_colon = cleanName("${ruby}", ":", "-")
-        def clean_framework = cleanName("${framework}", ",", "?")
         archiveArtifacts(artifacts: "coverage/matrix_results/", defaultExcludes: false)
       }
     }

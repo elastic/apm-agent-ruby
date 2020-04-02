@@ -13,17 +13,6 @@ rescue LoadError
   # we still want to test Sinatra without it
 end
 
-# if ENV['INCLUDE_COVERAGE'] == '1'
-#   require 'simplecov'
-
-#   if ENV['CI'] == '1'
-#     require 'simplecov-cobertura'
-#     SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
-#   end
-
-#   SimpleCov.start { add_filter('/spec/') }
-# end
-
 require 'bundler/setup'
 Bundler.require :default, 'test'
 require 'yarjuf'
