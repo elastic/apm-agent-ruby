@@ -276,7 +276,6 @@ pipeline {
       steps{
         dir("${BASE_DIR}"){
           unpack_artifacts(rubyDownstreamJobs)
-          sh(script: "ls -Ra coverage/")
           sh(script: "./spec/scripts/coverage_converge.sh")
           cobertura coberturaReportFile: "coverage/coverage.xml"
         }

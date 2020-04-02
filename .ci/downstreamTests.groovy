@@ -172,8 +172,8 @@ def runTests(frameworkFile) {
         name: 'Ruby',
         steps: this
       )
-      def mapPatallelTasks = rubyTasksGen.generateParallelTests()
-      parallel(mapPatallelTasks)
+      def mapParallelTasks = rubyTasksGen.generateParallelTests()
+      parallel(mapParallelTasks)
     }
   }
 }
