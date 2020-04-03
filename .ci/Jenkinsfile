@@ -272,12 +272,27 @@ pipeline {
         }
       }
     }
+    stage('Coverage converge') {
+      steps{
+        dir("${BASE_DIR}"){
+          unpack_artifacts(rubyDownstreamJobs)
+          sh(script: "./spec/scripts/coverage_converge.sh")
+          cobertura coberturaReportFile: "coverage/coverage.xml"
+        }
+      }
+    }
   }
   post {
     cleanup {
       notifyBuildResult(downstreamJobs: rubyDownstreamJobs)
     }
   }
+}
+
+def unpack_artifacts(builds) {
+    builds.values().each() { build ->
+      copyArtifacts(projectName: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}", selector: specific(buildNumber: build.number.toString()))
+    }
 }
 
 /**
