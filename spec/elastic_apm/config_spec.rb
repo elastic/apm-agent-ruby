@@ -259,6 +259,11 @@ module ElasticAPM
         subject.replace_options(api_request_time: '1s')
         expect(subject.options).not_to be(original_options)
       end
+
+      it 'updates the log level on the existing logger' do
+        subject.replace_options(log_level: Logger::DEBUG)
+        expect(subject.logger.level).to eq(Logger::DEBUG)
+      end
     end
   end
 end
