@@ -36,6 +36,7 @@ pipeline {
   parameters {
     string(name: 'RUBY_VERSION', defaultValue: "ruby:2.6", description: "Ruby version to test")
     string(name: 'BRANCH_SPECIFIER', defaultValue: "master", description: "Git branch/tag to use")
+    string(name: 'MERGE_TARGET', defaultValue: "master", description: "Git branch/tag where to merge this code")
   }
   stages {
     /**
@@ -48,7 +49,8 @@ pipeline {
         gitCheckout(basedir: "${BASE_DIR}",
           branch: "${params.BRANCH_SPECIFIER}",
           repo: "${REPO}",
-          credentialsId: "${JOB_GIT_CREDENTIALS}")
+          credentialsId: "${JOB_GIT_CREDENTIALS}",
+          mergeTarget: "${params.MERGE_TARGET}")
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }

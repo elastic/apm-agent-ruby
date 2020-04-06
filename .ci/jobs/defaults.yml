@@ -17,7 +17,7 @@
     days-to-keep: '30'
     concurrent: true
     node: linux
-    periodic-folder-trigger: 1d
+    periodic-folder-trigger: 1w
     prune-dead-branches: true
     publishers:
     - email:
