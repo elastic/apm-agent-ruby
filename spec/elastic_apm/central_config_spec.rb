@@ -4,7 +4,11 @@ module ElasticAPM
   RSpec.describe CentralConfig do
     after { WebMock.reset! }
 
-    let(:config) { Config.new service_name: 'MyApp' }
+    let(:config) do
+      Config.new(service_name: 'MyApp',
+                 log_level: Logger::DEBUG
+      )
+    end
     subject { described_class.new(config) }
 
     describe '#start' do
@@ -33,6 +37,7 @@ module ElasticAPM
       it 'queries APM Server and applies config' do
         req_stub = stub_response({ transaction_sample_rate: '0.5' })
         expect(config.logger).to receive(:info)
+        expect(config.logger).to receive(:debug).twice
 
         subject.fetch_and_apply_config
         subject.promise.wait
