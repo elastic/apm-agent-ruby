@@ -1,7 +1,10 @@
 # frozen_string_literal: true
-require 'simplecov'
-SimpleCov.coverage_dir("coverage/matrix_results/" + ENV["TEST_MATRIX"])
-SimpleCov.start { add_filter('/spec/') }
+
+if ENV["TEST_MATRIX"]
+  require 'simplecov'
+  SimpleCov.coverage_dir("coverage/matrix_results/" + ENV["TEST_MATRIX"])
+  SimpleCov.start { add_filter('/spec/') }
+end
 
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 
