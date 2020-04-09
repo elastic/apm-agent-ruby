@@ -248,6 +248,19 @@ module ElasticAPM
           subject.use_experimental_sql_parser = true
         end
       end
+
+      describe 'active' do
+        subject { Config.new }
+
+        it 'logs a warning and redirects' do
+          expect(subject).to receive(:warn).with(/DEPRECATED/)
+          subject.active = false
+
+          expect(subject.enabled).to eq(false)
+          expect(subject.active)
+            .to eq(subject.enabled)
+        end
+      end
     end
 
     describe '#replace_options' do

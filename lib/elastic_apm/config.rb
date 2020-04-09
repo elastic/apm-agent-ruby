@@ -19,7 +19,6 @@ module ElasticAPM
     option :secret_token,                      type: :string
     option :api_key,                           type: :string
 
-    option :active,                            type: :bool,   default: true
     option :api_buffer_size,                   type: :int,    default: 256
     option :api_request_size,                  type: :bytes,  default: '750kb', converter: Bytes.new
     option :api_request_time,                  type: :float,  default: '10s',   converter: Duration.new
@@ -38,6 +37,7 @@ module ElasticAPM
     option :disable_start_message,             type: :bool,   default: false
     option :disable_instrumentations,          type: :list,   default: %w[json]
     option :disabled_spies,                    type: :list,   default: []
+    option :enabled,                           type: :bool,   default: true
     option :environment,                       type: :string, default: ENV['RAILS_ENV'] || ENV['RACK_ENV']
     option :framework_name,                    type: :string
     option :framework_version,                 type: :string
@@ -226,6 +226,11 @@ module ElasticAPM
       disable_instrumentations
     end
 
+    def active
+      enabled
+    end
+    alias active? active
+
     def disabled_instrumentations=(value)
       warn '[DEPRECATED] The option disabled_instrumentations has been ' \
         'renamed to disable_instrumentations to align with other agents.'
@@ -235,6 +240,12 @@ module ElasticAPM
     def use_experimental_sql_parser=(value)
       warn '[DEPRECATED] The new SQL parser is now the default. To use the old one, '
         'use use_legacy_sql_parser and please report why you wish to do so.'
+    end
+
+    def active=(value)
+      warn '[DEPRECATED] The option active has been renamed to enabled ' \
+        'to align with other agents and with the remote config.'
+      self.enabled = value
     end
 
     private
