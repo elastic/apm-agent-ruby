@@ -43,6 +43,7 @@ endif::[]
 ===== Changed
 
 - Make config values dynamic so they can be changed via the remote config {pull}747[#747]
+- Log the updated options from central config in addition to cumulative modifications {pull}758[#758]
 
 [[release-notes-3.6.0]]
 ==== 3.6.0 (2020-03-10)
