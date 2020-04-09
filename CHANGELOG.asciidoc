@@ -49,6 +49,7 @@ endif::[]
 ===== Fixed
 
 - Ensure that the log level is updated for the config's logger when value is changed {pull}755[#755]
+- Set config `false` values to `false`, not `nil` {pull}761[#761]
 
 [[release-notes-3.6.0]]
 ==== 3.6.0 (2020-03-10)

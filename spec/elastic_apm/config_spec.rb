@@ -194,6 +194,16 @@ module ElasticAPM
       end
     end
 
+    context 'boolean values' do
+      subject { Config.new }
+
+      it 'allows false to be set' do
+        subject.capture_headers = false
+        expect(subject.capture_headers).to eq(false)
+        expect(subject.capture_headers?).to eq(false)
+      end
+    end
+
     context 'DEPRECATED' do
       describe 'default_tags' do
         subject { Config.new }
