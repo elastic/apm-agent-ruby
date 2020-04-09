@@ -35,7 +35,7 @@ module ElasticAPM
 
         # rubocop:disable Metrics/CyclomaticComplexity
         def normalize(val)
-          return unless val
+          return if val.nil?
 
           if @converter
             return @converter.call(val)
