@@ -35,6 +35,15 @@ endif::[]
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
+[float]
+[[unreleased]]
+==== Unreleased
+
+[float]
+===== Changed
+
+- Make config values dynamic so they can be changed via the remote config {pull}747[#747]
+
 [[release-notes-3.6.0]]
 ==== 3.6.0 (2020-03-10)
 
