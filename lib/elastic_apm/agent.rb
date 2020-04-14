@@ -34,9 +34,9 @@ module ElasticAPM
       LOCK.synchronize do
         return @instance if @instance
 
-        unless config.active?
+        unless config.enabled?
           config.logger.debug format(
-            "%sAgent disabled with `active: false'",
+            "%sAgent disabled with `enabled: false'",
             Logging::PREFIX
           )
           return

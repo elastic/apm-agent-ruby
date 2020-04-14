@@ -51,6 +51,11 @@ endif::[]
 - Ensure that the log level is updated for the config's logger when value is changed {pull}755[#755]
 - Set config `false` values to `false`, not `nil` {pull}761[#761]
 
+[float]
+===== Added
+
+- Add enabled config option, replacing active {pull}669[#669]
+
 [[release-notes-3.6.0]]
 ==== 3.6.0 (2020-03-10)
 
