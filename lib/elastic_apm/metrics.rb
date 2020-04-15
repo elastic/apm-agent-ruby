@@ -78,6 +78,7 @@ module ElasticAPM
       end
 
       def collect_and_send
+        return unless @config.recording?
         metricsets = collect
         metricsets.compact!
         metricsets.each do |m|

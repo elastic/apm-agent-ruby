@@ -87,6 +87,14 @@ module ElasticAPM
           subject.collect_and_send
         end
       end
+
+      context 'when recording is false' do
+        let(:config) { Config.new(recording: false) }
+        it 'does not collect metrics' do
+          expect(subject).to_not receive(:collect)
+          subject.collect_and_send
+        end
+      end
     end
 
     context 'thread safety stress test', :mock_intake do
