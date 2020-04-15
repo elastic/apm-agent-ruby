@@ -652,6 +652,23 @@ There are also `ENV` version of these following the same pattern of putting `ELA
 See https://github.com/httprb/http/wiki/Proxy-Support[Http.rb's docs].
 
 [float]
+[[config-recording]]
+==== `recording`
+
+<<dynamic-configuration, image:./images/dynamic-config.svg[] >>
+
+[options="header"]
+|============
+| Environment          | `Config` key | Default
+| `ELASTIC_APM_RECORDING` | `recording`     | `true`
+|============
+
+Enable or disable the recording of events.
+If set to false, then the agent does not create or send any events to the Elastic APM server,
+and instrumentation overhead is minimized. The agent continues to poll the server for configuration changes
+when this option is false.
+
+[float]
 [[config-sanitize-field-names]]
 ==== `sanitize_field_names`
 
