@@ -56,10 +56,11 @@ RSpec.describe ElasticAPM do
   context 'when running', :mock_intake do
     before do
       MockIntake.instance.stub!
-      ElasticAPM.start
+      ElasticAPM.start config
     end
 
     let(:agent) { ElasticAPM.agent }
+    let(:config) { ElasticAPM::Config.new }
 
     describe '.log_ids' do
       context 'with no current_transaction' do
@@ -106,6 +107,33 @@ RSpec.describe ElasticAPM do
         expect(ElasticAPM.agent).to receive(:start_transaction)
         ElasticAPM.start_transaction
       end
+      context 'when recording is false' do
+        let(:config) { ElasticAPM::Config.new(recording: false) }
+        it 'does not start a transaction' do
+          ElasticAPM.start_transaction
+          expect(ElasticAPM.current_transaction).to be nil
+        end
+      end
+    end
+
+    describe '.report' do
+      context 'when recording is false' do
+        let(:config) { ElasticAPM::Config.new(recording: false) }
+        it 'does not report the exception' do
+          ElasticAPM.report(Exception.new)
+          expect(ElasticAPM.agent).not_to receive(:report)
+        end
+      end
+    end
+
+    describe '.report_message' do
+      context 'when recording is false' do
+        let(:config) { ElasticAPM::Config.new(recording: false) }
+        it 'does not report the exception' do
+          ElasticAPM.report_message('this should not be reported')
+          expect(ElasticAPM.agent).not_to receive(:report_message)
+        end
+      end
     end
 
     describe '.end_transaction' do
@@ -135,6 +163,15 @@ RSpec.describe ElasticAPM do
       it 'starts a span' do
         expect(ElasticAPM.agent).to receive(:start_span)
         ElasticAPM.start_span 'Test'
+      end
+      context 'when recording is false' do
+        it 'does not start a span' do
+          ElasticAPM.start_transaction
+          ElasticAPM.agent.config.recording = false
+          ElasticAPM.start_span('should not exist')
+          expect(ElasticAPM.current_transaction).not_to be nil
+          expect(ElasticAPM.current_span).to be nil
+        end
       end
     end
 

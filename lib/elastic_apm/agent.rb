@@ -145,6 +145,7 @@ module ElasticAPM
       context: nil,
       trace_context: nil
     )
+      return unless config.recording?
       instrumenter.start_transaction(
         name,
         type,
@@ -170,6 +171,7 @@ module ElasticAPM
       parent: nil,
       sync: nil
     )
+      return unless config.recording?
       instrumenter.start_span(
         name,
         type,
@@ -207,6 +209,7 @@ module ElasticAPM
     # errors
 
     def report(exception, context: nil, handled: true)
+      return unless config.recording?
       return if config.filter_exception_types.include?(exception.class.to_s)
 
       error = @error_builder.build_exception(
@@ -219,6 +222,7 @@ module ElasticAPM
     end
 
     def report_message(message, context: nil, backtrace: nil, **attrs)
+      return unless config.recording?
       error = @error_builder.build_log(
         message,
         context: context,

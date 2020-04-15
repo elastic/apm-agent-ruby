@@ -57,6 +57,7 @@ module ElasticAPM
     option :proxy_password,                    type: :string
     option :proxy_port,                        type: :int
     option :proxy_username,                    type: :string
+    option :recording,                         type: :bool,   default: true
     option :sanitize_field_names,              type: :list,   default: [],      converter: WildcardPatternList.new
     option :server_ca_cert,                    type: :string
     option :service_name,                      type: :string
