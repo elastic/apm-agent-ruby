@@ -52,6 +52,9 @@ module ElasticAPM
 
     def start
       debug 'Starting instrumenter'
+      # We call register! on @subscriber in case the
+      # instrumenter was stopped and started again
+      @subscriber&.register!
     end
 
     def stop

@@ -41,6 +41,21 @@ module ElasticAPM
           expect(subscriber).to have_received(:unregister!)
         end
       end
+
+      describe 'stop and start again' do
+        let(:subscriber) { double(register!: true, unregister!: true) }
+
+        before do
+          subject.subscriber = subscriber
+
+          subject.start_transaction(config: config)
+          subject.stop
+        end
+        it 're-registers the subscriber' do
+          expect(subscriber).to receive(:register!)
+          subject.start
+        end
+      end
     end
 
     describe '#start_transaction' do
