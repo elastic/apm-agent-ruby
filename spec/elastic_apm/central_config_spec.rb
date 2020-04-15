@@ -33,6 +33,20 @@ module ElasticAPM
       end
     end
 
+    describe 'stop and start again' do
+      before do
+        subject.start
+        subject.stop
+      end
+      after { subject.stop }
+      it 'restarts fetching the config' do
+        req_stub = stub_response({ transaction_sample_rate: '0.5' })
+        subject.start
+        subject.promise.wait
+        expect(req_stub).to have_been_requested.at_least_once
+      end
+    end
+
     describe '#fetch_and_apply_config' do
       it 'queries APM Server and applies config' do
         req_stub = stub_response({ transaction_sample_rate: '0.5' })
