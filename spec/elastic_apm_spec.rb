@@ -129,7 +129,7 @@ RSpec.describe ElasticAPM do
     describe '.report_message' do
       context 'when recording is false' do
         let(:config) { ElasticAPM::Config.new(recording: false) }
-        it 'does not report the exception' do
+        it 'does not report the message' do
           ElasticAPM.report_message('this should not be reported')
           expect(ElasticAPM.agent).not_to receive(:report_message)
         end
