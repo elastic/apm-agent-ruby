@@ -6,8 +6,7 @@ module ElasticAPM
 
     let(:config) do
       Config.new(service_name: 'MyApp',
-                 log_level: Logger::DEBUG
-      )
+                 log_level: Logger::DEBUG)
     end
     subject { described_class.new(config) }
 
@@ -30,6 +29,21 @@ module ElasticAPM
           expect(req_stub).to_not have_been_requested
           subject.stop
         end
+      end
+    end
+
+    describe 'stop and start again' do
+      before do
+        subject.start
+        subject.stop
+      end
+      after { subject.stop }
+
+      it 'restarts fetching the config' do
+        req_stub = stub_response({ transaction_sample_rate: '0.5' })
+        subject.start
+        subject.promise.wait
+        expect(req_stub).to have_been_requested.at_least_once
       end
     end
 
