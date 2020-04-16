@@ -164,12 +164,21 @@ RSpec.describe ElasticAPM do
         expect(ElasticAPM.agent).to receive(:start_span)
         ElasticAPM.start_span 'Test'
       end
-      context 'when recording is false' do
-        it 'does not start a span' do
+      context 'when recording is false after the transaction is started' do
+        it 'it creates a span' do
           ElasticAPM.start_transaction
           ElasticAPM.agent.config.recording = false
-          ElasticAPM.start_span('should not exist')
+          ElasticAPM.start_span('Test')
           expect(ElasticAPM.current_transaction).not_to be nil
+          expect(ElasticAPM.current_span).not_to be nil
+        end
+      end
+      context 'when recording is false before the transaction is started' do
+        it 'it does not create a span' do
+          ElasticAPM.agent.config.recording = false
+          ElasticAPM.start_transaction
+          ElasticAPM.start_span('should not exist')
+          expect(ElasticAPM.current_transaction).to be nil
           expect(ElasticAPM.current_span).to be nil
         end
       end

@@ -171,7 +171,6 @@ module ElasticAPM
       parent: nil,
       sync: nil
     )
-      return unless config.recording?
       instrumenter.start_span(
         name,
         type,
