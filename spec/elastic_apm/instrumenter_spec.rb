@@ -47,10 +47,11 @@ module ElasticAPM
 
         before do
           subject.subscriber = subscriber
-
           subject.start_transaction(config: config)
           subject.stop
         end
+        after { subject.stop }
+
         it 're-registers the subscriber' do
           expect(subscriber).to receive(:register!)
           subject.start

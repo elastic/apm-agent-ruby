@@ -70,9 +70,10 @@ module ElasticAPM
           subject.start
         end
         after { subject.stop }
+
         it 'starts the worker threads again' do
           expect(subject.send(:workers).length).to be 1
-          expect(['sleep', 'run']).to include(subject.send(:workers)[0].status)
+          expect(%w[sleep run]).to include(subject.send(:workers)[0].status)
         end
       end
     end

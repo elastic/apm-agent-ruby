@@ -6,8 +6,7 @@ module ElasticAPM
 
     let(:config) do
       Config.new(service_name: 'MyApp',
-                 log_level: Logger::DEBUG
-      )
+                 log_level: Logger::DEBUG)
     end
     subject { described_class.new(config) }
 
@@ -39,6 +38,7 @@ module ElasticAPM
         subject.stop
       end
       after { subject.stop }
+
       it 'restarts fetching the config' do
         req_stub = stub_response({ transaction_sample_rate: '0.5' })
         subject.start

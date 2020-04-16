@@ -23,9 +23,13 @@ module ElasticAPM
       end
 
       describe 'stop and start again' do
-        it 'restarts collecting metrics' do
+        before do
           subject.start
           subject.stop
+        end
+        after { subject.stop }
+
+        it 'restarts collecting metrics' do
           subject.start
           expect(subject.instance_variable_get(:@timer_task)).to be_running
         end
