@@ -56,6 +56,7 @@ endif::[]
 ===== Added
 
 - Add enabled config option, replacing active {pull}669[#669]
+- Add recording config option {pull}765[#765]
 
 [[release-notes-3.6.0]]
 ==== 3.6.0 (2020-03-10)
