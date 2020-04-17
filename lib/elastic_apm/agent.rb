@@ -171,6 +171,10 @@ module ElasticAPM
       parent: nil,
       sync: nil
     )
+      # We don't check config.recording? because the span
+      # will not be created if there's no transaction.
+      # We want to use the recording value from the config
+      # that existed when start_transaction was called. ~estolfo
       instrumenter.start_span(
         name,
         type,
