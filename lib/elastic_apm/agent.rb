@@ -272,7 +272,7 @@ module ElasticAPM
       return if @pid == Process.pid
       central_config.handle_forking!
       transport.handle_forking!
-      #instrumenter.handle_forking!
+      instrumenter.handle_forking!
       #metrics.handle_forking!
       @pid = Process.pid
     end
