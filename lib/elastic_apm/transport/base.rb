@@ -101,7 +101,7 @@ module ElasticAPM
         # used to monitor the execution interval has died. This is a
         # limitation of the Concurrent::TimerTask object. Ideally we'd be
         # able to restart the TimerTask, but we can't. Therefore, our only option
-        # when forked is to shutdown the task and create a new one.
+        # when forked is to shutdown the task and create a new one. ~estolfo
         stop_watcher
         ensure_worker_count
         create_watcher
