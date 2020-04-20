@@ -58,21 +58,7 @@ module ElasticAPM
           sets[key] = kls.new(config)
         end
 
-        @timer_task = Concurrent::TimerTask.execute(
-          run_now: true,
-          execution_interval: config.metrics_interval,
-          timeout_interval: TIMEOUT_INTERVAL
-        ) do
-          begin
-            debug 'Collecting metrics'
-            collect_and_send
-            true
-          rescue StandardError => e
-            error 'Error while collecting metrics: %e', e.inspect
-            debug { e.backtrace.join("\n") }
-            false
-          end
-        end
+        create_timer_task
 
         @running = true
       end
@@ -88,6 +74,17 @@ module ElasticAPM
 
       def running?
         !!@running
+      end
+
+      def handle_forking!
+        # Note that you can't simply check @timer_task.running? because it will only
+        # return the state of the TimerTask, not whether the internal thread
+        # used to monitor the execution interval has died. This is a
+        # limitation of the Concurrent::TimerTask object. Ideally we'd be
+        # able to restart the TimerTask, but we can't. Therefore, our only option
+        # when forked is to shutdown the task and create a new one. ~estolfo
+        @timer_task&.shutdown
+        create_timer_task
       end
 
       def get(key)
@@ -108,6 +105,24 @@ module ElasticAPM
           samples = set.collect
           next unless samples
           arr.concat(samples)
+        end
+      end
+
+      def create_timer_task
+        @timer_task = Concurrent::TimerTask.execute(
+          run_now: true,
+          execution_interval: config.metrics_interval,
+          timeout_interval: TIMEOUT_INTERVAL
+        ) do
+          begin
+            debug 'Collecting metrics'
+            collect_and_send
+            true
+          rescue StandardError => e
+            error 'Error while collecting metrics: %e', e.inspect
+            debug { e.backtrace.join("\n") }
+            false
+          end
         end
       end
     end
