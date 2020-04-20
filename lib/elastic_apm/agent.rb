@@ -270,7 +270,7 @@ module ElasticAPM
 
     def detect_forking!
       return if @pid == Process.pid
-      #central_config.handle_forking!
+      central_config.handle_forking!
       transport.handle_forking!
       #instrumenter.handle_forking!
       #metrics.handle_forking!

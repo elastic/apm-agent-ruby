@@ -101,6 +101,15 @@ module ElasticAPM
       @config.replace_options(update)
     end
 
+    def handle_forking!
+      # A Concurrent::ScheduledTask has no way to detect if the internal
+      # thread used to schedule the task has died. When forked, the state
+      # of the ScheduledTask could still be `processing`, although its
+      # internal thread has died. Therefore, our only option is to
+      # forcibly reset the task when forked. ~estolfo
+      @scheduled_task.reset
+    end
+
     private
 
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
