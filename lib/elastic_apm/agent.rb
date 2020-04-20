@@ -89,6 +89,7 @@ module ElasticAPM
         metrics: metrics,
         stacktrace_builder: stacktrace_builder
       ) { |event| enqueue event }
+      @pid = Process.pid
     end
 
     attr_reader(
@@ -163,6 +164,8 @@ module ElasticAPM
       trace_context: nil
     )
       return unless config.recording?
+      detect_forking!
+
       instrumenter.start_transaction(
         name,
         type,
@@ -263,6 +266,15 @@ module ElasticAPM
 
     def inspect
       super.split.first + '>'
+    end
+
+    def detect_forking!
+      return if @pid == Process.pid
+      #central_config.handle_forking!
+      transport.handle_forking!
+      #instrumenter.handle_forking!
+      #metrics.handle_forking!
+      @pid = Process.pid
     end
   end
 end

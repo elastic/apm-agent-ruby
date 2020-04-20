@@ -48,7 +48,6 @@ module ElasticAPM
         @stopped = Concurrent::AtomicBoolean.new
         @workers = Array.new(config.pool_size)
 
-        @watcher_mutex = Mutex.new
         @worker_mutex = Mutex.new
       end
 
@@ -61,8 +60,8 @@ module ElasticAPM
         # ~estolfo
         @stopped.make_false unless @stopped.false?
 
-        ensure_watcher_running
         ensure_worker_count
+        create_watcher
       end
 
       def stop
@@ -81,7 +80,6 @@ module ElasticAPM
           return false
         end
 
-        ensure_watcher_running
         queue.push(resource, true)
 
         true
@@ -97,25 +95,29 @@ module ElasticAPM
         @filters.add(key, callback)
       end
 
+      def handle_forking!
+        # Note that you can't simply check watcher.running? because it will only
+        # return the state of the TimerTask, not whether the internal thread
+        # used to monitor the execution interval has died. This is a
+        # limitation of the Concurrent::TimerTask object. Ideally we'd be
+        # able to restart the TimerTask, but we can't. Therefore, our only option
+        # when forked is to shutdown the task and create a new one.
+        stop_watcher
+        ensure_worker_count
+        create_watcher
+      end
+
       private
 
       def pid_str
         format('[PID:%s]', Process.pid)
       end
 
-      def ensure_watcher_running
-        # pid has changed == we've forked
-        return if @pid == Process.pid
-
-        @watcher_mutex.synchronize do
-          return if @pid == Process.pid
-          @pid = Process.pid
-
-          @watcher = Concurrent::TimerTask.execute(
-            execution_interval: WATCHER_EXECUTION_INTERVAL,
-            timeout_interval: WATCHER_TIMEOUT_INTERVAL
-          ) { ensure_worker_count }
-        end
+      def create_watcher
+        @watcher = Concurrent::TimerTask.execute(
+          execution_interval: WATCHER_EXECUTION_INTERVAL,
+          timeout_interval: WATCHER_TIMEOUT_INTERVAL
+        ) { ensure_worker_count }
       end
 
       def ensure_worker_count
@@ -176,10 +178,7 @@ module ElasticAPM
       end
 
       def stop_watcher
-        @watcher_mutex.synchronize do
-          return if watcher.nil? || @pid != Process.pid
-          watcher.shutdown
-        end
+        watcher&.shutdown
       end
 
       def throttled_queue_full_warning
