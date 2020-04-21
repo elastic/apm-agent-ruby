@@ -152,6 +152,18 @@ module ElasticAPM
           expect(subject.scheduled_task.initial_delay).to eq 300
         end
       end
+
+      context 'when there is a network error' do
+        it 'schedules a new poll' do
+          stub_response(nil, error: HTTP::ConnectionError)
+
+          subject.fetch_and_apply_config
+          subject.promise.wait
+
+          expect(subject.scheduled_task).to be_pending
+          expect(subject.scheduled_task.initial_delay).to eq 300
+        end
+      end
     end
 
     describe '#fetch_config' do
@@ -244,8 +256,10 @@ module ElasticAPM
       end
     end
 
-    def stub_response(body, request: {}, response: {})
+    def stub_response(body, request: {}, response: {}, error: nil)
       url = 'http://localhost:8200/config/v1/agents?service.name=MyApp'
+
+      return stub_request(:get, url).to_raise(error) if error
 
       stub_request(:get, url).tap do |stub|
         stub.with(request) if request.any?
