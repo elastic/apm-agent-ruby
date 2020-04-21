@@ -51,6 +51,7 @@ endif::[]
 - Ensure that the log level is updated for the config's logger when value is changed {pull}755[#755]
 - Set config `false` values to `false`, not `nil` {pull}761[#761]
 - Ensure that the previously running agent's config is used in `ElasticAPM.restart` {pull}763[#763]
+- Handle the Resque spy's payload class value being a String or Class and update docs {pull}768[#768]
 
 [float]
 ===== Added

@@ -113,6 +113,9 @@ I, [XXX #81227]  INFO -- : Running before_first_fork hooks
 D, [XXX #81227] DEBUG -- : Starting ElasticAPM agent
 ----
 
+Also be sure to set the Resque environment variable `RUN_AT_EXIT_HOOKS` to `true`. Otherwise, the fork may be
+terminated before the agent has a chance to send all the fork's events to the APM server.
+
 [float]
 [[supported-technologies-grpc]]
 === gRPC
