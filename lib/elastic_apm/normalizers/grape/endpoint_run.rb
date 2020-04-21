@@ -33,7 +33,7 @@ module ElasticAPM
         private
 
         def transaction_from_host_app?(transaction)
-          transaction.config.framework_name != FRAMEWORK_NAME
+          transaction.framework_name != FRAMEWORK_NAME
         end
 
         def endpoint(env)

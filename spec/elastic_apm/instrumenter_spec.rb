@@ -41,6 +41,22 @@ module ElasticAPM
           expect(subscriber).to have_received(:unregister!)
         end
       end
+
+      describe 'stop and start again' do
+        let(:subscriber) { double(register!: true, unregister!: true) }
+
+        before do
+          subject.subscriber = subscriber
+          subject.start_transaction(config: config)
+          subject.stop
+        end
+        after { subject.stop }
+
+        it 're-registers the subscriber' do
+          expect(subscriber).to receive(:register!)
+          subject.start
+        end
+      end
     end
 
     describe '#start_transaction' do
@@ -119,6 +135,14 @@ module ElasticAPM
 
         txn_set, = agent.metrics.get(:transaction).collect
 
+        brk_sets = agent.metrics.get(:breakdown).collect
+        txn_self_time = brk_sets.find do |d|
+          d.span&.fetch(:type) == 'app'
+        end
+
+        spn_self_time = brk_sets.find { |d| d.span&.fetch(:type) == 'a' }
+
+        # txn_set
         expect(txn_set.samples[:'transaction.duration.sum.us']).to eq 300
         expect(txn_set.samples[:'transaction.duration.count']).to eq 1
         expect(txn_set.transaction).to match(
@@ -130,15 +154,7 @@ module ElasticAPM
           type: 'custom'
         )
 
-        # resets on collect
-        new_txn_set, = agent.metrics.get(:transaction).collect
-        expect(new_txn_set).to be nil
-
-        brk_sets = agent.metrics.get(:breakdown).collect
-
-        txn_self_time = brk_sets.find do |d|
-          d.span&.fetch(:type) == 'app'
-        end
+        # txn_self_time
         expect(txn_self_time.samples[:'span.self_time.sum.us']).to eq 200
         expect(txn_self_time.samples[:'span.self_time.count']).to eq 1
         expect(txn_self_time.transaction).to match(
@@ -147,7 +163,7 @@ module ElasticAPM
         )
         expect(txn_self_time.span).to match(type: 'app', subtype: nil)
 
-        spn_self_time = brk_sets.find { |d| d.span&.fetch(:type) == 'a' }
+        #spn_self_time
         expect(spn_self_time.samples[:'span.self_time.sum.us']).to eq 100
         expect(spn_self_time.samples[:'span.self_time.count']).to eq 1
         expect(spn_self_time.transaction).to match(
@@ -155,6 +171,10 @@ module ElasticAPM
           type: 'custom'
         )
         expect(spn_self_time.span).to match(type: 'a', subtype: 'b')
+
+        # resets on collect
+        new_txn_set, = agent.metrics.get(:transaction).collect
+        expect(new_txn_set).to be nil
       end
 
       context 'with breakdown metrics disabled' do

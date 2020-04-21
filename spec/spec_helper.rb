@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
+if ENV["TEST_MATRIX"]
+  require 'simplecov'
+  SimpleCov.coverage_dir("coverage/matrix_results/" + ENV["TEST_MATRIX"])
+  SimpleCov.start { add_filter('/spec/') }
+end
+
 ENV['RAILS_ENV'] = ENV['RACK_ENV'] = 'test'
 
 begin
@@ -8,17 +14,6 @@ begin
 rescue LoadError
   # Bootsnap depends on ActiveSupport, but as AS heavily modifies stdlib
   # we still want to test Sinatra without it
-end
-
-if ENV['INCLUDE_COVERAGE'] == '1'
-  require 'simplecov'
-
-  if ENV['CI'] == '1'
-    require 'simplecov-cobertura'
-    SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
-  end
-
-  SimpleCov.start { add_filter('/spec/') }
 end
 
 require 'bundler/setup'

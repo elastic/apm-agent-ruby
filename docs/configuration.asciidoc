@@ -8,9 +8,7 @@ endif::[]
 == Configuration
 
 There are several ways to configure how Elastic APM behaves.
-
-The recommended way to configure Elastic APM is to create a file
-`config/elastic_apm.yml` and specify options in there:
+The recommended way is to specify options in a `config/elastic_apm.yml` file:
 
 [source,yaml]
 ----
@@ -18,17 +16,38 @@ server_url: 'http://localhost:8200'
 secret_token: <%= ENV["VERY_SECRET_TOKEN"] %>
 ----
 
+Some options can be set with `ENV` variables.
+When using this method, strings are split by comma, e.g.,
+`ELASTIC_APM_SANITIZE_FIELD_NAMES="a,b" # => [/a/, /b/]`.
+
+[float]
+[[configuration-precedence]]
+=== Configuration precedence
+
 Options are applied in the following order (last one wins):
 
 1. Defaults
 2. Arguments to `ElasticAPM.start` / `Config.new`
-3. Config file eg. `config/elastic_apm.yml`
+3. Config file, e.g., `config/elastic_apm.yml`
 4. Environment variables
+5. {apm-app-ref}/agent-configuration.html[Central configuration]
+(supported options are marked with <<dynamic-configuration, image:./images/dynamic-config.svg[] >>)
+
+[float]
+[[dynamic-configuration]]
+=== Dynamic configuration
+
+Configuration options marked with the image:./images/dynamic-config.svg[] badge can be changed at runtime
+when set from a supported source.
+
+The Agent supports {apm-app-ref}/agent-configuration.html[Central configuration],
+which allows you to fine-tune certain configurations via the APM app.
+This feature is enabled in the Agent by default, with <<config-central-config>>.
 
 [float]
 === Ruby on Rails
 
-When using Rails it's also possible to specify options inside
+When using Rails, it's possible to specify options inside
 `config/application.rb`:
 
 [source,ruby]
@@ -40,7 +59,7 @@ config.elastic_apm.service_name = 'MyApp'
 [float]
 === Sinatra and Rack
 
-When using APM with Sinatra and Rack you can configure it when starting
+When using Sinatra and Rack, you can configure when starting
 the agent:
 
 [source,ruby]
@@ -52,7 +71,7 @@ ElasticAPM.start(
 )
 ----
 
-Alternatively, you can use the `ElasticAPM::Sinatra.start` API.
+Alternatively, you can use the `ElasticAPM::Sinatra.start` API:
 
 [source,ruby]
 ----
@@ -68,7 +87,7 @@ See <<getting-started-rack>>.
 [float]
 === Grape and Rack
 
-When using APM with Grape and Rack (without Rails), you can configure it when starting
+When using Grape and Rack (without Rails), you can configure when starting
 the agent:
 
 [source,ruby]
@@ -84,12 +103,6 @@ See <<getting-started-rack>>.
 
 [float]
 === Options
-
-Some options can be set with `ENV` variables and all of them may be set in
-your source code.
-
-When setting values for lists using `ENV` variables, strings are split by comma
-eg `ELASTIC_APM_SANITIZE_FIELD_NAMES="a,b" # => [/a/, /b/]`.
 
 [float]
 [[config-config-file]]
@@ -165,7 +178,7 @@ WARNING: Api keys only provide any real security if your APM server uses TLS.
 
 [float]
 [[config-active]]
-==== `active`
+==== `active` deprecated:[3.7.0,See <<config-enabled>> instead.]
 |============
 | Environment          | `Config` key | Default
 | `ELASTIC_APM_ACTIVE` | `active`     | `true`
@@ -173,6 +186,8 @@ WARNING: Api keys only provide any real security if your APM server uses TLS.
 
 Whether or not to start the agent.
 If `active` is `false`, `ElasticAPM.start` will do nothing and all calls to the root API will return `nil`.
+
+NOTE: This option is being removed. See <<config-enabled>> instead.
 
 [float]
 [[config-api-buffer-size]]
@@ -192,6 +207,9 @@ went wrong.
 [float]
 [[config-api-request-size]]
 ==== `api_request_size`
+
+<<dynamic-configuration, image:./images/dynamic-config.svg[] >>
+
 |============
 | Environment                    | `Config` key       | Default
 | `ELASTIC_APM_API_REQUEST_SIZE` | `api_request_size` | `"750kb"`
@@ -205,6 +223,9 @@ It has to be provided in *<<config-format-size, size format>>*.
 [float]
 [[config-api-request-time]]
 ==== `api_request_time`
+
+<<dynamic-configuration, image:./images/dynamic-config.svg[] >>
+
 |============
 | Environment                    | `Config` key       | Default
 | `ELASTIC_APM_API_REQUEST_TIME` | `api_request_time` | `"10s"`
@@ -233,6 +254,9 @@ NOTE: This feature requires APM Server and Kibana >= 7.3.
 [float]
 [[config-capture-body]]
 ==== `capture_body`
+
+<<dynamic-configuration, image:./images/dynamic-config.svg[] >>
+
 |============
 | Environment                | `Config` key   | Default | Example |
 | `ELASTIC_APM_CAPTURE_BODY` | `capture_body` | `"off"` | `"all"`
@@ -253,6 +277,9 @@ If your service handles data like this, we advise to only enable this feature wi
 [float]
 [[config-capture-headers]]
 ==== `capture_headers`
+
+<<dynamic-configuration, image:./images/dynamic-config.svg[] >>
+
 |============
 | Environment                   | `Config` key      | Default
 | `ELASTIC_APM_CAPTURE_HEADERS` | `capture_headers` | `true`
@@ -278,7 +305,7 @@ Whether or not to attach `ENV` from Rack to transactions and errors.
 | `ELASTIC_APM_CENTRAL_CONFIG` | `central_config` | `true`
 |============
 
-Enable {apm-app-ref}/agent-configuration.html[APM Agent Configuration via Kibana].
+Enables {apm-app-ref}/agent-configuration.html[APM Agent Configuration via Kibana].
 If set to `true`, the client will poll the APM Server regularly for new agent configuration.
 
 Usually APM Server determines how often to poll, but if not the default interval is 5 minutes.
@@ -382,6 +409,18 @@ Elastic APM automatically instruments select third party libraries.
 Use this option to disable any of these.
 
 Get an array of enabled instrumentations with `ElasticAPM.agent.config.enabled_instrumentations`.
+
+[float]
+[[config-enabled]]
+==== `enabled`
+[options="header"]
+|============
+| Environment          | `Config` key | Default
+| `ELASTIC_APM_ENABLED` | `enabled`     | `true`
+|============
+
+Whether or not to start the agent.
+If `enabled` is `false`, `ElasticAPM.start` will do nothing and all calls to the root API will return `nil`.
 
 [float]
 [[config-environment]]
@@ -514,6 +553,8 @@ Elastic APM can instrument your Rake tasks but given that they are used for a mu
 [[config-log-level]]
 ==== `log_level`
 
+<<dynamic-configuration, image:./images/dynamic-config.svg[] >>
+
 [options="header"]
 |============
 | Environment             | `Config` key | Default
@@ -611,6 +652,23 @@ There are also `ENV` version of these following the same pattern of putting `ELA
 See https://github.com/httprb/http/wiki/Proxy-Support[Http.rb's docs].
 
 [float]
+[[config-recording]]
+==== `recording`
+
+<<dynamic-configuration, image:./images/dynamic-config.svg[] >>
+
+[options="header"]
+|============
+| Environment          | `Config` key | Default
+| `ELASTIC_APM_RECORDING` | `recording`     | `true`
+|============
+
+Enable or disable the recording of events.
+If set to false, then the agent does not create or send any events to the Elastic APM server,
+and instrumentation overhead is minimized. The agent continues to poll the server for configuration changes
+when this option is false.
+
+[float]
 [[config-sanitize-field-names]]
 ==== `sanitize_field_names`
 
@@ -694,6 +752,8 @@ storage use in your Elasticsearch cluster.
 [[config-span-frames-min-duration-ms]]
 ==== `span_frames_min_duration`
 
+<<dynamic-configuration, image:./images/dynamic-config.svg[] >>
+
 |============
 | Environment                            | `Config` key               | Default
 | `ELASTIC_APM_SPAN_FRAMES_MIN_DURATION` | `span_frames_min_duration` | `"5ms"`
@@ -737,6 +797,8 @@ The maximum number of stack trace lines per span/error.
 [[config-transaction-max-spans]]
 ==== `transaction_max_spans`
 
+<<dynamic-configuration, image:./images/dynamic-config.svg[] >>
+
 |============
 | Environment                         | `Config` key            | Default
 | `ELASTIC_APM_TRANSACTION_MAX_SPANS` | `transaction_max_spans` | `500`
@@ -751,6 +813,8 @@ too much work for such edge cases.
 [float]
 [[config-transaction-sample-rate]]
 ==== `transaction_sample_rate`
+
+<<dynamic-configuration, image:./images/dynamic-config.svg[] >>
 
 |============
 | Environment                           | `Config` key              | Default

@@ -36,6 +36,7 @@ pipeline {
   parameters {
     string(name: 'RUBY_VERSION', defaultValue: "ruby:2.6", description: "Ruby version to test")
     string(name: 'BRANCH_SPECIFIER', defaultValue: "master", description: "Git branch/tag to use")
+    string(name: 'MERGE_TARGET', defaultValue: "master", description: "Git branch/tag where to merge this code")
   }
   stages {
     /**
@@ -48,7 +49,8 @@ pipeline {
         gitCheckout(basedir: "${BASE_DIR}",
           branch: "${params.BRANCH_SPECIFIER}",
           repo: "${REPO}",
-          credentialsId: "${JOB_GIT_CREDENTIALS}")
+          credentialsId: "${JOB_GIT_CREDENTIALS}",
+          mergeTarget: "${params.MERGE_TARGET}")
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }
@@ -118,16 +120,11 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
           steps.junit(allowEmptyResults: true,
             keepLongStdio: true,
             testResults: "**/spec/junit-reports/**/ruby-agent-junit.xml")
-          if (steps.isCodecovEnabled(x, y)) {
-            steps.codecov(repo: "${steps.env.REPO}", basedir: "${steps.env.BASE_DIR}",
-                          secret: "${steps.env.CODECOV_SECRET}")
-          }
         }
       }
     }
   }
 }
-
 /**
   Run tests for a Ruby version and framework version.
 */
@@ -145,18 +142,10 @@ def runScript(Map params = [:]){
       sleep randomNumber(min:10, max: 30)
       dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
       sh("./spec/scripts/spec.sh ${ruby} ${framework}")
+      script{
+        archiveArtifacts(artifacts: "coverage/matrix_results/", defaultExcludes: false)
+      }
     }
-  }
-}
-
-/**
-* Whether the given ruby version and framework are in charge of sending the
-* codecov results. It does require the workspace.
-*/
-def isCodecovEnabled(ruby, framework){
-  dir(BASE_DIR){
-    def codecovVersions = readYaml(file: '.ci/.jenkins_codecov.yml')
-    return codecovVersions['ENABLED'].any { it.trim() == "${ruby?.trim()}#${framework?.trim()}" }
   }
 }
 
@@ -178,8 +167,8 @@ def runTests(frameworkFile) {
         name: 'Ruby',
         steps: this
       )
-      def mapPatallelTasks = rubyTasksGen.generateParallelTests()
-      parallel(mapPatallelTasks)
+      def mapParallelTasks = rubyTasksGen.generateParallelTests()
+      parallel(mapParallelTasks)
     }
   }
 }

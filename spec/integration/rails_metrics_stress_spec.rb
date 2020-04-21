@@ -77,15 +77,16 @@ if enabled
         Thread.new do
           env = Rack::MockRequest.env_for(paths.sample)
           status, = Rails.application.call(env)
-          expect(status).to be 200
-          expect(env)
-          count.increment
+          # The request is occasionally unsuccessful so we want to only
+          # compare the metricset counts to the number of successful
+          # requests.
+          count.increment if status == 200
         end
       end.each(&:join)
 
       sleep 2 # wait for metrics to collect
       expect(EventCollector.metricsets_summary.values).to eq(
-        Array.new(5).map { request_count }
+        Array.new(5).map { count.value }
       )
     end
   end

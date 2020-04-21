@@ -39,11 +39,13 @@ module ElasticAPM
 
       def start
         debug '%s: Starting Transport', pid_str
+        # Set @stopped to false first, in case transport is restarted;
+        # ensure_worker_count requires @stopped to be false
+        # ~estolfo
+        @stopped.make_false unless @stopped.false?
 
         ensure_watcher_running
         ensure_worker_count
-
-        @stopped.make_false unless @stopped.false?
       end
 
       def stop
@@ -145,7 +147,8 @@ module ElasticAPM
             thread.kill
           end
 
-          @workers.clear
+          # Maintain the @worker array size for when transport is restarted
+          @workers.fill(nil)
         end
       end
 

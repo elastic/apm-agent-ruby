@@ -81,14 +81,10 @@ module ElasticAPM
         update[key] = @modified_options.delete(key)
       end
 
-      update_config(update)
+      @config.replace_options(update)
     end
 
     private
-
-    def update_config(new_options)
-      @config = config.dup.tap { |new_config| new_config.assign(new_options) }
-    end
 
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def handle_success(resp)
@@ -104,9 +100,10 @@ module ElasticAPM
           assign(update)
         end
 
-        if @modified_options.any?
+        if update && update.any?
           info 'Updated config from Kibana'
-          debug 'Modified: %s', @modified_options.inspect
+          debug 'Modified: %s', update.inspect
+          debug 'Modified original options: %s', @modified_options.inspect
         end
       end
 
@@ -151,7 +148,7 @@ module ElasticAPM
     def schedule_next_fetch(resp = nil)
       headers = resp&.headers
       seconds =
-        if headers['Cache-Control']
+        if headers && headers['Cache-Control']
           CacheControl.new(headers['Cache-Control']).max_age
         else
           DEFAULT_MAX_AGE

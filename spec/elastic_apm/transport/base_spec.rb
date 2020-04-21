@@ -32,7 +32,7 @@ module ElasticAPM
 
           wait_for transactions: 6
 
-          expect(subject.send(:workers).length).to be 0
+          expect(subject.send(:workers)).to eq([nil, nil])
         end
       end
 
@@ -60,6 +60,20 @@ module ElasticAPM
 
             expect(subject.queue.length).to be 5
           end
+        end
+      end
+
+      describe 'stop and start again' do
+        before do
+          subject.start
+          subject.stop
+          subject.start
+        end
+        after { subject.stop }
+
+        it 'starts the worker threads again' do
+          expect(subject.send(:workers).length).to be 1
+          expect(%w[sleep run]).to include(subject.send(:workers)[0].status)
         end
       end
     end

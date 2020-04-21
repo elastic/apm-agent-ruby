@@ -194,6 +194,16 @@ module ElasticAPM
       end
     end
 
+    context 'boolean values' do
+      subject { Config.new }
+
+      it 'allows false to be set' do
+        subject.capture_headers = false
+        expect(subject.capture_headers).to eq(false)
+        expect(subject.capture_headers?).to eq(false)
+      end
+    end
+
     context 'DEPRECATED' do
       describe 'default_tags' do
         subject { Config.new }
@@ -237,6 +247,45 @@ module ElasticAPM
           expect(subject).to receive(:warn).with(/DEPRECATED/)
           subject.use_experimental_sql_parser = true
         end
+      end
+
+      describe 'active' do
+        subject { Config.new }
+
+        it 'logs a warning and redirects' do
+          expect(subject).to receive(:warn).with(/DEPRECATED/)
+          subject.active = false
+
+          expect(subject.enabled).to eq(false)
+          expect(subject.active)
+            .to eq(subject.enabled)
+        end
+      end
+    end
+
+    describe '#replace_options' do
+      subject { Config.new(server_url: 'somewhere-else.com') }
+
+      it 'replaces the option values' do
+        subject.replace_options(api_request_time: '1s', api_buffer_size: 100)
+        expect(subject.api_request_time).to eq(1)
+        expect(subject.api_buffer_size).to eq(100)
+      end
+
+      it 'leaves existing config values unchanged' do
+        subject.replace_options(api_request_time: '1s')
+        expect(subject.server_url).to eq('somewhere-else.com')
+      end
+
+      it 'replaces the options object' do
+        original_options = subject.options
+        subject.replace_options(api_request_time: '1s')
+        expect(subject.options).not_to be(original_options)
+      end
+
+      it 'updates the log level on the existing logger' do
+        subject.replace_options(log_level: Logger::DEBUG)
+        expect(subject.logger.level).to eq(Logger::DEBUG)
       end
     end
   end

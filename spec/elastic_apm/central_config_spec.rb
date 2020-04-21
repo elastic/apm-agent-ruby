@@ -4,7 +4,10 @@ module ElasticAPM
   RSpec.describe CentralConfig do
     after { WebMock.reset! }
 
-    let(:config) { Config.new service_name: 'MyApp' }
+    let(:config) do
+      Config.new(service_name: 'MyApp',
+                 log_level: Logger::DEBUG)
+    end
     subject { described_class.new(config) }
 
     describe '#start' do
@@ -29,10 +32,26 @@ module ElasticAPM
       end
     end
 
+    describe 'stop and start again' do
+      before do
+        subject.start
+        subject.stop
+      end
+      after { subject.stop }
+
+      it 'restarts fetching the config' do
+        req_stub = stub_response({ transaction_sample_rate: '0.5' })
+        subject.start
+        subject.promise.wait
+        expect(req_stub).to have_been_requested.at_least_once
+      end
+    end
+
     describe '#fetch_and_apply_config' do
       it 'queries APM Server and applies config' do
         req_stub = stub_response({ transaction_sample_rate: '0.5' })
         expect(config.logger).to receive(:info)
+        expect(config.logger).to receive(:debug).twice
 
         subject.fetch_and_apply_config
         subject.promise.wait
@@ -133,6 +152,18 @@ module ElasticAPM
           expect(subject.scheduled_task.initial_delay).to eq 300
         end
       end
+
+      context 'when there is a network error' do
+        it 'schedules a new poll' do
+          stub_response(nil, error: HTTP::ConnectionError)
+
+          subject.fetch_and_apply_config
+          subject.promise.wait
+
+          expect(subject.scheduled_task).to be_pending
+          expect(subject.scheduled_task.initial_delay).to eq 300
+        end
+      end
     end
 
     describe '#fetch_config' do
@@ -225,8 +256,10 @@ module ElasticAPM
       end
     end
 
-    def stub_response(body, request: {}, response: {})
+    def stub_response(body, request: {}, response: {}, error: nil)
       url = 'http://localhost:8200/config/v1/agents?service.name=MyApp'
+
+      return stub_request(:get, url).to_raise(error) if error
 
       stub_request(:get, url).tap do |stub|
         stub.with(request) if request.any?

@@ -9,8 +9,11 @@ endif::[]
 
 To get you off the ground, we’ve prepared guides for setting up the Agent with different frameworks:
 
+ * <<getting-started-rails,Rails>>
+ * <<getting-started-rack,Rack>>
+
+For custom instrumentation, see the <<api>>.
+
 include::./getting-started-rails.asciidoc[]
 
 include::./getting-started-rack.asciidoc[]
-
-For custom instrumentation, see the <<api>>.

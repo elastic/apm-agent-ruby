@@ -22,6 +22,19 @@ module ElasticAPM
         end
       end
 
+      describe 'stop and start again' do
+        before do
+          subject.start
+          subject.stop
+        end
+        after { subject.stop }
+
+        it 'restarts collecting metrics' do
+          subject.start
+          expect(subject.instance_variable_get(:@timer_task)).to be_running
+        end
+      end
+
       context 'when disabled' do
         let(:config) { Config.new metrics_interval: '0s' }
 
@@ -74,13 +87,18 @@ module ElasticAPM
           subject.collect_and_send
         end
       end
+
+      context 'when recording is false' do
+        let(:config) { Config.new(recording: false) }
+        it 'does not collect metrics' do
+          expect(subject).to_not receive(:collect)
+          subject.collect_and_send
+        end
+      end
     end
 
     context 'thread safety stress test', :mock_intake do
       it 'handles multiple threads reporting and collecting at the same time' do
-        config = Config.new(metrics_interval: '100ms')
-        queue = Queue.new
-        metrics = Metrics.new(config) { queue.push metricset }
         thread_count = 1_000
 
         names = Array.new(5).map do

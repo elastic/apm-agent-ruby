@@ -52,6 +52,9 @@ module ElasticAPM
 
     def start
       debug 'Starting instrumenter'
+      # We call register! on @subscriber in case the
+      # instrumenter was stopped and started again
+      @subscriber&.register!
     end
 
     def stop
@@ -178,7 +181,7 @@ module ElasticAPM
         sync: sync
       )
 
-      if backtrace && transaction.config.span_frames_min_duration?
+      if backtrace && transaction.span_frames_min_duration
         span.original_backtrace = backtrace
       end
 
@@ -234,7 +237,7 @@ module ElasticAPM
     end
 
     def update_transaction_metrics(transaction)
-      return unless transaction.config.collect_metrics?
+      return unless transaction.collect_metrics
 
       tags = {
         'transaction.name': transaction.name,
@@ -252,7 +255,7 @@ module ElasticAPM
       ).inc!
 
       return unless transaction.sampled?
-      return unless transaction.config.breakdown_metrics?
+      return unless transaction.breakdown_metrics
 
       @metrics.get(:breakdown).counter(
         :'transaction.breakdown.count',
@@ -273,7 +276,7 @@ module ElasticAPM
     end
 
     def update_span_metrics(span)
-      return unless span.transaction.config.breakdown_metrics?
+      return unless span.transaction.breakdown_metrics
 
       tags = {
         'span.type': span.type,

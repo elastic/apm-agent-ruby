@@ -59,14 +59,23 @@ pipeline {
         deleteDir()
         gitCheckout(basedir: "${BASE_DIR}", githubNotifyFirstTimeContributor: true, reference: "${env.REFERENCE_REPO}")
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
+        script {
+          dir("${BASE_DIR}"){
+            // Skip all the stages except docs for PR's with asciidoc and md changes only
+            env.ONLY_DOCS = isGitRegionMatch(patterns: [ '.*\\.(asciidoc|md)' ], shouldMatchAll: true)
+          }
+        }
       }
     }
     stage('Sanity checks') {
       when {
         beforeAgent true
-        anyOf {
-          not { changeRequest() }
-          expression { return params.Run_As_Master_Branch }
+        allOf {
+          expression { return env.ONLY_DOCS == "false" }
+          anyOf {
+            not { changeRequest() }
+            expression { return params.Run_As_Master_Branch }
+          }
         }
       }
       options { skipDefaultCheckout() }
@@ -91,6 +100,10 @@ pipeline {
     */
     stage('Test') {
       options { skipDefaultCheckout() }
+      when {
+        beforeAgent true
+        expression { return env.ONLY_DOCS == "false" }
+      }
       steps {
         withGithubNotify(context: 'Tests', tab: 'tests') {
           deleteDir()
@@ -113,9 +126,12 @@ pipeline {
       agent none
       when {
         beforeAgent true
-        anyOf {
-          changeRequest()
-          expression { return !params.Run_As_Master_Branch }
+        allOf {
+          expression { return env.ONLY_DOCS == "false" }
+          anyOf {
+            changeRequest()
+            expression { return !params.Run_As_Master_Branch }
+          }
         }
       }
       steps {
@@ -238,7 +254,10 @@ pipeline {
           steps {
             deleteDir()
             // Let's wait for the Gem to be available
-            sh "(retry 10 curl --silent --show-error --fail -I https://rubygems.org/gems/elastic-apm/versions/${env.VERSION})"
+            sh label: 'Wait for gem', script: """#!/usr/bin/env bash
+              source /usr/local/bin/bash_standard_lib.sh
+              (retry 10 curl --silent --show-error --fail -I https://rubygems.org/gems/elastic-apm/versions/${env.VERSION})
+            """
             dir("${OPBEANS_REPO}"){
               git credentialsId: 'f6c7695a-671e-4f4f-a331-acdce44ff9ba',
                   url: "git@github.com:elastic/${OPBEANS_REPO}.git"
@@ -253,12 +272,27 @@ pipeline {
         }
       }
     }
+    stage('Coverage converge') {
+      steps{
+        dir("${BASE_DIR}"){
+          unpack_artifacts(rubyDownstreamJobs)
+          sh(script: "./spec/scripts/coverage_converge.sh")
+          cobertura coberturaReportFile: "coverage/coverage.xml"
+        }
+      }
+    }
   }
   post {
     cleanup {
       notifyBuildResult(downstreamJobs: rubyDownstreamJobs)
     }
   }
+}
+
+def unpack_artifacts(builds) {
+    builds.values().each() { build ->
+      copyArtifacts(projectName: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}", selector: specific(buildNumber: build.number.toString()))
+    }
 }
 
 /**
@@ -300,12 +334,14 @@ def runBenchmark(version){
 
 def runJob(String rubyVersion, int sleep = 1){
   def buildObject
+  def branch = env.CHANGE_ID?.trim() ? env.CHANGE_TARGET : env.BRANCH_NAME
   try {
     def quiet = (sleep * randomNumber(min: 2, max: 6)) + 5
     buildObject = build(job: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}",
                         parameters: [
                           string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
-                          string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}")
+                          string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}"),
+                          string(name: 'MERGE_TARGET', value: "${branch}")
                         ],
                         quietPeriod: quiet)
   } catch(e) {

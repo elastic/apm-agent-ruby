@@ -33,8 +33,8 @@ module ElasticAPM
           subject.stop
         end
 
-        context 'when active: false' do
-          let(:config) { Config.new(active: false) }
+        context 'when enabled: false' do
+          let(:config) { Config.new(enabled: false) }
 
           it "doesn't start" do
             Agent.start(config)
