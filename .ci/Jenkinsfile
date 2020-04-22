@@ -90,7 +90,7 @@ pipeline {
 def prepareRelease(Closure body){
   dir("${env.BASE_DIR}"){
     docker.image("${env.RUBY_DOCKER_TAG}").inside('-v ${REFERENCE_REPO}:${REFERENCE_REPO} -v /etc/passwd:/etc/passwd -v ${HOME}/.ssh:${HOME}/.ssh') {
-      withEnv(["HOME=${env.WORKSPACE}/${env.BASE_DIR ?: ''}"]) {
+      withEnv(["HOME=${env.WORKSPACE}/${env.BASE_DIR ?: ''}", "BRANCH_NAME=master"]) {
         rubygemsLogin.withApi(secret: "${env.RELEASE_SECRET}") {
           withGitRelease(credentialsId: '2a9602aa-ab9f-4e52-baf3-b71ca88469c7-UserAndToken') {
             sh 'gem install rake yard rspec'
