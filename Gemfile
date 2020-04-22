@@ -34,6 +34,7 @@ gem 'sidekiq', require: nil
 gem 'simplecov', require: false
 gem 'simplecov-cobertura', require: false
 gem 'sneakers', '~> 2.12', require: nil
+gem 'sucker_punch', '~> 2.0', require: nil
 gem 'yard', require: nil
 gem 'yarjuf'
 
