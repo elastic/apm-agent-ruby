@@ -68,6 +68,8 @@ module ElasticAPM
     context 'when the job raises an error' do
       around do |ex|
         original_exception_handler = SuckerPunch.exception_handler
+        # We set an exception handler that does nothing so we don't see the
+        # error reported to STDOUT in the tests
         SuckerPunch.exception_handler = proc {}
         ex.run
         SuckerPunch.exception_handler = original_exception_handler
@@ -75,7 +77,7 @@ module ElasticAPM
       end
 
       context 'when SuckerPunch::Job.perform_async is called' do
-        it 'the transaction is successful and SuckerPunch handles the error' do
+        it 'sets transaction result to success, SuckerPunch handles error' do
           with_agent do
             ErrorJob.perform_async
             sleep(0.5)
@@ -94,7 +96,7 @@ module ElasticAPM
       end
 
       context 'when SuckerPunch::Job.perform_in is called' do
-        it 'the transaction is successful and SuckerPunch handles the error' do
+        it 'sets transaction result to success, SuckerPunch handles error' do
           with_agent do
             ErrorJob.perform_in(0.5)
             sleep(1)
