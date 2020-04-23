@@ -22,6 +22,9 @@ module ElasticAPM
             __run_perform_without_elastic_apm(*args)
             transaction.done 'success'
           rescue ::Exception => e
+            # Note that SuckerPunch by default doesn't raise the errors from
+            # the user-defined JobClass#perform method as it uses an error
+            # handler, accessed via `SuckerPunch.exception_handler`.
             ElasticAPM.report(e, handled: false)
             transaction.done 'error'
             raise
