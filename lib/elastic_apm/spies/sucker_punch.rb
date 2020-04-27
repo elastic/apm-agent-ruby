@@ -12,8 +12,8 @@ module ElasticAPM
           alias :__run_perform_without_elastic_apm :__run_perform
 
           def __run_perform(*args)
-            # This method is reached via SuckerPunch::Job#async_perform
-            # or SuckerPunch::Job#perform_in.
+            # This method is reached via JobClass#async_perform
+            # or JobClass#perform_in.
             name = to_s
             transaction = ElasticAPM.start_transaction(name, TYPE)
             __run_perform_without_elastic_apm(*args)
