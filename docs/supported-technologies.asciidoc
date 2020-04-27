@@ -87,6 +87,7 @@ We automatically instrument background processing using:
 - Shoryuken
 - Sneakers (v2.12.0+) (Experimental, see https://github.com/elastic/apm-agent-ruby/pull/676[#676])
 - Resque (v2.0.0+)
+- SuckerPunch (v2.0.0+)
 
 [float]
 [[supported-technologies-resque]]
@@ -115,6 +116,18 @@ D, [XXX #81227] DEBUG -- : Starting ElasticAPM agent
 
 Also be sure to set the Resque environment variable `RUN_AT_EXIT_HOOKS` to `true`. Otherwise, the fork may be
 terminated before the agent has a chance to send all the fork's events to the APM server.
+
+[float]
+[[supported-technologies-sucker-punch]]
+=== SuckerPunch
+
+Asynchronously executed jobs in SuckerPunch are automatically instrumented.
+
+Note that errors raised in the user-defined `JobClass#perform` method will be first handled by the SuckerPunch exception
+handler before being handled by the agent. The handler is accessed/set via `SuckerPunch.exception_handler` in version
+2.0. The agent transaction will be marked as successful unless you re-raise the error in the exception handler.
+You can also explicitly report the error via <<api-agent-report,`ElasticAPM.report`>> in a custom SuckerPunch exception
+handler.
 
 [float]
 [[supported-technologies-grpc]]
