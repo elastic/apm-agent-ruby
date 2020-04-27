@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-@Library('apm@current') _
+@Library('apm@test/tests-reporting') _
 
 import co.elastic.matrix.*
 import groovy.transform.Field
