@@ -273,6 +273,10 @@ pipeline {
       }
     }
     stage('Coverage converge') {
+      when {
+        beforeAgent true
+        expression { return env.ONLY_DOCS == "false" }
+      }
       steps{
         dir("${BASE_DIR}"){
           unpack_artifacts(rubyDownstreamJobs)
