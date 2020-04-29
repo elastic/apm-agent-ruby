@@ -85,7 +85,7 @@ pipeline {
           }
         }
       }
-      notifyBuildResult()
+      notifyBuildResult(prComment: false)
     }
   }
 }
