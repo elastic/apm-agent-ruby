@@ -53,7 +53,7 @@ Each of these categories are further split into separate error and span settings
 
 Reading source files inside a running application can cause a lot of disk I/O,
 and sending up source lines for each frame will have a network and storage cost that is quite high.
-Turning down these limits will help prevent excessive memory usage.
+Turning down these limits will help prevent excessive memory usage in Elasticsearch.
 
 [float]
 [[tuning-queue]]
@@ -96,10 +96,11 @@ This limit is configurable with <<config-transaction-max-spans,`transaction_max_
 
 You can configure the Agent to capture headers and request bodies with
 <<config-capture-headers,`capture_headers`>> and <<config-capture-body,`capture_body`>>.
-By default, headers are enabled and request bodies are disabled.
+By default, headers are captured and request bodies are not.
 
-Depending on the nature of your POST requests, enabling request bodies for transactions may introduce noticeable overhead,
+Depending on the nature of your POST requests, capturing request bodies for transactions may introduce noticeable overhead,
 as well as increased storage use.
 In most scenarios, we advise against enabling request body capturing for transactions, and only enabling it if necessary for errors.
 
-Capturing request/response headers has less overhead on the agent, but can have an impact on storage use.
+Capturing request/response headers has less overhead on the agent than capturing request bodies,
+but can have an impact on storage use.
