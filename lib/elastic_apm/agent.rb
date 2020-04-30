@@ -270,6 +270,9 @@ module ElasticAPM
 
     def detect_forking!
       return if @pid == Process.pid
+
+      config.logger.debug "Detected forking,
+        restarting threads in process [PID:#{Process.pid}]"
       central_config.handle_forking!
       transport.handle_forking!
       instrumenter.handle_forking!
