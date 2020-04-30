@@ -53,7 +53,7 @@ Each of these categories are further split into separate error and span settings
 
 Reading source files inside a running application can cause a lot of disk I/O,
 and sending up source lines for each frame will have a network and storage cost that is quite high.
-Turning down these limits will help prevent excessive memory usage in Elasticsearch.
+Turning these limits down will prevent storing excessive amounts of data in Elasticsearch.
 
 [float]
 [[tuning-queue]]
