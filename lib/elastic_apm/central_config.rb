@@ -107,7 +107,7 @@ module ElasticAPM
       # of the ScheduledTask could still be `pending`, although its
       # internal thread has died. Therefore, our only option is to
       # forcibly reset the task when forked. ~estolfo
-      @scheduled_task.reset
+      schedule_next_fetch
     end
 
     private
