@@ -25,4 +25,6 @@ server_url: http://localhost:8200
 secret_token: ''
 ----
 
+Or if you prefer environment variables, skip the file and set `ELASTIC_APM_SERVER_URL` and `ELASTIC_APM_SECRET_TOKEN` in your local or server environment.
+
 This automatically sets up error logging and performance tracking but of course there are knobs to turn if you'd like to. See <<configuration>>.
