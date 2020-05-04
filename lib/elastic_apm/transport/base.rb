@@ -96,12 +96,9 @@ module ElasticAPM
       end
 
       def handle_forking!
-        # Note that you can't simply check watcher.running? because it will only
-        # return the state of the TimerTask, not whether the internal thread
-        # used to monitor the execution interval has died. This is a
-        # limitation of the Concurrent::TimerTask object. Ideally we'd be
-        # able to restart the TimerTask, but we can't. Therefore, our only option
-        # when forked is to shutdown the task and create a new one. ~estolfo
+        # We can't just stop and start again because the StopMessage
+        # will then be the first message processed when the transport is
+        # restarted.
         stop_watcher
         ensure_worker_count
         create_watcher
