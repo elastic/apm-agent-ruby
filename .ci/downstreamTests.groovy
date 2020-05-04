@@ -117,9 +117,9 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
           saveResult(x, y, 0)
           steps.error("${label} tests failed : ${e.toString()}\n")
         } finally {
-          steps.junit(allowEmptyResults: true,
-            keepLongStdio: true,
-            testResults: "**/spec/junit-reports/**/ruby-agent-junit.xml")
+          def testResultsPattern = '**/spec/junit-reports/**/ruby-agent-junit.xml'
+          steps.junit(testResults: testResultsPattern, allowEmptyResults: true, keepLongStdio: true)
+          steps.archiveArtifacts(artifacts: testResultsPattern, allowEmptyArchive: true, onlyIfSuccessful: false)
         }
       }
     }
