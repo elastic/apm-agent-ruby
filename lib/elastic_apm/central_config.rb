@@ -102,12 +102,8 @@ module ElasticAPM
     end
 
     def handle_forking!
-      # A Concurrent::ScheduledTask has no way to detect if the internal
-      # thread used to schedule the task has died. When forked, the state
-      # of the ScheduledTask could still be `pending`, although its
-      # internal thread has died. Therefore, our only option is to
-      # forcibly reset the task when forked. ~estolfo
-      schedule_next_fetch
+      stop
+      start
     end
 
     private
