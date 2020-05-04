@@ -389,5 +389,16 @@ module ElasticAPM
         expect(user.username).to eq 'abe'
       end
     end
+
+    describe '#handle_forking!' do
+      let(:subscriber) { double(register!: true, unregister!: true) }
+      it 'restarts with the subscriber still registered' do
+        subject.start
+        subject.subscriber = subscriber
+        expect(subscriber).to receive(:register!)
+        subject.handle_forking!
+        subject.stop
+      end
+    end
   end
 end
