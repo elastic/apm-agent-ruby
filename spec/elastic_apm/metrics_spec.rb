@@ -165,5 +165,24 @@ module ElasticAPM
         expect(samples['c_with_tags']['value']).to be > 0
       end
     end
+
+    describe '#handle_forking!' do
+      before do
+        subject.handle_forking!
+      end
+      after { subject.stop }
+
+      it 'restarts the TimerTask' do
+        expect(subject.instance_variable_get(:@timer_task)).to be_running
+      end
+
+      context 'when not collecting metrics' do
+        let(:config) { Config.new(metrics_interval: 0) }
+
+        it 'does not create a TimerTask' do
+          expect(subject.instance_variable_get(:@timer_task)).to be nil
+        end
+      end
+    end
   end
 end
