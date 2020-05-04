@@ -26,13 +26,6 @@ module ElasticAPM
 
       def install
         install_perform_spy
-        install_after_fork_hook
-      end
-
-      def install_after_fork_hook
-        ::Resque.after_fork do
-          ElasticAPM.restart
-        end
       end
 
       def install_perform_spy
