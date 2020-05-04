@@ -191,6 +191,8 @@ module ElasticAPM
       parent: nil,
       sync: nil
     )
+      detect_forking!
+
       # We don't check config.recording? because the span
       # will not be created if there's no transaction.
       # We want to use the recording value from the config
@@ -233,6 +235,7 @@ module ElasticAPM
 
     def report(exception, context: nil, handled: true)
       return unless config.recording?
+      detect_forking!
       return if config.filter_exception_types.include?(exception.class.to_s)
 
       error = @error_builder.build_exception(
@@ -246,6 +249,8 @@ module ElasticAPM
 
     def report_message(message, context: nil, backtrace: nil, **attrs)
       return unless config.recording?
+      detect_forking!
+
       error = @error_builder.build_log(
         message,
         context: context,
