@@ -358,6 +358,7 @@ def runJob(String rubyVersion, int sleep = 1){
     rubyTasksFailed = true
     buildFailed = true
     buildNumber = buildObject.number.toString()
+    log(level: 'INFO', text: "Job failed '${buildObject?.name}' - ${buildNumber}")
     buildObject = e
   } finally {
     dir(rubyVersion) {
