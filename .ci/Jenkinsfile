@@ -281,7 +281,7 @@ pipeline {
         dir("${BASE_DIR}"){
           unpack_artifacts(rubyDownstreamJobs)
           sh(script: "./spec/scripts/coverage_converge.sh")
-          cobertura coberturaReportFile: "coverage/coverage.xml"        
+          cobertura coberturaReportFile: "coverage/coverage.xml"
         }
       }
     }
@@ -339,6 +339,7 @@ def runBenchmark(version){
 }
 
 def runJob(String rubyVersion, int sleep = 1){
+  def buildFailed = false
   def buildObject
   def branch = env.CHANGE_ID?.trim() ? env.CHANGE_TARGET : env.BRANCH_NAME
   def jobName = "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}"
@@ -353,20 +354,25 @@ def runJob(String rubyVersion, int sleep = 1){
                         quietPeriod: quiet)
   } catch(e) {
     rubyTasksFailed = true
+    buildFailed = true
     buildObject = e
-    warnError('Downstream Failed') {
-      error("Downstream job for '${rubyVersion}' failed")
-    }
   } finally {
     dir(rubyVersion) {
       copyArtifacts(projectName: jobName, 
-                    excludes: 'coverage/**/*.*', 
+                    includes: '**/ruby-agent-junit.xml',
                     selector: specific(buildNumber: buildObject.number.toString()))
     }
     // Aggregate test results from downstream jobs.
     junit(testResults: "${rubyVersion}/**/ruby-agent-junit.xml", allowEmptyResults: true, keepLongStdio: true)
     archiveArtifacts(artifacts: "${rubyVersion}/**", allowEmptyArchive: true, onlyIfSuccessful: false)
     rubyDownstreamJobs["${rubyVersion}"] = buildObject
+
+    // Let's report the failure in the stage at the very end.
+    if (buildFailed) {
+      warnError("Downstream Failed '${rubyVersion}'") {
+        error("Downstream job for '${rubyVersion}' failed")
+      }
+    }
   }
 }
 
