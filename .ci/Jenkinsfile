@@ -341,6 +341,7 @@ def runBenchmark(version){
 def runJob(String rubyVersion, int sleep = 1){
   def buildFailed = false
   def buildObject
+  def buildNumber
   def branch = env.CHANGE_ID?.trim() ? env.CHANGE_TARGET : env.BRANCH_NAME
   def jobName = "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}"
   try {
@@ -352,15 +353,17 @@ def runJob(String rubyVersion, int sleep = 1){
                           string(name: 'MERGE_TARGET', value: "${branch}")
                         ],
                         quietPeriod: quiet)
+    buildNumber = buildObject.number.toString()
   } catch(e) {
     rubyTasksFailed = true
     buildFailed = true
+    buildNumber = buildObject.number.toString()
     buildObject = e
   } finally {
     dir(rubyVersion) {
       copyArtifacts(projectName: jobName, 
                     includes: '**/ruby-agent-junit.xml',
-                    selector: specific(buildNumber: buildObject.number.toString()))
+                    selector: specific(buildNumber: buildNumber))
     }
     // Aggregate test results from downstream jobs.
     junit(testResults: "${rubyVersion}/**/ruby-agent-junit.xml", allowEmptyResults: true, keepLongStdio: true)
