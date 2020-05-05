@@ -354,14 +354,16 @@ def runJob(String rubyVersion, int sleep = 1){
                         ],
                         quietPeriod: quiet)
     buildNumber = buildObject.number.toString()
+    log(level: 'INFO', text: "Job ran successfully '${buildObject?.getProjectName()}' - ${buildNumber}")
   } catch(e) {
     rubyTasksFailed = true
     buildFailed = true
     buildNumber = buildObject.number.toString()
-    log(level: 'INFO', text: "Job failed '${buildObject?.name}' - ${buildNumber}")
+    log(level: 'INFO', text: "Job failed '${buildObject?.getProjectName()}' - ${buildNumber}")
     buildObject = e
   } finally {
     dir(rubyVersion) {
+      log(level: 'INFO', text: 'Fetch test results from the downstream to be aggregated.')
       copyArtifacts(projectName: jobName, filter: '**/ruby-agent-junit.xml', selector: specific(buildNumber: buildNumber))
     }
     // Aggregate test results from downstream jobs.
