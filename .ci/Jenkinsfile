@@ -361,9 +361,7 @@ def runJob(String rubyVersion, int sleep = 1){
     buildObject = e
   } finally {
     dir(rubyVersion) {
-      copyArtifacts(projectName: jobName, 
-                    includes: '**/ruby-agent-junit.xml',
-                    selector: specific(buildNumber: buildNumber))
+      copyArtifacts(projectName: jobName, filter: '**/ruby-agent-junit.xml', selector: specific(buildNumber: buildNumber))
     }
     // Aggregate test results from downstream jobs.
     junit(testResults: "${rubyVersion}/**/ruby-agent-junit.xml", allowEmptyResults: true, keepLongStdio: true)
