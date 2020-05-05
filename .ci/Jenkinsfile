@@ -342,6 +342,7 @@ def runJob(String rubyVersion, int sleep = 1){
   def buildFailed = false
   def buildObject
   def buildNumber
+  def buildName
   def branch = env.CHANGE_ID?.trim() ? env.CHANGE_TARGET : env.BRANCH_NAME
   def jobName = "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}"
   try {
@@ -354,16 +355,18 @@ def runJob(String rubyVersion, int sleep = 1){
                         ],
                         quietPeriod: quiet)
     buildNumber = buildObject.number.toString()
-    log(level: 'INFO', text: "Job ran successfully '${buildObject?.getProjectName()}' - ${buildNumber}")
+    buildName = buildObject?.getProjectName()
+    log(level: 'INFO', text: "Job ran successfully '${buildName}' - ${buildNumber}")
   } catch(e) {
     rubyTasksFailed = true
     buildFailed = true
     buildNumber = buildObject.number.toString()
-    log(level: 'INFO', text: "Job failed '${buildObject?.getProjectName()}' - ${buildNumber}")
+    buildName = buildObject?.getProjectName()
+    log(level: 'INFO', text: "Job failed '${buildName}' - ${buildNumber}")
     buildObject = e
   } finally {
     dir(rubyVersion) {
-      log(level: 'INFO', text: 'Fetch test results from the downstream to be aggregated.')
+      log(level: 'INFO', text: "Fetch test results from the downstream to be aggregated. ${rubyVersion?.trim()} - ${buildNumber?.trim()} - ${buildName?.trim()}")
       copyArtifacts(projectName: jobName, filter: '**/ruby-agent-junit.xml', selector: specific(buildNumber: buildNumber))
     }
     // Aggregate test results from downstream jobs.
