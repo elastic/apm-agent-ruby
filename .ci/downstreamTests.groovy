@@ -136,13 +136,15 @@ def runScript(Map params = [:]){
   env.HOME = "${env.WORKSPACE}"
   env.PATH = "${env.PATH}:${env.WORKSPACE}/bin"
   deleteDir()
-  unstash 'source'
-  dir("${BASE_DIR}"){
-    retry(2){
-      sleep randomNumber(min:10, max: 30)
-      dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
-      sh("./spec/scripts/spec.sh ${ruby} ${framework}")
-      script{
+  // Create folder with the ruby-framework to ensure the tests are unique per tuple when
+  // populating them from the downstream to the parentstream.
+  dir("${ruby}-${framework}".replaceAll('/','_')) {
+    unstash 'source'
+    dir("${BASE_DIR}"){
+      retry(2){
+        sleep randomNumber(min:10, max: 30)
+        dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
+        sh("./spec/scripts/spec.sh ${ruby} ${framework}")
         archiveArtifacts(artifacts: "coverage/matrix_results/", defaultExcludes: false)
       }
     }
