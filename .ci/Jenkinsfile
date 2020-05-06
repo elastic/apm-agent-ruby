@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-@Library('apm@current') _
+@Library('apm@fix/error-build-downstreams') _
 
 import co.elastic.matrix.*
 import groovy.transform.Field
