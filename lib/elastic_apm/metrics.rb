@@ -60,7 +60,21 @@ module ElasticAPM
           sets[key] = kls.new(config)
         end
 
-        create_timer_task
+        @timer_task = Concurrent::TimerTask.execute(
+          run_now: true,
+          execution_interval: config.metrics_interval,
+          timeout_interval: TIMEOUT_INTERVAL
+        ) do
+          begin
+            debug 'Collecting metrics'
+            collect_and_send
+            true
+          rescue StandardError => e
+            error 'Error while collecting metrics: %e', e.inspect
+            debug { e.backtrace.join("\n") }
+            false
+          end
+        end
 
         @running = true
       end
@@ -108,24 +122,6 @@ module ElasticAPM
           samples = set.collect
           next unless samples
           arr.concat(samples)
-        end
-      end
-
-      def create_timer_task
-        @timer_task = Concurrent::TimerTask.execute(
-          run_now: true,
-          execution_interval: config.metrics_interval,
-          timeout_interval: TIMEOUT_INTERVAL
-        ) do
-          begin
-            debug 'Collecting metrics'
-            collect_and_send
-            true
-          rescue StandardError => e
-            error 'Error while collecting metrics: %e', e.inspect
-            debug { e.backtrace.join("\n") }
-            false
-          end
         end
       end
     end
