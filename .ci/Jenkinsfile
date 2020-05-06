@@ -340,8 +340,7 @@ def runBenchmark(version){
 }
 
 def runJob(String rubyVersion, int sleep = 1){
-  def buildFailed = false
-  def buildObject, ret
+  def buildObject, ret, buildNumber, buildName
   def branch = env.CHANGE_ID?.trim() ? env.CHANGE_TARGET : env.BRANCH_NAME
   def jobName = "${env.DOWNSTREAM_PIPELINE}/${env.BRANCH_NAME}"
   try {
@@ -354,28 +353,25 @@ def runJob(String rubyVersion, int sleep = 1){
                         ],
                         quietPeriod: quiet)
     ret = buildObject
+    buildName = buildObject.getProjectName()
+    buildNumber = buildObject.getNumber()?.toString()
   } catch(e) {
     log(level: 'DEBUG', text: "There was an error when running the build ${e}")
     rubyTasksFailed = true
-    buildFailed = true
     ret = e
+    buildName = e.getProjectName()
+    buildNumber = e.getNumber()?.toString()
+    warnError("Downstream Failed '${rubyVersion}'") {
+      error("Downstream job for '${rubyVersion}' failed")
+    }
   } finally {
     rubyDownstreamJobs["${rubyVersion}"] = ret
     // Aggregate test results from downstream jobs.
-    buildNumber = buildObject?.getNumber()?.toString()
-    buildName = buildObject?.getProjectName()
-    log(level: 'DEBUG', text: "build ${buildName?.trim()}  ${buildNumber?.trim()}")
+    log(level: 'DEBUG', text: "build ${buildName?.trim()} ${buildNumber?.trim()}")
     dir(rubyVersion) {
       copyArtifacts(projectName: jobName, filter: '**/ruby-agent-junit.xml', selector: specific(buildNumber: buildNumber))
     }
     junit(testResults: "${rubyVersion}/**/ruby-agent-junit.xml", allowEmptyResults: true, keepLongStdio: true)
-
-    // Let's report the failure in the stage at the very end.
-    if (buildFailed) {
-      warnError("Downstream Failed '${rubyVersion}'") {
-        error("Downstream job for '${rubyVersion}' failed")
-      }
-    }
   }
 }
 
