@@ -26,6 +26,7 @@ pipeline {
     DOCKER_REGISTRY = 'docker.elastic.co'
     DOCKER_SECRET = 'secret/apm-team/ci/docker-registry/prod'
     GITHUB_CHECK_ITS_NAME = 'Integration Tests'
+    DOWNSTREAM_PIPELINE = 'apm-agent-ruby/apm-agent-ruby-downstream'
     ITS_PIPELINE = 'apm-integration-tests-selector-mbp/master'
     RELEASE_SECRET = 'secret/apm-team/ci/apm-agent-ruby-rubygems-release'
     OPBEANS_REPO = 'opbeans-ruby'
@@ -295,7 +296,7 @@ pipeline {
 
 def unpack_artifacts(builds) {
     builds.values().each() { build ->
-      copyArtifacts(projectName: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}", 
+      copyArtifacts(projectName: "${env.DOWNSTREAM_PIPELINE}/${env.BRANCH_NAME}", 
                     filter: 'coverage/**/*.*',
                     selector: specific(buildNumber: build.number.toString()))
     }
@@ -340,11 +341,9 @@ def runBenchmark(version){
 
 def runJob(String rubyVersion, int sleep = 1){
   def buildFailed = false
-  def buildObject
-  def buildNumber
-  def buildName
+  def buildObject, ret
   def branch = env.CHANGE_ID?.trim() ? env.CHANGE_TARGET : env.BRANCH_NAME
-  def jobName = "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}"
+  def jobName = "${env.DOWNSTREAM_PIPELINE}/${env.BRANCH_NAME}"
   try {
     def quiet = (sleep * randomNumber(min: 2, max: 6)) + 5
     buildObject = build(job: jobName,
@@ -354,25 +353,20 @@ def runJob(String rubyVersion, int sleep = 1){
                           string(name: 'MERGE_TARGET', value: "${branch}")
                         ],
                         quietPeriod: quiet)
-    buildNumber = buildObject.number.toString()
-    buildName = buildObject?.getProjectName()
-    log(level: 'INFO', text: "Job ran successfully '${buildName}' - ${buildNumber}")
+    ret = buildObject
   } catch(e) {
     rubyTasksFailed = true
     buildFailed = true
-    buildNumber = buildObject.number.toString()
-    buildName = buildObject?.getProjectName()
-    log(level: 'INFO', text: "Job failed '${buildName}' - ${buildNumber}")
-    buildObject = e
+    ret = e
   } finally {
+    rubyDownstreamJobs["${rubyVersion}"] = ret
+    // Aggregate test results from downstream jobs.
+    buildNumber = buildObject?.getNumber()?.toString()
+    buildName = buildObject?.getProjectName()
     dir(rubyVersion) {
-      log(level: 'INFO', text: "Fetch test results from the downstream to be aggregated. ${rubyVersion?.trim()} - ${buildNumber?.trim()} - ${buildName?.trim()}")
       copyArtifacts(projectName: jobName, filter: '**/ruby-agent-junit.xml', selector: specific(buildNumber: buildNumber))
     }
-    // Aggregate test results from downstream jobs.
     junit(testResults: "${rubyVersion}/**/ruby-agent-junit.xml", allowEmptyResults: true, keepLongStdio: true)
-    archiveArtifacts(artifacts: "${rubyVersion}/**", allowEmptyArchive: true, onlyIfSuccessful: false)
-    rubyDownstreamJobs["${rubyVersion}"] = buildObject
 
     // Let's report the failure in the stage at the very end.
     if (buildFailed) {
