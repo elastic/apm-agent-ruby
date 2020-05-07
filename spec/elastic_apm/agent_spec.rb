@@ -192,10 +192,12 @@ module ElasticAPM
 
       it 'calls handle_forking! on all associated objects' do
         allow(Process).to receive(:pid).and_return(1)
+
         expect(subject.central_config).to receive(:handle_forking!)
         expect(subject.transport).to receive(:handle_forking!)
         expect(subject.instrumenter).to receive(:handle_forking!)
         expect(subject.metrics).to receive(:handle_forking!)
+
         subject.report_message('Everything went boom')
       end
     end

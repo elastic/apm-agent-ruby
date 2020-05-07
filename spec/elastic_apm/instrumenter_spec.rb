@@ -395,8 +395,10 @@ module ElasticAPM
       it 'restarts with the subscriber still registered' do
         subject.start
         subject.subscriber = subscriber
+
         expect(subscriber).to receive(:register!)
         subject.handle_forking!
+
         subject.stop
       end
     end

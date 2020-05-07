@@ -278,10 +278,12 @@ module ElasticAPM
 
       config.logger.debug "Detected forking,
         restarting threads in process [PID:#{Process.pid}]"
+
       central_config.handle_forking!
       transport.handle_forking!
       instrumenter.handle_forking!
       metrics.handle_forking!
+
       @pid = Process.pid
     end
   end
