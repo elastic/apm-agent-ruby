@@ -273,6 +273,19 @@ module ElasticAPM
       end
     end
 
+    describe '#handle_forking!' do
+      it 'reschedules the scheduled task' do
+        req_stub = stub_response({ transaction_sample_rate: '0.5' })
+
+        subject.handle_forking!
+        subject.promise.wait
+        expect(subject.scheduled_task).to be_pending
+        expect(req_stub).to have_been_requested.at_least_once
+
+        subject.stop
+      end
+    end
+
     def stub_response(body, request: {}, response: {}, error: nil)
       url = 'http://localhost:8200/config/v1/agents?service.name=MyApp'
 

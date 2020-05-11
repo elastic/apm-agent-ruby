@@ -89,6 +89,7 @@ module ElasticAPM
         metrics: metrics,
         stacktrace_builder: stacktrace_builder
       ) { |event| enqueue event }
+      @pid = Process.pid
     end
 
     attr_reader(
@@ -163,6 +164,8 @@ module ElasticAPM
       trace_context: nil
     )
       return unless config.recording?
+      detect_forking!
+
       instrumenter.start_transaction(
         name,
         type,
@@ -188,6 +191,8 @@ module ElasticAPM
       parent: nil,
       sync: nil
     )
+      detect_forking!
+
       # We don't check config.recording? because the span
       # will not be created if there's no transaction.
       # We want to use the recording value from the config
@@ -230,6 +235,7 @@ module ElasticAPM
 
     def report(exception, context: nil, handled: true)
       return unless config.recording?
+      detect_forking!
       return if config.filter_exception_types.include?(exception.class.to_s)
 
       error = @error_builder.build_exception(
@@ -243,6 +249,8 @@ module ElasticAPM
 
     def report_message(message, context: nil, backtrace: nil, **attrs)
       return unless config.recording?
+      detect_forking!
+
       error = @error_builder.build_log(
         message,
         context: context,
@@ -263,6 +271,20 @@ module ElasticAPM
 
     def inspect
       super.split.first + '>'
+    end
+
+    def detect_forking!
+      return if @pid == Process.pid
+
+      config.logger.debug "Detected forking,
+        restarting threads in process [PID:#{Process.pid}]"
+
+      central_config.handle_forking!
+      transport.handle_forking!
+      instrumenter.handle_forking!
+      metrics.handle_forking!
+
+      @pid = Process.pid
     end
   end
 end

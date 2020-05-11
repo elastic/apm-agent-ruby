@@ -93,6 +93,19 @@ module ElasticAPM
           expect(%w[sleep run]).to include(subject.send(:workers)[0].status)
         end
       end
+
+      describe '#handle_forking!' do
+        it 'boots the workers and watcher' do
+          subject.handle_forking!
+
+          expect(subject.watcher).to be_a(Concurrent::TimerTask)
+          expect(subject.watcher).to be_running
+          expect(subject.workers.size).to eq 1
+          expect(subject.workers.first).to be_alive
+
+          subject.stop
+        end
+      end
     end
   end
 end

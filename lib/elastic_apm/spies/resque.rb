@@ -26,13 +26,6 @@ module ElasticAPM
 
       def install
         install_perform_spy
-        install_after_fork_hook
-      end
-
-      def install_after_fork_hook
-        ::Resque.after_fork do
-          ElasticAPM.restart
-        end
       end
 
       def install_perform_spy
@@ -46,7 +39,7 @@ module ElasticAPM
             transaction.done 'success'
           rescue ::Exception => e
             ElasticAPM.report(e, handled: false)
-            transaction.done 'error'
+            transaction.done 'error' if transaction
             raise
           ensure
             ElasticAPM.end_transaction

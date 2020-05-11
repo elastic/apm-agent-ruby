@@ -101,6 +101,11 @@ module ElasticAPM
       @config.replace_options(update)
     end
 
+    def handle_forking!
+      stop
+      start
+    end
+
     private
 
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity

@@ -48,7 +48,9 @@ module ElasticAPM
 
         debug 'Starting metrics'
 
-        @sets = {
+        # Only set the @sets once, in case we stop
+        # and start again.
+        @sets ||= {
           system: CpuMemSet,
           vm: VMSet,
           breakdown: BreakdownSet,
@@ -88,6 +90,18 @@ module ElasticAPM
 
       def running?
         !!@running
+      end
+
+      def handle_forking!
+        # Note that ideally we would be able to check if the @timer_task died
+        # and restart it. You can't simply check @timer_task.running? because
+        # it will only return the state of the TimerTask, not whether the
+        # internal thread used to manage the execution interval has died.
+        # This is a limitation of the Concurrent::TimerTask object.
+        # Therefore, our only option when forked is to stop and start.
+        # ~estolfo
+        stop
+        start
       end
 
       def get(key)

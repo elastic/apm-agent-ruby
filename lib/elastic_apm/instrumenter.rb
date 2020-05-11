@@ -83,6 +83,11 @@ module ElasticAPM
       @subscriber&.unregister!
     end
 
+    def handle_forking!
+      stop
+      start
+    end
+
     def subscriber=(subscriber)
       debug 'Registering subscriber'
       @subscriber = subscriber
