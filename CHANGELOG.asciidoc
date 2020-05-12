@@ -60,6 +60,7 @@ endif::[]
 - Add enabled config option, replacing active {pull}669[#669]
 - Add recording config option {pull}765[#765]
 - Add support for `SuckerPunch` {pull}775[#775]
+- Support forking: Detect forking and restart agent tasks and background threads {pull}783[#783]
 
 [[release-notes-3.6.0]]
 ==== 3.6.0 (2020-03-10)
