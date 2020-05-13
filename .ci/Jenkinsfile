@@ -309,26 +309,27 @@ def runBenchmark(version){
       //  - docker.elastic.co/observability-ci/jruby:9.2-12-jdk to jruby-9.2-12-jdk
       //  - jruby:9.1 to jruby-9.1
       def transformedVersion = version.replaceAll('.*/', '').replaceAll(':', '-')
-      env.HOME = "${env.WORKSPACE}/${transformedVersion}"
-      dir("${transformedVersion}"){
-        deleteDir()
-        unstash 'source'
-        dir("${BASE_DIR}"){
-          retry(2){
-            sleep randomNumber(min:10, max: 30)
-            dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
-          }
-          try{
-            sh """./spec/scripts/benchmarks.sh "${version}" "${REFERENCE_REPO}" """
-          } catch(e){
-            throw e
-          } finally {
-            archiveArtifacts(
-              allowEmptyArchive: true,
-              artifacts: "**/benchmark-${transformedVersion}.raw,**/benchmark-${transformedVersion}.error",
-              onlyIfSuccessful: false)
-            sendBenchmarks(file: "benchmark-${transformedVersion}.bulk",
-              index: "benchmark-ruby", archive: true)
+      withEnv(["HOME=${env.WORKSPACE}/${transformedVersion}"]){
+        dir("${transformedVersion}"){
+          deleteDir()
+          unstash 'source'
+          dir("${BASE_DIR}"){
+            retry(2){
+              sleep randomNumber(min:10, max: 30)
+              dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
+            }
+            try{
+              sh """./spec/scripts/benchmarks.sh "${version}" "${REFERENCE_REPO}" """
+            } catch(e){
+              throw e
+            } finally {
+              archiveArtifacts(
+                allowEmptyArchive: true,
+                artifacts: "**/benchmark-${transformedVersion}.raw,**/benchmark-${transformedVersion}.error",
+                onlyIfSuccessful: false)
+              sendBenchmarks(file: "benchmark-${transformedVersion}.bulk",
+                index: "benchmark-ruby", archive: true)
+            }
           }
         }
       }
