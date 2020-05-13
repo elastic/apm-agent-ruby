@@ -54,6 +54,8 @@ module ElasticAPM
         else
           elastic_span.context.labels[key] = val
         end
+
+        self
       end
 
       def set_baggage_item(_key, _value)

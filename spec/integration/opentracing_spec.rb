@@ -277,6 +277,11 @@ RSpec.describe 'OpenTracing bridge', :intercept do
             expect(subject.elastic_span.context.labels[:custom_key])
               .to eq 'custom_type'
           end
+
+          it 'returns self' do
+            expect(subject.set_tag :custom_key, 'custom_type')
+              .to be_a ElasticAPM::OpenTracing::Span
+          end
         end
       end
 
