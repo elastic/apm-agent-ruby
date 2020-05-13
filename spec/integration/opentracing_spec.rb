@@ -188,7 +188,7 @@ RSpec.describe 'OpenTracing bridge', :intercept do
     it 'traces nested spans' do
       OpenTracing.start_active_span(
         'operation_name',
-        labels: { test: '0' }
+        tags: { test: '0' }
       ) do |scope|
         expect(scope).to be_a(ElasticAPM::OpenTracing::Scope)
         expect(OpenTracing.active_span).to be scope.span
@@ -196,7 +196,7 @@ RSpec.describe 'OpenTracing bridge', :intercept do
 
         OpenTracing.start_active_span(
           'nested',
-          labels: { test: '1' }
+          tags: { test: '1' }
         ) do |nested_scope|
           expect(OpenTracing.active_span).to_not be_nil
           expect(nested_scope.span).to eq OpenTracing.active_span
@@ -248,7 +248,7 @@ RSpec.describe 'OpenTracing bridge', :intercept do
       end
     end
 
-    describe 'set_label' do
+    describe 'set_tag' do
       subject { described_class.new(elastic_span, trace_context) }
 
       shared_examples :opengraph_span do
@@ -257,9 +257,9 @@ RSpec.describe 'OpenTracing bridge', :intercept do
           expect(elastic_span.name).to eq 'Test'
         end
 
-        describe 'set_label' do
-          it 'sets label' do
-            subject.set_label :custom_key, 'custom_type'
+        describe 'set_tag' do
+          it 'sets elastic span label' do
+            subject.set_tag :custom_key, 'custom_type'
             expect(subject.elastic_span.context.labels[:custom_key])
               .to eq 'custom_type'
           end
@@ -275,10 +275,10 @@ RSpec.describe 'OpenTracing bridge', :intercept do
         it_behaves_like :opengraph_span
 
         it 'knows user fields' do
-          subject.set_label 'user.id', 1
-          subject.set_label 'user.username', 'someone'
-          subject.set_label 'user.email', 'someone@example.com'
-          subject.set_label 'user.other_field', 'someone@example.com'
+          subject.set_tag 'user.id', 1
+          subject.set_tag 'user.username', 'someone'
+          subject.set_tag 'user.email', 'someone@example.com'
+          subject.set_tag 'user.other_field', 'someone@example.com'
 
           user = subject.elastic_span.context.user
           expect(user.id).to eq 1
@@ -304,7 +304,7 @@ RSpec.describe 'OpenTracing bridge', :intercept do
         it_behaves_like :opengraph_span
 
         it "doesn't explode on user fields" do
-          expect { subject.set_label 'user.id', 1 }
+          expect { subject.set_tag 'user.id', 1 }
             .to_not raise_error
         end
       end

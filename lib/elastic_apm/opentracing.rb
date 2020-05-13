@@ -39,7 +39,7 @@ module ElasticAPM
         @span_context
       end
 
-      def set_label(key, val)
+      def set_tag(key, val)
         if elastic_span.is_a?(Transaction)
           case key.to_s
           when 'type'
@@ -210,7 +210,7 @@ module ElasticAPM
         child_of: nil,
         references: nil,
         start_time: Time.now,
-        labels: {},
+        tags: {},
         ignore_active_scope: false,
         finish_on_close: true,
         **
@@ -220,7 +220,7 @@ module ElasticAPM
           child_of: child_of,
           references: references,
           start_time: start_time,
-          labels: labels,
+          tags: tags,
           ignore_active_scope: ignore_active_scope
         )
         scope = scope_manager.activate(span, finish_on_close: finish_on_close)
@@ -243,7 +243,7 @@ module ElasticAPM
         child_of: nil,
         references: nil,
         start_time: Time.now,
-        labels: {},
+        tags: {},
         ignore_active_scope: false,
         **
       )
@@ -280,7 +280,7 @@ module ElasticAPM
         span_context ||=
           SpanContext.from_trace_context(elastic_span.trace_context)
 
-        labels.each do |key, value|
+        tags.each do |key, value|
           elastic_span.context.labels[key] = value
         end
 
@@ -344,7 +344,7 @@ module ElasticAPM
       def context_from_active_scope(ignore_active_scope)
         if ignore_active_scope
           ElasticAPM.agent&.config&.logger&.warn(
-            'ignore_active_scope might lead to unexpeced results'
+            'ignore_active_scope might lead to unexpected results'
           )
           return
         end
