@@ -37,7 +37,7 @@ module ElasticAPM
       net_span, span = @intercepted.spans
 
       expect(span.name).to eq 'GET _search'
-      expect(span.context.db.statement).to eq('{"q":"test"}')
+      expect(span.context.db.statement).to eq('{"params":{"q":"test"}}')
 
       expect(net_span.name).to eq 'GET localhost'
 
@@ -45,6 +45,32 @@ module ElasticAPM
       expect(destination.name).to eq 'elasticsearch'
       expect(destination.resource).to eq 'elasticsearch'
       expect(destination.type).to eq 'db'
+    end
+
+    context 'a post request with body' do
+      it 'uses the body in the statement', :intercept do
+        WebMock.stub_request(:post, %r{http://localhost:9200/.*})
+          .with(body: %r{.*})
+
+        client = Elasticsearch::Client.new log: false
+
+        with_agent do
+          ElasticAPM.with_transaction do
+            client.bulk(
+              body: {
+                index: { _index: 'users', data: { name: 'Fernando' } }
+              }
+            )
+          end
+        end
+
+        net_span, span = @intercepted.spans
+
+        expect(span.name).to eq('POST _bulk')
+        expect(span.context.db.statement)
+          .to eq('{"params":{},"body":{"index":{"_index":"users","data":{"name":"Fernando"}}}}')
+        span
+      end
     end
   end
 end

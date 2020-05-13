@@ -32,10 +32,18 @@ module ElasticAPM
 
           def perform_request(method, path, *args, &block)
             name = format(NAME_FORMAT, method, path)
-            statement = args[0].is_a?(String) ? args[0] : args[0].to_json
+            statement = []
+
+            unless args[0].nil?
+              statement << { params: args[0] }
+            end
+
+            unless args[1].nil? || args[1].empty?
+              statement << { body: args[1] }
+            end
 
             context = Span::Context.new(
-              db: { statement: statement },
+              db: { statement: statement.reduce({}, :merge).to_json },
               destination: {
                 name: SUBTYPE,
                 resource: SUBTYPE,
