@@ -29,9 +29,9 @@ RSpec.describe 'OpenTracing bridge', :intercept do
 
   context 'without an agent' do
     it 'is a noop' do
-      thing = double(ran: nil)
+      thing = double(ran: 'success')
 
-      tracer.start_active_span('namest') do |scope|
+      result = tracer.start_active_span('namest') do |scope|
         expect(scope).to be_a ElasticAPM::OpenTracing::Scope
 
         tracer.start_active_span('nested') do |nested_scope|
@@ -42,6 +42,7 @@ RSpec.describe 'OpenTracing bridge', :intercept do
       end
 
       expect(thing).to have_received(:ran).with('…')
+      expect(result).to eq 'success'
     end
   end
 
@@ -106,6 +107,19 @@ RSpec.describe 'OpenTracing bridge', :intercept do
 
         it 'is active' do
           expect(::OpenTracing.active_span).to be subject.span
+        end
+      end
+
+      context 'when a block is passed' do
+        it 'returns the result of the block' do
+          thing = double(ran: 'success')
+
+          result = tracer.start_active_span('namest') do
+            thing.ran('…')
+          end
+
+          expect(thing).to have_received(:ran).with('…')
+          expect(result).to eq 'success'
         end
       end
     end

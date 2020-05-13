@@ -227,7 +227,7 @@ module ElasticAPM
 
         if block_given?
           begin
-            yield scope
+            return yield scope
           ensure
             scope.close
           end
