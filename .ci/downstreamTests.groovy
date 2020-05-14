@@ -44,6 +44,12 @@ pipeline {
     */
     stage('Checkout') {
       options { skipDefaultCheckout() }
+      when {
+        beforeAgent true
+        not {
+          tag "v\\d+\\.\\d+\\.\\d+*"
+        }
+      }
       steps {
         deleteDir()
         gitCheckout(basedir: "${BASE_DIR}",
@@ -62,7 +68,7 @@ pipeline {
       }
       steps {
         deleteDir()
-        checkout scm
+        gitCheckout(basedir: "${BASE_DIR}")
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }
