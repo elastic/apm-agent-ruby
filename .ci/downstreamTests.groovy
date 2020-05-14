@@ -47,7 +47,7 @@ pipeline {
       when {
         beforeAgent true
         not {
-          tag "v*"
+          tag pattern: "v\\d+\\.\\d+\\.\\d+*", comparator: "REGEXP"
         }
       }
       steps {
@@ -65,7 +65,7 @@ pipeline {
       options { skipDefaultCheckout() }
       when {
         beforeAgent true
-        tag "v*"
+        tag pattern: "v\\d+\\.\\d+\\.\\d+*", comparator: "REGEXP"
       }
       steps {
         deleteDir()
