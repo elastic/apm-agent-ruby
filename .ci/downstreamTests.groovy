@@ -44,6 +44,12 @@ pipeline {
     */
     stage('Checkout') {
       options { skipDefaultCheckout() }
+      when {
+        beforeAgent true
+        not {
+          tag "v\\d+\\.\\d+\\.\\d+*"
+        }
+      }
       steps {
         deleteDir()
         gitCheckout(basedir: "${BASE_DIR}",
@@ -51,6 +57,21 @@ pipeline {
           repo: "${REPO}",
           credentialsId: "${JOB_GIT_CREDENTIALS}",
           mergeTarget: "${params.MERGE_TARGET}")
+        stash allowEmpty: true, name: 'source', useDefaultExcludes: false
+      }
+    }
+    stage('Checkout tag') {
+      options { skipDefaultCheckout() }
+      when {
+        beforeAgent true
+        tag "v\\d+\\.\\d+\\.\\d+*"
+      }
+      steps {
+        deleteDir()
+        gitCheckout(basedir: "${BASE_DIR}",
+          branch: "${params.BRANCH_SPECIFIER}",
+          repo: "${REPO}",
+          credentialsId: "${JOB_GIT_CREDENTIALS}")
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }
