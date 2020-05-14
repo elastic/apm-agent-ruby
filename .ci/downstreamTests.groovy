@@ -54,6 +54,18 @@ pipeline {
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }
+    stage('Checkout tag') {
+      options { skipDefaultCheckout() }
+      when {
+        beforeAgent true
+        tag "v\\d+\\.\\d+\\.\\d+*"
+      }
+      steps {
+        deleteDir()
+        gitCheckout(basedir: "${BASE_DIR}")
+        stash allowEmpty: true, name: 'source', useDefaultExcludes: false
+      }
+    }
     stage('Test') {
       options { skipDefaultCheckout() }
       steps {
