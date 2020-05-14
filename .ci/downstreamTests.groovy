@@ -47,7 +47,7 @@ pipeline {
       when {
         beforeAgent true
         not {
-          tag "v\\d+\\.\\d+\\.\\d+*"
+          tag pattern: 'v\\d+.*', comparator: "REGEXP"
         }
       }
       steps {
@@ -64,14 +64,11 @@ pipeline {
       options { skipDefaultCheckout() }
       when {
         beforeAgent true
-        tag "v\\d+\\.\\d+\\.\\d+*"
+        tag pattern: 'v\\d+.*', comparator: "REGEXP"
       }
       steps {
         deleteDir()
-        gitCheckout(basedir: "${BASE_DIR}",
-          branch: "${params.BRANCH_SPECIFIER}",
-          repo: "${REPO}",
-          credentialsId: "${JOB_GIT_CREDENTIALS}")
+        gitCheckout(basedir: "${BASE_DIR}")
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }
