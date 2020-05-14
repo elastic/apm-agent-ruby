@@ -128,6 +128,18 @@ module ElasticAPM
 
       attr_accessor :trace_context
 
+      def self.from_header(header)
+        return unless header
+
+        trace_context = ElasticAPM::TraceContext.parse(header)
+        return unless trace_context
+
+        trace_context.traceparent.id = trace_context.parent_id
+        trace_context.traceparent.parent_id = nil
+
+        from_trace_context(trace_context)
+      end
+
       def self.from_trace_context(trace_context)
         new(trace_context: trace_context)
       end
@@ -295,7 +307,7 @@ module ElasticAPM
 
       def inject(span_context, format, carrier)
         case format
-        when ::OpenTracing::FORMAT_RACK
+        when ::OpenTracing::FORMAT_RACK, ::OpenTracing::FORMAT_TEXT_MAP
           carrier['elastic-apm-traceparent'] =
             span_context.traceparent.to_header
         else
@@ -306,10 +318,16 @@ module ElasticAPM
       def extract(format, carrier)
         case format
         when ::OpenTracing::FORMAT_RACK
-          ElasticAPM::TraceContext
-            .parse(carrier['HTTP_ELASTIC_APM_TRACEPARENT'])
+          SpanContext.from_header(
+            carrier['HTTP_ELASTIC_APM_TRACEPARENT']
+          )
+        when ::OpenTracing::FORMAT_TEXT_MAP
+          SpanContext.from_header(
+            carrier['elastic-apm-traceparent']
+          )
         else
-          warn 'Only extraction from HTTP headers via Rack is available'
+          warn 'Only extraction from HTTP headers via Rack or in ' \
+            'text map format are available'
           nil
         end
       rescue ElasticAPM::TraceContext::InvalidTraceparentHeader

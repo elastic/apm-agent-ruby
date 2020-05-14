@@ -154,6 +154,16 @@ RSpec.describe 'OpenTracing bridge', :intercept do
         end
       end
 
+      context 'Text map' do
+        let(:format) { ::OpenTracing::FORMAT_TEXT_MAP }
+
+        it 'sets a header' do
+          subject
+          expect(carrier['elastic-apm-traceparent'])
+            .to eq context.traceparent.to_header
+        end
+      end
+
       context 'Binary' do
         let(:format) { ::OpenTracing::FORMAT_BINARY }
 
@@ -165,24 +175,43 @@ RSpec.describe 'OpenTracing bridge', :intercept do
     end
 
     describe '#extract' do
-      let(:carrier) do
-        { 'HTTP_ELASTIC_APM_TRACEPARENT' =>
-          '00-11111111111111111111111111111111-2222222222222222-00' }
-      end
-
       subject { ::OpenTracing.extract(format, carrier) }
 
       context 'Rack' do
         let(:format) { ::OpenTracing::FORMAT_RACK }
+        let(:carrier) do
+          { 'HTTP_ELASTIC_APM_TRACEPARENT' =>
+              '00-11111111111111111111111111111111-2222222222222222-00' }
+        end
 
-        it 'returns a trace context' do
-          expect(subject).to be_a ElasticAPM::TraceContext
-          expect(subject.trace_id).to eq '11111111111111111111111111111111'
+        it 'returns a span context' do
+          expect(subject).to be_a ElasticAPM::OpenTracing::SpanContext
+          expect(subject.trace_context.trace_id)
+            .to eq '11111111111111111111111111111111'
+          expect(subject.trace_context.id).to eq '2222222222222222'
+          expect(subject.trace_context.parent_id).to be_nil
+        end
+      end
+
+      context 'Text map' do
+        let(:format) { ::OpenTracing::FORMAT_TEXT_MAP }
+        let(:carrier) do
+          { 'elastic-apm-traceparent' =>
+              '00-11111111111111111111111111111111-2222222222222222-00' }
+        end
+
+        it 'returns a span context' do
+          expect(subject).to be_a ElasticAPM::OpenTracing::SpanContext
+          expect(subject.trace_context.trace_id)
+            .to eq '11111111111111111111111111111111'
+          expect(subject.trace_context.id).to eq '2222222222222222'
+          expect(subject.trace_context.parent_id).to be_nil
         end
       end
 
       context 'Binary' do
         let(:format) { ::OpenTracing::FORMAT_BINARY }
+        let(:carrier) { {} }
 
         it 'warns about lack of support' do
           expect(tracer).to receive(:warn).with(/Only extraction from/)
@@ -279,7 +308,7 @@ RSpec.describe 'OpenTracing bridge', :intercept do
           end
 
           it 'returns self' do
-            expect(subject.set_tag :custom_key, 'custom_type')
+            expect(subject.set_tag(:custom_key, 'custom_type'))
               .to be_a ElasticAPM::OpenTracing::Span
           end
         end
