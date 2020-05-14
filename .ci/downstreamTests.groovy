@@ -62,7 +62,7 @@ pipeline {
       }
       steps {
         deleteDir()
-        gitCheckout(basedir: "${BASE_DIR}")
+        checkout scm
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }
