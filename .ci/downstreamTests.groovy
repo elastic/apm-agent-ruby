@@ -47,7 +47,7 @@ pipeline {
       when {
         beforeAgent true
         not {
-          tag "v\\d+\\.\\d+\\.\\d+*"
+          tag "v*"
         }
       }
       steps {
@@ -65,7 +65,7 @@ pipeline {
       options { skipDefaultCheckout() }
       when {
         beforeAgent true
-        tag "v\\d+\\.\\d+\\.\\d+*"
+        tag "v*"
       }
       steps {
         deleteDir()
