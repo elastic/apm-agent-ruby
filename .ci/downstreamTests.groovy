@@ -52,7 +52,6 @@ pipeline {
       }
       steps {
         deleteDir()
-        echo "TAG_NAME=${TAG_NAME}"
         gitCheckout(basedir: "${BASE_DIR}",
           branch: "${params.BRANCH_SPECIFIER}",
           repo: "${REPO}",
@@ -69,7 +68,6 @@ pipeline {
       }
       steps {
         deleteDir()
-        echo "TAG_NAME=${TAG_NAME}"
         gitCheckout(basedir: "${BASE_DIR}")
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
