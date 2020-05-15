@@ -116,6 +116,8 @@ module ElasticAPM
 
     # @api private
     class SpanContext
+      extend Forwardable
+
       def initialize(trace_context:, baggage: nil)
         if baggage
           ElasticAPM.agent.config.logger.warn(
@@ -127,6 +129,7 @@ module ElasticAPM
       end
 
       attr_accessor :trace_context
+      def_delegators :trace_context, :trace_id, :id, :parent_id
 
       def self.from_header(header)
         return unless header
@@ -142,6 +145,10 @@ module ElasticAPM
 
       def self.from_trace_context(trace_context)
         new(trace_context: trace_context)
+      end
+
+      def child
+        self.class.from_trace_context(trace_context.child)
       end
     end
 
@@ -341,9 +348,12 @@ module ElasticAPM
         references:,
         ignore_active_scope:
       )
-        context_from_child_of(child_of) ||
-          context_from_references(references) ||
-          context_from_active_scope(ignore_active_scope)
+        context = context_from_child_of(child_of) ||
+                  context_from_references(references) ||
+                  context_from_active_scope(ignore_active_scope)
+        return context.child if context&.respond_to?(:child)
+
+        context
       end
 
       def context_from_child_of(child_of)

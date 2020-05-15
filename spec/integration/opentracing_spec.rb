@@ -75,7 +75,12 @@ RSpec.describe 'OpenTracing bridge', :intercept do
           parent.finish
         end
 
-        its(:context) { should be parent.context }
+        it 'has a child context' do
+          expect(subject.context.parent_id).to eq parent.context.id
+          expect(subject.context.id).not_to eq parent.context.id
+          expect(subject.context.trace_id).to eq parent.context.trace_id
+        end
+
         its(:elastic_span) { should be_a ElasticAPM::Span }
       end
     end
@@ -228,6 +233,12 @@ RSpec.describe 'OpenTracing bridge', :intercept do
     end
     after { ElasticAPM.stop }
 
+    matcher :be_a_child_of do |parent_scope|
+      match do |scope|
+        scope.span.context.parent_id == parent_scope.span.context.id
+      end
+    end
+
     it 'traces nested spans' do
       OpenTracing.start_active_span(
         'operation_name',
@@ -241,11 +252,13 @@ RSpec.describe 'OpenTracing bridge', :intercept do
           'nested',
           tags: { test: '1' }
         ) do |nested_scope|
-          expect(OpenTracing.active_span).to_not be_nil
-          expect(nested_scope.span).to eq OpenTracing.active_span
+          expect(OpenTracing.active_span).to be nested_scope.span
+          expect(nested_scope).to be_a_child_of scope
 
           OpenTracing.start_active_span('namest') do |further_nested|
+            expect(OpenTracing.active_span).to be further_nested.span
             expect(further_nested).to_not be nested_scope
+            expect(further_nested).to be_a_child_of nested_scope
           end
         end
       end
