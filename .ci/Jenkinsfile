@@ -335,13 +335,10 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
           steps.junit(allowEmptyResults: false,
             keepLongStdio: true,
             testResults: "**/spec/junit-reports/**/ruby-agent-junit.xml")
-
           steps.dir("${steps.env.BASE_DIR}"){
-            steps.stash(
-              name: "coverage-${x}-${y}",
-              includes: "coverage/matrix_results/",
-              allowEmpty: false
-            )
+            steps.sh('ls -ltrah coverage/matrix_results/')
+            steps.archiveArtifacts(artifacts: 'coverage/matrix_results/', defaultExcludes: false)
+            steps.stash(name: "coverage-${x}-${y}", includes: 'coverage/matrix_results/', allowEmpty: true)
           }
         }
       }
@@ -374,12 +371,11 @@ def convergeCoverage() {
   deleteDir()
   unstash('source')
   dir("${BASE_DIR}"){
-    def matrixDump = rubyTasksGen.dumpMatrix("-")
-    for(vector in matrixDump) {
-      unstash("coverage-${vector}")
+    rubyTasksGen.dumpMatrix('-')?.each {
+      unstash("coverage-${it}")
     }
-    sh(script: "./spec/scripts/coverage_converge.sh")
-    cobertura coberturaReportFile: "coverage/coverage.xml"
+    sh(script: './spec/scripts/coverage_converge.sh')
+    cobertura coberturaReportFile: 'coverage/coverage.xml'
   }
 }
 
