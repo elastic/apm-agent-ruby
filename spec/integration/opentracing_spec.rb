@@ -371,26 +371,31 @@ RSpec.describe 'OpenTracing bridge', :intercept do
       end
     end
 
-    describe 'deprecations' do
-      describe '#finish with Time' do
-        it 'warns and manages' do
-          transaction =
-            ElasticAPM::Transaction.new(config: ElasticAPM::Config.new)
+    describe 'time' do
+      subject do
+        ::OpenTracing.start_span(
+          'namest',
+          start_time: Time.new(2020, 1, 1, 0, 0, 1)
+        )
+      end
 
-          elastic_span =
-            ElasticAPM::Span.new(
-              name: 'Span',
-              transaction: transaction,
-              parent: transaction,
-              trace_context: nil
-            ).start
-          span = described_class.new(elastic_span, nil)
+      context 'when the span is finished with a `Time` as end_time' do
+        before { subject.finish(end_time: Time.new(2020, 1, 1, 0, 0, 2)) }
 
-          expect(span).to receive(:warn).with(/DEPRECATED/)
+        it 'converts to monotonic time' do
+          expect(subject.elastic_span.duration).to eq(1_000_000)
+        end
+      end
 
-          span.finish end_time: Time.now
+      context 'when the span is finished with monotonic time as clock_time' do
+        before do
+          subject.finish(
+            clock_end: ElasticAPM::Util.micros(Time.new(2020, 1, 1, 0, 0, 2))
+          )
+        end
 
-          expect(elastic_span.duration).to_not be nil
+        it 'uses the monotonic time' do
+          expect(subject.elastic_span.duration).to eq(1_000_000)
         end
       end
     end
