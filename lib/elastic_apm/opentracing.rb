@@ -80,13 +80,12 @@ module ElasticAPM
           ElasticAPM.report_message message
         end
       end
-
       # rubocop:enable Lint/UnusedMethodArgument
-      def finish(clock_end: Util.monotonic_micros, end_time: nil)
+
+      def finish(end_time: Time.now)
         return unless (agent = ElasticAPM.agent)
 
-        clock_end = Util.micros(end_time) if end_time
-        elastic_span.done clock_end: clock_end
+        elastic_span.done clock_end: Util.micros(end_time)
 
         case elastic_span
         when ElasticAPM::Transaction

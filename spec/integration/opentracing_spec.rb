@@ -371,7 +371,7 @@ RSpec.describe 'OpenTracing bridge', :intercept do
       end
     end
 
-    describe 'time' do
+    describe '#finish' do
       subject do
         ::OpenTracing.start_span(
           'namest',
@@ -383,18 +383,6 @@ RSpec.describe 'OpenTracing bridge', :intercept do
         before { subject.finish(end_time: Time.new(2020, 1, 1, 0, 0, 2)) }
 
         it 'converts to monotonic time' do
-          expect(subject.elastic_span.duration).to eq(1_000_000)
-        end
-      end
-
-      context 'when the span is finished with monotonic time as clock_time' do
-        before do
-          subject.finish(
-            clock_end: ElasticAPM::Util.micros(Time.new(2020, 1, 1, 0, 0, 2))
-          )
-        end
-
-        it 'uses the monotonic time' do
           expect(subject.elastic_span.duration).to eq(1_000_000)
         end
       end
