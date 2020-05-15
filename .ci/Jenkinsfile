@@ -338,7 +338,7 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
           steps.dir("${steps.env.BASE_DIR}"){
             steps.sh('ls -ltrah coverage/matrix_results/')
             steps.archiveArtifacts(artifacts: 'coverage/matrix_results/', defaultExcludes: false)
-            steps.stash(name: "coverage-${x}-${y}", includes: 'coverage/matrix_results/', allowEmpty: true)
+            steps.stash(name: normalise("coverage-${x}-${y}"), includes: 'coverage/matrix_results/', allowEmpty: true)
           }
         }
       }
@@ -372,7 +372,7 @@ def convergeCoverage() {
   unstash('source')
   dir("${BASE_DIR}"){
     rubyTasksGen.dumpMatrix('-')?.each {
-      unstash("coverage-${it}")
+      unstash(normalise("coverage-${it}")
     }
     sh(script: './spec/scripts/coverage_converge.sh')
     cobertura coberturaReportFile: 'coverage/coverage.xml'
@@ -392,4 +392,11 @@ def prepareRelease(Closure body){
       }
     }
   }
+}
+
+// Transform the versions like:
+//  - docker.elastic.co/observability-ci/jruby:9.2-12-jdk to jruby-9.2-12-jdk
+//  - jruby:9.1 to jruby-9.1
+def normalise(String what) {
+  return what.replaceAll('.*/', '').replaceAll(':', '-')
 }
