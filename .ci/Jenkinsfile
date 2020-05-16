@@ -372,7 +372,7 @@ def convergeCoverage() {
   unstash('source')
   dir("${BASE_DIR}"){
     rubyTasksGen.dumpMatrix('-')?.each {
-      unstash(normalise("coverage-${it}")
+      unstash(normalise("coverage-${it}"))
     }
     sh(script: './spec/scripts/coverage_converge.sh')
     cobertura coberturaReportFile: 'coverage/coverage.xml'
