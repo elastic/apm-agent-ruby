@@ -336,9 +336,8 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
             keepLongStdio: true,
             testResults: "**/spec/junit-reports/**/ruby-agent-junit.xml")
           steps.dir("${steps.env.BASE_DIR}"){
-            steps.sh('ls -ltrah coverage/matrix_results/')
             steps.archiveArtifacts(artifacts: 'coverage/matrix_results/', defaultExcludes: false)
-            steps.stash(name: normalise("coverage-${x}-${y}"), includes: 'coverage/matrix_results/', allowEmpty: true)
+            steps.stash(name: steps.normalise("coverage-${x}-${y}"), includes: 'coverage/matrix_results/', allowEmpty: true)
           }
         }
       }
@@ -397,6 +396,6 @@ def prepareRelease(Closure body){
 // Transform the versions like:
 //  - docker.elastic.co/observability-ci/jruby:9.2-12-jdk to jruby-9.2-12-jdk
 //  - jruby:9.1 to jruby-9.1
-def normalise(what) {
+def normalise(def what) {
   return what.replaceAll('.*/', '').replaceAll(':', '-')
 }
