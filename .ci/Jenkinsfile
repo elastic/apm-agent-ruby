@@ -102,24 +102,19 @@ pipeline {
       }
       steps {
         withGithubNotify(context: 'Tests', tab: 'tests') {
-          deleteDir()
-          unstash "source"
-          dir("${BASE_DIR}"){
-            script {
-              rubyTasksGen = new RubyParallelTaskGenerator(
-                xKey: 'RUBY_VERSION',
-                yKey: 'FRAMEWORK',
-                xFile: ".ci/.jenkins_ruby.yml",
-                yFile: ".ci/.jenkins_framework.yml",
-                exclusionFile: ".ci/.jenkins_exclude.yml",
-                tag: "Ruby",
-                name: "Ruby",
-                steps: this
-              )
-              def testTasks = rubyTasksGen.generateParallelTests()
-              parallel(testTasks)
-            }
-          }
+          runTests('.ci/.jenkins_framework.yml')
+        }
+      }
+    }
+    stage('Master Tests frameworks') {
+      options { skipDefaultCheckout() }
+      when {
+        beforeAgent true
+        expression { return env.ONLY_DOCS == "false" }
+      }
+      steps {
+        catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: "The tests for the master framework have failed. Let's warn instead.") {
+          runTests('.ci/.jenkins_master_framework.yml')
         }
       }
     }
@@ -341,6 +336,30 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
           }
         }
       }
+    }
+  }
+}
+
+/**
+  Run all the tests for the given file with the frameworks to test
+*/
+def runTests(frameworkFile) {
+  deleteDir()
+  unstash "source"
+  dir("${BASE_DIR}"){
+    script {
+      rubyTasksGen = new RubyParallelTaskGenerator(
+        xKey: 'RUBY_VERSION',
+        yKey: 'FRAMEWORK',
+        xFile: ".ci/.jenkins_ruby.yml",
+        yFile: frameworkFile,
+        exclusionFile: ".ci/.jenkins_exclude.yml",
+        tag: "Ruby",
+        name: "Ruby",
+        steps: this
+      )
+      def testTasks = rubyTasksGen.generateParallelTests()
+      parallel(testTasks)
     }
   }
 }
