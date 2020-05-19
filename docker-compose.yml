@@ -26,11 +26,13 @@ services:
       - /tmp:exec,mode=1777
     depends_on:
       - mongodb
+    user: ${USER_ID}
 
   ruby_rspec:
     image: apm-agent-ruby:${RUBY_VERSION}
     environment:
       MONGODB_URL: 'mongodb:27017'
+    user: ${USER_ID}
 
 volumes:
   vendor:

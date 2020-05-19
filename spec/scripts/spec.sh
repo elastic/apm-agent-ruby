@@ -21,7 +21,7 @@ VERSION=$(echo "${IMAGE_NAME}" | cut -d":" -f2)
 
 cd spec
 
-IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} docker-compose up -d mongodb
+IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} USER_ID="$(id -u):$(id -g)" docker-compose up -d mongodb
 
 ## Customise the docker container to enable the access to the internal of the jdk
 ## for the jruby docker images.
@@ -37,14 +37,16 @@ CLEAN_IMAGE_NAME=$(echo $IMAGE_NAME | sed s/:/-/ )
 
 docker build --build-arg "RUBY_IMAGE=${IMAGE_NAME}" -t "apm-agent-ruby:${VERSION}" .
 
-IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} \
+IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} USER_ID="$(id -u):$(id -g)" \
   docker-compose -f ../docker-compose.yml run \
   -e FRAMEWORK="${FRAMEWORK}" \
   -e TEST_MATRIX="${FRAMEWORK}-${CLEAN_IMAGE_NAME}" \
   -e INCLUDE_SCHEMA_SPECS=1 \
   -e JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS}" \
   -e JRUBY_OPTS="${JRUBY_OPTS}" \
+  -e HOME="/tmp" \
   -v "$(dirname "$(pwd)"):/app" \
+  -w /app \
   --rm ruby_rspec \
   /bin/bash -c "\
     gem install rake && \
