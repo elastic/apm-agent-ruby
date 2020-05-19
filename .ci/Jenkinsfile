@@ -392,7 +392,7 @@ def convergeCoverage() {
         unstash(normalise("coverage-${it}"))
       }
       sh(script: './spec/scripts/coverage_converge.sh')
-      cobertura coberturaReportFile: 'coverage/coverage.xml'
+      cobertura coberturaReportFile: 'coverage/coverage.xml', onlyStable: false
     }
   }
 }
