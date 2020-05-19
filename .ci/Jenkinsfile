@@ -105,6 +105,11 @@ pipeline {
           runTests('.ci/.jenkins_framework.yml')
         }
       }
+      post {
+        always {
+          convergeCoverage()
+        }
+      }
     }
     stage('Master Tests frameworks') {
       options { skipDefaultCheckout() }
@@ -257,9 +262,6 @@ pipeline {
   }
   post {
     cleanup {
-      whenTrue(env.ONLY_DOCS == 'false') {
-        convergeCoverage()
-      }
       notifyBuildResult()
     }
   }
@@ -384,16 +386,14 @@ def runScript(Map params = [:]){
 }
 
 def convergeCoverage() {
-  stage('Converge') {
-    deleteDir()
-    unstash('source')
-    dir("${BASE_DIR}"){
-      rubyTasksGen.dumpMatrix('-')?.each {
-        unstash(normalise("coverage-${it}"))
-      }
-      sh(script: './spec/scripts/coverage_converge.sh')
-      cobertura coberturaReportFile: 'coverage/coverage.xml', onlyStable: false
+  deleteDir()
+  unstash('source')
+  dir("${BASE_DIR}"){
+    rubyTasksGen.dumpMatrix('-')?.each {
+      unstash(normalise("coverage-${it}"))
     }
+    sh(script: './spec/scripts/coverage_converge.sh')
+    cobertura coberturaReportFile: 'coverage/coverage.xml', onlyStable: false
   }
 }
 
