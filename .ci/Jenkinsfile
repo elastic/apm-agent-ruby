@@ -5,8 +5,9 @@ import co.elastic.matrix.*
 import groovy.transform.Field
 
 /**
-This is the parallel tasks generator,
-it is need as field to store the results of the tests.
+This is the parallel tasks generator, it is need as field to store the 
+results of the tests to generate the code coverage at the very end of the
+build.
 */
 @Field def rubyTasksGen
 
@@ -102,7 +103,7 @@ pipeline {
       }
       steps {
         withGithubNotify(context: 'Tests', tab: 'tests') {
-          runTests('.ci/.jenkins_framework.yml')
+          runTests('.ci/.jenkins_framework.yml', rubyTasksGen)
         }
       }
     }
@@ -114,7 +115,10 @@ pipeline {
       }
       steps {
         catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: "The tests for the master framework have failed. Let's warn instead.") {
-          runTests('.ci/.jenkins_master_framework.yml')
+          script {
+            def tasksGen
+            runTests('.ci/.jenkins_master_framework.yml', tasksGen)
+          }
         }
       }
     }
@@ -343,11 +347,11 @@ class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
 /**
   Run all the tests for the given file with the frameworks to test
 */
-def runTests(frameworkFile) {
+def runTests(frameworkFile, tasksGen) {
   deleteDir()
   unstash "source"
   dir("${BASE_DIR}"){
-    rubyTasksGen = new RubyParallelTaskGenerator(
+    tasksGen = new RubyParallelTaskGenerator(
       xKey: 'RUBY_VERSION',
       yKey: 'FRAMEWORK',
       xFile: ".ci/.jenkins_ruby.yml",
@@ -357,7 +361,7 @@ def runTests(frameworkFile) {
       name: "Ruby",
       steps: this
     )
-    def testTasks = rubyTasksGen.generateParallelTests()
+    def testTasks = tasksGen.generateParallelTests()
     parallel(testTasks)
   }
 }
