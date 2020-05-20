@@ -42,6 +42,7 @@ module ElasticAPM
     option :breakdown_metrics,                 type: :bool,   default: true
     option :capture_body,                      type: :string, default: 'off'
     option :capture_headers,                   type: :bool,   default: true
+    option :capture_elasticsearch_queries,     type: :bool,   default: false
     option :capture_env,                       type: :bool,   default: true
     option :central_config,                    type: :bool,   default: true
     option :current_user_email_method,         type: :string, default: 'email'

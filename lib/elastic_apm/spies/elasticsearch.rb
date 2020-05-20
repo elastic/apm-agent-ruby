@@ -34,12 +34,12 @@ module ElasticAPM
             name = format(NAME_FORMAT, method, path)
             statement = []
 
-            unless args[0].nil?
-              statement << { params: args[0] }
-            end
+            statement << { params: args&.[](0) }
 
-            unless args[1].nil? || args[1].empty?
-              statement << { body: args[1] }
+            if ElasticAPM.agent.config.capture_elasticsearch_queries
+              unless args[1].nil? || args[1].empty?
+                statement << { body: args[1] }
+              end
             end
 
             context = Span::Context.new(

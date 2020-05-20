@@ -288,6 +288,16 @@ If your service handles data like this, we advise to only enable this feature wi
 Whether or not to attach the request headers to transactions and errors.
 
 [float]
+[[config-capture-elasticsearch-queries]]
+==== `capture_elasticsearch_queries`
+|============
+| Environment                                 | `Config` key                    | Default
+| `ELASTIC_APM_CAPTURE_ELASTICSEARCH_QUERIES` | `capture_elasticsearch_queries` | `false`
+|============
+
+Whether or not to capture the body from requests in Elasticsearch.
+
+[float]
 [[config-capture-env]]
 ==== `capture_env`
 |============
