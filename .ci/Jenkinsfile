@@ -5,14 +5,10 @@ import co.elastic.matrix.*
 import groovy.transform.Field
 
 /**
- This is required to know if there any failures when running the downstream jobs.
+This is the parallel tasks generator,
+it is need as field to store the results of the tests.
 */
-@Field def rubyTasksFailed = false
-
-/**
- This is required to store the build status for the downstream jobs.
-*/
-@Field def rubyDownstreamJobs = [:]
+@Field def rubyTasksGen
 
 pipeline {
   agent { label 'linux && immutable' }
@@ -106,19 +102,24 @@ pipeline {
       }
       steps {
         withGithubNotify(context: 'Tests', tab: 'tests') {
-          deleteDir()
-          unstash "source"
-          dir("${BASE_DIR}"){
-            script {
-              def ruby = readYaml(file: '.ci/.jenkins_ruby.yml')
-              def testTasks = [:]
-              def i = 0
-              ruby['RUBY_VERSION'].each{ rubyVersion ->
-                testTasks[rubyVersion] = { runJob(rubyVersion, i++) }
-              }
-              parallel(testTasks)
-            }
-          }
+          runTests('.ci/.jenkins_framework.yml')
+        }
+      }
+      post {
+        always {
+          convergeCoverage()
+        }
+      }
+    }
+    stage('Master Tests frameworks') {
+      options { skipDefaultCheckout() }
+      when {
+        beforeAgent true
+        expression { return env.ONLY_DOCS == "false" }
+      }
+      steps {
+        catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: "The tests for the master framework have failed. Let's warn instead.") {
+          runTests('.ci/.jenkins_master_framework.yml')
         }
       }
     }
@@ -195,20 +196,6 @@ pipeline {
         }
       }
     }
-    stage('Populate Downstream failures') {
-      when {
-        expression { return rubyTasksFailed }
-      }
-      steps {
-        script {
-          def message = 'Failures when running the "Test" stage'
-          if (notifyBuildResult.isAnyDownstreamJobFailedWithTimeout(rubyDownstreamJobs)) {
-            message += ' related to a timeout issue'
-          }
-          error(message)
-        }
-      }
-    }
     stage('Release') {
       options { skipDefaultCheckout() }
       environment {
@@ -272,31 +259,12 @@ pipeline {
         }
       }
     }
-    stage('Coverage converge') {
-      when {
-        beforeAgent true
-        expression { return env.ONLY_DOCS == "false" }
-      }
-      steps{
-        dir("${BASE_DIR}"){
-          unpack_artifacts(rubyDownstreamJobs)
-          sh(script: "./spec/scripts/coverage_converge.sh")
-          cobertura coberturaReportFile: "coverage/coverage.xml"
-        }
-      }
-    }
   }
   post {
     cleanup {
-      notifyBuildResult(downstreamJobs: rubyDownstreamJobs)
+      notifyBuildResult()
     }
   }
-}
-
-def unpack_artifacts(builds) {
-    builds.values().each() { build ->
-      copyArtifacts(projectName: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}", selector: specific(buildNumber: build.number.toString()))
-    }
 }
 
 /**
@@ -337,26 +305,95 @@ def runBenchmark(version){
   }
 }
 
-def runJob(String rubyVersion, int sleep = 1){
-  def buildObject
-  def branch = env.CHANGE_ID?.trim() ? env.CHANGE_TARGET : env.BRANCH_NAME
-  try {
-    def quiet = (sleep * randomNumber(min: 2, max: 6)) + 5
-    buildObject = build(job: "apm-agent-ruby/apm-agent-ruby-downstream/${env.BRANCH_NAME}",
-                        parameters: [
-                          string(name: 'RUBY_VERSION', value: "${rubyVersion}"),
-                          string(name: 'BRANCH_SPECIFIER', value: "${env.GIT_BASE_COMMIT}"),
-                          string(name: 'MERGE_TARGET', value: "${branch}")
-                        ],
-                        quietPeriod: quiet)
-  } catch(e) {
-    rubyTasksFailed = true
-    buildObject = e
-    warnError('Downstream Failed') {
-      error("Downstream job for '${rubyVersion}' failed")
+class RubyParallelTaskGenerator extends DefaultParallelTaskGenerator {
+
+  public RubyParallelTaskGenerator(Map params){
+    super(params)
+  }
+
+  /**
+  build a clousure that launch and agent and execute the corresponding test script,
+  then store the results.
+  */
+  public Closure generateStep(x, y){
+    return {
+      steps.sleep steps.randomNumber(min:10, max: 30)
+      steps.node('linux && immutable'){
+        // Label is transformed to avoid using the internal docker registry in the x coordinate
+        // TODO: def label = "${tag}:${x?.drop(x?.lastIndexOf('/')+1)}#${y}"
+        def label = "${tag}:${x}#${y}"
+        try {
+          steps.runScript(label: label, ruby: x, framework: y)
+          saveResult(x, y, 1)
+        } catch(e){
+          saveResult(x, y, 0)
+          steps.error("${label} tests failed : ${e.toString()}\n")
+        } finally {
+          steps.junit(allowEmptyResults: false,
+            keepLongStdio: true,
+            testResults: "**/spec/junit-reports/**/ruby-agent-junit.xml")
+          steps.dir("${steps.env.BASE_DIR}"){
+            steps.archiveArtifacts(artifacts: 'coverage/matrix_results/', defaultExcludes: false)
+            steps.stash(name: steps.normalise("coverage-${x}-${y}"), includes: 'coverage/matrix_results/', allowEmpty: true)
+          }
+        }
+      }
     }
-  } finally {
-    rubyDownstreamJobs["${rubyVersion}"] = buildObject
+  }
+}
+
+/**
+  Run all the tests for the given file with the frameworks to test
+*/
+def runTests(frameworkFile) {
+  deleteDir()
+  unstash "source"
+  dir("${BASE_DIR}"){
+    rubyTasksGen = new RubyParallelTaskGenerator(
+      xKey: 'RUBY_VERSION',
+      yKey: 'FRAMEWORK',
+      xFile: ".ci/.jenkins_ruby.yml",
+      yFile: frameworkFile,
+      exclusionFile: ".ci/.jenkins_exclude.yml",
+      tag: "Ruby",
+      name: "Ruby",
+      steps: this
+    )
+    def testTasks = rubyTasksGen.generateParallelTests()
+    parallel(testTasks)
+  }
+}
+
+/**
+  Run tests for a Ruby version and framework version.
+*/
+def runScript(Map params = [:]){
+  def label = params.label
+  def ruby = params.ruby
+  def framework = params.framework
+  log(level: 'INFO', text: "${label}")
+  retry(2){
+    withEnv(["HOME=${env.WORKSPACE}", "PATH=${env.PATH}:${env.WORKSPACE}/bin"]) {
+      deleteDir()
+      unstash 'source'
+      dir("${BASE_DIR}"){
+        sleep randomNumber(min:10, max: 30)
+        dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
+        sh("./spec/scripts/spec.sh ${ruby} ${framework}")
+      }
+    }
+  }
+}
+
+def convergeCoverage() {
+  deleteDir()
+  unstash('source')
+  dir("${BASE_DIR}"){
+    rubyTasksGen.dumpMatrix('-')?.each {
+      unstash(normalise("coverage-${it}"))
+    }
+    sh(script: './spec/scripts/coverage_converge.sh')
+    cobertura coberturaReportFile: 'coverage/coverage.xml', onlyStable: false
   }
 }
 
@@ -373,4 +410,11 @@ def prepareRelease(Closure body){
       }
     }
   }
+}
+
+// Transform the versions like:
+//  - docker.elastic.co/observability-ci/jruby:9.2-12-jdk to jruby-9.2-12-jdk
+//  - jruby:9.1 to jruby-9.1
+def normalise(def what) {
+  return what.replaceAll('.*/', '').replaceAll(':', '-')
 }
