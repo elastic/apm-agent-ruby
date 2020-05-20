@@ -95,7 +95,8 @@ pipeline {
     Execute unit tests.
     */
     stage('Tests') {
-      stages {
+      failFast false
+      parallel {
         stage('Tests') {
           options { skipDefaultCheckout() }
           when {
