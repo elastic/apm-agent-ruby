@@ -65,7 +65,7 @@ module ElasticAPM
             path, query = req.path.split('?')
 
             cls = use_ssl? ? URI::HTTPS : URI::HTTP
-            uri = cls.build([nil, host, port, path, query, nil])
+            uri = URI("#{use_ssl? ? 'https' : 'http'}://#{host}#{":#{port}" if port}#{path}#{"?#{query}" if query}")
 
             destination =
               ElasticAPM::Span::Context::Destination.from_uri(uri)
