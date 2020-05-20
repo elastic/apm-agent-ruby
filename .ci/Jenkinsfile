@@ -140,7 +140,7 @@ pipeline {
           }
           steps {
             withGithubNotify(context: 'Integration Tests') {
-              build(job: env.ITS_PIPELINE, propagate: false, wait: true,
+              build(job: env.ITS_PIPELINE, propagate: true, wait: true,
                     parameters: [string(name: 'INTEGRATION_TEST', value: 'Ruby'),
                                  string(name: 'BUILD_OPTS', value: "--ruby-agent-version ${env.GIT_BASE_COMMIT} --ruby-agent-version-state ${env.GIT_BUILD_CAUSE} --ruby-agent-repo ${env.CHANGE_FORK?.trim() ?: 'elastic'}/${env.REPO} --opbeans-ruby-agent-branch ${env.GIT_BASE_COMMIT}")])
             }
