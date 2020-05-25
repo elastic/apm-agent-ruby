@@ -94,55 +94,53 @@ pipeline {
     /**
     Execute unit tests.
     */
-    stage('Test') {
-      options { skipDefaultCheckout() }
+    stage('Tests') {
       when {
         beforeAgent true
         expression { return env.ONLY_DOCS == "false" }
       }
-      steps {
-        withGithubNotify(context: 'Tests', tab: 'tests') {
-          runTests('.ci/.jenkins_framework.yml')
-        }
-      }
-      post {
-        always {
-          convergeCoverage()
-        }
-      }
-    }
-    stage('Master Tests frameworks') {
-      options { skipDefaultCheckout() }
-      when {
-        beforeAgent true
-        expression { return env.ONLY_DOCS == "false" }
-      }
-      steps {
-        catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: "The tests for the master framework have failed. Let's warn instead.") {
-          runTests('.ci/.jenkins_master_framework.yml')
-        }
-      }
-    }
-    stage('Integration Tests') {
-      agent none
-      when {
-        beforeAgent true
-        allOf {
-          expression { return env.ONLY_DOCS == "false" }
-          anyOf {
-            changeRequest()
-            expression { return !params.Run_As_Master_Branch }
+      failFast false
+      parallel {
+        stage('Tests') {
+          options { skipDefaultCheckout() }
+          steps {
+            withGithubNotify(context: 'Tests', tab: 'tests') {
+              runTests('.ci/.jenkins_framework.yml')
+            }
+          }
+          post {
+            always {
+              convergeCoverage()
+            }
           }
         }
-      }
-      steps {
-        build(job: env.ITS_PIPELINE, propagate: false, wait: false,
-              parameters: [string(name: 'INTEGRATION_TEST', value: 'Ruby'),
-                            string(name: 'BUILD_OPTS', value: "--ruby-agent-version ${env.GIT_BASE_COMMIT} --ruby-agent-version-state ${env.GIT_BUILD_CAUSE} --ruby-agent-repo ${env.CHANGE_FORK?.trim() ?: 'elastic'}/${env.REPO} --opbeans-ruby-agent-branch ${env.GIT_BASE_COMMIT}"),
-                            string(name: 'GITHUB_CHECK_NAME', value: env.GITHUB_CHECK_ITS_NAME),
-                            string(name: 'GITHUB_CHECK_REPO', value: env.REPO),
-                            string(name: 'GITHUB_CHECK_SHA1', value: env.GIT_BASE_COMMIT)])
-        githubNotify(context: "${env.GITHUB_CHECK_ITS_NAME}", description: "${env.GITHUB_CHECK_ITS_NAME} ...", status: 'PENDING', targetUrl: "${env.JENKINS_URL}search/?q=${env.ITS_PIPELINE.replaceAll('/','+')}")
+        stage('Master Tests frameworks') {
+          options { skipDefaultCheckout() }
+          steps {
+            catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: "The tests for the master framework have failed. Let's warn instead.") {
+              runTests('.ci/.jenkins_master_framework.yml')
+            }
+          }
+        }
+        stage('Integration Tests') {
+          agent none
+          when {
+            beforeAgent true
+            anyOf {
+              changeRequest()
+              expression { return !params.Run_As_Master_Branch }
+            }
+          }
+          steps {
+            githubNotify(context: "${env.GITHUB_CHECK_ITS_NAME}", description: "${env.GITHUB_CHECK_ITS_NAME} ...", status: 'PENDING', targetUrl: "${env.JENKINS_URL}search/?q=${env.ITS_PIPELINE.replaceAll('/','+')}")
+            build(job: env.ITS_PIPELINE, propagate: false, wait: true,
+                  parameters: [ string(name: 'INTEGRATION_TEST', value: 'Ruby'),
+                                string(name: 'BUILD_OPTS', value: "--ruby-agent-version ${env.GIT_BASE_COMMIT} --ruby-agent-version-state ${env.GIT_BUILD_CAUSE} --ruby-agent-repo ${env.CHANGE_FORK?.trim() ?: 'elastic'}/${env.REPO} --opbeans-ruby-agent-branch ${env.GIT_BASE_COMMIT}"),
+                                string(name: 'GITHUB_CHECK_NAME', value: env.GITHUB_CHECK_ITS_NAME),
+                                string(name: 'GITHUB_CHECK_REPO', value: env.REPO),
+                                string(name: 'GITHUB_CHECK_SHA1', value: env.GIT_BASE_COMMIT) ])
+          }
+        }
       }
     }
     stage('Benchmarks') {
