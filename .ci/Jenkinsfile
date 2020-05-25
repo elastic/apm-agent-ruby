@@ -52,7 +52,7 @@ pipeline {
       steps {
         pipelineManager([ cancelPreviousRunningBuilds: [ when: 'PR' ] ])
         deleteDir()
-        gitCheckout(basedir: "${BASE_DIR}", githubNotifyFirstTimeContributor: true, reference: "${env.REFERENCE_REPO}", shallow: false)
+        gitCheckout(basedir: "${BASE_DIR}", githubNotifyFirstTimeContributor: true, reference: "${env.REFERENCE_REPO}", shallow: true)
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
       }
     }
