@@ -36,6 +36,14 @@ endif::[]
 === Ruby Agent version 3.x
 
 [float]
+[[unreleased]]
+==== Unreleased
+
+===== Fixed
+
+- Allow underscores in hostnames in Net::HTTP spy {pull}804[#804]
+
+[float]
 [[release-notes-3.7.0]]
 ==== 3.7.0 (2020-05-14)
 

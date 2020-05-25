@@ -217,5 +217,21 @@ module ElasticAPM
       expect(span.context.destination.resource).to eq '[::1]:80'
       expect(span.context.destination.type).to eq 'external'
     end
+
+    it 'allows underscores in hostnames' do
+      WebMock.stub_request(:get, %r{http://exa_ple.com/.*})
+
+      with_agent do
+        ElasticAPM.with_transaction 'Net::HTTP test' do
+          Net::HTTP.start('exa_ple.com', 80) do |http|
+            http.get '/somewhere?thing=1'
+          end
+        end
+      end
+
+      span, = @intercepted.spans
+
+      expect(span.name).to eq 'GET exa_ple.com'
+    end
   end
 end
