@@ -39,6 +39,7 @@ endif::[]
 [[unreleased]]
 ==== Unreleased
 
+[float]
 ===== Fixed
 
 - Allow underscores in hostnames in Net::HTTP spy {pull}804[#804]
