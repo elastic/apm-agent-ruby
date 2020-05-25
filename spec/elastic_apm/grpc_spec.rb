@@ -19,7 +19,7 @@
 
 require 'spec_helper'
 
-if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.7'
+if !defined?(JRUBY_VERSION)
   require 'grpc'
 
   module ElasticAPM
@@ -48,7 +48,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.7'
 
         it 'creates a span' do
           thread = Thread.new { server.run }
-          server.wait_till_running
+          skip 'gRPC is not running' unless server.wait_till_running
 
           message = with_agent do
             ElasticAPM.with_transaction 'GRPC test' do
@@ -78,7 +78,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.7'
 
           it 'does not create a span' do
             thread = Thread.new { server.run }
-            server.wait_till_running
+            skip 'gRPC is not running' unless server.wait_till_running
 
             message = with_agent(**config) do
               ElasticAPM.with_transaction 'GRPC test' do
@@ -100,7 +100,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.7'
 
           it 'does not create a span' do
             thread = Thread.new { server.run }
-            server.wait_till_running
+            skip 'gRPC is not running' unless server.wait_till_running
 
             message = with_agent do
               stub.say_hello(
@@ -121,7 +121,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.7'
 
           it 'does not create a span' do
             thread = Thread.new { server.run }
-            server.wait_till_running
+            skip 'gRPC is not running' unless server.wait_till_running
 
             message = with_agent(**config) do
               ElasticAPM.with_transaction 'GRPC test' do
@@ -146,7 +146,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.7'
           let(:trace_context) { TraceContext.new(trace_id: '123') }
           it 'passes it to the span' do
             thread = Thread.new { server.run }
-            server.wait_till_running
+            skip 'gRPC is not running' unless server.wait_till_running
 
             message = with_agent do
               ElasticAPM.with_transaction(
@@ -187,7 +187,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.7'
 
         it 'creates a transaction' do
           thread = Thread.new { server.run }
-          server.wait_till_running
+          skip 'gRPC is not running' unless server.wait_till_running
 
           message = with_agent do
             stub.say_hello(
@@ -212,7 +212,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.7'
 
           it 'sets it on the transaction' do
             thread = Thread.new { server.run }
-            server.wait_till_running
+            skip 'gRPC is not running' unless server.wait_till_running
 
             message = with_agent do
               stub.say_hello(
@@ -242,7 +242,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.7'
 
             it 'sets it on the transaction' do
               thread = Thread.new { server.run }
-              server.wait_till_running
+              skip 'gRPC is not running' unless server.wait_till_running
 
               message = with_agent do
                 stub.say_hello(
@@ -301,7 +301,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.7'
 
           it 'reports the error', :mock_time do
             thread = Thread.new { server.run }
-            server.wait_till_running
+            skip 'gRPC is not running' unless server.wait_till_running
 
             expect do
               with_agent do
