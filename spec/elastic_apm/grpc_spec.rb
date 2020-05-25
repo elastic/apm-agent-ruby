@@ -48,6 +48,7 @@ if !defined?(JRUBY_VERSION)
 
         it 'creates a span' do
           thread = Thread.new { server.run }
+          # Sometimes the gRPC server doesn't start so we skip the test
           skip 'gRPC is not running' unless server.wait_till_running
 
           message = with_agent do
@@ -78,6 +79,7 @@ if !defined?(JRUBY_VERSION)
 
           it 'does not create a span' do
             thread = Thread.new { server.run }
+            # Sometimes the gRPC server doesn't start so we skip the test
             skip 'gRPC is not running' unless server.wait_till_running
 
             message = with_agent(**config) do
@@ -100,6 +102,7 @@ if !defined?(JRUBY_VERSION)
 
           it 'does not create a span' do
             thread = Thread.new { server.run }
+            # Sometimes the gRPC server doesn't start so we skip the test
             skip 'gRPC is not running' unless server.wait_till_running
 
             message = with_agent do
@@ -121,6 +124,7 @@ if !defined?(JRUBY_VERSION)
 
           it 'does not create a span' do
             thread = Thread.new { server.run }
+            # Sometimes the gRPC server doesn't start so we skip the test
             skip 'gRPC is not running' unless server.wait_till_running
 
             message = with_agent(**config) do
@@ -146,6 +150,7 @@ if !defined?(JRUBY_VERSION)
           let(:trace_context) { TraceContext.new(trace_id: '123') }
           it 'passes it to the span' do
             thread = Thread.new { server.run }
+            # Sometimes the gRPC server doesn't start so we skip the test
             skip 'gRPC is not running' unless server.wait_till_running
 
             message = with_agent do
@@ -187,6 +192,7 @@ if !defined?(JRUBY_VERSION)
 
         it 'creates a transaction' do
           thread = Thread.new { server.run }
+          # Sometimes the gRPC server doesn't start so we skip the test
           skip 'gRPC is not running' unless server.wait_till_running
 
           message = with_agent do
@@ -212,6 +218,7 @@ if !defined?(JRUBY_VERSION)
 
           it 'sets it on the transaction' do
             thread = Thread.new { server.run }
+            # Sometimes the gRPC server doesn't start so we skip the test
             skip 'gRPC is not running' unless server.wait_till_running
 
             message = with_agent do
@@ -242,6 +249,7 @@ if !defined?(JRUBY_VERSION)
 
             it 'sets it on the transaction' do
               thread = Thread.new { server.run }
+              # Sometimes the gRPC server doesn't start so we skip the test
               skip 'gRPC is not running' unless server.wait_till_running
 
               message = with_agent do
@@ -301,6 +309,7 @@ if !defined?(JRUBY_VERSION)
 
           it 'reports the error', :mock_time do
             thread = Thread.new { server.run }
+            # Sometimes the gRPC server doesn't start so we skip the test
             skip 'gRPC is not running' unless server.wait_till_running
 
             expect do
