@@ -74,7 +74,7 @@ module ElasticAPM
       private
 
       def query_name(query)
-        query.operation_name || UNNAMED
+        query.selected_operation_name || UNNAMED
       end
 
       def concat_names(results)
