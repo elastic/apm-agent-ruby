@@ -75,6 +75,29 @@ module ElasticAPM
             .to eq('{"params":{},"body":{"index":{"_index":"users","data":{"name":"Fernando"}}}}')
           span
         end
+
+        it 'filters sensitive information', :intercept do
+          WebMock.stub_request(:get, %r{http://localhost:9200/.*})
+            .with(body: %r{.*})
+
+          with_agent do
+            ElasticAPM.with_transaction do
+              ElasticAPM.agent.config.capture_elasticsearch_queries = true
+              client.search(
+                body: {
+                  query: 'a query',
+                  password: 'this is a password'
+                }
+              )
+            end
+          end
+
+          net_span, span = @intercepted.spans
+
+          expect(span.context.db.statement)
+            .to eq('{"params":{},"body":{"query":"a query","password":"[FILTERED]"}}')
+          span
+        end
       end
 
       context 'when capture_elasticsearch_queries is false' do
@@ -98,7 +121,6 @@ module ElasticAPM
           span
         end
       end
-
     end
   end
 end
