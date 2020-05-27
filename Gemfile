@@ -40,7 +40,7 @@ gem 'fakeredis', require: nil
 gem 'faraday', require: nil
 gem 'graphql', require: nil
 gem 'google-protobuf', '< 3.12' if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.5'
-gem 'grpc' if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.7'
+gem 'grpc' if !defined?(JRUBY_VERSION)
 gem 'json-schema', require: nil
 gem 'mongo', require: nil
 gem 'opentracing', require: nil
