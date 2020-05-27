@@ -28,7 +28,7 @@ module ElasticAPM
       ACTION = 'query'
 
       def self.summarizer
-        @summarizer = Sql.summarizer
+        @summarizer ||= Sql.summarizer
       end
 
       def install
