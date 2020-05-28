@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   RSpec.describe Util::LruCache do
     it 'purges when filled' do

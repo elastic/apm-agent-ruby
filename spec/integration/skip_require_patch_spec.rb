@@ -17,7 +17,14 @@
 
 # frozen_string_literal: true
 
-module ElasticAPM
-  RSpec.describe Context::Request do
+# Deliberately setting this before requiring spec_helper.rb so it's set
+# before we require the agent
+ENV['ELASTIC_APM_SKIP_REQUIRE_PATCH'] = '1'
+require 'spec_helper'
+
+RSpec.describe "Disabling the require hook" do
+  it "doesn't add aliased original method" do
+    expect { Kernel.method(:require_without_apm) }
+      .to raise_error(NameError)
   end
 end

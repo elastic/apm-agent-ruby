@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 enable = false
 begin
   require 'active_support/notifications'

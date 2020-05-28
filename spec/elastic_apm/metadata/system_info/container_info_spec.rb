@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   class Metadata
     RSpec.describe SystemInfo::ContainerInfo do

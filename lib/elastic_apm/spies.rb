@@ -80,23 +80,25 @@ module ElasticAPM
   end
 end
 
-# @api private
-module Kernel
-  private
+unless ENV['ELASTIC_APM_SKIP_REQUIRE_PATCH'] == '1'
+  # @api private
+  module Kernel
+    private
 
-  alias require_without_apm require
+    alias require_without_apm require
 
-  def require(path)
-    res = require_without_apm(path)
+    def require(path)
+      res = require_without_apm(path)
 
-    begin
-      ElasticAPM::Spies.hook_into(path)
-    rescue ::Exception => e
-      puts "Failed hooking into '#{path}'. Please report this at " \
-        'github.com/elastic/apm-agent-ruby'
-      puts e.backtrace.join("\n")
+      begin
+        ElasticAPM::Spies.hook_into(path)
+      rescue ::Exception => e
+        puts "Failed hooking into '#{path}'. Please report this at " \
+          'github.com/elastic/apm-agent-ruby'
+        puts e.backtrace.join("\n")
+      end
+
+      res
     end
-
-    res
   end
 end

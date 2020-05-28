@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   RSpec.describe Instrumenter, :intercept do
     let(:config) { Config.new }

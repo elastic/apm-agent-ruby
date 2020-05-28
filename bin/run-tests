@@ -8,7 +8,10 @@ runRspec(){
   if [ -n "${case}" ]; then
     bn="$(basename ${case} _spec.rb)/"
   fi
-  bundle exec rspec -f progress -f JUnit -o spec/junit-reports/${bn}ruby-agent-junit.xml ${case}
+  bundle exec rspec \
+    -f progress \
+    -r yarjuf -f JUnit -o spec/junit-reports/${bn}ruby-agent-junit.xml \
+    ${case}
 }
 specific_spec=$1
 

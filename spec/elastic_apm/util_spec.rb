@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   RSpec.describe Util do
     describe '.micros', mock_time: true do
