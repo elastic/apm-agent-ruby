@@ -40,6 +40,11 @@ endif::[]
 ==== Unreleased
 
 [float]
+===== Added
+
+- Add the option `capture_elasticsearch_queries` {pull}789[#789]
+
+[float]
 ===== Fixed
 
 - Allow underscores in hostnames in Net::HTTP spy {pull}804[#804]
