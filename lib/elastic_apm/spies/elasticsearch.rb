@@ -26,16 +26,30 @@ module ElasticAPM
       TYPE = 'db'
       SUBTYPE = 'elasticsearch'
 
+      def self.sanitizer
+        @sanitizer ||= ElasticAPM::Transport::Filters::HashSanitizer.new
+      end
+
       def install
         ::Elasticsearch::Transport::Client.class_eval do
           alias perform_request_without_apm perform_request
 
           def perform_request(method, path, *args, &block)
             name = format(NAME_FORMAT, method, path)
-            statement = args[0].is_a?(String) ? args[0] : args[0].to_json
+            statement = []
+
+            statement << { params: args&.[](0) }
+
+            if ElasticAPM.agent.config.capture_elasticsearch_queries
+              unless args[1].nil? || args[1].empty?
+                statement << {
+                  body: ElasticAPM::Spies::ElasticsearchSpy.sanitizer.strip_from!(args[1])
+                }
+              end
+            end
 
             context = Span::Context.new(
-              db: { statement: statement },
+              db: { statement: statement.reduce({}, :merge).to_json },
               destination: {
                 name: SUBTYPE,
                 resource: SUBTYPE,
