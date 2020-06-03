@@ -172,8 +172,13 @@ if enabled
           ElasticAPM.agent.config.replace_options('log_level' => Logger::WARN)
         end
 
-        it 'changes the log level' do
-          log_level = ElasticAPM.agent.config.logger.level
+        it 'does not change the Rails log level' do
+          log_level = Rails.logger.level
+          expect(log_level).to eq Logger::DEBUG
+        end
+
+        it 'changes the ElasticAPM config log level' do
+          log_level = ElasticAPM.agent.config.log_level
           expect(log_level).to eq Logger::WARN
         end
       end

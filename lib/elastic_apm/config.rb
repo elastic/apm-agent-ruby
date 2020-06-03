@@ -165,9 +165,6 @@ module ElasticAPM
         options_copy.fetch(key.to_sym).set(value)
       end
       @options = options_copy
-      if new_options['log_level'] || new_options[:log_level]
-        logger.level = log_level
-      end
     end
 
     def app=(app)
