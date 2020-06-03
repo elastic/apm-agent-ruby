@@ -155,7 +155,7 @@ if !defined?(JRUBY_VERSION)
 
             message = with_agent do
               ElasticAPM.with_transaction(
-                'GRPC test', { trace_context: trace_context }
+                'GRPC test', trace_context: trace_context
               ) do
                 stub.say_hello(
                   Helloworld::HelloRequest.new(name: 'goodbye')
