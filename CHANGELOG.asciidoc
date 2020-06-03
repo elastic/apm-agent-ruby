@@ -48,6 +48,7 @@ endif::[]
 ===== Fixed
 
 - Allow underscores in hostnames in Net::HTTP spy {pull}804[#804]
+- Don't change log level on logger object via remote config {pull}809[#809]
 
 [float]
 [[release-notes-3.7.0]]
