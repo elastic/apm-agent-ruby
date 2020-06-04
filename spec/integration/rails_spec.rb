@@ -46,6 +46,7 @@ if enabled
       module RailsTestApp
         class Application < Rails::Application
           RailsTestHelpers.setup_rails_test_config(config)
+          config.log_level = :debug
 
           config.elastic_apm.ignore_url_patterns = '/ping'
           config.elastic_apm.api_request_time = '200ms'
@@ -157,6 +158,29 @@ if enabled
       it 'prepends Rails.root to log_path' do
         final_log_path = ElasticAPM.agent.config.log_path.to_s
         expect(final_log_path).to eq "#{Rails.root}/spec/elastic_apm.log"
+      end
+    end
+
+    context 'log level' do
+      it 'respects the Rails logger level' do
+        log_level = ElasticAPM.agent.config.logger.level
+        expect(log_level).to eq Logger::DEBUG
+      end
+
+      context 'when the log level is updated via central config' do
+        before do
+          ElasticAPM.agent.config.replace_options('log_level' => Logger::WARN)
+        end
+
+        it 'does not change the Rails log level' do
+          log_level = Rails.logger.level
+          expect(log_level).to eq Logger::DEBUG
+        end
+
+        it 'changes the ElasticAPM config log level' do
+          log_level = ElasticAPM.agent.config.log_level
+          expect(log_level).to eq Logger::WARN
+        end
       end
     end
 

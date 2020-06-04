@@ -159,13 +159,12 @@ module ElasticAPM
     end
 
     def replace_options(new_options)
-      return unless new_options
+      return if new_options.nil? || new_options.empty?
       options_copy = @options.dup
       new_options.each do |key, value|
         options_copy.fetch(key.to_sym).set(value)
       end
       @options = options_copy
-      set_log_level(logger)
     end
 
     def app=(app)
@@ -287,13 +286,8 @@ module ElasticAPM
 
     def build_logger
       Logger.new(log_path == '-' ? STDOUT : log_path).tap do |logger|
-        set_log_level(logger)
+        logger.level = log_level
       end
-    end
-
-    def set_log_level(logger)
-      return unless logger
-      logger.level = log_level
     end
 
     def app_type?(app)
