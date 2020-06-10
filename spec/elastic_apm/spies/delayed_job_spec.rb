@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 begin
   require 'delayed_job'
   require 'delayed/performable_mailer' # or the Rails spec explodes

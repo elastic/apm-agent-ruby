@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 require 'fakeredis/rspec'
 require 'sidekiq'
 require 'sidekiq/manager'

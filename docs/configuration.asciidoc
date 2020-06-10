@@ -900,3 +900,13 @@ The unit is provided as suffix directly after the number, without any separation
  * `gb` (gigabytes)
 
 NOTE: we use the power-of-two sizing convention, e.g. `1 kilobyte == 1024 bytes`
+
+[float]
+[[special-configuration]]
+=== Special configuration
+
+Elastic APM patches `Kernel#require` to auto-detect and instrument supported third party libraries. It does so with the utmost care but in rare cases it can conflict with some libraries.
+
+To get around this patch, set the environment variable `ELASTIC_APM_SKIP_REQUIRE_PATCH` to `"1"`.
+
+If you choose to do so, the agent might need some additional tweaking to make sure the third party libraries are picked up and instrumented. Make sure you require the agent _after_ you require your other dependencies.

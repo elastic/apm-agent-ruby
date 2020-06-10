@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 if defined?(Grape)
   RSpec.describe Grape do
     describe '.start' do

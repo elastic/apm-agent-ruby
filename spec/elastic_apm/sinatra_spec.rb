@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 if defined?(Sinatra)
   RSpec.describe Sinatra do
     describe '.start', :intercept do
