@@ -29,9 +29,9 @@ RSpec.describe 'OpenTracing bridge', :intercept do
 
   context 'without an agent' do
     it 'is a noop' do
-      thing = double(ran: nil)
+      thing = double(ran: 'success')
 
-      tracer.start_active_span('namest') do |scope|
+      result = tracer.start_active_span('namest') do |scope|
         expect(scope).to be_a ElasticAPM::OpenTracing::Scope
 
         tracer.start_active_span('nested') do |nested_scope|
@@ -42,6 +42,7 @@ RSpec.describe 'OpenTracing bridge', :intercept do
       end
 
       expect(thing).to have_received(:ran).with('…')
+      expect(result).to eq 'success'
     end
   end
 
@@ -74,7 +75,12 @@ RSpec.describe 'OpenTracing bridge', :intercept do
           parent.finish
         end
 
-        its(:context) { should be parent.context }
+        it 'has a child context' do
+          expect(subject.context.parent_id).to eq parent.context.id
+          expect(subject.context.id).not_to eq parent.context.id
+          expect(subject.context.trace_id).to eq parent.context.trace_id
+        end
+
         its(:elastic_span) { should be_a ElasticAPM::Span }
       end
     end
@@ -106,6 +112,19 @@ RSpec.describe 'OpenTracing bridge', :intercept do
 
         it 'is active' do
           expect(::OpenTracing.active_span).to be subject.span
+        end
+      end
+
+      context 'when a block is passed' do
+        it 'returns the result of the block' do
+          thing = double(ran: 'success')
+
+          result = tracer.start_active_span('namest') do
+            thing.ran('…')
+          end
+
+          expect(thing).to have_received(:ran).with('…')
+          expect(result).to eq 'success'
         end
       end
     end
@@ -140,6 +159,16 @@ RSpec.describe 'OpenTracing bridge', :intercept do
         end
       end
 
+      context 'Text map' do
+        let(:format) { ::OpenTracing::FORMAT_TEXT_MAP }
+
+        it 'sets a header' do
+          subject
+          expect(carrier['elastic-apm-traceparent'])
+            .to eq context.traceparent.to_header
+        end
+      end
+
       context 'Binary' do
         let(:format) { ::OpenTracing::FORMAT_BINARY }
 
@@ -151,24 +180,43 @@ RSpec.describe 'OpenTracing bridge', :intercept do
     end
 
     describe '#extract' do
-      let(:carrier) do
-        { 'HTTP_ELASTIC_APM_TRACEPARENT' =>
-          '00-11111111111111111111111111111111-2222222222222222-00' }
-      end
-
       subject { ::OpenTracing.extract(format, carrier) }
 
       context 'Rack' do
         let(:format) { ::OpenTracing::FORMAT_RACK }
+        let(:carrier) do
+          { 'HTTP_ELASTIC_APM_TRACEPARENT' =>
+              '00-11111111111111111111111111111111-2222222222222222-00' }
+        end
 
-        it 'returns a trace context' do
-          expect(subject).to be_a ElasticAPM::TraceContext
-          expect(subject.trace_id).to eq '11111111111111111111111111111111'
+        it 'returns a span context' do
+          expect(subject).to be_a ElasticAPM::OpenTracing::SpanContext
+          expect(subject.trace_context.trace_id)
+            .to eq '11111111111111111111111111111111'
+          expect(subject.trace_context.id).to eq '2222222222222222'
+          expect(subject.trace_context.parent_id).to be_nil
+        end
+      end
+
+      context 'Text map' do
+        let(:format) { ::OpenTracing::FORMAT_TEXT_MAP }
+        let(:carrier) do
+          { 'elastic-apm-traceparent' =>
+              '00-11111111111111111111111111111111-2222222222222222-00' }
+        end
+
+        it 'returns a span context' do
+          expect(subject).to be_a ElasticAPM::OpenTracing::SpanContext
+          expect(subject.trace_context.trace_id)
+            .to eq '11111111111111111111111111111111'
+          expect(subject.trace_context.id).to eq '2222222222222222'
+          expect(subject.trace_context.parent_id).to be_nil
         end
       end
 
       context 'Binary' do
         let(:format) { ::OpenTracing::FORMAT_BINARY }
+        let(:carrier) { {} }
 
         it 'warns about lack of support' do
           expect(tracer).to receive(:warn).with(/Only extraction from/)
@@ -185,10 +233,16 @@ RSpec.describe 'OpenTracing bridge', :intercept do
     end
     after { ElasticAPM.stop }
 
+    matcher :be_a_child_of do |parent_scope|
+      match do |scope|
+        scope.span.context.parent_id == parent_scope.span.context.id
+      end
+    end
+
     it 'traces nested spans' do
       OpenTracing.start_active_span(
         'operation_name',
-        labels: { test: '0' }
+        tags: { test: '0' }
       ) do |scope|
         expect(scope).to be_a(ElasticAPM::OpenTracing::Scope)
         expect(OpenTracing.active_span).to be scope.span
@@ -196,13 +250,15 @@ RSpec.describe 'OpenTracing bridge', :intercept do
 
         OpenTracing.start_active_span(
           'nested',
-          labels: { test: '1' }
+          tags: { test: '1' }
         ) do |nested_scope|
-          expect(OpenTracing.active_span).to_not be_nil
-          expect(nested_scope.span).to eq OpenTracing.active_span
+          expect(OpenTracing.active_span).to be nested_scope.span
+          expect(nested_scope).to be_a_child_of scope
 
           OpenTracing.start_active_span('namest') do |further_nested|
+            expect(OpenTracing.active_span).to be further_nested.span
             expect(further_nested).to_not be nested_scope
+            expect(further_nested).to be_a_child_of nested_scope
           end
         end
       end
@@ -248,7 +304,7 @@ RSpec.describe 'OpenTracing bridge', :intercept do
       end
     end
 
-    describe 'set_label' do
+    describe 'set_tag' do
       subject { described_class.new(elastic_span, trace_context) }
 
       shared_examples :opengraph_span do
@@ -257,11 +313,16 @@ RSpec.describe 'OpenTracing bridge', :intercept do
           expect(elastic_span.name).to eq 'Test'
         end
 
-        describe 'set_label' do
-          it 'sets label' do
-            subject.set_label :custom_key, 'custom_type'
+        describe 'set_tag' do
+          it 'sets elastic span label' do
+            subject.set_tag :custom_key, 'custom_type'
             expect(subject.elastic_span.context.labels[:custom_key])
               .to eq 'custom_type'
+          end
+
+          it 'returns self' do
+            expect(subject.set_tag(:custom_key, 'custom_type'))
+              .to be_a ElasticAPM::OpenTracing::Span
           end
         end
       end
@@ -275,10 +336,10 @@ RSpec.describe 'OpenTracing bridge', :intercept do
         it_behaves_like :opengraph_span
 
         it 'knows user fields' do
-          subject.set_label 'user.id', 1
-          subject.set_label 'user.username', 'someone'
-          subject.set_label 'user.email', 'someone@example.com'
-          subject.set_label 'user.other_field', 'someone@example.com'
+          subject.set_tag 'user.id', 1
+          subject.set_tag 'user.username', 'someone'
+          subject.set_tag 'user.email', 'someone@example.com'
+          subject.set_tag 'user.other_field', 'someone@example.com'
 
           user = subject.elastic_span.context.user
           expect(user.id).to eq 1
@@ -304,32 +365,25 @@ RSpec.describe 'OpenTracing bridge', :intercept do
         it_behaves_like :opengraph_span
 
         it "doesn't explode on user fields" do
-          expect { subject.set_label 'user.id', 1 }
+          expect { subject.set_tag 'user.id', 1 }
             .to_not raise_error
         end
       end
     end
 
-    describe 'deprecations' do
-      describe '#finish with Time' do
-        it 'warns and manages' do
-          transaction =
-            ElasticAPM::Transaction.new(config: ElasticAPM::Config.new)
+    describe '#finish' do
+      subject do
+        ::OpenTracing.start_span(
+          'namest',
+          start_time: Time.new(2020, 1, 1, 0, 0, 1)
+        )
+      end
 
-          elastic_span =
-            ElasticAPM::Span.new(
-              name: 'Span',
-              transaction: transaction,
-              parent: transaction,
-              trace_context: nil
-            ).start
-          span = described_class.new(elastic_span, nil)
+      context 'when the span is finished with a `Time` as end_time' do
+        before { subject.finish(end_time: Time.new(2020, 1, 1, 0, 0, 2)) }
 
-          expect(span).to receive(:warn).with(/DEPRECATED/)
-
-          span.finish end_time: Time.now
-
-          expect(elastic_span.duration).to_not be nil
+        it 'converts to monotonic time' do
+          expect(subject.elastic_span.duration).to eq(1_000_000)
         end
       end
     end

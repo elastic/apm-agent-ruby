@@ -39,7 +39,7 @@ module ElasticAPM
         @span_context
       end
 
-      def set_label(key, val)
+      def set_tag(key, val)
         if elastic_span.is_a?(Transaction)
           case key.to_s
           when 'type'
@@ -54,6 +54,8 @@ module ElasticAPM
         else
           elastic_span.context.labels[key] = val
         end
+
+        self
       end
 
       def set_baggage_item(_key, _value)
@@ -78,18 +80,12 @@ module ElasticAPM
           ElasticAPM.report_message message
         end
       end
-
       # rubocop:enable Lint/UnusedMethodArgument
-      def finish(clock_end: Util.monotonic_micros, end_time: nil)
+
+      def finish(end_time: Time.now)
         return unless (agent = ElasticAPM.agent)
 
-        if end_time
-          warn '[ElasticAPM] DEPRECATED: Setting a custom end time as a ' \
-            '`Time` is deprecated. Use `clock_end:` and monotonic time instead.'
-          clock_end = end_time
-        end
-
-        elastic_span.done clock_end: clock_end
+        elastic_span.done clock_end: Util.micros(end_time)
 
         case elastic_span
         when ElasticAPM::Transaction
@@ -114,6 +110,8 @@ module ElasticAPM
 
     # @api private
     class SpanContext
+      extend Forwardable
+
       def initialize(trace_context:, baggage: nil)
         if baggage
           ElasticAPM.agent.config.logger.warn(
@@ -125,9 +123,26 @@ module ElasticAPM
       end
 
       attr_accessor :trace_context
+      def_delegators :trace_context, :trace_id, :id, :parent_id
+
+      def self.from_header(header)
+        return unless header
+
+        trace_context = ElasticAPM::TraceContext.parse(header)
+        return unless trace_context
+
+        trace_context.traceparent.id = trace_context.parent_id
+        trace_context.traceparent.parent_id = nil
+
+        from_trace_context(trace_context)
+      end
 
       def self.from_trace_context(trace_context)
         new(trace_context: trace_context)
+      end
+
+      def child
+        self.class.from_trace_context(trace_context.child)
       end
     end
 
@@ -210,7 +225,7 @@ module ElasticAPM
         child_of: nil,
         references: nil,
         start_time: Time.now,
-        labels: {},
+        tags: {},
         ignore_active_scope: false,
         finish_on_close: true,
         **
@@ -220,14 +235,14 @@ module ElasticAPM
           child_of: child_of,
           references: references,
           start_time: start_time,
-          labels: labels,
+          tags: tags,
           ignore_active_scope: ignore_active_scope
         )
         scope = scope_manager.activate(span, finish_on_close: finish_on_close)
 
         if block_given?
           begin
-            yield scope
+            return yield scope
           ensure
             scope.close
           end
@@ -243,7 +258,7 @@ module ElasticAPM
         child_of: nil,
         references: nil,
         start_time: Time.now,
-        labels: {},
+        tags: {},
         ignore_active_scope: false,
         **
       )
@@ -280,7 +295,7 @@ module ElasticAPM
         span_context ||=
           SpanContext.from_trace_context(elastic_span.trace_context)
 
-        labels.each do |key, value|
+        tags.each do |key, value|
           elastic_span.context.labels[key] = value
         end
 
@@ -293,7 +308,7 @@ module ElasticAPM
 
       def inject(span_context, format, carrier)
         case format
-        when ::OpenTracing::FORMAT_RACK
+        when ::OpenTracing::FORMAT_RACK, ::OpenTracing::FORMAT_TEXT_MAP
           carrier['elastic-apm-traceparent'] =
             span_context.traceparent.to_header
         else
@@ -304,10 +319,16 @@ module ElasticAPM
       def extract(format, carrier)
         case format
         when ::OpenTracing::FORMAT_RACK
-          ElasticAPM::TraceContext
-            .parse(carrier['HTTP_ELASTIC_APM_TRACEPARENT'])
+          SpanContext.from_header(
+            carrier['HTTP_ELASTIC_APM_TRACEPARENT']
+          )
+        when ::OpenTracing::FORMAT_TEXT_MAP
+          SpanContext.from_header(
+            carrier['elastic-apm-traceparent']
+          )
         else
-          warn 'Only extraction from HTTP headers via Rack is available'
+          warn 'Only extraction from HTTP headers via Rack or in ' \
+            'text map format are available'
           nil
         end
       rescue ElasticAPM::TraceContext::InvalidTraceparentHeader
@@ -321,9 +342,12 @@ module ElasticAPM
         references:,
         ignore_active_scope:
       )
-        context_from_child_of(child_of) ||
-          context_from_references(references) ||
-          context_from_active_scope(ignore_active_scope)
+        context = context_from_child_of(child_of) ||
+                  context_from_references(references) ||
+                  context_from_active_scope(ignore_active_scope)
+        return context.child if context&.respond_to?(:child)
+
+        context
       end
 
       def context_from_child_of(child_of)
@@ -344,7 +368,7 @@ module ElasticAPM
       def context_from_active_scope(ignore_active_scope)
         if ignore_active_scope
           ElasticAPM.agent&.config&.logger&.warn(
-            'ignore_active_scope might lead to unexpeced results'
+            'ignore_active_scope might lead to unexpected results'
           )
           return
         end
