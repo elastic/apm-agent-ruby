@@ -71,7 +71,7 @@ module ElasticAPM
         transaction.done 'success'
       rescue ::Exception => e
         ElasticAPM.report(e, handled: false)
-        transaction.done 'error'
+        transaction.done 'error' if transaction
         raise
       ensure
         ElasticAPM.end_transaction
@@ -91,7 +91,7 @@ module ElasticAPM
       def trace_context(call)
         TraceContext.parse(metadata: call.metadata)
       rescue TraceContext::InvalidTraceparentHeader
-        warn "Couldn't parse invalid trace context header: #{header.inspect}"
+        warn "Couldn't parse invalid trace context header: #{call.metadata}"
         nil
       end
     end
