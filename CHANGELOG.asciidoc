@@ -44,6 +44,7 @@ endif::[]
 
 - Add the option `capture_elasticsearch_queries` {pull}789[#789]
 - Add option to skip patching Kernal#require {pull}812[#812]
+- Add option `service_node_name` {pull}820[#820]
 
 [float]
 ===== Fixed
