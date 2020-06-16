@@ -79,6 +79,7 @@ module ElasticAPM
     option :sanitize_field_names,              type: :list,   default: [],      converter: WildcardPatternList.new
     option :server_ca_cert,                    type: :string
     option :service_name,                      type: :string
+    option :service_node_name,                 type: :string
     option :service_version,                   type: :string
     option :source_lines_error_app_frames,     type: :int,    default: 5
     option :source_lines_error_library_frames, type: :int,    default: 0

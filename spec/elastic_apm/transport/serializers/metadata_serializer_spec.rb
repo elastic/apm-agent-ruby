@@ -23,11 +23,13 @@ module ElasticAPM
   module Transport
     module Serializers
       RSpec.describe MetadataSerializer do
-        subject { described_class.new Config.new }
+        let(:config) { Config.new }
+
+        subject { described_class.new config }
         let(:result) { subject.build(metadata) }
 
         describe '#build' do
-          let(:metadata) { Metadata.new Config.new }
+          let(:metadata) { Metadata.new config }
 
           it 'is a bunch of hashes and no labels' do
             expect(result[:metadata]).to be_a Hash
@@ -35,6 +37,14 @@ module ElasticAPM
             expect(result[:metadata][:process]).to be_a Hash
             expect(result[:metadata][:system]).to be_a Hash
             expect(result[:metadata][:labels]).to be_nil
+          end
+
+          context 'with a node name' do
+            let(:config) { Config.new(service_node_name: 'a') }
+
+            it 'has a node obj' do
+              expect(result.dig(:metadata, :service, :node, :name)).to eq 'a'
+            end
           end
 
           context 'when there are global_labels' do
