@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# compile c ext
+rake compile
+
 runRspec(){
   local case=${1:-""}
   local bn=${case}

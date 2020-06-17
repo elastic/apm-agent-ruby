@@ -38,5 +38,14 @@ Gem::Specification.new do |spec|
   spec.add_dependency('concurrent-ruby', '~> 1.0')
   spec.add_dependency('http', '>= 3.0')
 
+  spec.add_development_dependency 'rake-compiler', '~> 1.0'
+
   spec.require_paths = ['lib']
+
+  if RUBY_PLATFORM =~ /java/
+    spec.platform = 'java'
+  else
+    spec.platform = Gem::Platform::RUBY
+    spec.extensions << 'ext/allocations/extconf.rb'
+  end
 end
