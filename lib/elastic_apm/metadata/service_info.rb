@@ -30,14 +30,17 @@ module ElasticAPM
 
         attr_reader :name, :version
       end
+
       class Agent < Versioned; end
       class Framework < Versioned; end
       class Language < Versioned; end
       class Runtime < Versioned; end
+
       def initialize(config)
         @config = config
 
         @name = @config.service_name
+        @node_name = @config.service_node_name
         @environment = @config.environment
         @agent = Agent.new(name: 'ruby', version: VERSION)
         @framework = Framework.new(
@@ -49,8 +52,8 @@ module ElasticAPM
         @version = @config.service_version || Util.git_sha
       end
 
-      attr_reader :name, :environment, :agent, :framework, :language, :runtime,
-        :version
+      attr_reader :name, :node_name, :environment, :agent, :framework, :language,
+        :runtime, :version
 
       private
 

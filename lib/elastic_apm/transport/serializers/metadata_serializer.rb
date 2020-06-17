@@ -36,27 +36,34 @@ module ElasticAPM
         private
 
         def build_service(service)
-          {
-            name: keyword_field(service.name),
-            environment: keyword_field(service.environment),
-            version: keyword_field(service.version),
-            agent: {
-              name: keyword_field(service.agent.name),
-              version: keyword_field(service.agent.version)
-            },
-            framework: {
-              name: keyword_field(service.framework.name),
-              version: keyword_field(service.framework.version)
-            },
-            language: {
-              name: keyword_field(service.language.name),
-              version: keyword_field(service.language.version)
-            },
-            runtime: {
-              name: keyword_field(service.runtime.name),
-              version: keyword_field(service.runtime.version)
+          base =
+            {
+              name: keyword_field(service.name),
+              environment: keyword_field(service.environment),
+              version: keyword_field(service.version),
+              agent: {
+                name: keyword_field(service.agent.name),
+                version: keyword_field(service.agent.version)
+              },
+              framework: {
+                name: keyword_field(service.framework.name),
+                version: keyword_field(service.framework.version)
+              },
+              language: {
+                name: keyword_field(service.language.name),
+                version: keyword_field(service.language.version)
+              },
+              runtime: {
+                name: keyword_field(service.runtime.name),
+                version: keyword_field(service.runtime.version)
+              }
             }
-          }
+
+          if node_name = service.node_name
+            base[:node] = { name: keyword_field(node_name) }
+          end
+
+          base
         end
 
         def build_process(process)
