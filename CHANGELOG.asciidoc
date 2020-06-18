@@ -35,9 +35,8 @@ endif::[]
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
-[float]
-[[unreleased]]
-==== Unreleased
+[[release-notes-3.8.0]]
+==== 3.8.0 (2020-06-18)
 
 [float]
 ===== Added
@@ -53,7 +52,6 @@ endif::[]
 - Don't change log level on logger object via remote config {pull}809[#809]
 - Update and fix the Opentracing bridge {pull}791[#791]
 
-[float]
 [[release-notes-3.7.0]]
 ==== 3.7.0 (2020-05-14)
 
