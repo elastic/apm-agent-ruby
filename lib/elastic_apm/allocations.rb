@@ -30,5 +30,66 @@ module ElasticAPM
     else
       # c extension defines the `count' method
     end
+
+    module Methods
+      class Recorder
+        def initialize(child_allocations)
+          @child_allocations = child_allocations
+        end
+
+        attr_reader :count
+
+        def start
+          @start = Allocations.count
+        end
+
+        def stop
+          @count = Allocations.count - @start - @child_allocations.count
+        end
+      end
+
+      def allocations
+        @allocations ||= Recorder.new(child_allocations)
+      end
+
+      def child_allocations
+        @child_allocations ||= ChildAllocations.new
+      end
+
+      def child_started
+        super # child_durations TODO: refactor with … hooks or something
+        child_allocations.start
+      end
+
+      def child_stopped
+        super # TODO: refactor with … hooks or something
+        child_allocations.stop
+      end
+    end
+
+    class ChildAllocations
+      def initialize
+        @nesting_level = 0
+        @start = nil
+        @count = 0
+        @mutex = Mutex.new
+      end
+
+      attr_reader :count
+
+      def start
+        @mutex.synchronize do
+          @nesting_level += 1
+          @start = Allocations.count if @nesting_level == 1
+        end
+      end
+
+      def stop
+        @mutex.synchronize do
+          @nesting_level -= 1
+          @count = (Allocations.count - @start) if @nesting_level == 0
+        end
+      end
+    end
   end
 end

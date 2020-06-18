@@ -37,7 +37,6 @@ require 'elastic_apm/config'
 require 'elastic_apm/context'
 require 'elastic_apm/instrumenter'
 require 'elastic_apm/util'
-require 'elastic_apm/allocations'
 
 require 'elastic_apm/middleware'
 require 'elastic_apm/graphql'

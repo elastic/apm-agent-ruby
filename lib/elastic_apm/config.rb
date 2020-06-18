@@ -100,6 +100,8 @@ module ElasticAPM
     option :use_legacy_sql_parser,             type: :bool,   default: false
     option :verify_server_cert,                type: :bool,   default: true
 
+    option :experimental_track_allocations,    type: :bool,   default: false
+
     # rubocop:enable Metrics/LineLength, Layout/ExtraSpacing
     def initialize(options = {})
       @options = load_schema

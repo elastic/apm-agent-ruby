@@ -19,6 +19,7 @@
 
 require 'elastic_apm/trace_context'
 require 'elastic_apm/child_durations'
+require 'elastic_apm/allocations'
 require 'elastic_apm/span'
 require 'elastic_apm/transaction'
 require 'elastic_apm/span_helpers'

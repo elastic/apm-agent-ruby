@@ -30,11 +30,13 @@ module ElasticAPM
       )
     end
 
+    let(:config) { Config.new }
+
     let(:trace_context) do
       TraceContext.parse("00-#{'1' * 32}-#{'2' * 16}-01")
     end
 
-    let(:transaction) { Transaction.new config: Config.new }
+    let(:transaction) { Transaction.new config: config }
 
     describe '#initialize' do
       its(:name) { should eq 'Spannest name' }
@@ -69,7 +71,7 @@ module ElasticAPM
     end
 
     describe '#start', :mock_time do
-      let(:transaction) { Transaction.new config: Config.new }
+      let(:transaction) { Transaction.new config: config }
 
       subject do
         described_class.new(
@@ -89,7 +91,7 @@ module ElasticAPM
     end
 
     describe '#stopped', :mock_time do
-      let(:transaction) { Transaction.new config: Config.new }
+      let(:transaction) { Transaction.new config: config }
 
       subject do
         described_class.new(
@@ -126,6 +128,18 @@ module ElasticAPM
 
         expect(child.self_time).to eq 100
         expect(subject.self_time).to eq 200
+      end
+
+      context 'with allocations', if: Allocations::ENABLED do
+        let(:config) do
+          Config.new(experimental_track_allocations: true)
+        end
+
+        it 'keeps track of allocations' do
+          subject.start
+          subject.stop
+          expect(subject.allocations.count).to be > 0
+        end
       end
     end
 

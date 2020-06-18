@@ -106,6 +106,24 @@ module ElasticAPM
           expect(subject.duration).to eq 300
           expect(subject.self_time).to eq 200
         end
+
+        describe "allocations" do
+          let(:config) { Config.new(experimental_track_allocations: true) }
+
+          it 'calculates allocations', if: Allocations::ENABLED do
+            transaction = subject.start
+            span = Span.new(
+              name: 'span',
+              transaction: transaction,
+              trace_context: nil,
+              parent: transaction
+            ).start
+            span.stop
+            subject.stop
+            expect(span.allocations.count).to be > 0
+            expect(subject.allocations.count).to be > 0
+          end
+        end
       end
     end
 

@@ -24,6 +24,7 @@ module ElasticAPM
   class Span
     extend Forwardable
     include ChildDurations::Methods
+    include Allocations::Methods
 
     DEFAULT_TYPE = 'custom'
 
@@ -88,6 +89,11 @@ module ElasticAPM
       @timestamp = Util.micros
       @clock_start = clock_start
       @parent.child_started
+
+      if experimental_track_allocations?
+        allocations.start
+      end
+
       self
     end
 
@@ -95,7 +101,17 @@ module ElasticAPM
       @duration ||= (clock_end - @clock_start)
       @parent.child_stopped
       @self_time = @duration - child_durations.duration
+
+      if experimental_track_allocations?
+        allocations.stop
+        @context.labels[:allocations] = allocations.count
+      end
+
       self
+    end
+
+    def experimental_track_allocations?
+      @parent.experimental_track_allocations?
     end
 
     def done(clock_end: Util.monotonic_micros)

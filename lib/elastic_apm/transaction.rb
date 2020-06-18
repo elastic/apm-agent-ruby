@@ -22,6 +22,7 @@ module ElasticAPM
   class Transaction
     extend Forwardable
     include ChildDurations::Methods
+    include Allocations::Methods
 
     def_delegators :@trace_context,
       :trace_id, :parent_id, :id, :ensure_parent_id
@@ -90,7 +91,7 @@ module ElasticAPM
       :started_spans,
       :timestamp,
       :trace_context,
-      :transaction_max_spans 
+      :transaction_max_spans
     )
 
     alias :collect_metrics? :collect_metrics
@@ -108,6 +109,9 @@ module ElasticAPM
     def start(clock_start = Util.monotonic_micros)
       @timestamp = Util.micros
       @clock_start = clock_start
+
+      allocations.start if experimental_track_allocations?
+
       self
     end
 
@@ -116,6 +120,11 @@ module ElasticAPM
       @duration = clock_end - @clock_start
       @self_time = @duration - child_durations.duration
 
+      if experimental_track_allocations?
+        allocations.stop
+        @context.labels[:allocations] = allocations.count
+      end
+
       self
     end
 
@@ -123,6 +132,10 @@ module ElasticAPM
       stop clock_end
       self.result = result if result
       self
+    end
+
+    def experimental_track_allocations?
+      @config.experimental_track_allocations?
     end
 
     # spans
@@ -135,6 +148,7 @@ module ElasticAPM
           return false
         end
       end
+
       true
     end
 
