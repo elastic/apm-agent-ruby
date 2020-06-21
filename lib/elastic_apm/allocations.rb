@@ -37,7 +37,7 @@ module ElasticAPM
           @child_allocations = child_allocations
         end
 
-        attr_reader :count, :self_count
+        attr_reader :start, :count, :self_count
 
         def start
           @start = Allocations.count

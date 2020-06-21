@@ -140,6 +140,16 @@ module ElasticAPM
           subject.stop
           expect(subject.allocations.count).to be > 0
         end
+
+        it 'sets labels' do
+          subject.start
+          subject.stop
+          expect(subject.context.labels).to match(
+            allocations: Integer,
+            self_allocations: Integer,
+            offset: Integer
+          )
+        end
       end
     end
 

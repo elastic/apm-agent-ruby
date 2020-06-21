@@ -110,7 +110,9 @@ module ElasticAPM
       @timestamp = Util.micros
       @clock_start = clock_start
 
-      allocations.start if experimental_track_allocations?
+      if experimental_track_allocations?
+        allocations.start
+      end
 
       self
     end
@@ -124,6 +126,7 @@ module ElasticAPM
         allocations.stop
         @context.labels[:allocations] = allocations.count
         @context.labels[:self_allocations] = allocations.self_count
+        @context.labels[:offset] = 0
       end
 
       self
