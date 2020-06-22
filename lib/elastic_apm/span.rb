@@ -104,8 +104,10 @@ module ElasticAPM
 
       if experimental_track_allocations?
         allocations.stop
+
         @context.labels[:allocations] = allocations.count
         @context.labels[:self_allocations] = allocations.self_count
+        @context.labels[:start] = allocations.start
         @context.labels[:offset] = Allocations.count - @transaction.allocations.start
       end
 

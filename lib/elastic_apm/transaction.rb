@@ -126,6 +126,7 @@ module ElasticAPM
         allocations.stop
         @context.labels[:allocations] = allocations.count
         @context.labels[:self_allocations] = allocations.self_count
+        @context.labels[:start] = allocations.start
         @context.labels[:offset] = 0
       end
 

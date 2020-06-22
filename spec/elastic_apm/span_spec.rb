@@ -142,13 +142,17 @@ module ElasticAPM
         end
 
         it 'sets labels' do
+          transaction.start
           subject.start
           subject.stop
-          expect(subject.context.labels).to match(
-            allocations: Integer,
-            self_allocations: Integer,
-            offset: Integer
-          )
+          transaction.stop
+
+          labels = subject.context.labels
+
+          expect(labels[:allocations]).to be > 0
+          expect(labels[:self_allocations]).to be > 0
+          # expect(labels[:offset]).to be > 0
+          expect(labels[:start]).to be > 0
         end
       end
     end
