@@ -58,13 +58,13 @@ module ElasticAPM
       end
 
       def child_started
-        super # child_durations TODO: refactor with … hooks or something
         child_allocations.start
+        super # child_durations TODO: refactor with … hooks or something
       end
 
       def child_stopped
-        super # TODO: refactor with … hooks or something
         child_allocations.stop
+        super # TODO: refactor with … hooks or something
       end
     end
 

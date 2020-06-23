@@ -32,5 +32,83 @@ module ElasticAPM
         its(:count) { is_expected.to be nil }
       end
     end
+
+    describe Methods do
+      class AllocationsTestObj
+        include Allocations::Methods
+
+        def initialize(parent: nil)
+          @parent = parent
+        end
+
+        def start
+          @parent&.child_started
+          allocations.start
+        end
+
+        def stop
+          @parent&.child_stopped
+          allocations.stop
+        end
+
+        def child_started
+        end
+
+        def child_stopped
+        end
+      end
+
+      subject { AllocationsTestObj.new }
+
+      it { is_expected.to respond_to :allocations }
+
+      it "tracks total allocations" do
+        subject.start
+        Object.new
+        subject.stop
+        expect(subject.allocations.count).to be 1
+      end
+
+      it "tracks self allocations" do
+        subject.start
+        Object.new
+        subject.stop
+        expect(subject.allocations.self_count).to be 1
+      end
+
+      it "doesn't do any allocations itself" do
+        subject.start
+        subject.stop
+        expect(subject.allocations.count).to be 0
+      end
+
+      it "captures a snapshot at start" do
+        subject.start
+        subject.stop
+        expect(subject.allocations.start).to_not be_nil
+      end
+
+      context 'nested' do
+        it 'tracks self time' do
+          subject.start
+
+          Object.new
+
+          nested = AllocationsTestObj.new(parent: subject)
+          nested.start
+          Object.new
+          nested.stop
+
+          Object.new
+
+          subject.stop
+
+          expect(nested.allocations.count).to be 1
+          expect(nested.allocations.self_count).to be 1
+          expect(subject.allocations.count).to be 8
+          expect(subject.allocations.self_count).to be 8
+        end
+      end
+    end
   end
 end
