@@ -34,28 +34,37 @@ module ElasticAPM
     class Recorder
       def initialize
         @child_allocations = ChildAllocations.new
+        @mutex = Mutex.new
       end
 
       attr_reader :snapshot, :count, :self_count
 
       def start(parent:)
-        @snapshot = Allocations.count
-        @parent = parent
-        @parent&.child_started
+        @mutex.synchronize do
+          @snapshot = Allocations.count
+          @parent = parent
+          @parent&.child_started
+        end
       end
 
       def stop
-        @parent&.child_stopped
-        @count = Allocations.count - @snapshot
-        @self_count = @count - @child_allocations.count
+        @mutex.synchronize do
+          @parent&.child_stopped
+          @count = Allocations.count - @snapshot
+          @self_count = @count - @child_allocations.count
+        end
       end
 
       def child_started
-        @child_allocations.start
+        @mutex.synchronize do
+          @child_allocations.start
+        end
       end
 
       def child_stopped
-        @child_allocations.stop
+        @mutex.synchronize do
+          @child_allocations.stop
+        end
       end
     end
 
