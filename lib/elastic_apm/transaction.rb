@@ -22,7 +22,6 @@ module ElasticAPM
   class Transaction
     extend Forwardable
     include ChildDurations::Methods
-    include Allocations::Methods
 
     def_delegators :@trace_context,
       :trace_id, :parent_id, :id, :ensure_parent_id
@@ -72,12 +71,15 @@ module ElasticAPM
       @dropped_spans = 0
 
       @notifications = [] # for AS::Notifications
+
+      @allocations = Allocations::Recorder.new
     end
     # rubocop:enable Metrics/ParameterLists
 
     attr_accessor :name, :type, :result
 
     attr_reader(
+      :allocations,
       :breakdown_metrics,
       :collect_metrics,
       :context,
@@ -111,7 +113,7 @@ module ElasticAPM
       @clock_start = clock_start
 
       if experimental_track_allocations?
-        allocations.start
+        allocations.start(parent: nil)
       end
 
       self
@@ -126,7 +128,7 @@ module ElasticAPM
         allocations.stop
         @context.labels[:allocations] = allocations.count
         @context.labels[:self_allocations] = allocations.self_count
-        @context.labels[:start] = allocations.start
+        @context.labels[:snapshot] = allocations.snapshot
         @context.labels[:offset] = 0
       end
 
@@ -155,6 +157,14 @@ module ElasticAPM
       end
 
       true
+    end
+
+    def child_started
+      super
+    end
+
+    def child_stopped
+      super
     end
 
     # context

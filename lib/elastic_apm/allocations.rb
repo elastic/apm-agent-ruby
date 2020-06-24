@@ -31,40 +31,31 @@ module ElasticAPM
       # c extension defines the `count' method
     end
 
-    module Methods
-      class Recorder
-        def initialize(child_allocations)
-          @child_allocations = child_allocations
-        end
-
-        attr_reader :start, :count, :self_count
-
-        def start
-          @start = Allocations.count
-        end
-
-        def stop
-          @count = Allocations.count - @start
-          @self_count = @count - @child_allocations.count
-        end
+    class Recorder
+      def initialize
+        @child_allocations = ChildAllocations.new
       end
 
-      def allocations
-        @allocations ||= Recorder.new(child_allocations)
+      attr_reader :snapshot, :count, :self_count
+
+      def start(parent:)
+        @snapshot = Allocations.count
+        @parent = parent
+        @parent&.child_started
       end
 
-      def child_allocations
-        @child_allocations ||= ChildAllocations.new
+      def stop
+        @parent&.child_stopped
+        @count = Allocations.count - @snapshot
+        @self_count = @count - @child_allocations.count
       end
 
       def child_started
-        child_allocations.start
-        super # child_durations TODO: refactor with … hooks or something
+        @child_allocations.start
       end
 
       def child_stopped
-        child_allocations.stop
-        super # TODO: refactor with … hooks or something
+        @child_allocations.stop
       end
     end
 
@@ -79,17 +70,17 @@ module ElasticAPM
       attr_reader :count
 
       def start
-        @mutex.synchronize do
+        # @mutex.synchronize do
           @nesting_level += 1
           @start = Allocations.count if @nesting_level == 1
-        end
+        # end
       end
 
       def stop
-        @mutex.synchronize do
+        # @mutex.synchronize do
           @nesting_level -= 1
           @count = (Allocations.count - @start) if @nesting_level == 0
-        end
+        # end
       end
     end
   end

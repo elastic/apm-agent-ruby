@@ -136,8 +136,11 @@ module ElasticAPM
         end
 
         it 'keeps track of allocations' do
+          transaction.start
           subject.start
           subject.stop
+          transaction.stop
+
           expect(subject.allocations.count).to be > 0
         end
 
@@ -151,8 +154,8 @@ module ElasticAPM
 
           expect(labels[:allocations]).to be > 0
           expect(labels[:self_allocations]).to be > 0
-          # expect(labels[:offset]).to be > 0
-          expect(labels[:start]).to be > 0
+          expect(labels[:offset]).to be > 0
+          expect(labels[:snapshot]).to be > 0
         end
       end
     end

@@ -24,7 +24,6 @@ module ElasticAPM
   class Span
     extend Forwardable
     include ChildDurations::Methods
-    include Allocations::Methods
 
     DEFAULT_TYPE = 'custom'
 
@@ -59,6 +58,8 @@ module ElasticAPM
 
       @context = context || Span::Context.new(sync: sync)
       @stacktrace_builder = stacktrace_builder
+
+      @allocations = Allocations::Recorder.new
     end
     # rubocop:enable Metrics/ParameterLists
 
@@ -73,6 +74,7 @@ module ElasticAPM
       :type
     )
     attr_reader(
+      :allocations,
       :context,
       :duration,
       :parent,
@@ -91,7 +93,7 @@ module ElasticAPM
       @parent.child_started
 
       if experimental_track_allocations?
-        allocations.start
+        allocations.start(parent: @parent&.allocations)
       end
 
       self
@@ -107,8 +109,8 @@ module ElasticAPM
 
         @context.labels[:allocations] = allocations.count
         @context.labels[:self_allocations] = allocations.self_count
-        @context.labels[:start] = allocations.start
-        @context.labels[:offset] = Allocations.count - @transaction.allocations.start
+        @context.labels[:snapshot] = allocations.snapshot
+        @context.labels[:offset] = Allocations.count - @transaction.allocations.snapshot
       end
 
       self

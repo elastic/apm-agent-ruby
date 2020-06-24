@@ -111,17 +111,24 @@ module ElasticAPM
           let(:config) { Config.new(experimental_track_allocations: true) }
 
           it 'calculates allocations', if: Allocations::ENABLED do
-            transaction = subject.start
+            subject.start
+
             span = Span.new(
               name: 'span',
-              transaction: transaction,
+              transaction: subject,
               trace_context: nil,
-              parent: transaction
+              parent: subject
             ).start
+            Object.new
             span.stop
+
             subject.stop
-            expect(span.allocations.count).to be > 0
+
             expect(subject.allocations.count).to be > 0
+            expect(subject.allocations.self_count).to be < subject.allocations.count
+
+            expect(span.allocations.count).to be > 0
+            expect(subject.allocations.count).to be > span.allocations.count
           end
         end
       end

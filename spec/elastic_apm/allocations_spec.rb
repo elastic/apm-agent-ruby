@@ -33,34 +33,25 @@ module ElasticAPM
       end
     end
 
-    describe Methods do
+    describe 'usage' do
       class AllocationsTestObj
-        include Allocations::Methods
-
         def initialize(parent: nil)
           @parent = parent
+          @allocations = Allocations::Recorder.new
         end
 
+        attr_reader :allocations
+
         def start
-          @parent&.child_started
-          allocations.start
+          allocations.start(parent: @parent&.allocations)
         end
 
         def stop
-          @parent&.child_stopped
           allocations.stop
-        end
-
-        def child_started
-        end
-
-        def child_stopped
         end
       end
 
       subject { AllocationsTestObj.new }
-
-      it { is_expected.to respond_to :allocations }
 
       it "tracks total allocations" do
         subject.start
@@ -85,28 +76,37 @@ module ElasticAPM
       it "captures a snapshot at start" do
         subject.start
         subject.stop
-        expect(subject.allocations.start).to_not be_nil
+        expect(subject.allocations.snapshot).to_not be_nil
       end
 
       context 'nested' do
         it 'tracks self time' do
-          subject.start
+          subject
+          nested = AllocationsTestObj.new(parent: subject)
+          nesteder = AllocationsTestObj.new(parent: nested)
 
+          subject.start
           Object.new
 
-          nested = AllocationsTestObj.new(parent: subject)
           nested.start
+          Object.new
+
+          nesteder.start
+          Object.new
+          nesteder.stop
+
           Object.new
           nested.stop
 
           Object.new
-
           subject.stop
 
-          expect(nested.allocations.count).to be 1
-          expect(nested.allocations.self_count).to be 1
-          expect(subject.allocations.count).to be 8
-          expect(subject.allocations.self_count).to be 8
+          expect(subject.allocations.count).to be 5
+          expect(nested.allocations.count).to be 3
+          expect(nesteder.allocations.count).to be 1
+          expect(subject.allocations.self_count).to be 2
+          expect(nested.allocations.self_count).to be 2
+          expect(nesteder.allocations.self_count).to be 1
         end
       end
     end
