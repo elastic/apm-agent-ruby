@@ -110,6 +110,7 @@ module ElasticAPM
         @context.labels[:allocations] = allocations.count
         @context.labels[:self_allocations] = allocations.self_count
         @context.labels[:snapshot] = allocations.snapshot
+        @context.labels[:transaction_snapshot] = @transaction.allocations.snapshot
         @context.labels[:offset] = Allocations.count - @transaction.allocations.snapshot
       end
 
