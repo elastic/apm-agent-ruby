@@ -93,7 +93,7 @@ module ElasticAPM
       @parent.child_started
 
       if experimental_track_allocations?
-        allocations.start(parent: @parent&.allocations)
+        allocations.start(parent: @parent.allocations)
       end
 
       self
