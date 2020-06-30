@@ -34,6 +34,7 @@ gem 'timecop'
 gem 'webmock'
 
 # Integrations
+gem 'aws-sdk-dynamodb', require: nil
 gem 'aws-sdk-sqs', require: nil
 gem 'elasticsearch', require: nil
 gem 'fakeredis', require: nil

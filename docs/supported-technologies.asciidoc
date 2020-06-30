@@ -60,6 +60,7 @@ See <<getting-started-grape>>.
 We automatically instrument database actions using:
 
 - ActiveRecord (v4.2+)
+- DynamoDB (v1.0+)
 - Elasticsearch (v0.9+)
 - Mongo (v2.1+)
 - Redis (v3.1+)
