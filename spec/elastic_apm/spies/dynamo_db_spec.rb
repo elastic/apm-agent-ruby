@@ -23,7 +23,7 @@ require 'aws-sdk-dynamodb'
 module ElasticAPM
   RSpec.describe 'Spy: DynamoDB' do
     let(:dynamo_db_client) do
-      ::Aws::DynamoDB::Client.new(endpoint: 'http://dynamodb.fake.com')
+      ::Aws::DynamoDB::Client.new(stub_responses: true)
     end
     let(:operation_params) do
       {
@@ -92,12 +92,6 @@ module ElasticAPM
         }
       }
     end
-
-    before do
-      WebMock.stub_request(:post, %r{http://dynamodb.fake.com/.*})
-    end
-
-    after { WebMock.reset! }
 
     ::Aws::DynamoDB::Client.api.operation_names.each do |operation_name|
       it "spans #{operation_name}", :intercept do
