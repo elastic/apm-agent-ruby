@@ -36,6 +36,9 @@ endif::[]
 === Ruby Agent version 3.x
 
 [float]
+==== Unreleased
+
+[float]
 ===== Added
 
 - Support for DynamoDB {pull}827[#827]
