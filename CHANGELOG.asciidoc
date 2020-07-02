@@ -35,6 +35,14 @@ endif::[]
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
+[float]
+==== Unreleased
+
+[float]
+===== Added
+
+- Support for DynamoDB {pull}827[#827]
+
 [[release-notes-3.8.0]]
 ==== 3.8.0 (2020-06-18)
 

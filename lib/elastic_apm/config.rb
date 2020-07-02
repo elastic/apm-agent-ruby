@@ -131,6 +131,7 @@ module ElasticAPM
       %w[
         action_dispatch
         delayed_job
+        dynamo_db
         elasticsearch
         faraday
         http
