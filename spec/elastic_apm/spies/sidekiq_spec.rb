@@ -58,7 +58,15 @@ module ElasticAPM
     end
 
     it 'starts when sidekiq processors do' do
-      manager = Sidekiq::Manager.new concurrency: 1, queues: ['default']
+      opts = { concurrency: 1, queues: ['default'] }
+
+      manager =
+        if Gem::Version.new(Sidekiq::VERSION) >= Gem::Version.new('6.1.0')
+          Sidekiq::Manager.new(fetch: Sidekiq::BasicFetch.new(opts))
+        else
+          Sidekiq::Manager.new(opts)
+        end
+
       manager.start
 
       expect(ElasticAPM.agent).to_not be_nil
