@@ -35,6 +35,10 @@ module ElasticAPM
           alias perform_request_without_apm perform_request
 
           def perform_request(method, path, *args, &block)
+            unless ElasticAPM.current_transaction
+              return perform_request_without_apm(method, path, *args, &block)
+            end
+
             name = format(NAME_FORMAT, method, path)
             statement = []
 
