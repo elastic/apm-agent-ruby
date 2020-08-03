@@ -318,7 +318,7 @@ module ElasticAPM
       self.logger ||= ::Rails.logger
 
       self.__root_path = ::Rails.root.to_s
-      self.__view_paths = app.config.paths['app/views'].existent
+      self.__view_paths = ::ActionController::Base.view_paths.map(&:to_s)
     end
 
     def rails_app_name(app)
