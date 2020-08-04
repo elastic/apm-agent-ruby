@@ -43,6 +43,11 @@ endif::[]
 
 - Support for DynamoDB {pull}827[#827]
 
+[float]
+===== Fixed
+
+- Fix Rails Engine views' paths being reported as absolute {pull}839[#839]
+
 [[release-notes-3.8.0]]
 ==== 3.8.0 (2020-06-18)
 
