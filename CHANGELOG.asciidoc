@@ -35,8 +35,8 @@ endif::[]
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
-[float]
-==== Unreleased
+[[release-notes-3.9.0]]
+==== 3.9.0 (2020-08-04)
 
 [float]
 ===== Added
@@ -47,6 +47,7 @@ endif::[]
 ===== Fixed
 
 - Fix Rails Engine views' paths being reported as absolute {pull}839[#839]
+- Fix an issue when using Elasticsearch spy without a running agent {pull}830[#830]
 
 [[release-notes-3.8.0]]
 ==== 3.8.0 (2020-06-18)
