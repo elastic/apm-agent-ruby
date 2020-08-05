@@ -39,6 +39,10 @@ endif::[]
 ==== 3.9.0 (2020-08-04)
 
 [float]
+===== Fixed
+- Scrub request body of illegal UTF-8 characters {pull}832[#832]
+
+[float]
 ===== Added
 
 - Support for DynamoDB {pull}827[#827]

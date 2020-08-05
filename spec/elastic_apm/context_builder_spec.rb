@@ -112,6 +112,7 @@ module ElasticAPM
 
           expect(result.request.body).to eq '{"something":"everything"}'
           expect(result.request.body.encoding).to eq Encoding::UTF_8
+          expect(result.request.body.valid_encoding?).to be true
         end
       end
     end
