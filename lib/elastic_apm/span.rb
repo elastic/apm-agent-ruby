@@ -97,11 +97,12 @@ module ElasticAPM
 
     def done(clock_end: Util.monotonic_micros)
       stop clock_end
+      self
+    end
 
+    def prepare_for_serialization!
       build_stacktrace! if should_build_stacktrace?
       self.original_backtrace = nil # release original
-
-      self
     end
 
     def stopped?

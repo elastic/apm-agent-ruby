@@ -103,6 +103,17 @@ module ElasticAPM
             expect(subject.connection.calls.length).to be 0
           end
         end
+
+        context 'with a preparable resource' do
+          it 'prepares the thing for processing' do
+            preparable = double(prepare_for_serialization!: true)
+
+            queue.push preparable
+            Thread.new { subject.work_forever }.join 0.2
+
+            expect(preparable).to have_received(:prepare_for_serialization!)
+          end
+        end
       end
 
       describe '#process' do
