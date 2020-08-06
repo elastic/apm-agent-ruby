@@ -36,11 +36,11 @@ module ElasticAPM
     end
 
     it 'ignores url patterns' do
-      with_agent ignore_url_patterns: %w[/ping] do
+      with_agent transaction_ignore_urls: %w[/status/*/ping] do
         expect(ElasticAPM).to_not receive(:start_transaction)
 
         app = Middleware.new(->(_) { [200, {}, ['ok']] })
-        status, = app.call(Rack::MockRequest.env_for('/ping'))
+        status, = app.call(Rack::MockRequest.env_for('/status/something/ping'))
 
         expect(status).to be 200
       end
@@ -195,6 +195,19 @@ module ElasticAPM
             .to eq 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
           expect(trace_context.parent_id).to eq 'bbbbbbbbbbbbbbbb'
           expect(trace_context).to_not be_recorded
+        end
+      end
+    end
+
+    describe 'deprecated' do
+      it 'ignores url patterns' do
+        with_agent ignore_url_patterns: %w[/ping] do
+          expect(ElasticAPM).to_not receive(:start_transaction)
+
+          app = Middleware.new(->(_) { [200, {}, ['ok']] })
+          status, = app.call(Rack::MockRequest.env_for('/ping'))
+
+          expect(status).to be 200
         end
       end
     end
