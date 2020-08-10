@@ -87,6 +87,7 @@ module ElasticAPM
     option :source_lines_span_library_frames,  type: :int,    default: 0
     option :span_frames_min_duration,          type: :float,  default: '5ms',   converter: Duration.new(default_unit: 'ms')
     option :stack_trace_limit,                 type: :int,    default: 999_999
+    option :transaction_ignore_urls,           type: :list,   default: [],      converter: WildcardPatternList.new
     option :transaction_max_spans,             type: :int,    default: 500
     option :transaction_sample_rate,           type: :float,  default: 1.0
     option :use_elastic_traceparent_header,    type: :bool,   default: true
@@ -232,6 +233,13 @@ module ElasticAPM
       warn '[DEPRECATED] The option default_tags has been renamed to ' \
         'default_labels.'
       self.default_labels = value
+    end
+
+    def ignore_url_patterns=(value)
+      warn '[DEPRECATED] The option ignore_url_patterns is being removed. ' \
+        'Consider using transaction_ignore_urls instead.'
+
+      set(:ignore_url_patterns, value)
     end
 
     def custom_key_filters=(value)

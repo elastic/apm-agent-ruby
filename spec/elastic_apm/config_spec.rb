@@ -257,6 +257,17 @@ module ElasticAPM
         end
       end
 
+      describe 'ignore_url_patterns' do
+        subject { Config.new }
+
+        it 'logs a warning and sets' do
+          expect(subject).to receive(:warn).with(/DEPRECATED/)
+          subject.ignore_url_patterns = ['/ping']
+
+          expect(subject.ignore_url_patterns).to match([%r{/ping}])
+        end
+      end
+
       describe 'use_legacy_sql_parser' do
         subject { Config.new }
 
