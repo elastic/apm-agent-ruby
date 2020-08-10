@@ -130,10 +130,7 @@ module ElasticAPM
 
     describe '#done', :mock_time do
       let(:duration_us) { 5_100 }
-      let(:span_frames_min_duration) { '5ms' }
-      let(:config) do
-        Config.new(span_frames_min_duration: span_frames_min_duration)
-      end
+      let(:config) { Config.new }
 
       subject do
         described_class.new(
@@ -154,6 +151,35 @@ module ElasticAPM
 
       it { should be_stopped }
       its(:duration) { should be duration_us }
+    end
+
+    describe "#prepare_for_serialization", :mock_time do
+      let(:duration_us) { 5_100 }
+      let(:span_frames_min_duration) { '5ms' }
+
+      let(:config) do
+        Config.new(span_frames_min_duration: span_frames_min_duration)
+      end
+
+      subject do
+        described_class.new(
+          name: 'Span',
+          transaction: transaction,
+          parent: transaction,
+          trace_context: trace_context,
+          stacktrace_builder: StacktraceBuilder.new(config)
+        )
+      end
+
+      before do
+        subject.original_backtrace = caller
+        subject.start
+        travel duration_us
+        subject.done
+
+        subject.prepare_for_serialization!
+      end
+
       its(:stacktrace) { should be_a Stacktrace }
 
       context 'when shorter than min for stacktrace' do
