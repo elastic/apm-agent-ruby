@@ -36,12 +36,22 @@ module ElasticAPM
         private
 
         def convert(str)
+          case_sensitive = false
+
+          if str.start_with?('(?-i)')
+            str = str.gsub(/^\(\?-\i\)/, '')
+            case_sensitive = true
+          end
+
           parts =
             str.chars.each_with_object([]) do |char, arr|
               arr << (char == '*' ? '.*' : Regexp.escape(char))
             end
 
-          Regexp.new('\A' + parts.join + '\Z', Regexp::IGNORECASE)
+          Regexp.new(
+            '\A' + parts.join + '\Z',
+            case_sensitive ? nil : Regexp::IGNORECASE
+          )
         end
       end
 
