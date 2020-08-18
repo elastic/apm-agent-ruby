@@ -48,7 +48,7 @@ if enabled
           RailsTestHelpers.setup_rails_test_config(config)
           config.log_level = :debug
 
-          config.elastic_apm.ignore_url_patterns = '/ping'
+          config.elastic_apm.transaction_ignore_urls = '/ping'
           config.elastic_apm.api_request_time = '200ms'
           config.elastic_apm.disable_start_message = true
           config.elastic_apm.metrics_interval = '2s'

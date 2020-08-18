@@ -201,6 +201,8 @@ module ElasticAPM
 
     describe 'deprecated' do
       it 'ignores url patterns' do
+        allow_any_instance_of(Config).to receive(:warn).with(/DEPRECATED/) { nil }
+
         with_agent ignore_url_patterns: %w[/ping] do
           expect(ElasticAPM).to_not receive(:start_transaction)
 
