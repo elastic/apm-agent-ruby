@@ -68,6 +68,11 @@ if enabled
           erb :index
         end
 
+        get '/users/:id' do
+          @name = params[:id].to_s
+          erb :index
+        end
+
         get '/error' do
           raise FancyError, 'Halp!'
         end
@@ -104,6 +109,16 @@ if enabled
         expect(@mock_intake.requests.length).to be 1
         transaction = @mock_intake.transactions.first
         expect(transaction['name']).to eq 'GET /'
+      end
+
+      it 'knows variables in routes' do
+        get '/users/666'
+
+        wait_for transactions: 1
+
+        expect(@mock_intake.requests.length).to be 1
+        transaction = @mock_intake.transactions.first
+        expect(transaction['name']).to eq 'GET /users/:id'
       end
 
       it 'spans inline templates' do
