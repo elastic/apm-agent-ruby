@@ -74,6 +74,7 @@ module ElasticAPM
       trace_context = @intercepted.transactions.first.trace_context
       expect(trace_context).to_not be_nil
       expect(trace_context).to be_recorded
+      expect(trace_context.tracestate.sample_rate).to_not be nil
     end
 
     describe 'Distributed Tracing' do
@@ -108,14 +109,14 @@ module ElasticAPM
                 '/',
                 'HTTP_ELASTIC_APM_TRACEPARENT' =>
                 '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-00',
-                'HTTP_TRACESTATE' => 'thing=value'
+                'HTTP_TRACESTATE' => 'es=s:0.75,abc=123'
               )
             )
           end
 
           trace_context = @intercepted.transactions.first.trace_context
           expect(trace_context.tracestate).to be_a(TraceContext::Tracestate)
-          expect(trace_context.tracestate.values).to match(['thing=value'])
+          expect(trace_context.tracestate.to_header).to match('es=s:0.75,abc=123')
         end
       end
 

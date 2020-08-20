@@ -33,8 +33,7 @@ module ElasticAPM
         trace_id: nil,
         span_id: nil,
         id: nil,
-        recorded: true,
-        tracestate: nil
+        recorded: true
       )
         @version = version
         @trace_id = trace_id || hex(TRACE_ID_LENGTH)
@@ -42,11 +41,10 @@ module ElasticAPM
         @parent_id = span_id
         @id = id || hex(ID_LENGTH)
         @recorded = recorded
-        @tracestate = tracestate
       end
       # rubocop:enable Metrics/ParameterLists
 
-      attr_accessor :version, :id, :trace_id, :parent_id, :recorded, :tracestate
+      attr_accessor :version, :id, :trace_id, :parent_id, :recorded
 
       alias :recorded? :recorded
 

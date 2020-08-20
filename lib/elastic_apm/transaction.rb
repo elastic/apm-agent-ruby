@@ -34,6 +34,7 @@ module ElasticAPM
       name = nil,
       type = nil,
       sampled: true,
+      sample_rate: 1,
       context: nil,
       config:,
       trace_context: nil
@@ -52,13 +53,23 @@ module ElasticAPM
       @default_labels = config.default_labels
 
       @sampled = sampled
+      @sample_rate = sample_rate
 
       @context = context || Context.new # TODO: Lazy generate this?
       if @default_labels
         Util.reverse_merge!(@context.labels, @default_labels)
       end
 
-      @trace_context = trace_context || TraceContext.new(recorded: sampled)
+      unless (@trace_context = trace_context)
+        tparent = TraceContext::Traceparent.new(recorded: sampled)
+
+        tstate =
+          TraceContext::Tracestate.new.tap do |s|
+            s.sample_rate = sample_rate
+          end
+
+        @trace_context = TraceContext.new(traceparent: tparent, tracestate: tstate)
+      end
 
       @started_spans = 0
       @dropped_spans = 0
@@ -69,10 +80,22 @@ module ElasticAPM
 
     attr_accessor :name, :type, :result
 
-    attr_reader :context, :duration, :started_spans, :dropped_spans,
-      :timestamp, :trace_context, :notifications, :self_time,
-      :span_frames_min_duration, :collect_metrics, :breakdown_metrics,
-      :framework_name, :transaction_max_spans
+    attr_reader(
+      :breakdown_metrics,
+      :collect_metrics,
+      :context,
+      :dropped_spans,
+      :duration,
+      :framework_name,
+      :notifications,
+      :self_time,
+      :sample_rate,
+      :span_frames_min_duration,
+      :started_spans,
+      :timestamp,
+      :trace_context,
+      :transaction_max_spans 
+    )
 
     def sampled?
       @sampled

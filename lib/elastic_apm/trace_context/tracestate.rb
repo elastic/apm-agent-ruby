@@ -39,6 +39,10 @@ module ElasticAPM
           @values[k.to_s] = v.to_s
         end
 
+        def get(k)
+          value[k.to_s]
+        end
+
         def value
           return @value unless values
           values.map { |(k, v)| "#{k}:#{v}" }.join(';')
@@ -55,7 +59,7 @@ module ElasticAPM
         end
       end
 
-      def initialize(entries)
+      def initialize(entries = {})
         @entries = entries
       end
 
@@ -72,8 +76,23 @@ module ElasticAPM
         new(entries)
       end
 
+      def sample_rate
+        es_entry.get(:s)
+      end
+
+      def sample_rate=(value)
+        es_entry.set(:s, value)
+      end
+
       def to_header
         entries.values.map(&:to_s).join(',')
+      end
+
+      private
+
+      def es_entry
+        entries['es'] ||= Entry.new('es', '')
+        entries['es']
       end
 
       class << self

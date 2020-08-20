@@ -120,9 +120,10 @@ module ElasticAPM
           end
 
           expect(calls).to match(
-            'Traceparent' => String
+            'Traceparent' => String,
+            'Tracestate' => String
           )
-          expect(calls.length).to be 1
+          expect(calls.length).to be 2
         end
       end
 
@@ -137,9 +138,10 @@ module ElasticAPM
 
           expect(calls).to match(
             'Traceparent' => String,
-            'Elastic-Apm-Traceparent' => String
+            'Elastic-Apm-Traceparent' => String,
+            'Tracestate' => String
           )
-          expect(calls.values.uniq.length).to be 1
+          expect(calls.values.uniq.length).to be 2
         end
       end
 
@@ -148,7 +150,7 @@ module ElasticAPM
           calls = {}
           block = ->(k, v) { calls[k] = v }
 
-          subject.tracestate = TraceContext::Tracestate.parse('a=b')
+          subject.tracestate = TraceContext::Tracestate.parse('es=s:1.0,b=na')
 
           with_agent do
             subject.apply_headers(&block)
@@ -157,7 +159,7 @@ module ElasticAPM
           expect(calls).to match(
             'Traceparent' => String,
             'Elastic-Apm-Traceparent' => String,
-            'Tracestate' => 'a=b'
+            'Tracestate' => 'es=s:1.0,b=na'
           )
         end
       end
