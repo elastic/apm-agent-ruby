@@ -21,22 +21,71 @@ module ElasticAPM
   class TraceContext
     # @api private
     class Tracestate
-      def initialize(values = [])
-        @values = values
+      # @api private
+      class Entry
+        def initialize(key, value)
+          @key, @value = key, value
+          parse! if key == 'es'
+        end
+
+        attr_reader :key, :values
+
+        def set(k, v)
+          if key != 'es'
+            raise ArgumentError,
+              'trying to set a value in a non-Elastic tracestate entry'
+          end
+
+          @values[k.to_s] = v.to_s
+        end
+
+        def value
+          return @value unless values
+          values.map { |(k, v)| "#{k}:#{v}" }.join(';')
+        end
+
+        def to_s
+          "#{key}=#{value}"
+        end
+
+        private
+
+        def parse!
+          @values = Hash[value.split(';').map { |kv| kv.split(':') }]
+        end
       end
 
-      attr_accessor :values
+      def initialize(entries)
+        @entries = entries
+      end
+
+      attr_accessor :entries
 
       def self.parse(header)
-        # HTTP allows multiple headers with the same name, eg. multiple
-        # Set-Cookie headers per response.
-        # Rack handles this by joining the headers under the same key, separated
-        # by newlines, see https://www.rubydoc.info/github/rack/rack/file/SPEC
-        new(String(header).split("\n"))
+        entries =
+          split_by_nl_and_comma(header)
+          .each_with_object({}) do |entry, hsh|
+            k, v = entry.split('=')
+            hsh[k] = Entry.new(k, v)
+          end
+
+        new(entries)
       end
 
       def to_header
-        values.join(',')
+        entries.values.map(&:to_s).join(',')
+      end
+
+      class << self
+        private
+
+        def split_by_nl_and_comma(str)
+          # HTTP allows multiple headers with the same name, eg. multiple
+          # Set-Cookie headers per response.
+          # Rack handles this by joining the headers under the same key, separated
+          # by newlines, see https://www.rubydoc.info/github/rack/rack/file/SPEC
+          String(str).split("\n").map { |s| s.split(',') }.flatten
+        end
       end
     end
   end
