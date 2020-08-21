@@ -61,14 +61,10 @@ module ElasticAPM
       end
 
       unless (@trace_context = trace_context)
-        tparent = TraceContext::Traceparent.new(recorded: sampled)
-
-        tstate =
-          TraceContext::Tracestate.new.tap do |s|
-            s.sample_rate = sample_rate
-          end
-
-        @trace_context = TraceContext.new(traceparent: tparent, tracestate: tstate)
+        @trace_context = TraceContext.new(
+          traceparent: TraceContext::Traceparent.new(recorded: sampled),
+          tracestate: TraceContext::Tracestate.new(sample_rate: sample_rate)
+        )
       end
 
       @started_spans = 0

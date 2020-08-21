@@ -59,8 +59,12 @@ module ElasticAPM
         end
       end
 
-      def initialize(entries = {})
+      def initialize(entries: {}, sample_rate: nil)
         @entries = entries
+
+        if sample_rate
+          self.sample_rate = sample_rate
+        end
       end
 
       attr_accessor :entries
@@ -73,7 +77,7 @@ module ElasticAPM
             hsh[k] = Entry.new(k, v)
           end
 
-        new(entries)
+        new(entries: entries)
       end
 
       def sample_rate
@@ -91,6 +95,7 @@ module ElasticAPM
       private
 
       def es_entry
+        # laze generate this so we only add it if necessary
         entries['es'] ||= Entry.new('es', '')
         entries['es']
       end
