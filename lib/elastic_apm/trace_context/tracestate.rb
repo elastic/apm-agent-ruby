@@ -85,7 +85,7 @@ module ElasticAPM
       end
 
       def sample_rate=(value)
-        es_entry.set(:s, value)
+        es_entry.set(:s, value.round(3))
       end
 
       def to_header

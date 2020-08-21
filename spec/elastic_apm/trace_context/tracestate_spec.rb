@@ -56,5 +56,14 @@ module ElasticAPM
         expect(subject.to_header).to eq('es=a:0.1;b:2,othervendor=na')
       end
     end
+
+    context 'sample_rate' do
+      it 'rounds to three decimals' do
+        state = described_class.new.tap do |s|
+          s.sample_rate = 1.23456
+        end
+        expect(state.to_header).to eq('es=s:1.235')
+      end
+    end
   end
 end
