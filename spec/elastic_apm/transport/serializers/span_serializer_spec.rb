@@ -60,6 +60,7 @@ module ElasticAPM
                 type: 'custom',
                 context: { sync: true },
                 stacktrace: [],
+                sample_rate: 1,
                 timestamp: 694_224_000_000_000,
                 duration: 10
               }
