@@ -89,6 +89,9 @@ module ElasticAPM
       end
 
       def to_header
+        return "" unless entries.any?
+        return "" if entries.keys == ['es'] && es_entry.values.empty?
+
         entries.values.map(&:to_s).join(',')
       end
 

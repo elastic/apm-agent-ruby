@@ -34,6 +34,11 @@ module ElasticAPM
         end
 
         its(:traceparent) { is_expected.to be_a TraceContext::Traceparent }
+
+        it "doesn't set sample_rate" do
+          expect(subject.tracestate.sample_rate).to be nil
+          expect(subject.tracestate.to_header).to eq ""
+        end
       end
 
       context 'with an invalid traceparent' do
