@@ -63,7 +63,7 @@ module ElasticAPM
       unless (@trace_context = trace_context)
         @trace_context = TraceContext.new(
           traceparent: TraceContext::Traceparent.new(recorded: sampled),
-          tracestate: TraceContext::Tracestate.new(sample_rate: sample_rate)
+          tracestate: TraceContext::Tracestate.new(sample_rate: sampled ? sample_rate : 0)
         )
       end
 

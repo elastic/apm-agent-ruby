@@ -40,7 +40,7 @@ module ElasticAPM
         end
 
         def get(k)
-          value[k.to_s]
+          values[k.to_s]
         end
 
         def value
@@ -81,7 +81,7 @@ module ElasticAPM
       end
 
       def sample_rate
-        es_entry.get(:s)
+        es_entry.get(:s)&.to_f
       end
 
       def sample_rate=(value)

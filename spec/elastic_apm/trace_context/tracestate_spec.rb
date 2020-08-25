@@ -55,6 +55,14 @@ module ElasticAPM
         expect(subject.entries['es'].values).to eq('a' => '0.1', 'b' => '2')
         expect(subject.to_header).to eq('es=a:0.1;b:2,othervendor=na')
       end
+
+      context 'with no values' do
+        let(:header) { "es=xyz" }
+
+        it 'handles gracefully' do
+          expect(subject.entries['es'].values).to match('xyz' => nil)
+        end
+      end
     end
 
     context 'sample_rate' do
