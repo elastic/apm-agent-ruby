@@ -49,6 +49,7 @@ endif::[]
 ===== Fixed
 
 - Reverted {pull}839[#839]
+- Improved Kubernetes pod ID detection {pull}859[#859]
 
 [[release-notes-3.9.0]]
 ==== 3.9.0 (2020-08-04)
