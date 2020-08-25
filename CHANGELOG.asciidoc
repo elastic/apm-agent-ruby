@@ -45,6 +45,10 @@ endif::[]
 - Config option `transaction_ignore_urls` to replace `ignore_url_patterns` {pull}844[#844]
 - Prepend `(?-i)` to patterns to make them case-sensitive {pull}846[#846]
 
+===== Fixed
+
+- Reverted {pull}839[#839]
+
 [[release-notes-3.9.0]]
 ==== 3.9.0 (2020-08-04)
 
