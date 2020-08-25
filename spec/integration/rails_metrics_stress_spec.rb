@@ -28,7 +28,7 @@ end
 if enabled
   require 'action_controller/railtie'
 
-  RSpec.describe 'Rails integration', :allow_running_agent, :spec_logger do
+  RSpec.xdescribe 'Rails integration', :allow_running_agent, :spec_logger do
     include Rack::Test::Methods
     include_context 'event_collector'
 
