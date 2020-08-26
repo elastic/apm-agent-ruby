@@ -81,6 +81,22 @@ module ElasticAPM
           expect(body).to match('api_key' => '[FILTERED]', 'other' => 'not me')
         end
 
+        it 'removes secrets from cookies for error reporting' do
+          payload = { error: { context: { request: { cookies: {
+            auth_jwt: 'very zecret!',
+            untouched: 'very much'
+          } } } } }
+
+          subject.call(payload)
+
+          cookies = payload.dig(:error, :context, :request, :cookies)
+
+          expect(cookies).to match(
+            auth_jwt: '[FILTERED]',
+            untouched: 'very much'
+          )
+        end
+
         context 'with custom_key_filters' do
           before do
             # silence deprecation warning
