@@ -62,7 +62,7 @@ module ElasticAPM
           describe input do
             let(:header) { input }
             it 'is nil' do
-              expect(subject.entries['es'].to_s).to be nil
+              expect(subject.entries['es'].to_s).to be expectation
             end
           end
         end
