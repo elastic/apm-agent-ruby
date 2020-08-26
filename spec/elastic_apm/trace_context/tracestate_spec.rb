@@ -21,21 +21,22 @@ require 'spec_helper'
 
 module ElasticAPM
   RSpec.describe TraceContext::Tracestate do
-    subject { described_class.parse(header) }
-
     describe '.parse' do
+      subject { described_class.parse(header) }
+
       context 'without an es section' do
         let(:header) { "a=b,c=d\ne=f" }
 
         it 'splits into individual entries by key' do
           expect(subject.entries.keys).to eq %w[a c e]
-          expect(subject.entries.values.map(&:class).uniq)
-            .to eq [TraceContext::Tracestate::Entry]
+          expect(subject.entries.count).to be 3
         end
       end
     end
 
     describe '#to_header' do
+      subject { described_class.parse(header) }
+
       context 'with multiple sections' do
         let(:header) { "a=b,c=d\ne=f" }
         its(:to_header) { is_expected.to eq 'a=b,c=d,e=f' }
@@ -43,34 +44,47 @@ module ElasticAPM
     end
 
     context 'with an es field' do
-      let(:header) { "es=a:1;b:2,othervendor=na" }
+      subject { described_class.parse(header) }
 
-      it 'parses es field into hash' do
-        expect(subject.entries['es'].values).to eq('a' => '1', 'b' => '2')
-        expect(subject.entries['othervendor'].values).to be nil
+      let(:header) { "es=s:1;b:2,othervendor=na" }
+
+      it 'parses es field' do
+        expect(subject.entries['es'].value).to eq('s:1.0')
+        expect(subject.entries['othervendor'].value).to eq 'na'
       end
 
-      it 'can be modified' do
-        subject.entries['es'].set(:a, 0.1)
-        expect(subject.entries['es'].values).to eq('a' => '0.1', 'b' => '2')
-        expect(subject.to_header).to eq('es=a:0.1;b:2,othervendor=na')
-      end
-
-      context 'with no values' do
-        let(:header) { "es=xyz" }
-
-        it 'handles gracefully' do
-          expect(subject.entries['es'].values).to match('xyz' => nil)
+      context 'with bad values' do
+        [
+          ['es=xyz', nil],
+          ['es=s:foo', nil],
+          ['es=s:1.5', nil]
+        ].each do |(input, expectation)|
+          describe input do
+            let(:header) { input }
+            it 'is nil' do
+              expect(subject.entries['es'].to_s).to be nil
+            end
+          end
         end
       end
     end
 
     context 'sample_rate' do
+      it 'is nil when not set' do
+        state = described_class.parse('a=b')
+        expect(state.sample_rate).to be nil
+      end
+
+      it 'parses good values' do
+        state = described_class.parse('es=s:0.5')
+        expect(state.sample_rate).to eq 0.5
+        expect(state.to_header).to eq 'es=s:0.5'
+      end
+
       it 'rounds to three decimals' do
-        state = described_class.new.tap do |s|
-          s.sample_rate = 1.23456
-        end
-        expect(state.to_header).to eq('es=s:1.235')
+        state = described_class.new
+        state.sample_rate = 0.123456
+        expect(state.to_header).to eq('es=s:0.123')
       end
     end
   end

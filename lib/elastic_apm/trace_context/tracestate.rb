@@ -24,73 +24,103 @@ module ElasticAPM
       # @api private
       class Entry
         def initialize(key, value)
-          @key, @value = key, value
-          parse! if key == 'es'
+          @key = key
+          @value = value
         end
 
-        attr_reader :key, :values
-
-        def set(k, v)
-          if key != 'es'
-            raise ArgumentError,
-              'trying to set a value in a non-Elastic tracestate entry'
-          end
-
-          @values[k.to_s] = v.to_s
-        end
-
-        def get(k)
-          values[k.to_s]
-        end
-
-        def value
-          return @value unless values
-          values.map { |(k, v)| "#{k}:#{v}" }.join(';')
-        end
+        attr_reader :key, :value
 
         def to_s
           "#{key}=#{value}"
         end
+      end
+
+      class EsEntry
+        ASSIGN = ':'
+        SPLIT = ';'
+
+        SHORT_TO_LONG = { 's' => 'sample_rate' }
+        LONG_TO_SHORT = { 'sample_rate' => 's' }
+
+        def initialize(values = nil)
+          parse(values)
+        end
+
+        attr_reader :sample_rate
+
+        def key
+          'es'
+        end
+
+        def value
+          LONG_TO_SHORT.map do |l, s|
+            "#{s}#{ASSIGN}#{send(l)}"
+          end.join(SPLIT)
+        end
+
+        def empty?
+          !sample_rate
+        end
+
+        def sample_rate=(val)
+          float = Float(val).round(3)
+
+          return nil unless (0.0..1.0).include?(float)
+
+          @sample_rate = float
+        rescue ArgumentError => e
+          nil
+        end
+
+        def to_s
+          return nil if empty?
+
+          "es=#{value}"
+        end
 
         private
 
-        def parse!
-          @values = Hash[value.split(';').map { |kv| kv.split(':') }]
+        def parse(values)
+          return unless values
+
+          values.split(SPLIT).map do |kv|
+            k, v = kv.split(ASSIGN)
+            next unless SHORT_TO_LONG.keys.include?(k)
+            send("#{SHORT_TO_LONG[k]}=", v)
+          end
         end
       end
+
+      extend Forwardable
 
       def initialize(entries: {}, sample_rate: nil)
         @entries = entries
 
-        if sample_rate
-          self.sample_rate = sample_rate
-        end
+        self.sample_rate = sample_rate if sample_rate
       end
 
       attr_accessor :entries
+
+      def_delegators :es_entry, :sample_rate, :sample_rate=
 
       def self.parse(header)
         entries =
           split_by_nl_and_comma(header)
           .each_with_object({}) do |entry, hsh|
             k, v = entry.split('=')
-            hsh[k] = Entry.new(k, v)
+
+            hsh[k] =
+              case k
+              when 'es' then EsEntry.new(v)
+              else Entry.new(k, v)
+              end
           end
 
         new(entries: entries)
       end
 
-      def sample_rate
-        es_entry.get(:s)&.to_f
-      end
-
-      def sample_rate=(value)
-        es_entry.set(:s, value.round(3))
-      end
-
       def to_header
         return "" unless entries.any?
-        return "" if entries.keys == ['es'] && es_entry.values.empty?
 
         entries.values.map(&:to_s).join(',')
       end
@@ -99,8 +129,7 @@ module ElasticAPM
 
       def es_entry
         # laze generate this so we only add it if necessary
-        entries['es'] ||= Entry.new('es', '')
-        entries['es']
+        entries['es'] ||= EsEntry.new
       end
 
       class << self
