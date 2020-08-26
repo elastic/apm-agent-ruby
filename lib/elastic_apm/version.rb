@@ -18,5 +18,5 @@
 # frozen_string_literal: true
 
 module ElasticAPM
-  VERSION = '3.10.0'
+  VERSION = '3.10.1'
 end
