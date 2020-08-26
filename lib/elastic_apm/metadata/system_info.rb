@@ -24,7 +24,7 @@ module ElasticAPM
       def initialize(config)
         @config = config
 
-        @hostname = @config.hostname || `hostname`.chomp
+        @hostname = @config.hostname || self.class.system_hostname
         @architecture = gem_platform.cpu
         @platform = gem_platform.os
 
@@ -35,10 +35,12 @@ module ElasticAPM
 
       attr_reader :hostname, :architecture, :platform, :container, :kubernetes
 
-      private
-
       def gem_platform
         @gem_platform ||= Gem::Platform.local
+      end
+
+      def self.system_hostname
+        @system_hostname ||= `hostname`.chomp
       end
     end
   end
