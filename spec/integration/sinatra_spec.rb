@@ -114,11 +114,12 @@ if enabled
       it 'knows variables in routes' do
         get '/users/666'
 
-        wait_for transactions: 1
+        wait_for transactions: 1, spans: 1
 
-        expect(@mock_intake.requests.length).to be 1
-        transaction = @mock_intake.transactions.first
+        transaction, = @mock_intake.transactions
         expect(transaction['name']).to eq 'GET /users/:id'
+        span, = @mock_intake.spans
+        expect(span['name']).to eq 'index'
       end
 
       it 'spans inline templates' do
