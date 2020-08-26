@@ -136,21 +136,6 @@ module ElasticAPM
       end
     end
 
-    context 'ignore_url_patterns' do
-      it 'sets ignore_url_patterns to array of regexp' do
-        config = Config.new(
-          ignore_url_patterns: [
-            'PingController#index',
-            'GET /ping'
-          ]
-        )
-        expect(config.ignore_url_patterns).to eq [
-          /PingController#index/,
-          %r{GET /ping}
-        ]
-      end
-    end
-
     it 'yields itself to a given block' do
       config = Config.new { |c| c.server_url = 'somewhere-else.com' }
       expect(config.server_url).to eq 'somewhere-else.com'
@@ -262,9 +247,13 @@ module ElasticAPM
 
         it 'logs a warning and sets' do
           expect(subject).to receive(:warn).with(/DEPRECATED/)
-          subject.ignore_url_patterns = ['/ping']
 
-          expect(subject.ignore_url_patterns).to match([%r{/ping}])
+          subject.ignore_url_patterns = ['PingController#index', 'GET /ping']
+
+          expect(subject.ignore_url_patterns).to eq [
+            /PingController#index/,
+            %r{GET /ping}
+          ]
         end
       end
 
