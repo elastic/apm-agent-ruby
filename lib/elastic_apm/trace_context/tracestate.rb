@@ -128,7 +128,7 @@ module ElasticAPM
       private
 
       def es_entry
-        # laze generate this so we only add it if necessary
+        # lazy generate this so we only add it if necessary
         entries['es'] ||= EsEntry.new
       end
 
