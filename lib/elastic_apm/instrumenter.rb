@@ -119,7 +119,13 @@ module ElasticAPM
           "Already inside #{transaction.inspect}"
       end
 
-      sampled = trace_context ? trace_context.recorded? : random_sample?(config)
+      if trace_context
+        samled = trace_context.recorded?
+        sample_rate = trace_context.tracestate.sample_rate
+      else
+        sampled = random_sample?(config)
+        sample_rate = config.transaction_sample_rate
+      end
 
       transaction =
         Transaction.new(
@@ -128,6 +134,7 @@ module ElasticAPM
           context: context,
           trace_context: trace_context,
           sampled: sampled,
+          sample_rate: sample_rate,
           config: config
         )
 

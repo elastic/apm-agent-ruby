@@ -38,6 +38,7 @@ module ElasticAPM
               duration: ms(transaction.duration),
               timestamp: transaction.timestamp,
               sampled: transaction.sampled?,
+              sample_rate: transaction.sample_rate,
               context: context_serializer.build(transaction.context),
               span_count: {
                 started: transaction.started_spans,

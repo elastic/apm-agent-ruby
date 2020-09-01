@@ -33,7 +33,7 @@ module ElasticAPM
       **legacy_traceparent_attrs
     )
       @traceparent = traceparent || Traceparent.new(**legacy_traceparent_attrs)
-      @tracestate = tracestate
+      @tracestate = tracestate || Tracestate.new
     end
 
     attr_accessor :traceparent, :tracestate

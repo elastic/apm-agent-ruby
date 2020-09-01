@@ -42,7 +42,8 @@ module ElasticAPM
               context: context_serializer.build(span.context),
               stacktrace: span.stacktrace.to_a,
               timestamp: span.timestamp,
-              trace_id: span.trace_id
+              trace_id: span.trace_id,
+              sample_rate: span.sample_rate
             }
           }
         end

@@ -57,6 +57,7 @@ module ElasticAPM
                   "timestamp": 694_224_000_000_000,
                   "trace_id": transaction.trace_id,
                   "sampled": true,
+                  "sample_rate": 1.0,
                   "span_count": {
                     "started": 0,
                     "dropped": 0

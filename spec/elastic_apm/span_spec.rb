@@ -48,6 +48,7 @@ module ElasticAPM
       its(:trace_id) { should eq trace_context.trace_id }
       its(:id) { should eq trace_context.id }
       its(:parent_id) { should eq trace_context.parent_id }
+      its(:sample_rate) { is_expected.to eq transaction.sample_rate }
 
       context 'with a dot-separated type' do
         it 'splits type' do
@@ -73,7 +74,7 @@ module ElasticAPM
       subject do
         described_class.new(
           name: 'Spannest name',
-          transaction: transaction.id,
+          transaction: transaction,
           parent: transaction,
           trace_context: trace_context
         )
@@ -93,7 +94,7 @@ module ElasticAPM
       subject do
         described_class.new(
           name: 'Spannest name',
-          transaction: transaction.id,
+          transaction: transaction,
           parent: transaction,
           trace_context: trace_context
         )

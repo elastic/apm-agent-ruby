@@ -38,7 +38,8 @@ module ElasticAPM
       action: nil,
       context: nil,
       stacktrace_builder: nil,
-      sync: nil
+      sync: nil,
+      sample_rate: nil
     )
       @name = name
 
@@ -53,6 +54,7 @@ module ElasticAPM
       @transaction = transaction
       @parent = parent
       @trace_context = trace_context || parent.trace_context.child
+      @sample_rate = transaction.sample_rate
 
       @context = context || Span::Context.new(sync: sync)
       @stacktrace_builder = stacktrace_builder
@@ -73,6 +75,7 @@ module ElasticAPM
       :context,
       :duration,
       :parent,
+      :sample_rate,
       :self_time,
       :stacktrace,
       :timestamp,
