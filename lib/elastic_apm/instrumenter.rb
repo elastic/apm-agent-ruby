@@ -266,7 +266,7 @@ module ElasticAPM
     end
 
     def update_transaction_metrics(transaction)
-      return unless transaction.collect_metrics
+      return unless transaction.collect_metrics?
 
       tags = {
         'transaction.name': transaction.name,
@@ -305,7 +305,7 @@ module ElasticAPM
     end
 
     def update_span_metrics(span)
-      return unless span.transaction.breakdown_metrics
+      return unless span.transaction.collect_metrics?
 
       tags = {
         'span.type': span.type,
