@@ -48,6 +48,7 @@ endif::[]
 ===== Fixed
 
 - Remove secrets from cookies in errors {pull}863[#863]
+- Silence deprecation warning when setting `ignore_url_patterns` to default {pull}865[#865]
 
 [[release-notes-3.10.0]]
 ==== 3.10.0 (2020-08-26)

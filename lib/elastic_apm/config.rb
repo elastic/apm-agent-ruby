@@ -236,8 +236,10 @@ module ElasticAPM
     end
 
     def ignore_url_patterns=(value)
-      warn '[DEPRECATED] The option ignore_url_patterns is being removed. ' \
-        'Consider using transaction_ignore_urls instead.'
+      unless value == self.class.schema[:ignore_url_patterns][:default]
+        warn '[DEPRECATED] The option ignore_url_patterns is being removed. ' \
+          'Consider using transaction_ignore_urls instead.'
+      end
 
       set(:ignore_url_patterns, value)
     end
