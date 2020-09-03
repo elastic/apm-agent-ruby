@@ -39,15 +39,6 @@ endif::[]
 [[unreleased]]
 ==== Unreleased
 
-**NB:** If you're using the option `sanitize_field_names` be aware that the
-default options are now configurable, meaning that if you set it, you need to
-include the default settings too, like:
-
-[source,yaml]
-----
-sanitize_field_names: <%= ElasticAPM::Config::SANITIZE_FIELD_NAMES_DEFAULT %>, *your-additions*
-----
-
 [float]
 ===== Added
 

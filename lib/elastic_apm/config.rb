@@ -31,7 +31,7 @@ module ElasticAPM
     DEPRECATED_OPTIONS = %i[].freeze
 
     # DEPRECATED: To align with other agents, change on next major bump to:
-    # %w[password passwd pwd secret *key *token* *session* *credit* *card* authorization set-cookie]
+    # "password, passwd, pwd, secret, *key, *token*, *session*, *credit*, *card*, authorization, set-cookie"
     SANITIZE_FIELD_NAMES_DEFAULT =
       %w[*password* *passwd* *pwd* *secret* *key* *token* *session* *credit* *card* *authorization* *set-cookie*]
 
@@ -193,6 +193,13 @@ module ElasticAPM
 
     def collect_metrics?
       metrics_interval > 0
+    end
+
+    # DEPRECATED: Remove this in next major version
+    def sanitize_field_names=(value)
+      list = WildcardPatternList.new.call(value)
+      defaults = WildcardPatternList.new.call(SANITIZE_FIELD_NAMES_DEFAULT)
+      get(:sanitize_field_names).value = defaults.union(list)
     end
 
     def span_frames_min_duration?

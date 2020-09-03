@@ -257,6 +257,17 @@ module ElasticAPM
         end
       end
 
+      describe 'sanitize_field_names' do
+        subject { Config.new }
+
+        it 'adds to defaults, skipping duplicates' do
+          subject.sanitize_field_names = '*password*, thing*'
+
+          expect(subject.sanitize_field_names.length)
+            .to be Config::SANITIZE_FIELD_NAMES_DEFAULT.length + 1
+        end
+      end
+
       describe 'use_legacy_sql_parser' do
         subject { Config.new }
 

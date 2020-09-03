@@ -38,7 +38,8 @@ module ElasticAPM
           set(value || default)
         end
 
-        attr_reader :key, :value, :default, :type
+        attr_reader :key, :default, :type, :converter
+        attr_accessor :value
 
         def set(value)
           @value = normalize(value)
