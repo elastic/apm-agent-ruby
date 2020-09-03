@@ -93,6 +93,8 @@ module ElasticAPM
       :transaction_max_spans 
     )
 
+    alias :collect_metrics? :collect_metrics
+
     def sampled?
       @sampled
     end
