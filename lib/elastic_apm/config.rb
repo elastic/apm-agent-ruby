@@ -199,7 +199,8 @@ module ElasticAPM
     def sanitize_field_names=(value)
       list = WildcardPatternList.new.call(value)
       defaults = WildcardPatternList.new.call(SANITIZE_FIELD_NAMES_DEFAULT)
-      get(:sanitize_field_names).value = defaults.union(list)
+      get(:sanitize_field_names).value =
+        defaults.concat(list).uniq(&:pattern) # use regex pattern for comparisons
     end
 
     def span_frames_min_duration?

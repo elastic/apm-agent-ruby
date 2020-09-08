@@ -35,10 +35,6 @@ module ElasticAPM
 
         alias :match :match?
 
-        def eql?(other)
-          pattern.eql?(other.pattern)
-        end
-
         private
 
         def convert(str)
