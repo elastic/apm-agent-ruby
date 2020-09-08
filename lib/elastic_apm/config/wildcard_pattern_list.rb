@@ -27,6 +27,8 @@ module ElasticAPM
           @pattern = convert(str)
         end
 
+        attr_reader :pattern
+
         def match?(other)
           !!@pattern.match(other)
         end

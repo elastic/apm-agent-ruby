@@ -114,7 +114,7 @@ module ElasticAPM
       end
     end
 
-    context 'thread safety stress test', :mock_intake do
+    xcontext 'thread safety stress test', :mock_intake do
       it 'handles multiple threads reporting and collecting at the same time' do
         thread_count = 1_000
 

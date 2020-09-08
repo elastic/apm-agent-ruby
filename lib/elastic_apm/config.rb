@@ -30,6 +30,11 @@ module ElasticAPM
 
     DEPRECATED_OPTIONS = %i[].freeze
 
+    # DEPRECATED: To align with other agents, change on next major bump to:
+    # "password, passwd, pwd, secret, *key, *token*, *session*, *credit*, *card*, authorization, set-cookie"
+    SANITIZE_FIELD_NAMES_DEFAULT =
+      %w[*password* *passwd* *pwd* *secret* *key* *token* *session* *credit* *card* *authorization* *set-cookie*]
+
     # rubocop:disable Metrics/LineLength, Layout/ExtraSpacing
     option :config_file,                       type: :string, default: 'config/elastic_apm.yml'
     option :server_url,                        type: :url,    default: 'http://localhost:8200'
@@ -76,7 +81,8 @@ module ElasticAPM
     option :proxy_port,                        type: :int
     option :proxy_username,                    type: :string
     option :recording,                         type: :bool,   default: true
-    option :sanitize_field_names,              type: :list,   default: [],      converter: WildcardPatternList.new
+    option :sanitize_field_names,              type: :list,
+      default: SANITIZE_FIELD_NAMES_DEFAULT, converter: WildcardPatternList.new
     option :server_ca_cert,                    type: :string
     option :service_name,                      type: :string
     option :service_node_name,                 type: :string
@@ -187,6 +193,14 @@ module ElasticAPM
 
     def collect_metrics?
       metrics_interval > 0
+    end
+
+    # DEPRECATED: Remove this in next major version
+    def sanitize_field_names=(value)
+      list = WildcardPatternList.new.call(value)
+      defaults = WildcardPatternList.new.call(SANITIZE_FIELD_NAMES_DEFAULT)
+      get(:sanitize_field_names).value =
+        defaults.concat(list).uniq(&:pattern) # use regex pattern for comparisons
     end
 
     def span_frames_min_duration?

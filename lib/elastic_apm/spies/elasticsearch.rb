@@ -27,7 +27,13 @@ module ElasticAPM
       SUBTYPE = 'elasticsearch'
 
       def self.sanitizer
-        @sanitizer ||= ElasticAPM::Transport::Filters::HashSanitizer.new
+        @sanitizer ||=
+          begin
+            config = ElasticAPM.agent.config
+            ElasticAPM::Transport::Filters::HashSanitizer.new(
+              key_patterns: config.custom_key_filters + config.sanitize_field_names
+            )
+          end
       end
 
       def install
