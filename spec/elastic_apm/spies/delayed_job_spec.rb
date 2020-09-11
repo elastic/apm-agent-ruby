@@ -18,6 +18,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'active_job'
 
 begin
   require 'delayed_job'
@@ -36,6 +37,11 @@ if defined?(Delayed::Backend)
       class ExplodingJob
         def perform
           1 / 0
+        end
+      end
+
+      class AnActiveJob < ActiveJob::Base
+        def perform
         end
       end
 
@@ -64,6 +70,19 @@ if defined?(Delayed::Backend)
 
         transaction, = @intercepted.transactions
         expect(transaction.name).to eq 'ElasticAPM::TestJob'
+        expect(transaction.type).to eq 'Delayed::Job'
+        expect(transaction.result).to eq 'success'
+      end
+
+      it 'instruments class-based job transaction for active job' do
+        job = AnActiveJob.new
+
+        with_agent do
+          Delayed::Job.new(job).invoke_job
+        end
+
+        transaction, = @intercepted.transactions
+        expect(transaction.name).to eq 'ElasticAPM::AnActiveJob'
         expect(transaction.type).to eq 'Delayed::Job'
         expect(transaction.result).to eq 'success'
       end
