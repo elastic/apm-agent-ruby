@@ -18,7 +18,11 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'active_job'
+
+begin
+  require 'active_job'
+rescue LoadError
+end
 
 begin
   require 'delayed_job'
@@ -37,11 +41,6 @@ if defined?(Delayed::Backend)
       class ExplodingJob
         def perform
           1 / 0
-        end
-      end
-
-      class AnActiveJob < ActiveJob::Base
-        def perform
         end
       end
 
@@ -74,17 +73,36 @@ if defined?(Delayed::Backend)
         expect(transaction.result).to eq 'success'
       end
 
-      it 'instruments class-based job transaction for active job' do
-        job = AnActiveJob.new
+      context 'ActiveJob', if: defined?(ActiveJob) do
+        before :all do
+          # rubocop:disable Style/ClassAndModuleChildren
+          class ::ActiveJobbyJob < ActiveJob::Base
+            # rubocop:enable Style/ClassAndModuleChildren
+            self.queue_adapter = :delayed_job
+            self.logger = nil # stay quiet
 
-        with_agent do
-          Delayed::Job.new(job).invoke_job
+            def perform
+              'ok'
+            end
+          end
         end
 
-        transaction, = @intercepted.transactions
-        expect(transaction.name).to eq 'ElasticAPM::AnActiveJob'
-        expect(transaction.type).to eq 'Delayed::Job'
-        expect(transaction.result).to eq 'success'
+        after :all do
+          Object.send(:remove_const, :ActiveJobbyJob)
+        end
+
+        it 'instruments class-based job transaction for active job' do
+          job = ActiveJobbyJob.new
+
+          with_agent do
+            Delayed::Job.new(job).invoke_job
+          end
+
+          transaction, = @intercepted.transactions
+          expect(transaction.name).to eq 'ActiveJobbyJob'
+          expect(transaction.type).to eq 'Delayed::Job'
+          expect(transaction.result).to eq 'success'
+        end
       end
 
       it 'instruments method-based job transaction' do
