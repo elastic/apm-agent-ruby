@@ -49,6 +49,11 @@ endif::[]
 
 - Align the default value of `sanitize_field_names` with other agents {pull}867[#867]
 
+[float]
+===== Fixed
+
+- Fix Delayed::Job class names when used through ActiveJob {pull}869[#869]
+
 [[release-notes-3.10.1]]
 ==== 3.10.1 (2020-08-26)
 
