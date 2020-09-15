@@ -25,6 +25,7 @@ module ElasticAPM
       @process = ProcessInfo.new(config)
       @system = SystemInfo.new(config)
       @labels = config.global_labels
+      @cloud = CloudInfo.new(config).fetch!
     end
 
     attr_reader :service, :process, :system, :labels
@@ -34,3 +35,4 @@ end
 require 'elastic_apm/metadata/service_info'
 require 'elastic_apm/metadata/system_info'
 require 'elastic_apm/metadata/process_info'
+require 'elastic_apm/metadata/cloud_info'

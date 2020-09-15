@@ -32,14 +32,14 @@ module ElasticAPM
       private
 
       def build(config)
-        metadata = Metadata.new(config)
+        service = Metadata::ServiceInfo.new(config)
 
         [
           "elastic-apm-ruby/#{VERSION}",
           HTTP::Request::USER_AGENT,
           [
-            metadata.service.runtime.name,
-            metadata.service.runtime.version
+            service.runtime.name,
+            service.runtime.version
           ].join('/')
         ].join(' ')
       end
