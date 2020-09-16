@@ -53,6 +53,7 @@ end
 
 module ElasticAPM
   class Config
+    option :central_config, type: :bool, default: false
     option :cloud_provider, type: :string, default: 'none'
   end
 end

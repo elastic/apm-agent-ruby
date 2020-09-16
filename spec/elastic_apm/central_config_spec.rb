@@ -24,8 +24,11 @@ module ElasticAPM
     after { WebMock.reset! }
 
     let(:config) do
-      Config.new(service_name: 'MyApp',
-                 log_level: Logger::DEBUG)
+      Config.new(
+        central_config: true,
+        service_name: 'MyApp',
+        log_level: Logger::DEBUG,
+      )
     end
     subject { described_class.new(config) }
 

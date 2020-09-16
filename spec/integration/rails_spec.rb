@@ -66,13 +66,14 @@ if enabled
           RailsTestHelpers.setup_rails_test_config(config)
           config.log_level = :debug
 
-          config.elastic_apm.transaction_ignore_urls = '/ping'
           config.elastic_apm.api_request_time = '200ms'
-          config.elastic_apm.disable_start_message = true
-          config.elastic_apm.metrics_interval = '2s'
           config.elastic_apm.capture_body = 'all'
-          config.elastic_apm.pool_size = Concurrent.processor_count
+          config.elastic_apm.disable_start_message = true
           config.elastic_apm.log_path = 'spec/elastic_apm.log'
+          config.elastic_apm.metrics_interval = '2s'
+          config.elastic_apm.cloud_provider = 'none'
+          config.elastic_apm.pool_size = Concurrent.processor_count
+          config.elastic_apm.transaction_ignore_urls = '/ping'
         end
       end
 
