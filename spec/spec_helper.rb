@@ -50,3 +50,9 @@ RSpec.configure do |config|
   config.example_status_persistence_file_path = ".rspec_status"
   config.filter_run_excluding(type: "json_schema") unless ENV["INCLUDE_SCHEMA_SPECS"]
 end
+
+module ElasticAPM
+  class Config
+    option :cloud_provider, type: :string, default: 'none'
+  end
+end
