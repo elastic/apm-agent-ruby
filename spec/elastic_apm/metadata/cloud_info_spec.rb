@@ -24,33 +24,46 @@ module ElasticAPM
     module CloudExamples
       AWS_EXAMPLE = <<-JSON
         {
-            "devpayProductCodes" : null,
-            "marketplaceProductCodes" : [ "1abc2defghijklm3nopqrs4tu" ], 
-            "availabilityZone" : "us-west-2b",
-            "privateIp" : "10.158.112.84",
-            "version" : "2017-09-30",
-            "instanceId" : "i-1234567890abcdef0",
-            "billingProducts" : null,
-            "instanceType" : "t2.micro",
-            "accountId" : "123456789012",
-            "imageId" : "ami-5fb8c835",
-            "pendingTime" : "2016-11-19T16:32:11Z",
-            "architecture" : "x86_64",
-            "kernelId" : null,
-            "ramdiskId" : null,
-            "region" : "us-west-2"
+          "devpayProductCodes" : null,
+          "marketplaceProductCodes" : [ "1abc2defghijklm3nopqrs4tu" ], 
+          "availabilityZone" : "us-west-2b",
+          "privateIp" : "10.158.112.84",
+          "version" : "2017-09-30",
+          "instanceId" : "i-1234567890abcdef0",
+          "billingProducts" : null,
+          "instanceType" : "t2.micro",
+          "accountId" : "123456789012",
+          "imageId" : "ami-5fb8c835",
+          "pendingTime" : "2016-11-19T16:32:11Z",
+          "architecture" : "x86_64",
+          "kernelId" : null,
+          "ramdiskId" : null,
+          "region" : "us-west-2"
         }
       JSON
 
       GCP_EXAMPLE = <<-JSON
         {
           "instance": {
-              "id": 4306570268266786072,
-              "machineType": "projects/513326162531/machineTypes/n1-standard-1",
-              "name": "basepi-test",
-              "zone": "projects/513326162531/zones/us-west3-a"
+            "id": 4306570268266786072,
+            "machineType": "projects/513326162531/machineTypes/n1-standard-1",
+            "name": "basepi-test",
+            "zone": "projects/513326162531/zones/us-west3-a"
           },
           "project": {"numericProjectId": 513326162531, "projectId": "elastic-apm"}
+        }
+      JSON
+
+      AZURE_EXAMPLE = <<-JSON
+        {
+          "location": "westus2",
+          "name": "basepi-test",
+          "resourceGroupName": "basepi-testing",
+          "subscriptionId": "7657426d-c4c3-44ac-88a2-3b2cd59e6dba",
+          "vmId": "e11ebedc-019d-427f-84dd-56cd4388d3a8",
+          "vmScaleSetName": "",
+          "vmSize": "Standard_D2s_v3",
+          "zone": ""
         }
       JSON
     end
@@ -105,6 +118,52 @@ module ElasticAPM
           expect(subject.machine_type).to eq('projects/513326162531/machineTypes/n1-standard-1')
 
           expect(@gcp_mock).to have_been_requested
+        end
+      end
+
+      context 'azure' do
+        let(:config) { Config.new(cloud_provider: 'azure') }
+
+        before do
+          @azure_mock =
+            WebMock.stub_request(:get, Metadata::CloudInfo::AZURE_URI)
+            .to_return(body: CloudExamples::AZURE_EXAMPLE)
+        end
+
+        it 'fetches metadata from azure' do
+          subject.fetch!
+
+          expect(subject.provider).to eq "azure"
+          expect(subject.account_id).to eq "7657426d-c4c3-44ac-88a2-3b2cd59e6dba"
+          expect(subject.instance_id).to eq "e11ebedc-019d-427f-84dd-56cd4388d3a8"
+          expect(subject.instance_name).to eq "basepi-test"
+          expect(subject.project_name).to eq "basepi-testing"
+          expect(subject.machine_type).to eq "Standard_D2s_v3"
+          expect(subject.region).to eq "westus2"
+
+          expect(@azure_mock).to have_been_requested
+        end
+      end
+
+      context 'auto' do
+        let(:config) { Config.new(cloud_provider: 'auto') }
+
+        it 'tries all three' do
+          WebMock.stub_request(:get, Metadata::CloudInfo::AWS_URI).to_timeout
+          WebMock.stub_request(:get, Metadata::CloudInfo::GCP_URI).to_timeout
+          WebMock.stub_request(:get, Metadata::CloudInfo::AZURE_URI).to_timeout
+
+          subject.fetch!
+          expect(subject.provider).to be nil
+        end
+      end
+
+      context 'none' do
+        let(:config) { Config.new(cloud_provider: 'none') }
+
+        it 'tries none' do
+          subject.fetch!
+          expect(subject.provider).to be nil
         end
       end
     end

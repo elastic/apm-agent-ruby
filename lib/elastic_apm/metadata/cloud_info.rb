@@ -17,7 +17,7 @@
 
 # frozen_string_literal: true
 
-require 'http'
+require "http"
 
 module ElasticAPM
   class Metadata
@@ -25,8 +25,9 @@ module ElasticAPM
     class CloudInfo
       include Logging
 
-      AWS_URI = 'http://169.254.169.254/latest/dynamic/instance-identity/document'
-      GCP_URI = 'http://metadata.google.internal/computeMetadata/v1/?recursive=true'
+      AWS_URI = "http://169.254.169.254/latest/dynamic/instance-identity/document"
+      GCP_URI = "http://metadata.google.internal/computeMetadata/v1/?recursive=true"
+      AZURE_URI = "http://169.254.169.254/metadata/instance/compute?api-version=2019-08-15"
 
       def initialize(config)
         @config = config
@@ -50,18 +51,19 @@ module ElasticAPM
 
       def fetch!
         case config.cloud_provider
-        when 'aws'
+        when "aws"
           fetch_aws
-        when 'gcp'
+        when "gcp"
           fetch_gcp
-        when 'azure'
+        when "azure"
           fetch_azure
-        when 'auto'
+        when "auto"
           fetch_aws || fetch_gcp || fetch_azure
-        when 'none'
+        when "none"
           nil
         else
-          error "Unknown setting for cloud_provider '#{config.cloud_provider}'"
+
+          error("Unknown setting for cloud_provider '#{config.cloud_provider}'")
         end
       end
 
@@ -77,22 +79,42 @@ module ElasticAPM
         self.availability_zone = metadata["availabilityZone"]
         self.machine_type = metadata["instanceType"]
         self.region = metadata["region"]
+      rescue HTTP::TimeoutError
+        nil
       end
 
       def fetch_gcp
-        return unless (resp = @client.headers('Metadata-Flavor' => 'Google').get(GCP_URI))
+        return unless (resp = @client.headers("Metadata-Flavor" => "Google").get(GCP_URI))
         return unless (metadata = JSON.parse(resp.body))
 
-        zone = metadata['instance']['zone']&.split('/')&.at(-1)
+        zone = metadata["instance"]["zone"]&.split("/")&.at(-1)
 
-        self.provider = 'gcp'
-        self.instance_id = metadata['instance']['id']
-        self.instance_name = metadata['instance']['name']
-        self.project_id = metadata['project']['numericProjectId']
-        self.project_name = metadata['project']['projectId']
+        self.provider = "gcp"
+        self.instance_id = metadata["instance"]["id"]
+        self.instance_name = metadata["instance"]["name"]
+        self.project_id = metadata["project"]["numericProjectId"]
+        self.project_name = metadata["project"]["projectId"]
         self.availability_zone = zone
-        self.region = zone.split('-')[0..-2].join('-')
-        self.machine_type = metadata['instance']['machineType']
+        self.region = zone.split("-")[0..-2].join("-")
+        self.machine_type = metadata["instance"]["machineType"]
+      rescue HTTP::TimeoutError
+        nil
+      end
+
+      def fetch_azure
+        return unless (resp = @client.headers("Metadata" => "true").get(AZURE_URI))
+        return unless (metadata = JSON.parse(resp.body))
+
+        self.provider = 'azure'
+        self.account_id = metadata["subscriptionId"]
+        self.instance_id = metadata["vmId"]
+        self.instance_name = metadata["name"]
+        self.project_name = metadata["resourceGroupName"]
+        self.availability_zone = metadata["zone"]
+        self.machine_type = metadata["vmSize"]
+        self.region = metadata["location"]
+      rescue HTTP::TimeoutError
+        nil
       end
     end
   end
