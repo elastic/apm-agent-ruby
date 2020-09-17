@@ -37,58 +37,16 @@ end
 require "webmock/rspec"
 require "elastic-apm"
 
-# SpecLogger = StringIO.new
-
 RSpec.configure do |config|
   config.order = :random
 
   config.include(ExceptionHelpers)
   config.include(WithAgent)
   config.include(PlatformHelpers)
-  config.include(RailsTestHelpers) if defined?(Rails)
-
-  if config.files_to_run.one?
-    config.default_formatter = "documentation"
-  end
-
-  unless ENV["INCLUDE_SCHEMA_SPECS"]
-    config.filter_run_excluding(type: "json_schema")
-  end
-
-  config.example_status_persistence_file_path = ".rspec_status"
-  config.disable_monkey_patching!
 
   config.backtrace_inclusion_patterns = [/elastic_apm/]
-
-  config.before(:each) do |example|
-    if ElasticAPM.running? && !example.metadata[:allow_running_agent]
-      raise "Previous example left an agent running"
-    end
-  end
-
-  config.after(:each) do |example|
-    if ElasticAPM.running? && !example.metadata[:allow_running_agent]
-      raise "This example left an agent running"
-    end
-  end
-
-  config.after(:each, spec_logger: true) do |example|
-    SpecLogger.rewind
-    next unless example.exception
-
-    puts("Example failed, dumping log:")
-    puts(SpecLogger.read)
-  end
-end
-
-RSpec.shared_context("stubbed_central_config") do
-  before(:all) do
-    WebMock.stub_request(
-      :get,
-      %r{^http://localhost:8200/config/v1/agents/?$}    ).to_return(body: "{}")
-  end
-
-  after(:all) do
-    WebMock.reset!
-  end
+  config.default_formatter = "documentation" if config.files_to_run.one?
+  config.disable_monkey_patching!
+  config.example_status_persistence_file_path = ".rspec_status"
+  config.filter_run_excluding(type: "json_schema") unless ENV["INCLUDE_SCHEMA_SPECS"]
 end
