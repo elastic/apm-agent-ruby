@@ -1,3 +1,5 @@
+SpecLogger = StringIO.new
+
 module RailsTestHelpers
   def self.included(_kls)
     Rails::Application.class_eval do
@@ -29,8 +31,8 @@ module RailsTestHelpers
     config.logger = Logger.new(SpecLogger)
 
     # Silence deprecation warning
-    return unless defined?(ActionView::Railtie::NULL_OPTION)
-    config.action_view.finalize_compiled_template_methods = ActionView::Railtie::NULL_OPTION
+    # return unless defined?(ActionView::Railtie::NULL_OPTION)
+    # config.action_view.finalize_compiled_template_methods = ActionView::Railtie::NULL_OPTION
   end
 end
 
