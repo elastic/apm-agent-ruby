@@ -73,8 +73,8 @@ module ElasticAPM
 
               exception = result.fetch(:exception)
               expect(exception).to include(
-                message: 'ExceptionHelpers::One',
-                type: 'ExceptionHelpers::One',
+                message: 'ExceptionHelpers::ChainedErrorOne',
+                type: 'ExceptionHelpers::ChainedErrorOne',
                 module: 'ExceptionHelpers',
                 code: nil,
                 attributes: nil,
@@ -85,8 +85,8 @@ module ElasticAPM
 
               cause1 = exception.fetch(:cause)[0]
               expect(cause1).to include(
-                message: 'ExceptionHelpers::Two',
-                type: 'ExceptionHelpers::Two',
+                message: 'ExceptionHelpers::ChainedErrorTwo',
+                type: 'ExceptionHelpers::ChainedErrorTwo',
                 module: 'ExceptionHelpers',
                 code: nil,
                 attributes: nil,
@@ -97,8 +97,8 @@ module ElasticAPM
 
               cause2 = cause1.fetch(:cause)[0]
               expect(cause2).to include(
-                message: 'ExceptionHelpers::Three',
-                type: 'ExceptionHelpers::Three',
+                message: 'ExceptionHelpers::ChainedErrorThree',
+                type: 'ExceptionHelpers::ChainedErrorThree',
                 module: 'ExceptionHelpers',
                 code: nil,
                 attributes: nil,
