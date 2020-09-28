@@ -17,7 +17,7 @@
 
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'integration_helper'
 
 if defined?(Rails)
   enabled = true
