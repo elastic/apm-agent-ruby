@@ -38,7 +38,7 @@ if enabled
 
     before :all do
       class RailsGrapeTestApp < Rails::Application
-        configure_rails_for_test
+        RailsTestHelpers.setup_rails_test_config(config)
 
         config.secret_key_base = '__rails_grape'
         config.logger = Logger.new(nil)

@@ -25,7 +25,7 @@ if defined?(Rails)
   RSpec.describe 'Rails console', :spec_logger do
     before :all do
       class RailsConsoleTestApp < Rails::Application
-        configure_rails_for_test
+        RailsTestHelpers.setup_rails_test_config(config)
 
         config.elastic_apm.disable_send = true
         config.logger = Logger.new(SpecLogger)
