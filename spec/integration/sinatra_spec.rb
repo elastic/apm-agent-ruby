@@ -89,7 +89,7 @@ if enabled
     it 'knows Sinatra' do
       response = get '/'
 
-      wait_for transactions: 1, metadatas: 2
+      wait_for transactions: 1
 
       expect(response.body).to eq 'Yes!'
 
