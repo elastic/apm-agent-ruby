@@ -51,6 +51,8 @@ if enabled
       Rails.application
     end
 
+    after { sleep 0.25 }
+
     after :all do
       ElasticAPM.stop
       ElasticAPM::Transport::Worker.adapter = nil
