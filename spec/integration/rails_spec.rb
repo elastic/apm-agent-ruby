@@ -166,7 +166,7 @@ if enabled
         begin
           service = @mock_intake.metadatas[0]['service']
         rescue NoMethodError
-          pp @mock_intake.requests
+          pp @mock_intake.requests.map { |r| r.body.to_s }
           raise
         end
         expect(service['name']).to eq 'RailsTestApp'
