@@ -51,6 +51,7 @@ if enabled
       Rails.application
     end
 
+    before { sleep 0.25 }
     after { sleep 0.25 }
 
     after :all do
@@ -156,13 +157,18 @@ if enabled
       it 'includes Rails info' do
         responses = Array.new(10).map { get '/' }
 
-        wait_for transactions: 10, spans: 20, timeout: 10
+        wait_for transactions: 10
 
         expect(responses.last.body).to eq 'Yes!'
         expect(@mock_intake.metadatas.length >= 1).to be true
         expect(@mock_intake.transactions.length).to be 10
 
-        service = @mock_intake.metadatas.fetch(0)['service']
+        begin
+          service = @mock_intake.metadatas[0]['service']
+        rescue NoMethodError
+          pp @mock_intake.requests
+          raise
+        end
         expect(service['name']).to eq 'RailsTestApp'
         expect(service['framework']['name']).to eq 'Ruby on Rails'
         expect(service['framework']['version'])
