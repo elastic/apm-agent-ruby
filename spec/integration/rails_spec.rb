@@ -51,6 +51,7 @@ if enabled
       Rails.application
     end
 
+    # Add some padding to make sure requests have settled down between examples
     before { sleep 0.25 }
     after { sleep 0.25 }
 
