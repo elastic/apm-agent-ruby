@@ -137,6 +137,13 @@ if defined?(Delayed::Backend)
         error, = @intercepted.errors
         expect(error.exception.type).to eq 'ZeroDivisionError'
       end
+
+      it "runs when the agent doesn't" do
+        job = TestJob.new
+
+        expect { Delayed::Job.new(job).invoke_job }
+          .to_not raise_error
+      end
     end
   end
 end

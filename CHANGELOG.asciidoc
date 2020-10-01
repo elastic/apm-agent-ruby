@@ -53,6 +53,7 @@ endif::[]
 ===== Fixed
 
 - Fix Delayed::Job class names when used through ActiveJob {pull}869[#869]
+- Fix Delayed::Job when run without the agent running {pull}874[#874]
 
 [[release-notes-3.10.1]]
 ==== 3.10.1 (2020-08-26)
