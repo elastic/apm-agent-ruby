@@ -164,12 +164,7 @@ if enabled
         expect(@mock_intake.metadatas.length >= 1).to be true
         expect(@mock_intake.transactions.length).to be 10
 
-        begin
-          service = @mock_intake.metadatas[0]['service']
-        rescue NoMethodError
-          pp @mock_intake.requests.map { |r| r.body.to_s }
-          raise
-        end
+        service = @mock_intake.metadatas[0]['service']
         expect(service['name']).to eq 'RailsTestApp'
         expect(service['framework']['name']).to eq 'Ruby on Rails'
         expect(service['framework']['version'])
