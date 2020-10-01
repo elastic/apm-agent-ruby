@@ -17,7 +17,7 @@
 
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'integration_helper'
 
 if defined?(Rails)
   enabled = true
@@ -115,7 +115,7 @@ if enabled
 
       module GraphQLTestApp
         class Application < Rails::Application
-          configure_rails_for_test
+          RailsTestHelpers.setup_rails_test_config(config)
 
           config.elastic_apm.disable_metrics = '*'
           config.elastic_apm.api_request_time = '200ms'

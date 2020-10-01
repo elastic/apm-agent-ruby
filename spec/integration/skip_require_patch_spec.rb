@@ -20,7 +20,7 @@
 # Deliberately setting this before requiring spec_helper.rb so it's set
 # before we require the agent
 ENV['ELASTIC_APM_SKIP_REQUIRE_PATCH'] = '1'
-require 'spec_helper'
+require 'integration_helper'
 
 RSpec.describe "Disabling the require hook" do
   it "doesn't add aliased original method" do

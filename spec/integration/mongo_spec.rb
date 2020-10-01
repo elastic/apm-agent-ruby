@@ -17,7 +17,7 @@
 
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'integration_helper'
 
 require 'mongo'
 
@@ -34,7 +34,7 @@ module ElasticAPM
             [url],
             database: 'elastic-apm-test',
             logger: Logger.new(nil),
-            server_selection_timeout: 5
+            server_selection_timeout: 1
           )
 
         ElasticAPM.with_transaction 'Mongo test' do
@@ -67,7 +67,7 @@ module ElasticAPM
             [url],
             database: 'elastic-apm-test',
             logger: Logger.new(nil),
-            server_selection_timeout: 5
+            server_selection_timeout: 1
           )
 
         client['testing'].drop
@@ -102,7 +102,7 @@ module ElasticAPM
             [url],
             database: 'elastic-apm-test',
             logger: Logger.new(nil),
-            server_selection_timeout: 5
+            server_selection_timeout: 1
           )
 
         ElasticAPM.with_transaction 'Mongo test' do
@@ -134,7 +134,7 @@ module ElasticAPM
             [url],
             database: 'elastic-apm-test',
             logger: Logger.new(nil),
-            server_selection_timeout: 5
+            server_selection_timeout: 1
           )
 
         3.times { |i| client['testing'].insert_one(a: i) }

@@ -22,8 +22,6 @@ require 'spec_helper'
 if defined?(Grape)
   RSpec.describe Grape do
     describe '.start' do
-      include_context 'stubbed_central_config'
-
       before(:all) do
         class GrapeTestApp < ::Grape::API
           use ElasticAPM::Middleware

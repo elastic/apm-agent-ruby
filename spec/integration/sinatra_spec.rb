@@ -17,7 +17,7 @@
 
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'integration_helper'
 
 if defined?(Sinatra)
   enabled = true
@@ -79,7 +79,7 @@ if enabled
       end
 
       MockIntake.stub!
-      ElasticAPM.start(app: SinatraTestApp, api_request_time: '250ms')
+      ElasticAPM.start(app: SinatraTestApp, api_request_time: '200ms')
     end
 
     after(:all) do
@@ -89,7 +89,7 @@ if enabled
     it 'knows Sinatra' do
       response = get '/'
 
-      wait_for metadatas: 1
+      wait_for transactions: 1
 
       expect(response.body).to eq 'Yes!'
 

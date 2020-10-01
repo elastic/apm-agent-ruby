@@ -17,7 +17,7 @@
 
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'integration_helper'
 
 if defined?(Rails)
   require 'action_controller/railtie'
@@ -26,7 +26,7 @@ if defined?(Rails)
     before :all do
       module RailsTestApp
         class Application < Rails::Application
-          configure_rails_for_test
+          RailsTestHelpers.setup_rails_test_config(config)
 
           config.disable_send = true
 
