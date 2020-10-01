@@ -148,13 +148,26 @@ module ElasticAPM
       context 'auto' do
         let(:config) { Config.new(cloud_provider: 'auto') }
 
-        it 'tries all three' do
-          WebMock.stub_request(:get, Metadata::CloudInfo::AWS_URI).to_timeout
-          WebMock.stub_request(:get, Metadata::CloudInfo::GCP_URI).to_timeout
-          WebMock.stub_request(:get, Metadata::CloudInfo::AZURE_URI).to_timeout
+        context 'timeouts' do
+          it 'tries all three' do
+            WebMock.stub_request(:get, Metadata::CloudInfo::AWS_URI).to_timeout
+            WebMock.stub_request(:get, Metadata::CloudInfo::GCP_URI).to_timeout
+            WebMock.stub_request(:get, Metadata::CloudInfo::AZURE_URI).to_timeout
 
-          subject.fetch!
-          expect(subject.provider).to be nil
+            subject.fetch!
+            expect(subject.provider).to be nil
+          end
+        end
+
+        context 'connection errors' do
+          it 'tries all three' do
+            WebMock.stub_request(:get, Metadata::CloudInfo::AWS_URI).to_raise(HTTP::ConnectionError)
+            WebMock.stub_request(:get, Metadata::CloudInfo::GCP_URI).to_raise(HTTP::ConnectionError)
+            WebMock.stub_request(:get, Metadata::CloudInfo::AZURE_URI).to_raise(HTTP::ConnectionError)
+
+            subject.fetch!
+            expect(subject.provider).to be nil
+          end
         end
       end
 

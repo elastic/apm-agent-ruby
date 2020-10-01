@@ -79,7 +79,7 @@ module ElasticAPM
         self.availability_zone = metadata["availabilityZone"]
         self.machine_type = metadata["instanceType"]
         self.region = metadata["region"]
-      rescue HTTP::TimeoutError
+      rescue HTTP::TimeoutError, HTTP::ConnectionError
         nil
       end
 
@@ -97,7 +97,7 @@ module ElasticAPM
         self.availability_zone = zone
         self.region = zone.split("-")[0..-2].join("-")
         self.machine_type = metadata["instance"]["machineType"]
-      rescue HTTP::TimeoutError
+      rescue HTTP::TimeoutError, HTTP::ConnectionError
         nil
       end
 
@@ -113,7 +113,7 @@ module ElasticAPM
         self.availability_zone = metadata["zone"]
         self.machine_type = metadata["vmSize"]
         self.region = metadata["location"]
-      rescue HTTP::TimeoutError
+      rescue HTTP::TimeoutError, HTTP::ConnectionError
         nil
       end
     end
