@@ -22,7 +22,7 @@ require 'integration_helper'
 if defined?(Rails)
   require 'action_controller/railtie'
 
-  RSpec.describe 'Rails logger', :allow_running_agent do
+  RSpec.describe 'Rails logger', :allow_running_agent, :mock_intake do
     before :all do
       module RailsTestApp
         class Application < Rails::Application
@@ -37,6 +37,8 @@ if defined?(Rails)
 
       class ApplicationController < ActionController::Base
       end
+
+      MockIntake.stub!
 
       RailsTestApp::Application.initialize!
     end

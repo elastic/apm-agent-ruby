@@ -22,7 +22,7 @@ require 'integration_helper'
 if defined?(Rails)
   require 'action_controller/railtie'
 
-  RSpec.describe 'Rails paths' do
+  RSpec.describe 'Rails paths', :mock_intake do
     before :all do
       module RailsTestApp
         class Application < Rails::Application
@@ -43,6 +43,8 @@ if defined?(Rails)
       allow(RailsTestApp::Application.config.paths['app/views'])
         .to receive(:existent).and_return(['test/path'])
       allow(Rails).to receive(:root).and_return(Pathname.new('rootz'))
+
+      MockIntake.stub!
 
       RailsTestApp::Application.initialize!
     end
