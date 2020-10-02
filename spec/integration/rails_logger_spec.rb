@@ -43,10 +43,6 @@ if defined?(Rails)
       RailsTestApp::Application.initialize!
     end
 
-    after :all do
-      ElasticAPM.stop
-    end
-
     it 'sets the custom logger' do
       expect(Rails.logger).not_to be(ElasticAPM.agent.config.logger)
     end
