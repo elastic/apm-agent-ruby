@@ -23,14 +23,19 @@ module ElasticAPM
       # @api private
       class MetadataSerializer < Serializer
         def build(metadata)
-          {
-            metadata: {
+          base =
+            {
               service: build_service(metadata.service),
               process: build_process(metadata.process),
               system: build_system(metadata.system),
               labels: build_labels(metadata.labels)
             }
-          }
+
+          if (metadata.cloud.provider)
+            base[:cloud] = build_cloud(metadata.cloud)
+          end
+
+          { metadata: base }
         end
 
         private
@@ -80,6 +85,27 @@ module ElasticAPM
             architecture: keyword_field(system.architecture),
             platform: keyword_field(system.platform),
             kubernetes: keyword_object(system.kubernetes)
+          }
+        end
+
+        def build_cloud(cloud)
+          {
+            provider: cloud.provider,
+            account: {
+              id: keyword_field(cloud.account_id),
+              name: keyword_field(cloud.account_name),
+            },
+            availability_zone: keyword_field(cloud.availability_zone),
+            instance: {
+              id: keyword_field(cloud.instance_id),
+              name: keyword_field(cloud.instance_name),
+            },
+            machine: { type: keyword_field(cloud.machine_type) },
+            project: {
+              id: keyword_field(cloud.project_id),
+              name: keyword_field(cloud.project_name),
+            },
+            region: keyword_field(cloud.region)
           }
         end
 

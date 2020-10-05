@@ -62,9 +62,10 @@ module ElasticAPM
         when "none"
           nil
         else
-
           error("Unknown setting for cloud_provider '#{config.cloud_provider}'")
         end
+
+        self
       end
 
       private

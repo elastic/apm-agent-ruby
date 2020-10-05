@@ -28,7 +28,7 @@ module ElasticAPM
       @cloud = CloudInfo.new(config).fetch!
     end
 
-    attr_reader :service, :process, :system, :labels
+    attr_reader :service, :process, :system, :cloud, :labels
   end
 end
 
