@@ -120,7 +120,7 @@ module ElasticAPM
       end
 
       if trace_context
-        samled = trace_context.recorded?
+        sampled = trace_context.recorded?
         sample_rate = trace_context.tracestate.sample_rate
       else
         sampled = random_sample?(config)
