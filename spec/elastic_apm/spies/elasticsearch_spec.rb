@@ -24,8 +24,6 @@ require 'elastic_apm/spies/elasticsearch'
 
 module ElasticAPM
   RSpec.describe 'Spy: Elasticsearch' do
-    after { WebMock.reset! }
-
     it 'calls through with no transaction', :intercept do
       req_stub = WebMock.stub_request(:get, %r{http://localhost:9200/.*})
 

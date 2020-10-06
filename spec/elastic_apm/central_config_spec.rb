@@ -21,8 +21,6 @@ require 'spec_helper'
 
 module ElasticAPM
   RSpec.describe CentralConfig do
-    after { WebMock.reset! }
-
     let(:config) do
       Config.new(
         central_config: true,

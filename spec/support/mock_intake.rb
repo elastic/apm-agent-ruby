@@ -84,7 +84,6 @@ class MockIntake
 
   def reset!
     clear!
-    WebMock.reset!
     @request_stub = nil
     @central_config_stub = nil
     @cloud_provider_stubs = nil

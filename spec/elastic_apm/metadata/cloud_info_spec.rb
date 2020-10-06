@@ -72,8 +72,6 @@ module ElasticAPM
       let(:config) { Config.new }
       subject { described_class.new(config) }
 
-      after { WebMock.reset! }
-
       context 'aws' do
         let(:config) { Config.new(cloud_provider: 'aws') }
 
