@@ -71,7 +71,9 @@ module ElasticAPM
       private
 
       def fetch_aws
-        return unless (resp = @client.get(AWS_URI))
+        resp = @client.get(AWS_URI)
+
+        return unless resp.status === 200
         return unless (metadata = JSON.parse(resp.body))
 
         self.provider = "aws"
@@ -85,7 +87,9 @@ module ElasticAPM
       end
 
       def fetch_gcp
-        return unless (resp = @client.headers("Metadata-Flavor" => "Google").get(GCP_URI))
+        resp = @client.headers("Metadata-Flavor" => "Google").get(GCP_URI)
+
+        return unless resp.status === 200
         return unless (metadata = JSON.parse(resp.body))
 
         zone = metadata["instance"]["zone"]&.split("/")&.at(-1)
@@ -103,7 +107,9 @@ module ElasticAPM
       end
 
       def fetch_azure
-        return unless (resp = @client.headers("Metadata" => "true").get(AZURE_URI))
+        resp = @client.headers("Metadata" => "true").get(AZURE_URI)
+
+        return unless resp.status === 200
         return unless (metadata = JSON.parse(resp.body))
 
         self.provider = 'azure'
