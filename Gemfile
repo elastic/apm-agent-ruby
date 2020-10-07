@@ -38,8 +38,6 @@ gem 'elasticsearch', require: nil
 gem 'fakeredis', require: nil
 gem 'faraday', require: nil
 gem 'graphql', require: nil
-gem 'google-protobuf', '< 3.12' if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.5'
-gem 'grpc' if !defined?(JRUBY_VERSION)
 gem 'json'
 gem 'json-schema', require: nil
 gem 'mongo', require: nil
@@ -55,6 +53,11 @@ gem 'sneakers', '~> 2.12', require: nil
 gem 'sucker_punch', '~> 2.0', require: nil
 gem 'yard', require: nil
 gem 'yarjuf'
+
+if !defined?(JRUBY_VERSION)
+  gem 'google-protobuf', '< 3.12' if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.5'
+  gem 'grpc' if !defined?(JRUBY_VERSION)
+end
 
 ## Install Framework
 GITHUB_REPOS = {
