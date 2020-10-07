@@ -25,9 +25,8 @@ module ElasticAPM
   module Transport
     RSpec.describe Connection do
       let(:config) { Config.new(http_compression: false) }
-      subject { described_class.new(config) }
 
-      after { WebMock.reset! }
+      subject { described_class.new(config) }
 
       describe '#initialize' do
         it 'is has no active connection' do
@@ -182,6 +181,7 @@ module ElasticAPM
 
         context 'and gzip off' do
           let(:config) { Config.new(http_compression: false) }
+
           let(:metadata) do
             Serializers::MetadataSerializer.new(config).build(
               Metadata.new(config)
@@ -189,7 +189,8 @@ module ElasticAPM
           end
 
           before do
-            config.api_request_size = "#{metadata.to_json.bytesize + 1}b"
+            config.api_request_size =
+              "#{JSON.fast_generate(metadata).bytesize - 1}b"
           end
 
           it 'closes requests when reached' do

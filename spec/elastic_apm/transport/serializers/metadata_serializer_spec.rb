@@ -58,6 +58,24 @@ module ElasticAPM
               expect(result[:metadata][:process]).to be_a Hash
               expect(result[:metadata][:system]).to be_a Hash
               expect(result[:metadata][:labels]).to be_a Hash
+              expect(result[:metadata][:cloud]).to be nil
+            end
+          end
+
+          context "with cloud info" do
+            it 'adds cloud info' do
+              metadata.cloud.provider = 'something'
+              metadata.cloud.account_id = 'asdf'
+
+              expect(result.dig(:metadata, :cloud)).to match(
+                account: { id: 'asdf', name: nil },
+                availability_zone: nil,
+                instance: { id: nil, name: nil },
+                machine: { type: nil },
+                project: { id: nil, name: nil },
+                provider: 'something',
+                region: nil
+              )
             end
           end
         end

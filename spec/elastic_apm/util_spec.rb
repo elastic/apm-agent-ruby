@@ -47,6 +47,10 @@ module ElasticAPM
         expect(result).to match(/\AX{1023}…\z/)
         expect(result.length).to be 1024
       end
+
+      it 'converts to string' do
+        expect(Util.truncate(1)).to eq '1'
+      end
     end
 
     describe '.reverse_merge!' do

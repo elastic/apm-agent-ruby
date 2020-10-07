@@ -47,6 +47,7 @@ module ElasticAPM
       end
 
       attr_reader :http
+
       def write(str)
         return false if @config.disable_send
 

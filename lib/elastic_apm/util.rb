@@ -46,6 +46,8 @@ module ElasticAPM
 
     def self.truncate(value, max_length: 1024)
       return unless value
+
+      value = String(value)
       return value if value.length <= max_length
 
       value[0...(max_length - 1)] + '…'

@@ -26,9 +26,9 @@ class EventCollector
   end
 
   class << self
-    def method_missing(name, *args, &block)
+    def method_missing(name, *args, **kw_args, &block)
       if instance.respond_to?(name)
-        instance.send(name, *args, &block)
+        instance.send(name, *args, **kw_args, &block)
       else
         super
       end

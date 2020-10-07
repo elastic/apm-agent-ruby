@@ -50,6 +50,7 @@ module ElasticAPM
     option :capture_elasticsearch_queries,     type: :bool,   default: false
     option :capture_env,                       type: :bool,   default: true
     option :central_config,                    type: :bool,   default: true
+    option :cloud_provider,                    type: :string, default: 'auto'
     option :current_user_email_method,         type: :string, default: 'email'
     option :current_user_id_method,            type: :string, default: 'id'
     option :current_user_username_method,      type: :string, default: 'username'

@@ -49,6 +49,12 @@ class MockIntake
   end
 
   def stub!
+    @cloud_provider_stubs = {
+      aws:   WebMock.stub_request(:get, ElasticAPM::Metadata::CloudInfo::AWS_URI).to_timeout,
+      gcp:   WebMock.stub_request(:get, ElasticAPM::Metadata::CloudInfo::GCP_URI).to_timeout,
+      azure: WebMock.stub_request(:get, ElasticAPM::Metadata::CloudInfo::AZURE_URI).to_timeout
+    }
+
     @central_config_stub =
       WebMock.stub_request(
         :get, %r{^http://localhost:8200/config/v1/agents/?$}
@@ -78,9 +84,9 @@ class MockIntake
 
   def reset!
     clear!
-    WebMock.reset!
     @request_stub = nil
     @central_config_stub = nil
+    @cloud_provider_stubs = nil
   end
 
   def call(env)
