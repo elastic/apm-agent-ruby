@@ -43,6 +43,7 @@ endif::[]
 ===== Added
 
 - Add and read sampling info from Tracestate headers {pull}858[#858]
+- Add information about cloud hosting environment if available {pull}871[#871]
 
 [float]
 ===== Changed
