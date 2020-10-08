@@ -54,7 +54,7 @@ gem 'sucker_punch', '~> 2.0', require: nil
 gem 'yard', require: nil
 gem 'yarjuf'
 
-if !defined?(JRUBY_VERSION)
+if !defined?(JRUBY_VERSION) && RUBY_VERSION < '3'
   gem 'google-protobuf', '< 3.12' if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.5'
   gem 'grpc' if !defined?(JRUBY_VERSION)
 end
