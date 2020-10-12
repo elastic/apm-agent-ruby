@@ -136,6 +136,17 @@ module ElasticAPM
       end
     end
 
+    describe 'sample rate precision' do
+      context 'sets a minimum' do
+        subject { Config.new(transaction_sample_rate: '0.00001') }
+        its(:transaction_sample_rate) { should eq 0.0001 }
+      end
+      context 'ensures max 4 digits of precision' do
+        subject { Config.new(transaction_sample_rate: '0.55554') }
+        its(:transaction_sample_rate) { should eq 0.5555 }
+      end
+    end
+
     it 'yields itself to a given block' do
       config = Config.new { |c| c.server_url = 'somewhere-else.com' }
       expect(config.server_url).to eq 'somewhere-else.com'

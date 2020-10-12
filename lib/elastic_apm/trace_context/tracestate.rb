@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'elastic_apm/util/precision_validator'
+
 module ElasticAPM
   class TraceContext
     # @api private
@@ -63,13 +65,9 @@ module ElasticAPM
         end
 
         def sample_rate=(val)
-          float = Float(val).round(3)
-
-          return nil unless (0.0..1.0).include?(float)
-
-          @sample_rate = float
-        rescue ArgumentError => e
-          nil
+          @sample_rate = Util::PrecisionValidator.validate(
+            val, precision: 4, minimum: 0.0001
+          )
         end
 
         def to_s
