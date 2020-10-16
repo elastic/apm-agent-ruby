@@ -21,7 +21,7 @@ require 'spec_helper'
 
 module ElasticAPM
   RSpec.describe Util::PrecisionValidator do
-    context 'when not a float' do
+    context 'not a float' do
       it 'returns nil' do
         expect(described_class.validate('a')).to eq nil
       end
@@ -46,12 +46,12 @@ module ElasticAPM
     end
 
     context 'equal to 0' do
-      it 'returns 1' do
+      it 'returns 0' do
         expect(described_class.validate(0)).to eq 0
       end
     end
 
-    context 'less than the minimum' do
+    context 'between 0 and the minimum' do
       it 'returns the minimum' do
         expect(described_class.validate(
           0.00001, precision: 4, minimum: 0.0001)

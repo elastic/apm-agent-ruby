@@ -20,22 +20,25 @@
 module ElasticAPM
   module Util
     # @api private
+    # Rounds half away from zero.
+    # If `minimum` is provided, and the value rounds to 0 (but was not zero to
+    # begin with), use the minimum instead.
     module PrecisionValidator
       extend self
 
       def validate(value, precision: 0, minimum: nil)
         float = Float(value)
-        return nil unless (0.0..1.0).include?(float)
+        return nil unless (0.0..1.0).cover?(float)
         return float if float == 0
 
-        multiplier = 10 ** precision
-        rounded = Float((float * multiplier + 0.5).floor) / multiplier
+        multiplier = Float(10**precision)
+        rounded = (float * multiplier + 0.5).floor / multiplier
         if rounded == 0 && minimum
           minimum
         else
           rounded
         end
-      rescue ArgumentError => e
+      rescue ArgumentError
         nil
       end
     end
