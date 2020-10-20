@@ -22,7 +22,7 @@ require 'elastic_apm/util/precision_validator'
 module ElasticAPM
   class Config
     # @api private
-    class Precision
+    class RoundFloat
       def call(value)
         Util::PrecisionValidator.validate(value, precision: 4, minimum: 0.0001)
       end
