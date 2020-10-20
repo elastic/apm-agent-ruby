@@ -17,9 +17,10 @@
 
 # frozen_string_literal: true
 
-require 'elastic_apm/config/options'
-require 'elastic_apm/config/duration'
 require 'elastic_apm/config/bytes'
+require 'elastic_apm/config/duration'
+require 'elastic_apm/config/options'
+require 'elastic_apm/config/round_float'
 require 'elastic_apm/config/regexp_list'
 require 'elastic_apm/config/wildcard_pattern_list'
 
@@ -96,7 +97,7 @@ module ElasticAPM
     option :stack_trace_limit,                 type: :int,    default: 999_999
     option :transaction_ignore_urls,           type: :list,   default: [],      converter: WildcardPatternList.new
     option :transaction_max_spans,             type: :int,    default: 500
-    option :transaction_sample_rate,           type: :float,  default: 1.0
+    option :transaction_sample_rate,           type: :float,  default: 1.0,     converter: RoundFloat.new
     option :use_elastic_traceparent_header,    type: :bool,   default: true
     option :use_legacy_sql_parser,             type: :bool,   default: false
     option :verify_server_cert,                type: :bool,   default: true

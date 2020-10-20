@@ -49,6 +49,7 @@ endif::[]
 ===== Changed
 
 - Align the default value of `sanitize_field_names` with other agents {pull}867[#867]
+- Ensure max 4 digits of precision for `sample_rate` as per agent spec {pull}880[#880]
 
 [float]
 ===== Fixed

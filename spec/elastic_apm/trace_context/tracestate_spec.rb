@@ -81,10 +81,10 @@ module ElasticAPM
         expect(state.to_header).to eq 'es=s:0.5'
       end
 
-      it 'rounds to three decimals' do
+      it 'ensures max 4 digits of precision' do
         state = described_class.new
-        state.sample_rate = 0.123456
-        expect(state.to_header).to eq('es=s:0.123')
+        state.sample_rate = 0.55554
+        expect(state.to_header).to eq('es=s:0.5555')
       end
     end
   end
