@@ -78,6 +78,27 @@ module ElasticAPM
               )
             end
           end
+
+          context "with kubernetes info" do
+            let(:metadata) do
+              with_env(
+                'KUBERNETES_NAMESPACE' => 'my-namespace',
+                'KUBERNETES_NODE_NAME' => 'my-node-name',
+                'KUBERNETES_POD_NAME' => 'my-pod-name',
+                'KUBERNETES_POD_UID' => 'my-pod-uid'
+              ) do
+                Metadata.new(Config.new(cloud_provider: 'none'))
+              end
+            end
+
+            it 'formats correctly' do
+              expect(result.dig(:metadata, :system, :kubernetes)).to match(
+                namespace: "my-namespace",
+                node: { name: "my-node-name" },
+                pod: { name: "my-pod-name", uid: "my-pod-uid" }
+              )
+            end
+          end
         end
       end
     end
