@@ -45,18 +45,20 @@ module ElasticAPM
         def keyword_object(hash)
           return unless hash
 
-          hash.tap do |h|
-            h.each { |k, v| hash[k] = keyword_field(v) }
+          hash.each do |k, v|
+            hash[k] =
+              case v
+              when Hash then keyword_object(v)
+              else keyword_field(v)
+              end
           end
         end
 
         def mixed_object(hash)
           return unless hash
 
-          hash.tap do |h|
-            h.each do |k, v|
-              hash[k] = v.is_a?(String) ? keyword_field(v) : v
-            end
+          hash.each do |k, v|
+            hash[k] = v.is_a?(String) ? keyword_field(v) : v
           end
         end
       end

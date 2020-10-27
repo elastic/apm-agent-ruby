@@ -71,7 +71,7 @@ module ElasticAPM
       end
 
       describe '#keyword_object' do
-        class TruncateSerializer < Serializers::Serializer
+        class TruncateObjectSerializer < Serializers::Serializer
           def serialize(obj)
             keyword_object(obj)
           end
@@ -79,13 +79,19 @@ module ElasticAPM
 
         it 'truncates values to 1024 chars' do
           obj = { test: 'X' * 2000 }
-          thing = TruncateSerializer.new(Config.new).serialize(obj)
+          thing = TruncateObjectSerializer.new(Config.new).serialize(obj)
           expect(thing[:test]).to match(/X{1023}…/)
+        end
+
+        it 'works for nested hashes' do
+          obj = { test: { nested: { test: 'Y' * 2000 } } }
+          thing = TruncateObjectSerializer.new(Config.new).serialize(obj)
+          expect(thing[:test][:nested][:test]).to match(/Y{1023}…/)
         end
       end
 
       describe '#mixed_object' do
-        class TruncateSerializer < Serializers::Serializer
+        class TruncateMixedSerializer < Serializers::Serializer
           def serialize(obj)
             mixed_object(obj)
           end
@@ -95,7 +101,7 @@ module ElasticAPM
           obj = { string: 'X' * 2000,
                   bool: true,
                   numerical: 123 }
-          thing = TruncateSerializer.new(Config.new).serialize(obj)
+          thing = TruncateMixedSerializer.new(Config.new).serialize(obj)
           expect(thing[:string]).to match(/X{1023}…/)
           expect(thing[:bool]).to match(true)
           expect(thing[:numerical]).to match(123)
