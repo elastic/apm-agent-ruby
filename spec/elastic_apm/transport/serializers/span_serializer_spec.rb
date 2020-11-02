@@ -63,7 +63,7 @@ module ElasticAPM
                 sample_rate: 1,
                 timestamp: 694_224_000_000_000,
                 duration: 10,
-                outcome: 'success'
+                outcome: nil
               }
             )
           end
@@ -202,6 +202,21 @@ module ElasticAPM
 
             it 'joins them for sending' do
               expect(result[:span][:type]).to eq 'a.b.c'
+            end
+          end
+
+          context 'with outcome' do
+            it 'adds the outcome' do
+              span = Span.new(
+                name: 'Span',
+                transaction: transaction,
+                parent: transaction,
+                trace_context: trace_context
+              )
+
+              span.outcome = 'success'
+              result = subject.build(span)
+              expect(result[:span][:outcome]).to eq 'success'
             end
           end
         end
