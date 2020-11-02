@@ -67,6 +67,7 @@ module ElasticAPM
       :action,
       :name,
       :original_backtrace,
+      :outcome,
       :subtype,
       :trace_context,
       :type

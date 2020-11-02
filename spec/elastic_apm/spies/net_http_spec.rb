@@ -37,6 +37,7 @@ module ElasticAPM
       span, = @intercepted.spans
 
       expect(span.name).to eq 'GET example.com'
+      expect(span.outcome).to eq 'success'
     end
 
     it 'spans inline http calls' do
@@ -231,6 +232,23 @@ module ElasticAPM
       span, = @intercepted.spans
 
       expect(span.name).to eq 'GET exa_ple.com'
+    end
+
+    it 'sets outcome to `failure` for failed requests' do
+      WebMock.stub_request(:get, 'http://example.com')
+        .to_return(status: [400, "Bad Request"])
+
+      with_agent do
+        ElasticAPM.with_transaction 'Net::HTTP test' do
+          Net::HTTP.start('example.com') do |http|
+            http.get '/'
+          end
+        end
+      end
+
+      span, = @intercepted.spans
+
+      expect(span.outcome).to eq 'failure'
     end
   end
 end

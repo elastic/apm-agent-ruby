@@ -52,6 +52,7 @@ module ElasticAPM
                   "name": 'GET /something',
                   "type": 'request',
                   "result": '200',
+                  "outcome": 'success',
                   "context": nil,
                   "duration": 10,
                   "timestamp": 694_224_000_000_000,

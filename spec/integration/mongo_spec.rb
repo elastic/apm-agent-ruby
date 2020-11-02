@@ -51,6 +51,7 @@ module ElasticAPM
       expect(span.subtype).to eq 'mongodb'
       expect(span.action).to eq 'query'
       expect(span.duration).to_not be_nil
+      expect(span.outcome).to eq 'success'
 
       db = span.context.db
       expect(db.instance).to eq 'elastic-apm-test'
@@ -170,6 +171,31 @@ module ElasticAPM
       expect(db.type).to eq 'mongodb'
       expect(db.statement).to include '{"getMore"=>#<BSON::Int64'
       expect(db.user).to be nil
+    end
+
+    it 'sets outcome to `failure` for failed operations', :intercept do
+      with_agent do
+        client =
+            Mongo::Client.new(
+              [url],
+              database: 'elastic-apm-test',
+              logger: Logger.new(nil),
+              server_selection_timeout: 1
+            )
+
+        ElasticAPM.with_transaction 'Mongo test' do
+          begin
+            client['testing'].find('$or' => true).to_a
+          rescue
+          end
+        end
+
+        client.close
+      end
+
+      span, = @intercepted.spans
+
+      expect(span.outcome).to eq 'failure'
     end
   end
 end

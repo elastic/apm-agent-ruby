@@ -112,6 +112,26 @@ module ElasticAPM
         expect(span.type).to eq('db')
         expect(span.subtype).to eq('dynamodb')
         expect(span.action).to eq(operation_name)
+        expect(span.outcome).to eq('success')
+      end
+    end
+
+    context 'when the operation fails' do
+      it 'sets span outcome to `failure`', :intercept do
+        with_agent do
+          ElasticAPM.with_transaction do
+            begin
+              dynamo_db_client.send(
+                'batch_get_item',
+                {},
+                { convert_params: true }
+            )
+            rescue
+            end
+          end
+          span = @intercepted.spans.first
+          expect(span.outcome).to eq('failure')
+        end
       end
     end
   end

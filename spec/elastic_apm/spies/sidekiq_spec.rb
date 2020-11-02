@@ -91,6 +91,7 @@ module ElasticAPM
         expect(transaction).to_not be_nil
         expect(transaction['name']).to eq 'ElasticAPM::HardWorker'
         expect(transaction['type']).to eq 'Sidekiq'
+        expect(transaction['outcome']).to eq 'success'
       end
 
       it 'reports errors' do
@@ -110,6 +111,7 @@ module ElasticAPM
         expect(transaction).to_not be_nil
         expect(transaction['name']).to eq 'ElasticAPM::ExplodingWorker'
         expect(transaction['type']).to eq 'Sidekiq'
+        expect(transaction['outcome']).to eq 'failure'
 
         expect(error.dig('exception', 'type')).to eq 'ZeroDivisionError'
       end

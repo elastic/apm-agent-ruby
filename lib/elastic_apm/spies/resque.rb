@@ -36,10 +36,12 @@ module ElasticAPM
             name = @payload && @payload['class']&.to_s
             transaction = ElasticAPM.start_transaction(name, TYPE)
             perform_without_elastic_apm
-            transaction.done 'success'
+            transaction&.done 'success'
+            ElasticAPM.set_transaction_outcome result: 'success'
           rescue ::Exception => e
             ElasticAPM.report(e, handled: false)
-            transaction.done 'error' if transaction
+            transaction&.done 'error'
+            ElasticAPM.set_transaction_outcome result: 'failure'
             raise
           ensure
             ElasticAPM.end_transaction

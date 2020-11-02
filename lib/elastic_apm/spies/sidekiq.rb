@@ -35,9 +35,11 @@ module ElasticAPM
           yield
 
           transaction&.done :success
+          ElasticAPM.set_transaction_outcome result: 'success'
         rescue ::Exception => e
           ElasticAPM.report(e, handled: false)
           transaction&.done :error
+          ElasticAPM.set_transaction_outcome result: 'failure'
           raise
         ensure
           ElasticAPM.end_transaction

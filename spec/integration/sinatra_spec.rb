@@ -101,6 +101,15 @@ if enabled
     end
 
     describe 'transactions' do
+      it 'sets transaction outcome to `success`' do
+        get '/'
+
+        wait_for transactions: 1
+
+        transaction = @mock_intake.transactions.first
+        expect(transaction['outcome']).to eq 'success'
+      end
+
       it 'wraps requests in a transaction named after route' do
         get '/'
 
@@ -142,6 +151,7 @@ if enabled
         span = @mock_intake.spans.last
         expect(span['name']).to eq 'index'
         expect(span['type']).to eq 'template.tilt'
+        expect(span['outcome']).to eq 'success'
       end
     end
 
@@ -158,6 +168,18 @@ if enabled
           @mock_intake.errors.first
         exception = error_request['exception']
         expect(exception['type']).to eq 'FancyError'
+      end
+
+      it 'sets the transaction outcome to `failure`' do
+        begin
+          get '/error'
+        rescue FancyError
+        end
+
+        wait_for errors: 1, transactions: 1
+
+        transaction = @mock_intake.transactions.first
+        expect(transaction['outcome']).to eq 'failure'
       end
     end
   end

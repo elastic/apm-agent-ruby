@@ -62,7 +62,8 @@ module ElasticAPM
                 stacktrace: [],
                 sample_rate: 1,
                 timestamp: 694_224_000_000_000,
-                duration: 10
+                duration: 10,
+                outcome: 'success'
               }
             )
           end
