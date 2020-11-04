@@ -20,6 +20,16 @@
 module ElasticAPM
   # @api private
   class Transaction
+
+    class Outcome
+      FAILURE = "failure"
+      SUCCESS = "success"
+
+      def self.from_status(code)
+        code.to_i >= 500 ? FAILURE : SUCCESS
+      end
+    end
+
     extend Forwardable
     include ChildDurations::Methods
 

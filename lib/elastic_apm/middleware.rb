@@ -45,9 +45,9 @@ module ElasticAPM
           if resp
             status, headers, _body = resp
             transaction.add_response(status, headers: headers.dup)
-            ElasticAPM.set_transaction_outcome http_status_code: status
+            transaction&.outcome = Transaction::Outcome.from_status(status)
           else
-            ElasticAPM.set_transaction_outcome result: 'failure'
+            transaction&.outcome = Transaction::Outcome::FAILURE
           end
         end
 

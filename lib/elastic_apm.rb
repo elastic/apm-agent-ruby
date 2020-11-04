@@ -184,10 +184,12 @@ module ElasticAPM
             trace_context: trace_context
           )
         result = yield transaction
-        transaction&.outcome = 'success' unless transaction&.outcome
+        transaction&.outcome =
+          Transaction::Outcome::SUCCESS unless transaction&.outcome
         result
       rescue => e
-        transaction&.outcome = 'failure' unless transaction&.outcome
+        transaction&.outcome =
+          Transaction::Outcome::FAILURE unless transaction&.outcome
         raise e
       ensure
         end_transaction
@@ -293,10 +295,12 @@ module ElasticAPM
             sync: sync
           )
         result = yield span
-        span&.outcome = 'success' unless span&.outcome
+        span&.outcome =
+          Span::Outcome::SUCCESS unless span&.outcome
         result
       rescue => e
-        span&.outcome = 'failure' unless span&.outcome
+        span&.outcome =
+          Span::Outcome::FAILURE unless span&.outcome
         raise e
       ensure
         end_span
@@ -390,30 +394,6 @@ module ElasticAPM
       end
 
       agent&.add_filter(key, block || callback)
-    end
-
-    def set_transaction_outcome(result: nil, http_status_code: nil)
-      return unless transaction = current_transaction
-      return transaction.outcome = result if result
-      return unless http_status_code
-      code = http_status_code.to_i
-      if code < 500
-        transaction.outcome = 'success'
-      elsif code >= 500
-        transaction.outcome = 'failure'
-      end
-    end
-
-    def set_span_outcome(result: nil, http_status_code: nil)
-      return unless span = current_span
-      return span.outcome = result if result
-      return unless http_status_code
-      code = http_status_code.to_i
-      if code < 400
-        span.outcome = 'success'
-      elsif code >= 400
-        span.outcome = 'failure'
-      end
     end
   end
 end
