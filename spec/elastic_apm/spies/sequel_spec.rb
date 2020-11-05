@@ -94,5 +94,28 @@ module ElasticAPM
         expect(span.context.db.rows_affected).to eq(3)
       end
     end
+
+    context 'when the operation fails', :intercept do
+      it 'adds `failure` outcome to the span' do
+        db =
+          if RUBY_PLATFORM == 'java'
+            ::Sequel.connect('jdbc:sqlite::memory:')
+          else
+            ::Sequel.sqlite # in-memory
+          end
+
+        with_agent do
+          ElasticAPM.with_transaction 'Sequel failure test' do
+            begin
+              db.execute('SELECT * from foo')
+            rescue
+            end
+          end
+
+          span, = @intercepted.spans
+          expect(span.outcome).to eq 'failure'
+        end
+      end
+    end
   end
 end
