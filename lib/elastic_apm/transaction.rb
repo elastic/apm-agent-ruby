@@ -21,6 +21,7 @@ module ElasticAPM
   # @api private
   class Transaction
 
+    @api private
     class Outcome
       FAILURE = "failure"
       SUCCESS = "success"
