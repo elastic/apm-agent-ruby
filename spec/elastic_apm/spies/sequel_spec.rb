@@ -46,6 +46,7 @@ module ElasticAPM
       span, = @intercepted.spans
 
       expect(span.name).to eq 'SELECT FROM users'
+      expect(span.outcome).to eq 'success'
       expect(span.context.db.statement)
         .to eq "SELECT count(*) AS 'count' FROM `users` LIMIT 1"
 
@@ -77,6 +78,7 @@ module ElasticAPM
 
         spans = @intercepted.spans
         expect(spans.all? { |s| s.context.db.rows_affected.nil? }).to eq(true)
+        expect(spans.all? { |s| s.outcome == 'success' }).to eq(true)
 
         ElasticAPM.with_transaction 'Sequel rows_affected test UPDATE' do
           db[:customers].where(name: 'customer_0').update(name: 'customer_zero')
