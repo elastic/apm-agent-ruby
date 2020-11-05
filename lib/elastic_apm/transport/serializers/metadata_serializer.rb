@@ -115,8 +115,8 @@ module ElasticAPM
 
         # A bug in APM Server 7.9 disallows null values in `cloud`
         def strip_nulls!(hash)
-          hash.each do |key, value|
-            case value
+          hash.keys.each do |key|
+            case value = hash[key]
             when Hash
               strip_nulls!(value)
               hash.delete(key) if value.empty?
