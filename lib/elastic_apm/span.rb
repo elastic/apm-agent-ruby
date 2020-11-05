@@ -25,6 +25,7 @@ module ElasticAPM
     extend Forwardable
     include ChildDurations::Methods
 
+    @api private
     class Outcome
       FAILURE = "failure"
       SUCCESS = "success"
