@@ -35,6 +35,15 @@ endif::[]
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
+[float]
+[[unreleased]]
+==== Unreleased
+
+[float]
+===== Fixed
+
+- Fix reporting from Kubernetes based deploys to APM Server 7.9.x {pull}885[#885]
+
 [[release-notes-3.11.0]]
 ==== 3.11.0 (2020-10-27)
 

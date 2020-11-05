@@ -68,13 +68,8 @@ module ElasticAPM
               metadata.cloud.account_id = 'asdf'
 
               expect(result.dig(:metadata, :cloud)).to match(
-                account: { id: 'asdf', name: nil },
-                availability_zone: nil,
-                instance: { id: nil, name: nil },
-                machine: { type: nil },
-                project: { id: nil, name: nil },
-                provider: 'something',
-                region: nil
+                account: { id: 'asdf' },
+                provider: 'something'
               )
             end
           end

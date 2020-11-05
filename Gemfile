@@ -22,7 +22,6 @@ source 'https://rubygems.org'
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 # Tools
-gem 'bootsnap', require: false
 gem 'cucumber', require: false
 gem 'pry'
 gem 'rack-test'

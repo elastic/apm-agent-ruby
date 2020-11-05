@@ -89,7 +89,7 @@ module ElasticAPM
         end
 
         def build_cloud(cloud)
-          {
+          strip_nulls!(
             provider: cloud.provider,
             account: {
               id: keyword_field(cloud.account_id),
@@ -106,11 +106,25 @@ module ElasticAPM
               name: keyword_field(cloud.project_name),
             },
             region: keyword_field(cloud.region)
-          }
+          )
         end
 
         def build_labels(labels)
           keyword_object(labels)
+        end
+
+        # A bug in APM Server 7.9 disallows null values in `cloud`
+        def strip_nulls!(hash)
+          hash.keys.each do |key|
+            case value = hash[key]
+            when Hash
+              strip_nulls!(value)
+              hash.delete(key) if value.empty?
+            when nil then hash.delete(key)
+            end
+          end
+
+          hash
         end
       end
     end
