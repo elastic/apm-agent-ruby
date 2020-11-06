@@ -30,7 +30,7 @@ module ElasticAPM
       FAILURE = "failure"
       SUCCESS = "success"
 
-      def self.from_status(code)
+      def self.from_http_status(code)
         code.to_i >= 400 ? FAILURE : SUCCESS
       end
     end
