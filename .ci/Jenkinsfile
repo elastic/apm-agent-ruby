@@ -165,8 +165,7 @@ pipeline {
           unstash 'source'
           dir(BASE_DIR) {
             catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: 'BDD Tests failed but keep running the build') {
-              sh(label: "Install dependencies", script: "./bin/setup")
-              sh(label: "Run BDD tests", script: "./spec/scripts/spec.sh ruby:2.7")
+              sh(label: "Run BDD tests", script: "./spec/scripts/features.sh ruby:2.7")
             }
           }
         }
