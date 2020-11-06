@@ -35,6 +35,15 @@ endif::[]
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
+[float]
+[[unreleased]]
+==== Unreleased
+
+[float]
+===== Added
+
+- Add outcome to transactions and spans {pull}883[#883]
+
 [[release-notes-3.11.1]]
 ==== 3.11.1 (2020-11-05)
 
