@@ -184,8 +184,7 @@ module ElasticAPM
             trace_context: trace_context
           )
         result = yield transaction
-        transaction&.outcome =
-          Transaction::Outcome::SUCCESS unless transaction&.outcome
+        transaction&.outcome ||= Transaction::Outcome::SUCCESS
         result
       rescue => e
         transaction&.outcome =
