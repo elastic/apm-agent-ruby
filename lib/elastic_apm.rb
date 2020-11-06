@@ -187,8 +187,7 @@ module ElasticAPM
         transaction&.outcome ||= Transaction::Outcome::SUCCESS
         result
       rescue => e
-        transaction&.outcome =
-          Transaction::Outcome::FAILURE unless transaction&.outcome
+        transaction&.outcome ||= Transaction::Outcome::FAILURE
         raise e
       ensure
         end_transaction
