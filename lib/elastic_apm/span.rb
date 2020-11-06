@@ -29,6 +29,7 @@ module ElasticAPM
     class Outcome
       FAILURE = "failure"
       SUCCESS = "success"
+      UNKNOWN = "unknown"
 
       def self.from_http_status(code)
         code.to_i >= 400 ? FAILURE : SUCCESS
