@@ -143,6 +143,35 @@ pipeline {
         }
       }
     }
+    stage('BDD Tests') {
+      when {
+        beforeAgent true
+        allOf {
+          expression { return env.ONLY_DOCS == "false" }
+          anyOf {
+            not { changeRequest() }
+            expression { return params.Run_As_Master_Branch }
+          }
+        }
+      }
+      options { skipDefaultCheckout() }
+      environment {
+        HOME = "${env.WORKSPACE}"
+        PATH = "${env.WORKSPACE}/bin:${env.PATH}"
+      }
+      steps {
+        withGithubNotify(context: 'BDD Tests') {
+          deleteDir()
+          unstash 'source'
+          dir(BASE_DIR) {
+            catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: 'BDD Tests failed but keep running the build') {
+              sh(label: "Install dependencies", script: "./bin/setup")
+              sh(label: "Run BDD tests", script: "./spec/scripts/spec.sh ruby:2.7")
+            }
+          }
+        }
+      }
+    }
     stage('Benchmarks') {
       options { skipDefaultCheckout() }
       when {
