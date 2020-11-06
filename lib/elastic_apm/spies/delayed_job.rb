@@ -46,7 +46,7 @@ module ElasticAPM
       rescue ::Exception => e
         ElasticAPM.report(e, handled: false)
         transaction&.done 'error'
-        transaction&.outcome = Transaction::Outcome::FAILURE
+        transaction&.outcome ||= Transaction::Outcome::FAILURE
         raise
       ensure
         ElasticAPM.end_transaction
