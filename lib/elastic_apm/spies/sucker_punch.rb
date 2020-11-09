@@ -35,12 +35,14 @@ module ElasticAPM
             transaction = ElasticAPM.start_transaction(name, TYPE)
             __run_perform_without_elastic_apm(*args)
             transaction.done 'success'
+            transaction&.outcome = Transaction::Outcome::SUCCESS
           rescue ::Exception => e
             # Note that SuckerPunch by default doesn't raise the errors from
             # the user-defined JobClass#perform method as it uses an error
             # handler, accessed via `SuckerPunch.exception_handler`.
             ElasticAPM.report(e, handled: false)
             transaction.done 'error'
+            transaction&.outcome = Transaction::Outcome::FAILURE
             raise
           ensure
             ElasticAPM.end_transaction

@@ -35,6 +35,24 @@ module ElasticAPM
       span, = @intercepted.spans
 
       expect(span.name).to eq 'LRANGE'
+      expect(span.outcome).to eq 'success'
+    end
+
+    it 'sets span outcome to `failure` for failed operations', :intercept do
+      redis = ::Redis.new
+
+      with_agent do
+        ElasticAPM.with_transaction 'Redis failure test' do
+          begin
+            redis.bitop("meh", "dest1", "key1")
+          rescue Redis::CommandError
+          end
+        end
+      end
+
+      span, = @intercepted.spans
+
+      expect(span.outcome).to eq 'failure'
     end
   end
 end

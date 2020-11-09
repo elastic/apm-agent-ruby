@@ -44,11 +44,15 @@ module ElasticAPM
         end
 
         def failed(event)
-          pop_event(event)
+          span = pop_event(event)
+          span&.outcome = Span::Outcome::FAILURE
+          span
         end
 
         def succeeded(event)
-          pop_event(event)
+          span = pop_event(event)
+          span&.outcome = Span::Outcome::SUCCESS
+          span
         end
 
         private

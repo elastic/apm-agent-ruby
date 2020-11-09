@@ -61,7 +61,12 @@ module ElasticAPM
               action: ACTION,
               context: context
             )
-            yield.tap do |result|
+            log_connection_yield_without_apm(
+              sql,
+              connection,
+              args,
+              &block
+            ).tap do |result|
               if name =~ /^(UPDATE|DELETE)/
                 if connection.respond_to?(:changes)
                   span.context.db.rows_affected = connection.changes
@@ -70,7 +75,11 @@ module ElasticAPM
                 end
               end
             end
+          rescue
+            span&.outcome = Span::Outcome::FAILURE
+            raise
           ensure
+            span&.outcome ||= Span::Outcome::SUCCESS
             ElasticAPM.end_span
           end
         end

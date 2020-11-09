@@ -183,7 +183,12 @@ module ElasticAPM
             context: context,
             trace_context: trace_context
           )
-        yield transaction
+        result = yield transaction
+        transaction&.outcome ||= Transaction::Outcome::SUCCESS
+        result
+      rescue
+        transaction&.outcome ||= Transaction::Outcome::FAILURE
+        raise
       ensure
         end_transaction
       end
@@ -287,7 +292,14 @@ module ElasticAPM
             parent: parent,
             sync: sync
           )
-        yield span
+        result = yield span
+        span&.outcome =
+          Span::Outcome::SUCCESS unless span&.outcome
+        result
+      rescue
+        span&.outcome =
+          Span::Outcome::FAILURE unless span&.outcome
+        raise
       ensure
         end_span
       end

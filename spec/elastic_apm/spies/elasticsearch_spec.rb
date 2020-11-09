@@ -47,6 +47,7 @@ module ElasticAPM
       net_span, span = @intercepted.spans
 
       expect(span.name).to eq 'GET _search'
+      expect(span.outcome).to eq 'success'
       expect(span.context.db.statement).to eq('{"params":{"q":"test"}}')
 
       expect(net_span.name).to eq 'GET localhost'
@@ -129,6 +130,26 @@ module ElasticAPM
           expect(span.context.db.statement)
             .to eq('{"params":{}}')
           span
+        end
+      end
+
+      context 'when the request fails' do
+        it 'sets span outcome to `failure`', :intercept do
+          WebMock.stub_request(:get, %r{http://localhost:9200/.*})
+            .to_return(status: [400, "Bad Request"])
+          client = Elasticsearch::Client.new log: false
+
+          with_agent do
+            ElasticAPM.with_transaction do
+              begin
+                client.search q: 'test'
+              rescue
+              end
+            end
+          end
+
+          span, = @intercepted.spans
+          expect(span.outcome).to eq 'failure'
         end
       end
     end

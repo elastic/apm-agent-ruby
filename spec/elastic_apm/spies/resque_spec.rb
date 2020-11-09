@@ -55,6 +55,7 @@ module ElasticAPM
       expect(transaction.name).to eq 'ElasticAPM::TestJob'
       expect(transaction.type).to eq 'Resque'
       expect(transaction.result).to eq 'success'
+      expect(transaction.outcome).to eq 'success'
     end
 
     context 'when there is an error' do
@@ -68,6 +69,7 @@ module ElasticAPM
         transaction, = @intercepted.transactions
         expect(transaction.name).to eq 'ElasticAPM::ErrorJob'
         expect(transaction.type).to eq 'Resque'
+        expect(transaction.outcome).to eq 'failure'
 
         error, = @intercepted.errors
         expect(error.exception.type).to eq 'ZeroDivisionError'

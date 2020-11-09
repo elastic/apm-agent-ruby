@@ -61,6 +61,7 @@ module ElasticAPM
           expect(transaction.name).to eq 'ElasticAPM::TestJob'
           expect(transaction.type).to eq 'sucker_punch'
           expect(transaction.result).to eq 'success'
+          expect(transaction.outcome).to eq 'success'
         end
       end
 
@@ -78,6 +79,7 @@ module ElasticAPM
           expect(transaction.name).to eq 'ElasticAPM::TestJob'
           expect(transaction.type).to eq 'sucker_punch'
           expect(transaction.result).to eq 'success'
+          expect(transaction.outcome).to eq 'success'
         end
       end
     end
@@ -108,6 +110,7 @@ module ElasticAPM
           expect(transaction.name).to eq 'ElasticAPM::ErrorJob'
           expect(transaction.type).to eq 'sucker_punch'
           expect(transaction.result).to eq 'success'
+          expect(transaction.outcome).to eq 'success'
           expect(@intercepted.errors.size).to eq 0
         end
       end
@@ -127,6 +130,7 @@ module ElasticAPM
           expect(transaction.name).to eq 'ElasticAPM::ErrorJob'
           expect(transaction.type).to eq 'sucker_punch'
           expect(transaction.result).to eq 'success'
+          expect(transaction.outcome).to eq 'success'
           expect(@intercepted.errors.size).to eq 0
         end
       end

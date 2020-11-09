@@ -25,6 +25,17 @@ module ElasticAPM
     extend Forwardable
     include ChildDurations::Methods
 
+    # @api private
+    class Outcome
+      FAILURE = "failure"
+      SUCCESS = "success"
+      UNKNOWN = "unknown"
+
+      def self.from_http_status(code)
+        code.to_i >= 400 ? FAILURE : SUCCESS
+      end
+    end
+
     DEFAULT_TYPE = 'custom'
 
     # rubocop:disable Metrics/ParameterLists
@@ -67,6 +78,7 @@ module ElasticAPM
       :action,
       :name,
       :original_backtrace,
+      :outcome,
       :subtype,
       :trace_context,
       :type

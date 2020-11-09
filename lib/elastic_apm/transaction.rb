@@ -20,6 +20,18 @@
 module ElasticAPM
   # @api private
   class Transaction
+
+    # @api private
+    class Outcome
+      FAILURE = "failure"
+      SUCCESS = "success"
+      UNKNOWN = "unknown"
+
+      def self.from_http_status(code)
+        code.to_i >= 500 ? FAILURE : SUCCESS
+      end
+    end
+
     extend Forwardable
     include ChildDurations::Methods
 
@@ -74,7 +86,7 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/ParameterLists
 
-    attr_accessor :name, :type, :result
+    attr_accessor :name, :type, :result, :outcome
 
     attr_reader(
       :breakdown_metrics,
