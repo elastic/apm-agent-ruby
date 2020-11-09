@@ -23,7 +23,6 @@ require 'elastic_apm/spies/shoryuken'
 
 begin
   require 'active_job'
-  require 'active_record'
 rescue LoadError
 end
 
