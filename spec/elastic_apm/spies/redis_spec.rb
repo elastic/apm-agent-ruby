@@ -42,7 +42,7 @@ module ElasticAPM
       redis = ::Redis.new
 
       with_agent do
-        ElasticAPM.with_transaction 'T' do
+        ElasticAPM.with_transaction 'Redis failure test' do
           begin
             redis.bitop("meh", "dest1", "key1")
           rescue Redis::CommandError
