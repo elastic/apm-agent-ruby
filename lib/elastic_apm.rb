@@ -186,9 +186,9 @@ module ElasticAPM
         result = yield transaction
         transaction&.outcome ||= Transaction::Outcome::SUCCESS
         result
-      rescue => e
+      rescue
         transaction&.outcome ||= Transaction::Outcome::FAILURE
-        raise e
+        raise
       ensure
         end_transaction
       end
@@ -296,10 +296,10 @@ module ElasticAPM
         span&.outcome =
           Span::Outcome::SUCCESS unless span&.outcome
         result
-      rescue => e
+      rescue
         span&.outcome =
           Span::Outcome::FAILURE unless span&.outcome
-        raise e
+        raise
       ensure
         end_span
       end
