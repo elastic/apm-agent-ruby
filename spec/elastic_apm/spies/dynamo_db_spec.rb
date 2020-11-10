@@ -43,12 +43,17 @@ module ElasticAPM
             write_capacity_units: 1
           }
         },
+        export_table_to_point_in_time: {
+          table_arn: 'TableArn',
+          s3_bucket: 'S3Bucket'
+        },
         delete_backup: { backup_arn: '' },
         delete_item: { table_name: 'test', key: {} },
         delete_table: { table_name: 'test' },
         describe_backup: { backup_arn: 'test' },
         describe_continuous_backups: { table_name: 'test' },
         describe_contributor_insights: { table_name: 'test' },
+        describe_export: { export_arn: 'ExportArn' },
         describe_global_table: { global_table_name: 'test' },
         describe_global_table_settings: { global_table_name: 'test' },
         describe_table: { table_name: 'test' },
