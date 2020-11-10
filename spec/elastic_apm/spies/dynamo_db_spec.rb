@@ -47,11 +47,7 @@ module ElasticAPM
         with_agent do
           ElasticAPM.with_transaction do
             begin
-              dynamo_db_client.send(
-                'batch_get_item',
-                {},
-                { convert_params: true }
-            )
+              dynamo_db_client.batch_get_item({})
             rescue
             end
           end
