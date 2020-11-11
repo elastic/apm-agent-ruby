@@ -25,95 +25,21 @@ module ElasticAPM
     let(:dynamo_db_client) do
       ::Aws::DynamoDB::Client.new(stub_responses: true)
     end
-    let(:operation_params) do
-      {
-        batch_get_item: { request_items: {} },
-        batch_write_item: { request_items: {} },
-        create_backup: { table_name: 'test', backup_name: 'test' },
-        create_global_table: {
-          global_table_name: 'test',
-          replication_group: []
-        },
-        create_table: {
-          table_name: 'test',
-          key_schema: {},
-          attribute_definitions: {},
-          provisioned_throughput: {
-            read_capacity_units: 1,
-            write_capacity_units: 1
-          }
-        },
-        delete_backup: { backup_arn: '' },
-        delete_item: { table_name: 'test', key: {} },
-        delete_table: { table_name: 'test' },
-        describe_backup: { backup_arn: 'test' },
-        describe_continuous_backups: { table_name: 'test' },
-        describe_contributor_insights: { table_name: 'test' },
-        describe_global_table: { global_table_name: 'test' },
-        describe_global_table_settings: { global_table_name: 'test' },
-        describe_table: { table_name: 'test' },
-        describe_table_replica_auto_scaling: { table_name: 'test' },
-        describe_time_to_live: { table_name: 'test' },
-        get_item: { table_name: 'test', key: {} },
-        list_tags_of_resource: { resource_arn: 'test' },
-        put_item: { table_name: 'test', item: {} },
-        query: { table_name: 'test' },
-        restore_table_from_backup: {
-          target_table_name: 'test',
-          backup_arn: 'test'
-        },
-        restore_table_to_point_in_time: {
-          source_table_name: 'test',
-          target_table_name: 'test'
-        },
-        scan: { table_name: 'test' },
-        tag_resource: { resource_arn: '', tags: [] },
-        transact_get_items: { transact_items: {} },
-        transact_write_items: { transact_items: {} },
-        update_continuous_backups: {
-          table_name: 'test',
-          point_in_time_recovery_specification: {
-            point_in_time_recovery_enabled: true
-          }
-        },
-        update_contributor_insights: {
-          table_name: 'test',
-          contributor_insights_action: 'test'
-        },
-        update_global_table: { global_table_name: 'test', replica_updates: {} },
-        update_global_table_settings: { global_table_name: 'test' },
-        update_item: { table_name: 'test', key: {} },
-        untag_resource: { resource_arn: 'test', tag_keys: {} },
-        update_table: { table_name: 'test' },
-        update_table_replica_auto_scaling: { table_name: 'test' },
-        update_time_to_live: {
-          table_name: 'test',
-          time_to_live_specification: { enabled: true, attribute_name: 'test' }
-        }
-      }
-    end
 
-    ::Aws::DynamoDB::Client.api.operation_names.each do |operation_name|
-      it "spans #{operation_name}", :intercept do
-        with_agent do
-          ElasticAPM.with_transaction 'T' do
-            params = operation_params[operation_name] || {}
-            dynamo_db_client.send(
-              operation_name,
-              params,
-              { convert_params: true }
-            )
-          end
+    it "spans operations", :intercept do
+      with_agent do
+        ElasticAPM.with_transaction 'T' do
+          dynamo_db_client.update_item(table_name: 'test', key: {})
         end
-
-        span = @intercepted.spans.first
-
-        expect(span.name).to eq(operation_name)
-        expect(span.type).to eq('db')
-        expect(span.subtype).to eq('dynamodb')
-        expect(span.action).to eq(operation_name)
-        expect(span.outcome).to eq('success')
       end
+
+      span = @intercepted.spans.first
+
+      expect(span.name).to eq(:update_item)
+      expect(span.type).to eq('db')
+      expect(span.subtype).to eq('dynamodb')
+      expect(span.action).to eq(:update_item)
+      expect(span.outcome).to eq('success')
     end
 
     context 'when the operation fails' do
@@ -121,11 +47,7 @@ module ElasticAPM
         with_agent do
           ElasticAPM.with_transaction do
             begin
-              dynamo_db_client.send(
-                'batch_get_item',
-                {},
-                { convert_params: true }
-            )
+              dynamo_db_client.batch_get_item({})
             rescue
             end
           end
