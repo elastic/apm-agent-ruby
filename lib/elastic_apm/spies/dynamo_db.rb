@@ -33,16 +33,18 @@ module ElasticAPM
       end
 
       module Ext
-        ::Aws::DynamoDB::Client.api.operation_names.each do |operation_name|
-          define_method(operation_name) do |params = {}, options = {}|
-            ElasticAPM.with_span(
-              operation_name,
-              'db',
-              subtype: 'dynamodb',
-              action: operation_name
-            ) do
-              ElasticAPM::Spies::DynamoDBSpy.without_net_http do
-                super(params, options)
+        def self.prepended(mod)
+          mod.api.operation_names.each do |operation_name|
+            define_method(operation_name) do |params = {}, options = {}|
+              ElasticAPM.with_span(
+                operation_name,
+                'db',
+                subtype: 'dynamodb',
+                action: operation_name
+              ) do
+                ElasticAPM::Spies::DynamoDBSpy.without_net_http do
+                  super(params, options)
+                end
               end
             end
           end
