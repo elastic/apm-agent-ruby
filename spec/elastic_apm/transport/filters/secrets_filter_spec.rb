@@ -28,26 +28,26 @@ module ElasticAPM
 
         it 'strips secrets from nested objects' do
           values = {
-            body: { ApiKey: 1 },
-            env: { ApiKey: 1 },
-            cookies: { ApiKey: 1 },
-            headers: { ApiKey: 1 }
+            body: { ApiKey: '1' },
+            env: { ApiKey: '1' },
+            cookies: { ApiKey: '1' },
+            headers: { ApiKey: '1' }
           }
 
           payload = {
             transaction: {
               context: {
                 request: values,
-                response: { headers: { ApiKey: 1 } }
+                response: { headers: { ApiKey: '1' } }
               }
             },
             error: {
               context: {
                 request: Util::DeepDup.dup(values),
-                response: { headers: { ApiKey: 1 } }
+                response: { headers: { ApiKey: '1' } }
               }
             },
-            something_else: { ApiKey: 1 }
+            something_else: { ApiKey: '1' }
           }
 
           subject.call(payload)
@@ -62,7 +62,7 @@ module ElasticAPM
           expect(payload.dig(:error, :context, :request, :env, :ApiKey)).to eq '[FILTERED]'
           expect(payload.dig(:error, :context, :request, :headers, :ApiKey)).to eq '[FILTERED]'
           expect(payload.dig(:error, :context, :response, :headers, :ApiKey)).to eq '[FILTERED]'
-          expect(payload.dig(:something_else, :ApiKey)).to eq 1
+          expect(payload.dig(:something_else, :ApiKey)).to eq '1'
         end
 
         context 'with custom sanitize_field_names' do
@@ -74,7 +74,7 @@ module ElasticAPM
                 context: {
                   request: {
                     headers: {
-                      Authorization: 1,
+                      Authorization: '1',
                       Authentication: 2,
                       SomethingElse: 3
                     }
