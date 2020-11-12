@@ -31,14 +31,13 @@
 
 # frozen_string_literal: true
 
-if !defined?(JRUBY_VERSION)
+unless defined?(JRUBY_VERSION)
   require_relative 'helloworld_pb'
 
   module Helloworld
     module Greeter
       # The greeting service definition.
       class Service
-
         include GRPC::GenericService
 
         self.marshal_class_method = :encode

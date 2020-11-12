@@ -96,6 +96,7 @@ class EventCollector
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+  # rubocop:disable Style/SoleNestedConditional
   def wait_for(timeout: 5, **expected)
     if expected.empty? && !block_given?
       raise ArgumentError, 'Either args or block required'
@@ -142,6 +143,7 @@ class EventCollector
     raise
   end
   # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+  # rubocop:enable Style/SoleNestedConditional
 
   # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def metricsets_summary

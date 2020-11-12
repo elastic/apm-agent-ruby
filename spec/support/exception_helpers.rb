@@ -20,7 +20,7 @@
 module ExceptionHelpers
   def actual_exception
     1 / 0
-  rescue => e # rubocop:disable Style/RescueStandardError
+  rescue => e
     e
   end
 

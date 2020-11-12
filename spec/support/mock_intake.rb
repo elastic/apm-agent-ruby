@@ -50,9 +50,15 @@ class MockIntake
 
   def stub!
     @cloud_provider_stubs = {
-      aws:   WebMock.stub_request(:get, ElasticAPM::Metadata::CloudInfo::AWS_URI).to_timeout,
-      gcp:   WebMock.stub_request(:get, ElasticAPM::Metadata::CloudInfo::GCP_URI).to_timeout,
-      azure: WebMock.stub_request(:get, ElasticAPM::Metadata::CloudInfo::AZURE_URI).to_timeout
+      aws: WebMock.stub_request(
+        :get, ElasticAPM::Metadata::CloudInfo::AWS_URI
+      ).to_timeout,
+      gcp: WebMock.stub_request(
+        :get, ElasticAPM::Metadata::CloudInfo::GCP_URI
+      ).to_timeout,
+      azure: WebMock.stub_request(
+        :get, ElasticAPM::Metadata::CloudInfo::AZURE_URI
+      ).to_timeout
     }
 
     @central_config_stub =
@@ -138,6 +144,7 @@ class MockIntake
 
   module WaitFor
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    # rubocop:disable Style/SoleNestedConditional
     def wait_for(timeout: 5, **expected)
       if expected.empty? && !block_given?
         raise ArgumentError, 'Either args or block required'
@@ -180,6 +187,7 @@ class MockIntake
       raise
     end
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    # rubocop:enable Style/SoleNestedConditional
 
     def print_received
       pp(

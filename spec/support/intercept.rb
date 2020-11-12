@@ -27,6 +27,7 @@ RSpec.configure do |config|
     end
 
     attr_reader :transactions, :spans, :errors, :metricsets
+
     def submit(obj)
       case obj
       when ElasticAPM::Transaction
