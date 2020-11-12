@@ -20,7 +20,6 @@
 module ElasticAPM
   # @api private
   class Transaction
-
     # @api private
     class Outcome
       FAILURE = "failure"
@@ -45,10 +44,10 @@ module ElasticAPM
     def initialize(
       name = nil,
       type = nil,
+      config:,
       sampled: true,
       sample_rate: 1,
       context: nil,
-      config:,
       trace_context: nil
     )
       @name = name

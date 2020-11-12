@@ -42,7 +42,6 @@ module ElasticAPM
       :version, :trace_id, :id, :parent_id, :ensure_parent_id, :recorded?
 
     class << self
-      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       def parse(legacy_header = nil, env: nil, metadata: nil)
         unless legacy_header || env || metadata
           raise ArgumentError, 'TraceContext expects env:, metadata: ' \
@@ -57,7 +56,6 @@ module ElasticAPM
           trace_context_from_metadata(metadata)
         end
       end
-      # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
       private
 

@@ -25,9 +25,11 @@ module ElasticAPM
       def self.without_net_http
         return yield unless defined?(NetHTTPSpy)
 
+        # rubocop:disable Style/ExplicitBlockArgument
         ElasticAPM::Spies::NetHTTPSpy.disable_in do
           yield
         end
+        # rubocop:enable Style/ExplicitBlockArgument
       end
 
       def install

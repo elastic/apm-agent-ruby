@@ -127,8 +127,7 @@ module ElasticAPM
       @__root_path ||= Dir.pwd
     end
 
-    attr_accessor :__view_paths, :__root_path
-    attr_accessor :logger
+    attr_accessor :__view_paths, :__root_path, :logger
 
     attr_reader :options
 
@@ -316,7 +315,7 @@ module ElasticAPM
     end
 
     def build_logger
-      Logger.new(log_path == '-' ? STDOUT : log_path).tap do |logger|
+      Logger.new(log_path == '-' ? $stdout : log_path).tap do |logger|
         logger.level = log_level
       end
     end

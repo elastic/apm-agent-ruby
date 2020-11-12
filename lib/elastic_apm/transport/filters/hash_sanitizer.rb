@@ -46,7 +46,7 @@ module ElasticAPM
         end
 
         def strip_from!(obj)
-          return unless obj&.is_a?(Hash)
+          return unless obj.is_a?(Hash)
 
           obj.each do |k, v|
             if filter_key?(k)

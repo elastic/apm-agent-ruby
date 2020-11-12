@@ -51,7 +51,6 @@ module ElasticAPM
 
         # @api private
         class ContextSerializer < Serializer
-          # rubocop:disable Metrics/CyclomaticComplexity
           def build(context)
             return unless context
 
@@ -68,7 +67,6 @@ module ElasticAPM
 
             base
           end
-          # rubocop:enable Metrics/CyclomaticComplexity
 
           private
 

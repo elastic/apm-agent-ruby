@@ -158,9 +158,11 @@ module ElasticAPM
       def scan_dotted_identifier
         table = @tokenizer.text
 
+        # rubocop:disable Style/WhileUntilModifier
         while scan_token(PERIOD) && scan_token(IDENT)
           table += ".#{@tokenizer.text}"
         end
+        # rubocop:enable Style/WhileUntilModifier
 
         table
       end

@@ -239,7 +239,7 @@ module ElasticAPM
     def set_label(key, value)
       return unless current_transaction
 
-      key = key.to_s.gsub(/[\."\*]/, '_').to_sym
+      key = key.to_s.gsub(/[."*]/, '_').to_sym
       current_transaction.context.labels[key] = value
     end
 

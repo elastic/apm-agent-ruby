@@ -27,6 +27,7 @@ module ElasticAPM
     # @api private
     class ResponseError < InternalError
       def initialize(response)
+        super
         @response = response
       end
 
@@ -72,6 +73,7 @@ module ElasticAPM
     def fetch_config
       resp = perform_request
 
+      # rubocop:disable Lint/DuplicateBranch
       case resp.status
       when 200..299
         resp
@@ -82,6 +84,7 @@ module ElasticAPM
       when 500..599
         raise ServerError, resp
       end
+      # rubocop:enable Lint/DuplicateBranch
     end
 
     def assign(update)

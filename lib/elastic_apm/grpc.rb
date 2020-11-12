@@ -25,7 +25,7 @@ module ElasticAPM
       TYPE = 'external'
       SUBTYPE = 'grpc'
 
-      # rubocop:disable Lint/UnusedMethodArgument
+      # rubocop:disable Lint/UnusedMethodArgument, Style/ExplicitBlockArgument
       def request_response(request:, call:, method:, metadata:)
         return yield unless (transaction = ElasticAPM.current_transaction)
         if (trace_context = transaction.trace_context)
@@ -40,7 +40,7 @@ module ElasticAPM
           yield
         end
       end
-      # rubocop:enable Lint/UnusedMethodArgument
+      # rubocop:enable Lint/UnusedMethodArgument, Style/ExplicitBlockArgument
 
       private
 

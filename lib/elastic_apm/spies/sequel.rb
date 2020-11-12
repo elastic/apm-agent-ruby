@@ -31,6 +31,7 @@ module ElasticAPM
         @summarizer ||= Sql.summarizer
       end
 
+      # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
       def install
         require 'sequel/database/logging'
 
@@ -84,6 +85,7 @@ module ElasticAPM
           end
         end
       end
+      # rubocop:enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
     end
 
     register 'Sequel', 'sequel', SequelSpy.new

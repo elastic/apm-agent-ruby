@@ -130,7 +130,7 @@ module ElasticAPM
       end
       # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
-      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      # rubocop:disable Metrics/CyclomaticComplexity
       def scan_dollar_sign
         while (peek = peek_char)
           case peek
@@ -165,7 +165,7 @@ module ElasticAPM
 
         OTHER
       end
-      # rubocop:enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/CyclomaticComplexity
 
       def scan_quoted_indentifier(delimiter)
         while (char = next_char)
