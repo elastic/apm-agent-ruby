@@ -50,7 +50,7 @@ module ElasticAPM
       context: nil,
       stacktrace_builder: nil,
       sync: nil,
-      sample_rate: nil
+      _sample_rate: nil
     )
       @name = name
 

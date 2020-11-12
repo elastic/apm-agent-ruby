@@ -293,12 +293,10 @@ module ElasticAPM
             sync: sync
           )
         result = yield span
-        span&.outcome =
-          Span::Outcome::SUCCESS unless span&.outcome
+        span&.outcome ||= Span::Outcome::SUCCESS
         result
       rescue
-        span&.outcome =
-          Span::Outcome::FAILURE unless span&.outcome
+        span&.outcome ||= Span::Outcome::FAILURE
         raise
       ensure
         end_span

@@ -75,7 +75,9 @@ module ElasticAPM
       unless (@trace_context = trace_context)
         @trace_context = TraceContext.new(
           traceparent: TraceContext::Traceparent.new(recorded: sampled),
-          tracestate: TraceContext::Tracestate.new(sample_rate: sampled ? sample_rate : 0)
+          tracestate: TraceContext::Tracestate.new(
+            sample_rate: sampled ? sample_rate : 0
+          )
         )
       end
 
@@ -102,7 +104,7 @@ module ElasticAPM
       :started_spans,
       :timestamp,
       :trace_context,
-      :transaction_max_spans 
+      :transaction_max_spans
     )
 
     alias :collect_metrics? :collect_metrics

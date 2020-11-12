@@ -24,7 +24,7 @@ module ElasticAPM
     # If `minimum` is provided, and the value rounds to 0 (but was not zero to
     # begin with), use the minimum instead.
     module PrecisionValidator
-      extend self
+      module_function
 
       def validate(value, precision: 0, minimum: nil)
         float = Float(value)

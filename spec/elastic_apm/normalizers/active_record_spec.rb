@@ -35,9 +35,7 @@ module ElasticAPM
         describe '#initialize' do
           unless defined? ::ActiveRecord::Base
             class ::ActiveRecord
-              # rubocop:disable Lint/EmptyClass
               class Base; end
-              # rubocop:enable Lint/EmptyClass
             end
           end
 

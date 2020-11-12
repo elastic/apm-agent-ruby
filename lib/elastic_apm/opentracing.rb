@@ -123,6 +123,7 @@ module ElasticAPM
       end
 
       attr_accessor :trace_context
+
       def_delegators :trace_context, :trace_id, :id, :parent_id
 
       def self.from_header(header)

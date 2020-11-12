@@ -40,6 +40,7 @@ module ElasticAPM
       end
 
       attr_reader :config, :sets, :callback
+
       def start
         unless config.collect_metrics?
           debug 'Skipping metrics'

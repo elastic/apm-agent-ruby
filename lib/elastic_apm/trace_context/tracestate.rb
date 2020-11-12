@@ -37,12 +37,13 @@ module ElasticAPM
         end
       end
 
+      # @api private
       class EsEntry
         ASSIGN = ':'
         SPLIT = ';'
 
-        SHORT_TO_LONG = { 's' => 'sample_rate' }
-        LONG_TO_SHORT = { 'sample_rate' => 's' }
+        SHORT_TO_LONG = { 's' => 'sample_rate' }.freeze
+        LONG_TO_SHORT = { 'sample_rate' => 's' }.freeze
 
         def initialize(values = nil)
           parse(values)
@@ -83,7 +84,7 @@ module ElasticAPM
 
           values.split(SPLIT).map do |kv|
             k, v = kv.split(ASSIGN)
-            next unless SHORT_TO_LONG.keys.include?(k)
+            next unless SHORT_TO_LONG.key?(k)
             send("#{SHORT_TO_LONG[k]}=", v)
           end
         end
@@ -136,8 +137,9 @@ module ElasticAPM
         def split_by_nl_and_comma(str)
           # HTTP allows multiple headers with the same name, eg. multiple
           # Set-Cookie headers per response.
-          # Rack handles this by joining the headers under the same key, separated
-          # by newlines, see https://www.rubydoc.info/github/rack/rack/file/SPEC
+          # Rack handles this by joining the headers under the same key,
+          # separated by newlines.
+          # See https://www.rubydoc.info/github/rack/rack/file/SPEC
           String(str).split("\n").map { |s| s.split(',') }.flatten
         end
       end

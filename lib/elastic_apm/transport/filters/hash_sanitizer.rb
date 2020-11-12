@@ -22,6 +22,7 @@ require 'elastic_apm/util/deep_dup'
 module ElasticAPM
   module Transport
     module Filters
+      # @api private
       class HashSanitizer
         FILTERED = '[FILTERED]'
 
