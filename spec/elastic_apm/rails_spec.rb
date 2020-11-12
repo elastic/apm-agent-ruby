@@ -35,9 +35,7 @@ if defined?(Rails)
     describe 'Rails console' do
       before do
         module Rails
-          # rubocop:disable Lint/EmptyClass
           class Console; end
-          # rubocop:enable Lint/EmptyClass
         end
       end
 
