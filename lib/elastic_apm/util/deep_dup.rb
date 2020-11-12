@@ -17,46 +17,50 @@
 
 # frozen_string_literal: true
 
-require 'elastic_apm/util/deep_dup'
-
 module ElasticAPM
-  # @api private
   module Util
-    def self.micros(target = Time.now)
-      utc = target.utc
-      utc.to_i * 1_000_000 + utc.usec
-    end
-
-    def self.monotonic_micros
-      Process.clock_gettime(Process::CLOCK_MONOTONIC, :microsecond)
-    end
-
-    def self.git_sha
-      sha = `git rev-parse --verify HEAD 2>&1`.chomp
-      $?&.success? ? sha : nil
-    end
-
-    def self.hex_to_bits(str)
-      str.hex.to_s(2).rjust(str.size * 4, '0')
-    end
-
-    def self.reverse_merge!(first, *others)
-      others.reduce(first) do |curr, other|
-        curr.merge!(other) { |_, _, new| new }
+    # @api private
+    #
+    # Makes a deep copy of an Array or Hash
+    # NB: Not guaranteed to work well with complex objects, only simple Hash,
+    # Array, String, Number, etc…
+    class DeepDup
+      def initialize(obj)
+        @obj = obj
       end
-    end
 
-    def self.truncate(value, max_length: 1024)
-      return unless value
+      def dup
+        deep_dup(@obj)
+      end
 
-      value = String(value)
-      return value if value.length <= max_length
+      def self.dup(obj)
+        new(obj).dup
+      end
 
-      value[0...(max_length - 1)] + '…'
-    end
+      private
 
-    def self.deep_dup(obj)
-      DeepDup.dup(obj)
+      def deep_dup(obj)
+        case obj
+        when Hash then hash(obj)
+        when Array then array(obj)
+        else obj.dup
+        end
+      end
+
+      def array(arr)
+        arr.map(&method(:deep_dup))
+      end
+
+      def hash(hsh)
+        result = hsh.dup
+
+        hsh.each_pair do |key, value|
+          result[key] = deep_dup(value)
+        end
+
+        result
+      end
     end
   end
 end
+

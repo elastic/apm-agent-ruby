@@ -53,7 +53,9 @@ module ElasticAPM
             if ElasticAPM.agent.config.capture_elasticsearch_queries
               unless args[1].nil? || args[1].empty?
                 statement << {
-                  body: ElasticAPM::Spies::ElasticsearchSpy.sanitizer.strip_from!(args[1].dup)
+                  body: ElasticAPM::Spies::ElasticsearchSpy.sanitizer.strip_from!(
+                    Util.deep_dup(args[1])
+                  )
                 }
               end
             end
