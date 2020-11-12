@@ -26,7 +26,6 @@ Layout/EmptyLineAfterGuardClause:
 Layout/FirstParameterIndentation:
   Enabled: false
 
-
 # Lint/
 
 Lint/RescueException:
