@@ -37,8 +37,10 @@ gem 'elasticsearch', require: nil
 gem 'fakeredis', require: nil
 gem 'faraday', require: nil
 gem 'graphql', require: nil
-gem 'google-protobuf', '< 3.12' if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.5'
-gem 'grpc' if !defined?(JRUBY_VERSION)
+unless defined?(JRUBY_VERSION) && RUBY_VERSION < '2.5'
+  gem 'google-protobuf', '< 3.12'
+end
+gem 'grpc' unless defined?(JRUBY_VERSION)
 gem 'json'
 gem 'json-schema', require: nil
 gem 'mongo', require: nil
@@ -82,7 +84,7 @@ frameworks_versions.each do |framework, version|
 end
 
 if frameworks_versions.key?('rails')
-  unless frameworks_versions['rails'] =~ /^(master|6)/
+  unless /^(master|6)/.match?(frameworks_versions['rails'])
     gem 'delayed_job', require: nil
   end
 end
@@ -90,7 +92,7 @@ end
 if RUBY_PLATFORM == 'java'
   gem 'activerecord-jdbcsqlite3-adapter'
   gem 'jdbc-sqlite3'
-elsif frameworks_versions['rails'] =~ /^(4|5)/
+elsif /^(4|5)/.match?(frameworks_versions['rails'])
   gem 'sqlite3', '~> 1.3.6'
 else
   gem 'sqlite3' # rubocop:disable Bundler/DuplicatedGem
