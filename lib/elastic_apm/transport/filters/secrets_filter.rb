@@ -38,7 +38,9 @@ module ElasticAPM
           @sanitizer.strip_from! payload.dig(:transaction, :context, :request, :env)
           @sanitizer.strip_from! payload.dig(:transaction, :context, :request, :headers)
           @sanitizer.strip_from! payload.dig(:transaction, :context, :response, :headers)
+          @sanitizer.strip_from! payload.dig(:error, :context, :request, :body)
           @sanitizer.strip_from! payload.dig(:error, :context, :request, :cookies)
+          @sanitizer.strip_from! payload.dig(:error, :context, :request, :env)
           @sanitizer.strip_from! payload.dig(:error, :context, :request, :headers)
           @sanitizer.strip_from! payload.dig(:error, :context, :response, :headers)
 

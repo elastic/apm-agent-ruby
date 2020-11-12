@@ -17,8 +17,6 @@
 
 # frozen_string_literal: true
 
-require 'elastic_apm/util/deep_dup'
-
 module ElasticAPM
   # @api private
   module Util
@@ -53,10 +51,6 @@ module ElasticAPM
       return value if value.length <= max_length
 
       value[0...(max_length - 1)] + '…'
-    end
-
-    def self.deep_dup(obj)
-      DeepDup.dup(obj)
     end
   end
 end
