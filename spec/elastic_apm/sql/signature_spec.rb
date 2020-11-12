@@ -28,9 +28,7 @@ module ElasticAPM
           JSON.parse(File.read('spec/fixtures/sql_signature_examples.json'))
 
         examples.each_with_index.each do |info, i|
-          # rubocop:disable Style/StringConcatenation
           desc = "0#{i}"[-2..-1] + ': '
-          # rubocop:enable Style/StringConcatenation
 
           if info['comment']
             desc += info['comment']

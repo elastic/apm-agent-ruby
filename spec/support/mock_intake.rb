@@ -144,7 +144,6 @@ class MockIntake
 
   module WaitFor
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-    # rubocop:disable Style/SoleNestedConditional
     def wait_for(timeout: 5, **expected)
       if expected.empty? && !block_given?
         raise ArgumentError, 'Either args or block required'
@@ -187,7 +186,6 @@ class MockIntake
       raise
     end
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-    # rubocop:enable Style/SoleNestedConditional
 
     def print_received
       pp(

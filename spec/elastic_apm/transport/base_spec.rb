@@ -31,6 +31,7 @@ module ElasticAPM
       end
 
       describe '#start' do
+        pending
       end
 
       describe '#stop' do
