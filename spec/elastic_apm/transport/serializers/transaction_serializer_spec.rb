@@ -73,9 +73,11 @@ module ElasticAPM
             it 'includes count' do
               with_agent(transaction_max_spans: 2) do
                 ElasticAPM.with_transaction 'T' do
+                  # rubocop: disable Lint/EmptyBlock
                   ElasticAPM.with_span('1') {}
                   ElasticAPM.with_span('2') {}
                   ElasticAPM.with_span('dropped') {}
+                  # rubocop: enable Lint/EmptyBlock
                 end
               end
 

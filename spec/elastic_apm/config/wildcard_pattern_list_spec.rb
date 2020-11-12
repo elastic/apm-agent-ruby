@@ -31,7 +31,7 @@ module ElasticAPM
             let(:pattern) { pattern }
 
             examples.each do |string, expectation|
-              it(%{"#{pattern}" #{expectation ? "=~" : "!~"} "#{string}"}) do
+              it("#{pattern} #{expectation ? '=~' : '!~'} #{string}") do
                 expect(subject.match?(string)).to be(expectation)
               end
             end

@@ -148,7 +148,8 @@ module ElasticAPM
 
           trace_context = @intercepted.transactions.first.trace_context
           expect(trace_context.tracestate).to be_a(TraceContext::Tracestate)
-          expect(trace_context.tracestate.to_header).to match('es=s:0.75,abc=123')
+          expect(trace_context.tracestate.to_header)
+            .to match('es=s:0.75,abc=123')
         end
       end
 
@@ -234,7 +235,8 @@ module ElasticAPM
 
     describe 'deprecated' do
       it 'ignores url patterns' do
-        allow_any_instance_of(Config).to receive(:warn).with(/DEPRECATED/) { nil }
+        allow_any_instance_of(Config).to receive(:warn)
+          .with(/DEPRECATED/) { nil }
 
         with_agent ignore_url_patterns: %w[/ping] do
           expect(ElasticAPM).to_not receive(:start_transaction)

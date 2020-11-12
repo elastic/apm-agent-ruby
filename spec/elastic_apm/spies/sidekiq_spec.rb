@@ -118,9 +118,7 @@ module ElasticAPM
 
       context 'ActiveJob', if: defined?(ActiveJob) do
         before :all do
-          # rubocop:disable Style/ClassAndModuleChildren
           class ::ActiveJobbyJob < ActiveJob::Base
-            # rubocop:enable Style/ClassAndModuleChildren
             self.queue_adapter = :sidekiq
             self.logger = nil # stay quiet
 

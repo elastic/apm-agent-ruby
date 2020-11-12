@@ -236,7 +236,7 @@ module ElasticAPM
 
     it 'sets outcome to `failure` for failed requests' do
       WebMock.stub_request(:get, 'http://example.com')
-        .to_return(status: [400, "Bad Request"])
+             .to_return(status: [400, 'Bad Request'])
 
       with_agent do
         ElasticAPM.with_transaction 'Net::HTTP test' do

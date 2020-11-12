@@ -268,7 +268,8 @@ require 'spec_helper'
 #               expect(transaction.result).to eq('success')
 #               expect(transaction.trace_id).to eq(trace_context.trace_id)
 #               expect(transaction.parent_id).to eq(trace_context.id)
-#               expect(transaction.trace_context.tracestate.values).to eq(['a=b'])
+#               expect(transaction.trace_context.tracestate.values)
+#                 .to eq(['a=b'])
 #
 #               server.stop
 #               thread.kill
@@ -280,11 +281,9 @@ require 'spec_helper'
 #           class FancyError < ::StandardError; end
 #
 #           class GreeterErrorServer < Helloworld::Greeter::Service
-#             # rubocop:disable Lint/UnusedMethodArgument
 #             def say_hello(hello_req, _unused_call)
 #               raise FancyError, 'boom!'
 #             end
-#             # rubocop:enable Lint/UnusedMethodArgument
 #           end
 #
 #           let(:server) do

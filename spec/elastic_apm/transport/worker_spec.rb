@@ -92,7 +92,7 @@ module ElasticAPM
 
         context 'when a filter wants to skip the event' do
           before do
-            filters.add(:always_nil, ->(_payload) { nil })
+            filters.add(:always_nil, ->(_payload) {})
           end
 
           it 'applies filters, writes resources to the connection' do
