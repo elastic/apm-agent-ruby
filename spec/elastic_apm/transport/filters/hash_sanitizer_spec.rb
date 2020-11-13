@@ -55,7 +55,7 @@ module ElasticAPM
         end
 
         describe '#strip_from' do
-          it 'returns a recursively clone copy' do
+          it 'returns a recursively cloned copy' do
             obj = Object.new
             payload = { nested: { ApiKey: obj } }
 
