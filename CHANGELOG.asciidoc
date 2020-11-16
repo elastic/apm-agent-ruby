@@ -35,6 +35,15 @@ endif::[]
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
+[float]
+[[unreleased]]
+==== Unreleased
+
+[float]
+===== Fixed
+
+- `capture_elasticsearch_queries` no longer modifies the original query {pull}894[#894]
+
 [[release-notes-3.12.0]]
 ==== 3.12.0 (2020-11-10)
 

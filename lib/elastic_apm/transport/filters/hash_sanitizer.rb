@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'elastic_apm/util/deep_dup'
+
 module ElasticAPM
   module Transport
     module Filters
@@ -37,6 +39,10 @@ module ElasticAPM
         end
 
         attr_accessor :key_patterns
+
+        def strip_from(obj)
+          strip_from!(Util::DeepDup.dup(obj))
+        end
 
         def strip_from!(obj)
           return unless obj&.is_a?(Hash)
