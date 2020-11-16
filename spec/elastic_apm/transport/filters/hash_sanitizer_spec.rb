@@ -24,7 +24,11 @@ module ElasticAPM
     module Filters
       RSpec.describe HashSanitizer do
         let(:config) { Config.new }
-        subject { described_class.new(key_patterns: config.custom_key_filters + config.sanitize_field_names) }
+        subject do
+          described_class.new(
+            key_patterns: config.custom_key_filters + config.sanitize_field_names
+          )
+        end
 
         describe '#strip_from!' do
           it 'removes secret keys from requests' do

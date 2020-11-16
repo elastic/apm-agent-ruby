@@ -28,9 +28,6 @@ module ElasticAPM
         obj2 = Object.new
         orig = { a: obj1, nested: { b: obj2 } }
 
-        expect(orig.dup[:a]).to be obj1
-        expect(orig.dup[:nested][:b]).to be obj2
-
         expect(Util::DeepDup.dup(orig)[:a]).to_not be obj1
         expect(Util::DeepDup.dup(orig)[:nested][:b]).to_not be obj2
       end
