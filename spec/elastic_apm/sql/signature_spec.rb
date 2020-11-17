@@ -43,6 +43,21 @@ module ElasticAPM
           end
         end
       end
+
+      describe 'invalid UTF-8 byte sequences' do
+        context 'when the string contains an invalid byte sequence' do
+          it 'encodes to UTF-8 and replaces invalid byte sequences' do
+            string = "INSERT INTO \"checksums\" (\"checksum\") VALUES ( \",&\xB4kh\")"
+            expect(described_class.parse(string)).to eq("INSERT INTO checksums")
+          end
+        end
+        context 'when the entire string is an invalid byte sequence' do
+          it 'encodes to UTF-8 and replaces invalid byte sequences' do
+            string = "\xB4"
+            expect(described_class.parse(string)).to eq("�")
+          end
+        end
+      end
     end
   end
 end
