@@ -49,8 +49,7 @@ module ElasticAPM
       action: nil,
       context: nil,
       stacktrace_builder: nil,
-      sync: nil,
-      _sample_rate: nil
+      sync: nil
     )
       @name = name
 
