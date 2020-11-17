@@ -89,9 +89,7 @@ module ElasticAPM
         original_exception_handler = SuckerPunch.exception_handler
         # We set an exception handler that does nothing so we don't see the
         # error reported to STDOUT in the tests
-        # rubocop:disable Lint/EmptyBlock
-        SuckerPunch.exception_handler = proc {}
-        # rubocop:enable Lint/EmptyBlock
+        SuckerPunch.exception_handler = proc { nil }
         ex.run
         SuckerPunch.exception_handler = original_exception_handler
         SuckerPunch::Counter::Failed::COUNTER.clear
