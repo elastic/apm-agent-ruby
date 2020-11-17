@@ -30,10 +30,6 @@ module ElasticAPM
         its(:queue) { should be_a Queue }
       end
 
-      describe '#start' do
-        pending
-      end
-
       describe '#stop' do
         let(:config) { Config.new(pool_size: 2) }
 
