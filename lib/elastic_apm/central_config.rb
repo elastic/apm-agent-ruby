@@ -19,6 +19,7 @@
 
 require 'elastic_apm/central_config/cache_control'
 
+# rubocop:disable Style/AccessorGrouping
 module ElasticAPM
   # @api private
   class CentralConfig
@@ -185,3 +186,4 @@ module ElasticAPM
     end
   end
 end
+# rubocop:enable Style/AccessorGrouping
