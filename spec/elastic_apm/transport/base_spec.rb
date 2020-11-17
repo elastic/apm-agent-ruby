@@ -53,9 +53,7 @@ module ElasticAPM
       describe '#submit' do
         before do
           # Avoid emptying the queue
-          # rubocop:disable Lint/EmptyBlock
-          allow(subject).to receive(:ensure_watcher_running) {}
-          # rubocop:enable Lint/EmptyBlock
+          allow(subject).to receive(:ensure_watcher_running) { nil }
         end
 
         it 'adds stuff to the queue' do
