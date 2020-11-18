@@ -35,6 +35,16 @@ endif::[]
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
+[float]
+[[unreleased]]
+==== Unreleased
+
+[float]
+===== Fixed
+
+- Handle invalid utf-8 byte sequences in sql summarizer and DB statement {pull}896[#896]
+
+
 [[release-notes-3.12.1]]
 ==== 3.12.1 (2020-11-16)
 
