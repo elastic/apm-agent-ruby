@@ -36,8 +36,8 @@ module ElasticAPM
       end
 
       def initialize(sql)
-        @sql = sql
-        @tokenizer = Tokenizer.new(sql)
+        @sql = sql.encode('utf-8', invalid: :replace, undef: :replace)
+        @tokenizer = Tokenizer.new(@sql)
       end
 
       def parse

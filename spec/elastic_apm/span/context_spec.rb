@@ -33,6 +33,14 @@ module ElasticAPM
         it 'adds a db object' do
           expect(subject.db.statement).to eq 'asd'
         end
+
+        context 'when the statement contains invalid utf-8 byte sequences' do
+          subject { described_class.new db: { statement: ",&\xB4kh" } }
+
+          it 'replaces the byte sequences' do
+            expect(subject.db.statement).to eq ',&�kh'
+          end
+        end
       end
 
       context 'with http' do
