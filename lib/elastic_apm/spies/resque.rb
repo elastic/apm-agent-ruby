@@ -24,6 +24,7 @@ module ElasticAPM
     class ResqueSpy
       TYPE = 'Resque'
 
+      # @api private
       module Ext
         def perform
           name = @payload && @payload['class']&.to_s

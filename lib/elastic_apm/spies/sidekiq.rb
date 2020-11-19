@@ -65,6 +65,7 @@ module ElasticAPM
         end
       end
 
+      # @api private
       module Ext
         def start
           super.tap do

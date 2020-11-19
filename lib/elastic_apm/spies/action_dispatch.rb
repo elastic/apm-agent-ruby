@@ -22,6 +22,7 @@ module ElasticAPM
   module Spies
     # @api private
     class ActionDispatchSpy
+      # @api private
       module Ext
         def render_exception(env, exception)
           context = ElasticAPM.build_context(rack_env: env, for_type: :error)

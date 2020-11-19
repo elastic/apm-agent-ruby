@@ -35,7 +35,9 @@ module ElasticAPM
         # rubocop:enable Style/ExplicitBlockArgument
       end
 
+      # @api private
       module Ext
+        # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
         def run_request(method, url, body, headers, &block)
           unless (transaction = ElasticAPM.current_transaction)
             return super(method, url, body, headers, &block)
@@ -49,7 +51,7 @@ module ElasticAPM
           # ~mikker
           unless uri.host
             tmp_request = build_request(method) do |req|
-              yield(req) if block_given?
+              yield(req) if block
             end
             uri = URI(tmp_request.path)
           end
@@ -79,7 +81,7 @@ module ElasticAPM
               result = super(method, url, body, headers) do |req|
                 trace_context.apply_headers { |k, v| req[k] = v }
 
-                yield req if block_given?
+                yield req if block
               end
 
               if (http = span&.context&.http)
@@ -91,6 +93,7 @@ module ElasticAPM
             end
           end
         end
+        # rubocop:enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
       end
 
       def install

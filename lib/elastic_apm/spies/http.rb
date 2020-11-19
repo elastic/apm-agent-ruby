@@ -25,6 +25,7 @@ module ElasticAPM
       TYPE = 'ext'
       SUBTYPE = 'http_rb'
 
+      # @api private
       module Ext
         def perform(req, options)
           unless (transaction = ElasticAPM.current_transaction)

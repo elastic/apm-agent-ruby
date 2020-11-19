@@ -22,6 +22,7 @@ module ElasticAPM
   module Spies
     # @api private
     class RedisSpy
+      # @api private
       module Ext
         def call(command, &block)
           name = command[0].upcase

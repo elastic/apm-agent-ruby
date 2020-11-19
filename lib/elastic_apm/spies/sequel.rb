@@ -31,7 +31,9 @@ module ElasticAPM
         @summarizer ||= Sql.summarizer
       end
 
+      # @api private
       module Ext
+        # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
         def log_connection_yield(sql, connection, args = nil, &block)
           unless ElasticAPM.current_transaction
             return super(sql, connection, args, &block)
@@ -70,6 +72,7 @@ module ElasticAPM
           span&.outcome ||= Span::Outcome::SUCCESS
           ElasticAPM.end_span
         end
+        # rubocop:enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
       end
 
       def install

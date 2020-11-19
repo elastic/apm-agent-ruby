@@ -22,6 +22,7 @@ module ElasticAPM
   module Spies
     # @api private
     class SinatraSpy
+      # @api private
       module Ext
         def dispatch!(*args, &block)
           super(*args, &block).tap do

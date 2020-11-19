@@ -42,7 +42,7 @@ module ElasticAPM
               return super(*args)
             end
 
-            ElasticAPM.with_span "#{name}", "#{type}" do
+            ElasticAPM.with_span name.to_s, type.to_s do
               super(*args)
             end
           end

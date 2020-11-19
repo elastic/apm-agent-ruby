@@ -22,6 +22,7 @@ module ElasticAPM
   module Spies
     # @api private
     class RakeSpy
+      # @api private
       module Ext
         def execute(*args)
           agent = ElasticAPM.start

@@ -24,6 +24,7 @@ module ElasticAPM
     class TiltSpy
       TYPE = 'template.tilt'
 
+      # @api private
       module Ext
         def render(*args, &block)
           name = options[:__elastic_apm_template_name] || 'Unknown template'

@@ -32,6 +32,7 @@ module ElasticAPM
         # rubocop:enable Style/ExplicitBlockArgument
       end
 
+      # @api private
       module Ext
         def self.prepended(mod)
           mod.api.operation_names.each do |operation_name|

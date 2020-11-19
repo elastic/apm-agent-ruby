@@ -37,6 +37,7 @@ module ElasticAPM
           end
       end
 
+      # @api private
       module Ext
         def perform_request(method, path, *args, &block)
           unless ElasticAPM.current_transaction
@@ -53,7 +54,7 @@ module ElasticAPM
               body =
                 ElasticAPM::Spies::ElasticsearchSpy
                 .sanitizer.strip_from(args[1])
-              statement << { body:  body }
+              statement << { body: body }
             end
           end
 

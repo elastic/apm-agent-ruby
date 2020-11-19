@@ -46,7 +46,9 @@ module ElasticAPM
         end
       end
 
+      # @api private
       module Ext
+        # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
         def request(req, body = nil, &block)
           unless (transaction = ElasticAPM.current_transaction)
             return super(req, body, &block)
@@ -96,6 +98,7 @@ module ElasticAPM
             result
           end
         end
+        # rubocop:enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
       end
 
       def install
