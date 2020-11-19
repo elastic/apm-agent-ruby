@@ -164,11 +164,6 @@ module ElasticAPM
       available_instrumentations - disable_instrumentations
     end
 
-    def method_missing(name, *args)
-      return super unless DEPRECATED_OPTIONS.include?(name)
-      warn "The option `#{name}' has been removed."
-    end
-
     def replace_options(new_options)
       return if new_options.nil? || new_options.empty?
       options_copy = @options.dup
@@ -242,59 +237,6 @@ module ElasticAPM
 
     def inspect
       super.split.first + '>'
-    end
-
-    # Deprecations
-
-    def default_tags=(value)
-      warn '[DEPRECATED] The option default_tags has been renamed to ' \
-        'default_labels.'
-      self.default_labels = value
-    end
-
-    def ignore_url_patterns=(value)
-      unless value == self.class.schema[:ignore_url_patterns][:default]
-        warn '[DEPRECATED] The option ignore_url_patterns is being removed. ' \
-          'Consider using transaction_ignore_urls instead.'
-      end
-
-      set(:ignore_url_patterns, value)
-    end
-
-    def custom_key_filters=(value)
-      unless value == self.class.schema[:custom_key_filters][:default]
-        warn '[DEPRECATED] The option custom_key_filters is being removed. ' \
-          'See sanitize_field_names for an alternative.'
-      end
-
-      set(:custom_key_filters, value)
-    end
-
-    def disabled_instrumentations
-      disable_instrumentations
-    end
-
-    def active
-      enabled
-    end
-    alias active? active
-
-    def disabled_instrumentations=(value)
-      warn '[DEPRECATED] The option disabled_instrumentations has been ' \
-        'renamed to disable_instrumentations to align with other agents.'
-      self.disable_instrumentations = value
-    end
-
-    def use_experimental_sql_parser=(_value)
-      warn '[DEPRECATED] The new SQL parser is now the default. To use the ' \
-           'old one, use use_legacy_sql_parser and please report why you ' \
-           'wish to do so.'
-    end
-
-    def active=(value)
-      warn '[DEPRECATED] The option active has been renamed to enabled ' \
-        'to align with other agents and with the remote config.'
-      self.enabled = value
     end
 
     private

@@ -232,21 +232,5 @@ module ElasticAPM
         end
       end
     end
-
-    describe 'deprecated' do
-      it 'ignores url patterns' do
-        allow_any_instance_of(Config).to receive(:warn)
-          .with(/DEPRECATED/) { nil }
-
-        with_agent ignore_url_patterns: %w[/ping] do
-          expect(ElasticAPM).to_not receive(:start_transaction)
-
-          app = Middleware.new(->(_) { [200, {}, ['ok']] })
-          status, = app.call(Rack::MockRequest.env_for('/ping'))
-
-          expect(status).to be 200
-        end
-      end
-    end
   end
 end
