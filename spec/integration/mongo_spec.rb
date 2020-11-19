@@ -24,7 +24,7 @@ require 'mongo'
 module ElasticAPM
   RSpec.describe 'Spy: MongoDB' do
     let(:url) do
-      ENV.fetch('MONGODB_URL') { '127.0.0.1:27017' }
+      ENV.fetch('MONGODB_URL', '127.0.0.1:27017')
     end
 
     it 'instruments db admin commands', :intercept do
@@ -176,12 +176,12 @@ module ElasticAPM
     it 'sets outcome to `failure` for failed operations', :intercept do
       with_agent do
         client =
-            Mongo::Client.new(
-              [url],
-              database: 'elastic-apm-test',
-              logger: Logger.new(nil),
-              server_selection_timeout: 1
-            )
+          Mongo::Client.new(
+            [url],
+            database: 'elastic-apm-test',
+            logger: Logger.new(nil),
+            server_selection_timeout: 1
+          )
 
         ElasticAPM.with_transaction 'Mongo test' do
           begin

@@ -42,7 +42,7 @@ module ElasticAPM
             Metadata.new(config)
           )
         )
-        @url = config.server_url + '/intake/v2/events'
+        @url = "#{config.server_url}/intake/v2/events"
         @mutex = Mutex.new
       end
 

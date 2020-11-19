@@ -1,11 +1,13 @@
 AllCops:
-  TargetRubyVersion: 2.3
+  TargetRubyVersion: 2.4
+  NewCops: enable
   Exclude:
     - 'elastic-apm.gemspec'
     - 'vendor/**/*'
     - 'bench/*'
     - 'spec/support/helloworld_pb.rb'
     - 'spec/support/helloworld_services_pb.rb'
+    - 'features/step_definitions/stepdefs.rb'
 
 require:
   - rubocop-performance
@@ -30,6 +32,15 @@ Lint/RescueException:
   Enabled: false
 
 Lint/SuppressedException:
+  Enabled: false
+
+Lint/ConstantDefinitionInBlock: # So we can define a class in an rspec block
+  Enabled: false
+
+Lint/EmptyClass:
+  Enabled: false
+
+Lint/NoReturnInBeginEndBlocks:
   Enabled: false
 
 # Metrics /
@@ -104,9 +115,27 @@ Style/HashEachMethods:
 Style/HashTransformKeys:
   Enabled: true
 
-Style/HashTransformValues:
-  Enabled: true
-
 Style/FrozenStringLiteralComment:
   Enabled: false
 
+Style/StringLiterals:
+  Enabled: false
+
+Style/RescueStandardError:
+  Enabled: false
+
+Style/SoleNestedConditional:
+  Enabled: false
+
+Style/StringConcatenation:
+  Enabled: false
+
+Style/DocumentDynamicEvalDefinition:
+  Enabled: false
+
+# Applies to > ruby 2.3, enable when 2.3 support is dropped
+Performance/RegexpMatch:
+  Enabled: false
+
+Style/HashTransformValues:
+  Enabled: false

@@ -25,7 +25,7 @@ module ElasticAPM
       Config.new(
         central_config: true,
         service_name: 'MyApp',
-        log_level: Logger::DEBUG,
+        log_level: Logger::DEBUG
       )
     end
     subject { described_class.new(config) }

@@ -60,23 +60,29 @@ module ElasticAPM
           [[
             '051e2ee0bce99116029a13df4a9e943137f19f957f38ac02d6bad96f9b700f76',
             nil,
-            '12:devices:/docker/051e2ee0bce99116029a13df4a9e943137f19f957f38ac02d6bad96f9b700f76'
+            '12:devices:/docker/051e2ee0bce99116029a13df4a9e943137f19f957f38a'\
+            'c02d6bad96f9b700f76'
           ], [
             'cde7c2bab394630a42d73dc610b9c57415dced996106665d427f6d0566594411',
             nil,
-            '1:name=systemd:/system.slice/docker-cde7c2bab394630a42d73dc610b9c57415dced996106665d427f6d0566594411.scope'
+            '1:name=systemd:/system.slice/docker-cde7c2bab394630a42d73dc610b9'\
+            'c57415dced996106665d427f6d0566594411.scope'
           ], [
             '15aa6e53-b09a-40c7-8558-c6c31e36c88a',
             'e9b90526-f47d-11e8-b2a5-080027b9f4fb',
-            '1:name=systemd:/kubepods/besteffort/pode9b90526-f47d-11e8-b2a5-080027b9f4fb/15aa6e53-b09a-40c7-8558-c6c31e36c88a'
+            '1:name=systemd:/kubepods/besteffort/pode9b90526-f47d-11e8-b2a5-0'\
+            '80027b9f4fb/15aa6e53-b09a-40c7-8558-c6c31e36c88a'
           ], [
             '244a65edefdffe31685c42317c9054e71dc1193048cf9459e2a4dd35cbc1dba4',
             '0e886e9a-3879-45f9-b44d-86ef9df03224',
-            '12:pids:/kubepods/kubepods/besteffort/pod0e886e9a-3879-45f9-b44d-86ef9df03224/244a65edefdffe31685c42317c9054e71dc1193048cf9459e2a4dd35cbc1dba4'
+            '12:pids:/kubepods/kubepods/besteffort/pod0e886e9a-3879-45f9-b44d-'\
+            '86ef9df03224/244a65edefdffe31685c42317c9054e71dc1193048cf9459e2a'\
+            '4dd35cbc1dba4'
           ], [
             '7fe41c8a2d1da09420117894f11dd91f6c3a44dfeb7d125dc594bd53468861df',
             '5eadac96-ab58-11ea-b82b-0242ac110009',
-            '10:cpuset:/kubepods/pod5eadac96-ab58-11ea-b82b-0242ac110009/7fe41c8a2d1da09420117894f11dd91f6c3a44dfeb7d125dc594bd53468861df'
+            '10:cpuset:/kubepods/pod5eadac96-ab58-11ea-b82b-0242ac110009/7fe4'\
+            '1c8a2d1da09420117894f11dd91f6c3a44dfeb7d125dc594bd53468861df'
           ]].each do |(c_id, kp_id, *lines)|
             context lines[0] do
               let(:lines) { lines }

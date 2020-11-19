@@ -23,7 +23,7 @@ module ElasticAPM
     #
     # Makes a deep copy of an Array or Hash
     # NB: Not guaranteed to work well with complex objects, only simple Hash,
-    # Array, String, Number, etc…
+    # Array, String, Number, etc.
     class DeepDup
       def initialize(obj)
         @obj = obj
@@ -63,4 +63,3 @@ module ElasticAPM
     end
   end
 end
-

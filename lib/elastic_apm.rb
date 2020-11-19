@@ -106,6 +106,7 @@ module ElasticAPM
     # @yield [String|nil, String|nil, String|nil] The transaction, span,
     # and trace ids.
     # @return [String] Unless block given
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def log_ids
       trace_id = (current_transaction || current_span)&.trace_id
       if block_given?
@@ -118,6 +119,7 @@ module ElasticAPM
       ids << "trace.id=#{trace_id}" if trace_id
       ids.join(' ')
     end
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
     # Start a new transaction
     #
@@ -293,12 +295,10 @@ module ElasticAPM
             sync: sync
           )
         result = yield span
-        span&.outcome =
-          Span::Outcome::SUCCESS unless span&.outcome
+        span&.outcome ||= Span::Outcome::SUCCESS
         result
       rescue
-        span&.outcome =
-          Span::Outcome::FAILURE unless span&.outcome
+        span&.outcome ||= Span::Outcome::FAILURE
         raise
       ensure
         end_span

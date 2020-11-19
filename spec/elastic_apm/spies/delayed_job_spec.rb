@@ -75,9 +75,7 @@ if defined?(Delayed::Backend)
 
       context 'ActiveJob', if: defined?(ActiveJob) do
         before :all do
-          # rubocop:disable Style/ClassAndModuleChildren
           class ::ActiveJobbyJob < ActiveJob::Base
-            # rubocop:enable Style/ClassAndModuleChildren
             self.queue_adapter = :delayed_job
             self.logger = nil # stay quiet
 

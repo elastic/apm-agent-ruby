@@ -124,7 +124,6 @@ if enabled
         end
       end
 
-      # rubocop:disable Style/ClassAndModuleChildren
       class ::ApplicationController < ActionController::Base
         def index
           render plain: 'ok'
@@ -164,7 +163,6 @@ if enabled
           )
         end
       end
-      # rubocop:enable Style/ClassAndModuleChildren
 
       MockIntake.stub!
 

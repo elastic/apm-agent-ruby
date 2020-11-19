@@ -34,7 +34,7 @@ module ElasticAPM
 
         describe '#initialize' do
           unless defined? ::ActiveRecord::Base
-            class ::ActiveRecord # rubocop:disable Style/ClassAndModuleChildren
+            class ::ActiveRecord
               class Base; end
             end
           end

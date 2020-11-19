@@ -27,7 +27,6 @@ module ElasticAPM
       TRACE_ID_LENGTH = 16
       ID_LENGTH = 8
 
-      # rubocop:disable Metrics/ParameterLists
       def initialize(
         version: VERSION,
         trace_id: nil,
@@ -42,7 +41,6 @@ module ElasticAPM
         @id = id || hex(ID_LENGTH)
         @recorded = recorded
       end
-      # rubocop:enable Metrics/ParameterLists
 
       attr_accessor :version, :id, :trace_id, :parent_id, :recorded
 

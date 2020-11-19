@@ -35,4 +35,3 @@ module RailsTestHelpers
     config.logger = Logger.new(SpecLogger)
   end
 end
-

@@ -125,7 +125,7 @@ module ElasticAPM
 
     it 'adds failure outcome to a span' do
       WebMock.stub_request(:get, 'http://example.com')
-        .to_return(status: [400, "Bad Request"])
+             .to_return(status: [400, 'Bad Request'])
 
       with_agent do
         ElasticAPM.with_transaction 'HTTP test' do

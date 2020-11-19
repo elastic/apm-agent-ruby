@@ -54,7 +54,7 @@ module ElasticAPM
         it 'aborts if a filter returns nil' do
           untouched = double(call: nil)
 
-          subject.add(:niller, ->(_payload) { nil })
+          subject.add(:niller, ->(_payload) {})
           subject.add(:untouched, untouched)
 
           result = subject.apply!(things: 1)

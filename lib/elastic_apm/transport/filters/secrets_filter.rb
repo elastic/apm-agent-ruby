@@ -28,22 +28,42 @@ module ElasticAPM
           @config = config
           @sanitizer =
             HashSanitizer.new(
-              key_patterns: config.custom_key_filters + config.sanitize_field_names
+              key_patterns: config.custom_key_filters +
+                            config.sanitize_field_names
             )
         end
 
         def call(payload)
-          @sanitizer.strip_from! payload.dig(:transaction, :context, :request, :body)
-          @sanitizer.strip_from! payload.dig(:transaction, :context, :request, :cookies)
-          @sanitizer.strip_from! payload.dig(:transaction, :context, :request, :env)
-          @sanitizer.strip_from! payload.dig(:transaction, :context, :request, :headers)
-          @sanitizer.strip_from! payload.dig(:transaction, :context, :response, :headers)
-          @sanitizer.strip_from! payload.dig(:error, :context, :request, :body)
-          @sanitizer.strip_from! payload.dig(:error, :context, :request, :cookies)
-          @sanitizer.strip_from! payload.dig(:error, :context, :request, :env)
-          @sanitizer.strip_from! payload.dig(:error, :context, :request, :headers)
-          @sanitizer.strip_from! payload.dig(:error, :context, :response, :headers)
-
+          @sanitizer.strip_from!(
+            payload.dig(:transaction, :context, :request, :body)
+          )
+          @sanitizer.strip_from!(
+            payload.dig(:transaction, :context, :request, :cookies)
+          )
+          @sanitizer.strip_from!(
+            payload.dig(:transaction, :context, :request, :env)
+          )
+          @sanitizer.strip_from!(
+            payload.dig(:transaction, :context, :request, :headers)
+          )
+          @sanitizer.strip_from!(
+            payload.dig(:transaction, :context, :response, :headers)
+          )
+          @sanitizer.strip_from!(
+            payload.dig(:error, :context, :request, :body)
+          )
+          @sanitizer.strip_from!(
+            payload.dig(:error, :context, :request, :cookies)
+          )
+          @sanitizer.strip_from!(
+            payload.dig(:error, :context, :request, :env)
+          )
+          @sanitizer.strip_from!(
+            payload.dig(:error, :context, :request, :headers)
+          )
+          @sanitizer.strip_from!(
+            payload.dig(:error, :context, :response, :headers)
+          )
           payload
         end
       end

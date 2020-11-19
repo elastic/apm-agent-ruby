@@ -74,6 +74,7 @@ module ElasticAPM
         end
 
         attr_reader :transaction, :span, :error, :metadata, :metricset
+
         def serialize(resource)
           case resource
           when Transaction

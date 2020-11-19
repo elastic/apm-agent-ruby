@@ -43,7 +43,10 @@ if enabled
   require 'action_controller/railtie'
   require 'action_mailer/railtie'
 
-  RSpec.describe 'Rails integration', :allow_running_agent, :spec_logger, :mock_intake do
+  RSpec.describe 'Rails integration',
+    :allow_running_agent,
+    :spec_logger,
+    :mock_intake do
     include Rack::Test::Methods
     include MetricsHelpers
 

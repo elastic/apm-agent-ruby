@@ -49,6 +49,7 @@ module ElasticAPM
         :region
       )
 
+      # rubocop:disable Metrics/CyclomaticComplexity
       def fetch!
         case config.cloud_provider
         when "aws"
@@ -67,6 +68,7 @@ module ElasticAPM
 
         self
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
 
       private
 

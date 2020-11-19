@@ -22,6 +22,7 @@ require 'elastic_apm/util/deep_dup'
 module ElasticAPM
   module Transport
     module Filters
+      # @api private
       class HashSanitizer
         FILTERED = '[FILTERED]'
 
@@ -45,7 +46,7 @@ module ElasticAPM
         end
 
         def strip_from!(obj)
-          return unless obj&.is_a?(Hash)
+          return unless obj.is_a?(Hash)
 
           obj.each do |k, v|
             if filter_key?(k)

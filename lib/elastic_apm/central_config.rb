@@ -19,6 +19,7 @@
 
 require 'elastic_apm/central_config/cache_control'
 
+# rubocop:disable Style/AccessorGrouping
 module ElasticAPM
   # @api private
   class CentralConfig
@@ -27,6 +28,7 @@ module ElasticAPM
     # @api private
     class ResponseError < InternalError
       def initialize(response)
+        super
         @response = response
       end
 
@@ -72,6 +74,7 @@ module ElasticAPM
     def fetch_config
       resp = perform_request
 
+      # rubocop:disable Lint/DuplicateBranch
       case resp.status
       when 200..299
         resp
@@ -82,6 +85,7 @@ module ElasticAPM
       when 500..599
         raise ServerError, resp
       end
+      # rubocop:enable Lint/DuplicateBranch
     end
 
     def assign(update)
@@ -122,7 +126,7 @@ module ElasticAPM
           assign(update)
         end
 
-        if update && update.any?
+        if update&.any?
           info 'Updated config from Kibana'
           debug 'Modified: %s', update.inspect
           debug 'Modified original options: %s', @modified_options.inspect
@@ -182,3 +186,4 @@ module ElasticAPM
     end
   end
 end
+# rubocop:enable Style/AccessorGrouping

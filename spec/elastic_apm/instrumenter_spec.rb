@@ -182,7 +182,7 @@ module ElasticAPM
         )
         expect(txn_self_time.span).to match(type: 'app', subtype: nil)
 
-        #spn_self_time
+        # spn_self_time
         expect(spn_self_time.samples[:'span.self_time.sum.us']).to eq 100
         expect(spn_self_time.samples[:'span.self_time.count']).to eq 1
         expect(spn_self_time.transaction).to match(

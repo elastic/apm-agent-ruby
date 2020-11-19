@@ -123,6 +123,7 @@ module ElasticAPM
       end
 
       attr_accessor :trace_context
+
       def_delegators :trace_context, :trace_id, :id, :parent_id
 
       def self.from_header(header)
@@ -345,7 +346,7 @@ module ElasticAPM
         context = context_from_child_of(child_of) ||
                   context_from_references(references) ||
                   context_from_active_scope(ignore_active_scope)
-        return context.child if context&.respond_to?(:child)
+        return context.child if context.respond_to?(:child)
 
         context
       end

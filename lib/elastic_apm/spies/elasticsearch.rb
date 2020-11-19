@@ -31,7 +31,8 @@ module ElasticAPM
           begin
             config = ElasticAPM.agent.config
             ElasticAPM::Transport::Filters::HashSanitizer.new(
-              key_patterns: config.custom_key_filters + config.sanitize_field_names
+              key_patterns: config.custom_key_filters +
+                            config.sanitize_field_names
             )
           end
       end
@@ -53,7 +54,8 @@ module ElasticAPM
             if ElasticAPM.agent.config.capture_elasticsearch_queries
               unless args[1].nil? || args[1].empty?
                 statement << {
-                  body: ElasticAPM::Spies::ElasticsearchSpy.sanitizer.strip_from(args[1])
+                  body: ElasticAPM::Spies::ElasticsearchSpy
+                             .sanitizer.strip_from(args[1])
                 }
               end
             end

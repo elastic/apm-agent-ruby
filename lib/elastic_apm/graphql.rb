@@ -48,6 +48,7 @@ module ElasticAPM
       # "authorized" => "graphql.authorized",
     }.freeze
 
+    # rubocop:disable Style/ExplicitBlockArgument
     def self.trace(key, data)
       return yield unless KEYS_TO_NAME.key?(key)
       return yield unless (transaction = ElasticAPM.current_transaction)
@@ -69,6 +70,7 @@ module ElasticAPM
 
       results
     end
+    # rubocop:enable Style/ExplicitBlockArgument
 
     class << self
       private

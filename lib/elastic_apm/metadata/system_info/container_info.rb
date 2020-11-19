@@ -81,15 +81,23 @@ module ElasticAPM
             ENV.fetch('KUBERNETES_POD_UID', kubernetes_pod_uid)
         end
 
+        # rubocop:disable Style/RegexpLiteral
         CONTAINER_ID_REGEXES = [
           %r{^[[:xdigit:]]{64}$},
-          %r{^[[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4,}$}
-        ]
+          %r{
+            ^[[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]
+            {4}-[[:xdigit:]]{4}-[[:xdigit:]]{4,}$
+          }x
+        ].freeze
         KUBEPODS_REGEXES = [
           %r{(?:^/kubepods[^\s]*/pod([^/]+)$)},
-          %r{(?:^/kubepods\.slice/kubepods-[^/]+\.slice/kubepods-[^/]+-pod([^/]+)\.slice$)}
-        ]
+          %r{
+            (?:^/kubepods\.slice/kubepods-[^/]+\.slice/
+            kubepods-[^/]+-pod([^/]+)\.slice$)
+          }x
+        ].freeze
         SYSTEMD_SCOPE_SUFFIX = '.scope'
+        # rubocop:enable Style/RegexpLiteral
 
         # rubocop:disable Metrics/PerceivedComplexity
         # rubocop:disable Metrics/CyclomaticComplexity

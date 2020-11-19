@@ -89,7 +89,7 @@ module ElasticAPM
         original_exception_handler = SuckerPunch.exception_handler
         # We set an exception handler that does nothing so we don't see the
         # error reported to STDOUT in the tests
-        SuckerPunch.exception_handler = proc {}
+        SuckerPunch.exception_handler = proc { nil }
         ex.run
         SuckerPunch.exception_handler = original_exception_handler
         SuckerPunch::Counter::Failed::COUNTER.clear
@@ -104,7 +104,7 @@ module ElasticAPM
 
           expect(
             SuckerPunch::Counter::Failed::COUNTER['ElasticAPM::ErrorJob'].value
-          ). to eq 1
+          ).to eq 1
 
           transaction, = @intercepted.transactions
           expect(transaction.name).to eq 'ElasticAPM::ErrorJob'
@@ -124,7 +124,7 @@ module ElasticAPM
 
           expect(
             SuckerPunch::Counter::Failed::COUNTER['ElasticAPM::ErrorJob'].value
-          ). to eq 1
+          ).to eq 1
 
           transaction, = @intercepted.transactions
           expect(transaction.name).to eq 'ElasticAPM::ErrorJob'

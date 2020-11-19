@@ -28,12 +28,14 @@ module ElasticAPM
       def self.without_net_http
         return yield unless defined?(NetHTTPSpy)
 
+        # rubocop:disable Style/ExplicitBlockArgument
         ElasticAPM::Spies::NetHTTPSpy.disable_in do
           yield
         end
+        # rubocop:enable Style/ExplicitBlockArgument
       end
 
-      # rubocop:disable Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       def install
         ::Faraday::Connection.class_eval do
           alias run_request_without_apm run_request
@@ -96,7 +98,7 @@ module ElasticAPM
           end
         end
       end
-      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     end
 
     register 'Faraday', 'faraday', FaradaySpy.new

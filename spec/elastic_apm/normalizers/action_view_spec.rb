@@ -56,7 +56,7 @@ module ElasticAPM
           end
 
           it 'truncates gem path' do
-            path = Gem.path[0] + '/some/template.html.erb'
+            path = "#{Gem.path[0]}/some/template.html.erb"
             result, * = subject.normalize(nil, key, identifier: path)
             expect(result).to eq '$GEM_PATH/some/template.html.erb'
           end

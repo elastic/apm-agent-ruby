@@ -61,7 +61,7 @@ module ElasticAPM
     context 'a post request with body' do
       before do
         WebMock.stub_request(:post, %r{http://localhost:9200/.*})
-          .with(body: %r{.*})
+               .with(body: /.*/)
       end
 
       let(:client) { Elasticsearch::Client.new log: false }
@@ -79,17 +79,20 @@ module ElasticAPM
             end
           end
 
-          net_span, span = @intercepted.spans
+          _net_span, span = @intercepted.spans
 
           expect(span.name).to eq('POST _bulk')
           expect(span.context.db.statement)
-            .to eq('{"params":{},"body":{"index":{"_index":"users","data":{"name":"Fernando"}}}}')
+            .to eq(
+              '{"params":{},"body":'\
+              '{"index":{"_index":"users","data":{"name":"Fernando"}}}}'
+            )
           span
         end
 
         it 'filters sensitive information', :intercept do
           WebMock.stub_request(:get, %r{http://localhost:9200/.*})
-            .with(body: %r{.*})
+                 .with(body: /.*/)
 
           with_agent do
             ElasticAPM.with_transaction do
@@ -103,10 +106,13 @@ module ElasticAPM
             end
           end
 
-          net_span, span = @intercepted.spans
+          _net_span, span = @intercepted.spans
 
           expect(span.context.db.statement)
-            .to eq('{"params":{},"body":{"query":"a query","password":"[FILTERED]"}}')
+            .to eq(
+              '{"params":{},"body":{"query":"a query",'\
+              '"password":"[FILTERED]"}}'
+            )
           span
         end
       end
@@ -124,7 +130,7 @@ module ElasticAPM
             end
           end
 
-          net_span, span = @intercepted.spans
+          _net_span, span = @intercepted.spans
 
           expect(span.name).to eq('POST _bulk')
           expect(span.context.db.statement)
@@ -136,7 +142,7 @@ module ElasticAPM
       context 'when the request fails' do
         it 'sets span outcome to `failure`', :intercept do
           WebMock.stub_request(:get, %r{http://localhost:9200/.*})
-            .to_return(status: [400, "Bad Request"])
+                 .to_return(status: [400, 'Bad Request'])
           client = Elasticsearch::Client.new log: false
 
           with_agent do

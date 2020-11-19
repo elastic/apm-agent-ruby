@@ -31,7 +31,7 @@ module ElasticAPM
               labels: build_labels(metadata.labels)
             }
 
-          if (metadata.cloud.provider)
+          if metadata.cloud.provider
             base[:cloud] = build_cloud(metadata.cloud)
           end
 
@@ -64,7 +64,7 @@ module ElasticAPM
               }
             }
 
-          if node_name = service.node_name
+          if (node_name = service.node_name)
             base[:node] = { name: keyword_field(node_name) }
           end
 
@@ -93,17 +93,17 @@ module ElasticAPM
             provider: cloud.provider,
             account: {
               id: keyword_field(cloud.account_id),
-              name: keyword_field(cloud.account_name),
+              name: keyword_field(cloud.account_name)
             },
             availability_zone: keyword_field(cloud.availability_zone),
             instance: {
               id: keyword_field(cloud.instance_id),
-              name: keyword_field(cloud.instance_name),
+              name: keyword_field(cloud.instance_name)
             },
             machine: { type: keyword_field(cloud.machine_type) },
             project: {
               id: keyword_field(cloud.project_id),
-              name: keyword_field(cloud.project_name),
+              name: keyword_field(cloud.project_name)
             },
             region: keyword_field(cloud.region)
           )
@@ -115,7 +115,7 @@ module ElasticAPM
 
         # A bug in APM Server 7.9 disallows null values in `cloud`
         def strip_nulls!(hash)
-          hash.keys.each do |key|
+          hash.each_key do |key|
             case value = hash[key]
             when Hash
               strip_nulls!(value)

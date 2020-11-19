@@ -32,11 +32,13 @@ module ElasticAPM
     DEPRECATED_OPTIONS = %i[].freeze
 
     # DEPRECATED: To align with other agents, change on next major bump to:
-    # "password, passwd, pwd, secret, *key, *token*, *session*, *credit*, *card*, authorization, set-cookie"
+    # "password, passwd, pwd, secret, *key, *token*, *session*, *credit*,
+    # *card*, authorization, set-cookie"
     SANITIZE_FIELD_NAMES_DEFAULT =
-      %w[*password* *passwd* *pwd* *secret* *key* *token* *session* *credit* *card* *authorization* *set-cookie*]
+      %w[*password* *passwd* *pwd* *secret* *key* *token* *session*
+         *credit* *card* *authorization* *set-cookie*].freeze
 
-    # rubocop:disable Metrics/LineLength, Layout/ExtraSpacing
+    # rubocop:disable Layout/LineLength, Layout/ExtraSpacing
     option :config_file,                       type: :string, default: 'config/elastic_apm.yml'
     option :server_url,                        type: :url,    default: 'http://localhost:8200'
     option :secret_token,                      type: :string
@@ -83,8 +85,7 @@ module ElasticAPM
     option :proxy_port,                        type: :int
     option :proxy_username,                    type: :string
     option :recording,                         type: :bool,   default: true
-    option :sanitize_field_names,              type: :list,
-      default: SANITIZE_FIELD_NAMES_DEFAULT, converter: WildcardPatternList.new
+    option :sanitize_field_names,              type: :list,   default: SANITIZE_FIELD_NAMES_DEFAULT, converter: WildcardPatternList.new
     option :server_ca_cert,                    type: :string
     option :service_name,                      type: :string
     option :service_node_name,                 type: :string
@@ -102,7 +103,7 @@ module ElasticAPM
     option :use_legacy_sql_parser,             type: :bool,   default: false
     option :verify_server_cert,                type: :bool,   default: true
 
-    # rubocop:enable Metrics/LineLength, Layout/ExtraSpacing
+    # rubocop:enable Layout/LineLength, Layout/ExtraSpacing
     def initialize(options = {})
       @options = load_schema
 
@@ -126,8 +127,7 @@ module ElasticAPM
       @__root_path ||= Dir.pwd
     end
 
-    attr_accessor :__view_paths, :__root_path
-    attr_accessor :logger
+    attr_accessor :__view_paths, :__root_path, :logger
 
     attr_reader :options
 
@@ -201,8 +201,9 @@ module ElasticAPM
     def sanitize_field_names=(value)
       list = WildcardPatternList.new.call(value)
       defaults = WildcardPatternList.new.call(SANITIZE_FIELD_NAMES_DEFAULT)
+      # use regex pattern for comparisons
       get(:sanitize_field_names).value =
-        defaults.concat(list).uniq(&:pattern) # use regex pattern for comparisons
+        defaults.concat(list).uniq(&:pattern)
     end
 
     def span_frames_min_duration?
@@ -284,9 +285,10 @@ module ElasticAPM
       self.disable_instrumentations = value
     end
 
-    def use_experimental_sql_parser=(value)
-      warn '[DEPRECATED] The new SQL parser is now the default. To use the old one, '
-        'use use_legacy_sql_parser and please report why you wish to do so.'
+    def use_experimental_sql_parser=(_value)
+      warn '[DEPRECATED] The new SQL parser is now the default. To use the ' \
+           'old one, use use_legacy_sql_parser and please report why you ' \
+           'wish to do so.'
     end
 
     def active=(value)
@@ -313,7 +315,7 @@ module ElasticAPM
     end
 
     def build_logger
-      Logger.new(log_path == '-' ? STDOUT : log_path).tap do |logger|
+      Logger.new(log_path == '-' ? $stdout : log_path).tap do |logger|
         logger.level = log_level
       end
     end
@@ -344,7 +346,8 @@ module ElasticAPM
       self.logger ||= ::Rails.logger
 
       self.__root_path = ::Rails.root.to_s
-      self.__view_paths = app.config.paths['app/views'].existent + [::Rails.root.to_s]
+      self.__view_paths = app.config.paths['app/views'].existent +
+                          [::Rails.root.to_s]
     end
 
     def rails_app_name(app)

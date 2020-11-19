@@ -30,9 +30,6 @@ module ElasticAPM
         its(:queue) { should be_a Queue }
       end
 
-      describe '#start' do
-      end
-
       describe '#stop' do
         let(:config) { Config.new(pool_size: 2) }
 
@@ -56,7 +53,7 @@ module ElasticAPM
       describe '#submit' do
         before do
           # Avoid emptying the queue
-          allow(subject).to receive(:ensure_watcher_running) {}
+          allow(subject).to receive(:ensure_watcher_running) { nil }
         end
 
         it 'adds stuff to the queue' do

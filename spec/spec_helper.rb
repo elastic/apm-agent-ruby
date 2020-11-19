@@ -20,7 +20,7 @@
 if ENV["TEST_MATRIX"]
   require "simplecov"
 
-  SimpleCov.coverage_dir("coverage/matrix_results/" + ENV["TEST_MATRIX"])
+  SimpleCov.coverage_dir("coverage/matrix_results/#{ENV['TEST_MATRIX']}")
   SimpleCov.start { add_filter("/spec/") }
 end
 

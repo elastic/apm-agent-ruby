@@ -36,14 +36,9 @@ module ElasticAPM
     Service = Struct.new(:framework)
     Framework = Struct.new(:name, :version)
 
-    attr_accessor :request
-    attr_accessor :response
-    attr_accessor :user
-    attr_reader :custom
-    attr_reader :labels
-    attr_reader :service
+    attr_accessor :request, :response, :user
+    attr_reader :custom, :labels, :service
 
-    # rubocop:disable Metrics/CyclomaticComplexity
     def empty?
       return false if labels.any?
       return false if custom.any?
@@ -53,7 +48,6 @@ module ElasticAPM
 
       true
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
 
     def set_service(framework_name: nil, framework_version: nil)
       @service = Service.new(
