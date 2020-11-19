@@ -29,14 +29,8 @@ module ElasticAPM
   class Config
     extend Options
 
-    DEPRECATED_OPTIONS = %i[].freeze
-
-    # DEPRECATED: To align with other agents, change on next major bump to:
-    # "password, passwd, pwd, secret, *key, *token*, *session*, *credit*,
-    # *card*, authorization, set-cookie"
     SANITIZE_FIELD_NAMES_DEFAULT =
-      %w[*password* *passwd* *pwd* *secret* *key* *token* *session*
-         *credit* *card* *authorization* *set-cookie*].freeze
+      %w[password passwd pwd secret *key *token* *session* *credit* *card* authorization set-cookie].freeze
 
     # rubocop:disable Layout/LineLength, Layout/ExtraSpacing
     option :config_file,                       type: :string, default: 'config/elastic_apm.yml'
@@ -190,15 +184,6 @@ module ElasticAPM
 
     def collect_metrics?
       metrics_interval > 0
-    end
-
-    # DEPRECATED: Remove this in next major version
-    def sanitize_field_names=(value)
-      list = WildcardPatternList.new.call(value)
-      defaults = WildcardPatternList.new.call(SANITIZE_FIELD_NAMES_DEFAULT)
-      # use regex pattern for comparisons
-      get(:sanitize_field_names).value =
-        defaults.concat(list).uniq(&:pattern)
     end
 
     def span_frames_min_duration?
