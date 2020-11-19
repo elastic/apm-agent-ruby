@@ -37,7 +37,7 @@ gem 'elasticsearch', require: nil
 gem 'fakeredis', require: nil
 gem 'faraday', require: nil
 gem 'graphql', require: nil
-unless defined?(JRUBY_VERSION) && RUBY_VERSION < '2.5'
+if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.5'
   gem 'google-protobuf', '< 3.12'
 end
 gem 'grpc' unless defined?(JRUBY_VERSION)
