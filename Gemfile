@@ -86,7 +86,7 @@ frameworks_versions.each do |framework, version|
 end
 
 if frameworks_versions.key?('rails')
-  unless frameworks_versions['rails'] =~ /^(master|6)/
+  unless /^(master|6)/.match?(frameworks_versions['rails'])
     gem 'delayed_job', require: nil
   end
 end
@@ -94,7 +94,7 @@ end
 if RUBY_PLATFORM == 'java'
   gem 'activerecord-jdbcsqlite3-adapter'
   gem 'jdbc-sqlite3'
-elsif frameworks_versions['rails'] =~ /^(4|5)/
+elsif /^(4|5)/.match?(frameworks_versions['rails'])
   gem 'sqlite3', '~> 1.3.6'
 else
   gem 'sqlite3'
