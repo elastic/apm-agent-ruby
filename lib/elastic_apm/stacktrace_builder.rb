@@ -38,7 +38,9 @@ module ElasticAPM
 
     def initialize(config)
       @config = config
-      @cache = Util::LruCache.new(2048, &method(:build_frame))
+      @cache = Util::LruCache.new(2048) do |cache, frame|
+        build_frame(cache, frame)
+      end
     end
 
     attr_reader :config

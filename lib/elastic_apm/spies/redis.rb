@@ -22,20 +22,21 @@ module ElasticAPM
   module Spies
     # @api private
     class RedisSpy
-      def install
-        ::Redis::Client.class_eval do
-          alias call_without_apm call
+      # @api private
+      module Ext
+        def call(command, &block)
+          name = command[0].upcase
 
-          def call(command, &block)
-            name = command[0].upcase
+          return super(command, &block) if command[0] == :auth
 
-            return call_without_apm(command, &block) if command[0] == :auth
-
-            ElasticAPM.with_span(name.to_s, 'db.redis') do
-              call_without_apm(command, &block)
-            end
+          ElasticAPM.with_span(name.to_s, 'db.redis') do
+            super(command, &block)
           end
         end
+      end
+
+      def install
+        ::Redis::Client.prepend(Ext)
       end
     end
 

@@ -24,29 +24,26 @@ module ElasticAPM
     class ResqueSpy
       TYPE = 'Resque'
 
-      def install
-        install_perform_spy
+      # @api private
+      module Ext
+        def perform
+          name = @payload && @payload['class']&.to_s
+          transaction = ElasticAPM.start_transaction(name, TYPE)
+          super
+          transaction&.done 'success'
+          transaction&.outcome = Transaction::Outcome::SUCCESS
+        rescue ::Exception => e
+          ElasticAPM.report(e, handled: false)
+          transaction&.done 'error'
+          transaction&.outcome = Transaction::Outcome::FAILURE
+          raise
+        ensure
+          ElasticAPM.end_transaction
+        end
       end
 
-      def install_perform_spy
-        ::Resque::Job.class_eval do
-          alias :perform_without_elastic_apm :perform
-
-          def perform
-            name = @payload && @payload['class']&.to_s
-            transaction = ElasticAPM.start_transaction(name, TYPE)
-            perform_without_elastic_apm
-            transaction&.done 'success'
-            transaction&.outcome = Transaction::Outcome::SUCCESS
-          rescue ::Exception => e
-            ElasticAPM.report(e, handled: false)
-            transaction&.done 'error'
-            transaction&.outcome = Transaction::Outcome::FAILURE
-            raise
-          ensure
-            ElasticAPM.end_transaction
-          end
-        end
+      def install
+        ::Resque::Job.prepend(Ext)
       end
     end
 

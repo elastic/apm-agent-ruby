@@ -23,7 +23,7 @@ module ElasticAPM
     class RegexpList
       def call(value)
         value = value.is_a?(String) ? value.split(',') : Array(value)
-        value.map(&Regexp.method(:new))
+        value.map { |p| Regexp.new(p) }
       end
     end
   end

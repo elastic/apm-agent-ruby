@@ -35,17 +35,15 @@ module ElasticAPM
         # rubocop:enable Style/ExplicitBlockArgument
       end
 
-      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-      def install
-        ::Faraday::Connection.class_eval do
-          alias run_request_without_apm run_request
+      # @api private
+      module Ext
+        # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
+        def run_request(method, url, body, headers, &block)
+          unless (transaction = ElasticAPM.current_transaction)
+            return super(method, url, body, headers, &block)
+          end
 
-          def run_request(method, url, body, headers, &block)
-            unless (transaction = ElasticAPM.current_transaction)
-              return run_request_without_apm(method, url, body, headers, &block)
-            end
-
-            uri = URI(build_url(url))
+          uri = URI(build_url(url))
 
             # If url is set inside block it isn't available until yield,
             # so we temporarily build the request to yield. This could be a
@@ -57,6 +55,8 @@ module ElasticAPM
               end
               uri = tmp_request.path && URI(tmp_request.path)
             end
+            uri = URI(tmp_request.path)
+          end
 
             host = uri&.host || 'localhost'
 
@@ -75,35 +75,43 @@ module ElasticAPM
                 ElasticAPM::Span::Context.new(http: { url: uri, method: upcased_method })
             end
 
-            ElasticAPM.with_span(
-              "#{upcased_method} #{host}",
-              TYPE,
-              subtype: SUBTYPE,
-              action: upcased_method,
-              context: context
-            ) do |span|
-              ElasticAPM::Spies::FaradaySpy.without_net_http do
-                trace_context = span&.trace_context || transaction.trace_context
+          context =
+            ElasticAPM::Span::Context.new(
+              http: { url: uri, method: upcased_method },
+              destination: destination
+            )
 
-                result =
-                  run_request_without_apm(method, url, body, headers) do |req|
-                    trace_context.apply_headers { |k, v| req[k] = v }
+          ElasticAPM.with_span(
+            "#{upcased_method} #{host}",
+            TYPE,
+            subtype: SUBTYPE,
+            action: upcased_method,
+            context: context
+          ) do |span|
+            ElasticAPM::Spies::FaradaySpy.without_net_http do
+              trace_context = span&.trace_context || transaction.trace_context
 
-                    yield req if block_given?
-                  end
+              result = super(method, url, body, headers) do |req|
+                trace_context.apply_headers { |k, v| req[k] = v }
 
-                if (http = span&.context&.http)
-                  http.status_code = result.status.to_s
-                end
-
-                span&.outcome = Span::Outcome.from_http_status(result.status)
-                result
+                yield req if block
               end
+
+              if (http = span&.context&.http)
+                http.status_code = result.status.to_s
+              end
+
+              span&.outcome = Span::Outcome.from_http_status(result.status)
+              result
             end
           end
         end
+        # rubocop:enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
       end
-      # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+
+      def install
+        ::Faraday::Connection.prepend(Ext)
+      end
     end
 
     register 'Faraday', 'faraday', FaradaySpy.new

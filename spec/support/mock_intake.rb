@@ -112,7 +112,7 @@ class MockIntake
 
   def parse_request_body(request)
     body =
-      if request.env['HTTP_CONTENT_ENCODING'] =~ /gzip/
+      if request.env['HTTP_CONTENT_ENCODING'].include?('gzip')
         gunzip(request.body.read)
       else
         request.body.read

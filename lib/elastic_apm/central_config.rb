@@ -66,9 +66,9 @@ module ElasticAPM
     def fetch_and_apply_config
       @promise =
         Concurrent::Promise
-        .execute(&method(:fetch_config))
-        .on_success(&method(:handle_success))
-        .rescue(&method(:handle_error))
+        .execute { fetch_config }
+        .on_success { |resp| handle_success(resp) }
+        .rescue { |err| handle_error(err) }
     end
 
     def fetch_config
@@ -182,7 +182,7 @@ module ElasticAPM
 
       @scheduled_task =
         Concurrent::ScheduledTask
-        .execute(seconds, &method(:fetch_and_apply_config))
+        .execute(seconds) { fetch_and_apply_config }
     end
   end
 end
