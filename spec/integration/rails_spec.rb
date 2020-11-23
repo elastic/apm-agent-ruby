@@ -191,7 +191,7 @@ if enabled
 
       context 'when the log level is updated via central config' do
         before do
-          ElasticAPM.agent.config.replace_options('log_level' => Logger::WARN)
+          ElasticAPM.agent.config.replace_options('log_level' => 'off')
         end
 
         it 'does not change the Rails log level' do
@@ -201,7 +201,7 @@ if enabled
 
         it 'changes the ElasticAPM config log level' do
           log_level = ElasticAPM.agent.config.log_level
-          expect(log_level).to eq Logger::WARN
+          expect(log_level).to eq Logger::FATAL
         end
       end
     end

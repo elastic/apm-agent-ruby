@@ -182,6 +182,23 @@ module ElasticAPM
         expect(logger).to receive(:info).with('MockLog')
         config.logger.info 'MockLog'
       end
+
+      describe 'log level' do
+        it 'can accept integers' do
+          config = Config.new log_level: Logger::FATAL
+          expect(config.log_level).to eq(Logger::FATAL)
+        end
+
+        it 'can accept symbols' do
+          config = Config.new log_level: :fatal
+          expect(config.log_level).to eq(Logger::FATAL)
+        end
+
+        it 'can accept symbols not mapping to native Ruby logger levels' do
+          config = Config.new log_level: :critical
+          expect(config.log_level).to eq(Logger::FATAL)
+        end
+      end
     end
 
     describe 'unknown options' do
