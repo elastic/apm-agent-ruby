@@ -32,12 +32,10 @@ module ElasticAPM
         # rubocop:enable Style/ExplicitBlockArgument
       end
 
-      def install
-        ::Aws::DynamoDB::Client.class_eval do
-          # Alias all available operations
-          api.operation_names.each do |operation_name|
-            alias :"#{operation_name}_without_apm" :"#{operation_name}"
-
+      # @api private
+      module Ext
+        def self.prepended(mod)
+          mod.api.operation_names.each do |operation_name|
             define_method(operation_name) do |params = {}, options = {}|
               ElasticAPM.with_span(
                 operation_name,
@@ -46,13 +44,16 @@ module ElasticAPM
                 action: operation_name
               ) do
                 ElasticAPM::Spies::DynamoDBSpy.without_net_http do
-                  original_method = method("#{operation_name}_without_apm")
-                  original_method.call(params, options)
+                  super(params, options)
                 end
               end
             end
           end
         end
+      end
+
+      def install
+        ::Aws::DynamoDB::Client.prepend(Ext)
       end
     end
 
