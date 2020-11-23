@@ -22,35 +22,34 @@ module ElasticAPM
   module Spies
     # @api private
     class SinatraSpy
-      def install
-        ::Sinatra::Base.class_eval do
-          alias dispatch_without_apm! dispatch!
-          alias compile_template_without_apm compile_template
+      # @api private
+      module Ext
+        def dispatch!(*args, &block)
+          super(*args, &block).tap do
+            next unless (transaction = ElasticAPM.current_transaction)
+            next unless (route = env['sinatra.route'])
 
-          def dispatch!(*args, &block)
-            dispatch_without_apm!(*args, &block).tap do
-              next unless (transaction = ElasticAPM.current_transaction)
-              next unless (route = env['sinatra.route'])
-
-              transaction.name = route
-            end
-          end
-
-          def compile_template(engine, data, opts, *args, &block)
-            opts[:__elastic_apm_template_name] =
-              case data
-              when Symbol then data.to_s
-              else format('Inline %s', engine)
-              end
-
-            compile_template_without_apm(engine, data, opts, *args, &block)
+            transaction.name = route
           end
         end
+
+        def compile_template(engine, data, opts, *args, &block)
+          opts[:__elastic_apm_template_name] =
+            case data
+            when Symbol then data.to_s
+            else format('Inline %s', engine)
+            end
+
+          super(engine, data, opts, *args, &block)
+        end
+      end
+
+      def install
+        ::Sinatra::Base.prepend(Ext)
       end
     end
 
     register 'Sinatra::Base', 'sinatra/base', SinatraSpy.new
-
     require 'elastic_apm/spies/tilt'
   end
 end

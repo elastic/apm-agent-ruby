@@ -22,17 +22,18 @@ module ElasticAPM
   module Spies
     # @api private
     class ActionDispatchSpy
-      def install
-        ::ActionDispatch::ShowExceptions.class_eval do
-          alias render_exception_without_apm render_exception
+      # @api private
+      module Ext
+        def render_exception(env, exception)
+          context = ElasticAPM.build_context(rack_env: env, for_type: :error)
+          ElasticAPM.report(exception, context: context, handled: false)
 
-          def render_exception(env, exception)
-            context = ElasticAPM.build_context(rack_env: env, for_type: :error)
-            ElasticAPM.report(exception, context: context, handled: false)
-
-            render_exception_without_apm env, exception
-          end
+          super(env, exception)
         end
+      end
+
+      def install
+        ::ActionDispatch::ShowExceptions.prepend(Ext)
       end
     end
 
