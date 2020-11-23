@@ -79,13 +79,16 @@ module ElasticAPM
                 context: context
               ) do
                 ElasticAPM::Spies::DynamoDBSpy.without_net_http do
-                  original_method = method("#{operation_name}_without_apm")
-                  original_method.call(params, options)
+                  super(params, options)
                 end
               end
             end
           end
         end
+      end
+
+      def install
+        ::Aws::DynamoDB::Client.prepend(Ext)
       end
     end
 

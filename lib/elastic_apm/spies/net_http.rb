@@ -46,65 +46,64 @@ module ElasticAPM
         end
       end
 
-      # rubocop:disable Metrics/CyclomaticComplexity
-      # rubocop:disable Metrics/PerceivedComplexity
-      def install
-        Net::HTTP.class_eval do
-          alias request_without_apm request
+      # @api private
+      module Ext
+        # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
+        def request(req, body = nil, &block)
+          unless (transaction = ElasticAPM.current_transaction)
+            return super(req, body, &block)
+          end
 
-          def request(req, body = nil, &block)
-            unless (transaction = ElasticAPM.current_transaction)
-              return request_without_apm(req, body, &block)
+          if ElasticAPM::Spies::NetHTTPSpy.disabled?
+            return super(req, body, &block)
+          end
+
+          host = req['host']&.split(':')&.first || address || 'localhost'
+          method = req.method.to_s.upcase
+          path, query = req.path.split('?')
+
+          url = use_ssl? ? +'https://' : +'http://'
+          url << host
+          url << ":#{port}" if port
+          url << path
+          url << "?#{query}" if query
+          uri = URI(url)
+
+          destination =
+            ElasticAPM::Span::Context::Destination.from_uri(uri)
+
+          context =
+            ElasticAPM::Span::Context.new(
+              http: { url: uri, method: method },
+              destination: destination
+            )
+
+          ElasticAPM.with_span(
+            "#{method} #{host}",
+            TYPE,
+            subtype: SUBTYPE,
+            action: method,
+            context: context
+          ) do |span|
+            trace_context = span&.trace_context || transaction.trace_context
+            trace_context.apply_headers { |key, value| req[key] = value }
+
+            result = super(req, body, &block)
+
+            if (http = span&.context&.http)
+              http.status_code = result.code
             end
 
-            if ElasticAPM::Spies::NetHTTPSpy.disabled?
-              return request_without_apm(req, body, &block)
-            end
-
-            host = req['host']&.split(':')&.first || address || 'localhost'
-            method = req.method.to_s.upcase
-            path, query = req.path.split('?')
-
-            url = use_ssl? ? +'https://' : +'http://'
-            url << host
-            url << ":#{port}" if port
-            url << path
-            url << "?#{query}" if query
-            uri = URI(url)
-
-            destination =
-              ElasticAPM::Span::Context::Destination.from_uri(uri)
-
-            context =
-              ElasticAPM::Span::Context.new(
-                http: { url: uri, method: method },
-                destination: destination
-              )
-
-            ElasticAPM.with_span(
-              "#{method} #{host}",
-              TYPE,
-              subtype: SUBTYPE,
-              action: method,
-              context: context
-            ) do |span|
-              trace_context = span&.trace_context || transaction.trace_context
-              trace_context.apply_headers { |key, value| req[key] = value }
-
-              result = request_without_apm(req, body, &block)
-
-              if (http = span&.context&.http)
-                http.status_code = result.code
-              end
-
-              span&.outcome = Span::Outcome.from_http_status(result.code)
-              result
-            end
+            span&.outcome = Span::Outcome.from_http_status(result.code)
+            result
           end
         end
+        # rubocop:enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
       end
-      # rubocop:enable Metrics/CyclomaticComplexity
-      # rubocop:enable Metrics/PerceivedComplexity
+
+      def install
+        Net::HTTP.prepend(Ext)
+      end
     end
 
     register 'Net::HTTP', 'net/http', NetHTTPSpy.new

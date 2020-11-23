@@ -22,41 +22,43 @@ module ElasticAPM
   module Spies
     # @api private
     class RakeSpy
-      def install
-        ::Rake::Task.class_eval do
-          alias execute_without_apm execute
+      # @api private
+      module Ext
+        def execute(*args)
+          agent = ElasticAPM.start
 
-          def execute(*args)
-            agent = ElasticAPM.start
-
-            unless agent && agent.config.instrumented_rake_tasks.include?(name)
-              return execute_without_apm(*args)
-            end
-
-            transaction =
-              ElasticAPM.start_transaction("Rake::Task[#{name}]", 'Rake')
-
-            begin
-              result = execute_without_apm(*args)
-
-              transaction&.result = 'success'
-              transaction&.outcome = Transaction::Outcome::SUCCESS
-            rescue StandardError => e
-              transaction&.result = 'error'
-              transaction&.outcome = Transaction::Outcome::FAILURE
-              ElasticAPM.report(e)
-
-              raise
-            ensure
-              ElasticAPM.end_transaction
-              ElasticAPM.stop
-            end
-
-            result
+          unless agent && agent.config.instrumented_rake_tasks.include?(name)
+            return super(*args)
           end
+
+          transaction =
+            ElasticAPM.start_transaction("Rake::Task[#{name}]", 'Rake')
+
+          begin
+            result = super(*args)
+
+            transaction&.result = 'success'
+            transaction&.outcome = Transaction::Outcome::SUCCESS
+          rescue StandardError => e
+            transaction&.result = 'error'
+            transaction&.outcome = Transaction::Outcome::FAILURE
+            ElasticAPM.report(e)
+
+            raise
+          ensure
+            ElasticAPM.end_transaction
+            ElasticAPM.stop
+          end
+
+          result
         end
       end
+
+      def install
+        ::Rake::Task.prepend(Ext)
+      end
     end
+
     register 'Rake::Task', 'rake', RakeSpy.new
   end
 end
