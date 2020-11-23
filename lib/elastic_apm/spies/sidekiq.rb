@@ -65,32 +65,30 @@ module ElasticAPM
         end
       end
 
-      def install_processor
-        require 'sidekiq/processor'
-
-        Sidekiq::Processor.class_eval do
-          alias start_without_apm start
-          alias terminate_without_apm terminate
-
-          def start
-            result = start_without_apm
-
+      # @api private
+      module Ext
+        def start
+          super.tap do
             # Already running from Railtie if Rails
             if ElasticAPM.running?
               ElasticAPM.agent.config.logger = Sidekiq.logger
             else
               ElasticAPM.start
             end
-
-            result
           end
+        end
 
-          def terminate
-            terminate_without_apm
-
+        def terminate
+          super.tap do
             ElasticAPM.stop
           end
         end
+      end
+
+      def install_processor
+        require 'sidekiq/processor'
+
+        Sidekiq::Processor.prepend(Ext)
       end
 
       def install
