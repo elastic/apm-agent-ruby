@@ -31,61 +31,55 @@ module ElasticAPM
         @summarizer ||= Sql.summarizer
       end
 
-      # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
+      # @api private
+      module Ext
+        # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
+        def log_connection_yield(sql, connection, args = nil, &block)
+          unless ElasticAPM.current_transaction
+            return super(sql, connection, args, &block)
+          end
+
+          subtype = database_type.to_s
+
+          name =
+            ElasticAPM::Spies::SequelSpy.summarizer.summarize sql
+
+          context = ElasticAPM::Span::Context.new(
+            db: { statement: sql, type: 'sql', user: opts[:user] },
+            destination: { name: subtype, resource: subtype, type: TYPE }
+          )
+
+          span = ElasticAPM.start_span(
+            name,
+            TYPE,
+            subtype: subtype,
+            action: ACTION,
+            context: context
+          )
+          super(sql, connection, args, &block).tap do |result|
+            if name =~ /^(UPDATE|DELETE)/
+              if connection.respond_to?(:changes)
+                span.context.db.rows_affected = connection.changes
+              elsif result.is_a?(Integer)
+                span.context.db.rows_affected = result
+              end
+            end
+          end
+        rescue
+          span&.outcome = Span::Outcome::FAILURE
+          raise
+        ensure
+          span&.outcome ||= Span::Outcome::SUCCESS
+          ElasticAPM.end_span
+        end
+        # rubocop:enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
+      end
+
       def install
         require 'sequel/database/logging'
 
-        ::Sequel::Database.class_eval do
-          alias log_connection_yield_without_apm log_connection_yield
-
-          def log_connection_yield(sql, connection, args = nil, &block)
-            unless ElasticAPM.current_transaction
-              return log_connection_yield_without_apm(
-                sql, connection, args, &block
-              )
-            end
-
-            subtype = database_type.to_s
-
-            name =
-              ElasticAPM::Spies::SequelSpy.summarizer.summarize sql
-
-            context = ElasticAPM::Span::Context.new(
-              db: { statement: sql, type: 'sql', user: opts[:user] },
-              destination: { name: subtype, resource: subtype, type: TYPE }
-            )
-
-            span = ElasticAPM.start_span(
-              name,
-              TYPE,
-              subtype: subtype,
-              action: ACTION,
-              context: context
-            )
-            log_connection_yield_without_apm(
-              sql,
-              connection,
-              args,
-              &block
-            ).tap do |result|
-              if name =~ /^(UPDATE|DELETE)/
-                if connection.respond_to?(:changes)
-                  span.context.db.rows_affected = connection.changes
-                elsif result.is_a?(Integer)
-                  span.context.db.rows_affected = result
-                end
-              end
-            end
-          rescue
-            span&.outcome = Span::Outcome::FAILURE
-            raise
-          ensure
-            span&.outcome ||= Span::Outcome::SUCCESS
-            ElasticAPM.end_span
-          end
-        end
+        ::Sequel::Database.prepend(Ext)
       end
-      # rubocop:enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
     end
 
     register 'Sequel', 'sequel', SequelSpy.new

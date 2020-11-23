@@ -48,7 +48,7 @@ module ElasticAPM
       end
 
       def array(arr)
-        arr.map(&method(:deep_dup))
+        arr.map { |obj| deep_dup(obj) }
       end
 
       def hash(hsh)

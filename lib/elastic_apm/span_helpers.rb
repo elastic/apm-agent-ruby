@@ -36,19 +36,17 @@ module ElasticAPM
         name ||= method.to_s
         type ||= Span::DEFAULT_TYPE
 
-        klass.class_eval <<-RUBY, __FILE__, __LINE__ + 1
-          alias :"__without_apm_#{method}" :"#{method}"
-
-          def #{method}(*args, &block)
+        klass.prepend(Module.new do
+          define_method(method) do |*args|
             unless ElasticAPM.current_transaction
-              return __without_apm_#{method}(*args, &block)
+              return super(*args)
             end
 
-            ElasticAPM.with_span "#{name}", "#{type}" do
-              __without_apm_#{method}(*args, &block)
+            ElasticAPM.with_span name.to_s, type.to_s do
+              super(*args)
             end
           end
-        RUBY
+        end)
       end
     end
 
