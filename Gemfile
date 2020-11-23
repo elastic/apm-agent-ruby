@@ -27,6 +27,8 @@ gem 'pry'
 gem 'rack-test'
 gem 'rspec', '~> 3'
 gem 'rspec-its'
+gem 'rubocop', require: false
+gem 'rubocop-performance', require: false
 gem 'timecop'
 gem 'webmock'
 

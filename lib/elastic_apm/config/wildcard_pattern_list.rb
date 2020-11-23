@@ -59,7 +59,7 @@ module ElasticAPM
 
       def call(value)
         value = value.is_a?(String) ? value.split(',') : Array(value)
-        value.map(&WildcardPattern.method(:new))
+        value.map { |p| WildcardPattern.new(p) }
       end
     end
   end
