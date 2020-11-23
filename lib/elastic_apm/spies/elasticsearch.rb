@@ -37,46 +37,47 @@ module ElasticAPM
           end
       end
 
-      def install
-        ::Elasticsearch::Transport::Client.class_eval do
-          alias perform_request_without_apm perform_request
-
-          def perform_request(method, path, *args, &block)
-            unless ElasticAPM.current_transaction
-              return perform_request_without_apm(method, path, *args, &block)
-            end
-
-            name = format(NAME_FORMAT, method, path)
-            statement = []
-
-            statement << { params: args&.[](0) }
-
-            if ElasticAPM.agent.config.capture_elasticsearch_queries
-              unless args[1].nil? || args[1].empty?
-                statement << {
-                  body: ElasticAPM::Spies::ElasticsearchSpy
-                             .sanitizer.strip_from(args[1])
-                }
-              end
-            end
-
-            context = Span::Context.new(
-              db: { statement: statement.reduce({}, :merge).to_json },
-              destination: {
-                name: SUBTYPE,
-                resource: SUBTYPE,
-                type: TYPE
-              }
-            )
-
-            ElasticAPM.with_span(
-              name,
-              TYPE,
-              subtype: SUBTYPE,
-              context: context
-            ) { perform_request_without_apm(method, path, *args, &block) }
+      # @api private
+      module Ext
+        def perform_request(method, path, *args, &block)
+          unless ElasticAPM.current_transaction
+            return super(method, path, *args, &block)
           end
+
+          name = format(NAME_FORMAT, method, path)
+          statement = []
+
+          statement << { params: args&.[](0) }
+
+          if ElasticAPM.agent.config.capture_elasticsearch_queries
+            unless args[1].nil? || args[1].empty?
+              body =
+                ElasticAPM::Spies::ElasticsearchSpy
+                .sanitizer.strip_from(args[1])
+              statement << { body: body }
+            end
+          end
+
+          context = Span::Context.new(
+            db: { statement: statement.reduce({}, :merge).to_json },
+            destination: {
+              name: SUBTYPE,
+              resource: SUBTYPE,
+              type: TYPE
+            }
+          )
+
+          ElasticAPM.with_span(
+            name,
+            TYPE,
+            subtype: SUBTYPE,
+            context: context
+          ) { super(method, path, *args, &block) }
         end
+      end
+
+      def install
+        ::Elasticsearch::Transport::Client.prepend(Ext)
       end
     end
 

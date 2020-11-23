@@ -387,7 +387,7 @@ module ElasticAPM
     # @yield [Hash] A filter. Used if provided. Otherwise using `callback`
     # @return [Bool] true
     def add_filter(key, callback = nil, &block)
-      if callback.nil? && !block_given?
+      if callback.nil? && !block
         raise ArgumentError, '#add_filter needs either `callback\' or a block'
       end
 
