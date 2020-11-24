@@ -33,11 +33,14 @@ module ElasticAPM
         off: Logger::FATAL
       }.freeze
 
+      DEFAULT = Logger::INFO
+
       def call(value)
         if value.is_a?(Integer)
-          return LEVELS.value?(value) ? value : Logger::INFO
+          LEVELS.value?(value) ? value : DEFAULT
+        else
+          LEVELS.fetch(value.to_sym, DEFAULT)
         end
-        LEVELS.fetch(value.to_sym, Logger::INFO)
       end
     end
   end
