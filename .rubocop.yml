@@ -132,10 +132,3 @@ Style/StringConcatenation:
 
 Style/DocumentDynamicEvalDefinition:
   Enabled: false
-
-# Applies to > ruby 2.3, enable when 2.3 support is dropped
-Performance/RegexpMatch:
-  Enabled: false
-
-Style/HashTransformValues:
-  Enabled: false

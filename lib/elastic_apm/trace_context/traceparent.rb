@@ -56,8 +56,8 @@ module ElasticAPM
               values[-1] = Util.hex_to_bits(values[-1])
             end
 
-          raise_invalid(header) if HEX_REGEX =~ t.trace_id
-          raise_invalid(header) if HEX_REGEX =~ t.parent_id
+          raise_invalid(header) if HEX_REGEX.match?(t.trace_id)
+          raise_invalid(header) if HEX_REGEX.match?(t.parent_id)
         end
       end
 

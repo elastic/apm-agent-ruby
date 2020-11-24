@@ -39,8 +39,8 @@ module ElasticAPM # :nodoc:
     end
 
     def self.build(config)
-      normalizers = @registered.each_with_object({}) do |(name, klass), built|
-        built[name] = klass.new(config)
+      normalizers = @registered.transform_values do |klass|
+        klass.new(config)
       end
 
       Collection.new(normalizers)
