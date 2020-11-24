@@ -110,7 +110,7 @@ module ElasticAPM
             next next_char
           end
 
-          next next_char if peek =~ ALPHA
+          next next_char if ALPHA.match?(peek)
 
           break
         end
@@ -251,7 +251,7 @@ module ElasticAPM
           when 'e', 'E'
             return NUMBER if exponent
             next_char
-            next_char if peek_char =~ /[+-]/
+            next_char if /[+-]/.match?(peek_char)
           else break
           end
         end
