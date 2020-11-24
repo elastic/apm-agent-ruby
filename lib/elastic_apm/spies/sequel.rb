@@ -57,7 +57,7 @@ module ElasticAPM
             context: context
           )
           super(sql, connection, args, &block).tap do |result|
-            if name =~ /^(UPDATE|DELETE)/
+            if /^(UPDATE|DELETE)/.match?(name)
               if connection.respond_to?(:changes)
                 span.context.db.rows_affected = connection.changes
               elsif result.is_a?(Integer)
