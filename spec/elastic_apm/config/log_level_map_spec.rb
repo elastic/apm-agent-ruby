@@ -24,15 +24,15 @@ module ElasticAPM
     RSpec.describe LogLevelMap do
       subject { described_class.new }
 
-      describe 'when the level is an integer' do
-        describe 'when the level is valid' do
+      context 'when the level is an integer' do
+        context 'when the level is valid' do
           let(:level) { Logger::DEBUG }
           it 'sets the level' do
             expect(subject.call(level)).to eq(Logger::DEBUG)
           end
         end
 
-        describe 'when the level is not valid' do
+        context 'when the level is not valid' do
           let(:level) { 6 }
           it 'sets the default level' do
             expect(subject.call(level)).to eq(Logger::INFO)
@@ -40,21 +40,21 @@ module ElasticAPM
         end
       end
 
-      describe 'when the level is a string' do
+      context 'when the level is a string' do
         let(:level) { 'error' }
         it 'sets the mapped level' do
           expect(subject.call(level)).to eq(Logger::ERROR)
         end
       end
 
-      describe 'when the level is a symbol' do
+      context 'when the level is a symbol' do
         let(:level) { :error }
         it 'sets the mapped level' do
           expect(subject.call(level)).to eq(Logger::ERROR)
         end
       end
 
-      describe 'when the level is not in the map' do
+      context 'when the level is not in the map' do
         let(:level) { 'ceci_n_est_pas_un_level' }
         it 'sets the default level' do
           expect(subject.call(level)).to eq(Logger::INFO)
