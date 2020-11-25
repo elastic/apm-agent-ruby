@@ -86,6 +86,21 @@ endif::[]
 - The secrets filter is aligned with other agents, see `sanitize_field_names` {pull}900[#900]
 
 [float]
+===== Removed
+
+- Config option `active`, see `enabled` {pull}900[#900]
+_ Config option `custom_key_filters`, see `sanitize_field_names` {pull}900[#900]
+_ Config option `default_tags`, see `global_labels` {pull}900[#900]
+_ Config option `default_labels`, see `global_labels` {pull}900[#900]
+_ Config option `ignore_url_patterns`, see `transaction_ignore_urls` {pull}900[#900]
+
+[float]
+===== Changed
+
+- The secrets filter no longer filters based on values, see `sanitize_field_names` {pull}900[#900]
+- The secrets filter is aligned with other agents, see `sanitize_field_names` {pull}900[#900]
+
+[float]
 ===== Fixed
 
 - Handle invalid utf-8 byte sequences in sql summarizer and DB statement {pull}896[#896]
