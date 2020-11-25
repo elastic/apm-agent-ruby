@@ -25,27 +25,21 @@ module ElasticAPM
       RSpec.describe HashSanitizer do
         let(:config) { Config.new }
         subject do
-          described_class.new(
-            key_patterns: config.custom_key_filters + config.sanitize_field_names
-          )
+          described_class.new(key_patterns: config.sanitize_field_names)
         end
 
         describe '#strip_from!' do
           it 'removes secret keys from requests' do
             payload = {
               ApiKey: 'very zecret!',
-              Untouched: 'very much',
-              TotallyNotACreditCard: '4111 1111 1111 1111',
-              'HTTP_COOKIE': 'things=1'
+              Untouched: 'very much'
             }
 
             subject.strip_from!(payload)
 
             expect(payload).to match(
               ApiKey: '[FILTERED]',
-              Untouched: 'very much',
-              TotallyNotACreditCard: '[FILTERED]',
-              HTTP_COOKIE: '[FILTERED]'
+              Untouched: 'very much'
             )
           end
 

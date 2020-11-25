@@ -177,19 +177,6 @@ APM server in version 7.6.
 WARNING: Api keys only provide any real security if your APM server uses TLS.
 
 [float]
-[[config-active]]
-==== `active` deprecated:[3.7.0,See <<config-enabled>> instead.]
-|============
-| Environment          | `Config` key | Default
-| `ELASTIC_APM_ACTIVE` | `active`     | `true`
-|============
-
-Whether or not to start the agent.
-If `active` is `false`, `ElasticAPM.start` will do nothing and all calls to the root API will return `nil`.
-
-NOTE: This option is being removed. See <<config-enabled>> instead.
-
-[float]
 [[config-api-buffer-size]]
 ==== `api_buffer_size`
 |============
@@ -340,57 +327,6 @@ If set to any of `"aws"`, `"gcp"`, or `"azure"`,
 attempts to collect metadata will only be performed from the chosen provider.
 
 [float]
-[[config-custom-key-filters]]
-==== `custom_key_filters` deprecated:[3.5.0,See <<config-sanitize-field-names>> instead.]
-[options="header"]
-|============
-| Environment                      | `Config` key         | Default | Example
-| `ELASTIC_APM_CUSTOM_KEY_FILTERS` | `custom_key_filters` | `[]`    | `['MyAuthHeader']`
-|============
-
-Elastic APM strips
-https://github.com/elastic/apm-agent-ruby/blob/1.x/lib/elastic_apm/filters/secrets_filter.rb[
-what looks like confidential information] from the request/response headers.
-Use this option to add your own custom header keys to the list of filtered keys.
-
-When setting this option via `ENV`, use a comma separated string.
-Eg. `ELASTIC_APM_CUSTOM_KEY_FILTERS="a,b" # => [/a/, /b/]`
-
-NOTE: This option is being removed. See <<config-sanitize-field-names>> instead.
-
-[float]
-[[config-default-tags]]
-==== `default_tags`
-
-[options="header"]
-|============
-| Environment                  | `Config` key     | Default | Example
-| `ELASTIC_APM_DEFAULT_LABELS` | `default_labels` | `{}`    | `region=us1`
-|============
-
-Add default labels to every transaction. Note that this will eventually be deprecated in favor of `global_labels`.
-
-WARNING: Be aware that labels are indexed in Elasticsearch. Using too many unique keys will result in *https://www.elastic.co/blog/found-crash-elasticsearch#mapping-explosion[Mapping explosion]*.
-
-NOTE: `global_labels` are supported as of APM server version 7.2. `default_tags` and `default_labels` will eventually be
-deprecated so please transition to using `global_labels` instead. In the meantime, any `default_labels`
-that are set will override `global_labels`.
-
-[options="header"]
-|============
-| Environment                | `Config` key   | Default | Example
-| `ELASTIC_APM_DEFAULT_TAGS` | `default_tags` | `{}`    | `region=us1`
-|============
-
-Add default tags to add to every transaction. Note that this option has been deprecated in favor of `default_labels`.
-
-WARNING: Be aware that tags are indexed in Elasticsearch. Using too many unique keys will result in *https://www.elastic.co/blog/found-crash-elasticsearch#mapping-explosion[Mapping explosion]*.
-
-NOTE: `global_labels` are supported as of APM server version 7.2. `default_tags` and `default_labels` will eventually be
-deprecated so please transition to using `global_labels` instead. In the meantime, any `default_tags`
-that are set will override `global_labels`.
-
-[float]
 [[config-disable_metrics]]
 ==== `disable_metrics`
 |============
@@ -520,9 +456,7 @@ otherwise, the default is `nil`.
 Labels added to all events, with the format key=value[,key=value[,...]].
 
 NOTE: This option requires APM Server 7.2 or greater, and will have no effect when using older
-server versions. `default_tags` will eventually be deprecated but in the meantime, their value
-will override any `global_labels`. Please transition to using `global_labels` instead of
-`default_tags` in light of this deprecation.
+server versions.
 
 [float]
 [[config-hostname]]
@@ -701,8 +635,8 @@ when this option is false.
 
 [options="header"]
 |============
-| Environment                        | `Config` key           | Default | Example
-| `ELASTIC_APM_SANITIZE_FIELD_NAMES` | `sanitize_field_names` | `[]`    | `Auth*tion,abc*,*xyz`
+| Environment                        | `Config` key           | Default                                                                                        | Example
+| `ELASTIC_APM_SANITIZE_FIELD_NAMES` | `sanitize_field_names` | `"password,passwd,pwd,secret,*key,*token*,*session*,*credit*,*card*,authorization,set-cookie"` | `Auth*tion,abc*,*xyz`
 |============
 
 Sometimes it is necessary to sanitize the data sent to Elastic APM, e.g. remove sensitive data.
