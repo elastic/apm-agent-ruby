@@ -274,6 +274,28 @@ module ElasticAPM
         subject.assign(transaction_sample_rate: 0.5)
         expect(subject.config.transaction_sample_rate).to eq(0.5)
       end
+
+      describe 'log level' do
+        it 'maps `trace` to `debug`' do
+          subject.assign(log_level: 'trace')
+          expect(subject.config.log_level).to eq(Logger::DEBUG)
+        end
+
+        it 'maps `critical` to `fatal`' do
+          subject.assign(log_level: 'critical')
+          expect(subject.config.log_level).to eq(Logger::FATAL)
+        end
+
+        it 'maps `off` to `fatal`' do
+          subject.assign(log_level: 'off')
+          expect(subject.config.log_level).to eq(Logger::FATAL)
+        end
+
+        it 'maps `debug` to `debug`' do
+          subject.assign(log_level: 'debug')
+          expect(subject.config.log_level).to eq(Logger::DEBUG)
+        end
+      end
     end
 
     describe '#handle_forking!' do

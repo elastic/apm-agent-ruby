@@ -19,6 +19,7 @@
 
 require 'elastic_apm/config/bytes'
 require 'elastic_apm/config/duration'
+require 'elastic_apm/config/log_level_map'
 require 'elastic_apm/config/options'
 require 'elastic_apm/config/round_float'
 require 'elastic_apm/config/regexp_list'
@@ -75,7 +76,7 @@ module ElasticAPM
     option :ignore_url_patterns,               type: :list,   default: [],      converter: RegexpList.new
     option :instrument,                        type: :bool,   default: true
     option :instrumented_rake_tasks,           type: :list,   default: []
-    option :log_level,                         type: :int,    default: Logger::INFO
+    option :log_level,                         type: :int,    default: Logger::INFO, converter: LogLevelMap.new
     option :log_path,                          type: :string
     option :metrics_interval,                  type: :int,    default: '30s',   converter: Duration.new
     option :pool_size,                         type: :int,    default: 1
