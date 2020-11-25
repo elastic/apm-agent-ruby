@@ -264,17 +264,11 @@ if enabled
           wait_for transactions: 1, spans: 1
 
           expect(resp.body).to eq("HTTP Basic: Access denied.\n")
-          expect(resp.original_headers['WWW-Authenticate']).to_not be nil
-          expect(resp.original_headers['WWW-Authenticate'])
-            .to_not eq '[FILTERED]'
 
           transaction, = @mock_intake.transactions
 
           body = transaction.dig('context', 'request', 'body')
           expect(body['access_token']).to eq '[FILTERED]'
-
-          response_headers = transaction.dig('context', 'response', 'headers')
-          expect(response_headers['WWW-Authenticate']).to eq '[FILTERED]'
         end
       end
 
