@@ -26,17 +26,8 @@ module ElasticAPM
       class HashSanitizer
         FILTERED = '[FILTERED]'
 
-        # DEPRECATED: Remove these additions in next major version
-        LEGACY_KEY_FILTERS = [/cookie/i, /auth/i].freeze
-
-        # DEPRECATED: Remove this check in next major version
-        VALUE_FILTERS = [
-          # (probably) credit card number
-          /^\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}$/
-        ].freeze
-
         def initialize(key_patterns:)
-          @key_patterns = key_patterns + LEGACY_KEY_FILTERS
+          @key_patterns = key_patterns
         end
 
         attr_accessor :key_patterns
@@ -48,28 +39,19 @@ module ElasticAPM
         def strip_from!(obj)
           return unless obj.is_a?(Hash)
 
-          obj.each do |k, v|
-            if filter_key?(k)
-              next obj[k] = FILTERED
-            end
-
+          obj.each_pair do |k, v|
             case v
             when Hash
               strip_from!(v)
-            when String
-              if filter_value?(v)
-                obj[k] = FILTERED
-              end
+            else
+              next unless filter_key?(k)
+              obj[k] = FILTERED
             end
           end
         end
 
         def filter_key?(key)
           @key_patterns.any? { |regex| regex.match(key) }
-        end
-
-        def filter_value?(value)
-          VALUE_FILTERS.any? { |regex| regex.match(value) }
         end
       end
     end
