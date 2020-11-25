@@ -28,14 +28,16 @@ module ElasticAPM
     end
 
     initializer 'elastic_apm.initialize' do |app|
-      config = Config.new(app.config.elastic_apm.merge(app: app)).tap do |c|
+      config = Config.new(
+        { logger: ::Rails.logger }.merge(app.config.elastic_apm)
+      ).tap do |c|
         # Prepend Rails.root to log_path if present
         if c.log_path && !c.log_path.start_with?('/')
           c.log_path = ::Rails.root.join(c.log_path)
         end
       end
 
-      if Rails.start(config)
+      if Rails.start(app, config)
         app.middleware.insert 0, Middleware
       end
     end

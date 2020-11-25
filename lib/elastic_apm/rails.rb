@@ -31,8 +31,9 @@ module ElasticAPM
     #
     # @param config [Config, Hash] An instance of Config or a Hash config.
     # @return [true, nil] true if the agent was started, nil otherwise.
-    def start(config)
+    def start(app, config)
       config = Config.new(config) unless config.is_a?(Config)
+      configure_app(app, config)
 
       if (reason = should_skip?(config))
         unless config.disable_start_message?
@@ -72,6 +73,28 @@ module ElasticAPM
       return unless agent
 
       agent.instrumenter.subscriber = ElasticAPM::Subscriber.new(agent)
+    end
+
+    def configure_app(app, config)
+      config.service_name ||= format_name(rails_app_name(app))
+      config.framework_name ||= 'Ruby on Rails'
+      config.framework_version ||= ::Rails::VERSION::STRING
+      config.logger ||= ::Rails.logger
+      config.logger.level ||= ::Rails.logger.level
+      config.__root_path = ::Rails.root.to_s
+      config.__view_paths = app.config.paths['app/views'].existent
+    end
+
+    def format_name(str)
+      str&.gsub('::', '_')
+    end
+
+    def rails_app_name(app)
+      if ::Rails::VERSION::MAJOR >= 6
+        app.class.module_parent_name
+      else
+        app.class.parent_name
+      end
     end
   end
 end

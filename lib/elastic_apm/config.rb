@@ -117,6 +117,7 @@ module ElasticAPM
       yield self if block_given?
 
       self.logger ||= build_logger
+      self.service_name ||= 'ruby'
 
       @__view_paths ||= []
       @__root_path ||= Dir.pwd
@@ -166,15 +167,6 @@ module ElasticAPM
         options_copy.fetch(key.to_sym).set(value)
       end
       @options = options_copy
-    end
-
-    def app=(app)
-      case app_type?(app)
-      when :rails
-        set_rails(app)
-      else
-        self.service_name = 'ruby'
-      end
     end
 
     def use_ssl?
@@ -244,37 +236,6 @@ module ElasticAPM
       Logger.new(log_path == '-' ? $stdout : log_path).tap do |logger|
         logger.level = log_level
       end
-    end
-
-    def app_type?(app)
-      if defined?(::Rails::Application) && app.is_a?(::Rails::Application)
-        return :rails
-      end
-
-      nil
-    end
-
-    def set_rails(app)
-      self.service_name ||= format_name(service_name || rails_app_name(app))
-      self.framework_name ||= 'Ruby on Rails'
-      self.framework_version ||= ::Rails::VERSION::STRING
-      self.logger ||= ::Rails.logger
-
-      self.__root_path = ::Rails.root.to_s
-      self.__view_paths = app.config.paths['app/views'].existent +
-                          [::Rails.root.to_s]
-    end
-
-    def rails_app_name(app)
-      if ::Rails::VERSION::MAJOR >= 6
-        app.class.module_parent_name
-      else
-        app.class.parent_name
-      end
-    end
-
-    def format_name(str)
-      str&.gsub('::', '_')
     end
   end
 end

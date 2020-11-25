@@ -21,10 +21,22 @@ require 'spec_helper'
 
 if defined?(Rails)
   RSpec.describe Rails, :intercept do
+
+    before :all do
+      module RailsTestApp
+        class Application < Rails::Application
+        end
+      end
+    end
+
+    after(:all) do
+      Object.send(:remove_const, :RailsTestApp)
+    end
+
     describe '.start' do
       it 'starts the agent' do
         begin
-          ElasticAPM::Rails.start({})
+          ElasticAPM::Rails.start(RailsTestApp::Application.new, {})
           expect(ElasticAPM::Agent).to be_running
         ensure
           ElasticAPM.stop
@@ -43,7 +55,7 @@ if defined?(Rails)
 
       it "doesn't start when console" do
         begin
-          ElasticAPM::Rails.start({})
+          ElasticAPM::Rails.start(RailsTestApp::Application.new, {})
           expect(ElasticAPM.agent).to be nil
           expect(ElasticAPM).to_not be_running
         ensure
