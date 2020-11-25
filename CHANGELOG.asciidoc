@@ -44,6 +44,10 @@ endif::[]
 
 - Handle invalid utf-8 byte sequences in sql summarizer and DB statement {pull}896[#896]
 
+[float]
+===== Added
+
+- Support both integer and string log levels, and extra central config values {pull}902[#902]
 
 [[release-notes-3.12.1]]
 ==== 3.12.1 (2020-11-16)
