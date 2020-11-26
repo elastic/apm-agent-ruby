@@ -244,12 +244,16 @@ Returns the built context.
 [[rails-start]]
 === Rails
 
-Start the agent and hook into Rails manually. This is useful if you skip requiring
-the gem and using the `Railtie`.
+Start the agent and hook into Rails manually. If you skip requiring the gem,
+you won't have the `Railtie` and would have to define your own initializer.
+Note that this is not the typical way to setup and start the agent in a Rails app.
 
 [source,ruby]
 ----
-ElasticAPM::Rails.start(MyRailsApp.new, server_url: 'http://localhost:8200')
+# initializers/elastic_apm.rb
+require 'elastic_apm'
+
+ElasticAPM::Rails.start(::Rails.application, server_url: 'http://localhost:8200')
 ----
 
 [float]
