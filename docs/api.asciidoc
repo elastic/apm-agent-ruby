@@ -249,7 +249,7 @@ the gem and using the `Railtie`.
 
 [source,ruby]
 ----
-ElasticAPM::Rails.start(server_url: 'http://localhost:8200')
+ElasticAPM::Rails.start(MyRailsApp.new, server_url: 'http://localhost:8200')
 ----
 
 [float]
