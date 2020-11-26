@@ -63,5 +63,16 @@ if defined?(Rails)
         end
       end
     end
+
+    describe 'custom logger' do
+      it 'allows a custom logger' do
+        begin
+          ElasticAPM::Rails.start(RailsTestApp::Application.new, logger: Logger.new(nil))
+          expect(ElasticAPM.agent.config.logger).not_to be ::Rails.logger
+        ensure
+          ElasticAPM.stop
+        end
+      end
+    end
   end
 end
