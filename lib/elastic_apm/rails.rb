@@ -29,6 +29,7 @@ module ElasticAPM
     # Start the ElasticAPM agent and hook into Rails.
     # Note that the agent won't be started if the Rails console is being used.
     #
+    # @param app [::Rails::Application] The Rails application.
     # @param config [Config, Hash] An instance of Config or a Hash config.
     # @return [true, nil] true if the agent was started, nil otherwise.
     def start(app, config)
