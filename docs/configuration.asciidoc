@@ -59,19 +59,8 @@ config.elastic_apm.service_name = 'MyApp'
 [float]
 === Sinatra and Rack
 
-When using Sinatra and Rack, you can configure when starting
-the agent:
-
-[source,ruby]
-----
-# config.ru or similar
-ElasticAPM.start(
-  app: MyApp,
-  service_name: 'SomeOtherName'
-)
-----
-
-Alternatively, you can use the `ElasticAPM::Sinatra.start` API:
+When using Sinatra and Rack, you can configure when using
+`ElasticAPM::Sinatra.start`:
 
 [source,ruby]
 ----
