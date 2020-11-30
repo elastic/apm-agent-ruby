@@ -87,7 +87,7 @@ module ElasticAPM
     option :proxy_username,                    type: :string
     option :recording,                         type: :bool,   default: true
     option :sanitize_field_names,              type: :list,   default: SANITIZE_FIELD_NAMES_DEFAULT, converter: WildcardPatternList.new
-    option :server_ca_cert,                    type: :string
+    option :server_ca_cert_file,               type: :string
     option :service_name,                      type: :string
     option :service_node_name,                 type: :string
     option :service_version,                   type: :string
@@ -225,8 +225,8 @@ module ElasticAPM
 
       @ssl_context ||=
         OpenSSL::SSL::SSLContext.new.tap do |context|
-          if server_ca_cert
-            context.ca_file = server_ca_cert
+          if server_ca_cert_file
+            context.ca_file = server_ca_cert_file
           else
             context.cert_store =
               OpenSSL::X509::Store.new.tap(&:set_default_paths)
@@ -280,6 +280,10 @@ module ElasticAPM
     end
     alias active? active
 
+    def server_ca_cert
+      server_ca_cert_file
+    end
+
     def disabled_instrumentations=(value)
       warn '[DEPRECATED] The option disabled_instrumentations has been ' \
         'renamed to disable_instrumentations to align with other agents.'
@@ -296,6 +300,12 @@ module ElasticAPM
       warn '[DEPRECATED] The option active has been renamed to enabled ' \
         'to align with other agents and with the remote config.'
       self.enabled = value
+    end
+
+    def server_ca_cert=(value)
+      warn '[DEPRECATED] The option server_ca_cert has been ' \
+        'renamed to server_ca_cert_file to align with other agents.'
+      self.server_ca_cert_file = value
     end
 
     private
