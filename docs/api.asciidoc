@@ -245,7 +245,7 @@ Returns the built context.
 === Rails
 
 Start the agent and hook into Rails manually. If you skip requiring the gem,
-you won't have the `Railtie` and would have to define your own initializer.
+you will need to start the agent yourself in for example an initializer.
 Note that this is not the typical way to setup and start the agent in a Rails app.
 
 [source,ruby]
