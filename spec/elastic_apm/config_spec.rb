@@ -317,6 +317,19 @@ module ElasticAPM
             .to eq(subject.enabled)
         end
       end
+
+      describe 'server_ca_cert' do
+        subject { Config.new }
+
+        it 'logs a warning and redirects' do
+          expect(subject).to receive(:warn).with(/DEPRECATED/)
+          subject.server_ca_cert = 'path/to/file'
+
+          expect(subject.server_ca_cert_file).to eq('path/to/file')
+          expect(subject.server_ca_cert)
+            .to eq(subject.server_ca_cert_file)
+        end
+      end
     end
 
     describe '#replace_options' do

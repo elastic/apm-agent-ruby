@@ -798,12 +798,12 @@ It has to be provided in *<<config-format-duration, duration format>>*.
 
 [float]
 [[config-ssl-ca-cert]]
-==== `server_ca_cert`
+==== `server_ca_cert_file`
 
 [options="header"]
 |============
-| Environment                  | `Config` key     | Default | Example
-| `ELASTIC_APM_SERVER_CA_CERT` | `server_ca_cert` | `nil`   | `'/path/to/ca.pem'`
+| Environment                       | `Config` key     | Default | Example
+| `ELASTIC_APM_SERVER_CA_CERT_FILE` | `server_ca_cert_file` | `nil`   | `'/path/to/ca.pem'`
 |============
 
 The path to a custom CA certificate for connecting to APM Server.
