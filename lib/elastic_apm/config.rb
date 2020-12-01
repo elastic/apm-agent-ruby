@@ -117,7 +117,6 @@ module ElasticAPM
       yield self if block_given?
 
       self.logger ||= build_logger
-      self.service_name ||= 'ruby'
 
       @__view_paths ||= []
       @__root_path ||= Dir.pwd
