@@ -21,7 +21,6 @@ require 'spec_helper'
 
 if defined?(Rails)
   RSpec.describe Rails, :intercept do
-
     before :all do
       module RailsTestApp
         class Application < Rails::Application
