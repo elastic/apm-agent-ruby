@@ -344,6 +344,11 @@ module ElasticAPM
     end
 
     def set_sinatra(app)
+      warn '[DEPRECATED] Starting the agent for a Sinatra app via ' \
+           'ElasticAPM.start(app: MySinatraApp, ...) is deprecated and ' \
+           'will be removed in version 4.0. ' \
+           'Please use the ElasticAPM::Sinatra.start(MySinatraApp, ...) ' \
+           'API instead.'
       self.service_name = format_name(service_name || app.to_s)
       self.framework_name = framework_name || 'Sinatra'
       self.framework_version = framework_version || ::Sinatra::VERSION
