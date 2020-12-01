@@ -79,7 +79,7 @@ if enabled
       end
 
       MockIntake.stub!
-      ElasticAPM.start(app: SinatraTestApp, api_request_time: '200ms')
+      ElasticAPM::Sinatra.start(SinatraTestApp, api_request_time: '200ms')
     end
 
     after(:all) do

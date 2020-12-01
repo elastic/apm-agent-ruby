@@ -170,8 +170,6 @@ module ElasticAPM
 
     def app=(app)
       case app_type?(app)
-      when :sinatra
-        set_sinatra(app)
       when :rails
         set_rails(app)
       else
@@ -253,18 +251,7 @@ module ElasticAPM
         return :rails
       end
 
-      if app.is_a?(Class) && app.superclass.to_s == 'Sinatra::Base'
-        return :sinatra
-      end
-
       nil
-    end
-
-    def set_sinatra(app)
-      self.service_name = format_name(service_name || app.to_s)
-      self.framework_name = framework_name || 'Sinatra'
-      self.framework_version = framework_version || ::Sinatra::VERSION
-      self.__root_path = Dir.pwd
     end
 
     def set_rails(app)
