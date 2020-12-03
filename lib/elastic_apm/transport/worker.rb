@@ -58,7 +58,7 @@ module ElasticAPM
         while (msg = queue.pop)
           case msg
           when StopMessage
-            debug 'Stopping worker -- %s', self
+            debug 'Stopping worker [%s]', self
             connection.flush(:halt)
             break
           else

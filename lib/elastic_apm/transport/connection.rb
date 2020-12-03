@@ -105,7 +105,7 @@ module ElasticAPM
         @close_task&.cancel
         @close_task =
           Concurrent::ScheduledTask.execute(@config.api_request_time) do
-            flush(:timeout)
+            flush(:scheduled_flush)
           end
       end
     end

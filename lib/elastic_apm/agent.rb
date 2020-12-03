@@ -127,7 +127,7 @@ module ElasticAPM
     end
 
     def stop
-      debug 'Stopping agent'
+      info 'Stopping agent'
 
       central_config.stop
       metrics.stop
@@ -276,7 +276,7 @@ module ElasticAPM
     def detect_forking!
       return if @pid == Process.pid
 
-      config.logger.debug "Detected forking,
+      config.logger.debug "Forked process detected,
         restarting threads in process [PID:#{Process.pid}]"
 
       central_config.handle_forking!
