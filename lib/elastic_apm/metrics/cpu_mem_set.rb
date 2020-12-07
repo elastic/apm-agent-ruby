@@ -79,7 +79,7 @@ module ElasticAPM
         case platform
         when :linux then Linux.new
         else
-          warn "Unsupported platform '#{platform}' - Disabling system metrics"
+          warn "Disabling system metrics, unsupported platform '#{platform}'"
           disable!
           nil
         end
