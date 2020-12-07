@@ -62,8 +62,7 @@ module ElasticAPM
             @io = Zlib::GzipWriter.new(io)
           end
 
-          def close(reason = nil)
-            debug("Closing writer with reason #{reason}")
+          def close
             io.close
           end
 
