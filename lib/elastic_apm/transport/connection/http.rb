@@ -74,7 +74,7 @@ module ElasticAPM
           debug '%s: Closing request with reason %s', thread_str, reason
           @closed.make_true
 
-          @wr&.close(reason)
+          @wr&.close
           return if @request.nil? || @request&.join(5)
 
           error(
