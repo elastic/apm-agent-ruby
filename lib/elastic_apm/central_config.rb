@@ -164,7 +164,7 @@ module ElasticAPM
       @server_url ||=
         config.server_url +
         '/config/v1/agents' \
-        "?service.name=#{config.service_name}"
+        "?service.name=#{CGI.escape(config.service_name)}"
     end
 
     def headers
