@@ -39,6 +39,24 @@ module ElasticAPM
         subject.stop
       end
 
+      context 'with complex service name' do
+        let(:config) do
+          Config.new(
+            central_config: true,
+            service_name: 'My app with +-_',
+            log_level: Logger::DEBUG
+          )
+        end
+
+        it 'escapes chars' do
+          req_stub = stub_response({}, service_name: 'My%20app%20with%20%2B-_')
+          subject.start
+          subject.promise.wait
+          expect(req_stub).to have_been_requested.at_least_once
+          subject.stop
+        end
+      end
+
       context 'when disabled' do
         let(:config) { Config.new(central_config: false) }
 
@@ -311,8 +329,8 @@ module ElasticAPM
       end
     end
 
-    def stub_response(body, request: {}, response: {}, error: nil)
-      url = 'http://localhost:8200/config/v1/agents?service.name=MyApp'
+    def stub_response(body, request: {}, response: {}, error: nil, service_name: "MyApp")
+      url = "http://localhost:8200/config/v1/agents?service.name=#{service_name}"
 
       return stub_request(:get, url).to_raise(error) if error
 
