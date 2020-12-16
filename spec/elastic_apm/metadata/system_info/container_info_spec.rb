@@ -83,6 +83,12 @@ module ElasticAPM
             '5eadac96-ab58-11ea-b82b-0242ac110009',
             '10:cpuset:/kubepods/pod5eadac96-ab58-11ea-b82b-0242ac110009/7fe4'\
             '1c8a2d1da09420117894f11dd91f6c3a44dfeb7d125dc594bd53468861df'
+          ], [
+            "b15a5bdedd2e7645c3be271364324321b908314e4c77857bbfd32a041148c07f",
+             "22949dce-fd8b-11ea-8ede-98f2b32c645c",
+             "9:freezer:/kubepods.slice/kubepods-pod22949dce_fd8b_11ea_8ede_" \
+             "98f2b32c645c.slice/docker-b15a5bdedd2e7645c3be271364324321b908" \
+             "314e4c77857bbfd32a041148c07f.scope"
           ]].each do |(c_id, kp_id, *lines)|
             context lines[0] do
               let(:lines) { lines }
