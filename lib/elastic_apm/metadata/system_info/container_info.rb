@@ -92,8 +92,8 @@ module ElasticAPM
         KUBEPODS_REGEXES = [
           %r{(?:^/kubepods[^\s]*/pod([^/]+)$)},
           %r{
-            (?:^/kubepods\.slice/kubepods-[^/]+\.slice/
-            kubepods-[^/]+-pod([^/]+)\.slice$)
+            (?:^/kubepods\.slice/(kubepods-[^/]+\.slice/)?
+             kubepods[^/]*-pod([^/]+)\.slice$)
           }x
         ].freeze
         SYSTEMD_SCOPE_SUFFIX = '.scope'
@@ -133,7 +133,10 @@ module ElasticAPM
             end
 
             if (kubepods_match = match_kubepods(directory))
-              pod_id = kubepods_match[1] || kubepods_match[2]
+              unless (pod_id = kubepods_match[1])
+                pod_id = kubepods_match[2]
+                pod_id&.tr!('_', '-')
+              end
 
               self.container_id = container_id
               self.kubernetes_pod_uid = pod_id
