@@ -31,7 +31,7 @@ module ElasticAPM
 
       def initialize(config)
         @config = config
-        @client = HTTP.timeout(0.1)
+        @client = HTTP.timeout(connect: 0.1, read: 0.1)
       end
 
       attr_reader :config
