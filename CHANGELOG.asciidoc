@@ -44,6 +44,7 @@ endif::[]
 
 - Handle invalid utf-8 byte sequences in sql summarizer and DB statement {pull}896[#896]
 - Expand Kubernetes metadata discovery {pull}916[#916]
+- Fix fetching cloud info on Http.rb 3.x versions {pull}919[#919]
 
 [float]
 ===== Added
