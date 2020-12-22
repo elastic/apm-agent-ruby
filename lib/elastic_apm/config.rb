@@ -303,8 +303,11 @@ module ElasticAPM
     end
 
     def server_ca_cert=(value)
-      warn '[DEPRECATED] The option server_ca_cert has been ' \
-        'renamed to server_ca_cert_file to align with other agents.'
+      unless value == self.class.schema[:server_ca_cert_file][:default]
+        warn '[DEPRECATED] The option server_ca_cert has been ' \
+          'renamed to server_ca_cert_file to align with other agents.'
+      end
+
       self.server_ca_cert_file = value
     end
 
