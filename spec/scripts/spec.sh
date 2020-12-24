@@ -27,7 +27,7 @@ IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} USER_ID="$(id -u):$(id -g)" doc
 ## for the jruby docker images.
 JDK_JAVA_OPTIONS=''
 JRUBY_OPTS=''
-if [[ $RUBY_IMAGE == *"jruby"* ]]; then
+if [[ $IMAGE_NAME == *"jruby"* ]]; then
   # https://github.com/jruby/jruby/issues/4834#issuecomment-343371742
   JDK_JAVA_OPTIONS="--illegal-access=permit $(echo --add-opens=java.base/{java.lang,java.security,java.util,java.security.cert,java.util.zip,java.lang.reflect,java.util.regex,java.net,java.io,java.lang}=ALL-UNNAMED)"
   JRUBY_OPTS="--debug"
