@@ -50,5 +50,5 @@ IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} USER_ID="$(id -u):$(id -g)" \
   --rm ruby_rspec \
   /bin/bash -c "\
     gem install rake && \
-    bundle update && \
+    bundle update --retry=10 && \
     timeout -s9 15m bin/run-tests ${TEST}"
