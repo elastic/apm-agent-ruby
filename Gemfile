@@ -28,7 +28,7 @@ gem 'rack-test'
 gem 'rspec', '~> 3'
 gem 'rspec-its'
 gem 'timecop'
-gem 'webmock', '3.11.0'
+gem 'webmock'
 
 # Integrations
 gem 'aws-sdk-dynamodb', require: nil
