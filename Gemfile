@@ -28,7 +28,7 @@ gem 'rack-test'
 gem 'rspec', '~> 3'
 gem 'rspec-its'
 gem 'timecop'
-gem 'webmock'
+gem 'webmock', '3.11.0'
 
 # Integrations
 gem 'aws-sdk-dynamodb', require: nil
@@ -40,7 +40,7 @@ gem 'graphql', require: nil
 if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.5'
   gem 'google-protobuf', '< 3.12'
 end
-gem 'grpc' unless defined?(JRUBY_VERSION)
+gem 'grpc' if !defined?(JRUBY_VERSION) && RUBY_VERSION < '3.0'
 gem 'json'
 gem 'json-schema', require: nil
 gem 'mongo', require: nil
