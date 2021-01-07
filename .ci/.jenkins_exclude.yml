@@ -119,7 +119,7 @@ exclude:
     FRAMEWORK: grape-master
 
   # grape 1.5 doesn't support ruby 3.0
-  - RUBY_VERSION: ruby-3.0
+  - RUBY_VERSION: ruby:3.0
     FRAMEWORK: grape-1.5
   - RUBY_VERSION: ruby:3.0
     FRAMEWORK: grape-1.5,sinatra-2.0,rails-6.0
