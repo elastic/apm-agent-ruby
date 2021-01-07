@@ -3,7 +3,6 @@ FRAMEWORK:
   - rails-6.0
   - rails-5.2
   - rails-5.1
-  - rails-5.0
   - rails-4.2
 
   - sinatra-2.0
