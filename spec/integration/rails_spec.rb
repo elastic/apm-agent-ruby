@@ -319,7 +319,7 @@ if enabled
         end
       end
 
-      context 'when json' do
+      context 'when json', unless: RUBY_VERSION >= '3.0' do
         it 'validates the schema' do
           get '/error'
 
