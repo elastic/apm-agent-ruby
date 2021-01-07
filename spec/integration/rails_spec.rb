@@ -278,7 +278,7 @@ if enabled
         end
       end
 
-      context 'when json', unless: RUBY_VERSION >= '3.0' do
+      context 'when json' do
         it 'validates the schema', type: :json_schema do
           get '/'
 
@@ -319,7 +319,7 @@ if enabled
         end
       end
 
-      context 'when json', unless: RUBY_VERSION >= '3.0' do
+      context 'when json' do
         it 'validates the schema' do
           get '/error'
 
