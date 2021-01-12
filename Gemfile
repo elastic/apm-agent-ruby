@@ -94,11 +94,11 @@ if RUBY_PLATFORM == 'java'
     gem 'activerecord-jdbcsqlite3-adapter', git: 'https://github.com/jruby/activerecord-jdbc-adapter', glob: 'activerecord-jdbcsqlite3-adapter/*.gemspec'
   when ''
     gem 'activerecord-jdbcsqlite3-adapter', "~> 61.0"
+  when nil
+    gem 'jdbc-sqlite3'
   else
     gem 'activerecord-jdbcsqlite3-adapter', "~> #{rails.tr('.', '')}.0"
   end
-
-  # gem 'jdbc-sqlite3'
 elsif frameworks_versions['rails'] =~ /^(4|5)/
   gem 'sqlite3', '~> 1.3.6'
 else
