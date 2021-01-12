@@ -52,6 +52,8 @@ exclude:
   - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-8-jdk
     FRAMEWORK: rails-master
 
+  - RUBY_VERSION: ruby:2.6
+    FRAMEWORK: sinatra-master
   - RUBY_VERSION: ruby:2.5
     FRAMEWORK: sinatra-master
   - RUBY_VERSION: ruby:2.4
