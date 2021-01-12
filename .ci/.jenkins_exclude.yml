@@ -45,6 +45,8 @@ exclude:
     FRAMEWORK: rails-master
   - RUBY_VERSION: jruby:9.2
     FRAMEWORK: rails-master
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-13-jdk
+    FRAMEWORK: rails-master
   - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-11-jdk
     FRAMEWORK: rails-master
   - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-8-jdk
