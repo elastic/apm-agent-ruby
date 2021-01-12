@@ -23,7 +23,6 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 # Tools
 gem 'cucumber', require: false
-gem 'pry'
 gem 'rack-test'
 gem 'rspec', '~> 3'
 gem 'rspec-its'
