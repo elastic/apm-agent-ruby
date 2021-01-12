@@ -23,7 +23,6 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 # Tools
 gem 'cucumber', require: false
-gem 'pry'
 gem 'rack-test'
 gem 'rspec', '~> 3'
 gem 'rspec-its'
@@ -90,8 +89,16 @@ if frameworks_versions.key?('rails')
 end
 
 if RUBY_PLATFORM == 'java'
-  gem 'activerecord-jdbcsqlite3-adapter'
-  gem 'jdbc-sqlite3'
+  case rails = frameworks_versions['rails']
+  when 'master'
+    gem 'activerecord-jdbcsqlite3-adapter', git: 'https://github.com/jruby/activerecord-jdbc-adapter', glob: 'activerecord-jdbcsqlite3-adapter/*.gemspec'
+  when ''
+    gem 'activerecord-jdbcsqlite3-adapter', "~> 61.0"
+  when nil
+    gem 'jdbc-sqlite3'
+  else
+    gem 'activerecord-jdbcsqlite3-adapter', "~> #{rails.tr('.', '')}.0"
+  end
 elsif frameworks_versions['rails'] =~ /^(4|5)/
   gem 'sqlite3', '~> 1.3.6'
 else

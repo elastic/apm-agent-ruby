@@ -5,9 +5,6 @@ RUBY_VERSION:
   - ruby:2.4
   - ruby:2.3
   - jruby:9.2
-  - jruby:9.1
   - docker.elastic.co/observability-ci/jruby:9.2-13-jdk
-  - docker.elastic.co/observability-ci/jruby:9.2-12-jdk
   - docker.elastic.co/observability-ci/jruby:9.2-11-jdk
   - docker.elastic.co/observability-ci/jruby:9.2-8-jdk
-  - docker.elastic.co/observability-ci/jruby:9.1-7-jdk
