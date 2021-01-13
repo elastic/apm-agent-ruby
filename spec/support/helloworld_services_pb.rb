@@ -31,7 +31,7 @@
 
 # frozen_string_literal: true
 
-unless defined?(JRUBY_VERSION)
+if !defined?(JRUBY_VERSION) && RUBY_VERSION < '3.0'
   require_relative 'helloworld_pb'
 
   module Helloworld
