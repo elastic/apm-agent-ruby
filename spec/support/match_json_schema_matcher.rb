@@ -19,6 +19,7 @@
 
 require 'spec_helper'
 require 'json-schema'
+require 'open-uri'
 
 base = 'https://raw.githubusercontent.com/elastic/apm-server/master/docs/spec/v2'
 
@@ -35,7 +36,8 @@ RSpec::Matchers.define :match_json_schema do |schema|
     begin
       WebMock.disable!
       url = SCHEMA_URLS.fetch(schema)
-      JSON::Validator.validate!(url, json)
+      schema = URI.send(:open, url).read
+      JSON::Validator.validate!(schema, json)
     rescue JSON::ParserError, JSON::Schema::ValidationError # jruby sometimes weirds out
       puts json.inspect
       raise
