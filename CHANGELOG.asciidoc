@@ -35,6 +35,15 @@ endif::[]
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
+[float]
+[[unreleased]]
+==== Unreleased
+
+[float]
+===== Fixed
+
+- Fixed setting outcome in Mongo spy when not traced {pull}937[#937]
+
 [[release-notes-3.13.0]]
 ==== 3.13.0 (2020-12-22)
 
