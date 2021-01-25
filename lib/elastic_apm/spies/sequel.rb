@@ -17,7 +17,7 @@
 
 # frozen_string_literal: true
 
-require 'elastic_apm/sql'
+require 'elastic_apm/sql/signature'
 
 module ElasticAPM
   # @api private
@@ -28,7 +28,7 @@ module ElasticAPM
       ACTION = 'query'
 
       def self.summarizer
-        @summarizer ||= Sql.summarizer
+        @summarizer ||= Sql::Signature::Summarizer.new
       end
 
       # @api private
