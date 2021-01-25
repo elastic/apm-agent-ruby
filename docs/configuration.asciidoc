@@ -807,17 +807,6 @@ context information, tags, or spans.
 Note that the sample rate will be rounded to 4 digits of precision.
 
 [float]
-[[config-use-experimental-sql-parser]]
-==== `use_legacy_sql_parser`
-|============
-| Environment                         | `Config` key            | Default
-| `ELASTIC_APM_USE_LEGACY_SQL_PARSER` | `use_legacy_sql_parser` | `false`
-|============
-
-Use the older, less precise approach to generating summaries of your app's SQL statements.
-Try this if you're experiencing trouble using the new default.
-
-[float]
 [[config-verify-server-cert]]
 ==== `verify_server_cert`
 |============
