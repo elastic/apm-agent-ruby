@@ -17,7 +17,7 @@
 
 # frozen_string_literal: true
 
-require 'elastic_apm/sql'
+require 'elastic_apm/sql/signature'
 
 module ElasticAPM
   module Normalizers
@@ -34,7 +34,7 @@ module ElasticAPM
         def initialize(*args)
           super
 
-          @summarizer = Sql.summarizer
+          @summarizer = Sql::Signature::Summarizer.new
 
           @adapters = {}
         end
