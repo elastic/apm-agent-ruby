@@ -73,7 +73,7 @@ end
 
 frameworks_versions.each do |framework, version|
   case version
-  when 'master'
+  when 'main', 'master'
     gem framework, github: GITHUB_REPOS.fetch(framework)
   when /.+/
     gem framework, "~> #{version}.0"
@@ -90,7 +90,7 @@ end
 
 if RUBY_PLATFORM == 'java'
   case rails = frameworks_versions['rails']
-  when 'master'
+  when 'main', 'master'
     gem 'activerecord-jdbcsqlite3-adapter', git: 'https://github.com/jruby/activerecord-jdbc-adapter', glob: 'activerecord-jdbcsqlite3-adapter/*.gemspec'
   when ''
     gem 'activerecord-jdbcsqlite3-adapter', "~> 61.0"

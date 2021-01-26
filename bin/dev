@@ -14,7 +14,7 @@ OptionParser.new do |opts|
 
   opts.on(
     '-fFRAMEWORKS', '--frameworks=FRAMEWORKS',
-    'Specify frameworks to test (eg. rails:master,sinatra)'
+    'Specify frameworks to test (eg. rails:main,rails:master,sinatra)'
   ) { |val| options[:frameworks] = val }
 
   opts.on(
