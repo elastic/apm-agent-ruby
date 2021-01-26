@@ -31,7 +31,7 @@ module ElasticAPM
 
       def initialize(config)
         @config = config
-        @client = HTTP.timeout(0.1)
+        @client = HTTP.timeout(connect: 0.1, read: 0.1)
       end
 
       attr_reader :config
@@ -49,6 +49,7 @@ module ElasticAPM
         :region
       )
 
+      # rubocop:disable Metrics/CyclomaticComplexity
       def fetch!
         case config.cloud_provider
         when "aws"
@@ -67,13 +68,14 @@ module ElasticAPM
 
         self
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
 
       private
 
       def fetch_aws
         resp = @client.get(AWS_URI)
 
-        return unless resp.status === 200
+        return unless resp.status == 200
         return unless (metadata = JSON.parse(resp.body))
 
         self.provider = "aws"
@@ -89,7 +91,7 @@ module ElasticAPM
       def fetch_gcp
         resp = @client.headers("Metadata-Flavor" => "Google").get(GCP_URI)
 
-        return unless resp.status === 200
+        return unless resp.status == 200
         return unless (metadata = JSON.parse(resp.body))
 
         zone = metadata["instance"]["zone"]&.split("/")&.at(-1)
@@ -109,7 +111,7 @@ module ElasticAPM
       def fetch_azure
         resp = @client.headers("Metadata" => "true").get(AZURE_URI)
 
-        return unless resp.status === 200
+        return unless resp.status == 200
         return unless (metadata = JSON.parse(resp.body))
 
         self.provider = 'azure'

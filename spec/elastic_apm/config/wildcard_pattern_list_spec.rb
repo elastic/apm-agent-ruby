@@ -16,6 +16,7 @@
 # under the License.
 
 # frozen_string_literal: true
+
 require "spec_helper"
 
 module ElasticAPM
@@ -31,7 +32,7 @@ module ElasticAPM
             let(:pattern) { pattern }
 
             examples.each do |string, expectation|
-              it(%{"#{pattern}" #{expectation ? "=~" : "!~"} "#{string}"}) do
+              it("#{pattern} #{expectation ? '=~' : '!~'} #{string}") do
                 expect(subject.match?(string)).to be(expectation)
               end
             end

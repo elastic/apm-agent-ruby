@@ -25,9 +25,11 @@ module ElasticAPM
       def self.without_net_http
         return yield unless defined?(NetHTTPSpy)
 
+        # rubocop:disable Style/ExplicitBlockArgument
         ElasticAPM::Spies::NetHTTPSpy.disable_in do
           yield
         end
+        # rubocop:enable Style/ExplicitBlockArgument
       end
 
       def install
@@ -37,7 +39,12 @@ module ElasticAPM
             alias :"#{operation_name}_without_apm" :"#{operation_name}"
 
             define_method(operation_name) do |params = {}, options = {}|
-              ElasticAPM.with_span(operation_name, 'db', subtype: 'dynamodb', action: operation_name) do
+              ElasticAPM.with_span(
+                operation_name,
+                'db',
+                subtype: 'dynamodb',
+                action: operation_name
+              ) do
                 ElasticAPM::Spies::DynamoDBSpy.without_net_http do
                   original_method = method("#{operation_name}_without_apm")
                   original_method.call(params, options)

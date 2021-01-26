@@ -39,7 +39,7 @@ module ElasticAPM
     end
 
     it 'simplifies advanced selects' do
-      result = subject.summarize("select months.month, count(created_at) from (select DATE '2017-06-09'+(interval '1' month * generate_series(0,11)) as month, DATE '2017-06-10'+(interval '1' month * generate_series(0,11)) as next) months left outer join subscriptions on created_at < month and (soft_destroyed_at IS NULL or soft_destroyed_at >= next) and (suspended_at IS NULL OR suspended_at >= next) group by month order by month desc") # rubocop:disable Metrics/LineLength
+      result = subject.summarize("select months.month, count(created_at) from (select DATE '2017-06-09'+(interval '1' month * generate_series(0,11)) as month, DATE '2017-06-10'+(interval '1' month * generate_series(0,11)) as next) months left outer join subscriptions on created_at < month and (soft_destroyed_at IS NULL or soft_destroyed_at >= next) and (suspended_at IS NULL OR suspended_at >= next) group by month order by month desc") # rubocop:disable Layout/LineLength
       expect(result).to eq('SQL')
     end
 

@@ -17,6 +17,29 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
-  VERSION = '3.13.0'
+  RSpec.describe Util::DeepDup do
+    context 'hashes' do
+      it 'makes a copy' do
+        obj1 = Object.new
+        obj2 = Object.new
+        orig = { a: obj1, nested: { b: obj2 } }
+
+        expect(Util::DeepDup.dup(orig)[:a]).to_not be obj1
+        expect(Util::DeepDup.dup(orig)[:nested][:b]).to_not be obj2
+      end
+    end
+
+    context 'arrays' do
+      it 'makes a copy' do
+        obj = Object.new
+        orig = [obj]
+
+        expect(orig.dup.first).to be obj
+        expect(Util::DeepDup.dup(orig).first).to_not be obj
+      end
+    end
+  end
 end

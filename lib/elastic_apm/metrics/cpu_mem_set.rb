@@ -214,6 +214,7 @@ module ElasticAPM
         # @api private
         class Meminfo
           attr_reader :total, :available, :page_size
+
           # rubocop:disable Metrics/PerceivedComplexity
           # rubocop:disable Metrics/CyclomaticComplexity
           def read!

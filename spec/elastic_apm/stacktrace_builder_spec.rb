@@ -104,7 +104,7 @@ module ElasticAPM
 
     context 'determining lib frames' do
       [
-        # rubocop:disable Metrics/LineLength
+        # rubocop:disable Layout/LineLength
         [false, "#{Config.new.__root_path}/app/controllers/somethings_controller.rb:5:in `render'"],
         [true, "/Users/someone/.rubies/ruby-2.5.0/lib/ruby/2.5.0/irb/workspace.rb:85:in `eval'"],
         [true, "/usr/local/lib/ruby/site_ruby/2.5.0/bundler/friendly_errors.rb:122:in `yield'"],
@@ -114,9 +114,9 @@ module ElasticAPM
         [true, "org/jruby/RubyBasicObject.java:1728:in `instance_exec'"],
         [true, "/tmp/vendor/j9.1/jruby/2.3.0/bin/rspec:1:in `<main>'"],
         [true, "/usr/local/lib/ruby/gems/2.5.0/gems/bundler-1.16.1/lib/bundler/friendly_errors.rb:122:in `yield'"]
-        # rubocop:enable Metrics/LineLength
+        # rubocop:enable Layout/LineLength
       ].each do |(expected, frame)|
-        it "is #{expected} for #{frame[0..60] + '...'}" do
+        it "is #{expected} for #{"#{frame[0..60]}..."}" do
           stacktrace = subject.build([frame], type: :error)
           frame, = stacktrace.frames
           expect(frame.library_frame).to be(expected), frame.inspect

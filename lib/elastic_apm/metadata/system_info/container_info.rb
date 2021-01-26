@@ -81,15 +81,23 @@ module ElasticAPM
             ENV.fetch('KUBERNETES_POD_UID', kubernetes_pod_uid)
         end
 
+        # rubocop:disable Style/RegexpLiteral
         CONTAINER_ID_REGEXES = [
           %r{^[[:xdigit:]]{64}$},
-          %r{^[[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4,}$}
-        ]
+          %r{
+            ^[[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]
+            {4}-[[:xdigit:]]{4}-[[:xdigit:]]{4,}$
+          }x
+        ].freeze
         KUBEPODS_REGEXES = [
           %r{(?:^/kubepods[^\s]*/pod([^/]+)$)},
-          %r{(?:^/kubepods\.slice/kubepods-[^/]+\.slice/kubepods-[^/]+-pod([^/]+)\.slice$)}
-        ]
+          %r{
+            (?:^/kubepods\.slice/(kubepods-[^/]+\.slice/)?
+             kubepods[^/]*-pod([^/]+)\.slice$)
+          }x
+        ].freeze
         SYSTEMD_SCOPE_SUFFIX = '.scope'
+        # rubocop:enable Style/RegexpLiteral
 
         # rubocop:disable Metrics/PerceivedComplexity
         # rubocop:disable Metrics/CyclomaticComplexity
@@ -125,7 +133,10 @@ module ElasticAPM
             end
 
             if (kubepods_match = match_kubepods(directory))
-              pod_id = kubepods_match[1] || kubepods_match[2]
+              unless (pod_id = kubepods_match[1])
+                pod_id = kubepods_match[2]
+                pod_id&.tr!('_', '-')
+              end
 
               self.container_id = container_id
               self.kubernetes_pod_uid = pod_id

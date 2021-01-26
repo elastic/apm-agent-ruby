@@ -53,24 +53,36 @@ module ElasticAPM
 
     context 'between 0 and the minimum' do
       it 'returns the minimum' do
-        expect(described_class.validate(
-          0.00001, precision: 4, minimum: 0.0001)
+        expect(
+          described_class.validate(
+            0.00001,
+            precision: 4,
+            minimum: 0.0001
+          )
         ).to eq 0.0001
       end
     end
 
     context 'more digits of precision and rounded down' do
       it 'returns the rounded number' do
-        expect(described_class.validate(
-          0.55554, precision: 4, minimum: 0.0001)
+        expect(
+          described_class.validate(
+            0.55554,
+            precision: 4,
+            minimum: 0.0001
+          )
         ).to eq 0.5555
       end
     end
 
     context 'more digits of precision and rounded up' do
       it 'returns the rounded number' do
-        expect(described_class.validate(
-          0.55555, precision: 4, minimum: 0.0001)
+        expect(
+          described_class.validate(
+            0.55555,
+            precision: 4,
+            minimum: 0.0001
+          )
         ).to eq 0.5556
       end
     end

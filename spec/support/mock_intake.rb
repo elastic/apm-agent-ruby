@@ -50,9 +50,15 @@ class MockIntake
 
   def stub!
     @cloud_provider_stubs = {
-      aws:   WebMock.stub_request(:get, ElasticAPM::Metadata::CloudInfo::AWS_URI).to_timeout,
-      gcp:   WebMock.stub_request(:get, ElasticAPM::Metadata::CloudInfo::GCP_URI).to_timeout,
-      azure: WebMock.stub_request(:get, ElasticAPM::Metadata::CloudInfo::AZURE_URI).to_timeout
+      aws: WebMock.stub_request(
+        :get, ElasticAPM::Metadata::CloudInfo::AWS_URI
+      ).to_timeout,
+      gcp: WebMock.stub_request(
+        :get, ElasticAPM::Metadata::CloudInfo::GCP_URI
+      ).to_timeout,
+      azure: WebMock.stub_request(
+        :get, ElasticAPM::Metadata::CloudInfo::AZURE_URI
+      ).to_timeout
     }
 
     @central_config_stub =

@@ -61,6 +61,7 @@ module ElasticAPM
                 http.status_code = result.status.to_s
               end
 
+              span&.outcome = Span::Outcome.from_http_status(result.status)
               result
             end
           end

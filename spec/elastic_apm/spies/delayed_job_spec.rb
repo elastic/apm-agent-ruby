@@ -75,9 +75,7 @@ if defined?(Delayed::Backend)
 
       context 'ActiveJob', if: defined?(ActiveJob) do
         before :all do
-          # rubocop:disable Style/ClassAndModuleChildren
           class ::ActiveJobbyJob < ActiveJob::Base
-            # rubocop:enable Style/ClassAndModuleChildren
             self.queue_adapter = :delayed_job
             self.logger = nil # stay quiet
 
@@ -118,6 +116,7 @@ if defined?(Delayed::Backend)
           .to eq 'ElasticAPM::TestJob#perform'
         expect(transaction.type).to eq 'Delayed::Job'
         expect(transaction.result).to eq 'success'
+        expect(transaction.outcome).to eq 'success'
       end
 
       it 'reports errors' do
@@ -133,6 +132,7 @@ if defined?(Delayed::Backend)
         expect(transaction.name).to eq 'ElasticAPM::ExplodingJob'
         expect(transaction.type).to eq 'Delayed::Job'
         expect(transaction.result).to eq 'error'
+        expect(transaction.outcome).to eq 'failure'
 
         error, = @intercepted.errors
         expect(error.exception.type).to eq 'ZeroDivisionError'

@@ -43,14 +43,14 @@ module ElasticAPM
               stacktrace: span.stacktrace.to_a,
               timestamp: span.timestamp,
               trace_id: span.trace_id,
-              sample_rate: span.sample_rate
+              sample_rate: span.sample_rate,
+              outcome: keyword_field(span.outcome)
             }
           }
         end
 
         # @api private
         class ContextSerializer < Serializer
-          # rubocop:disable Metrics/CyclomaticComplexity
           def build(context)
             return unless context
 
@@ -67,7 +67,6 @@ module ElasticAPM
 
             base
           end
-          # rubocop:enable Metrics/CyclomaticComplexity
 
           private
 

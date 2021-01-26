@@ -41,9 +41,14 @@ module ElasticAPM
         ElasticAPM.report(e, context: context, handled: false)
         raise
       ensure
-        if resp && transaction
-          status, headers, _body = resp
-          transaction.add_response(status, headers: headers.dup)
+        if transaction
+          if resp
+            status, headers, _body = resp
+            transaction.add_response(status, headers: headers.dup)
+            transaction&.outcome = Transaction::Outcome.from_http_status(status)
+          else
+            transaction&.outcome = Transaction::Outcome::FAILURE
+          end
         end
 
         ElasticAPM.end_transaction http_result(status)

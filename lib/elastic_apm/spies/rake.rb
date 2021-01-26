@@ -39,9 +39,11 @@ module ElasticAPM
             begin
               result = execute_without_apm(*args)
 
-              transaction.result = 'success' if transaction
+              transaction&.result = 'success'
+              transaction&.outcome = Transaction::Outcome::SUCCESS
             rescue StandardError => e
-              transaction.result = 'error' if transaction
+              transaction&.result = 'error'
+              transaction&.outcome = Transaction::Outcome::FAILURE
               ElasticAPM.report(e)
 
               raise

@@ -100,6 +100,7 @@ module ElasticAPM
       expect(transaction['type']).to eq 'shoryuken.job'
       expect(transaction['context']['tags']['shoryuken_queue']).to eq 'hard'
       expect(transaction['result']).to eq 'success'
+      expect(transaction['outcome']).to eq 'success'
     end
 
     it 'reports errors' do
@@ -120,6 +121,7 @@ module ElasticAPM
       expect(transaction['context']['tags']['shoryuken_queue'])
         .to eq 'exploding'
       expect(transaction['result']).to eq 'error'
+      expect(transaction['outcome']).to eq 'failure'
 
       expect(error.dig('exception', 'type')).to eq 'ZeroDivisionError'
     end

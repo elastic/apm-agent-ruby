@@ -57,11 +57,13 @@ module ElasticAPM
 
           res = @app.call(deserialized_msg, delivery_info, metadata, handler)
           transaction&.done(:success)
+          transaction&.outcome = Transaction::Outcome::SUCCESS
 
           res
         rescue ::Exception => e
           ElasticAPM.report(e, handled: false)
           transaction&.done(:error)
+          transaction&.outcome = Transaction::Outcome::FAILURE
           raise
         ensure
           ElasticAPM.end_transaction

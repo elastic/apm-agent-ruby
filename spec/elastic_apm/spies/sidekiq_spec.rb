@@ -91,6 +91,7 @@ module ElasticAPM
         expect(transaction).to_not be_nil
         expect(transaction['name']).to eq 'ElasticAPM::HardWorker'
         expect(transaction['type']).to eq 'Sidekiq'
+        expect(transaction['outcome']).to eq 'success'
       end
 
       it 'reports errors' do
@@ -110,15 +111,14 @@ module ElasticAPM
         expect(transaction).to_not be_nil
         expect(transaction['name']).to eq 'ElasticAPM::ExplodingWorker'
         expect(transaction['type']).to eq 'Sidekiq'
+        expect(transaction['outcome']).to eq 'failure'
 
         expect(error.dig('exception', 'type')).to eq 'ZeroDivisionError'
       end
 
       context 'ActiveJob', if: defined?(ActiveJob) do
         before :all do
-          # rubocop:disable Style/ClassAndModuleChildren
           class ::ActiveJobbyJob < ActiveJob::Base
-            # rubocop:enable Style/ClassAndModuleChildren
             self.queue_adapter = :sidekiq
             self.logger = nil # stay quiet
 

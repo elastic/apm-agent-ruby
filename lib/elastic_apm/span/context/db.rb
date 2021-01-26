@@ -30,7 +30,7 @@ module ElasticAPM
           rows_affected: nil
         )
           @instance = instance
-          @statement = statement
+          @statement = statement&.encode('utf-8', invalid: :replace, undef: :replace)
           @type = type
           @user = user
           @rows_affected = rows_affected

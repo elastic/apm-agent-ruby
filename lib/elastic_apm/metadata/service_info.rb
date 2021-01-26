@@ -52,8 +52,8 @@ module ElasticAPM
         @version = @config.service_version || Util.git_sha
       end
 
-      attr_reader :name, :node_name, :environment, :agent, :framework, :language,
-        :runtime, :version
+      attr_reader :name, :node_name, :environment, :agent, :framework,
+        :language, :runtime, :version
 
       private
 

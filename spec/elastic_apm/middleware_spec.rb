@@ -33,6 +33,7 @@ module ElasticAPM
       transaction, = @intercepted.transactions
       expect(transaction.result).to eq 'HTTP 2xx'
       expect(transaction.context.response.status_code).to eq 200
+      expect(transaction.outcome).to eq 'success'
     end
 
     it 'ignores url patterns' do
@@ -77,6 +78,37 @@ module ElasticAPM
       expect(trace_context.tracestate.sample_rate).to_not be nil
     end
 
+    it 'sets outcome to `failure` for http status code >= 500', :intercept do
+      with_agent do
+        app = Middleware.new(->(_) { [500, {}, ['Internal Server Error']] })
+        app.call(Rack::MockRequest.env_for('/'))
+      end
+
+      expect(@intercepted.transactions.length).to be 1
+
+      transaction, = @intercepted.transactions
+      expect(transaction.result).to eq 'HTTP 5xx'
+      expect(transaction.context.response.status_code).to eq 500
+      expect(transaction.outcome).to eq 'failure'
+    end
+
+    it 'sets outcome to `failure` for failed requests', :intercept do
+      class MiddlewareTestError < StandardError; end
+
+      app = Middleware.new(lambda do |*_|
+        raise MiddlewareTestError, 'Yikes!'
+      end)
+
+      expect do
+        with_agent do
+          app.call(Rack::MockRequest.env_for('/'))
+        end
+      end.to raise_error(MiddlewareTestError)
+
+      transaction, = @intercepted.transactions
+      expect(transaction.outcome).to eq 'failure'
+    end
+
     describe 'Distributed Tracing' do
       let(:app) { Middleware.new(->(_) { [200, {}, ['ok']] }) }
 
@@ -116,7 +148,8 @@ module ElasticAPM
 
           trace_context = @intercepted.transactions.first.trace_context
           expect(trace_context.tracestate).to be_a(TraceContext::Tracestate)
-          expect(trace_context.tracestate.to_header).to match('es=s:0.75,abc=123')
+          expect(trace_context.tracestate.to_header)
+            .to match('es=s:0.75,abc=123')
         end
       end
 
@@ -202,7 +235,8 @@ module ElasticAPM
 
     describe 'deprecated' do
       it 'ignores url patterns' do
-        allow_any_instance_of(Config).to receive(:warn).with(/DEPRECATED/) { nil }
+        allow_any_instance_of(Config).to receive(:warn)
+          .with(/DEPRECATED/) { nil }
 
         with_agent ignore_url_patterns: %w[/ping] do
           expect(ElasticAPM).to_not receive(:start_transaction)

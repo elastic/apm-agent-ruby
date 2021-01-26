@@ -26,121 +26,68 @@ module ElasticAPM
         let(:config) { Config.new }
         subject { described_class.new(config) }
 
-        it 'removes secret keys from requests' do
-          payload = { transaction: { context: { request: { headers: {
-            ApiKey: 'very zecret!',
-            Untouched: 'very much',
-            TotallyNotACreditCard: '4111 1111 1111 1111',
-            'HTTP_COOKIE': 'things=1'
-          } } } } }
+        it 'strips secrets from nested objects' do
+          values = {
+            body: { ApiKey: '1' },
+            env: { ApiKey: '1' },
+            cookies: { ApiKey: '1' },
+            headers: { ApiKey: '1' }
+          }
 
-          subject.call(payload)
-
-          headers = payload.dig(:transaction, :context, :request, :headers)
-
-          expect(headers).to match(
-            ApiKey: '[FILTERED]',
-            Untouched: 'very much',
-            TotallyNotACreditCard: '[FILTERED]',
-            HTTP_COOKIE: '[FILTERED]'
-          )
-        end
-
-        it 'removes secret keys from responses' do
-          payload = { transaction: { context: { response: { headers: {
-            ApiKey: 'very zecret!',
-            Untouched: 'very much',
-            TotallyNotACreditCard: '4111 1111 1111 1111',
-            nested: {
-              even_works_token: 'abc'
+          payload = {
+            transaction: {
+              context: {
+                request: values,
+                response: { headers: { ApiKey: '1' } }
+              }
             },
-            secret_array_for_good_measure: [1, 2, 3]
-          } } } } }
+            error: {
+              context: {
+                request: Util::DeepDup.dup(values),
+                response: { headers: { ApiKey: '1' } }
+              }
+            },
+            something_else: { ApiKey: '1' }
+          }
 
           subject.call(payload)
 
-          headers = payload.dig(:transaction, :context, :response, :headers)
-
-          expect(headers).to match(
-            ApiKey: '[FILTERED]',
-            Untouched: 'very much',
-            TotallyNotACreditCard: '[FILTERED]',
-            nested: { even_works_token: '[FILTERED]' },
-            secret_array_for_good_measure: '[FILTERED]'
-          )
+          expect(payload.dig(:transaction, :context, :request, :body, :ApiKey)).to eq '[FILTERED]'
+          expect(payload.dig(:transaction, :context, :request, :cookies, :ApiKey)).to eq '[FILTERED]'
+          expect(payload.dig(:transaction, :context, :request, :env, :ApiKey)).to eq '[FILTERED]'
+          expect(payload.dig(:transaction, :context, :request, :headers, :ApiKey)).to eq '[FILTERED]'
+          expect(payload.dig(:transaction, :context, :response, :headers, :ApiKey)).to eq '[FILTERED]'
+          expect(payload.dig(:error, :context, :request, :body, :ApiKey)).to eq '[FILTERED]'
+          expect(payload.dig(:error, :context, :request, :cookies, :ApiKey)).to eq '[FILTERED]'
+          expect(payload.dig(:error, :context, :request, :env, :ApiKey)).to eq '[FILTERED]'
+          expect(payload.dig(:error, :context, :request, :headers, :ApiKey)).to eq '[FILTERED]'
+          expect(payload.dig(:error, :context, :response, :headers, :ApiKey)).to eq '[FILTERED]'
+          expect(payload.dig(:something_else, :ApiKey)).to eq '1'
         end
 
-        it 'removes secrets from form bodies' do
-          payload = { transaction: { context: { request: {
-            body: { 'api_key' => 'super-secret', 'other' => 'not me' }
-          } } } }
-
-          subject.call(payload)
-
-          body = payload.dig(:transaction, :context, :request, :body)
-          expect(body).to match('api_key' => '[FILTERED]', 'other' => 'not me')
-        end
-
-        it 'removes secrets from cookies for error reporting' do
-          payload = { error: { context: { request: { cookies: {
-            auth_jwt: 'very zecret!',
-            untouched: 'very much'
-          } } } } }
-
-          subject.call(payload)
-
-          cookies = payload.dig(:error, :context, :request, :cookies)
-
-          expect(cookies).to match(
-            auth_jwt: '[FILTERED]',
-            untouched: 'very much'
-          )
-        end
-
-        context 'with custom_key_filters' do
-          before do
-            # silence deprecation warning
-            allow_any_instance_of(Config).to receive(:warn).with(/DEPRECATED/)
-          end
-
-          let(:config) { Config.new(custom_key_filters: [/Authorization/]) }
-
-          it 'removes Authorization header' do
-            payload = { transaction: { context: { request: { headers: {
-              Authorization: 'Bearer some',
-              SomeHeader: 'some'
-            } } } } }
-
-            subject.call(payload)
-
-            headers = payload.dig(:transaction, :context, :request, :headers)
-
-            expect(headers).to match(
-              Authorization: '[FILTERED]',
-              SomeHeader: 'some'
-            )
-          end
-        end
-
-        context 'with sanitize_field_names' do
+        context 'with custom sanitize_field_names' do
           let(:config) { Config.new(sanitize_field_names: 'Auth*ion') }
 
-          it 'removes Authorization header' do
-            payload = { transaction: { context: { request: { headers: {
-              Authorization: 'Bearer some',
-              Authentication: 'Polar Bearer some',
-              SomeHeader: 'some'
-            } } } } }
+          it 'filters custom fields' do
+            payload = {
+              transaction: {
+                context: {
+                  request: {
+                    headers: {
+                      Authorization: '1',
+                      Authentication: 2,
+                      SomethingElse: 3
+                    }
+                  }
+                }
+              }
+            }
 
             subject.call(payload)
 
-            headers = payload.dig(:transaction, :context, :request, :headers)
-
-            expect(headers).to match(
-              Authorization: '[FILTERED]',
-              Authentication: '[FILTERED]',
-              SomeHeader: 'some'
-            )
+            expect(payload.dig(:transaction, :context, :request, :headers, :Authorization)).to eq '[FILTERED]'
+            expect(payload.dig(:transaction, :context, :request, :headers, :Authentication)).to eq '[FILTERED]'
+            expect(payload.dig(:transaction, :context, :request, :headers, :SomethingElse)).to eq 3
           end
         end
       end

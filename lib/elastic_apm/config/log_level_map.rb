@@ -18,5 +18,30 @@
 # frozen_string_literal: true
 
 module ElasticAPM
-  VERSION = '3.13.0'
+  class Config
+    # @api private
+    class LogLevelMap
+      LEVELS = {
+        debug: Logger::DEBUG,
+        info: Logger::INFO,
+        warn: Logger::WARN,
+        error: Logger::ERROR,
+        fatal: Logger::FATAL,
+        trace: Logger::DEBUG,
+        warning: Logger::WARN,
+        critical: Logger::FATAL,
+        off: Logger::FATAL
+      }.freeze
+
+      DEFAULT = Logger::INFO
+
+      def call(value)
+        if value.is_a?(Integer)
+          LEVELS.value?(value) ? value : DEFAULT
+        else
+          LEVELS.fetch(value.to_sym, DEFAULT)
+        end
+      end
+    end
+  end
 end

@@ -52,6 +52,7 @@ module ElasticAPM
                   "name": 'GET /something',
                   "type": 'request',
                   "result": '200',
+                  "outcome": 'success',
                   "context": nil,
                   "duration": 10,
                   "timestamp": 694_224_000_000_000,
@@ -72,9 +73,9 @@ module ElasticAPM
             it 'includes count' do
               with_agent(transaction_max_spans: 2) do
                 ElasticAPM.with_transaction 'T' do
-                  ElasticAPM.with_span('1') {}
-                  ElasticAPM.with_span('2') {}
-                  ElasticAPM.with_span('dropped') {}
+                  ElasticAPM.with_span('1') { nil }
+                  ElasticAPM.with_span('2') { nil }
+                  ElasticAPM.with_span('dropped') { nil }
                 end
               end
 

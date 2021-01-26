@@ -34,6 +34,7 @@ module ElasticAPM
       end
 
       expect(@intercepted.transactions.length).to eq 1
+      expect(@intercepted.transactions.first.outcome).to eq 'success'
     end
 
     context 'when disabled' do
@@ -43,6 +44,26 @@ module ElasticAPM
         end
 
         expect(@intercepted.transactions.length).to eq 0
+      end
+    end
+
+    context 'when the task fails' do
+      let(:task) do
+        Rake::Task.define_task(:failed_task) do
+          raise StandardError
+        end
+      end
+
+      it 'sets the transaction outcome to `failure`' do
+        with_agent(instrumented_rake_tasks: %w[failed_task]) do
+          begin
+            task.invoke
+          rescue StandardError
+          end
+        end
+
+        expect(@intercepted.transactions.length).to eq 1
+        expect(@intercepted.transactions.first.outcome).to eq 'failure'
       end
     end
   end

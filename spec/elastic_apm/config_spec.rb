@@ -182,6 +182,23 @@ module ElasticAPM
         expect(logger).to receive(:info).with('MockLog')
         config.logger.info 'MockLog'
       end
+
+      describe 'log level' do
+        it 'can accept integers' do
+          config = Config.new log_level: Logger::FATAL
+          expect(config.log_level).to eq(Logger::FATAL)
+        end
+
+        it 'can accept symbols' do
+          config = Config.new log_level: :fatal
+          expect(config.log_level).to eq(Logger::FATAL)
+        end
+
+        it 'can accept symbols not mapping to native Ruby logger levels' do
+          config = Config.new log_level: :critical
+          expect(config.log_level).to eq(Logger::FATAL)
+        end
+      end
     end
 
     describe 'unknown options' do
@@ -298,6 +315,19 @@ module ElasticAPM
           expect(subject.enabled).to eq(false)
           expect(subject.active)
             .to eq(subject.enabled)
+        end
+      end
+
+      describe 'server_ca_cert' do
+        subject { Config.new }
+
+        it 'logs a warning and redirects' do
+          expect(subject).to receive(:warn).with(/DEPRECATED/)
+          subject.server_ca_cert = 'path/to/file'
+
+          expect(subject.server_ca_cert_file).to eq('path/to/file')
+          expect(subject.server_ca_cert)
+            .to eq(subject.server_ca_cert_file)
         end
       end
     end

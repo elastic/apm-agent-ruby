@@ -81,6 +81,7 @@ module ElasticAPM
       expect(transaction.name).to eq 'q1'
       expect(transaction.type).to eq 'Sneakers'
       expect(transaction.result).to eq :success
+      expect(transaction.outcome).to eq 'success'
 
       label, = transaction.context.labels
       expect(label[:routing_key]).to eq 'r1234'
@@ -100,6 +101,7 @@ module ElasticAPM
       expect(label[:routing_key]).to eq 'r1234'
       expect(transaction.type).to eq 'Sneakers'
       expect(transaction.result).to eq :error
+      expect(transaction.outcome).to eq 'failure'
 
       error, = @intercepted.errors
       expect(error.exception.type).to eq 'ZeroDivisionError'

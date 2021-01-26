@@ -35,6 +35,51 @@ endif::[]
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
+[float]
+[[unreleased]]
+==== Unreleased
+
+[float]
+===== Fixed
+
+- Fixed setting outcome in Mongo spy when not traced {pull}937[#937]
+
+[[release-notes-3.13.0]]
+==== 3.13.0 (2020-12-22)
+
+[float]
+===== Fixed
+
+- Handle invalid utf-8 byte sequences in sql summarizer and DB statement {pull}896[#896]
+- Expand Kubernetes metadata discovery {pull}916[#916]
+- Fix fetching cloud info on Http.rb 3.x versions {pull}919[#919]
+
+[float]
+===== Added
+
+- Support both integer and string log levels, and extra central config values {pull}902[#902]
+
+[float]
+===== Changed
+
+- Rename server_ca_cert to server_ca_cert_file {pull}908[#908]
+
+[[release-notes-3.12.1]]
+==== 3.12.1 (2020-11-16)
+
+[float]
+===== Fixed
+
+- `capture_elasticsearch_queries` no longer modifies the original query {pull}894[#894]
+
+[[release-notes-3.12.0]]
+==== 3.12.0 (2020-11-10)
+
+[float]
+===== Added
+
+- Add outcome to transactions and spans {pull}883[#883]
+
 [[release-notes-3.11.1]]
 ==== 3.11.1 (2020-11-05)
 

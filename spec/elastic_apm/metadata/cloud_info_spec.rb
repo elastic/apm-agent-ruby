@@ -25,7 +25,7 @@ module ElasticAPM
       AWS_EXAMPLE = <<-JSON
         {
           "devpayProductCodes" : null,
-          "marketplaceProductCodes" : [ "1abc2defghijklm3nopqrs4tu" ], 
+          "marketplaceProductCodes" : [ "1abc2defghijklm3nopqrs4tu" ],
           "availabilityZone" : "us-west-2b",
           "privateIp" : "10.158.112.84",
           "version" : "2017-09-30",
@@ -78,7 +78,7 @@ module ElasticAPM
         before do
           @aws_mock =
             WebMock.stub_request(:get, Metadata::CloudInfo::AWS_URI)
-            .to_return(body: CloudExamples::AWS_EXAMPLE)
+                   .to_return(body: CloudExamples::AWS_EXAMPLE)
         end
 
         it 'fetches metadata from aws' do
@@ -100,17 +100,20 @@ module ElasticAPM
         before do
           @gcp_mock =
             WebMock.stub_request(:get, Metadata::CloudInfo::GCP_URI)
-            .to_return(body: CloudExamples::GCP_EXAMPLE)
+                   .to_return(body: CloudExamples::GCP_EXAMPLE)
         end
 
         it 'fetches metadata from gcp' do
           subject.fetch!
 
           expect(subject.provider).to eq('gcp')
+          # rubocop:disable Style/NumericLiterals
           expect(subject.instance_id).to eq(4306570268266786072)
           expect(subject.instance_name).to eq("basepi-test")
           expect(subject.project_id).to eq(513326162531)
-          expect(subject.project_name).to eq("elastic-apm")
+          # rubocop:enable Style/NumericLiterals
+          expect(subject.instance_name).to eq('basepi-test')
+          expect(subject.project_name).to eq('elastic-apm')
           expect(subject.availability_zone).to eq('us-west3-a')
           expect(subject.region).to eq('us-west3')
           expect(subject.machine_type).to eq('projects/513326162531/machineTypes/n1-standard-1')
@@ -125,7 +128,7 @@ module ElasticAPM
         before do
           @azure_mock =
             WebMock.stub_request(:get, Metadata::CloudInfo::AZURE_URI)
-            .to_return(body: CloudExamples::AZURE_EXAMPLE)
+                   .to_return(body: CloudExamples::AZURE_EXAMPLE)
         end
 
         it 'fetches metadata from azure' do
@@ -148,9 +151,18 @@ module ElasticAPM
 
         context 'timeouts' do
           it 'tries all three' do
-            WebMock.stub_request(:get, Metadata::CloudInfo::AWS_URI).to_timeout
-            WebMock.stub_request(:get, Metadata::CloudInfo::GCP_URI).to_timeout
-            WebMock.stub_request(:get, Metadata::CloudInfo::AZURE_URI).to_timeout
+            WebMock.stub_request(
+              :get,
+              Metadata::CloudInfo::AWS_URI
+            ).to_timeout
+            WebMock.stub_request(
+              :get,
+              Metadata::CloudInfo::GCP_URI
+            ).to_timeout
+            WebMock.stub_request(
+              :get,
+              Metadata::CloudInfo::AZURE_URI
+            ).to_timeout
 
             subject.fetch!
             expect(subject.provider).to be nil
@@ -159,9 +171,18 @@ module ElasticAPM
 
         context 'connection errors' do
           it 'tries all three' do
-            WebMock.stub_request(:get, Metadata::CloudInfo::AWS_URI).to_raise(HTTP::ConnectionError)
-            WebMock.stub_request(:get, Metadata::CloudInfo::GCP_URI).to_raise(HTTP::ConnectionError)
-            WebMock.stub_request(:get, Metadata::CloudInfo::AZURE_URI).to_raise(HTTP::ConnectionError)
+            WebMock.stub_request(
+              :get,
+              Metadata::CloudInfo::AWS_URI
+            ).to_raise(HTTP::ConnectionError)
+            WebMock.stub_request(
+              :get,
+              Metadata::CloudInfo::GCP_URI
+            ).to_raise(HTTP::ConnectionError)
+            WebMock.stub_request(
+              :get,
+              Metadata::CloudInfo::AZURE_URI
+            ).to_raise(HTTP::ConnectionError)
 
             subject.fetch!
             expect(subject.provider).to be nil
