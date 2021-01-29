@@ -43,6 +43,7 @@ endif::[]
 ===== Fixed
 
 - Fixed setting outcome in Mongo spy when not traced {pull}937[#937]
+- Fixed missing container metadata in payloads {pull}942[#942]
 
 [[release-notes-3.13.0]]
 ==== 3.13.0 (2020-12-22)
