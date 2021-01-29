@@ -35,6 +35,31 @@ endif::[]
 [[release-notes-4.x]]
 === Ruby Agent version 4.x
 
+[float]
+[[unreleased-4]]
+==== Unreleased
+
+[float]
+===== Removed
+
+- Removed support for Ruby 2.3 and JRuby 9.1 {pull}901[#901]
+- Config option `active`, see `enabled` {pull}900[#900]
+- Config option `custom_key_filters`, see `sanitize_field_names` {pull}900[#900]
+- Config option `default_tags`, see `global_labels` {pull}900[#900]
+- Config option `default_labels`, see `global_labels` {pull}900[#900]
+- Config option `ignore_url_patterns`, see `transaction_ignore_urls` {pull}900[#900]
+- Config option `use_legacy_sql_parser`, legacy parser no longer included {pull}900[#900]
+
+[float]
+===== Changed
+
+- Integrations (Spies) use Module#prepend over class_eval {pull}890[#890]
+- The secrets filter no longer filters based on values, see `sanitize_field_names` {pull}900[#900]
+- The secrets filter is aligned with other agents, see `sanitize_field_names` {pull}900[#900]
+
+[[release-notes-3.x]]
+=== Ruby Agent version 3.x
+
 [[release-notes-3.15.0]]
 ==== 3.15.0 (2021-03-22)
 
@@ -70,49 +95,11 @@ endif::[]
 ==== 3.13.0 (2020-12-22)
 
 [float]
-===== Removed
-
-- Config option `active`, see `enabled` {pull}900[#900]
-- Config option `custom_key_filters`, see `sanitize_field_names` {pull}900[#900]
-- Config option `default_tags`, see `global_labels` {pull}900[#900]
-- Config option `default_labels`, see `global_labels` {pull}900[#900]
-- Config option `ignore_url_patterns`, see `transaction_ignore_urls` {pull}900[#900]
-- Config option `use_legacy_sql_parser`, old parser no longer included {pull}900[#900]
-
-[float]
-===== Changed
-
-- The secrets filter no longer filters based on values, see `sanitize_field_names` {pull}900[#900]
-- The secrets filter is aligned with other agents, see `sanitize_field_names` {pull}900[#900]
-
-[float]
-===== Removed
-
-- Config option `active`, see `enabled` {pull}900[#900]
-_ Config option `custom_key_filters`, see `sanitize_field_names` {pull}900[#900]
-_ Config option `default_tags`, see `global_labels` {pull}900[#900]
-_ Config option `default_labels`, see `global_labels` {pull}900[#900]
-_ Config option `ignore_url_patterns`, see `transaction_ignore_urls` {pull}900[#900]
-
-[float]
-===== Changed
-
-- The secrets filter no longer filters based on values, see `sanitize_field_names` {pull}900[#900]
-- The secrets filter is aligned with other agents, see `sanitize_field_names` {pull}900[#900]
-
-[float]
 ===== Fixed
 
 - Handle invalid utf-8 byte sequences in sql summarizer and DB statement {pull}896[#896]
 - Expand Kubernetes metadata discovery {pull}916[#916]
 - Fix fetching cloud info on Http.rb 3.x versions {pull}919[#919]
-
-[[release-notes-3.x]]
-=== Ruby Agent version 3.x
-
-[float]
-[[unrelease]]
-==== Unreleased
 
 [float]
 ===== Added
