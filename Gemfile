@@ -73,7 +73,9 @@ end
 
 frameworks_versions.each do |framework, version|
   case version
-  when 'master'
+  when 'master' # sinatra, grape
+    gem framework, github: GITHUB_REPOS.fetch(framework)
+  when 'main' # rails
     gem framework, github: GITHUB_REPOS.fetch(framework)
   when /.+/
     gem framework, "~> #{version}.0"
@@ -83,14 +85,14 @@ frameworks_versions.each do |framework, version|
 end
 
 if frameworks_versions.key?('rails')
-  unless frameworks_versions['rails'] =~ /^(master|6)/
+  unless frameworks_versions['rails'] =~ /^(main|6)/
     gem 'delayed_job', require: nil
   end
 end
 
 if RUBY_PLATFORM == 'java'
   case rails = frameworks_versions['rails']
-  when 'master'
+  when 'main'
     gem 'activerecord-jdbcsqlite3-adapter', git: 'https://github.com/jruby/activerecord-jdbc-adapter', glob: 'activerecord-jdbcsqlite3-adapter/*.gemspec'
   when ''
     gem 'activerecord-jdbcsqlite3-adapter', "~> 61.0"

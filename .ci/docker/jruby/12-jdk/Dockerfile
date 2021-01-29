@@ -2,6 +2,7 @@ FROM adoptopenjdk:12-jdk-openj9
 
 RUN apt-get update \
     && apt-get install -y libc6-dev git tcc netbase --no-install-recommends \
+    && apt-get install -y gcc \
     && rm -rf /var/lib/apt/lists/*
 
 ENV JRUBY_VERSION 9.2.10.0
