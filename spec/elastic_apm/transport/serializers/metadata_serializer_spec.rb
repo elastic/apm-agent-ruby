@@ -94,6 +94,21 @@ module ElasticAPM
               )
             end
           end
+
+          context "with container info" do
+            let(:metadata) do
+              Metadata.new(Config.new)
+            end
+
+            it 'adds container info' do
+              container_id = "container-id"
+              allow(metadata.system).to receive(:container).and_return(id: container_id)
+
+              expect(result.dig(:metadata, :system, :container)).to match(
+                id: container_id
+              )
+            end
+          end
         end
       end
     end

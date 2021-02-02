@@ -14,7 +14,7 @@ exclude:
   - RUBY_VERSION: ruby:2.3
     FRAMEWORK: grape-1.5,sinatra-2.0,rails-6.0
   - RUBY_VERSION: ruby:2.3
-    FRAMEWORK: rails-master
+    FRAMEWORK: rails-main
   - RUBY_VERSION: ruby:2.3
     FRAMEWORK: sinatra-master
   - RUBY_VERSION: ruby:2.3
@@ -44,19 +44,19 @@ exclude:
 
   # Only test rails master on ruby 2.7 and ruby 3.0
   - RUBY_VERSION: ruby:2.6
-    FRAMEWORK: rails-master
+    FRAMEWORK: rails-main
   - RUBY_VERSION: ruby:2.5
-    FRAMEWORK: rails-master
+    FRAMEWORK: rails-main
   - RUBY_VERSION: ruby:2.4
-    FRAMEWORK: rails-master
+    FRAMEWORK: rails-main
   - RUBY_VERSION: jruby:9.2
-    FRAMEWORK: rails-master
+    FRAMEWORK: rails-main
   - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-13-jdk
-    FRAMEWORK: rails-master
+    FRAMEWORK: rails-main
   - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-11-jdk
-    FRAMEWORK: rails-master
+    FRAMEWORK: rails-main
   - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-8-jdk
-    FRAMEWORK: rails-master
+    FRAMEWORK: rails-main
 
   # Only test sinatra master on ruby 2.7 and ruby 3.0
   - RUBY_VERSION: ruby:2.6

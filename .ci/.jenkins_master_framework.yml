@@ -1,4 +1,4 @@
 FRAMEWORK:
-  - rails-master
+  - rails-main
   - sinatra-master
   - grape-master
