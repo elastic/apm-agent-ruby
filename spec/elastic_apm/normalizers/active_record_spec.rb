@@ -90,6 +90,58 @@ module ElasticAPM
             )
             expect(subtype).to eq 'postgres'
           end
+          
+          it 'resolves the connection_id object id to a connection if the full connection is missing' do
+            sql = 'SELECT  "burgers".* FROM "burgers" ' \
+              'WHERE "burgers"."cheese" = $1 LIMIT 1'
+
+            _name, _type, subtype, = normalize_payload(
+              sql: sql,
+              connection_id: double(adapter_name: 'MySQL').object_id
+            )
+            expect(subtype).to eq 'mysql'
+
+            _name, _type, subtype, = normalize_payload(
+              sql: sql,
+              connection_id: double(adapter_name: 'Postgres').object_id
+            )
+            expect(subtype).to eq 'postgres'
+          end
+          
+          it 'handles a failure to load the connection object by connection_id' do
+            sql = 'SELECT  "burgers".* FROM "burgers" ' \
+              'WHERE "burgers"."cheese" = $1 LIMIT 1'
+
+            allow(::ActiveRecord::Base)
+              .to receive(:connection_config) { { adapter: 'Postgres' } }
+
+            _name, _type, subtype, = normalize_payload(
+              sql: sql,
+              connection_id: 999_999_999 # invalid object_id
+            )
+
+            expect(subtype).to eq 'postgres'
+            expect(::ActiveRecord::Base).to have_received(:connection_config)
+          end
+
+          it 'uses the connection from payload even if the connection_id is available' do
+            sql = 'SELECT  "burgers".* FROM "burgers" ' \
+              'WHERE "burgers"."cheese" = $1 LIMIT 1'
+
+            _name, _type, subtype, = normalize_payload(
+              sql: sql,
+              connection: double(adapter_name: 'MySQL'),
+              connection_id: 'wrong object'.object_id
+            )
+            expect(subtype).to eq 'mysql'
+
+            _name, _type, subtype, = normalize_payload(
+              sql: sql,
+              connection: double(adapter_name: 'Postgres'),
+              connection_id: 'wrong object'.object_id
+            )
+            expect(subtype).to eq 'postgres'
+          end
 
           it 'uses ActiveRecord::Base when payload is not available' do
             sql = 'SELECT  "burgers".* FROM "burgers" ' \

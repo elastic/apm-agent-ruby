@@ -57,6 +57,18 @@ module ElasticAPM
         private
 
         def subtype_for(payload)
+          if payload[:connection_id]
+            payload[:connection] ||= begin
+              loaded_object = ObjectSpace._id2ref(payload[:connection_id])
+
+              if loaded_object.respond_to?(:adapter_name)
+                loaded_object
+              end
+            rescue RangeError # if connection object has somehow been garbage collected
+              nil
+            end
+          end
+
           cached_adapter_name(
             payload[:connection]&.adapter_name ||
               ::ActiveRecord::Base.connection_config[:adapter]
