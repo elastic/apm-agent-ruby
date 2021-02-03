@@ -64,6 +64,12 @@ module ElasticAPM
     end
 
     before do
+      unless defined? ::ActiveRecord::Base
+        class ::ActiveRecord
+          class Base; end
+        end
+      end
+
       # Mock this function used in the middleware chain
       allow(::ActiveRecord::Base)
         .to receive(:clear_active_connections!)

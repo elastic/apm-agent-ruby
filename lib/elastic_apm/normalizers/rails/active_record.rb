@@ -57,22 +57,17 @@ module ElasticAPM
         private
 
         def subtype_for(payload)
-          if payload[:connection_id]
-            payload[:connection] ||= begin
-              loaded_object = ObjectSpace._id2ref(payload[:connection_id])
+          return cached_adapter_name(payload[:connection].adapter_name) if payload[:connection]
 
-              if loaded_object.respond_to?(:adapter_name)
-                loaded_object
-              end
+          if payload[:connection_id]
+            begin
+              loaded_object = ObjectSpace._id2ref(payload[:connection_id])
+              return cached_adapter_name(loaded_object.adapter_name) if loaded_object.respond_to?(:adapter_name)
             rescue RangeError # if connection object has somehow been garbage collected
-              nil
             end
           end
 
-          cached_adapter_name(
-            payload[:connection]&.adapter_name ||
-              ::ActiveRecord::Base.connection_config[:adapter]
-          )
+          cached_adapter_name(nil)
         end
 
         def summarize(sql)
