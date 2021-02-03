@@ -83,12 +83,6 @@ module ElasticAPM
               connection: double(adapter_name: 'MySQL')
             )
             expect(subtype).to eq 'mysql'
-
-            _name, _type, subtype, = normalize_payload(
-              sql: sql,
-              connection: double(adapter_name: 'Postgres')
-            )
-            expect(subtype).to eq 'postgres'
           end
           
           it 'resolves the connection_id object id to a connection if the full connection is missing' do
@@ -100,12 +94,6 @@ module ElasticAPM
               connection_id: double(adapter_name: 'MySQL').object_id
             )
             expect(subtype).to eq 'mysql'
-
-            _name, _type, subtype, = normalize_payload(
-              sql: sql,
-              connection_id: double(adapter_name: 'Postgres').object_id
-            )
-            expect(subtype).to eq 'postgres'
           end
           
           it 'handles a failure to load the connection object by connection_id' do
@@ -134,13 +122,6 @@ module ElasticAPM
               connection_id: double(adapter_name: 'wrong_db').object_id
             )
             expect(subtype).to eq 'mysql'
-
-            _name, _type, subtype, = normalize_payload(
-              sql: sql,
-              connection: double(adapter_name: 'Postgres'),
-              connection_id: double(adapter_name: 'wrong_db').object_id
-            )
-            expect(subtype).to eq 'postgres'
           end
 
           it 'uses ActiveRecord::Base when payload is not available' do
