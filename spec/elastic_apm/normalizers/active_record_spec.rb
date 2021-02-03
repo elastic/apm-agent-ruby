@@ -131,14 +131,14 @@ module ElasticAPM
             _name, _type, subtype, = normalize_payload(
               sql: sql,
               connection: double(adapter_name: 'MySQL'),
-              connection_id: 'wrong object'.object_id
+              connection_id: double(adapter_name: 'wrong_db').object_id
             )
             expect(subtype).to eq 'mysql'
 
             _name, _type, subtype, = normalize_payload(
               sql: sql,
               connection: double(adapter_name: 'Postgres'),
-              connection_id: 'wrong object'.object_id
+              connection_id: double(adapter_name: 'wrong_db').object_id
             )
             expect(subtype).to eq 'postgres'
           end
