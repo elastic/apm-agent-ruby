@@ -89,7 +89,7 @@ module ElasticAPM
             expect(subtype).to eq 'mysql'
           end
 
-          it "handles a connection_id which loads an object that isn't a connection" do
+          it 'handles a connection_id which loads an object that is not a connection' do
             sql = 'SELECT  "burgers".* FROM "burgers" ' \
             'WHERE "burgers"."cheese" = $1 LIMIT 1'
 
@@ -101,7 +101,7 @@ module ElasticAPM
             expect(subtype).to eq "unknown"
           end
 
-          it "handles a missing connection and connection_id value" do
+          it 'handles a missing connection and connection_id value' do
             sql = 'SELECT  "burgers".* FROM "burgers" ' \
             'WHERE "burgers"."cheese" = $1 LIMIT 1'
 
