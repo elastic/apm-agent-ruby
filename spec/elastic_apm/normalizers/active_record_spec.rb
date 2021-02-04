@@ -89,6 +89,27 @@ module ElasticAPM
             expect(subtype).to eq 'mysql'
           end
 
+          it "handles a connection_id which loads an object that isn't a connection" do
+            sql = 'SELECT  "burgers".* FROM "burgers" ' \
+            'WHERE "burgers"."cheese" = $1 LIMIT 1'
+
+            _name, _type, subtype, = normalize_payload(
+              sql: sql,
+              connection_id: double("not a connection").object_id # this doesn't respond to #adapter_name
+            )
+
+            expect(subtype).to eq "unknown"
+          end
+
+          it "handles a missing connection and connection_id value" do
+            sql = 'SELECT  "burgers".* FROM "burgers" ' \
+            'WHERE "burgers"."cheese" = $1 LIMIT 1'
+
+            _name, _type, subtype, = normalize_payload(sql: sql)
+
+            expect(subtype).to eq "unknown"
+          end
+
           it 'skips cache queries' do
             result =
               normalize_payload(name: 'CACHE', sql: 'DROP * FROM users')
