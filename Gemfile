@@ -56,6 +56,10 @@ gem 'sucker_punch', '~> 2.0', require: nil
 gem 'yard', require: nil
 gem 'yarjuf'
 
+# See issue #6547 in the JRuby repo. When that bug is fixed,
+# we can use the latest version of the i18n gem.
+gem 'i18n', '< 1.8.8'
+
 ## Install Framework
 GITHUB_REPOS = {
   'grape' => 'ruby-grape/grape',
