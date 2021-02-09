@@ -22,7 +22,7 @@ module ElasticAPM
     # @api private
     class Traceparent
       VERSION = '00'
-      HEX_REGEX = /[^[:xdigit:]]/.freeze
+      NON_HEX_REGEX = /[^[:xdigit:]]/.freeze
 
       TRACE_ID_LENGTH = 16
       ID_LENGTH = 8
@@ -30,14 +30,13 @@ module ElasticAPM
       def initialize(
         version: VERSION,
         trace_id: nil,
-        span_id: nil,
+        parent_id: nil,
         id: nil,
         recorded: true
       )
         @version = version
         @trace_id = trace_id || hex(TRACE_ID_LENGTH)
-        # TODO: rename span_id kw arg to parent_id with next major version bump
-        @parent_id = span_id
+        @parent_id = parent_id
         @id = id || hex(ID_LENGTH)
         @recorded = recorded
       end
@@ -56,8 +55,8 @@ module ElasticAPM
               values[-1] = Util.hex_to_bits(values[-1])
             end
 
-          raise_invalid(header) if HEX_REGEX.match?(t.trace_id)
-          raise_invalid(header) if HEX_REGEX.match?(t.parent_id)
+          raise_invalid(header) if NON_HEX_REGEX.match?(t.trace_id)
+          raise_invalid(header) if NON_HEX_REGEX.match?(t.parent_id)
         end
       end
 
