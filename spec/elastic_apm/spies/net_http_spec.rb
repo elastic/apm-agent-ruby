@@ -80,7 +80,7 @@ module ElasticAPM
           header = req.headers['Traceparent']
           expect(header).to_not be nil
           expect(req.headers['Elastic-Apm-Traceparent']).to_not be nil
-          expect { TraceContext.parse(header) }.to_not raise_error
+          expect { TraceContext::Traceparent.parse(header) }.to_not raise_error
         end
 
       with_agent do

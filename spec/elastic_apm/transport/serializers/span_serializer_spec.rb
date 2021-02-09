@@ -30,7 +30,11 @@ module ElasticAPM
           let(:transaction) { Transaction.new(config: config).start }
 
           let(:trace_context) do
-            TraceContext.parse("00-#{'1' * 32}-#{'2' * 16}-01")
+            TraceContext.new(
+              traceparent: TraceContext::Traceparent.parse(
+                             "00-#{'1' * 32}-#{'2' * 16}-01"
+                           )
+            )
           end
 
           let :span do
