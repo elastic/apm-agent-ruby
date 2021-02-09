@@ -29,10 +29,9 @@ module ElasticAPM
 
     def initialize(
       traceparent: nil,
-      tracestate: nil,
-      **legacy_traceparent_attrs
+      tracestate: nil
     )
-      @traceparent = traceparent || Traceparent.new(**legacy_traceparent_attrs)
+      @traceparent = traceparent || Traceparent.new
       @tracestate = tracestate || Tracestate.new
     end
 
