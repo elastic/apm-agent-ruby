@@ -323,6 +323,23 @@ Usually APM Server determines how often to poll, but if not the default interval
 NOTE: This feature requires APM Server v7.3 or later and that the APM Server is configured with `kibana.enabled: true`.
 
 [float]
+[[config-cloud-provider]]
+==== `cloud_provider`
+|============
+| Environment                  | `Config` key     | Default
+| `ELASTIC_APM_CLOUD_PROVIDER` | `cloud_provider` | `"auto"`
+|============
+
+Specify the cloud provider for metadata collection.
+Defaults to `"auto"`, which means the agent uses trial and
+error to collect metadata from all supported cloud providers.
+
+Valid options are `"auto"`, `"aws"`, `"gcp"`, `"azure"`, and `"none"`.
+If set to `"none"`, no cloud metadata will be collected.
+If set to any of `"aws"`, `"gcp"`, or `"azure"`,
+attempts to collect metadata will only be performed from the chosen provider.
+
+[float]
 [[config-custom-key-filters]]
 ==== `custom_key_filters` deprecated:[3.5.0,See <<config-sanitize-field-names>> instead.]
 [options="header"]
