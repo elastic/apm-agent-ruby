@@ -250,5 +250,28 @@ module ElasticAPM
 
       expect(span.outcome).to eq 'failure'
     end
+
+    it 'skips spans for http calls missing an authority segment' do
+      WebMock.stub_request(:any, %r{http://*})
+
+      with_agent do
+        expect(ElasticAPM::Spies::NetHTTPSpy).to_not be_disabled
+
+        ElasticAPM.with_transaction 'Net::HTTP test' do
+          Net::HTTP.start(nil) do |http|
+            http.get '/bar'
+          end
+
+          Net::HTTP.start(nil) do |http|
+            http.post '/test', 'a=1'
+          end
+        end
+      end
+
+      expect(@intercepted.transactions.length).to be 1
+      expect(@intercepted.spans.length).to be 0
+
+      ElasticAPM.stop
+    end
   end
 end

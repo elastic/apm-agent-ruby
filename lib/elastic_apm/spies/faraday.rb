@@ -55,6 +55,8 @@ module ElasticAPM
               tmp_request = build_request(method) do |req|
                 yield(req) if block_given?
               end
+
+              return run_request_without_apm(method, url, body, headers, &block) if tmp_request.path.nil?
               uri = URI(tmp_request.path)
             end
 

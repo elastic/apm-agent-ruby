@@ -65,6 +65,10 @@ module ElasticAPM
             method = req.method.to_s.upcase
             path, query = req.path.split('?')
 
+            if host.nil?
+              return request_without_apm(req, body, &block)
+            end
+
             url = use_ssl? ? +'https://' : +'http://'
             url << host
             url << ":#{port}" if port

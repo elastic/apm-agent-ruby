@@ -165,5 +165,20 @@ module ElasticAPM
       expect(span).to_not be nil
       expect(span.outcome).to eq 'failure'
     end
+
+    it 'skips spans for http calls missing an authority segment' do
+      WebMock.stub_request(:any, %r{http://*})
+
+      with_agent do
+        ElasticAPM.with_transaction 'Faraday test' do
+          Faraday.get('/page.html')
+          Faraday.post('/page.html')
+        end
+      end
+
+      expect(@intercepted.transactions.length).to be 1
+      expect(@intercepted.spans.length).to be 0
+      ElasticAPM.stop
+    end
   end
 end
