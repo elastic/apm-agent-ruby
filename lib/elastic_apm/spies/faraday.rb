@@ -55,20 +55,25 @@ module ElasticAPM
               tmp_request = build_request(method) do |req|
                 yield(req) if block_given?
               end
-              uri = URI(tmp_request.path)
+              uri = tmp_request.path && URI(tmp_request.path)
             end
 
-            host = uri.host
+            host = uri&.host || 'localhost'
 
             upcased_method = method.to_s.upcase
 
-            destination = ElasticAPM::Span::Context::Destination.from_uri(uri)
+            if uri
+              destination = ElasticAPM::Span::Context::Destination.from_uri(uri)
 
-            context =
-              ElasticAPM::Span::Context.new(
-                http: { url: uri, method: upcased_method },
-                destination: destination
-              )
+              context =
+                ElasticAPM::Span::Context.new(
+                  http: { url: uri, method: upcased_method },
+                  destination: destination
+                )
+            else
+              context =
+                ElasticAPM::Span::Context.new(http: { url: uri, method: upcased_method })
+            end
 
             ElasticAPM.with_span(
               "#{upcased_method} #{host}",

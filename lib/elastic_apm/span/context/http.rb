@@ -33,6 +33,8 @@ module ElasticAPM
         private
 
         def sanitize_url(uri_or_str)
+          return unless uri_or_str
+
           uri = uri_or_str.is_a?(URI) ? uri_or_str.dup : URI(uri_or_str)
           uri.password = nil
           uri.to_s
