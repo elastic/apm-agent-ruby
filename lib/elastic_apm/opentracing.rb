@@ -130,7 +130,7 @@ module ElasticAPM
         return unless header
 
         trace_context = ElasticAPM::TraceContext.new(
-          traceparent: Traceparent.parse(header)
+          traceparent: TraceContext::Traceparent.parse(header)
         )
 
         trace_context.traceparent.id = trace_context.parent_id
