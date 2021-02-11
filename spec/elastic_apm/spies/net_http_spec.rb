@@ -250,5 +250,20 @@ module ElasticAPM
 
       expect(span.outcome).to eq 'failure'
     end
+
+    it 'defaults missing host to localhost' do
+      WebMock.stub_request(:any, %r{http://*})
+
+      with_agent do
+        ElasticAPM.with_transaction 'Net::HTTP test' do
+          Net::HTTP.start(nil) do |http|
+            http.get '/bar'
+          end
+        end
+      end
+
+      expect(@intercepted.transactions.length).to be 1
+      expect(@intercepted.spans.length).to be 1
+    end
   end
 end
