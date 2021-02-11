@@ -95,10 +95,6 @@ if enabled
 
         class GraphQLTestAppSchema < GraphQL::Schema
           query QueryType
-
-          use GraphQL::Execution::Interpreter
-          use GraphQL::Analysis::AST
-
           tracer ElasticAPM::GraphQL
         end
       end
