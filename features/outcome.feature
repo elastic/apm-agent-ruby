@@ -62,36 +62,36 @@ Feature: Outcome
       | -1     | failure | failure |
       # last row with negative status represents the case where the status is not available
       # for example when an exception/error is thrown without status (IO error, redirect loop, ...)
-
-  # ---- gRPC
-
-  # reference spec : https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
-
-  @grpc
-  Scenario Outline: gRPC transaction and span outcome
-    Given an agent
-    And a gRPC transaction with '<status>' status
-    Then transaction outcome is "<server>"
-    Given a gRPC span with '<status>' status
-    Then span outcome is "<client>"
-    Examples:
-      | status              | client  | server  |
-      | OK                  | success | success |
-      | CANCELLED           | failure | success |
-      | UNKNOWN             | failure | failure |
-      | INVALID_ARGUMENT    | failure | success |
-      | DEADLINE_EXCEEDED   | failure | failure |
-      | NOT_FOUND           | failure | success |
-      | ALREADY_EXISTS      | failure | success |
-      | PERMISSION_DENIED   | failure | success |
-      | RESOURCE_EXHAUSTED  | failure | failure |
-      | FAILED_PRECONDITION | failure | failure |
-      | ABORTED             | failure | failure |
-      | OUT_OF_RANGE        | failure | success |
-      | UNIMPLEMENTED       | failure | success |
-      | INTERNAL            | failure | failure |
-      | UNAVAILABLE         | failure | failure |
-      | DATA_LOSS           | failure | failure |
-      | UNAUTHENTICATED     | failure | success |
-      | n/a                 | failure | failure |
-    # last row with 'n/a' status represents the case where status is not available
+#
+#  # ---- gRPC
+#
+#  # reference spec : https://github.com/grpc/grpc/blob/master/doc/statuscodes.md
+#
+#  @grpc
+#  Scenario Outline: gRPC transaction and span outcome
+#    Given an agent
+#    And a gRPC transaction with '<status>' status
+#    Then transaction outcome is "<server>"
+#    Given a gRPC span with '<status>' status
+#    Then span outcome is "<client>"
+#    Examples:
+#      | status              | client  | server  |
+#      | OK                  | success | success |
+#      | CANCELLED           | failure | success |
+#      | UNKNOWN             | failure | failure |
+#      | INVALID_ARGUMENT    | failure | success |
+#      | DEADLINE_EXCEEDED   | failure | failure |
+#      | NOT_FOUND           | failure | success |
+#      | ALREADY_EXISTS      | failure | success |
+#      | PERMISSION_DENIED   | failure | success |
+#      | RESOURCE_EXHAUSTED  | failure | failure |
+#      | FAILED_PRECONDITION | failure | failure |
+#      | ABORTED             | failure | failure |
+#      | OUT_OF_RANGE        | failure | success |
+#      | UNIMPLEMENTED       | failure | success |
+#      | INTERNAL            | failure | failure |
+#      | UNAVAILABLE         | failure | failure |
+#      | DATA_LOSS           | failure | failure |
+#      | UNAUTHENTICATED     | failure | success |
+#      | n/a                 | failure | failure |
+#    # last row with 'n/a' status represents the case where status is not available
