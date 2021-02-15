@@ -29,10 +29,9 @@ module ElasticAPM
 
     def initialize(
       traceparent: nil,
-      tracestate: nil,
-      **legacy_traceparent_attrs
+      tracestate: nil
     )
-      @traceparent = traceparent || Traceparent.new(**legacy_traceparent_attrs)
+      @traceparent = traceparent || Traceparent.new
       @tracestate = tracestate || Tracestate.new
     end
 
@@ -42,15 +41,13 @@ module ElasticAPM
       :version, :trace_id, :id, :parent_id, :ensure_parent_id, :recorded?
 
     class << self
-      def parse(legacy_header = nil, env: nil, metadata: nil)
-        unless legacy_header || env || metadata
+      def parse(env: nil, metadata: nil)
+        unless env || metadata
           raise ArgumentError, 'TraceContext expects env:, metadata: ' \
             'or single argument header string'
         end
 
-        if legacy_header
-          legacy_parse_from_header(legacy_header)
-        elsif env
+        if env
           trace_context_from_env(env)
         elsif metadata
           trace_context_from_metadata(metadata)
@@ -87,11 +84,6 @@ module ElasticAPM
           end
 
         new(traceparent: parent, tracestate: state)
-      end
-
-      def legacy_parse_from_header(header)
-        parent = Traceparent.parse(header)
-        new(traceparent: parent)
       end
     end
 
