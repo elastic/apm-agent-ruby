@@ -129,8 +129,9 @@ module ElasticAPM
       def self.from_header(header)
         return unless header
 
-        trace_context = ElasticAPM::TraceContext.parse(header)
-        return unless trace_context
+        trace_context = TraceContext.new(
+          traceparent: TraceContext::Traceparent.parse(header)
+        )
 
         trace_context.traceparent.id = trace_context.parent_id
         trace_context.traceparent.parent_id = nil

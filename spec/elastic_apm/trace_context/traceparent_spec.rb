@@ -81,7 +81,7 @@ module ElasticAPM
         end
       end
 
-      context 'with non-hex span id' do
+      context 'with non-hex parent id' do
         let(:header) do
           '00-0af7651916cd43dd8448eb211c80319c-XXad6b7169203331-03'
         end
@@ -94,7 +94,7 @@ module ElasticAPM
 
     describe '#ensure_parent_id' do
       let(:parent_id) { nil }
-      subject(:tc) { described_class.new span_id: parent_id }
+      subject(:tc) { described_class.new parent_id: parent_id }
 
       context 'parent_id set' do
         let(:parent_id) { 'b7ad6b7169203331' }

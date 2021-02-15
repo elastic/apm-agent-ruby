@@ -142,8 +142,10 @@ RSpec.describe 'OpenTracing bridge', :intercept do
 
     describe '#inject' do
       let(:context) do
-        ElasticAPM::TraceContext.parse(
-          '00-11111111111111111111111111111111-2222222222222222-00'
+        ElasticAPM::TraceContext.new(
+          traceparent: ElasticAPM::TraceContext::Traceparent.parse(
+            '00-11111111111111111111111111111111-2222222222222222-00'
+          )
         )
       end
       let(:carrier) { {} }
