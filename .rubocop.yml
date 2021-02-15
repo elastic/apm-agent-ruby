@@ -7,7 +7,7 @@ AllCops:
     - 'bench/*'
     - 'spec/support/helloworld_pb.rb'
     - 'spec/support/helloworld_services_pb.rb'
-    - 'features/step_definitions/stepdefs.rb'
+    - 'features/step_definitions/api_key_steps.rb'
 
 require:
   - rubocop-performance
