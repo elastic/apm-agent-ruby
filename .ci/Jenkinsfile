@@ -26,6 +26,7 @@ pipeline {
     RELEASE_SECRET = 'secret/apm-team/ci/apm-agent-ruby-rubygems-release'
     OPBEANS_REPO = 'opbeans-ruby'
     REFERENCE_REPO = '/var/lib/jenkins/.git-references/apm-agent-ruby.git'
+    SLACK_CHANNEL = '#apm-agent-ruby'
   }
   options {
     timeout(time: 2, unit: 'HOURS')
@@ -206,6 +207,12 @@ pipeline {
         tag pattern: 'v\\d+.*', comparator: 'REGEXP'
       }
       stages {
+        stage('Notify') {
+          steps {
+            notifyStatus(slackStatus: 'warning', subject: "[${env.REPO}] Release *${env.TAG_NAME}* ready to be pushed",
+                         body: "(<${env.RUN_DISPLAY_URL}|Open>).\n Changes: ${env.TAG_NAME}")
+          }
+        }
         stage('Release') {
           steps {
             deleteDir()
@@ -226,9 +233,13 @@ pipeline {
             }
           }
           post {
+            success {
+              notifyStatus(slackStatus: 'good', subject: "[${env.REPO}] Release *${env.TAG_NAME}* published",
+                           body: "Great news, the release has been done successfully. (<${env.RUN_DISPLAY_URL}|Open>).")
+            }
             unsuccessful {
-              emailext subject: "[${env.REPO}] Syncup post-release stage failed.", to: "${NOTIFY_TO}",
-                        body: "Please go to ${env.BUILD_URL} to review the logs. Most likely you need to update the branch manually."
+              notifyStatus(slackStatus: 'warning', subject: "[${env.REPO}] Release *${env.TAG_NAME}* has some sync-up post-release failures.",
+                           body: "Please go to ${env.BUILD_URL} to review the logs. Most likely you need to update the branch manually. (<${env.RUN_DISPLAY_URL}|Open>)")
             }
           }
         }
@@ -416,4 +427,13 @@ def prepareRelease(Closure body){
 //  - jruby:9.1 to jruby-9.1
 def normalise(def what) {
   return what.replaceAll('.*/', '').replaceAll(':', '-')
+}
+
+def notifyStatus(def args = [:]) {
+  releaseNotification(slackChannel: "${env.SLACK_CHANNEL}",
+                      slackColor: args.slackStatus,
+                      slackCredentialsId: 'jenkins-slack-integration-token',
+                      to: "${env.NOTIFY_TO}",
+                      subject: args.subject,
+                      body: args.body)
 }
