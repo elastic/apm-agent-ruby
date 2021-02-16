@@ -238,7 +238,7 @@ pipeline {
                            body: "Great news, the release has been done successfully. (<${env.RUN_DISPLAY_URL}|Open>).")
             }
             unsuccessful {
-              notifyStatus(slackStatus: 'warning', subject: "[${env.REPO}] Release *${env.TAG_NAME}* got some syncup post-release failures.",
+              notifyStatus(slackStatus: 'warning', subject: "[${env.REPO}] Release *${env.TAG_NAME}* has some sync-up post-release failures.",
                            body: "Please go to ${env.BUILD_URL} to review the logs. Most likely you need to update the branch manually. (<${env.RUN_DISPLAY_URL}|Open>)")
             }
           }
