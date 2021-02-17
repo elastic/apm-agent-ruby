@@ -153,14 +153,13 @@ if enabled
             end
 
           render json: result
-        # rescue StandardError => e
-        #   logger.error e.message
-        #   logger.debug e.backtrace
+        rescue StandardError => e
+          logger.error e.message
 
-        #   render(
-        #     status: 500,
-        #     json: { error: { message: e.message }, data: {} }
-        #   )
+          render(
+            status: 500,
+            json: { error: { message: e.message }, data: {} }
+          )
         end
       end
 
