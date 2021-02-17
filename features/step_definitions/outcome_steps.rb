@@ -8,9 +8,7 @@ Given('user sets span outcome to {string}') do |outcome|
 end
 
 Given('span terminates with outcome {string}') do |outcome|
-  if outcome == 'success'
-    ElasticAPM.end_span
-  end
+  ElasticAPM.end_span
 end
 
 Then('span outcome is {string}') do |outcome|
@@ -18,7 +16,9 @@ Then('span outcome is {string}') do |outcome|
 end
 
 Given('an active transaction') do
-  @transaction = ElasticAPM.start_transaction('cucumber-test-transaction')
+  @transaction = ElasticAPM.start_transaction(
+    "test-transaction-#{Time.now.to_i}"
+  )
 end
 
 Given('user sets transaction outcome to {string}') do |outcome|
@@ -26,9 +26,7 @@ Given('user sets transaction outcome to {string}') do |outcome|
 end
 
 Given('transaction terminates with outcome {string}') do |outcome|
-  if outcome == 'success'
-    ElasticAPM.end_transaction
-  end
+  ElasticAPM.end_transaction
 end
 
 Then('transaction outcome is {string}') do |outcome|
@@ -52,6 +50,8 @@ Given('span terminates without error') do
 end
 
 Given('transaction terminates with an error') do
+  # The way the spec is written, a transaction is created in a previous step
+  # so we must end that transaction, then create another one.
   ElasticAPM.end_transaction
   begin
     ElasticAPM.with_transaction("test-transaction-#{Time.now.to_i}") do |transaction|
@@ -63,6 +63,8 @@ Given('transaction terminates with an error') do
 end
 
 Given('transaction terminates without error') do
+  # The way the spec is written, a transaction is created in a previous step
+  # so we must end that transaction, then create another one.
   ElasticAPM.end_transaction
   ElasticAPM.with_transaction("test-transaction-#{Time.now.to_i}") do |transaction|
     @transaction = transaction

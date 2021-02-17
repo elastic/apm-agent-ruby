@@ -1,5 +1,4 @@
 After do
-  log "stopping agent"
   @agent&.stop
 end
 
