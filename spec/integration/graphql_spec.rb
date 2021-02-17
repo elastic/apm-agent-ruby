@@ -89,7 +89,7 @@ if enabled
           end
 
           def post(slug:)
-            Post.find_by(slug: slug).first
+            Post.where(slug: slug).first!
           end
         end
 
