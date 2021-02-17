@@ -41,7 +41,7 @@ if enabled
 
     def setup_database
       ActiveRecord::Base.logger = Logger.new(SpecLogger)
-      # ActiveRecord::Base.logger = Logger.new(nil)
+      ActiveRecord::Base.logger = Logger.new(nil)
 
       ActiveRecord::Base.establish_connection(
         adapter: 'sqlite3',
