@@ -21,12 +21,6 @@ require 'integration_helper'
 
 if defined?(Rails)
   enabled = true
-
-  # NOTE: There's something in Rails 6.1 that introduces an error with our
-  # multiplexing approach. While we're investigating further, let's disable
-  if Gem::Dependency.new('', '~> 6.1.0').match?('', Rails.version)
-    enabled = false
-  end
 else
   puts '[INFO] Skipping Rails spec'
 end
@@ -95,7 +89,7 @@ if enabled
           end
 
           def post(slug:)
-            Post.find_by(slug: slug)
+            Post.find_by(slug: slug).first
           end
         end
 
