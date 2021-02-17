@@ -35,7 +35,7 @@ if enabled
 
     def setup_database
       ActiveRecord::Base.logger = Logger.new(SpecLogger)
-      ActiveRecord::Base.logger = Logger.new(nil)
+      # ActiveRecord::Base.logger = Logger.new(nil)
 
       ActiveRecord::Base.establish_connection(
         adapter: 'sqlite3',
@@ -128,35 +128,33 @@ if enabled
 
       class ::GraphqlController < ApplicationController
         def execute
-          variables = params[:variables]
-          query = params[:query]
-          operation_name = params[:operationName]
-          context = {}
+          context_ = {}
 
           result =
-            if (multi = params[:queries])
+            if (multi = params[:multi])
               Types::GraphQLTestAppSchema.multiplex(
                 multi.map do |q|
-                  { query: q, variables: variables, context: context }
+                  { query: q[:query], variables: q[:variables], context: context_.dup }
                 end
               )
             else
               Types::GraphQLTestAppSchema.execute(
-                query,
-                variables: variables,
-                context: context,
-                operation_name: operation_name
+                params[:query],
+                variables: params[:variables],
+                context: context_,
+                operation_name: params[:operation_name]
               )
             end
 
           render json: result
-        rescue StandardError => e
-          logger.error e.message
+        # rescue StandardError => e
+        #   logger.error e.message
+        #   logger.debug e.backtrace
 
-          render(
-            status: 500,
-            json: { error: { message: e.message }, data: {} }
-          )
+        #   render(
+        #     status: 500,
+        #     json: { error: { message: e.message }, data: {} }
+        #   )
         end
       end
 
@@ -208,10 +206,10 @@ if enabled
 
     context 'with multiple queries' do
       it 'renames and concattenates' do
-        resp = post '/graphql', queries: [
-          'query Posts { posts { title } }',
-          'query PostA($slug: String!) { post(slug: $slug) { title } }'
-        ], variables: { slug: 'a' }
+        resp = post '/graphql', multi: [
+          { query: 'query Posts { posts { title } }' },
+          { query: 'query PostA($slug: String!) { post(slug: $slug) { title } }', variables: { slug: 'a' } }
+        ]
 
         wait_for transactions: 1
 
@@ -224,14 +222,14 @@ if enabled
 
     context 'with too many queries to list' do
       it 'renames and concattenates' do
-        resp = post '/graphql', queries: [
-          'query Posts { posts { title } }',
-          'query PostsWithComments { posts { title comments { body } } }',
-          'query PostA($a: String!) { post(slug: $a) { title } }',
-          'query PostB($b: String!) { post(slug: $b) { title } }',
-          'query PostC($c: String!) { post(slug: $c) { title } }',
-          'query MorePosts { posts { title } }'
-        ], variables: { a: 'a', b: 'b', c: 'c' }
+        resp = post '/graphql', multi: [
+          { query: 'query Posts { posts { title } }' },
+          { query: 'query PostsWithComments { posts { title comments { body } } }' },
+          { query: 'query PostA($a: String!) { post(slug: $a) { title } }', variables: { a: 'a' } },
+          { query: 'query PostB($b: String!) { post(slug: $b) { title } }', variables: { b: 'b' } },
+          { query: 'query PostC($c: String!) { post(slug: $c) { title } }', variables: { c: 'c' } },
+          { query: 'query MorePosts { posts { title } }' }
+        ]
 
         wait_for transactions: 1
 
