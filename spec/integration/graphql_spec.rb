@@ -140,7 +140,7 @@ if enabled
             if (multi = params[:multi])
               Types::GraphQLTestAppSchema.multiplex(
                 multi.map do |q|
-                  { query: q[:query], variables: q[:variables], context: context_.dup }
+                  { query: q[:query], variables: q[:variables], context: context_ }
                 end
               )
             else
