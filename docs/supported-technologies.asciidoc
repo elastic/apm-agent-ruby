@@ -77,6 +77,9 @@ requests using these libraries:
 - Http.rb (v0.6+)
 - Faraday (v0.2.1+)
 
+*Note:* Some libraries like Net/HTTP and Faraday can make requests without specifying a Host.
+When no Host is specified they, and the agent, will fall back to `localhost` as the Host.
+
 [float]
 [[supported-technologies-backgroud-processing]]
 === Background Processing
