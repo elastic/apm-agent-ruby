@@ -61,7 +61,7 @@ module ElasticAPM
               return request_without_apm(req, body, &block)
             end
 
-            host = req['host']&.split(':')&.first || address
+            host = req['host']&.split(':')&.first || address || 'localhost'
             method = req.method.to_s.upcase
             path, query = req.path.split('?')
 
