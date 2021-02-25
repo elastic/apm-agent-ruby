@@ -67,6 +67,47 @@ module ElasticAPM
         expect(error.context.custom)
           .to match(all_the_other_things: 'blah blah')
       end
+
+      context 'with an async span' do
+        it 'sets properties from current transaction', :intercept do
+        env = Rack::MockRequest.env_for(
+          '/somewhere/in/there?q=yes',
+          method: 'POST'
+        )
+        env['HTTP_CONTENT_TYPE'] = 'application/json'
+
+        transaction =
+          with_agent(default_labels: { more: 'totes' }) do
+            context =
+              ElasticAPM.build_context rack_env: env, for_type: :transaction
+
+              ElasticAPM.with_transaction context: context do |txn|
+                ElasticAPM.set_label(:my_tag, '123')
+                ElasticAPM.set_custom_context(all_the_other_things: 'blah blah')
+                ElasticAPM.set_user(Struct.new(:id).new(321))
+                Thread.new do
+                  ElasticAPM.with_span(
+                    'job 1',
+                    parent: txn,
+                    sync: false
+                  ) do |span|
+                    ElasticAPM.report actual_exception
+                  end
+                end.value
+
+                txn
+              end
+            end
+
+        error = @intercepted.errors.last
+        expect(error.transaction).to eq(sampled: true, type: 'custom')
+        expect(error.transaction_id).to eq transaction.id
+        expect(error.trace_id).to eq transaction.trace_id
+        expect(error.context.labels).to match(my_tag: '123', more: 'totes')
+        expect(error.context.custom)
+          .to match(all_the_other_things: 'blah blah')
+        end
+      end
     end
 
     context 'with a log' do

@@ -255,6 +255,29 @@ RSpec.describe ElasticAPM do
 
   context 'async spans', :intercept do
     context 'transaction parent' do
+      it 'captures the current transaction and span' do
+        with_agent do
+          current_transaction_in_thread = nil
+          current_span_in_thread = nil
+
+          transaction = ElasticAPM.start_transaction
+          span = Thread.new do
+            ElasticAPM.with_span(
+              'job 1',
+              parent: transaction,
+              sync: false
+            ) do |span|
+              current_transaction_in_thread = ElasticAPM.current_transaction
+              current_span_in_thread = ElasticAPM.current_span
+              span
+            end
+          end.value
+
+          expect(current_transaction_in_thread).to be(transaction)
+          expect(current_span_in_thread).to be(span)
+        end
+      end
+
       it 'allows async spans' do
         with_agent do
           transaction = ElasticAPM.start_transaction
@@ -289,6 +312,31 @@ RSpec.describe ElasticAPM do
       end
 
       context 'span created after transaction is ended' do
+        it 'does not capture the current transaction' do
+          with_agent do
+            current_transaction_in_thread = nil
+            current_span_in_thread = nil
+
+            transaction = ElasticAPM.start_transaction
+            transaction.done
+
+            span = Thread.new do
+              ElasticAPM.with_span(
+                'job 1',
+                parent: transaction,
+                sync: false
+              ) do |span|
+                current_transaction_in_thread = ElasticAPM.current_transaction
+                current_span_in_thread = ElasticAPM.current_span
+                span
+              end
+            end.value
+
+            expect(current_transaction_in_thread).to be(nil)
+            expect(current_span_in_thread).to be(span)
+          end
+        end
+
         it 'allows async spans' do
           with_agent do
             transaction = ElasticAPM.start_transaction
@@ -355,6 +403,53 @@ RSpec.describe ElasticAPM do
     end
 
     context 'span parent' do
+      it 'captures the current transaction and span in threads' do
+        current_transaction_in_thread1 = nil
+        current_span_in_thread1 = nil
+
+        current_transaction_in_thread2 = nil
+        current_span_in_thread2 = nil
+
+        current_transaction_in_thread3 = nil
+        current_span_in_thread3 = nil
+
+        with_agent do
+          transaction = ElasticAPM.start_transaction
+
+          span1 = ElasticAPM.with_span 'run all the jobs' do |span|
+            current_transaction_in_thread1 = ElasticAPM.current_transaction
+            current_span_in_thread1 = ElasticAPM.current_span
+
+            span2 = Thread.new do
+              ElasticAPM.with_span('job 1', parent: span) do |span|
+                current_transaction_in_thread2 = ElasticAPM.current_transaction
+                current_span_in_thread2 = ElasticAPM.current_span
+                span
+              end
+            end.value
+
+            expect(current_transaction_in_thread2).to be(transaction)
+            expect(current_span_in_thread2).to be(span2)
+
+            span3 = Thread.new do
+              ElasticAPM.with_span('job 2', parent: span) do |span|
+                current_transaction_in_thread3 = ElasticAPM.current_transaction
+                current_span_in_thread3 = ElasticAPM.current_span
+                span
+              end
+            end.value
+
+            expect(current_transaction_in_thread3).to be(transaction)
+            expect(current_span_in_thread3).to be(span3)
+            span
+          end
+          transaction.done
+
+          expect(current_transaction_in_thread1).to be(transaction)
+          expect(current_span_in_thread1).to be(span1)
+        end
+      end
+
       it 'allows async spans' do
         with_agent do
           transaction = ElasticAPM.start_transaction

@@ -34,26 +34,11 @@ module ElasticAPM
     # @api private
     class Current
       def initialize
-        self.transaction = nil
-        self.spans = []
+        @transaction = nil
+        @spans = []
       end
 
-      def transaction
-        Thread.current[TRANSACTION_KEY]
-      end
-
-      def transaction=(transaction)
-        Thread.current[TRANSACTION_KEY] = transaction
-      end
-
-      def spans
-        Thread.current[SPAN_KEY] ||= []
-      end
-
-      def spans=(spans)
-        Thread.current[SPAN_KEY] ||= []
-        Thread.current[SPAN_KEY] = spans
-      end
+      attr_accessor :transaction, :spans
     end
 
     def initialize(config, metrics:, stacktrace_builder:, &enqueue)
@@ -61,8 +46,6 @@ module ElasticAPM
       @stacktrace_builder = stacktrace_builder
       @enqueue = enqueue
       @metrics = metrics
-
-      @current = Current.new
     end
 
     attr_reader :stacktrace_builder, :enqueue
@@ -97,11 +80,11 @@ module ElasticAPM
     # transactions
 
     def current_transaction
-      @current.transaction
+      current.transaction
     end
 
     def current_transaction=(transaction)
-      @current.transaction = transaction
+      current.transaction = transaction
     end
 
     def start_transaction(
@@ -160,7 +143,7 @@ module ElasticAPM
     # spans
 
     def current_spans
-      @current.spans
+      current.spans
     end
 
     def current_span
@@ -215,6 +198,9 @@ module ElasticAPM
       end
 
       current_spans.push span
+      unless span.transaction.stopped?
+        self.current_transaction = span.transaction
+      end
 
       span.start
     end
@@ -260,6 +246,10 @@ module ElasticAPM
     end
 
     private
+
+    def current
+      Thread.current[:__elastic_instrumenter_current_key] ||= Current.new
+    end
 
     def random_sample?(config)
       rand <= config.transaction_sample_rate

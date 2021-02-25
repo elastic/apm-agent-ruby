@@ -35,7 +35,9 @@ module ElasticAPM
         add_stacktrace error, :exception, exception.backtrace
       end
 
-      add_current_transaction_fields error, ElasticAPM.current_transaction
+      transaction = ElasticAPM.current_transaction ||
+        ElasticAPM.current_span&.transaction
+      add_current_transaction_fields error, transaction
 
       error
     end
