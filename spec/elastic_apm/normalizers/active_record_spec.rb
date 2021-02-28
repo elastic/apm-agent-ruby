@@ -26,10 +26,31 @@ module ElasticAPM
   module Normalizers
     module ActiveRecord
       RSpec.describe SqlNormalizer do
+        before do
+          unless defined? ::ActiveRecord::Base
+            class ::ActiveRecord
+              class Base; end
+            end
+          end
+        end
+
         it 'registers for name' do
           normalizers = Normalizers.build nil
           subject = normalizers.for('sql.active_record')
           expect(subject).to be_a SqlNormalizer
+        end
+
+        describe '#initialize' do
+          it 'knows the AR adapter' do
+            allow(::ActiveRecord::Base).to receive(:connection_config) { { adapter: 'MySQL' } }
+
+            subject = SqlNormalizer.new nil
+
+            _, _, subtype, =
+              subject.normalize(nil, nil, sql: 'DROP * FROM users')
+
+            expect(subtype).to eq 'mysql'
+          end
         end
 
         describe '#normalize' do
@@ -90,6 +111,8 @@ module ElasticAPM
           end
 
           it 'handles a connection_id which loads an object that is not a connection' do
+            allow(::ActiveRecord::Base)
+              .to receive(:connection_config) { { adapter: nil } }
             sql = 'SELECT  "burgers".* FROM "burgers" ' \
             'WHERE "burgers"."cheese" = $1 LIMIT 1'
 
@@ -98,15 +121,21 @@ module ElasticAPM
               connection_id: double("not a connection").object_id # this doesn't respond to #adapter_name
             )
 
+            expect(::ActiveRecord::Base)
+              .to have_received(:connection_config)
             expect(subtype).to eq "unknown"
           end
 
           it 'handles a missing connection and connection_id value' do
+            allow(::ActiveRecord::Base)
+              .to receive(:connection_config) { { adapter: nil } }
             sql = 'SELECT  "burgers".* FROM "burgers" ' \
             'WHERE "burgers"."cheese" = $1 LIMIT 1'
 
             _name, _type, subtype, = normalize_payload(sql: sql)
 
+            expect(::ActiveRecord::Base)
+              .to have_received(:connection_config)
             expect(subtype).to eq "unknown"
           end
 
