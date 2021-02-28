@@ -33,6 +33,8 @@ module ElasticAPM
             end
           end
         end
+        
+        mri_skip_check = RUBY_ENGINE == "ruby" ? nil : "only relevant on MRI"
 
         it 'registers for name' do
           normalizers = Normalizers.build nil
@@ -87,7 +89,7 @@ module ElasticAPM
             expect(subtype).to eq 'mysql'
           end
 
-          it 'resolves the connection_id object id to a connection if the full connection is missing' do
+          it 'resolves the connection_id object id to a connection if the full connection is missing', skip: mri_skip_check do
             sql = 'SELECT  "burgers".* FROM "burgers" ' \
               'WHERE "burgers"."cheese" = $1 LIMIT 1'
 
@@ -110,7 +112,7 @@ module ElasticAPM
             expect(subtype).to eq 'mysql'
           end
 
-          it 'handles a connection_id which loads an object that is not a connection' do
+          it 'handles a connection_id which loads an object that is not a connection', skip: mri_skip_check do
             allow(::ActiveRecord::Base)
               .to receive(:connection_config) { { adapter: nil } }
             sql = 'SELECT  "burgers".* FROM "burgers" ' \
@@ -118,7 +120,7 @@ module ElasticAPM
 
             _name, _type, subtype, = normalize_payload(
               sql: sql,
-              connection_id: double("not a connection").object_id # this doesn't respond to #adapter_name
+              connection_id: double("this string does not respond to #adapter_name").object_id
             )
 
             expect(::ActiveRecord::Base)
