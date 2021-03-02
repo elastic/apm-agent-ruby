@@ -187,6 +187,36 @@ module ElasticAPM
             end
           end
 
+          context 'with a message' do
+            it 'adds message object' do
+              span = Span.new(
+                name: 'Span',
+                transaction: transaction,
+                parent: transaction,
+                trace_context: trace_context,
+                context: Span::Context.new(
+                  message: {
+                    queue_name: 'my_queue',
+                    age_ms: 1000
+                  }
+                )
+              )
+
+              result = subject.build(span)
+
+              expect(result.dig(:span, :context, :message)).to match(
+                {
+                  queue: {
+                    name: 'my_queue'
+                  },
+                  age: {
+                    ms: 1000
+                  }
+                 }
+               )
+            end
+          end
+
           context 'with a large db.statement' do
             it 'truncates to 10k chars' do
               span = Span.new(
