@@ -65,6 +65,10 @@ module ElasticAPM
               base[:destination] = build_destination(context.destination)
             end
 
+            if context.message
+              base[:message] = build_message(context.message)
+            end
+
             base
           end
 
@@ -97,6 +101,17 @@ module ElasticAPM
               },
               address: keyword_field(destination.address),
               port: destination.port
+            }
+          end
+
+          def build_message(message)
+            {
+              queue: {
+                name: keyword_field(message.queue_name)
+              },
+              age: {
+                ms: message.age_ms.to_i
+              }
             }
           end
         end
