@@ -51,6 +51,23 @@ module ElasticAPM
       expect(span.context.destination.type).to eq('db')
     end
 
+    it "caches the formatted operation name", :intercept do
+      with_agent do
+        expect(
+          ElasticAPM::Spies::DynamoDBSpy::MUTEX
+        ).to receive(:synchronize).once.and_call_original
+
+        ElasticAPM.with_transaction do
+          dynamo_db_client.update_item(table_name: 'test', key: {})
+          dynamo_db_client.update_item(table_name: 'test', key: {})
+        end
+      end
+
+      span1, span2 = @intercepted.spans
+      expect(span1.name).to eq('DynamoDB UpdateItem test')
+      expect(span2.name).to eq('DynamoDB UpdateItem test')
+    end
+
     it "omits the table name when there is none", :intercept do
       with_agent do
         ElasticAPM.with_transaction do
