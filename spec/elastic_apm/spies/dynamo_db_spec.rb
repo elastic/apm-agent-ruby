@@ -29,16 +29,16 @@ module ElasticAPM
     it "spans operations", :intercept do
       with_agent do
         ElasticAPM.with_transaction do
-          dynamo_db_client.update_item(table_name: 'test', key: {})
+          dynamo_db_client.delete_item(table_name: 'test', key: {})
         end
       end
 
       span = @intercepted.spans.first
 
-      expect(span.name).to eq('DynamoDB UpdateItem test')
+      expect(span.name).to eq('DynamoDB DeleteItem test')
       expect(span.type).to eq('db')
       expect(span.subtype).to eq('dynamodb')
-      expect(span.action).to eq(:update_item)
+      expect(span.action).to eq(:delete_item)
       expect(span.outcome).to eq('success')
 
       # span context db
@@ -50,6 +50,23 @@ module ElasticAPM
       #expect(span.context.destination.cloud.region).to eq('us-west-1')
       expect(span.context.destination.resource).to eq('dynamodb')
       expect(span.context.destination.type).to eq('db')
+    end
+
+    it "caches the formatted operation name", :intercept do
+      with_agent do
+        expect(
+          ElasticAPM::Spies::DynamoDBSpy::MUTEX
+        ).to receive(:synchronize).once.and_call_original
+
+        ElasticAPM.with_transaction do
+          dynamo_db_client.update_item(table_name: 'test', key: {})
+          dynamo_db_client.update_item(table_name: 'test', key: {})
+        end
+      end
+
+      span1, span2 = @intercepted.spans
+      expect(span1.name).to eq('DynamoDB UpdateItem test')
+      expect(span2.name).to eq('DynamoDB UpdateItem test')
     end
 
     it "omits the table name when there is none", :intercept do
