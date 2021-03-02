@@ -54,6 +54,11 @@ endif::[]
   ActiveRecord versions before 6.0 {pull}953[#953]
 
 [float]
+===== Added
+
+- Support for S3 {pull}977[#977]
+
+[float]
 ===== Fixed
 
 - Fixed setting outcome in Mongo spy when not traced {pull}937[#937]
