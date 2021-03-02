@@ -66,7 +66,7 @@ module ElasticAPM
           end
 
           @@formatted_op_names[operation_name] =
-              operation_name.to_s.split('_').collect(&:capitalize).join
+            operation_name.to_s.split('_').collect(&:capitalize).join
         end
 
         @@formatted_op_names[operation_name]
@@ -111,9 +111,9 @@ module ElasticAPM
     end
 
     register(
-        'Aws::S3::Client',
-        'aws-sdk-s3',
-        S3Spy.new
+      'Aws::S3::Client',
+      'aws-sdk-s3',
+      S3Spy.new
     )
   end
 end
