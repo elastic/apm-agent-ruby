@@ -24,11 +24,11 @@ module ElasticAPM
     class S3Spy
       TYPE = 'storage'
       SUBTYPE = 's3'
-
-      @@formatted_op_names = {}
-      MUTEX = Mutex.new
       AP_REGION_REGEX = /^(?:[^:]+:){3}([^:]+).*/
       AP_REGEX = /:accesspoint\/.*/
+      MUTEX = Mutex.new
+
+      @@formatted_op_names = {}
 
       def self.without_net_http
         return yield unless defined?(NetHTTPSpy)
