@@ -27,6 +27,8 @@ module ElasticAPM
 
       @@formatted_op_names = {}
       MUTEX = Mutex.new
+      AP_REGION_REGEX = /^(?:[^:]+:){3}([^:]+).*/
+      AP_REGEX = /:accesspoint\/.*/
 
       def self.without_net_http
         return yield unless defined?(NetHTTPSpy)
@@ -40,11 +42,17 @@ module ElasticAPM
 
       def self.bucket_name(params)
         if params[:bucket]
-          if index = params[:bucket].rindex(/:accesspoint*/)
+          if index = params[:bucket].rindex(AP_REGEX)
             params[:bucket][index + 1..-1]
           else
             params[:bucket]
           end
+        end
+      end
+
+      def self.accesspoint_region(params)
+        if params[:bucket] && params[:bucket].match?(AP_REGEX)
+          AP_REGION_REGEX.match(params[:bucket])[1]
         end
       end
 
@@ -85,7 +93,7 @@ module ElasticAPM
               context = ElasticAPM::Span::Context.new(
                 destination: {
                   # TODO: set the region to the appropriate field when the spec is complete
-                  #region: config.region,
+                  #region: ElasticAPM::Spies::S3Spy.accesspoint_region(params) || config.region,
                   resource: bucket_name,
                   type: TYPE,
                   name: SUBTYPE
