@@ -151,6 +151,7 @@ module ElasticAPM
         rake
         redis
         resque
+        s3
         sequel
         shoryuken
         sidekiq
