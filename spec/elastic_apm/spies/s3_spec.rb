@@ -79,6 +79,32 @@ module ElasticAPM
         with_agent do
           ElasticAPM.with_transaction do
             s3_client.get_object(
+              bucket: 'arn:aws:s3:us-west-1:123456789012:accesspoint/myendpoint',
+              key: 'test'
+            )
+          end
+        end
+
+        span = @intercepted.spans.first
+
+        expect(span.name).to eq('S3 GetObject accesspoint/myendpoint')
+        expect(span.type).to eq('storage')
+        expect(span.subtype).to eq('s3')
+        expect(span.action).to eq('GetObject')
+        expect(span.outcome).to eq('success')
+
+        # span context destination
+        # TODO: test the region in the appropriate field when the spec is complete
+        #expect(span.context.destination.region).to eq('us-west-1)
+        expect(span.context.destination.resource).to eq('accesspoint/myendpoint')
+        expect(span.context.destination.type).to eq('storage')
+        expect(span.context.destination.name).to eq('s3')
+      end
+
+      it 'extracts the region from the access point', :intercept do
+        with_agent do
+          ElasticAPM.with_transaction do
+            s3_client.get_object(
               bucket: 'arn:aws:s3:us-east-2:123456789012:accesspoint/myendpoint',
               key: 'test'
             )
