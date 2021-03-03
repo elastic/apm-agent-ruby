@@ -156,6 +156,7 @@ module ElasticAPM
         sidekiq
         sinatra
         sneakers
+        sqs
         sucker_punch
         tilt
       ]
