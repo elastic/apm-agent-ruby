@@ -57,10 +57,17 @@ module ElasticAPM
         private
 
         def subtype_for(payload)
-          cached_adapter_name(
-            payload[:connection]&.adapter_name ||
-              ::ActiveRecord::Base.connection_config[:adapter]
-          )
+          return cached_adapter_name(payload[:connection].adapter_name) if payload[:connection]
+
+          if can_attempt_connection_id_lookup?(payload)
+            begin
+              loaded_object = ObjectSpace._id2ref(payload[:connection_id])
+              return cached_adapter_name(loaded_object.adapter_name) if loaded_object.respond_to?(:adapter_name)
+            rescue RangeError # if connection object has somehow been garbage collected
+            end
+          end
+
+          cached_adapter_name(::ActiveRecord::Base.connection_config[:adapter])
         end
 
         def summarize(sql)
@@ -69,10 +76,15 @@ module ElasticAPM
 
         def cached_adapter_name(adapter_name)
           return UNKNOWN if adapter_name.nil? || adapter_name.empty?
+
           @adapters[adapter_name] ||
             (@adapters[adapter_name] = adapter_name.downcase)
         rescue StandardError
           nil
+        end
+
+        def can_attempt_connection_id_lookup?(payload)
+          RUBY_ENGINE == "ruby" && payload[:connection_id] && ObjectSpace.respond_to?(:_id2ref)
         end
       end
     end

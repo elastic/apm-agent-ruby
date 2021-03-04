@@ -39,6 +39,9 @@ endif::[]
 [[unreleased]]
 ==== Unreleased
 
+===== Added
+- Expanded support for extracting ActiveRecord adapter name from notification payload when using ActiveRecord versions before 6.0 {pull}953[#953]
+
 [float]
 ===== Fixed
 

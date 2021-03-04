@@ -26,6 +26,16 @@ module ElasticAPM
   module Normalizers
     module ActiveRecord
       RSpec.describe SqlNormalizer do
+        before do
+          unless defined? ::ActiveRecord::Base
+            class ::ActiveRecord
+              class Base; end
+            end
+          end
+        end
+        
+        mri_skip_check = RUBY_ENGINE == "ruby" ? nil : "only relevant on MRI"
+
         it 'registers for name' do
           normalizers = Normalizers.build nil
           subject = normalizers.for('sql.active_record')
@@ -33,15 +43,8 @@ module ElasticAPM
         end
 
         describe '#initialize' do
-          unless defined? ::ActiveRecord::Base
-            class ::ActiveRecord
-              class Base; end
-            end
-          end
-
           it 'knows the AR adapter' do
-            allow(::ActiveRecord::Base)
-              .to receive(:connection_config) { { adapter: 'MySQL' } }
+            allow(::ActiveRecord::Base).to receive(:connection_config) { { adapter: 'MySQL' } }
 
             subject = SqlNormalizer.new nil
 
@@ -61,12 +64,13 @@ module ElasticAPM
           end
 
           it 'normalizes queries' do
-            allow(::ActiveRecord::Base)
-              .to receive(:connection_config) { { adapter: nil } }
             sql = 'SELECT  "hotdogs".* FROM "hotdogs" ' \
               'WHERE "hotdogs"."topping" = $1 LIMIT 1'
 
-            name, type, subtype, action, context_ = normalize_payload(sql: sql)
+            name, type, subtype, action, context_ = normalize_payload(
+              sql: sql,
+              connection: double(adapter_name: '')
+            )
             expect(name).to eq 'SELECT FROM hotdogs'
             expect(type).to eq 'db'
             expect(subtype).to eq 'unknown'
@@ -83,35 +87,58 @@ module ElasticAPM
               connection: double(adapter_name: 'MySQL')
             )
             expect(subtype).to eq 'mysql'
-
-            _name, _type, subtype, = normalize_payload(
-              sql: sql,
-              connection: double(adapter_name: 'Postgres')
-            )
-            expect(subtype).to eq 'postgres'
           end
 
-          it 'uses ActiveRecord::Base when payload is not available' do
+          it 'resolves the connection_id object id to a connection if the full connection is missing', skip: mri_skip_check do
             sql = 'SELECT  "burgers".* FROM "burgers" ' \
               'WHERE "burgers"."cheese" = $1 LIMIT 1'
 
-            allow(::ActiveRecord::Base)
-              .to receive(:connection_config) { { adapter: 'Postgres' } }
-            _name, _type, subtype, = normalize_payload(sql: sql)
+            _name, _type, subtype, = normalize_payload(
+              sql: sql,
+              connection_id: double(adapter_name: 'MySQL').object_id
+            )
+            expect(subtype).to eq 'mysql'
+          end
 
-            expect(subtype).to eq 'postgres'
+          it 'uses the connection from payload even if the connection_id is available' do
+            sql = 'SELECT  "burgers".* FROM "burgers" ' \
+              'WHERE "burgers"."cheese" = $1 LIMIT 1'
 
-            allow(::ActiveRecord::Base)
-              .to receive(:connection_config) { { adapter: '' } }
-            _name, _type, subtype, = normalize_payload(sql: sql)
+            _name, _type, subtype, = normalize_payload(
+              sql: sql,
+              connection: double(adapter_name: 'MySQL'),
+              connection_id: double(adapter_name: 'wrong_db').object_id
+            )
+            expect(subtype).to eq 'mysql'
+          end
 
-            expect(subtype).to eq 'unknown'
-
+          it 'handles a connection_id which loads an object that is not a connection', skip: mri_skip_check do
             allow(::ActiveRecord::Base)
               .to receive(:connection_config) { { adapter: nil } }
+            sql = 'SELECT  "burgers".* FROM "burgers" ' \
+            'WHERE "burgers"."cheese" = $1 LIMIT 1'
+
+            _name, _type, subtype, = normalize_payload(
+              sql: sql,
+              connection_id: double("this string does not respond to #adapter_name").object_id
+            )
+
+            expect(::ActiveRecord::Base)
+              .to have_received(:connection_config)
+            expect(subtype).to eq "unknown"
+          end
+
+          it 'handles a missing connection and connection_id value' do
+            allow(::ActiveRecord::Base)
+              .to receive(:connection_config) { { adapter: nil } }
+            sql = 'SELECT  "burgers".* FROM "burgers" ' \
+            'WHERE "burgers"."cheese" = $1 LIMIT 1'
+
             _name, _type, subtype, = normalize_payload(sql: sql)
 
-            expect(subtype).to eq 'unknown'
+            expect(::ActiveRecord::Base)
+              .to have_received(:connection_config)
+            expect(subtype).to eq "unknown"
           end
 
           it 'skips cache queries' do
