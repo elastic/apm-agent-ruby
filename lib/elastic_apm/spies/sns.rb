@@ -87,7 +87,7 @@ module ElasticAPM
             end
 
             topic = ElasticAPM::Spies::SNSSpy.get_topic(params)
-            span_name = ['SNS', 'PUBLISH to', topic].compact.join(' ')
+            span_name = topic ? "SNS PUBLISH to #{topic}" : 'SNS PUBLISH'
             region = ElasticAPM::Spies::SNSSpy.arn_region(
               params[:topic_arn] || params[:target_arn]
             )

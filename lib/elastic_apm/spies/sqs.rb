@@ -70,7 +70,7 @@ module ElasticAPM
             end
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
-            span_name = ['SQS', 'SEND to', queue_name].compact.join(' ')
+            span_name = queue_name ? "SQS SEND to #{queue_name}" : 'SQS SEND'
             region = ElasticAPM::Spies::SQSSpy.region_from_url(params[:queue_url])
             context = ElasticAPM::Spies::SQSSpy.span_context(
               queue_name,
@@ -106,7 +106,8 @@ module ElasticAPM
             end
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
-            span_name = ['SQS', 'SEND_BATCH to', queue_name].compact.join(' ')
+            span_name =
+              queue_name ? "SQS SEND_BATCH to #{queue_name}" : 'SQS SEND_BATCH'
             region = ElasticAPM::Spies::SQSSpy.region_from_url(params[:queue_url])
             context = ElasticAPM::Spies::SQSSpy.span_context(
               queue_name,
@@ -144,7 +145,8 @@ module ElasticAPM
             end
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
-            span_name = ['SQS', 'RECEIVE from', queue_name].compact.join(' ')
+            span_name =
+              queue_name ? "SQS RECEIVE from #{queue_name}" : 'SQS RECEIVE'
             region = ElasticAPM::Spies::SQSSpy.region_from_url(params[:queue_url])
             context = ElasticAPM::Spies::SQSSpy.span_context(
               queue_name,
@@ -172,7 +174,7 @@ module ElasticAPM
             end
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
-            span_name = ['SQS', 'DELETE from', queue_name].compact.join(' ')
+            span_name = queue_name ? "SQS DELETE from #{queue_name}" : 'SQS DELETE'
             region = ElasticAPM::Spies::SQSSpy.region_from_url(params[:queue_url])
             context = ElasticAPM::Spies::SQSSpy.span_context(
               queue_name,
@@ -200,7 +202,8 @@ module ElasticAPM
             end
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
-            span_name = ['SQS', 'DELETE_BATCH from', queue_name].compact.join(' ')
+            span_name =
+              queue_name ? "SQS DELETE_BATCH from #{queue_name}" : 'SQS DELETE_BATCH'
             region = ElasticAPM::Spies::SQSSpy.region_from_url(params[:queue_url])
             context = ElasticAPM::Spies::SQSSpy.span_context(
               queue_name,
