@@ -41,6 +41,7 @@ endif::[]
 
 ===== Added
 - Expanded support for extracting ActiveRecord adapter name from notification payload when using ActiveRecord versions before 6.0 {pull}953[#953]
+- Support for AWS SQS {pull}978[#978]
 
 [float]
 ===== Fixed
