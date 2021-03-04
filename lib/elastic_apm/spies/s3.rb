@@ -25,7 +25,7 @@ module ElasticAPM
       TYPE = 'storage'
       SUBTYPE = 's3'
       AP_REGION_REGEX = /^(?:[^:]+:){3}([^:]+).*/
-      AP_REGEX = /:accesspoint\/.*/
+      AP_REGEX = /:accesspoint.*/
       MUTEX = Mutex.new
 
       @@formatted_op_names = {}
@@ -51,7 +51,7 @@ module ElasticAPM
       end
 
       def self.accesspoint_region(params)
-        if params[:bucket] && params[:bucket].match?(AP_REGEX)
+        if params[:bucket] && params[:bucket].match?(AP_REGION_REGEX)
           AP_REGION_REGEX.match(params[:bucket])[1]
         end
       end
