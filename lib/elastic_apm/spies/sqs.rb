@@ -67,16 +67,17 @@ module ElasticAPM
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
             span_name = ['SQS', 'SEND to', queue_name].compact.join(' ')
+            context = ElasticAPM::Spies::SQSSpy.span_context(
+              queue_name,
+              config.region
+            )
 
             ElasticAPM.with_span(
               span_name,
               TYPE,
               subtype: SUBTYPE,
               action: 'send',
-              context: ElasticAPM::Spies::SQSSpy.span_context(
-                queue_name,
-                config.region
-              )
+              context: context
             ) do |span|
               trace_context = span&.trace_context || transaction.trace_context
               trace_context.apply_headers do |key, value|
@@ -101,16 +102,17 @@ module ElasticAPM
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
             span_name = ['SQS', 'SEND_BATCH to', queue_name].compact.join(' ')
+            context = ElasticAPM::Spies::SQSSpy.span_context(
+              queue_name,
+              config.region
+            )
 
             ElasticAPM.with_span(
               span_name,
               TYPE,
               subtype: SUBTYPE,
               action: 'send_batch',
-              context: ElasticAPM::Spies::SQSSpy.span_context(
-                queue_name,
-                config.region
-              )
+              context: context
             ) do |span|
               trace_context = span&.trace_context || transaction.trace_context
               trace_context.apply_headers do |key, value|
@@ -137,16 +139,17 @@ module ElasticAPM
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
             span_name = ['SQS', 'RECEIVE from', queue_name].compact.join(' ')
+            context = ElasticAPM::Spies::SQSSpy.span_context(
+              queue_name,
+              config.region
+            )
 
             ElasticAPM.with_span(
               span_name,
               TYPE,
               subtype: SUBTYPE,
               action: 'receive',
-              context: ElasticAPM::Spies::SQSSpy.span_context(
-                queue_name,
-                config.region
-              )
+              context: context
             ) do
               ElasticAPM::Spies::SQSSpy.without_net_http do
                 receive_message_without_apm(params, options)
@@ -163,16 +166,17 @@ module ElasticAPM
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
             span_name = ['SQS', 'DELETE from', queue_name].compact.join(' ')
+            context = ElasticAPM::Spies::SQSSpy.span_context(
+              queue_name,
+              config.region
+            )
 
             ElasticAPM.with_span(
               span_name,
               TYPE,
               subtype: SUBTYPE,
               action: 'delete',
-              context: ElasticAPM::Spies::SQSSpy.span_context(
-                queue_name,
-                config.region
-              )
+              context: context
             ) do
               ElasticAPM::Spies::SQSSpy.without_net_http do
                 delete_message_without_apm(params, options)
@@ -189,16 +193,17 @@ module ElasticAPM
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
             span_name = ['SQS', 'DELETE_BATCH from', queue_name].compact.join(' ')
+            context = ElasticAPM::Spies::SQSSpy.span_context(
+              queue_name,
+              config.region
+            )
 
             ElasticAPM.with_span(
               span_name,
               TYPE,
               subtype: SUBTYPE,
               action: 'delete_batch',
-              context: ElasticAPM::Spies::SQSSpy.span_context(
-                queue_name,
-                config.region
-              )
+              context: context
             ) do
               ElasticAPM::Spies::SQSSpy.without_net_http do
                 delete_message_batch_without_apm(params, options)
