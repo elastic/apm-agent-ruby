@@ -41,6 +41,10 @@ module ElasticAPM
         end
       end
 
+      def self.region_from_url(url)
+        # TODO: extract region from queue_url
+      end
+
       def self.span_context(queue_name, region)
         ElasticAPM::Span::Context.new(
           message: {
@@ -67,9 +71,10 @@ module ElasticAPM
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
             span_name = ['SQS', 'SEND to', queue_name].compact.join(' ')
+            region = ElasticAPM::Spies::SQSSpy.region_from_url(params[:queue_url])
             context = ElasticAPM::Spies::SQSSpy.span_context(
               queue_name,
-              config.region
+              region || config.region
             )
 
             ElasticAPM.with_span(
@@ -102,9 +107,10 @@ module ElasticAPM
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
             span_name = ['SQS', 'SEND_BATCH to', queue_name].compact.join(' ')
+            region = ElasticAPM::Spies::SQSSpy.region_from_url(params[:queue_url])
             context = ElasticAPM::Spies::SQSSpy.span_context(
               queue_name,
-              config.region
+              region || config.region
             )
 
             ElasticAPM.with_span(
@@ -139,9 +145,10 @@ module ElasticAPM
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
             span_name = ['SQS', 'RECEIVE from', queue_name].compact.join(' ')
+            region = ElasticAPM::Spies::SQSSpy.region_from_url(params[:queue_url])
             context = ElasticAPM::Spies::SQSSpy.span_context(
               queue_name,
-              config.region
+              region || config.region
             )
 
             ElasticAPM.with_span(
@@ -166,9 +173,10 @@ module ElasticAPM
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
             span_name = ['SQS', 'DELETE from', queue_name].compact.join(' ')
+            region = ElasticAPM::Spies::SQSSpy.region_from_url(params[:queue_url])
             context = ElasticAPM::Spies::SQSSpy.span_context(
               queue_name,
-              config.region
+              region || config.region
             )
 
             ElasticAPM.with_span(
@@ -193,9 +201,10 @@ module ElasticAPM
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
             span_name = ['SQS', 'DELETE_BATCH from', queue_name].compact.join(' ')
+            region = ElasticAPM::Spies::SQSSpy.region_from_url(params[:queue_url])
             context = ElasticAPM::Spies::SQSSpy.span_context(
               queue_name,
-              config.region
+              region || config.region
             )
 
             ElasticAPM.with_span(

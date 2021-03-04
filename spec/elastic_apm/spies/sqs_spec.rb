@@ -23,7 +23,7 @@ require 'aws-sdk-sqs'
 module ElasticAPM
   RSpec.describe 'Spy: SQS' do
     let(:client) do
-      ::Aws::SQS::Client.new(stub_responses: true)
+      ::Aws::SQS::Client.new(region: 'us-west-2', stub_responses: true)
     end
 
     context 'SQS send_message' do
@@ -31,7 +31,7 @@ module ElasticAPM
         with_agent do
           ElasticAPM.with_transaction do
             client.send_message(
-              queue_url: 'https://sqs.us-west-2.amazonaws.com/1234567890/my-queue',
+              queue_url: 'https://sqs.us-east-1.amazonaws.com/1234567890/my-queue',
               message_body: 'some message'
             )
           end
@@ -44,6 +44,14 @@ module ElasticAPM
         expect(span.subtype).to eq('sqs')
         expect(span.action).to eq('send')
         expect(span.outcome).to eq('success')
+
+        # Span context
+        # TODO: test the region in the appropriate field when the spec is complete
+        #expect(span.context.destination.region).to eq('us-east-1')
+        expect(span.context.destination.resource).to eq('sqs/my-queue')
+        expect(span.context.destination.type).to eq('messaging')
+        expect(span.context.destination.name).to eq('sqs')
+        expect(span.context.message.queue_name).to eq('my-queue')
       end
 
       it 'adds trace context to the message attributes', :intercept do
@@ -51,7 +59,7 @@ module ElasticAPM
         with_agent do
           ElasticAPM.with_transaction do
             client.send_message(
-                queue_url: 'https://sqs.us-west-2.amazonaws.com/1234567890/my-queue',
+                queue_url: 'https://sqs.us-east-1.amazonaws.com/1234567890/my-queue',
                 message_body: 'some message'
             )
           end
@@ -94,7 +102,7 @@ module ElasticAPM
         with_agent do
           ElasticAPM.with_transaction do
             client.send_message_batch(
-              queue_url: 'https://sqs.us-west-2.amazonaws.com/1234567890/my-queue',
+              queue_url: 'https://sqs.us-east-1.amazonaws.com/1234567890/my-queue',
               entries: [
                 {
                   id: 'some_id',
@@ -112,6 +120,14 @@ module ElasticAPM
         expect(span.subtype).to eq('sqs')
         expect(span.action).to eq('send_batch')
         expect(span.outcome).to eq('success')
+
+        # Span context
+        # TODO: test the region in the appropriate field when the spec is complete
+        #expect(span.context.destination.region).to eq('us-east-1')
+        expect(span.context.destination.resource).to eq('sqs/my-queue')
+        expect(span.context.destination.type).to eq('messaging')
+        expect(span.context.destination.name).to eq('sqs')
+        expect(span.context.message.queue_name).to eq('my-queue')
       end
 
       it 'adds trace context to the message attributes', :intercept do
@@ -119,7 +135,7 @@ module ElasticAPM
         with_agent do
           ElasticAPM.with_transaction do
             client.send_message_batch(
-              queue_url: 'https://sqs.us-west-2.amazonaws.com/1234567890/my-queue',
+              queue_url: 'https://sqs.us-east-1.amazonaws.com/1234567890/my-queue',
               entries: [
                 {
                   id: 'some_id',
@@ -178,7 +194,7 @@ module ElasticAPM
         with_agent do
           ElasticAPM.with_transaction do
             client.receive_message(
-              queue_url: 'https://sqs.us-west-2.amazonaws.com/1234567890/my-queue',
+              queue_url: 'https://sqs.us-east-1.amazonaws.com/1234567890/my-queue',
             )
           end
         end
@@ -190,6 +206,14 @@ module ElasticAPM
         expect(span.subtype).to eq('sqs')
         expect(span.action).to eq('receive')
         expect(span.outcome).to eq('success')
+
+        # Span context
+        # TODO: test the region in the appropriate field when the spec is complete
+        #expect(span.context.destination.region).to eq('us-east-1')
+        expect(span.context.destination.resource).to eq('sqs/my-queue')
+        expect(span.context.destination.type).to eq('messaging')
+        expect(span.context.destination.name).to eq('sqs')
+        expect(span.context.message.queue_name).to eq('my-queue')
       end
 
       context 'when the operation fails' do
@@ -215,7 +239,7 @@ module ElasticAPM
         with_agent do
           ElasticAPM.with_transaction do
             client.delete_message(
-              queue_url: 'https://sqs.us-west-2.amazonaws.com/1234567890/my-queue',
+              queue_url: 'https://sqs.us-east-1.amazonaws.com/1234567890/my-queue',
               receipt_handle: 'aaaa'
             )
           end
@@ -228,6 +252,14 @@ module ElasticAPM
         expect(span.subtype).to eq('sqs')
         expect(span.action).to eq('delete')
         expect(span.outcome).to eq('success')
+
+        # Span context
+        # TODO: test the region in the appropriate field when the spec is complete
+        #expect(span.context.destination.region).to eq('us-east-1')
+        expect(span.context.destination.resource).to eq('sqs/my-queue')
+        expect(span.context.destination.type).to eq('messaging')
+        expect(span.context.destination.name).to eq('sqs')
+        expect(span.context.message.queue_name).to eq('my-queue')
       end
 
       context 'when the operation fails' do
@@ -254,7 +286,7 @@ module ElasticAPM
         with_agent do
           ElasticAPM.with_transaction do
             client.delete_message_batch(
-              queue_url: 'https://sqs.us-west-2.amazonaws.com/1234567890/my-queue',
+              queue_url: 'https://sqs.us-east-1.amazonaws.com/1234567890/my-queue',
               entries: [
                 {
                   id: 'some_id',
@@ -272,6 +304,14 @@ module ElasticAPM
         expect(span.subtype).to eq('sqs')
         expect(span.action).to eq('delete_batch')
         expect(span.outcome).to eq('success')
+
+        # Span context
+        # TODO: test the region in the appropriate field when the spec is complete
+        #expect(span.context.destination.region).to eq('us-east-1')
+        expect(span.context.destination.resource).to eq('sqs/my-queue')
+        expect(span.context.destination.type).to eq('messaging')
+        expect(span.context.destination.name).to eq('sqs')
+        expect(span.context.message.queue_name).to eq('my-queue')
       end
 
       context 'when the operation fails' do
