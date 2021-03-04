@@ -57,10 +57,8 @@ module ElasticAPM
       end
 
       def self.span_name(operation_name, bucket_name)
-        ['S3',
-         formatted_op_name(operation_name),
-         bucket_name
-        ].compact.join(' ')
+        bucket_name ? "S3 #{formatted_op_name(operation_name)} #{bucket_name}" :
+          "S3 #{formatted_op_name(operation_name)}"
       end
 
       def self.formatted_op_name(operation_name)
