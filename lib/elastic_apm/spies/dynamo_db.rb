@@ -39,10 +39,9 @@ module ElasticAPM
       end
 
       def self.span_name(operation_name, params)
-        ['DynamoDB',
-         formatted_op_name(operation_name),
-         params[:table_name]
-        ].compact.join(' ')
+        params[:table_name] ?
+          "DynamoDB #{formatted_op_name(operation_name)} #{params[:table_name]}" :
+          "DynamoDB #{formatted_op_name(operation_name)}"
       end
 
       def self.formatted_op_name(operation_name)
