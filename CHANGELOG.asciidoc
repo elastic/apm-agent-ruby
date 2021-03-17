@@ -35,9 +35,8 @@ endif::[]
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
-[float]
-[[unreleased]]
-==== Unreleased
+[[release-notes-3.14.0]]
+==== 3.14.0 (2021-03-17)
 
 [float]
 ===== Added
