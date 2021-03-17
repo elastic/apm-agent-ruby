@@ -33,8 +33,6 @@ module ElasticAPM
             end
           end
         end
-        
-        mri_skip_check = RUBY_ENGINE == "ruby" ? nil : "only relevant on MRI"
 
         it 'registers for name' do
           normalizers = Normalizers.build nil
@@ -44,7 +42,9 @@ module ElasticAPM
 
         describe '#initialize' do
           it 'knows the AR adapter' do
-            allow(::ActiveRecord::Base).to receive(:connection_config) { { adapter: 'MySQL' } }
+            allow(::ActiveRecord::Base).to receive(:connection_config) do
+              { adapter: 'MySQL' }
+            end
 
             subject = SqlNormalizer.new nil
 
@@ -89,7 +89,8 @@ module ElasticAPM
             expect(subtype).to eq 'mysql'
           end
 
-          it 'resolves the connection_id object id to a connection if the full connection is missing', skip: mri_skip_check do
+          it 'resolves the connection_id object id to a connection if the full ' \
+               'connection is missing', unless: RSpec::Support::Ruby.jruby? do
             sql = 'SELECT  "burgers".* FROM "burgers" ' \
               'WHERE "burgers"."cheese" = $1 LIMIT 1'
 
@@ -100,7 +101,8 @@ module ElasticAPM
             expect(subtype).to eq 'mysql'
           end
 
-          it 'uses the connection from payload even if the connection_id is available' do
+          it 'uses the connection from payload even if the connection_id ' \
+               'is available' do
             sql = 'SELECT  "burgers".* FROM "burgers" ' \
               'WHERE "burgers"."cheese" = $1 LIMIT 1'
 
@@ -112,15 +114,18 @@ module ElasticAPM
             expect(subtype).to eq 'mysql'
           end
 
-          it 'handles a connection_id which loads an object that is not a connection', skip: mri_skip_check do
-            allow(::ActiveRecord::Base)
-              .to receive(:connection_config) { { adapter: nil } }
+          it 'handles a connection_id which loads an object that is not ' \
+               'a connection', unless: RSpec::Support::Ruby.jruby? do
+            allow(::ActiveRecord::Base).to receive(:connection_config) do
+              { adapter: nil }
+            end
+
             sql = 'SELECT  "burgers".* FROM "burgers" ' \
             'WHERE "burgers"."cheese" = $1 LIMIT 1'
 
             _name, _type, subtype, = normalize_payload(
               sql: sql,
-              connection_id: double("this string does not respond to #adapter_name").object_id
+              connection_id: double('does not respond to #adapter_name').object_id
             )
 
             expect(::ActiveRecord::Base)
