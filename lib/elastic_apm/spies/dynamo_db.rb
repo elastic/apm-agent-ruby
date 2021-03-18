@@ -25,8 +25,7 @@ module ElasticAPM
       TYPE = 'db'
       SUBTYPE = 'dynamodb'
 
-      @@formatted_op_names = {}
-      MUTEX = Mutex.new
+      @@formatted_op_names = Concurrent::Map.new
 
       def self.without_net_http
         return yield unless defined?(NetHTTPSpy)
@@ -45,20 +44,9 @@ module ElasticAPM
       end
 
       def self.formatted_op_name(operation_name)
-        if @@formatted_op_names[operation_name]
-          return @@formatted_op_names[operation_name]
+        @@formatted_op_names.compute_if_absent(operation_name) do
+          operation_name.to_s.split('_').collect(&:capitalize).join
         end
-
-        MUTEX.synchronize do
-          if @@formatted_op_names[operation_name]
-            return @@formatted_op_names[operation_name]
-          end
-
-          @@formatted_op_names[operation_name] =
-            operation_name.to_s.split('_').collect(&:capitalize).join
-        end
-
-        @@formatted_op_names[operation_name]
       end
 
       def install
