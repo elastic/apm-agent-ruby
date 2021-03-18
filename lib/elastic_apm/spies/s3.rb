@@ -51,8 +51,8 @@ module ElasticAPM
       end
 
       def self.accesspoint_region(params)
-        if params[:bucket] && params[:bucket].match?(AP_REGION_REGEX)
-          AP_REGION_REGEX.match(params[:bucket])[1]
+        if params[:bucket] && (match = AP_REGION_REGEX.match(params[:bucket]))
+          match[1]
         end
       end
 
