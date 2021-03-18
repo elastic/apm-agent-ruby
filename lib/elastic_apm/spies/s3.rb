@@ -87,11 +87,13 @@ module ElasticAPM
 
             define_method(operation_name) do |params = {}, options = {}|
               bucket_name = ElasticAPM::Spies::S3Spy.bucket_name(params)
+              cloud = ElasticAPM::Span::Context::Destination::Cloud.new(
+                region: ElasticAPM::Spies::S3Spy.accesspoint_region(params) || config.region
+              )
 
               context = ElasticAPM::Span::Context.new(
                 destination: {
-                  # TODO: set the region to the appropriate field when the spec is complete
-                  #region: ElasticAPM::Spies::S3Spy.accesspoint_region(params) || config.region,
+                  cloud: cloud,
                   resource: bucket_name,
                   type: TYPE,
                   name: SUBTYPE
