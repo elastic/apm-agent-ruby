@@ -68,6 +68,8 @@ module ElasticAPM
             alias :"#{operation_name}_without_apm" :"#{operation_name}"
 
             define_method(operation_name) do |params = {}, options = {}|
+              cloud = ElasticAPM::Span::Context::Destination::Cloud.new(region: config.region)
+
               context = ElasticAPM::Span::Context.new(
                 db: {
                   instance: config.region,
@@ -75,8 +77,7 @@ module ElasticAPM
                   statement: params[:key_condition_expression]
                 },
                 destination: {
-                  # TODO: set the region to the appropriate field when the spec is complete
-                  #cloud.region: config.region,
+                  cloud: cloud,
                   resource: SUBTYPE,
                   type: TYPE
                 }

@@ -22,18 +22,30 @@ module ElasticAPM
     class Context
       # @api private
       class Destination
+
+        # @api private
+        class Cloud
+          def initialize(region: nil)
+            @region = region
+          end
+
+          attr_accessor :region
+        end
+
         def initialize(
           name: nil,
           resource: nil,
           type: nil,
           address: nil,
-          port: nil
+          port: nil,
+          cloud: nil
         )
           @name = name
           @resource = resource
           @type = type
           @address = address
           @port = port
+          @cloud = cloud
         end
 
         attr_reader(
@@ -41,7 +53,8 @@ module ElasticAPM
           :resource,
           :type,
           :address,
-          :port
+          :port,
+          :cloud
         )
 
         def self.from_uri(uri_or_str, type: 'external', port: nil)

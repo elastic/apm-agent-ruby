@@ -168,6 +168,25 @@ module ElasticAPM
             end
           end
 
+          context 'with a destination and cloud' do
+            it 'adds destination with cloud' do
+              cloud = ElasticAPM::Span::Context::Destination::Cloud.new(region: 'mars-1')
+
+              span = Span.new(
+                name: 'Span',
+                transaction: transaction,
+                parent: transaction,
+                trace_context: trace_context,
+                context: Span::Context.new(destination: { cloud: cloud })
+              )
+
+              result = subject.build(span)
+
+              expect(result.dig(:span, :context, :destination, :cloud))
+                .to match({ region: 'mars-1' })
+            end
+          end
+
           context 'with a large db.statement' do
             it 'truncates to 10k chars' do
               span = Span.new(
