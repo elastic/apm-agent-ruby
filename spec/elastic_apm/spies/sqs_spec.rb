@@ -46,11 +46,10 @@ module ElasticAPM
         expect(span.outcome).to eq('success')
 
         # Span context
-        # TODO: test the region in the appropriate field when the spec is complete
-        #expect(span.context.destination.region).to eq('us-east-1')
         expect(span.context.destination.resource).to eq('sqs/my-queue')
         expect(span.context.destination.type).to eq('messaging')
         expect(span.context.destination.name).to eq('sqs')
+        expect(span.context.destination.cloud.region).to eq('us-east-1')
         expect(span.context.message.queue_name).to eq('my-queue')
       end
 
@@ -90,7 +89,9 @@ module ElasticAPM
               rescue
               end
             end
+
             span = @intercepted.spans.first
+
             expect(span.outcome).to eq('failure')
           end
         end
@@ -122,12 +123,11 @@ module ElasticAPM
         expect(span.outcome).to eq('success')
 
         # Span context
-        # TODO: test the region in the appropriate field when the spec is complete
-        #expect(span.context.destination.region).to eq('us-east-1')
         expect(span.context.destination.resource).to eq('sqs/my-queue')
         expect(span.context.destination.type).to eq('messaging')
         expect(span.context.destination.name).to eq('sqs')
         expect(span.context.message.queue_name).to eq('my-queue')
+        expect(span.context.destination.cloud.region).to eq('us-east-1')
       end
 
       it 'adds trace context to the message attributes', :intercept do
@@ -208,11 +208,10 @@ module ElasticAPM
         expect(span.outcome).to eq('success')
 
         # Span context
-        # TODO: test the region in the appropriate field when the spec is complete
-        #expect(span.context.destination.region).to eq('us-east-1')
         expect(span.context.destination.resource).to eq('sqs/my-queue')
         expect(span.context.destination.type).to eq('messaging')
         expect(span.context.destination.name).to eq('sqs')
+        expect(span.context.destination.cloud.region).to eq('us-east-1')
         expect(span.context.message.queue_name).to eq('my-queue')
       end
 
@@ -248,18 +247,8 @@ module ElasticAPM
         span = @intercepted.spans.first
 
         expect(span.name).to eq('SQS DELETE from my-queue')
-        expect(span.type).to eq('messaging')
-        expect(span.subtype).to eq('sqs')
         expect(span.action).to eq('delete')
         expect(span.outcome).to eq('success')
-
-        # Span context
-        # TODO: test the region in the appropriate field when the spec is complete
-        #expect(span.context.destination.region).to eq('us-east-1')
-        expect(span.context.destination.resource).to eq('sqs/my-queue')
-        expect(span.context.destination.type).to eq('messaging')
-        expect(span.context.destination.name).to eq('sqs')
-        expect(span.context.message.queue_name).to eq('my-queue')
       end
 
       context 'when the operation fails' do
@@ -300,18 +289,6 @@ module ElasticAPM
         span = @intercepted.spans.first
 
         expect(span.name).to eq('SQS DELETE_BATCH from my-queue')
-        expect(span.type).to eq('messaging')
-        expect(span.subtype).to eq('sqs')
-        expect(span.action).to eq('delete_batch')
-        expect(span.outcome).to eq('success')
-
-        # Span context
-        # TODO: test the region in the appropriate field when the spec is complete
-        #expect(span.context.destination.region).to eq('us-east-1')
-        expect(span.context.destination.resource).to eq('sqs/my-queue')
-        expect(span.context.destination.type).to eq('messaging')
-        expect(span.context.destination.name).to eq('sqs')
-        expect(span.context.message.queue_name).to eq('my-queue')
       end
 
       context 'when the operation fails' do

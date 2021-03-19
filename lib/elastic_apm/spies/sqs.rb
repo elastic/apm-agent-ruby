@@ -25,6 +25,8 @@ module ElasticAPM
       TYPE = 'messaging'
       SUBTYPE = 'sqs'
 
+      REGION_REGEXP = %r{https://sqs\.([a-z0-9-]+)\.amazonaws}
+
       def self.without_net_http
         return yield unless defined?(NetHTTPSpy)
 
@@ -42,20 +44,23 @@ module ElasticAPM
       end
 
       def self.region_from_url(url)
-        # TODO: extract region from queue_url
+        if match = REGION_REGEXP.match(url)
+          match[1]
+        end
       end
 
       def self.span_context(queue_name, region)
+        cloud = ElasticAPM::Span::Context::Destination::Cloud.new(region: region)
+
         ElasticAPM::Span::Context.new(
           message: {
             queue_name: queue_name
           },
           destination: {
-            # TODO: set the region to the appropriate field when the spec is complete
-            #region: region,
             resource: [SUBTYPE, queue_name].compact.join('/'),
             type: TYPE,
-            name: SUBTYPE
+            name: SUBTYPE,
+            cloud: cloud
           }
         )
       end
