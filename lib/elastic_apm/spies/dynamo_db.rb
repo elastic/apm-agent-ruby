@@ -49,12 +49,11 @@ module ElasticAPM
         end
       end
 
-      def install
-        ::Aws::DynamoDB::Client.class_eval do
+      # @api private
+      module Ext
+        def self.prepended(mod)
           # Alias all available operations
-          api.operation_names.each do |operation_name|
-            alias :"#{operation_name}_without_apm" :"#{operation_name}"
-
+          mod.api.operation_names.each do |operation_name|
             define_method(operation_name) do |params = {}, options = {}|
               cloud = ElasticAPM::Span::Context::Destination::Cloud.new(region: config.region)
 

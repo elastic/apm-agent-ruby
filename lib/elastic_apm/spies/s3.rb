@@ -79,12 +79,11 @@ module ElasticAPM
       end
 
 
-      def install
-        ::Aws::S3::Client.class_eval do
+      # @api private
+      module Ext
+        def self.prepended(mod)
           # Alias all available operations
-          api.operation_names.each do |operation_name|
-            alias :"#{operation_name}_without_apm" :"#{operation_name}"
-
+          mod.api.operation_names.each do |operation_name|
             define_method(operation_name) do |params = {}, options = {}|
               bucket_name = ElasticAPM::Spies::S3Spy.bucket_name(params)
               cloud = ElasticAPM::Span::Context::Destination::Cloud.new(
@@ -108,13 +107,16 @@ module ElasticAPM
                 context: context
               ) do
                 ElasticAPM::Spies::S3Spy.without_net_http do
-                  original_method = method("#{operation_name}_without_apm")
-                  original_method.call(params, options)
+                  super(params, options)
                 end
               end
             end
           end
         end
+      end
+
+      def install
+        ::Aws::S3::Client.prepend(Ext)
       end
     end
 
