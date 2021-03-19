@@ -47,11 +47,7 @@ endif::[]
 
 [float]
 ===== Added
-- Support for S3 {pull}977[#977]
-
-[float]
-===== Added
-
+- Support for AWS S3 {pull}977[#977]
 - Support for AWS SQS {pull}978[#978]
 - Support for AWS SNS {pull}978[#978]
 
