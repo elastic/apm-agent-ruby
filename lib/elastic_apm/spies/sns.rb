@@ -63,16 +63,17 @@ module ElasticAPM
       end
 
       def self.span_context(topic, region)
+        cloud = ElasticAPM::Span::Context::Destination::Cloud.new(region: region)
+
         ElasticAPM::Span::Context.new(
           message: {
             queue_name: topic
           },
           destination: {
-            # TODO: set the region to the appropriate field when the spec is complete
-            #region: region,
             resource: [SUBTYPE, topic].compact.join('/'),
             type: TYPE,
-            name: SUBTYPE
+            name: SUBTYPE,
+            cloud: cloud
           }
         )
       end
