@@ -22,6 +22,11 @@ module ElasticAPM
   module Spies
     # @api private
     class DynamoDBSpy
+      TYPE = 'db'
+      SUBTYPE = 'dynamodb'
+
+      @@formatted_op_names = Concurrent::Map.new
+
       def self.without_net_http
         return yield unless defined?(NetHTTPSpy)
 
@@ -32,6 +37,18 @@ module ElasticAPM
         # rubocop:enable Style/ExplicitBlockArgument
       end
 
+      def self.span_name(operation_name, params)
+        params[:table_name] ?
+          "DynamoDB #{formatted_op_name(operation_name)} #{params[:table_name]}" :
+          "DynamoDB #{formatted_op_name(operation_name)}"
+      end
+
+      def self.formatted_op_name(operation_name)
+        @@formatted_op_names.compute_if_absent(operation_name) do
+          operation_name.to_s.split('_').collect(&:capitalize).join
+        end
+      end
+
       def install
         ::Aws::DynamoDB::Client.class_eval do
           # Alias all available operations
@@ -39,11 +56,27 @@ module ElasticAPM
             alias :"#{operation_name}_without_apm" :"#{operation_name}"
 
             define_method(operation_name) do |params = {}, options = {}|
+              cloud = ElasticAPM::Span::Context::Destination::Cloud.new(region: config.region)
+
+              context = ElasticAPM::Span::Context.new(
+                db: {
+                  instance: config.region,
+                  type: SUBTYPE,
+                  statement: params[:key_condition_expression]
+                },
+                destination: {
+                  cloud: cloud,
+                  resource: SUBTYPE,
+                  type: TYPE
+                }
+              )
+
               ElasticAPM.with_span(
-                operation_name,
-                'db',
-                subtype: 'dynamodb',
-                action: operation_name
+                ElasticAPM::Spies::DynamoDBSpy.span_name(operation_name, params),
+                TYPE,
+                subtype: SUBTYPE,
+                action: operation_name,
+                context: context
               ) do
                 ElasticAPM::Spies::DynamoDBSpy.without_net_http do
                   original_method = method("#{operation_name}_without_apm")

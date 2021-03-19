@@ -35,6 +35,15 @@ endif::[]
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
 
+[float]
+[[unreleased]]
+==== Unreleased
+
+[float]
+===== Changed
+
+- Changed DynamoDB instrumentation to match spec. Span names now follow the format `DynamoDB Operation [table]` {pull}976[#976]
+
 [[release-notes-3.14.0]]
 ==== 3.14.0 (2021-03-17)
 
