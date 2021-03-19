@@ -42,7 +42,12 @@ endif::[]
 [float]
 ===== Changed
 
-- Changed DynamoDB instrumentation to match spec. Span names now follow the format `DynamoDB Operation [table]` {pull}976[#976]
+- Changed DynamoDB instrumentation to match spec. Span names now follow the format `DynamoDB
+  Operation [table]` {pull}976[#976]
+
+[float]
+===== Added
+- Support for S3 {pull}977[#977]
 
 [[release-notes-3.14.0]]
 ==== 3.14.0 (2021-03-17)
