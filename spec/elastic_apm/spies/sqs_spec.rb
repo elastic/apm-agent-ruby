@@ -54,7 +54,8 @@ module ElasticAPM
       end
 
       it 'adds trace context to the message attributes', :intercept do
-        allow(client).to receive(:send_message_without_apm)
+        allow(client).to receive(:build_request).and_call_original
+
         with_agent do
           ElasticAPM.with_transaction do
             client.send_message(
@@ -64,14 +65,14 @@ module ElasticAPM
           end
         end
 
-        expect(client).to have_received(:send_message_without_apm) do |args|
-          expect(args[:message_attributes]).to include(
+        expect(client).to have_received(:build_request) do |key, params|
+          expect(params[:message_attributes]).to include(
             "Traceparent" => hash_including(data_type: "String")
           )
-          expect(args[:message_attributes]).to include(
+          expect(params[:message_attributes]).to include(
             "Elastic-Apm-Traceparent" => hash_including(data_type: "String")
           )
-          expect(args[:message_attributes]).to include(
+          expect(params[:message_attributes]).to include(
             "Tracestate" => hash_including(data_type: "String")
           )
         end
@@ -131,7 +132,8 @@ module ElasticAPM
       end
 
       it 'adds trace context to the message attributes', :intercept do
-        allow(client).to receive(:send_message_batch_without_apm)
+        allow(client).to receive(:build_request).and_call_original
+
         with_agent do
           ElasticAPM.with_transaction do
             client.send_message_batch(
@@ -150,8 +152,8 @@ module ElasticAPM
           end
         end
 
-        expect(client).to have_received(:send_message_batch_without_apm) do |args|
-          args[:entries].each do |entry|
+        expect(client).to have_received(:build_request) do |_key, params|
+          params[:entries].each do |entry|
             expect(entry[:message_attributes]).to include(
               "Traceparent" => hash_including(data_type: "String")
             )

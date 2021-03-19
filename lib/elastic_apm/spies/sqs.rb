@@ -65,13 +65,12 @@ module ElasticAPM
         )
       end
 
-      def install
-        ::Aws::SQS::Client.class_eval do
-          alias :send_message_without_apm :send_message
-
+      # @api private
+      module Ext
+        def self.prepended(mod)
           def send_message(params = {}, options = {})
             unless (transaction = ElasticAPM.current_transaction)
-              return send_message_without_apm(params, options)
+              return super(params, options)
             end
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
@@ -98,16 +97,14 @@ module ElasticAPM
               end
 
               ElasticAPM::Spies::SQSSpy.without_net_http do
-                send_message_without_apm(params, options)
+                super(params, options)
               end
             end
           end
 
-          alias :send_message_batch_without_apm :send_message_batch
-
           def send_message_batch(params = {}, options = {})
             unless (transaction = ElasticAPM.current_transaction)
-              return send_message_batch_without_apm(params, options)
+              return super(params, options)
             end
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
@@ -127,6 +124,7 @@ module ElasticAPM
               context: context
             ) do |span|
               trace_context = span&.trace_context || transaction.trace_context
+
               trace_context.apply_headers do |key, value|
                 params[:entries].each do |message|
                   message[:message_attributes] ||= {}
@@ -137,16 +135,14 @@ module ElasticAPM
               end
 
               ElasticAPM::Spies::SQSSpy.without_net_http do
-                send_message_batch_without_apm(params, options)
+                super(params, options)
               end
             end
           end
 
-          alias :receive_message_without_apm :receive_message
-
           def receive_message(params = {}, options = {})
             unless ElasticAPM.current_transaction
-              return receive_message_without_apm(params, options)
+              return super(params, options)
             end
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
@@ -166,16 +162,14 @@ module ElasticAPM
               context: context
             ) do
               ElasticAPM::Spies::SQSSpy.without_net_http do
-                receive_message_without_apm(params, options)
+                super(params, options)
               end
             end
           end
 
-          alias :delete_message_without_apm :delete_message
-
           def delete_message(params = {}, options = {})
             unless ElasticAPM.current_transaction
-              return delete_message_without_apm(params, options)
+              return super(params, options)
             end
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
@@ -194,16 +188,14 @@ module ElasticAPM
               context: context
             ) do
               ElasticAPM::Spies::SQSSpy.without_net_http do
-                delete_message_without_apm(params, options)
+                super(params, options)
               end
             end
           end
 
-          alias :delete_message_batch_without_apm :delete_message_batch
-
           def delete_message_batch(params = {}, options = {})
             unless ElasticAPM.current_transaction
-              return delete_message_batch_without_apm(params, options)
+              return super(params, options)
             end
 
             queue_name = ElasticAPM::Spies::SQSSpy.queue_name(params)
@@ -223,11 +215,15 @@ module ElasticAPM
               context: context
             ) do
               ElasticAPM::Spies::SQSSpy.without_net_http do
-                delete_message_batch_without_apm(params, options)
+                super(params, options)
               end
             end
           end
         end
+      end
+
+      def install
+        ::Aws::SQS::Client.prepend(Ext)
       end
     end
 

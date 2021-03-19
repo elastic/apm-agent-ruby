@@ -38,7 +38,7 @@ module ElasticAPM
       attr_reader :headers
 
       def headers=(headers)
-        @headers = headers&.transform_values(&:to_s)
+        @headers = headers&.transform_values { |v| v.to_s }
       end
     end
   end
