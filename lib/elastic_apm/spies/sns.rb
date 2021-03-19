@@ -58,8 +58,8 @@ module ElasticAPM
       end
 
       def self.arn_region(arn)
-        if arn && arn.match?(AP_REGION_REGEX)
-          AP_REGION_REGEX.match(arn)[1]
+        if arn && (match = AP_REGION_REGEX.match(arn))
+          match[1]
         end
       end
 
