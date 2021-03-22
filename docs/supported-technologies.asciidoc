@@ -77,6 +77,8 @@ requests using these libraries:
 - Http.rb (v0.6+)
 - Faraday (v0.2.1+)
 
+*Note:* These libraries usually assume `localhost` if no `Host` is specified, so the agent does as well. 
+
 [float]
 [[supported-technologies-backgroud-processing]]
 === Background Processing

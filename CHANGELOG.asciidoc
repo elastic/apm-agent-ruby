@@ -40,10 +40,32 @@ endif::[]
 ==== Unreleased
 
 [float]
+===== Changed
+
+- Changed DynamoDB instrumentation to match spec. Span names now follow the format `DynamoDB
+  Operation [table]` {pull}976[#976]
+
+[float]
+===== Added
+- Support for AWS S3 {pull}977[#977]
+- Support for AWS SQS {pull}978[#978]
+- Support for AWS SNS {pull}978[#978]
+
+[[release-notes-3.14.0]]
+==== 3.14.0 (2021-03-17)
+
+[float]
+===== Added
+
+- Expanded support for extracting ActiveRecord adapter name from notification payload when using
+  ActiveRecord versions before 6.0 {pull}953[#953]
+
+[float]
 ===== Fixed
 
 - Fixed setting outcome in Mongo spy when not traced {pull}937[#937]
 - Fixed missing container metadata in payloads {pull}942[#942]
+- Fixed outgoing HTTP request spans with no Host {pull}962[#962]
 
 [[release-notes-3.13.0]]
 ==== 3.13.0 (2020-12-22)

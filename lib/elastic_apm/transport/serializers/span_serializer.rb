@@ -65,6 +65,10 @@ module ElasticAPM
               base[:destination] = build_destination(context.destination)
             end
 
+            if context.message
+              base[:message] = build_message(context.message)
+            end
+
             base
           end
 
@@ -89,14 +93,32 @@ module ElasticAPM
           end
 
           def build_destination(destination)
+            base =
+              {
+                service: {
+                  name: keyword_field(destination.name),
+                  resource: keyword_field(destination.resource),
+                  type: keyword_field(destination.type)
+                },
+                address: keyword_field(destination.address),
+                port: destination.port
+              }
+
+            if cloud = destination.cloud
+              base[:cloud] = { region: cloud.region }
+            end
+
+            base
+          end
+
+          def build_message(message)
             {
-              service: {
-                name: keyword_field(destination.name),
-                resource: keyword_field(destination.resource),
-                type: keyword_field(destination.type)
+              queue: {
+                name: keyword_field(message.queue_name)
               },
-              address: keyword_field(destination.address),
-              port: destination.port
+              age: {
+                ms: message.age_ms.to_i
+              }
             }
           end
         end

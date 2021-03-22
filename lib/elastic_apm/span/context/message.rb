@@ -21,24 +21,19 @@ module ElasticAPM
   class Span
     class Context
       # @api private
-      class Http
-        def initialize(url: nil, status_code: nil, method: nil)
-          @url = sanitize_url(url)
-          @status_code = status_code
-          @method = method
+      class Message
+        def initialize(
+          queue_name: nil,
+          age_ms: nil
+        )
+          @queue_name = queue_name
+          @age_ms = age_ms
         end
 
-        attr_accessor :url, :status_code, :method
-
-        private
-
-        def sanitize_url(uri_or_str)
-          return unless uri_or_str
-
-          uri = uri_or_str.is_a?(URI) ? uri_or_str.dup : URI(uri_or_str)
-          uri.password = nil
-          uri.to_s
-        end
+        attr_reader(
+          :queue_name,
+          :age_ms
+        )
       end
     end
   end

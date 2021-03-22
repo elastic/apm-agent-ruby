@@ -9,14 +9,6 @@ end
 
 World(Helpers)
 
-After do
-  @agent&.stop
-end
-
-Given('an agent') do
-  @agent = ElasticAPM.start
-end
-
 When('an api key is set to {string} in the config') do |api_key|
   config.api_key = api_key
 end

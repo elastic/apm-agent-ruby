@@ -31,7 +31,9 @@ gem 'webmock'
 
 # Integrations
 gem 'aws-sdk-dynamodb', require: nil
+gem 'aws-sdk-s3', require: nil
 gem 'aws-sdk-sqs', require: nil
+gem 'aws-sdk-sns', require: nil
 gem 'elasticsearch', require: nil
 gem 'fakeredis', require: nil
 gem 'faraday', require: nil
@@ -56,6 +58,10 @@ gem 'sucker_punch', '~> 2.0', require: nil
 gem 'yard', require: nil
 gem 'yarjuf'
 
+# See issue #6547 in the JRuby repo. When that bug is fixed,
+# we can use the latest version of the i18n gem.
+gem 'i18n', '< 1.8.8'
+
 ## Install Framework
 GITHUB_REPOS = {
   'grape' => 'ruby-grape/grape',
@@ -76,7 +82,7 @@ frameworks_versions.each do |framework, version|
   when 'master' # sinatra, grape
     gem framework, github: GITHUB_REPOS.fetch(framework)
   when 'main' # rails
-    gem framework, github: GITHUB_REPOS.fetch(framework)
+    gem framework, github: GITHUB_REPOS.fetch(framework), branch: 'main'
   when /.+/
     gem framework, "~> #{version}.0"
   else

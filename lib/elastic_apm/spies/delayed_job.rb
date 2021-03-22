@@ -38,7 +38,7 @@ module ElasticAPM
       end
 
       def self.invoke_job(job, *args, &block)
-        job_name = name_from_payload(job.payload_object)
+        job_name = job_name(job)
         transaction = ElasticAPM.start_transaction(job_name, TYPE)
         job.invoke_job_without_apm(*args, &block)
         transaction&.done 'success'
@@ -52,7 +52,9 @@ module ElasticAPM
         ElasticAPM.end_transaction
       end
 
-      def self.name_from_payload(payload_object)
+      def self.job_name(job)
+        payload_object = job.payload_object
+
         if payload_object.is_a?(::Delayed::PerformableMethod)
           performable_method_name(payload_object)
         elsif payload_object.instance_of?(
@@ -62,6 +64,8 @@ module ElasticAPM
         else
           payload_object.class.name
         end
+      rescue
+        job.name
       end
 
       def self.performable_method_name(payload_object)

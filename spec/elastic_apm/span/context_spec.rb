@@ -77,6 +77,19 @@ module ElasticAPM
           expect(subject.destination.type).to eq 'typ'
         end
       end
+
+      context 'with message' do
+        subject do
+          described_class.new(
+            message: { queue_name: 'my_queue', age_ms: 1000 }
+          )
+        end
+
+        it 'adds a Message object' do
+          expect(subject.message.queue_name).to eq 'my_queue'
+          expect(subject.message.age_ms).to eq 1000
+        end
+      end
     end
   end
 end
