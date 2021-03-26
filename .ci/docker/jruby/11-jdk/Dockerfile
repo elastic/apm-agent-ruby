@@ -2,7 +2,7 @@ FROM openjdk:11-jdk
 
 RUN apt-get update \
     && apt-get install -y libc6-dev --no-install-recommends \
-    && apt-get install -y gcc \
+    && apt-get install -y shared-mime-info gcc \
     && rm -rf /var/lib/apt/lists/*
 
 ENV JRUBY_VERSION 9.2.10.0
