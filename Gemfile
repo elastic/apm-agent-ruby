@@ -21,8 +21,6 @@ source 'https://rubygems.org'
 
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
-gem 'mimemagic', '0.3.8'
-
 # Tools
 gem 'cucumber', require: false
 gem 'rack-test'

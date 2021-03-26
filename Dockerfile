@@ -12,6 +12,7 @@ ARG BUNDLER_VERSION
 RUN apt-get update -qq \
       && apt-get install -qq -y --no-install-recommends \
         build-essential libpq-dev git \
+      && apt-get install -y shared-mime-info \
       && rm -rf /var/lib/apt/lists/*
 
 # Configure bundler and PATH
