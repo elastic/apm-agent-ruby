@@ -53,14 +53,26 @@ The official Rubygem for [Elastic][] [APM][].
     <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/opentracing.html">OpenTracing API</a>
   </li>
   <li>
+    <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/graphql.html">GraphQL</a>
+  </li>
+  <li>
     <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/log-correlation.html">Log correlation</a>
+  </li>
+  <li>
+    <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/tuning-and-overhead.html">Performance tuning</a>
   </li>
   <li>
     <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/debugging.html">Troubleshooting</a>
   </li>
+  <li>
+    <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/upgrading.html">Upgrading</a>
+  </li>
   <li class="collapsible">
     <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/release-notes.html">Release notes</a>
     <ul>
+      <li>
+        <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/release-notes-4.x.html">Ruby Agent version 4.x</a>
+      </li>
       <li>
         <a href="https://www.elastic.co/guide/en/apm/agent/ruby/current/release-notes-3.x.html">Ruby Agent version 3.x</a>
       </li>
