@@ -85,7 +85,7 @@ module ElasticAPM
           api.operation_names.each do |operation_name|
             alias :"#{operation_name}_without_apm" :"#{operation_name}"
 
-            define_method(operation_name) do |params = {}, options = {}|
+            define_method(operation_name) do |params = {}, options = {}, &block|
               bucket_name = ElasticAPM::Spies::S3Spy.bucket_name(params)
               cloud = ElasticAPM::Span::Context::Destination::Cloud.new(
                 region: ElasticAPM::Spies::S3Spy.accesspoint_region(params) || config.region
@@ -109,7 +109,7 @@ module ElasticAPM
               ) do
                 ElasticAPM::Spies::S3Spy.without_net_http do
                   original_method = method("#{operation_name}_without_apm")
-                  original_method.call(params, options)
+                  original_method.call(params, options, &block)
                 end
               end
             end
