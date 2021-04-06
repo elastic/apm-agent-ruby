@@ -21,7 +21,8 @@ module ElasticAPM
   module Transport
     # @api private
     class UserAgent
-      def initialize(config)
+      def initialize(config, version: VERSION)
+        @version = version
         @built = build(config)
       end
 
@@ -35,7 +36,7 @@ module ElasticAPM
         service = Metadata::ServiceInfo.new(config)
 
         [
-          "elastic-apm-ruby/#{VERSION}",
+          "elastic-apm-ruby/#{@version}",
           HTTP::Request::USER_AGENT,
           [
             service.runtime.name,
