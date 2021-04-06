@@ -79,46 +79,47 @@ module ElasticAPM
         )
       end
 
-      def install
-        ::Aws::SNS::Client.class_eval do
-          alias :publish_without_apm :publish
+      # @api private
+      module Ext
+        def publish(params = {}, options = {})
+          unless (transaction = ElasticAPM.current_transaction)
+            return super(params, options)
+          end
 
-          def publish(params = {}, options = {})
-            unless (transaction = ElasticAPM.current_transaction)
-              return publish_without_apm(params, options)
+          topic = ElasticAPM::Spies::SNSSpy.get_topic(params)
+          span_name = topic ? "SNS PUBLISH to #{topic}" : 'SNS PUBLISH'
+          region = ElasticAPM::Spies::SNSSpy.arn_region(
+            params[:topic_arn] || params[:target_arn]
+          )
+          context = ElasticAPM::Spies::SNSSpy.span_context(
+            topic,
+            region || config.region
+          )
+
+          ElasticAPM.with_span(
+            span_name,
+            TYPE,
+            subtype: SUBTYPE,
+            action: 'publish',
+            context: context
+          ) do |span|
+            trace_context = span&.trace_context || transaction.trace_context
+            trace_context.apply_headers do |key, value|
+              params[:message_attributes] ||= {}
+              params[:message_attributes][key] ||= {}
+              params[:message_attributes][key][:string_value] = value
+              params[:message_attributes][key][:data_type] = 'String'
             end
 
-            topic = ElasticAPM::Spies::SNSSpy.get_topic(params)
-            span_name = topic ? "SNS PUBLISH to #{topic}" : 'SNS PUBLISH'
-            region = ElasticAPM::Spies::SNSSpy.arn_region(
-              params[:topic_arn] || params[:target_arn]
-            )
-            context = ElasticAPM::Spies::SNSSpy.span_context(
-              topic,
-              region || config.region
-            )
-
-            ElasticAPM.with_span(
-              span_name,
-              TYPE,
-              subtype: SUBTYPE,
-              action: 'publish',
-              context: context
-            ) do |span|
-              trace_context = span&.trace_context || transaction.trace_context
-              trace_context.apply_headers do |key, value|
-                params[:message_attributes] ||= {}
-                params[:message_attributes][key] ||= {}
-                params[:message_attributes][key][:string_value] = value
-                params[:message_attributes][key][:data_type] = 'String'
-              end
-
-              ElasticAPM::Spies::SNSSpy.without_net_http do
-                publish_without_apm(params, options)
-              end
+            ElasticAPM::Spies::SNSSpy.without_net_http do
+              super(params, options)
             end
           end
         end
+      end
+
+      def install
+        ::Aws::SNS::Client.prepend(Ext)
       end
     end
 

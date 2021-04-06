@@ -183,7 +183,8 @@ module ElasticAPM
       end
 
       it 'adds trace context to the message attributes', :intercept do
-        allow(client).to receive(:publish_without_apm)
+        allow(client).to receive(:build_request).and_call_original
+
         with_agent do
           ElasticAPM.with_transaction do
             client.publish(
@@ -193,7 +194,7 @@ module ElasticAPM
           end
         end
 
-        expect(client).to have_received(:publish_without_apm) do |args|
+        expect(client).to have_received(:build_request) do |_, args|
           expect(args[:message_attributes]).to include(
             "Traceparent" => hash_including(data_type: "String")
           )
