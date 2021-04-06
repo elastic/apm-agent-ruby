@@ -78,11 +78,12 @@ module ElasticAPM
       it 'has a fitting user agent' do
         stub = build_stub(
           headers: {
-            'User-Agent' => %r{
-              \Aelastic-apm-ruby/(\d+\.)+\d+\s
-              http.rb/(\d+\.)+\d+\s
-              j?ruby/(\d+\.)+\d+\z
-            }x
+            'User-Agent' =>
+              %r{
+                \Aelastic-apm-ruby/(\d+\.)+\d([a-z0-9\.]+)?+\s
+                http.rb/(\d+\.)+\d+\s
+                j?ruby/(\d+\.)+\d+\z
+              }x
           }
         )
         subject.write('{}')
