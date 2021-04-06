@@ -29,5 +29,5 @@ if [[ $specific_spec = '' ]]; then
 else
   echo "Running only $specific_spec"
 
-  runRspec $1
+  runRspec $specific_spec
 fi

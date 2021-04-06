@@ -389,6 +389,7 @@ def runScript(Map params = [:]){
       dir("${BASE_DIR}"){
         sleep randomNumber(min:10, max: 30)
         dockerLogin(secret: "${DOCKER_SECRET}", registry: "${DOCKER_REGISTRY}")
+        sh(label: "Run BDD tests", script: "./spec/scripts/features.sh ${ruby}")
         sh("./spec/scripts/spec.sh ${ruby} ${framework}")
       }
     }
