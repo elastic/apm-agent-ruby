@@ -48,6 +48,21 @@ module ElasticAPM
       expect(span.context.destination.cloud.region).to eq('us-west-1')
     end
 
+    context 'when bucket name is a symbol' do
+      it 'sets bucket name', :intercept do
+        with_agent do
+          ElasticAPM.with_transaction do
+            s3_client.create_bucket(bucket: :mybucket)
+          end
+        end
+
+        span = @intercepted.spans.first
+
+        expect(span.name).to eq('S3 CreateBucket mybucket')
+        expect(span.context.destination.resource).to eq('mybucket')
+      end
+    end
+
     context 'when there is no bucket name' do
       it 'does not include a bucket in the span name', :intercept do
         with_agent do

@@ -41,13 +41,10 @@ module ElasticAPM
       end
 
       def self.bucket_name(params)
-        if params[:bucket]
-          if index = params[:bucket].rindex(AP_REGEX)
-            params[:bucket][index+1..-1]
-          else
-            params[:bucket]
-          end
-        end
+        return unless (bucket = params[:bucket]&.to_s)
+        return bucket unless (index = bucket.rindex(AP_REGEX))
+
+        bucket[index+1..-1]
       end
 
       def self.accesspoint_region(params)
