@@ -35,6 +35,16 @@ endif::[]
 [[release-notes-4.x]]
 === Ruby Agent version 4.x
 
+[float]
+[[unreleased]]
+==== Unreleased
+
+[float]
+===== Fixed
+
+- AWS S3 spy accepts symbol bucket names {pull}998[#998]
+- AWS S3 spy passing on blocks {pull}998[#998]
+
 [[release-notes-4.0.0]]
 ==== 4.0.0.beta.1
 
