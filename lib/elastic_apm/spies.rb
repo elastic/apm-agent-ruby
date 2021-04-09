@@ -56,6 +56,26 @@ module ElasticAPM
       end
     end
 
+    def self.without_faraday
+      return yield unless defined?(FaradaySpy)
+
+      # rubocop:disable Style/ExplicitBlockArgument
+      ElasticAPM::Spies::FaradaySpy.disable_in do
+        yield
+      end
+      # rubocop:enable Style/ExplicitBlockArgument
+    end
+
+    def self.without_net_http
+      return yield unless defined?(NetHTTPSpy)
+
+      # rubocop:disable Style/ExplicitBlockArgument
+      ElasticAPM::Spies::NetHTTPSpy.disable_in do
+        yield
+      end
+      # rubocop:enable Style/ExplicitBlockArgument
+    end
+
     def self.register_require_hook(registration)
       registration.require_paths.each do |path|
         require_hooks[path] = registration
