@@ -52,7 +52,7 @@ gem 'rake', require: nil
 gem 'resque', require: nil
 gem 'sequel', require: nil
 gem 'shoryuken', require: nil
-gem 'sidekiq', require: nil
+gem 'sidekiq', '~> 5', require: nil
 gem 'simplecov', require: false
 gem 'simplecov-cobertura', require: false
 gem 'sneakers', '~> 2.12', require: nil
