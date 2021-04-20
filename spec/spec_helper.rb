@@ -39,6 +39,7 @@ require "elastic-apm"
 
 RSpec.configure do |config|
   config.order = :random
+  config.fail_fast = true
 
   config.include(ExceptionHelpers)
   config.include(WithAgent)

@@ -198,5 +198,13 @@ module ElasticAPM
         its(:stacktrace) { should be_a Stacktrace }
       end
     end
+
+    describe "#set_destination" do
+      it 'adds destination to context' do
+        subject.set_destination(address: 'asdf', cloud: { region: 'us-1' })
+        expect(subject.context.destination).to be_a(Span::Context::Destination)
+        expect(subject.context.destination.address).to eq 'asdf'
+      end
+    end
   end
 end

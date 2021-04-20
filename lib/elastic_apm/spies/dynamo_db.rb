@@ -22,6 +22,7 @@ module ElasticAPM
   module Spies
     # @api private
     class DynamoDBSpy
+      NAME = 'dynamodb'
       TYPE = 'db'
       SUBTYPE = 'dynamodb'
 
@@ -65,8 +66,11 @@ module ElasticAPM
                 },
                 destination: {
                   cloud: cloud,
-                  resource: SUBTYPE,
-                  type: TYPE
+                  service: {
+                    name: NAME,
+                    resource: SUBTYPE,
+                    type: TYPE
+                  }
                 }
               )
 

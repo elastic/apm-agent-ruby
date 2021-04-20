@@ -69,13 +69,10 @@ module ElasticAPM
           url << "?#{query}" if query
           uri = URI(url)
 
-          destination =
-            ElasticAPM::Span::Context::Destination.from_uri(uri)
-
           context =
             ElasticAPM::Span::Context.new(
               http: { url: uri, method: method },
-              destination: destination
+              destination: ElasticAPM::Span::Context::Destination.from_uri(uri)
             )
 
           ElasticAPM.with_span(

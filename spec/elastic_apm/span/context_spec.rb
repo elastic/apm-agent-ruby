@@ -67,14 +67,20 @@ module ElasticAPM
       context 'with destination' do
         subject do
           described_class.new(
-            destination: { name: 'nam', resource: 'res', type: 'typ' }
+            destination: {
+              service: {
+                name: 'nam',
+                resource: 'res',
+                type: 'typ'
+              }
+            }
           )
         end
 
         it 'adds a Destination object' do
-          expect(subject.destination.name).to eq 'nam'
-          expect(subject.destination.resource).to eq 'res'
-          expect(subject.destination.type).to eq 'typ'
+          expect(subject.destination.service.name).to eq 'nam'
+          expect(subject.destination.service.resource).to eq 'res'
+          expect(subject.destination.service.type).to eq 'typ'
         end
       end
 

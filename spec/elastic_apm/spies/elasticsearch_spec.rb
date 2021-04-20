@@ -53,9 +53,9 @@ module ElasticAPM
       expect(net_span.name).to eq 'GET localhost'
 
       destination = span.context.destination
-      expect(destination.name).to eq 'elasticsearch'
-      expect(destination.resource).to eq 'elasticsearch'
-      expect(destination.type).to eq 'db'
+      expect(destination.service.name).to eq 'elasticsearch'
+      expect(destination.service.resource).to eq 'elasticsearch'
+      expect(destination.service.type).to eq 'db'
     end
 
     context 'a post request with body' do

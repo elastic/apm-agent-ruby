@@ -380,6 +380,16 @@ module ElasticAPM
       agent&.set_user(user)
     end
 
+    # Set destination fields on the current span
+    #
+    # @param address [String] Destination address
+    # @param address [String] Destination address
+    # @param address [Hash] Destination service
+    # @param address [Hash] Destination cloud
+    def set_destination(address: nil, port: nil, service: nil, cloud: nil)
+      agent&.set_destination(address: address, port: port, service: service, cloud: cloud)
+    end
+
     # Provide a filter to transform payloads before sending them off
     #
     # @param key [Symbol] Unique filter key

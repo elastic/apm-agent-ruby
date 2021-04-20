@@ -46,9 +46,9 @@ module ElasticAPM
         expect(span.outcome).to eq('success')
 
         # Span context
-        expect(span.context.destination.resource).to eq('sns/MyTopic')
-        expect(span.context.destination.type).to eq('messaging')
-        expect(span.context.destination.name).to eq('sns')
+        expect(span.context.destination.service.resource).to eq('sns/MyTopic')
+        expect(span.context.destination.service.type).to eq('messaging')
+        expect(span.context.destination.service.name).to eq('sns')
         expect(span.context.destination.cloud.region).to eq('us-east-1')
         expect(span.context.message.queue_name).to eq('MyTopic')
       end
@@ -67,7 +67,7 @@ module ElasticAPM
           span = @intercepted.spans.first
 
           expect(span.name).to eq('SNS PUBLISH to my-sub-topic')
-          expect(span.context.destination.resource).to eq('sns/my-sub-topic')
+          expect(span.context.destination.service.resource).to eq('sns/my-sub-topic')
           expect(span.context.message.queue_name).to eq('my-sub-topic')
         end
 
@@ -84,7 +84,7 @@ module ElasticAPM
           span = @intercepted.spans.first
 
           expect(span.name).to eq('SNS PUBLISH to MyTopic')
-          expect(span.context.destination.resource).to eq('sns/MyTopic')
+          expect(span.context.destination.service.resource).to eq('sns/MyTopic')
           expect(span.context.message.queue_name).to eq('MyTopic')
         end
       end
@@ -103,7 +103,7 @@ module ElasticAPM
           span = @intercepted.spans.first
 
           expect(span.name).to eq('SNS PUBLISH to <PHONE_NUMBER>')
-          expect(span.context.destination.resource).to eq('sns/<PHONE_NUMBER>')
+          expect(span.context.destination.service.resource).to eq('sns/<PHONE_NUMBER>')
           expect(span.context.message.queue_name).to eq('<PHONE_NUMBER>')
         end
       end
@@ -123,7 +123,7 @@ module ElasticAPM
             span = @intercepted.spans.first
 
             expect(span.name).to eq('SNS PUBLISH to accesspoint/myendpoint')
-            expect(span.context.destination.resource).to eq('sns/accesspoint/myendpoint')
+            expect(span.context.destination.service.resource).to eq('sns/accesspoint/myendpoint')
             expect(span.context.message.queue_name).to eq('accesspoint/myendpoint')
           end
 
@@ -140,7 +140,7 @@ module ElasticAPM
             span = @intercepted.spans.first
 
             expect(span.name).to eq('SNS PUBLISH to accesspoint:myendpoint')
-            expect(span.context.destination.resource).to eq('sns/accesspoint:myendpoint')
+            expect(span.context.destination.service.resource).to eq('sns/accesspoint:myendpoint')
             expect(span.context.message.queue_name).to eq('accesspoint:myendpoint')
           end
         end
@@ -159,7 +159,7 @@ module ElasticAPM
 
           expect(span.name).to eq('SNS PUBLISH to my-sub-topic')
           expect(span.context.destination.cloud.region).to eq('us-east-1')
-          expect(span.context.destination.resource).to eq('sns/my-sub-topic')
+          expect(span.context.destination.service.resource).to eq('sns/my-sub-topic')
           expect(span.context.message.queue_name).to eq('my-sub-topic')
         end
 
@@ -177,7 +177,7 @@ module ElasticAPM
 
           expect(span.name).to eq('SNS PUBLISH to MyTopic')
           expect(span.context.destination.cloud.region).to eq('us-east-1')
-          expect(span.context.destination.resource).to eq('sns/MyTopic')
+          expect(span.context.destination.service.resource).to eq('sns/MyTopic')
           expect(span.context.message.queue_name).to eq('MyTopic')
         end
       end

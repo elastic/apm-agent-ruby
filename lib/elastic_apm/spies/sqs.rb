@@ -57,9 +57,11 @@ module ElasticAPM
             queue_name: queue_name
           },
           destination: {
-            resource: [SUBTYPE, queue_name].compact.join('/'),
-            type: TYPE,
-            name: SUBTYPE,
+            service: {
+              resource: [SUBTYPE, queue_name].compact.join('/'),
+              type: TYPE,
+              name: SUBTYPE
+            },
             cloud: cloud
           }
         )

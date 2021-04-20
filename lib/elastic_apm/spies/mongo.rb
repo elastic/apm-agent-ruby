@@ -108,9 +108,11 @@ module ElasticAPM
               user: nil
             },
             destination: {
-              name: SUBTYPE,
-              resource: SUBTYPE,
-              type: TYPE
+              service: {
+                name: SUBTYPE,
+                resource: SUBTYPE,
+                type: TYPE
+              }
             }
           )
         end

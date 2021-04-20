@@ -61,9 +61,11 @@ module ElasticAPM
           context = Span::Context.new(
             db: { statement: statement.reduce({}, :merge).to_json },
             destination: {
-              name: SUBTYPE,
-              resource: SUBTYPE,
-              type: TYPE
+              service: {
+                name: SUBTYPE,
+                resource: SUBTYPE,
+                type: TYPE
+              }
             }
           )
 
