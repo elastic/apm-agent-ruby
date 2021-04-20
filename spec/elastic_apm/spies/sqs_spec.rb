@@ -46,9 +46,9 @@ module ElasticAPM
         expect(span.outcome).to eq('success')
 
         # Span context
-        expect(span.context.destination.resource).to eq('sqs/my-queue')
-        expect(span.context.destination.type).to eq('messaging')
-        expect(span.context.destination.name).to eq('sqs')
+        expect(span.context.destination.service.resource).to eq('sqs/my-queue')
+        expect(span.context.destination.service.type).to eq('messaging')
+        expect(span.context.destination.service.name).to eq('sqs')
         expect(span.context.destination.cloud.region).to eq('us-east-1')
         expect(span.context.message.queue_name).to eq('my-queue')
       end
@@ -124,9 +124,9 @@ module ElasticAPM
         expect(span.outcome).to eq('success')
 
         # Span context
-        expect(span.context.destination.resource).to eq('sqs/my-queue')
-        expect(span.context.destination.type).to eq('messaging')
-        expect(span.context.destination.name).to eq('sqs')
+        expect(span.context.destination.service.resource).to eq('sqs/my-queue')
+        expect(span.context.destination.service.type).to eq('messaging')
+        expect(span.context.destination.service.name).to eq('sqs')
         expect(span.context.message.queue_name).to eq('my-queue')
         expect(span.context.destination.cloud.region).to eq('us-east-1')
       end
@@ -210,9 +210,9 @@ module ElasticAPM
         expect(span.outcome).to eq('success')
 
         # Span context
-        expect(span.context.destination.resource).to eq('sqs/my-queue')
-        expect(span.context.destination.type).to eq('messaging')
-        expect(span.context.destination.name).to eq('sqs')
+        expect(span.context.destination.service.resource).to eq('sqs/my-queue')
+        expect(span.context.destination.service.type).to eq('messaging')
+        expect(span.context.destination.service.name).to eq('sqs')
         expect(span.context.destination.cloud.region).to eq('us-east-1')
         expect(span.context.message.queue_name).to eq('my-queue')
       end

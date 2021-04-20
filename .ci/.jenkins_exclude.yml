@@ -34,6 +34,19 @@ exclude:
     FRAMEWORK: rails-4.2
   - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-8-jdk
     FRAMEWORK: rails-4.2
+  # sinatra-1.4 exclusions
+  - RUBY_VERSION: ruby:3.0
+    FRAMEWORK: sinatra-1.4
+  - RUBY_VERSION: ruby:2.7
+    FRAMEWORK: sinatra-1.4
+  - RUBY_VERSION: jruby:9.2
+    FRAMEWORK: sinatra-1.4
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-13-jdk
+    FRAMEWORK: sinatra-1.4
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-11-jdk
+    FRAMEWORK: sinatra-1.4
+  - RUBY_VERSION: docker.elastic.co/observability-ci/jruby:9.2-8-jdk
+    FRAMEWORK: sinatra-1.4
 
   # rails-6.0 and rails-6.1 exclusions
   # Don't test on ruby 2.4

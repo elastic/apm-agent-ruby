@@ -50,11 +50,9 @@ module ElasticAPM
 
         split_peer = URI.split(peer)
         destination = ElasticAPM::Span::Context::Destination.new(
-          type: TYPE,
-          name: SUBTYPE,
-          resource: peer,
           address: split_peer[0],
-          port: split_peer[6]
+          port: split_peer[6],
+          service: { type: TYPE, name: SUBTYPE, resource: peer }
         )
         ElasticAPM::Span::Context.new(destination: destination)
       end

@@ -42,9 +42,9 @@ module ElasticAPM
       expect(span.outcome).to eq('success')
 
       # span context destination
-      expect(span.context.destination.resource).to eq('my-bucket')
-      expect(span.context.destination.type).to eq('storage')
-      expect(span.context.destination.name).to eq('s3')
+      expect(span.context.destination.service.resource).to eq('my-bucket')
+      expect(span.context.destination.service.type).to eq('storage')
+      expect(span.context.destination.service.name).to eq('s3')
       expect(span.context.destination.cloud.region).to eq('us-west-1')
     end
 
@@ -59,12 +59,12 @@ module ElasticAPM
         span = @intercepted.spans.first
 
         expect(span.name).to eq('S3 CreateBucket mybucket')
-        expect(span.context.destination.resource).to eq('mybucket')
+        expect(span.context.destination.service.resource).to eq('mybucket')
       end
     end
 
     context 'when there is no bucket name' do
-      it 'does not include a bucket in the span name', :intercept do
+      it 'does not include a bucket in the span name and no service on destination', :intercept do
         with_agent do
           ElasticAPM.with_transaction do
             s3_client.list_buckets
@@ -75,7 +75,7 @@ module ElasticAPM
 
         expect(span.name).to eq('S3 ListBuckets')
         expect(span.action).to eq('ListBuckets')
-        expect(span.context.destination.resource).to eq(nil)
+        expect(span.context.destination.service).to eq(nil)
       end
     end
 
@@ -93,7 +93,7 @@ module ElasticAPM
         span = @intercepted.spans.first
 
         expect(span.name).to eq('S3 GetObject accesspoint/myendpoint')
-        expect(span.context.destination.resource).to eq('accesspoint/myendpoint')
+        expect(span.context.destination.service.resource).to eq('accesspoint/myendpoint')
       end
 
       it 'extracts the region from the access point with a slash', :intercept do
@@ -113,7 +113,7 @@ module ElasticAPM
 
         # span context destination
         expect(span.context.destination.cloud.region).to eq('us-east-2')
-        expect(span.context.destination.resource).to eq('accesspoint/myendpoint')
+        expect(span.context.destination.service.resource).to eq('accesspoint/myendpoint')
       end
 
       it 'extracts the region from the access point with a colon', :intercept do
@@ -129,7 +129,7 @@ module ElasticAPM
         span = @intercepted.spans.first
 
         expect(span.name).to eq('S3 GetObject accesspoint:myendpoint')
-        expect(span.context.destination.resource).to eq('accesspoint:myendpoint')
+        expect(span.context.destination.service.resource).to eq('accesspoint:myendpoint')
         expect(span.context.destination.cloud.region).to eq('us-east-2')
       end
     end

@@ -55,9 +55,9 @@ module ElasticAPM
         expect(db.user).to be nil
 
         destination = span.context.destination
-        expect(destination.name).to eq 'mongodb'
-        expect(destination.resource).to eq 'mongodb'
-        expect(destination.type).to eq 'db'
+        expect(destination.service.name).to eq 'mongodb'
+        expect(destination.service.resource).to eq 'mongodb'
+        expect(destination.service.type).to eq 'db'
       end
 
       it 'sets outcome to `failure` for a failed operation', :intercept do

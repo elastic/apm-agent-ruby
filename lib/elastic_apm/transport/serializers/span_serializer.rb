@@ -93,16 +93,20 @@ module ElasticAPM
           end
 
           def build_destination(destination)
-            base =
-              {
-                service: {
-                  name: keyword_field(destination.name),
-                  resource: keyword_field(destination.resource),
-                  type: keyword_field(destination.type)
-                },
-                address: keyword_field(destination.address),
-                port: destination.port
+            return unless destination
+
+            base = {
+              address: keyword_field(destination.address),
+              port: destination.port
+            }
+
+            if service = destination.service
+              base[:service] = {
+                name: keyword_field(destination.service.name),
+                resource: keyword_field(destination.service.resource),
+                type: keyword_field(destination.service.type)
               }
+            end
 
             if cloud = destination.cloud
               base[:cloud] = { region: cloud.region }

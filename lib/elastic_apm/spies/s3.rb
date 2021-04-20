@@ -83,16 +83,16 @@ module ElasticAPM
           mod.api.operation_names.each do |operation_name|
             define_method(operation_name) do |params = {}, options = {}, &block|
               bucket_name = ElasticAPM::Spies::S3Spy.bucket_name(params)
-              cloud = ElasticAPM::Span::Context::Destination::Cloud.new(
-                region: ElasticAPM::Spies::S3Spy.accesspoint_region(params) || config.region
-              )
+              region = ElasticAPM::Spies::S3Spy.accesspoint_region(params) || config.region
 
               context = ElasticAPM::Span::Context.new(
                 destination: {
-                  cloud: cloud,
-                  resource: bucket_name,
-                  type: TYPE,
-                  name: SUBTYPE
+                  cloud: { region: region },
+                  service: {
+                    resource: bucket_name,
+                    type: TYPE,
+                    name: SUBTYPE
+                  }
                 }
               )
 

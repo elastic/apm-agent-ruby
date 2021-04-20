@@ -47,8 +47,8 @@ module ElasticAPM
 
       # span context destination
       expect(span.context.destination.cloud.region).to eq('us-west-1')
-      expect(span.context.destination.resource).to eq('dynamodb')
-      expect(span.context.destination.type).to eq('db')
+      expect(span.context.destination.service.resource).to eq('dynamodb')
+      expect(span.context.destination.service.type).to eq('db')
     end
 
     it "omits the table name when there is none", :intercept do

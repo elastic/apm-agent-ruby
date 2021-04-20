@@ -48,7 +48,7 @@ module ElasticAPM
           context =
             Span::Context.new(
               db: { statement: payload[:sql], type: 'sql' },
-              destination: { name: subtype, resource: subtype, type: TYPE }
+              destination: { service: { name: subtype, resource: subtype, type: TYPE } }
             )
 
           [name, TYPE, subtype, ACTION, context]

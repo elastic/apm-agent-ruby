@@ -227,6 +227,10 @@ module ElasticAPM
       instrumenter.set_user(user)
     end
 
+    def set_destination(address: nil, port: nil, service: nil, cloud: nil)
+      current_span&.set_destination(address: nil, port: nil, service: nil, cloud: nil)
+    end
+
     def build_context(rack_env:, for_type:)
       @context_builder.build(rack_env: rack_env, for_type: for_type)
     end

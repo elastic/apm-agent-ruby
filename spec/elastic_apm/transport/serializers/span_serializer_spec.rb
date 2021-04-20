@@ -147,9 +147,11 @@ module ElasticAPM
                 trace_context: trace_context,
                 context: Span::Context.new(
                   destination: {
-                    name: 'a',
-                    resource: 'b',
-                    type: 'c',
+                    service: {
+                      name: 'a',
+                      resource: 'b',
+                      type: 'c',
+                    },
                     address: 'd',
                     port: 8080
                   }

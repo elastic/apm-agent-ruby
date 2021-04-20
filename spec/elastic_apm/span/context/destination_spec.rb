@@ -28,46 +28,65 @@ module ElasticAPM
 
           subject { described_class.from_uri(uri) }
 
-          its(:name) { is_expected.to eq 'http://example.com' }
-          its(:resource) { is_expected.to eq 'example.com:80' }
-          its(:type) { is_expected.to eq 'external' }
-          its(:address) { is_expected.to eq 'example.com' }
-          its(:port) { is_expected.to eq 80 }
+          it 'parses and initializes correctly' do
+            expect(subject.address).to eq 'example.com'
+            expect(subject.port).to eq 80
+            expect(subject.service.name).to eq 'http://example.com'
+            expect(subject.service.resource).to eq 'example.com:80'
+            expect(subject.service.type).to eq 'external'
+          end
 
           context 'https' do
             let(:uri) { URI('https://example.com/path?a=1') }
-            its(:name) { is_expected.to eq 'https://example.com' }
-            its(:resource) { is_expected.to eq 'example.com:443' }
-            its(:address) { is_expected.to eq 'example.com' }
-            its(:port) { is_expected.to eq 443 }
+
+            it 'parses and initializes correctly' do
+              expect(subject.service.name).to eq 'https://example.com'
+              expect(subject.service.resource).to eq 'example.com:443'
+              expect(subject.address).to eq 'example.com'
+              expect(subject.port).to eq 443
+            end
           end
 
           context 'non-default port' do
             let(:uri) { URI('http://example.com:8080/path?a=1') }
-            its(:name) { is_expected.to eq 'http://example.com:8080' }
-            its(:resource) { is_expected.to eq 'example.com:8080' }
-            its(:address) { is_expected.to eq 'example.com' }
-            its(:port) { is_expected.to eq 8080 }
+
+            it 'parses and initializes correctly' do
+              expect(subject.service.name).to eq 'http://example.com:8080'
+              expect(subject.service.resource).to eq 'example.com:8080'
+              expect(subject.address).to eq 'example.com'
+              expect(subject.port).to eq 8080
+            end
           end
 
           context 'when given a string' do
             let(:uri) { 'http://example.com/path?a=1' }
 
-            its(:name) { is_expected.to eq 'http://example.com' }
-            its(:resource) { is_expected.to eq 'example.com:80' }
-            its(:type) { is_expected.to eq 'external' }
-            its(:address) { is_expected.to eq 'example.com' }
-            its(:port) { is_expected.to eq 80 }
+            it 'parses and initializes correctly' do
+              expect(subject.service.name).to eq 'http://example.com'
+              expect(subject.service.resource).to eq 'example.com:80'
+              expect(subject.service.type).to eq 'external'
+              expect(subject.address).to eq 'example.com'
+              expect(subject.port).to eq 80
+            end
           end
 
           context 'IPv6' do
             let(:uri) { 'http://[::1]:8080/' }
 
-            its(:name) { is_expected.to eq 'http://[::1]:8080' }
-            its(:resource) { is_expected.to eq '[::1]:8080' }
-            its(:type) { is_expected.to eq 'external' }
-            its(:address) { is_expected.to eq '::1' }
-            its(:port) { is_expected.to eq 8080 }
+            it 'parses and initializes correctly' do
+              expect(subject.service.name).to eq 'http://[::1]:8080'
+              expect(subject.service.resource).to eq '[::1]:8080'
+              expect(subject.service.type).to eq 'external'
+              expect(subject.address).to eq '::1'
+              expect(subject.port).to eq 8080
+            end
+          end
+        end
+
+        context 'when missing a value for service' do
+          it 'skips the whole thing' do
+            subject = described_class.new(service: { name: 'Bob' })
+            expect(subject.service).to be nil
           end
         end
       end

@@ -47,12 +47,13 @@ module ElasticAPM
 
       attr_reader(
         :db,
-        :destination,
         :http,
         :labels,
         :sync,
         :message
       )
+
+      attr_accessor :destination
     end
   end
 end

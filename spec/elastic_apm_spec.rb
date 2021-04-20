@@ -237,6 +237,11 @@ RSpec.describe ElasticAPM do
     it { should delegate :set_label, to: agent, args: [nil, nil] }
     it { should delegate :set_custom_context, to: agent, args: [nil] }
     it { should delegate :set_user, to: agent, args: [nil] }
+    it do
+      should delegate :set_destination,
+        to: agent,
+        args: [{address: nil, cloud: nil, port: nil, service: nil}]
+    end
 
     describe '#add_filter' do
       it { should delegate :add_filter, to: agent, args: [nil, -> {}] }
