@@ -8,7 +8,7 @@ endif::[]
 == Configuration
 
 There are several ways to configure how Elastic APM behaves.
-We recommend the method of specifying options in a `config/elastic_apm.yml` file:
+We recommend using a `config/elastic_apm.yml` file:
 
 [source,yaml]
 ----
@@ -37,7 +37,7 @@ Options are applied in the following order (last one wins):
 [[dynamic-configuration]]
 === Dynamic configuration
 
-Configuration options that are marked with the image:./images/dynamic-config.svg[] badge can be changed at runtime
+Configuration options marked with the image:./images/dynamic-config.svg[] badge can be changed at runtime
 when set from a supported source.
 
 The Agent supports {apm-app-ref}/agent-configuration.html[Central configuration],
@@ -59,7 +59,7 @@ config.elastic_apm.service_name = 'MyApp'
 [float]
 === Sinatra and Rack
 
-When using Sinatra and Rack, configure when starting
+When using Sinatra and Rack, you can configure when starting
 the agent:
 
 [source,ruby]
@@ -150,7 +150,7 @@ and port.
 
 This string is used to ensure that only your agents can send data to your APM server.
 Both the agents and the APM server have to be configured with the same secret token.
-An example to generate a secure secret token is:
+Here's an example that generates a secure secret token:
 
 [source,bash]
 ----
@@ -170,9 +170,7 @@ WARNING: Secret tokens only provide any real security if your APM server uses TL
 |============
 
 This base64-encoded string is used to ensure that only your agents can send data to your APM server.
-The API key must be created using the APM server command line tool. Please see the APM server
-documentation for details on how to create the API key. Please note that this feature is experimental in the
-APM server in version 7.6.
+The API key must be created using the {apm-server-ref-v}/api-key.html[APM server command-line tool]. 
 
 WARNING: API keys only provide any real security if your APM server uses TLS.
 
@@ -186,9 +184,9 @@ WARNING: API keys only provide any real security if your APM server uses TLS.
 
 The maximum amount of objects kept in queue before sending to APM Server.
 
-If the limit is hit, increase the agent's
-<<config-pool-size,worker pool size>> or the agent is having trouble
-connecting to APM Server. The <<config-log-path,logs>> should help to troubleshoot.
+If you hit the limit, consider increasing the agent's <<config-pool-size,worker pool size>>.
+If you don't, the agent may have trouble connecting to APM Server.
+The <<config-log-path,logs>> should tell you what went wrong.
 
 [float]
 [[config-api-request-size]]
@@ -231,7 +229,7 @@ This must be provided in *<<config-format-duration, duration format>>*.
 |============
 
 Enable or disable the tracking and collection of breakdown metrics.
-By setting this to `False`, the tracking is disabled, which can reduce the overhead of the agent.
+Setting this to `False` disables the tracking of breakdown metrics, which can reduce the overhead of the agent.
 
 NOTE: This feature requires APM Server and Kibana >= 7.3.
 
@@ -301,7 +299,7 @@ This indicates whether or not to attach `ENV` from Rack to transactions and erro
 This enables {apm-app-ref}/agent-configuration.html[APM Agent Configuration via Kibana].
 If set to `true`, the client will poll the APM Server regularly for new agent configuration.
 
-Usually APM Server determines how often to poll, but if not set the default interval is 5 minutes.
+Usually APM Server determines how often to poll, but if not, set the default interval is 5 minutes.
 
 NOTE: This feature requires APM Server v7.3 or later and that the APM Server is configured with `kibana.enabled: true`.
 
@@ -635,7 +633,7 @@ when this option is false.
 | `ELASTIC_APM_SANITIZE_FIELD_NAMES` | `sanitize_field_names` | `"password,passwd,pwd,secret,*key,*token*,*session*,*credit*,*card*,authorization,set-cookie"` | `Auth*tion,abc*,*xyz`
 |============
 
-Sometimes it is necessary to sanitize the data sent to Elastic APM to remove sensitive data.
+Sometimes it is necessary to sanitize the data sent to Elastic APM to remove sensitive values.
 
 Configure a list of wildcard patterns of field names which should be sanitized. These apply to HTTP headers and bodies, if they're being captured.
 
@@ -653,14 +651,14 @@ Matching is case insensitive.
 | `ELASTIC_APM_SERVICE_NAME` | `service_name` | App's name | `MyApp`
 |============
 
-The name of your service. This is used to group the errors and transactions of your service and is the 
+The name of your service. This is used to group the errors and transactions of your service and is
 the primary filter in the Elastic APM user interface.
 
 If you're using Ruby on Rails this will default to your app's name.
 If you're using Sinatra it will default to the name of your app's class.
 
 NOTE: The service name must conform to this regular expression: `^[a-zA-Z0-9 _-]+$`.
-Your service name must only contain characters from the ASCII
+In other words, it must only contain characters from the ASCII
 alphabet, numbers, dashes, underscores, and spaces.
 
 [float]
@@ -857,7 +855,7 @@ NOTE: We use the power-of-two sizing convention, e.g. `1 kilobyte == 1024 bytes`
 [[special-configuration]]
 === Special configuration
 
-Elastic APM patches `Kernel#require` to auto-detect and instrument supported third party libraries. However, it may conflict with some libraries.
+Elastic APM patches `Kernel#require` to auto-detect and instrument supported third-party libraries. It does so with the utmost care but in rare cases, it can conflict with some libraries.
 
 To get around this patch, set the environment variable `ELASTIC_APM_SKIP_REQUIRE_PATCH` to `"1"`.
 
