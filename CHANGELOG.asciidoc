@@ -40,6 +40,11 @@ endif::[]
 ==== Unreleased
 
 [float]
+===== Added
+
+- Added `set_service` API {pull}1006[#1006]
+
+[float]
 ===== Fixed
 
 - AWS S3 spy accepts symbol bucket names {pull}998[#998]
