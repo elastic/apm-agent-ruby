@@ -35,9 +35,10 @@ endif::[]
 [[release-notes-4.x]]
 === Ruby Agent version 4.x
 
+[[release-notes-4.0.0]]
+
 [float]
-[[unreleased]]
-==== Unreleased
+==== 4.0.0.beta.2
 
 [float]
 ===== Added
@@ -51,7 +52,7 @@ endif::[]
 - AWS S3 spy passing on blocks {pull}998[#998]
 - SQL scanner now recognizes CQL style comments {pull}1004[#1004]
 
-[[release-notes-4.0.0]]
+[float]
 ==== 4.0.0.beta.1
 
 [float]
