@@ -57,9 +57,9 @@ module ElasticAPM
         when "gcp"
           fetch_gcp
         when "azure"
-          fetch_azure
+          fetch_azure || read_azure_app_services
         when "auto"
-          fetch_aws || fetch_gcp || fetch_azure
+          fetch_aws || fetch_gcp || fetch_azure || read_azure_app_services
         when "none"
           nil
         else
@@ -124,6 +124,33 @@ module ElasticAPM
         self.region = metadata["location"]
       rescue HTTP::TimeoutError, HTTP::ConnectionError
         nil
+      end
+
+      def read_azure_app_services
+        owner_name, instance_id, site_name, resource_group =
+          ENV.values_at(
+            'WEBSITE_OWNER_NAME',
+            'WEBSITE_INSTANCE_ID',
+            'WEBSITE_SITE_NAME',
+            'WEBSITE_RESOURCE_GROUP'
+          )
+
+        return unless owner_name && instance_id && site_name && resource_group
+
+        self.provider = 'azure'
+        self.instance_id = instance_id
+        self.instance_name = site_name
+        self.project_name = resource_group
+        self.account_id, self.region = parse_azure_app_services_owner_name(owner_name)
+      end
+
+      private
+
+      def parse_azure_app_services_owner_name(owner_name)
+        id, rest = owner_name.split('+')
+        *_, region = rest.split('-')
+        region.gsub!(/webspace.*$/, '')
+        [id, region]
       end
     end
   end
