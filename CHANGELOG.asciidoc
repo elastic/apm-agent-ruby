@@ -36,24 +36,18 @@ endif::[]
 === Ruby Agent version 4.x
 
 [[release-notes-4.0.0]]
+==== 4.0.0
 
 [float]
-==== 4.0.0.beta.2
+===== Upgrading
 
-[float]
-===== Added
+Be aware that this release changes the agent's general approach to instrumenting third
+party libraries.
+It now uses `Module#prepend` over alias method chaining.
 
-- Added `set_service` API {pull}1006[#1006]
-
-[float]
-===== Fixed
-
-- AWS S3 spy accepts symbol bucket names {pull}998[#998]
-- AWS S3 spy passing on blocks {pull}998[#998]
-- SQL scanner now recognizes CQL style comments {pull}1004[#1004]
-
-[float]
-==== 4.0.0.beta.1
+This doesn't necessarily impact your application but it could if you are using other gems
+that use the old approach to patch the same method.
+Mixing the two approaches can lead to infinite recursion.
 
 [float]
 ===== Removed
@@ -72,6 +66,18 @@ endif::[]
 - Integrations (Spies) use Module#prepend over class_eval {pull}890[#890]
 - The secrets filter no longer filters based on values, see `sanitize_field_names` {pull}900[#900]
 - The secrets filter is aligned with other agents, see `sanitize_field_names` {pull}900[#900]
+
+[float]
+===== Added
+
+- Added `set_service` API {pull}1006[#1006]
+
+[float]
+===== Fixed
+
+- AWS S3 spy accepts symbol bucket names {pull}998[#998]
+- AWS S3 spy passing on blocks {pull}998[#998]
+- SQL scanner now recognizes CQL style comments {pull}1004[#1004]
 
 [[release-notes-3.x]]
 === Ruby Agent version 3.x
