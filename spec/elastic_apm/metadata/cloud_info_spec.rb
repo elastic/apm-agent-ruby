@@ -146,6 +146,35 @@ module ElasticAPM
         end
       end
 
+      context 'azure app services' do
+        let(:config) { Config.new(cloud_provider: 'azure') }
+
+        before do
+          WebMock.stub_request(
+            :get,
+            Metadata::CloudInfo::AZURE_URI
+          ).to_raise(HTTP::ConnectionError)
+        end
+
+        it 'reads metadata from ENV' do
+          with_env(
+            'WEBSITE_OWNER_NAME' => 'f5940f10-2e30-3e4d-a259-63451ba6dae4+elastic-apm-AustraliaEastwebspace',
+            'WEBSITE_INSTANCE_ID' => '__instance_id',
+            'WEBSITE_SITE_NAME' => '__site_name',
+            'WEBSITE_RESOURCE_GROUP' => '__resource_group'
+          ) do
+            subject.fetch!
+          end
+
+          expect(subject.provider).to eq "azure"
+          expect(subject.account_id).to eq "f5940f10-2e30-3e4d-a259-63451ba6dae4"
+          expect(subject.instance_id).to eq "__instance_id"
+          expect(subject.instance_name).to eq "__site_name"
+          expect(subject.project_name).to eq "__resource_group"
+          expect(subject.region).to eq "AustraliaEast"
+        end
+      end
+
       context 'auto' do
         let(:config) { Config.new(cloud_provider: 'auto') }
 
