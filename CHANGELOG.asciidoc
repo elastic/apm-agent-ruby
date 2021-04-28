@@ -35,6 +35,15 @@ endif::[]
 [[release-notes-4.x]]
 === Ruby Agent version 4.x
 
+[float]
+[[unreleased]]
+==== Unreleased
+
+[float]
+===== Added
+
+- Azure App Services instance metadata {pull}1007[#1007]
+
 [[release-notes-4.0.0]]
 ==== 4.0.0
 
