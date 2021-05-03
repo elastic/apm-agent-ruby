@@ -44,6 +44,16 @@ endif::[]
 
 - Azure App Services instance metadata {pull}1007[#1007]
 
+[float]
+===== Changed
+
+- `hostname` is now reported split by `configured_hostname` and `detected_hostname` {pull}1009[#1009]
+
+[float]
+===== Fixed
+
+- `service_node_name` is now correctly reported as `service.node.configured_name` {pull}1009[#1009]
+
 [[release-notes-4.0.0]]
 ==== 4.0.0
 
