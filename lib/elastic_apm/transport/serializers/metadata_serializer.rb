@@ -81,7 +81,8 @@ module ElasticAPM
 
         def build_system(system)
           {
-            hostname: keyword_field(system.hostname),
+            detected_hostname: keyword_field(system.detected_hostname),
+            configured_hostname: keyword_field(system.configured_hostname),
             architecture: keyword_field(system.architecture),
             platform: keyword_field(system.platform),
             kubernetes: keyword_object(system.kubernetes),
