@@ -65,7 +65,7 @@ module ElasticAPM
             }
 
           if (node_name = service.node_name)
-            base[:node] = { name: keyword_field(node_name) }
+            base[:node] = { configured_name: keyword_field(node_name) }
           end
 
           base

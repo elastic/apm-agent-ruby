@@ -43,7 +43,7 @@ module ElasticAPM
             let(:config) { Config.new(service_node_name: 'a') }
 
             it 'has a node obj' do
-              expect(result.dig(:metadata, :service, :node, :name)).to eq 'a'
+              expect(result.dig(:metadata, :service, :node, :configured_name)).to eq 'a'
             end
           end
 
