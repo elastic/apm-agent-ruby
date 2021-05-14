@@ -8,6 +8,10 @@ endif::[]
 ==== x.x.x (YYYY-MM-DD)
 
 [float]
+===== Fixed
+- Fix JSON parsing when using yajl-ruby
+
+[float]
 ===== Breaking changes
 - Breaking change
 

@@ -76,7 +76,7 @@ module ElasticAPM
         resp = @client.get(AWS_URI)
 
         return unless resp.status == 200
-        return unless (metadata = JSON.parse(resp.body))
+        return unless (metadata = JSON.parse(resp.body.to_s))
 
         self.provider = "aws"
         self.account_id = metadata["accountId"]
@@ -92,7 +92,7 @@ module ElasticAPM
         resp = @client.headers("Metadata-Flavor" => "Google").get(GCP_URI)
 
         return unless resp.status == 200
-        return unless (metadata = JSON.parse(resp.body))
+        return unless (metadata = JSON.parse(resp.body.to_s))
 
         zone = metadata["instance"]["zone"]&.split("/")&.at(-1)
 
@@ -112,7 +112,7 @@ module ElasticAPM
         resp = @client.headers("Metadata" => "true").get(AZURE_URI)
 
         return unless resp.status == 200
-        return unless (metadata = JSON.parse(resp.body))
+        return unless (metadata = JSON.parse(resp.body.to_s))
 
         self.provider = 'azure'
         self.account_id = metadata["subscriptionId"]
