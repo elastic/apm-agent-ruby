@@ -54,6 +54,7 @@ endif::[]
 - `service_node_name` is now correctly reported as `service.node.configured_name` {pull}1009[#1009]
 - Fix JSON parsing when using yajl-ruby {pull}1012[#1012]
 - Fix SpanHelpers when methods take blocks {pull}1013[#1013]
+- Fix missing `environment` param when fetching from Central Config {pull}1014[#1014]
 
 [[release-notes-4.0.0]]
 ==== 4.0.0
