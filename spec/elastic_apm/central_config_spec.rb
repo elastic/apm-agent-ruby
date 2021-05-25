@@ -57,6 +57,24 @@ module ElasticAPM
         end
       end
 
+      context 'environment' do
+        let(:config) do
+          Config.new(
+            central_config: true,
+            service_name: 'MyApp',
+            environment: 'staging'
+          )
+        end
+
+        it 'includes env in params' do
+          req_stub = stub_response({}, environment: 'staging')
+          subject.start
+          subject.promise.wait
+          expect(req_stub).to have_been_requested.at_least_once
+          subject.stop
+        end
+      end
+
       context 'when disabled' do
         let(:config) { Config.new(central_config: false) }
 
@@ -329,8 +347,10 @@ module ElasticAPM
       end
     end
 
-    def stub_response(body, request: {}, response: {}, error: nil, service_name: "MyApp")
-      url = "http://localhost:8200/config/v1/agents?service.name=#{service_name}"
+    def stub_response(body, request: {}, response: {}, error: nil, service_name: "MyApp", environment: ENV['RAILS_ENV'])
+      url = "http://localhost:8200/config/v1/agents" \
+        "?service.name=#{service_name}" \
+        "&service.environment=#{environment}"
 
       return stub_request(:get, url).to_raise(error) if error
 
