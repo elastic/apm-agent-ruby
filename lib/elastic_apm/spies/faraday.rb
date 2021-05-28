@@ -22,8 +22,8 @@ module ElasticAPM
   module Spies
     # @api private
     class FaradaySpy
-      TYPE = 'ext'
-      SUBTYPE = 'faraday'
+      TYPE = 'external'
+      SUBTYPE = 'http'
 
       def self.without_net_http
         return yield unless defined?(NetHTTPSpy)
@@ -83,7 +83,6 @@ module ElasticAPM
             "#{upcased_method} #{host}",
             TYPE,
             subtype: SUBTYPE,
-            action: upcased_method,
             context: context
           ) do |span|
             ElasticAPM::Spies::FaradaySpy.without_net_http do

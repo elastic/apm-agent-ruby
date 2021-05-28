@@ -23,8 +23,8 @@ module ElasticAPM
     # @api private
     class NetHTTPSpy
       KEY = :__elastic_apm_net_http_disabled
-      TYPE = 'ext'
-      SUBTYPE = 'net_http'
+      TYPE = 'external'
+      SUBTYPE = 'http'
 
       class << self
         def disabled=(disabled)
@@ -79,7 +79,6 @@ module ElasticAPM
             "#{method} #{host}",
             TYPE,
             subtype: SUBTYPE,
-            action: method,
             context: context
           ) do |span|
             trace_context = span&.trace_context || transaction.trace_context
