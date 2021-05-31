@@ -22,8 +22,8 @@ module ElasticAPM
   module Spies
     # @api private
     class HTTPSpy
-      TYPE = 'ext'
-      SUBTYPE = 'http_rb'
+      TYPE = 'external'
+      SUBTYPE = 'http'
 
       # @api private
       module Ext
@@ -46,7 +46,6 @@ module ElasticAPM
             name,
             TYPE,
             subtype: SUBTYPE,
-            action: method,
             context: context
           ) do |span|
             trace_context = span&.trace_context || transaction.trace_context

@@ -35,6 +35,15 @@ endif::[]
 [[release-notes-4.x]]
 === Ruby Agent version 4.x
 
+[float]
+[[unreleased]]
+==== Unreleased
+
+[float]
+===== Fixed
+
+- Align HTTP span types/subtypes with spec {pull}1014[#1014]
+
 [[release-notes-4.1.0]]
 ==== 4.1.0
 
