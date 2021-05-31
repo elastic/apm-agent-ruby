@@ -150,9 +150,9 @@ module ElasticAPM
 
       span, = @intercepted.spans
       expect(span.name).to eq 'POST example.com'
-      expect(span.type).to eq 'ext'
-      expect(span.subtype).to eq 'net_http'
-      expect(span.action).to eq 'POST'
+      expect(span.type).to eq 'external'
+      expect(span.subtype).to eq 'http'
+      expect(span.action).to be nil
 
       ElasticAPM.stop
     end

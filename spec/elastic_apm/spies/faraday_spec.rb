@@ -40,9 +40,9 @@ module ElasticAPM
 
       expect(span).to_not be nil
       expect(span.name).to eq 'GET example.com'
-      expect(span.type).to eq 'ext'
-      expect(span.subtype).to eq 'faraday'
-      expect(span.action).to eq 'GET'
+      expect(span.type).to eq 'external'
+      expect(span.subtype).to eq 'http'
+      expect(span.action).to be nil
       expect(span.outcome).to eq 'success'
     end
 
@@ -95,9 +95,9 @@ module ElasticAPM
 
       expect(span).to_not be nil
       expect(span.name).to eq 'GET example.com'
-      expect(span.type).to eq 'ext'
-      expect(span.subtype).to eq 'faraday'
-      expect(span.action).to eq 'GET'
+      expect(span.type).to eq 'external'
+      expect(span.subtype).to eq 'http'
+      expect(span.action).to be nil
     end
 
     it 'spans http calls when url in block' do
@@ -116,9 +116,9 @@ module ElasticAPM
 
       expect(span).to_not be nil
       expect(span.name).to eq 'GET example.com'
-      expect(span.type).to eq 'ext'
-      expect(span.subtype).to eq 'faraday'
-      expect(span.action).to eq 'GET'
+      expect(span.type).to eq 'external'
+      expect(span.subtype).to eq 'http'
+      expect(span.action).to be nil
     end
 
     it 'adds traceparent header' do
