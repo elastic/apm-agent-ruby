@@ -75,8 +75,9 @@ module ElasticAPM
 
           ElasticAPM.with_span(span_name, TYPE, subtype: SUBTYPE, action: action, context: context) do
             ElasticAPM::Spies.without_faraday do
-              # ElasticAPM::Spies.without_net_http do
-              super(table_name, *args)
+              ElasticAPM::Spies.without_net_http do
+                super(table_name, *args)
+              end
             end
           end
 

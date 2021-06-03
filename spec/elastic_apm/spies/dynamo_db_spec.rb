@@ -46,9 +46,7 @@ module ElasticAPM
       expect(span.context.db.type).to eq('dynamodb')
 
       # span context destination
-      expect(span.context.destination.cloud.region).to eq('us-west-1')
-      expect(span.context.destination.service.resource).to eq('dynamodb')
-      expect(span.context.destination.service.type).to eq('db')
+      expect(span.context.destination.service.resource).to eq('dynamodb/us-west-1')
     end
 
     it "omits the table name when there is none", :intercept do
@@ -66,8 +64,10 @@ module ElasticAPM
     it "captures the key_condition_expression for queries", :intercept do
       with_agent do
         ElasticAPM.with_transaction do
-          dynamo_db_client.query(table_name: 'myTable',
-                                 key_condition_expression: 'Artist = :v1')
+          dynamo_db_client.query(
+            table_name: 'myTable',
+            key_condition_expression: 'Artist = :v1'
+          )
         end
       end
 

@@ -171,9 +171,7 @@ module ElasticAPM
 
         span, = @intercepted.spans
 
-        expect(span.context.destination.service.name).to eq 'http://example.com:1234'
         expect(span.context.destination.service.resource).to eq 'example.com:1234'
-        expect(span.context.destination.service.type).to eq 'external'
         expect(span.context.destination.address).to eq 'example.com'
         expect(span.context.destination.port).to eq 1234
       end
@@ -191,31 +189,10 @@ module ElasticAPM
 
         span, = @intercepted.spans
 
-        expect(span.context.destination.service.name).to eq 'http://[::1]:8080'
         expect(span.context.destination.service.resource).to eq '[::1]:8080'
-        expect(span.context.destination.service.type).to eq 'external'
         expect(span.context.destination.address).to eq '::1'
         expect(span.context.destination.port).to eq 8080
       end
-    end
-
-    it 'handles IPv6 addresses' do
-      WebMock.stub_request(:get, %r{http://\[::1\]/.*})
-
-      with_agent do
-        ElasticAPM.with_transaction 'Net::HTTP test' do
-          Net::HTTP.start('[::1]') do |http|
-            http.get '/path'
-          end
-        end
-      end
-
-      span, = @intercepted.spans
-
-      expect(span.name).to eq 'GET [::1]'
-      expect(span.context.destination.service.name).to eq 'http://[::1]'
-      expect(span.context.destination.service.resource).to eq '[::1]:80'
-      expect(span.context.destination.service.type).to eq 'external'
     end
 
     it 'allows underscores in hostnames' do

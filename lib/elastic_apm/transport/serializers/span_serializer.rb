@@ -108,10 +108,6 @@ module ElasticAPM
               }
             end
 
-            if cloud = destination.cloud
-              base[:cloud] = { region: cloud.region }
-            end
-
             base
           end
 

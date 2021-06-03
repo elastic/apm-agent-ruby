@@ -72,6 +72,14 @@ module ElasticAPM
               expect(subject.port).to eq 8080
             end
           end
+
+          context 'type: http' do
+            subject { described_class.from_uri(uri, type: 'http') }
+
+            it 'adds destination' do
+              expect(subject.service.resource).to eq('example.com:80')
+            end
+          end
         end
       end
     end

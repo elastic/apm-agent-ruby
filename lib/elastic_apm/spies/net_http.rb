@@ -80,7 +80,7 @@ module ElasticAPM
           context =
             ElasticAPM::Span::Context.new(
               http: { url: uri, method: method },
-              destination: ElasticAPM::Span::Context::Destination.from_uri(uri)
+              destination: ElasticAPM::Span::Context::Destination.from_uri(uri, type: SUBTYPE)
             )
 
           ElasticAPM.with_span(

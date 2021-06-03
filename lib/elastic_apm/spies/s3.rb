@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
 # frozen_string_literal: true
 
 module ElasticAPM
@@ -85,15 +85,9 @@ module ElasticAPM
               bucket_name = ElasticAPM::Spies::S3Spy.bucket_name(params)
               region = ElasticAPM::Spies::S3Spy.accesspoint_region(params) || config.region
 
+              resource = "#{SUBTYPE}/#{bucket_name || 'unknown-bucket'}"
               context = ElasticAPM::Span::Context.new(
-                destination: {
-                  cloud: { region: region },
-                  service: {
-                    resource: bucket_name,
-                    type: TYPE,
-                    name: SUBTYPE
-                  }
-                }
+                destination: { service: { resource: resource } }
               )
 
               ElasticAPM.with_span(

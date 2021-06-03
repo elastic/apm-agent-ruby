@@ -43,12 +43,19 @@ module ElasticAPM
           @service = build_service(service)
         end
 
-        def self.from_uri(uri_or_str, **attrs)
+        def self.from_uri(uri_or_str, type: nil, **attrs)
           uri = normalize(uri_or_str)
+
+          service =
+            case type
+            when 'http' then http_service(uri)
+            else nil
+            end
 
           new(
             address: uri.hostname,
             port: uri.port,
+            service: service,
             **attrs
           )
         end
@@ -59,6 +66,10 @@ module ElasticAPM
           def normalize(uri_or_str)
             return uri_or_str.dup if uri_or_str.is_a?(URI)
             URI(uri_or_str)
+          end
+
+          def http_service(uri)
+            Service.new(resource: "#{uri.host}:#{uri.port}")
           end
         end
 

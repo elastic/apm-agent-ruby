@@ -22,7 +22,7 @@ module ElasticAPM
   module Spies
     # @api private
     class FaradaySpy
-      DISABLE_KEY = :__elastic_apm_net_http_disabled
+      DISABLE_KEY = :__elastic_apm_faraday_disabled
       TYPE = 'external'
       SUBTYPE = 'http'
 
@@ -76,7 +76,7 @@ module ElasticAPM
           upcased_method = method.to_s.upcase
 
           if uri
-            destination = ElasticAPM::Span::Context::Destination.from_uri(uri)
+            destination = ElasticAPM::Span::Context::Destination.from_uri(uri, type: SUBTYPE)
 
             context =
               ElasticAPM::Span::Context.new(
