@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
 # frozen_string_literal: true
 
 module ElasticAPM
@@ -22,72 +22,44 @@ module ElasticAPM
     class Context
       # @api private
       class Destination
+        include BasicObject
+
+        field :address
+        field :port
+        field :service
+        field :cloud
 
         # @api private
         class Service
-          class MissingValues < StandardError; end
+          include BasicObject
 
-          def initialize(name: nil, type: nil, resource: nil)
-            @name = name
-            @type = type
-            @resource = resource
-
-            # APM Server expects all values for service
-            raise MissingValues unless @name && @type && resource
-          end
-
-          attr_accessor :name, :type, :resource
+          field :name
+          field :type
+          field :resource
         end
 
         # @api private
         class Cloud
-          def initialize(region: nil)
-            @region = region
-          end
+          include BasicObject
 
-          attr_accessor :region
+          field :reqion
         end
 
-        def initialize(
-          address: nil,
-          port: nil,
-          service: nil,
-          cloud: nil
-        )
-          @address = address
-          @port = port
+        def initialize(**attrs)
+          super(**attrs)
+
           @service = build_service(service)
           @cloud = build_cloud(cloud)
         end
 
-        attr_reader(
-          :address,
-          :port,
-          :service,
-          :cloud
-        )
-
-        def self.from_uri(uri_or_str, type: 'external', port: nil)
+        def self.from_uri(uri_or_str, **attrs)
           uri = normalize(uri_or_str)
-
-          service = Service.new(
-            name: only_scheme_and_host(uri),
-            resource: "#{uri.host}:#{uri.port}",
-            type: type
-          )
 
           new(
             address: uri.hostname,
-            port: port || uri.port,
-            service: service
+            port: uri.port,
+            **attrs
           )
-        end
-
-        def self.only_scheme_and_host(uri_or_str)
-          uri = normalize(uri_or_str)
-          uri.path = ''
-          uri.password = uri.query = uri.fragment = nil
-          uri.to_s
         end
 
         class << self
@@ -102,12 +74,10 @@ module ElasticAPM
         private
 
         def build_service(service = nil)
-          return unless service
+          return Service.new unless service
           return service if service.is_a?(Service)
 
           Service.new(**service)
-        rescue Service::MissingValues
-          nil # If we are missing any service value, return nothing
         end
 
         def build_cloud(cloud = nil)

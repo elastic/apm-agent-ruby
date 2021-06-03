@@ -23,14 +23,19 @@ require 'azure/storage/table'
 module ElasticAPM
   RSpec.describe 'Spy: Azure Storage Table' do
     let(:client) do
-      common = ::Azure::Storage::Common::Client.create_development
-      ::Azure::Storage::Table::TableService.new(client: common)
+      common_client = ::Azure::Storage::Common::Client.create(
+        storage_account_name: 'abc',
+        storage_access_key: Base64.encode64('xyz'),
+        storage_table_host: 'https://my-account.table.core.windows.net'
+      )
+
+      ::Azure::Storage::Table::TableService.new(client: common_client)
     end
 
     def stub_server(path:, body: {})
       stub_request(
         :get,
-        "http://127.0.0.1:10002/devstoreaccount1#{path}"
+        "https://my-account.table.core.windows.net#{path}"
       ).to_return(body: body.to_json)
     end
 
@@ -44,22 +49,24 @@ module ElasticAPM
         end
       end
 
-      span = @intercepted.spans.first
+      expect(@intercepted.spans.length).to be 1
 
-      expect(span.name).to eq('AzureStorageTable get_entity testtable')
-      # expect(span.type).to eq('db')
-      # expect(span.subtype).to eq('dynamodb')
-      # expect(span.action).to eq(:delete_item)
-      # expect(span.outcome).to eq('success')
+      span, = @intercepted.spans
 
-      # # span context db
-      # expect(span.context.db.instance).to eq('us-west-1')
-      # expect(span.context.db.type).to eq('dynamodb')
+      expect(span.name).to eq('AzureTable GetEntity testtable')
+      expect(span.type).to eq('storage')
+      expect(span.subtype).to eq('azuretable')
+      expect(span.action).to eq('GetEntity')
+      expect(span.outcome).to eq('success')
 
-      # # span context destination
-      # expect(span.context.destination.cloud.region).to eq('us-west-1')
-      # expect(span.context.destination.resource).to eq('dynamodb')
-      # expect(span.context.destination.type).to eq('db')
+      # span context destination
+      expect(span.context.destination.address).to eq('my-account.table.core.windows.net')
+      expect(span.context.destination.port).to eq(443)
+      expect(span.context.destination.service.resource).to eq('azuretable/my-account')
+
+      # deprecated fields will be filled in later
+      expect(span.context.destination.service.name).to be nil
+      expect(span.context.destination.service.type).to be nil
 
       expect(@stub).to have_been_requested
     end

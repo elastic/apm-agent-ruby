@@ -31,9 +31,11 @@ module ElasticAPM
           it 'parses and initializes correctly' do
             expect(subject.address).to eq 'example.com'
             expect(subject.port).to eq 80
-            expect(subject.service.name).to eq 'http://example.com'
             expect(subject.service.resource).to eq 'example.com:80'
-            expect(subject.service.type).to eq 'external'
+
+            # deprecated
+            expect(subject.service.name).to be nil
+            expect(subject.service.type).to be nil
           end
 
           context 'https' do
