@@ -65,10 +65,6 @@ module ElasticAPM
       expect(span.context.destination.port).to eq(443)
       expect(span.context.destination.service.resource).to eq("azuretable/my-account")
 
-      # deprecated fields will be filled in later
-      expect(span.context.destination.service.name).to be(nil)
-      expect(span.context.destination.service.type).to be(nil)
-
       expect(@stub).to have_been_requested
     end
   end
