@@ -37,7 +37,8 @@ module ElasticAPM
     def stub_server(path:, body: {})
       stub_request(
         :get,
-        "https://my-account.table.core.windows.net#{path}"      ).to_return(body: body.to_json)
+        "https://my-account.table.core.windows.net#{path}"
+      ).to_return(body: body.to_json)
     end
 
     it "spans operations", :intercept do
