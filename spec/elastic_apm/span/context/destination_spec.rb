@@ -31,7 +31,6 @@ module ElasticAPM
           it 'parses and initializes correctly' do
             expect(subject.address).to eq 'example.com'
             expect(subject.port).to eq 80
-            expect(subject.service.resource).to eq 'example.com:80'
 
             # deprecated
             expect(subject.service.name).to be nil
@@ -42,8 +41,6 @@ module ElasticAPM
             let(:uri) { URI('https://example.com/path?a=1') }
 
             it 'parses and initializes correctly' do
-              expect(subject.service.name).to eq 'https://example.com'
-              expect(subject.service.resource).to eq 'example.com:443'
               expect(subject.address).to eq 'example.com'
               expect(subject.port).to eq 443
             end
@@ -53,8 +50,6 @@ module ElasticAPM
             let(:uri) { URI('http://example.com:8080/path?a=1') }
 
             it 'parses and initializes correctly' do
-              expect(subject.service.name).to eq 'http://example.com:8080'
-              expect(subject.service.resource).to eq 'example.com:8080'
               expect(subject.address).to eq 'example.com'
               expect(subject.port).to eq 8080
             end
@@ -64,9 +59,6 @@ module ElasticAPM
             let(:uri) { 'http://example.com/path?a=1' }
 
             it 'parses and initializes correctly' do
-              expect(subject.service.name).to eq 'http://example.com'
-              expect(subject.service.resource).to eq 'example.com:80'
-              expect(subject.service.type).to eq 'external'
               expect(subject.address).to eq 'example.com'
               expect(subject.port).to eq 80
             end
@@ -76,19 +68,9 @@ module ElasticAPM
             let(:uri) { 'http://[::1]:8080/' }
 
             it 'parses and initializes correctly' do
-              expect(subject.service.name).to eq 'http://[::1]:8080'
-              expect(subject.service.resource).to eq '[::1]:8080'
-              expect(subject.service.type).to eq 'external'
               expect(subject.address).to eq '::1'
               expect(subject.port).to eq 8080
             end
-          end
-        end
-
-        context 'when missing a value for service' do
-          it 'skips the whole thing' do
-            subject = described_class.new(service: { name: 'Bob' })
-            expect(subject.service).to be nil
           end
         end
       end

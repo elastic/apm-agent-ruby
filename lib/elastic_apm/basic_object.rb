@@ -32,12 +32,17 @@ module ElasticAPM
     module ClassMethods
       def field(key)
         attr_accessor(key)
+        fields.push(key)
       end
+
+      attr_reader :fields
     end
 
     def self.included(cls)
       cls.extend(ClassMethods)
       cls.include(InstanceMethods)
+
+      cls.instance_variable_set(:@fields, [])
     end
   end
 end

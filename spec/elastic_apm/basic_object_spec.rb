@@ -24,11 +24,16 @@ module ElasticAPM
     class MyObject
       include BasicObject
       field :name
+      field :address
     end
 
     it "adds an initializer and accessors" do
       subject = MyObject.new(name: "thing")
       expect(subject.name).to(eq("thing"))
+    end
+
+    it 'knows its fields' do
+      expect(MyObject.fields).to eq(%i[name address])
     end
   end
 end
