@@ -112,7 +112,8 @@ module ElasticAPM
         context.destination.service ||= Context::Destination::Service.new
         context.destination.service.resource ||= (subtype || type)
 
-        # deprecated fields
+        # Deprecated fields but required by some versions of APM Server, so
+        # we auto-infer them from existing fields
         context.destination.service.name ||= (subtype || type)
         context.destination.service.type ||= type
       end
