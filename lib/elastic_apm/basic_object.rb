@@ -18,6 +18,20 @@
 # frozen_string_literal: true
 
 module ElasticAPM
+  # An interface for creating simple, value holding objects that correspond to
+  # object fields in the API.
+  #
+  # Example:
+  #   class MyThing
+  #     include BasicObject
+  #     field :name
+  #     field :address, optional: true
+  #   end
+  #   
+  #   MyThing.new(name: 'AJ').to_h
+  #     # => { name: 'AJ' }
+  #   MyThing.new().empty?
+  #     # => true
   module BasicObject
     module InstanceMethods
       def initialize(**attrs)
