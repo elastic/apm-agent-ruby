@@ -47,6 +47,7 @@ module ElasticAPM
 
         # Span context
         expect(span.context.destination.service.resource).to eq('sns/MyTopic')
+        expect(span.context.destination.cloud.region).to eq('us-east-1')
         expect(span.context.message.queue_name).to eq('MyTopic')
       end
 

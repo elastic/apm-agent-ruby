@@ -52,7 +52,10 @@ module ElasticAPM
       def self.span_context(queue_name, region)
         ElasticAPM::Span::Context.new(
           message: { queue_name: queue_name },
-          destination: { service: { resource: "#{SUBTYPE}/#{queue_name}" } }
+          destination: {
+            service: { resource: "#{SUBTYPE}/#{queue_name}" },
+            cloud: { region: region }
+          }
         )
       end
 

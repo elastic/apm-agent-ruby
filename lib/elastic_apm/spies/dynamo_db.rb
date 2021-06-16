@@ -63,7 +63,8 @@ module ElasticAPM
                   statement: params[:key_condition_expression]
                 },
                 destination: {
-                  service: { resource: "#{SUBTYPE}/#{config.region}" }
+                  service: { resource: "#{SUBTYPE}/#{config.region}" },
+                  cloud: { region: config.region }
                 }
               )
 

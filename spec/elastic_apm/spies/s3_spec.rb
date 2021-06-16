@@ -43,6 +43,7 @@ module ElasticAPM
 
       # span context destination
       expect(span.context.destination.service.resource).to eq('s3/my-bucket')
+      expect(span.context.destination.cloud.region).to eq('us-west-1')
     end
 
     context 'when bucket name is a symbol' do
@@ -92,6 +93,39 @@ module ElasticAPM
         expect(span.name).to eq('S3 GetObject accesspoint/myendpoint')
         expect(span.context.destination.service.resource).to eq('s3/accesspoint/myendpoint')
       end
+    end
+
+    it 'extracts the region from the access point with a slash', :intercept do
+      with_agent do
+        ElasticAPM.with_transaction do
+          s3_client.get_object(
+            bucket: 'arn:aws:s3:us-east-2:123456789012:accesspoint/myendpoint',
+            key: 'test'
+          )
+        end
+      end
+
+      span = @intercepted.spans.first
+
+      expect(span.context.destination.cloud.region).to eq('us-east-2')
+      expect(span.context.destination.service.resource).to eq('s3/accesspoint/myendpoint')
+    end
+
+    it 'extracts the region from the access point with a colon', :intercept do
+      with_agent do
+        ElasticAPM.with_transaction do
+          s3_client.get_object(
+            bucket: 'arn:aws:s3:us-east-2:123456789012:accesspoint:myendpoint',
+            key: 'test'
+          )
+        end
+      end
+
+      span = @intercepted.spans.first
+
+      expect(span.name).to eq('S3 GetObject accesspoint:myendpoint')
+      expect(span.context.destination.service.resource).to eq('s3/accesspoint:myendpoint')
+      expect(span.context.destination.cloud.region).to eq('us-east-2')
     end
 
     context 'when the operation fails' do

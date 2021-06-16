@@ -142,11 +142,12 @@ module ElasticAPM
       started? && !stopped?
     end
 
-    def set_destination(address: nil, port: nil, service: nil)
+    def set_destination(address: nil, port: nil, service: nil, cloud: nil)
       context.destination = Span::Context::Destination.new(
         address: address,
         port: port,
-        service: service
+        service: service,
+        cloud: cloud
       )
     end
 

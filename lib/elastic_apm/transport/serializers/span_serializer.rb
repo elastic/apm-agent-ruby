@@ -108,6 +108,10 @@ module ElasticAPM
               }
             end
 
+            if cloud = destination.cloud
+              base[:cloud] = { region: keyword_field(cloud.region) }
+            end
+
             base
           end
 

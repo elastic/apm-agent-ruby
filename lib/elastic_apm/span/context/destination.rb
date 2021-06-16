@@ -27,6 +27,7 @@ module ElasticAPM
         field :address
         field :port
         field :service
+        field :cloud
 
         # @api private
         class Service
@@ -37,10 +38,18 @@ module ElasticAPM
           field :resource
         end
 
-        def initialize(**attrs)
+        # @api private
+        class Cloud
+          include BasicObject
+
+          field :region
+        end
+
+        def initialize(service: nil, cloud: nil, **attrs)
           super(**attrs)
 
-          @service = build_service(service)
+          self.service = build_service(service)
+          self.cloud = build_cloud(cloud)
         end
 
         def self.from_uri(uri_or_str, type: nil, **attrs)
@@ -74,6 +83,13 @@ module ElasticAPM
         end
 
         private
+
+        def build_cloud(cloud = nil)
+          return Cloud.new unless cloud
+          return cloud if cloud.is_a?(Cloud)
+
+          Cloud.new(**cloud)
+        end
 
         def build_service(service = nil)
           return Service.new unless service
