@@ -27,15 +27,40 @@ module ElasticAPM
 
         super()
       end
+
+      def empty?
+        self.class.fields.each do |key|
+          next if send(key)
+          next if optionals.include?(key)
+
+          return true
+        end
+
+        false
+      end
+
+      def to_h
+        self.class.fields.each_with_object({}) do |key, fields|
+          fields[key] = send(key)
+        end
+      end
+
+      private
+
+      def optionals
+        self.class.optionals
+      end
     end
 
     module ClassMethods
-      def field(key)
+      def field(key, optional: false)
         attr_accessor(key)
+
         fields.push(key)
+        optionals.push(key) if optional
       end
 
-      attr_reader :fields
+      attr_reader :fields, :optionals
     end
 
     def self.included(cls)
@@ -43,6 +68,7 @@ module ElasticAPM
       cls.include(InstanceMethods)
 
       cls.instance_variable_set(:@fields, [])
+      cls.instance_variable_set(:@optionals, [])
     end
   end
 end

@@ -23,8 +23,9 @@ module ElasticAPM
   RSpec.describe BasicObject do
     class MyObject
       include BasicObject
+
       field :name
-      field :address
+      field :address, optional: true
     end
 
     it "adds an initializer and accessors" do
@@ -32,8 +33,20 @@ module ElasticAPM
       expect(subject.name).to(eq("thing"))
     end
 
-    it 'knows its fields' do
+    it "knows its fields" do
       expect(MyObject.fields).to eq(%i[name address])
+    end
+
+    describe "#empty?" do
+      it "is when missing all values" do
+        subject = MyObject.new
+        expect(subject).to be_empty
+      end
+
+      it "isn't when all fields set" do
+        subject = MyObject.new(name: 'a', address: 'b')
+        expect(subject).to_not be_empty
+      end
     end
   end
 end
