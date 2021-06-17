@@ -23,16 +23,16 @@ module ElasticAPM
   #
   # Example:
   #   class MyThing
-  #     include IntakeObject
+  #     include Fields
   #     field :name
   #     field :address, optional: true
   #   end
-  #   
+  #
   #   MyThing.new(name: 'AJ').to_h
   #     # => { name: 'AJ' }
   #   MyThing.new().empty?
   #     # => true
-  module IntakeObject
+  module Fields
     module InstanceMethods
       def initialize(**attrs)
         attrs.each do |key, value|

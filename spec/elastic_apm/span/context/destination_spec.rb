@@ -86,7 +86,6 @@ module ElasticAPM
             it "parses and initializes correctly" do
               expect(subject.address).to eq("::1")
               expect(subject.port).to eq(8080)
-              expect(subject.service.resource).to eq '[::1]:8080'
             end
           end
 
