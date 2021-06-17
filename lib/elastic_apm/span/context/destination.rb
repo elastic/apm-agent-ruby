@@ -22,7 +22,7 @@ module ElasticAPM
     class Context
       # @api private
       class Destination
-        include BasicObject
+        include IntakeObject
 
         field :address
         field :port
@@ -31,7 +31,7 @@ module ElasticAPM
 
         # @api private
         class Service
-          include BasicObject
+          include IntakeObject
 
           field :name
           field :type
@@ -40,7 +40,7 @@ module ElasticAPM
 
         # @api private
         class Cloud
-          include BasicObject
+          include IntakeObject
 
           field :region
         end

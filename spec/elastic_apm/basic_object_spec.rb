@@ -20,9 +20,9 @@
 require "spec_helper"
 
 module ElasticAPM
-  RSpec.describe BasicObject do
+  RSpec.describe IntakeObject do
     class MyObject
-      include BasicObject
+      include IntakeObject
 
       field :name
       field :address, optional: true

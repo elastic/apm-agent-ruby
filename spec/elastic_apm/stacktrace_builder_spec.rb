@@ -111,7 +111,7 @@ module ElasticAPM
         [true, "/Users/someone/.gem/ruby/2.5.0/gems/railties-5.1.5/lib/rails.rb:24:in `whatever'"],
         [true, "/app/vendor/bundle/ruby/2.5.0/bundler/gems/apm-agent-ruby-8135f18735fb/lib/elastic_apm/subscriber.rb:10:in `things'"],
         [true, "/app/vendor/ruby-2.5.0/lib/ruby/2.5.0/benchmark.rb:10:in `things'"],
-        [true, "org/jruby/RubyBasicObject.java:1728:in `instance_exec'"],
+        [true, "org/jruby/BasicObject.java:1728:in `instance_exec'"],
         [true, "/tmp/vendor/j9.1/jruby/2.3.0/bin/rspec:1:in `<main>'"],
         [true, "/usr/local/lib/ruby/gems/2.5.0/gems/bundler-1.16.1/lib/bundler/friendly_errors.rb:122:in `yield'"]
         # rubocop:enable Layout/LineLength
