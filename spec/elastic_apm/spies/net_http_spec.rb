@@ -265,5 +265,20 @@ module ElasticAPM
       expect(@intercepted.transactions.length).to be 1
       expect(@intercepted.spans.length).to be 1
     end
+
+    it 'supports path being a uri' do
+      WebMock.stub_request(:any, %r{http://*})
+
+      with_agent do
+        ElasticAPM.with_transaction 'Net::HTTP test' do
+          Net::HTTP.start(nil) do |http|
+            http.get 'https://www.foo.bar/test'
+          end
+        end
+      end
+
+      expect(@intercepted.transactions.length).to be 1
+      expect(@intercepted.spans.length).to be 1
+    end
   end
 end
