@@ -60,7 +60,12 @@ module ElasticAPM
 
           host = req['host']&.split(':')&.first || address || 'localhost'
           method = req.method.to_s.upcase
-          path, query = req.path.split('?')
+          uri_or_path = URI.parse(req.path)
+          if uri_or_path.host.nil?
+            path, query = req.path.split('?')
+          else
+            path, query = uri_or_path.path.split('?')
+          end
 
           url = use_ssl? ? +'https://' : +'http://'
           url << host
