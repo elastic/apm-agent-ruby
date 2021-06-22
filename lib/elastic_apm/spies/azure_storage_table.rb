@@ -26,63 +26,99 @@ module ElasticAPM
       SUBTYPE = "azuretable"
 
       module Helpers
-        @@formatted_op_names = Concurrent::Map.new
-        @@account_names = Concurrent::Map.new
+        class << self
+          def instrument(operation_name, table_name = nil, service:)
+            span_name = span_name(operation_name, table_name)
+            action = formatted_op_name(operation_name)
+            account_name = account_name_from_storage_table_host(service.storage_service_host[:primary])
 
-        def self.span_name(operation_name, table_name = nil)
-          base = "AzureTable #{formatted_op_name(operation_name)}"
+            destination = ElasticAPM::Span::Context::Destination.from_uri(service.storage_service_host[:primary])
+            destination.service.resource = "#{SUBTYPE}/#{account_name}"
 
-          return base unless table_name
+            context = ElasticAPM::Span::Context.new(destination: destination)
 
-          "#{base} #{table_name}"
-        end
-
-        def self.formatted_op_name(operation_name)
-          @@formatted_op_names.compute_if_absent(operation_name) do
-            operation_name.to_s.split("_").collect(&:capitalize).join
+            ElasticAPM.with_span(span_name, TYPE, subtype: SUBTYPE, action: action, context: context) do
+              ElasticAPM::Spies.without_faraday do
+                ElasticAPM::Spies.without_net_http do
+                  yield
+                end
+              end
+            end
           end
-        end
 
-        def self.account_name_from_storage_table_host(host)
-          @@account_names.compute_if_absent(host) do
-            URI(host).host.split(".").first || "unknown"
+          private
+
+          def formatted_op_names
+            @formatted_op_names ||= Concurrent::Map.new
           end
-        rescue Exception
-          "unknown"
+
+          def account_names
+            @account_names ||= Concurrent::Map.new
+          end
+
+          def span_name(operation_name, table_name = nil)
+            base = "AzureTable #{formatted_op_name(operation_name)}"
+
+            return base unless table_name
+
+            "#{base} #{table_name}"
+          end
+
+          def formatted_op_name(operation_name)
+            formatted_op_names.compute_if_absent(operation_name) do
+              operation_name.to_s.split("_").collect(&:capitalize).join
+            end
+          end
+
+          def account_name_from_storage_table_host(host)
+            account_names.compute_if_absent(host) do
+              URI(host).host.split(".").first || "unknown"
+            end
+          rescue Exception
+            "unknown"
+          end
+
         end
       end
 
       # @api private
       module Ext
-        def get_entity(table_name, *args)
-          unless (transaction = ElasticAPM.current_transaction)
-            return super(table_name, *args)
-          end
+        # Methods with table_name as first parameter
+        %i[
+        create_table
+        delete_table
+        get_table
+        get_table_acl
+        set_table_acl
+        insert_entity
+        query_entities
+        update_entity
+        merge_entity
+        delete_entity
+        get_entity
+        ].each do |method_name|
+          define_method(method_name) do |table_name, *args|
+            unless (transaction = ElasticAPM.current_transaction)
+              return super(table_name, *args)
+            end
 
-          operation_name = "get_entity"
-
-          helpers = ElasticAPM::Spies::AzureStorageTableSpy::Helpers
-          span_name = helpers.span_name(operation_name, table_name)
-          action = helpers.formatted_op_name(operation_name)
-          account_name = helpers.account_name_from_storage_table_host(storage_service_host[:primary])
-
-          # Parse cloud info from endpoint url?
-          # pp(storage_service_host)
-          destination = ElasticAPM::Span::Context::Destination.from_uri(storage_service_host[:primary])
-          destination.service.resource = "#{SUBTYPE}/#{account_name}"
-
-          context = ElasticAPM::Span::Context.new(destination: destination)
-
-          ElasticAPM.with_span(span_name, TYPE, subtype: SUBTYPE, action: action, context: context) do
-            ElasticAPM::Spies.without_faraday do
-              ElasticAPM::Spies.without_net_http do
-                super(table_name, *args)
-              end
+            ElasticAPM::Spies::AzureStorageTableSpy::Helpers.instrument(method_name.to_s, table_name, service: self) do
+              super(table_name, *args)
             end
           end
-
-          # end
         end
+
+        # Methods WITHOUT table_name as first parameter
+        def query_tables(*args)
+          unless (transaction = ElasticAPM.current_transaction)
+            return super(*args)
+          end
+
+          ElasticAPM::Spies::AzureStorageTableSpy::Helpers.instrument('query_tables', service: self) do
+            super(*args)
+          end
+        end
+
       end
 
       def install
