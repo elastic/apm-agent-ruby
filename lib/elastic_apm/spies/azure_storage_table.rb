@@ -88,7 +88,6 @@ module ElasticAPM
             account_names.compute_if_absent(host) do
               URI(host).host.split(".").first || "unknown"
             end
-
           rescue Exception
             "unknown"
           end
@@ -115,7 +114,9 @@ module ElasticAPM
               return super(table_name, *args)
             end
 
-            ElasticAPM::Spies::AzureStorageTableSpy::Helpers.instrument(method_name.to_s, table_name, service: self) do
+            ElasticAPM::Spies::AzureStorageTableSpy::Helpers.instrument(
+              method_name.to_s, table_name, service: self
+            ) do
               super(table_name, *args)
             end
           end
