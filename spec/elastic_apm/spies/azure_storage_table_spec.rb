@@ -120,8 +120,8 @@ module ElasticAPM
         expect(@intercepted.spans.length).to be(1)
         span, = @intercepted.spans
 
-        expect(span.name).to eq("AzureTable GetTableAcl testtable")
-        expect(span.action).to eq("GetTableAcl")
+        expect(span.name).to eq("AzureTable GetAcl testtable")
+        expect(span.action).to eq("GetAcl")
       end
     end
 
@@ -138,8 +138,8 @@ module ElasticAPM
         expect(@intercepted.spans.length).to be(1)
         span, = @intercepted.spans
 
-        expect(span.name).to eq("AzureTable SetTableAcl testtable")
-        expect(span.action).to eq("SetTableAcl")
+        expect(span.name).to eq("AzureTable SetAcl testtable")
+        expect(span.action).to eq("SetAcl")
       end
     end
 
@@ -156,8 +156,8 @@ module ElasticAPM
         expect(@intercepted.spans.length).to be(1)
         span, = @intercepted.spans
 
-        expect(span.name).to eq("AzureTable InsertEntity testtable")
-        expect(span.action).to eq("InsertEntity")
+        expect(span.name).to eq("AzureTable Insert testtable")
+        expect(span.action).to eq("Insert")
       end
     end
 
@@ -174,8 +174,8 @@ module ElasticAPM
         expect(@intercepted.spans.length).to be(1)
         span, = @intercepted.spans
 
-        expect(span.name).to eq("AzureTable QueryEntities testtable")
-        expect(span.action).to eq("QueryEntities")
+        expect(span.name).to eq("AzureTable Query testtable")
+        expect(span.action).to eq("Query")
       end
     end
 
@@ -192,8 +192,8 @@ module ElasticAPM
         expect(@intercepted.spans.length).to be(1)
         span, = @intercepted.spans
 
-        expect(span.name).to eq("AzureTable UpdateEntity testtable")
-        expect(span.action).to eq("UpdateEntity")
+        expect(span.name).to eq("AzureTable Update testtable")
+        expect(span.action).to eq("Update")
       end
     end
 
@@ -210,8 +210,8 @@ module ElasticAPM
         expect(@intercepted.spans.length).to be(1)
         span, = @intercepted.spans
 
-        expect(span.name).to eq("AzureTable MergeEntity testtable")
-        expect(span.action).to eq("MergeEntity")
+        expect(span.name).to eq("AzureTable Merge testtable")
+        expect(span.action).to eq("Merge")
       end
     end
 
@@ -228,8 +228,8 @@ module ElasticAPM
         expect(@intercepted.spans.length).to be(1)
         span, = @intercepted.spans
 
-        expect(span.name).to eq("AzureTable DeleteEntity testtable")
-        expect(span.action).to eq("DeleteEntity")
+        expect(span.name).to eq("AzureTable Delete testtable")
+        expect(span.action).to eq("Delete")
       end
     end
 
@@ -243,13 +243,11 @@ module ElasticAPM
           end
         end
 
-        expect(@intercepted.spans.length).to be(2)
-        q_span, span = @intercepted.spans
+        expect(@intercepted.spans.length).to be(1)
+        span, = @intercepted.spans
 
-        expect(q_span.name).to eq("AzureTable QueryEntities testtable")
-        expect(q_span.action).to eq("QueryEntities")
-        expect(span.name).to eq("AzureTable GetEntity testtable")
-        expect(span.action).to eq("GetEntity")
+        expect(span.name).to eq("AzureTable Query testtable")
+        expect(span.action).to eq("Query")
       end
     end
 

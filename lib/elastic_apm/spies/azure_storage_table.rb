@@ -48,6 +48,18 @@ module ElasticAPM
 
           private
 
+          DEFAULT_OP_NAMES = {
+            "create_table" => "Create",
+            "delete_table" => "Delete",
+            "get_table_acl" => "GetAcl",
+            "set_table_acl" => "SetAcl",
+            "insert_entity" => "Insert",
+            "query_entities" => "Query",
+            "update_entity" => "Update",
+            "merge_entity" => "Merge",
+            "delete_entity" => "Delete"
+          }.freeze
+
           def formatted_op_names
             @formatted_op_names ||= Concurrent::Map.new
           end
@@ -66,7 +78,9 @@ module ElasticAPM
 
           def formatted_op_name(operation_name)
             formatted_op_names.compute_if_absent(operation_name) do
-              operation_name.to_s.split("_").collect(&:capitalize).join
+              DEFAULT_OP_NAMES.fetch(operation_name) do
+                operation_name.to_s.split("_").collect(&:capitalize).join
+              end
             end
           end
 
@@ -74,10 +88,10 @@ module ElasticAPM
             account_names.compute_if_absent(host) do
               URI(host).host.split(".").first || "unknown"
             end
+
           rescue Exception
             "unknown"
           end
-
         end
       end
 
@@ -85,17 +99,16 @@ module ElasticAPM
       module Ext
         # Methods with table_name as first parameter
         %i[
-        create_table
-        delete_table
-        get_table
-        get_table_acl
-        set_table_acl
-        insert_entity
-        query_entities
-        update_entity
-        merge_entity
-        delete_entity
-        get_entity
+          create_table
+          delete_table
+          get_table
+          get_table_acl
+          set_table_acl
+          insert_entity
+          query_entities
+          update_entity
+          merge_entity
+          delete_entity
         ].each do |method_name|
           define_method(method_name) do |table_name, *args|
             unless (transaction = ElasticAPM.current_transaction)
@@ -114,11 +127,10 @@ module ElasticAPM
             return super(*args)
           end
 
-          ElasticAPM::Spies::AzureStorageTableSpy::Helpers.instrument('query_tables', service: self) do
+          ElasticAPM::Spies::AzureStorageTableSpy::Helpers.instrument("query_tables", service: self) do
             super(*args)
           end
         end
-
       end
 
       def install
