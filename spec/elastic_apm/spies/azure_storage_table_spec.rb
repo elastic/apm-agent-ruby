@@ -58,10 +58,10 @@ module ElasticAPM
         expect(@intercepted.spans.length).to be(1)
         span, = @intercepted.spans
 
-        expect(span.name).to eq("AzureTable CreateTable testtable")
+        expect(span.name).to eq("AzureTable Create testtable")
         expect(span.type).to eq("storage")
         expect(span.subtype).to eq("azuretable")
-        expect(span.action).to eq("CreateTable")
+        expect(span.action).to eq("Create")
         expect(span.outcome).to eq("success")
 
         # span context destination
@@ -84,8 +84,8 @@ module ElasticAPM
         expect(@intercepted.spans.length).to be(1)
         span, = @intercepted.spans
 
-        expect(span.name).to eq("AzureTable DeleteTable testtable")
-        expect(span.action).to eq("DeleteTable")
+        expect(span.name).to eq("AzureTable Delete testtable")
+        expect(span.action).to eq("Delete")
       end
     end
 
