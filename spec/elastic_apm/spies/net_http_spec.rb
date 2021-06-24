@@ -262,8 +262,8 @@ module ElasticAPM
         end
       end
 
-      expect(@intercepted.transactions.length).to be 1
-      expect(@intercepted.spans.length).to be 1
+      span, = @intercepted.spans
+      expect(span.context.http.url).to eq 'http://localhost/bar'
     end
 
     it 'supports path being a uri' do
@@ -277,8 +277,8 @@ module ElasticAPM
         end
       end
 
-      expect(@intercepted.transactions.length).to be 1
-      expect(@intercepted.spans.length).to be 1
+      span, = @intercepted.spans
+      expect(span.context.http.url).to eq 'https://www.foo.bar/test'
     end
   end
 end
