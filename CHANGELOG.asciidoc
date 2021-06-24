@@ -43,6 +43,7 @@ endif::[]
 ===== Fixed
 
 - Align HTTP span types/subtypes with spec {pull}1014[#1014]
+- Passing a full URL as a path to `Net::HTTP` {pull}1029[#1029]
 
 [[release-notes-4.1.0]]
 ==== 4.1.0

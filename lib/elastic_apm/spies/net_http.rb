@@ -60,14 +60,22 @@ module ElasticAPM
 
           host = req['host']&.split(':')&.first || address || 'localhost'
           method = req.method.to_s.upcase
-          path, query = req.path.split('?')
 
-          url = use_ssl? ? +'https://' : +'http://'
-          url << host
-          url << ":#{port}" if port
-          url << path
-          url << "?#{query}" if query
-          uri = URI(url)
+          uri_or_path = URI(req.path)
+
+          # Support the case where a whole url is passed as a path to a nil host
+          uri =
+            if uri_or_path.host
+              uri_or_path
+            else
+              path, query = req.path.split('?')
+              url = use_ssl? ? +'https://' : +'http://'
+              url << host
+              url << ":#{port}" if port
+              url << path
+              url << "?#{query}" if query
+              URI(url)
+            end
 
           context =
             ElasticAPM::Span::Context.new(
