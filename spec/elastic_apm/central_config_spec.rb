@@ -192,6 +192,7 @@ module ElasticAPM
             request: { headers: { 'Etag': '___etag___' } }
           )
 
+          expect(subject.send(:headers)).to eq('If-None-Match': '___etag___')
           subject.fetch_and_apply_config
           subject.promise.wait
         end
