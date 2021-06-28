@@ -189,10 +189,10 @@ module ElasticAPM
 
           stub_response(
             nil,
-            request: { headers: { 'Etag': '___etag___' } }
+            request: { headers: { 'If-None-Match': '___etag___' } },
+            response: { headers: { 'Etag': '___etag___' } }
           )
 
-          expect(subject.send(:headers)).to eq('If-None-Match': '___etag___')
           subject.fetch_and_apply_config
           subject.promise.wait
         end
