@@ -189,7 +189,8 @@ module ElasticAPM
 
           stub_response(
             nil,
-            request: { headers: { 'Etag': '___etag___' } }
+            request: { headers: { 'If-None-Match': '___etag___' } },
+            response: { headers: { 'Etag': '___etag___' } }
           )
 
           subject.fetch_and_apply_config

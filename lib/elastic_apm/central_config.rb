@@ -169,7 +169,7 @@ module ElasticAPM
     end
 
     def headers
-      { 'Etag': @etag }
+      { 'If-None-Match': @etag }
     end
 
     def schedule_next_fetch(resp = nil)
