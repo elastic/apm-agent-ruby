@@ -51,21 +51,23 @@ RSpec.configure do |config|
     def stop; end
 
     def validate_span!(span)
+      type, subtype = [span.type, span.subtype]
+
       begin
-        type = @span_types.fetch(span.type)
+        info = @span_types.fetch(type)
       rescue KeyError
-        raise "Unknown span.type `#{span.type}'\nPossible types: #{@span_types.keys.join(', ')}"
+        raise "Unknown span.type `#{type}'\nPossible types: #{@span_types.keys.join(', ')}"
       end
 
-      return unless (subtypes = type['subtypes'])
+      return unless (allowed_subtypes = info['subtypes'])
 
-      if !type['optional_subtype'] && !span.subtype
-        raise "span.subtype missing when required,\nPossible subtypes: #{subtypes}"
+      if !info['optional_subtype'] && !subtype
+        raise "span.subtype missing when required,\nPossible subtypes: #{allowed_subtypes}"
       end
 
-      subtypes.fetch(span.subtype)
+      subtypes.fetch(subtype)
     rescue KeyError
-      raise "Unknown span.subtype `#{span.type}'\nPossible subtypes: #{subtypes}"
+      raise "Unknown span.subtype `#{span.type}'\nPossible subtypes: #{allowed_subtypes}"
     end
   end
 
