@@ -147,11 +147,33 @@ class MockIntake
   end
 
   def validate_span!(span)
-    info = @span_types.fetch(span['type'])
+    type = span['type']
+
+    begin
+      info = @span_types.fetch(type)
+    rescue KeyError
+      puts "Unknown span.type `#{type}'\nPossible types: #{@span_types.keys.join(', ')}"
+      pp span
+      raise
+    end
 
     return unless (subtypes = info['subtypes'])
 
-    subtypes.fetch(span['subtype'])
+    if !info['optional_subtype'] && !span['subtype']
+      msg = "span.subtype missing when required for type `#{type}',\n" \
+        "Possible subtypes: #{subtypes}"
+      puts msg # print because errors are swallowed
+      pp span
+      raise msg
+    end
+
+    # subtypes.fetch(span['subtype'])
+  rescue KeyError => e
+    puts "Unknown span.subtype `#{span['subtype'].inspect}'\n" \
+      "Possible subtypes: #{subtypes}"
+    pp span
+    puts e # print because errors are swallowed
+    raise
   end
 
   module WaitFor

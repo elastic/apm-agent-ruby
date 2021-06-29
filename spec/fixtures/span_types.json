@@ -14,7 +14,13 @@
         "comment": "Sampling profiler inferred spans"
       },
       "controller": {
-        "comment": "Application controller actions"
+        "comment": "Application controller actions (Ruby/Rails)"
+      },
+      "resource": {
+        "comment": "Application resource actions (Ruby/Grape)"
+      },
+      "graphql": {
+        "comment": "Incoming GraphQL requests"
       }
     }
   },
@@ -93,6 +99,10 @@
         "comment": "HTTP client"
       }
     }
+  },
+  "json": {
+    "comment": "JSON Parsing and generating",
+    "optional_subtype": true
   },
   "messaging": {
     "comment": "Messaging",

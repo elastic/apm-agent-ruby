@@ -57,11 +57,11 @@ RSpec.configure do |config|
         raise "Unknown span.type `#{span.type}'\nPossible types: #{@span_types.keys.join(', ')}"
       end
 
+      return unless (subtypes = type['subtypes'])
+
       if !type['optional_subtype'] && !span.subtype
         raise "span.subtype missing when required,\nPossible subtypes: #{subtypes}"
       end
-
-      return unless (subtypes = type['subtypes'])
 
       subtypes.fetch(span.subtype)
     rescue KeyError

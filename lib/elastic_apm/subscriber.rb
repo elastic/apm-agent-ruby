@@ -45,6 +45,7 @@ module ElasticAPM
     # AS::Notifications API
 
     Notification = Struct.new(:id, :span)
+
     def start(name, id, payload)
       return unless (transaction = @agent.current_transaction)
 
