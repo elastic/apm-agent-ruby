@@ -12,10 +12,10 @@
     "subtypes": {
       "inferred": {
         "comment": "Sampling profiler inferred spans"
+      },
+      "controller": {
+        "comment": "Application controller actions"
       }
-    },
-    "controller": {
-      "comment": "Application controller actions"
     }
   },
   "custom": {
