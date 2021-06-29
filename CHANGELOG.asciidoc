@@ -40,6 +40,11 @@ endif::[]
 ==== Unreleased
 
 [float]
+===== Added
+
+- Add support for AWS Storage Table/CosmosDB {pull}999[#999]
+
+[float]
 ===== Fixed
 
 - Align HTTP span types/subtypes with spec {pull}1014[#1014]
