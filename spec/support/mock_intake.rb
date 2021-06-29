@@ -147,7 +147,7 @@ class MockIntake
   end
 
   def validate_span!(span)
-    type = span['type']
+    type, subtype, _action = span['type'].split('.')
 
     begin
       info = @span_types.fetch(type)
@@ -157,20 +157,20 @@ class MockIntake
       raise
     end
 
-    return unless (subtypes = info['subtypes'])
+    return unless (allowed_subtypes = info['subtypes'])
 
-    if !info['optional_subtype'] && !span['subtype']
+    if !info['optional_subtype'] && !subtype
       msg = "span.subtype missing when required for type `#{type}',\n" \
-        "Possible subtypes: #{subtypes}"
+        "Possible subtypes: #{allowed_subtypes}"
       puts msg # print because errors are swallowed
       pp span
       raise msg
     end
 
-    # subtypes.fetch(span['subtype'])
+    allowed_subtypes.fetch(subtype)
   rescue KeyError => e
-    puts "Unknown span.subtype `#{span['subtype'].inspect}'\n" \
-      "Possible subtypes: #{subtypes}"
+    puts "Unknown span.subtype `#{subtype.inspect}'\n" \
+      "Possible subtypes: #{allowed_subtypes}"
     pp span
     puts e # print because errors are swallowed
     raise

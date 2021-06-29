@@ -31,25 +31,22 @@ module ElasticAPM
         attr_reader :context_serializer
 
         def build(span)
-          base = {
-            id: span.id,
-            transaction_id: span.transaction.id,
-            parent_id: span.parent_id,
-            name: keyword_field(span.name),
-            type: keyword_field(span.type),
-            duration: ms(span.duration),
-            context: context_serializer.build(span.context),
-            stacktrace: span.stacktrace.to_a,
-            timestamp: span.timestamp,
-            trace_id: span.trace_id,
-            sample_rate: span.sample_rate,
-            outcome: keyword_field(span.outcome)
+          {
+            span: {
+              id: span.id,
+              transaction_id: span.transaction.id,
+              parent_id: span.parent_id,
+              name: keyword_field(span.name),
+              type: join_type(span),
+              duration: ms(span.duration),
+              context: context_serializer.build(span.context),
+              stacktrace: span.stacktrace.to_a,
+              timestamp: span.timestamp,
+              trace_id: span.trace_id,
+              sample_rate: span.sample_rate,
+              outcome: keyword_field(span.outcome)
+            }
           }
-
-          base[:subtype] = keyword_field(span.subtype) if span.subtype
-          base[:action] = keyword_field(span.action) if span.action
-
-          { span: base }
         end
 
         # @api private
