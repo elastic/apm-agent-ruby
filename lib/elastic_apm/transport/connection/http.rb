@@ -85,7 +85,7 @@ module ElasticAPM
         end
 
         def closed?
-          @closed.true?
+          @rd.closed? && @closed.true?
         end
 
         def inspect
@@ -117,6 +117,8 @@ module ElasticAPM
               error(
                 "Couldn't establish connection to APM Server:\n%p", e.inspect
               )
+            ensure
+              @rd&.close
             end
           end
         end
