@@ -65,7 +65,7 @@ RSpec.configure do |config|
         raise "span.subtype missing when required,\nPossible subtypes: #{allowed_subtypes}"
       end
 
-      subtypes.fetch(subtype)
+      allowed_subtypes.fetch(subtype)
     rescue KeyError
       raise "Unknown span.subtype `#{span.type}'\nPossible subtypes: #{allowed_subtypes}"
     end
