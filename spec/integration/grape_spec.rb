@@ -86,8 +86,7 @@ if enabled
 
         span = @mock_intake.spans.last
         expect(span['name']).to eq('GET /pingpong')
-        expect(span['type']).to eq('app')
-        expect(span['subtype']).to eq('resource')
+        expect(span['type']).to eq('app.resource')
 
         transaction = @mock_intake.transactions.last
         expect(transaction['name']).to eq('GET /pingpong')
@@ -110,8 +109,7 @@ if enabled
 
           span = @mock_intake.spans.last
           expect(span['name']).to eq('GET /statuses/:id')
-          expect(span['type']).to eq('app')
-          expect(span['subtype']).to eq('resource')
+          expect(span['type']).to eq('app.resource')
 
           transaction = @mock_intake.transactions.last
           expect(transaction['name']).to eq('GET /statuses/:id')

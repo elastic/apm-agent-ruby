@@ -61,11 +61,11 @@ RSpec.configure do |config|
 
       return unless (allowed_subtypes = info['subtypes'])
 
-      if !info['optional_subtype'] && !subtype
+      if !info['allow_null_subtype'] && !subtype
         raise "span.subtype missing when required,\nPossible subtypes: #{allowed_subtypes}"
       end
 
-      allowed_subtypes.fetch(subtype)
+      allowed_subtypes.fetch(subtype) unless info['allow_unlisted_subtype']
     rescue KeyError
       raise "Unknown span.subtype `#{span.type}'\nPossible subtypes: #{allowed_subtypes}"
     end

@@ -242,6 +242,24 @@ module ElasticAPM
             end
           end
 
+          context 'with split types' do
+            let(:span) do
+              Span.new(
+                name: 'Span',
+                transaction: transaction,
+                parent: transaction,
+                trace_context: trace_context,
+                type: 'a',
+                subtype: 'b',
+                action: 'c'
+              )
+            end
+
+            it 'joins them for sending' do
+              expect(result[:span][:type]).to eq 'a.b.c'
+            end
+          end
+
           context 'with outcome' do
             it 'adds the outcome' do
               span = Span.new(
