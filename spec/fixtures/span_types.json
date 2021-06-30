@@ -25,14 +25,20 @@
           "ruby"
         ]
       },
-      "resource": {
-        "__description": "Application resource actions",
+      "graphql": {
+        "__description": "Incoming GraphQL requests",
         "__used_by": [
           "ruby"
         ]
       },
-      "graphql": {
-        "__description": "Incoming GraphQL requests",
+      "mailer": {
+        "__description": "Application mailer actions",
+        "__used_by": [
+          "ruby"
+        ]
+      },
+      "resource": {
+        "__description": "Application resource actions",
         "__used_by": [
           "ruby"
         ]
