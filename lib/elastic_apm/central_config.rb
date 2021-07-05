@@ -119,7 +119,7 @@ module ElasticAPM
       end
 
       if resp.status == 304
-        info 'Received 304 Not Modified'
+        debug 'Received 304 Not Modified'
       else
         if resp.body && !resp.body.empty?
           update = JSON.parse(resp.body.to_s)
