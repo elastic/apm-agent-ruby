@@ -54,6 +54,7 @@
   },
   "db": {
     "__description": "database span",
+    "allow_unlisted_subtype": true,
     "subtypes": {
       "cassandra": {
         "__description": "Cassandra",
@@ -147,7 +148,12 @@
       "sqlite": {
         "__description": "SQLite",
         "__used_by": [
-          "ruby",
+          "ruby"
+        ]
+      },
+      "sqlite3": {
+        "__description": "SQLite 3",
+        "__used_by": [
           "ruby"
         ]
       },
