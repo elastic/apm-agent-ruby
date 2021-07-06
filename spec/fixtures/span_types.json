@@ -54,7 +54,6 @@
   },
   "db": {
     "__description": "database span",
-    "allow_unlisted_subtype": true,
     "subtypes": {
       "cassandra": {
         "__description": "Cassandra",
