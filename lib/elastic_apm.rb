@@ -32,6 +32,7 @@ require 'elastic_apm/internal_error'
 require 'elastic_apm/logging'
 
 # Core
+require 'elastic_apm/fields'
 require 'elastic_apm/agent'
 require 'elastic_apm/config'
 require 'elastic_apm/context'

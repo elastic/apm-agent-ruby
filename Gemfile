@@ -36,6 +36,7 @@ gem 'aws-sdk-dynamodb', require: nil
 gem 'aws-sdk-s3', require: nil
 gem 'aws-sdk-sqs', require: nil
 gem 'aws-sdk-sns', require: nil
+gem 'azure-storage-table', require: nil if RUBY_VERSION < '3.0'
 gem 'elasticsearch', require: nil
 gem 'fakeredis', require: nil
 gem 'faraday', require: nil

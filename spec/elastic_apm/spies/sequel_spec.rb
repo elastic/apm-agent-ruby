@@ -51,9 +51,7 @@ module ElasticAPM
         .to eq "SELECT count(*) AS 'count' FROM `users` LIMIT 1"
 
       destination = span.context.destination
-      expect(destination.service.name).to eq 'sqlite'
       expect(destination.service.resource).to eq 'sqlite'
-      expect(destination.service.type).to eq 'db'
     end
 
     it 'captures rows_affected for update and delete operations', :intercept do

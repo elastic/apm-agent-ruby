@@ -106,6 +106,18 @@ module ElasticAPM
       @duration ||= (clock_end - @clock_start)
       @parent.child_stopped
       @self_time = @duration - child_durations.duration
+
+      if exit_span?
+        context.destination ||= Context::Destination.new
+        context.destination.service ||= Context::Destination::Service.new
+        context.destination.service.resource ||= (subtype || type)
+
+        # Deprecated fields but required by some versions of APM Server, so
+        # we auto-infer them from existing fields
+        context.destination.service.name ||= (subtype || type)
+        context.destination.service.type ||= type
+      end
+
       self
     end
 
@@ -165,6 +177,10 @@ module ElasticAPM
       return false if min_duration == 0
 
       duration >= min_duration
+    end
+
+    def exit_span?
+      context.destination || context.db || context.message || context.http
     end
   end
 end

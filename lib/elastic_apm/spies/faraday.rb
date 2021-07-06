@@ -22,17 +22,28 @@ module ElasticAPM
   module Spies
     # @api private
     class FaradaySpy
+      DISABLE_KEY = :__elastic_apm_faraday_disabled
       TYPE = 'external'
       SUBTYPE = 'http'
 
-      def self.without_net_http
-        return yield unless defined?(NetHTTPSpy)
-
-        # rubocop:disable Style/ExplicitBlockArgument
-        ElasticAPM::Spies::NetHTTPSpy.disable_in do
-          yield
+      class << self
+        def disabled=(disabled)
+          Thread.current[DISABLE_KEY] = disabled
         end
-        # rubocop:enable Style/ExplicitBlockArgument
+
+        def disabled?
+          Thread.current[DISABLE_KEY] ||= false
+        end
+
+        def disable_in
+          self.disabled = true
+
+          begin
+            yield
+          ensure
+            self.disabled = false
+          end
+        end
       end
 
       # @api private
@@ -40,6 +51,10 @@ module ElasticAPM
         # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
         def run_request(method, url, body, headers, &block)
           unless (transaction = ElasticAPM.current_transaction)
+            return super(method, url, body, headers, &block)
+          end
+
+          if ElasticAPM::Spies::FaradaySpy.disabled?
             return super(method, url, body, headers, &block)
           end
 
@@ -61,7 +76,7 @@ module ElasticAPM
           upcased_method = method.to_s.upcase
 
           if uri
-            destination = ElasticAPM::Span::Context::Destination.from_uri(uri)
+            destination = ElasticAPM::Span::Context::Destination.from_uri(uri, type: SUBTYPE)
 
             context =
               ElasticAPM::Span::Context.new(
@@ -85,7 +100,7 @@ module ElasticAPM
             subtype: SUBTYPE,
             context: context
           ) do |span|
-            ElasticAPM::Spies::FaradaySpy.without_net_http do
+            ElasticAPM::Spies.without_net_http do
               trace_context = span&.trace_context || transaction.trace_context
 
               result = super(method, url, body, headers) do |req|

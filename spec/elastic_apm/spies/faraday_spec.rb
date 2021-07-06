@@ -75,9 +75,7 @@ module ElasticAPM
       span, = @intercepted.spans
 
       destination = span.context.destination
-      expect(destination.service.name).to match('http://example.com')
       expect(destination.service.resource).to match('example.com:80')
-      expect(destination.service.type).to match('external')
       expect(destination.address).to match('example.com')
       expect(destination.port).to match(80)
     end

@@ -133,6 +133,7 @@ module ElasticAPM
     def available_instrumentations
       %w[
         action_dispatch
+        azure_storage_table
         delayed_job
         dynamo_db
         elasticsearch

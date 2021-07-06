@@ -37,7 +37,7 @@ module ElasticAPM
 
           context = ElasticAPM::Span::Context.new(
             http: { url: req.uri, method: method },
-            destination: ElasticAPM::Span::Context::Destination.from_uri(req.uri)
+            destination: ElasticAPM::Span::Context::Destination.from_uri(req.uri, type: SUBTYPE)
           )
 
           name = "#{method} #{host}"

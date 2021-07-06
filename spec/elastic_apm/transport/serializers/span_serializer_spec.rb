@@ -174,25 +174,6 @@ module ElasticAPM
             end
           end
 
-          context 'with a destination and cloud' do
-            it 'adds destination with cloud' do
-              cloud = ElasticAPM::Span::Context::Destination::Cloud.new(region: 'mars-1')
-
-              span = Span.new(
-                name: 'Span',
-                transaction: transaction,
-                parent: transaction,
-                trace_context: trace_context,
-                context: Span::Context.new(destination: { cloud: cloud })
-              )
-
-              result = subject.build(span)
-
-              expect(result.dig(:span, :context, :destination, :cloud))
-                .to match({ region: 'mars-1' })
-            end
-          end
-
           context 'with a message' do
             it 'adds message object' do
               span = Span.new(
@@ -272,6 +253,34 @@ module ElasticAPM
               span.outcome = 'success'
               result = subject.build(span)
               expect(result[:span][:outcome]).to eq 'success'
+            end
+          end
+
+          context 'with a destination and cloud' do
+            it 'adds destination with cloud' do
+              span = Span.new(
+                name: 'Span',
+                transaction: transaction,
+                parent: transaction,
+                trace_context: trace_context,
+                context: Span::Context.new(
+                  destination: {
+                    service: { resource: 'a' },
+                    cloud: { region: 'b' }
+                  }
+                )
+              )
+
+              # set auto-infered destination.service fields
+              span.start.done
+
+              result = subject.build(span)
+
+              expect(result.dig(:span, :context, :destination, :service))
+                .to match({ resource: 'a', name: span.type, type: span.type })
+
+              expect(result.dig(:span, :context, :destination, :cloud))
+                .to match({ region: 'b' })
             end
           end
         end

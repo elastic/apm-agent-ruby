@@ -47,8 +47,6 @@ module ElasticAPM
 
         # Span context
         expect(span.context.destination.service.resource).to eq('sqs/my-queue')
-        expect(span.context.destination.service.type).to eq('messaging')
-        expect(span.context.destination.service.name).to eq('sqs')
         expect(span.context.destination.cloud.region).to eq('us-east-1')
         expect(span.context.message.queue_name).to eq('my-queue')
       end
@@ -125,10 +123,7 @@ module ElasticAPM
 
         # Span context
         expect(span.context.destination.service.resource).to eq('sqs/my-queue')
-        expect(span.context.destination.service.type).to eq('messaging')
-        expect(span.context.destination.service.name).to eq('sqs')
         expect(span.context.message.queue_name).to eq('my-queue')
-        expect(span.context.destination.cloud.region).to eq('us-east-1')
       end
 
       it 'adds trace context to the message attributes', :intercept do
@@ -211,9 +206,6 @@ module ElasticAPM
 
         # Span context
         expect(span.context.destination.service.resource).to eq('sqs/my-queue')
-        expect(span.context.destination.service.type).to eq('messaging')
-        expect(span.context.destination.service.name).to eq('sqs')
-        expect(span.context.destination.cloud.region).to eq('us-east-1')
         expect(span.context.message.queue_name).to eq('my-queue')
       end
 

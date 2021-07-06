@@ -22,17 +22,17 @@ module ElasticAPM
   module Spies
     # @api private
     class NetHTTPSpy
-      KEY = :__elastic_apm_net_http_disabled
+      DISABLE_KEY = :__elastic_apm_net_http_disabled
       TYPE = 'external'
       SUBTYPE = 'http'
 
       class << self
         def disabled=(disabled)
-          Thread.current[KEY] = disabled
+          Thread.current[DISABLE_KEY] = disabled
         end
 
         def disabled?
-          Thread.current[KEY] ||= false
+          Thread.current[DISABLE_KEY] ||= false
         end
 
         def disable_in
@@ -80,7 +80,7 @@ module ElasticAPM
           context =
             ElasticAPM::Span::Context.new(
               http: { url: uri, method: method },
-              destination: ElasticAPM::Span::Context::Destination.from_uri(uri)
+              destination: ElasticAPM::Span::Context::Destination.from_uri(uri, type: SUBTYPE)
             )
 
           ElasticAPM.with_span(

@@ -100,16 +100,12 @@ module ElasticAPM
               port: destination.port
             }
 
-            if service = destination.service
-              base[:service] = {
-                name: keyword_field(destination.service.name),
-                resource: keyword_field(destination.service.resource),
-                type: keyword_field(destination.service.type)
-              }
+            unless destination.service&.empty?
+              base[:service] = destination.service.to_h
             end
 
-            if cloud = destination.cloud
-              base[:cloud] = { region: cloud.region }
+            unless destination.cloud&.empty?
+              base[:cloud] = destination.cloud.to_h
             end
 
             base

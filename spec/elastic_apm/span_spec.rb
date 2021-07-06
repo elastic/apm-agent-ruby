@@ -201,9 +201,15 @@ module ElasticAPM
 
     describe "#set_destination" do
       it 'adds destination to context' do
-        subject.set_destination(address: 'asdf', cloud: { region: 'us-1' })
+        subject.set_destination(
+          address: 'asdf',
+          service: { resource: 'xyz' },
+          cloud: { region: 'abc' }
+        )
         expect(subject.context.destination).to be_a(Span::Context::Destination)
         expect(subject.context.destination.address).to eq 'asdf'
+        expect(subject.context.destination.service.resource).to eq 'xyz'
+        expect(subject.context.destination.cloud.region).to eq 'abc'
       end
     end
   end

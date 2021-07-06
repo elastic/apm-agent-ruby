@@ -56,8 +56,6 @@ module ElasticAPM
           # Alias all available operations
           mod.api.operation_names.each do |operation_name|
             define_method(operation_name) do |params = {}, options = {}|
-              cloud = ElasticAPM::Span::Context::Destination::Cloud.new(region: config.region)
-
               context = ElasticAPM::Span::Context.new(
                 db: {
                   instance: config.region,
@@ -65,12 +63,8 @@ module ElasticAPM
                   statement: params[:key_condition_expression]
                 },
                 destination: {
-                  cloud: cloud,
-                  service: {
-                    name: NAME,
-                    resource: SUBTYPE,
-                    type: TYPE
-                  }
+                  service: { resource: "#{SUBTYPE}/#{config.region}" },
+                  cloud: { region: config.region }
                 }
               )
 

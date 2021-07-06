@@ -11,7 +11,7 @@ services:
     build:
       context: .
       args:
-        BUNDLER_VERSION: '2.0.2'
+        BUNDLER_VERSION: '2.2.21'
     image: '$IMAGE_NAME'
     environment:
       HOME: '/tmp'

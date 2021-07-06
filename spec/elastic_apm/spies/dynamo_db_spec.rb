@@ -16,69 +16,69 @@
 # under the License.
 
 # frozen_string_literal: true
-
-require 'spec_helper'
-require 'aws-sdk-dynamodb'
+require "spec_helper"
+require "aws-sdk-dynamodb"
 
 module ElasticAPM
-  RSpec.describe 'Spy: DynamoDB' do
+  RSpec.describe "Spy: DynamoDB" do
     let(:dynamo_db_client) do
-      ::Aws::DynamoDB::Client.new(stub_responses: true, region: 'us-west-1')
+      ::Aws::DynamoDB::Client.new(stub_responses: true, region: "us-west-1")
     end
 
     it "spans operations", :intercept do
       with_agent do
         ElasticAPM.with_transaction do
-          dynamo_db_client.delete_item(table_name: 'test', key: {})
+          dynamo_db_client.delete_item(table_name: "test", key: {})
         end
       end
 
       span = @intercepted.spans.first
 
-      expect(span.name).to eq('DynamoDB DeleteItem test')
-      expect(span.type).to eq('db')
-      expect(span.subtype).to eq('dynamodb')
+      expect(span.name).to eq("DynamoDB DeleteItem test")
+      expect(span.type).to eq("db")
+      expect(span.subtype).to eq("dynamodb")
       expect(span.action).to eq(:delete_item)
-      expect(span.outcome).to eq('success')
+      expect(span.outcome).to eq("success")
 
       # span context db
-      expect(span.context.db.instance).to eq('us-west-1')
-      expect(span.context.db.type).to eq('dynamodb')
+      expect(span.context.db.instance).to eq("us-west-1")
+      expect(span.context.db.type).to eq("dynamodb")
 
       # span context destination
-      expect(span.context.destination.cloud.region).to eq('us-west-1')
-      expect(span.context.destination.service.resource).to eq('dynamodb')
-      expect(span.context.destination.service.type).to eq('db')
+      expect(span.context.destination.service.resource).to eq("dynamodb/us-west-1")
+      expect(span.context.destination.cloud.region).to eq("us-west-1")
     end
 
     it "omits the table name when there is none", :intercept do
       with_agent do
         ElasticAPM.with_transaction do
-          dynamo_db_client.describe_backup(backup_arn: 'test-arn')
+          dynamo_db_client.describe_backup(backup_arn: "test-arn")
         end
       end
 
       span = @intercepted.spans.first
 
-      expect(span.name).to eq('DynamoDB DescribeBackup')
+      expect(span.name).to eq("DynamoDB DescribeBackup")
     end
 
     it "captures the key_condition_expression for queries", :intercept do
       with_agent do
         ElasticAPM.with_transaction do
-          dynamo_db_client.query(table_name: 'myTable',
-                                 key_condition_expression: 'Artist = :v1')
+          dynamo_db_client.query(
+            table_name: "myTable",
+            key_condition_expression: "Artist = :v1"
+          )
         end
       end
 
       span = @intercepted.spans.first
 
-      expect(span.name).to eq('DynamoDB Query myTable')
-      expect(span.context.db.statement).to eq('Artist = :v1')
+      expect(span.name).to eq("DynamoDB Query myTable")
+      expect(span.context.db.statement).to eq("Artist = :v1")
     end
 
-    context 'when the operation fails' do
-      it 'sets span outcome to `failure`', :intercept do
+    context("when the operation fails") do
+      it "sets span outcome to `failure`", :intercept do
         with_agent do
           ElasticAPM.with_transaction do
             begin
@@ -90,8 +90,8 @@ module ElasticAPM
 
         span = @intercepted.spans.first
 
-        expect(span.name).to eq('DynamoDB BatchGetItem')
-        expect(span.outcome).to eq('failure')
+        expect(span.name).to eq("DynamoDB BatchGetItem")
+        expect(span.outcome).to eq("failure")
       end
     end
   end
