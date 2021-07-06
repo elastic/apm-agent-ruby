@@ -48,7 +48,8 @@
   "custom": {
     "__description": "API custom instrumentation",
     "__used_by": [
-      "java", "ruby"
+      "java",
+      "ruby"
     ],
     "allow_null_subtype": true
   },
