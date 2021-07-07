@@ -156,6 +156,8 @@ module ElasticAPM
       "<ElasticAPM::Span id:#{trace_context&.id}" \
         " name:#{name.inspect}" \
         " type:#{type.inspect}" \
+        " subtype:#{subtype.inspect}" \
+        " action:#{action.inspect}" \
         '>'
     end
 

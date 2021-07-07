@@ -24,6 +24,8 @@ require 'rack/chunked'
 class MockIntake
   def initialize
     clear!
+
+    @span_types = JSON.parse(File.read('./spec/fixtures/span_types.json'))
   end
 
   attr_reader(
@@ -136,10 +138,42 @@ class MockIntake
   def catalog(obj)
     case obj.keys.first
     when 'transaction' then transactions << obj.values.first
-    when 'span' then spans << obj.values.first
     when 'error' then errors << obj.values.first
     when 'metricset' then metricsets << obj.values.first
+    when 'span'
+      validate_span!(obj.values.first)
+      spans << obj.values.first
     end
+  end
+
+  def validate_span!(span)
+    type, subtype, _action = span['type'].split('.')
+
+    begin
+      info = @span_types.fetch(type)
+    rescue KeyError
+      puts "Unknown span.type `#{type}'\nPossible types: #{@span_types.keys.join(', ')}"
+      pp span
+      raise
+    end
+
+    return unless (allowed_subtypes = info['subtypes'])
+
+    if !info['optional_subtype'] && !subtype
+      msg = "span.subtype missing when required for type `#{type}',\n" \
+        "Possible subtypes: #{allowed_subtypes}"
+      puts msg # print because errors are swallowed
+      pp span
+      raise msg
+    end
+
+    allowed_subtypes.fetch(subtype)
+  rescue KeyError => e
+    puts "Unknown span.subtype `#{subtype.inspect}'\n" \
+      "Possible subtypes: #{allowed_subtypes}"
+    pp span
+    puts e # print because errors are swallowed
+    raise
   end
 
   module WaitFor

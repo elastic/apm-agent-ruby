@@ -24,6 +24,8 @@ RSpec.configure do |config|
       @spans = []
       @errors = []
       @metricsets = []
+
+      @span_types = JSON.parse(File.read('./spec/fixtures/span_types.json'))
     end
 
     attr_reader :transactions, :spans, :errors, :metricsets
@@ -33,6 +35,7 @@ RSpec.configure do |config|
       when ElasticAPM::Transaction
         transactions << obj
       when ElasticAPM::Span
+        validate_span!(obj)
         spans << obj
       when ElasticAPM::Error
         errors << obj
@@ -46,6 +49,26 @@ RSpec.configure do |config|
     def start; end
 
     def stop; end
+
+    def validate_span!(span)
+      type, subtype = [span.type, span.subtype]
+
+      begin
+        info = @span_types.fetch(type)
+      rescue KeyError
+        raise "Unknown span.type `#{type}'\nPossible types: #{@span_types.keys.join(', ')}"
+      end
+
+      return unless (allowed_subtypes = info['subtypes'])
+
+      if !info['allow_null_subtype'] && !subtype
+        raise "span.subtype missing when required,\nPossible subtypes: #{allowed_subtypes}"
+      end
+
+      allowed_subtypes.fetch(subtype) unless info['allow_unlisted_subtype']
+    rescue KeyError
+      raise "Unknown span.subtype `#{span.type}'\nPossible subtypes: #{allowed_subtypes}"
+    end
   end
 
   module Methods
