@@ -32,6 +32,10 @@ endif::[]
 ==== Unreleased
 ////
 
+[float]
+===== Added
+- Optional span to be ended instead of current span {pull}1039[#1039]
+
 [[release-notes-4.x]]
 === Ruby Agent version 4.x
 

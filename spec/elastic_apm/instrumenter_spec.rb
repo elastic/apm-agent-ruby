@@ -325,6 +325,23 @@ module ElasticAPM
             expect(subject.current_span).to be span
           end
         end
+
+        context 'when passing a span' do
+          let(:another_span) { subject.start_span 'Another Span' }
+
+          before do
+            another_span
+          end
+
+          it 'closes span, sets new current, enqueues' do
+            return_value = subject.end_span(span)
+
+            expect(return_value).to be span
+            expect(span).to be_stopped
+            expect(subject.current_span).to be another_span
+            expect(agent).to have_received(:enqueue).with(span)
+          end
+        end
       end
     end
 
