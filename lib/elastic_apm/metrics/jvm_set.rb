@@ -25,6 +25,14 @@ module ElasticAPM
     class JVMSet < Set
       include Logging
 
+      MAX_TRIES = 3
+
+      def initialize(*args)
+        super
+
+        @error_count = 0
+      end
+
       def collect
         read!
         super
@@ -53,10 +61,15 @@ module ElasticAPM
           gauge(:"jvm.memory.heap.pool.committed", tags: tags).value = bean.get_usage.get_committed
           gauge(:"jvm.memory.heap.pool.max", tags: tags).value = bean.get_usage.get_max
         end
-      # rescue Exception => e
-        # error("JVM metrics encountered error: %s", e)
-        # debug("Backtrace:") { e.backtrace.join("\n") }
-        # disable!
+      rescue Exception => e
+        error("JVM metrics encountered error: %s", e)
+        debug("Backtrace:") { e.backtrace.join("\n") }
+
+        @error_count += 1
+        if @error_count >= MAX_TRIES
+          disable!
+          error("Disabling JVM metrics after #{MAX_TRIES} errors", e)
+        end
       end
 
       private

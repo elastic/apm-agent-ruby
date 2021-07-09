@@ -34,6 +34,18 @@ module ElasticAPM
           end
         end
 
+        it 'disables after three errors' do
+          allow(java.lang.management.ManagementFactory).to receive(:getPlatformMXBean).and_raise(Exception)
+
+          2.times do
+            subject.collect
+            expect(subject).to_not be_disabled
+          end
+
+          subject.collect
+          expect(subject).to be_disabled
+        end
+
         it 'collects a metric set and prefixes keys' do
           subject.collect
           sleep 0.2
