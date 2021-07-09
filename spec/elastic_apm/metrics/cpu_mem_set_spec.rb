@@ -25,10 +25,6 @@ module ElasticAPM
       let(:config) { Config.new }
       subject { described_class.new config }
 
-      context 'JRuby' do
-
-      end
-
       context 'Linux' do
         before { allow(Metrics).to receive(:platform) { :linux } }
 
