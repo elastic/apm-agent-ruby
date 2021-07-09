@@ -28,6 +28,10 @@ module ElasticAPM
       @platform ||= Gem::Platform.local.os.to_sym
     end
 
+    def self.os
+      @platform ||= RbConfig::CONFIG.fetch('host_os', 'unknown').to_sym
+    end
+
     # @api private
     class Registry
       include Logging
@@ -136,6 +140,7 @@ require 'elastic_apm/metrics/set'
 
 require 'elastic_apm/metrics/cpu_mem_set'
 require 'elastic_apm/metrics/vm_set'
+require 'elastic_apm/metrics/jvm_set' if defined?(JRUBY_VERSION)
 require 'elastic_apm/metrics/span_scoped_set'
 require 'elastic_apm/metrics/transaction_set'
 require 'elastic_apm/metrics/breakdown_set'
