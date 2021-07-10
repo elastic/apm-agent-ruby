@@ -59,7 +59,9 @@ module ElasticAPM
           system: CpuMemSet,
           vm: VMSet,
           breakdown: BreakdownSet,
-          transaction: TransactionSet
+          transaction: TransactionSet,
+          # jvm: JVMSet <-- we need this, but dynamically somehow
+          # maybe they register themselves akin to how the spies do?
         }.each_with_object({}) do |(key, kls), sets|
           debug "Adding metrics collector '#{kls}'"
           sets[key] = kls.new(config)
