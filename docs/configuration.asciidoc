@@ -502,7 +502,28 @@ Use this option to ignore certain URL patterns such as healthchecks or admin sec
 | `ELASTIC_APM_INSTRUMENTED_RAKE_TASKS` | `instrumented_rake_tasks` | `[]`    | `['my_task']`
 |============
 
-Elastic APM can instrument your Rake tasks. Theis is an opt-in field, as they are used are for a multitude of things. 
+Elastic APM can instrument your Rake tasks. Theis is an opt-in field, as they are used are for a multitude of things.
+
+[float]
+[[config-log-ecs-formatting]]
+==== `log_ecs_formatting`
+
+[options="header"]
+|============
+| Environment             | `Config` key | Default
+| `ELASTIC_APM_LOG_ECS_FORMATTING` | `log_ecs_formatting`  | `off`
+|============
+
+This is an experimental option that configures the agent to use the logger from the `ecs-logging` gem. The two
+valid options are `off` and `override`.
+
+The ecs-logging gem must be installed before the agent is started. The agent will attempt to require the gem and if
+it cannot be loaded, it will fall back to using the standard Ruby ::Logger and log the load error.
+
+Setting this option to `override` will set the agent logger to a `EcsLogging::Logger` instance and all logged output
+will be in ECS-compatible json.
+
+Note that if you're using Rails, the agent will use the Rails logger and not a `EcsLogging::Logger`.
 
 [float]
 [[config-log-level]]

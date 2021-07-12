@@ -70,6 +70,7 @@ module ElasticAPM
     option :ignore_url_patterns,               type: :list,   default: [],      converter: RegexpList.new
     option :instrument,                        type: :bool,   default: true
     option :instrumented_rake_tasks,           type: :list,   default: []
+    option :log_ecs_formatting,                type: :string, default: 'off'
     option :log_level,                         type: :int,    default: Logger::INFO, converter: LogLevelMap.new
     option :log_path,                          type: :string
     option :metrics_interval,                  type: :int,    default: '30s',   converter: Duration.new
@@ -246,9 +247,28 @@ module ElasticAPM
     end
 
     def build_logger
-      Logger.new(log_path == '-' ? $stdout : log_path).tap do |logger|
+      load_error = false
+      if self.log_ecs_formatting == 'override'
+        begin
+          require 'ecs_logging/logger'
+          return ::EcsLogging::Logger.new(log_path == '-' ? $stdout : log_path).tap do |logger|
+            logger.level = log_level
+          end
+        rescue LoadError
+          load_error = true
+        end
+      end
+
+      logger = Logger.new(log_path == '-' ? $stdout : log_path).tap do |logger|
         logger.level = log_level
       end
+
+      if load_error
+        logger.info "Attempted to use EcsLogging::Logger but the gem couldn't be " \
+          "loaded so a ::Logger was created instead. Check if you have the `ecs-logging` " \
+          "gem installed and attempt to start the agent again."
+      end
+      logger
     end
 
     def app_type?(app)
