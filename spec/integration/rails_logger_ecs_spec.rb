@@ -22,7 +22,7 @@ require 'integration_helper'
 if defined?(Rails)
   require 'action_controller/railtie'
 
-  RSpec.describe 'Rails logger with Ecs logging option', :allow_running_agent, :mock_intake do
+  RSpec.describe 'Rails logger with Ecs logging option', :allow_running_agent do
     before :all do
       module RailsTestAppEcsLogger
         class Application < Rails::Application
