@@ -57,16 +57,17 @@ module ElasticAPM
         # Only set the @sets once, in case we stop
         # and start again.
         if @sets.nil?
-          @sets = {
+          sets = {
             system: CpuMemSet,
             vm: VMSet,
             breakdown: BreakdownSet,
             transaction: TransactionSet
           }
-          @sets[:jvm] = JVMSet if defined?(JVMSet)
-          @sets.each_with_object({}) do |(key, kls), sets|
+          sets[:jvm] = JVMSet if defined?(JVMSet)
+
+          @sets = sets.each_with_object({}) do |(key, kls), _sets_|
             debug "Adding metrics collector '#{kls}'"
-            sets[key] = kls.new(config)
+            _sets_[key] = kls.new(config)
           end
         end
 
