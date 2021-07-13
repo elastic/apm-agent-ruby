@@ -79,7 +79,7 @@ module ElasticAPM
         case os
         when :linux then Linux.new
         else
-          warn "Disabling system metrics, unsupported host OS '#{platform}'"
+          warn "Disabling system metrics, unsupported host OS '#{os}'"
           disable!
           nil
         end

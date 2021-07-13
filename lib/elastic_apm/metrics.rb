@@ -41,6 +41,7 @@ module ElasticAPM
       def initialize(config, &block)
         @config = config
         @callback = block
+        @sets = nil
       end
 
       attr_reader :config, :sets, :callback
@@ -55,16 +56,18 @@ module ElasticAPM
 
         # Only set the @sets once, in case we stop
         # and start again.
-        @sets ||= {
-          system: CpuMemSet,
-          vm: VMSet,
-          breakdown: BreakdownSet,
-          transaction: TransactionSet,
-          # jvm: JVMSet <-- we need this, but dynamically somehow
-          # maybe they register themselves akin to how the spies do?
-        }.each_with_object({}) do |(key, kls), sets|
-          debug "Adding metrics collector '#{kls}'"
-          sets[key] = kls.new(config)
+        if @sets.nil?
+          @sets = {
+            system: CpuMemSet,
+            vm: VMSet,
+            breakdown: BreakdownSet,
+            transaction: TransactionSet
+          }
+          @sets[:jvm] = JVMSet if defined?(JVMSet)
+          @sets.each_with_object({}) do |(key, kls), sets|
+            debug "Adding metrics collector '#{kls}'"
+            sets[key] = kls.new(config)
+          end
         end
 
         @timer_task = Concurrent::TimerTask.execute(
