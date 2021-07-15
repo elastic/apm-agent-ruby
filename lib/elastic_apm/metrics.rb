@@ -63,7 +63,10 @@ module ElasticAPM
             breakdown: BreakdownSet,
             transaction: TransactionSet
           }
-          sets[:jvm] = JVMSet if defined?(JVMSet)
+          if defined?(JVMSet)
+            debug "Enabling JVM metrics collection"
+            sets[:jvm] = JVMSet
+          end
 
           @sets = sets.each_with_object({}) do |(key, kls), _sets_|
             debug "Adding metrics collector '#{kls}'"
