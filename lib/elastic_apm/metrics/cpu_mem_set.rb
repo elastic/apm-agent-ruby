@@ -62,8 +62,8 @@ module ElasticAPM
       def initialize(config)
         super
 
-        @sampler = sampler_for_platform(Metrics.platform)
-        read! # set @previous on boot
+        @sampler = sampler_for_os(Metrics.os)
+        read! # set initial values to calculate deltas from
       end
 
       attr_reader :config
@@ -75,11 +75,11 @@ module ElasticAPM
 
       private
 
-      def sampler_for_platform(platform)
-        case platform
+      def sampler_for_os(os)
+        case os
         when :linux then Linux.new
         else
-          warn "Disabling system metrics, unsupported platform '#{platform}'"
+          warn "Disabling system metrics, unsupported host OS '#{os}'"
           disable!
           nil
         end
