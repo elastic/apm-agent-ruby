@@ -28,6 +28,10 @@ module ElasticAPM
       @platform ||= Gem::Platform.local.os.to_sym
     end
 
+    def self.os
+      @platform ||= RbConfig::CONFIG.fetch('host_os', 'unknown').to_sym
+    end
+
     # @api private
     class Registry
       include Logging
@@ -37,6 +41,7 @@ module ElasticAPM
       def initialize(config, &block)
         @config = config
         @callback = block
+        @sets = nil
       end
 
       attr_reader :config, :sets, :callback
@@ -51,14 +56,22 @@ module ElasticAPM
 
         # Only set the @sets once, in case we stop
         # and start again.
-        @sets ||= {
-          system: CpuMemSet,
-          vm: VMSet,
-          breakdown: BreakdownSet,
-          transaction: TransactionSet
-        }.each_with_object({}) do |(key, kls), sets|
-          debug "Adding metrics collector '#{kls}'"
-          sets[key] = kls.new(config)
+        if @sets.nil?
+          sets = {
+            system: CpuMemSet,
+            vm: VMSet,
+            breakdown: BreakdownSet,
+            transaction: TransactionSet
+          }
+          if defined?(JVMSet)
+            debug "Enabling JVM metrics collection"
+            sets[:jvm] = JVMSet
+          end
+
+          @sets = sets.each_with_object({}) do |(key, kls), _sets_|
+            debug "Adding metrics collector '#{kls}'"
+            _sets_[key] = kls.new(config)
+          end
         end
 
         @timer_task = Concurrent::TimerTask.execute(
@@ -136,6 +149,7 @@ require 'elastic_apm/metrics/set'
 
 require 'elastic_apm/metrics/cpu_mem_set'
 require 'elastic_apm/metrics/vm_set'
+require 'elastic_apm/metrics/jvm_set' if defined?(JRUBY_VERSION)
 require 'elastic_apm/metrics/span_scoped_set'
 require 'elastic_apm/metrics/transaction_set'
 require 'elastic_apm/metrics/breakdown_set'
