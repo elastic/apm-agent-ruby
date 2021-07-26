@@ -35,6 +35,15 @@ endif::[]
 [[release-notes-4.x]]
 === Ruby Agent version 4.x
 
+[float]
+[[unreleased]]
+==== Unreleased
+
+[float]
+===== Added
+
+- Add JVM memory metrics {pull}1040[#1040]
+
 [[release-notes-4.2.0]]
 ==== 4.2.0
 
