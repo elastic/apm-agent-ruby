@@ -101,7 +101,7 @@ module ElasticAPM
               sync: nil
             }
           ],
-          end_span: nil,
+          end_span: [nil],
           set_label: [nil, nil],
           set_custom_context: [nil],
           set_user: [nil]

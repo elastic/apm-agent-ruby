@@ -222,8 +222,14 @@ module ElasticAPM
     # rubocop:enable Metrics/CyclomaticComplexity
     # rubocop:enable Metrics/PerceivedComplexity
 
-    def end_span
-      return unless (span = current_spans.pop)
+    def end_span(span = nil)
+      if span
+        current_spans.delete(span)
+      else
+        span = current_spans.pop
+      end
+
+      return unless span
 
       span.done
 

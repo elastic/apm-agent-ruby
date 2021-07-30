@@ -243,9 +243,12 @@ module ElasticAPM
 
     # Ends the current span
     #
+    # @param span [Span] Optional span to be ended instead of the last span
+    #   created, useful for asynchronous environments where multiple spans are created in parallel
+    #
     # @return [Span]
-    def end_span
-      agent&.end_span
+    def end_span(span = nil)
+      agent&.end_span(span)
     end
 
     # rubocop:disable Metrics/ParameterLists
