@@ -211,8 +211,8 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/ParameterLists
 
-    def end_span
-      instrumenter.end_span
+    def end_span(span = nil)
+      instrumenter.end_span(span)
     end
 
     def set_label(key, value)
