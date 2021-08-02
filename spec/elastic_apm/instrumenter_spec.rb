@@ -152,6 +152,8 @@ module ElasticAPM
         travel 100
         subject.end_transaction('result')
 
+        sleep 1
+
         txn_set, = agent.metrics.get(:transaction).collect
 
         brk_sets = agent.metrics.get(:breakdown).collect
