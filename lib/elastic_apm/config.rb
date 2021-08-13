@@ -247,28 +247,27 @@ module ElasticAPM
     end
 
     def build_logger
-      load_error = false
       if self.log_ecs_formatting == 'override'
         begin
-          require 'ecs_logging/logger'
-          return ::EcsLogging::Logger.new(log_path == '-' ? $stdout : log_path).tap do |logger|
-            logger.level = log_level
-          end
+          return build_ecs_logger
         rescue LoadError
-          load_error = true
+          logger.info "Attempted to use EcsLogging::Logger but the gem couldn't be " \
+            "loaded so a ::Logger was created instead. Check if you have the `ecs-logging` " \
+            "gem installed and attempt to start the agent again."
         end
       end
 
-      logger = Logger.new(log_path == '-' ? $stdout : log_path).tap do |logger|
+      Logger.new(log_path == '-' ? $stdout : log_path).tap do |logger|
         logger.level = log_level
       end
+    end
 
-      if load_error
-        logger.info "Attempted to use EcsLogging::Logger but the gem couldn't be " \
-          "loaded so a ::Logger was created instead. Check if you have the `ecs-logging` " \
-          "gem installed and attempt to start the agent again."
+    def build_ecs_logger
+      require 'ecs_logging/logger'
+
+      ::EcsLogging::Logger.new(log_path == '-' ? $stdout : log_path).tap do |logger|
+        logger.level = log_level
       end
-      logger
     end
 
     def app_type?(app)
