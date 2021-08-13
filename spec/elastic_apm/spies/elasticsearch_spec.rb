@@ -24,19 +24,31 @@ require 'elastic_apm/spies/elasticsearch'
 
 module ElasticAPM
   RSpec.describe 'Spy: Elasticsearch' do
-    it 'calls through with no transaction', :intercept do
-      req_stub = WebMock.stub_request(:get, %r{http://localhost:9200/.*})
+    def stub_request(method, pattern)
+      WebMock.stub_request(method, pattern)
+    end
 
-      client = Elasticsearch::Client.new log: false
+    def verified_es_client
+      # elasticsearch-ruby >=7.14.0 does a validation check against ES.
+      # We skip it because we don't care
+      Elasticsearch::Client.new(log: false).tap do |client|
+        client.instance_variable_set(:"@verified", true)
+      end
+    end
+
+    it 'calls through with no transaction', :intercept do
+      req_stub = stub_request(:get, %r{http://localhost:9200/.*})
+
+      client = verified_es_client
       client.search q: 'test'
 
       expect(req_stub).to have_been_requested
     end
 
     it 'spans requests', :intercept do
-      WebMock.stub_request(:get, %r{http://localhost:9200/.*})
+      stub_request(:get, %r{http://localhost:9200/.*})
 
-      client = Elasticsearch::Client.new log: false
+      client = verified_es_client
 
       with_agent do
         ElasticAPM.with_transaction do
@@ -60,11 +72,11 @@ module ElasticAPM
 
     context 'a post request with body' do
       before do
-        WebMock.stub_request(:post, %r{http://localhost:9200/.*})
+        stub_request(:post, %r{http://localhost:9200/.*})
                .with(body: /.*/)
       end
 
-      let(:client) { Elasticsearch::Client.new log: false }
+      let(:client) { verified_es_client }
 
       context 'when capture_elasticsearch_queries is true' do
         it 'uses the body in the statement', :intercept do
@@ -91,7 +103,7 @@ module ElasticAPM
         end
 
         it 'filters sensitive information', :intercept do
-          WebMock.stub_request(:get, %r{http://localhost:9200/.*})
+          stub_request(:get, %r{http://localhost:9200/.*})
                  .with(body: /.*/)
 
           with_agent do
@@ -141,9 +153,9 @@ module ElasticAPM
 
       context 'when the request fails' do
         it 'sets span outcome to `failure`', :intercept do
-          WebMock.stub_request(:get, %r{http://localhost:9200/.*})
+          stub_request(:get, %r{http://localhost:9200/.*})
                  .to_return(status: [400, 'Bad Request'])
-          client = Elasticsearch::Client.new log: false
+          client = verified_es_client
 
           with_agent do
             ElasticAPM.with_transaction do
