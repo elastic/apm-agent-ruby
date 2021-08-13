@@ -34,6 +34,7 @@ module ElasticAPM
         end
 
         def call(payload)
+          pp(payload => payload.class)
           @sanitizer.strip_from!(
             payload.dig(:transaction, :context, :request, :body)
           )

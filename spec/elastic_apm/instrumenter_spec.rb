@@ -21,7 +21,7 @@ require 'spec_helper'
 
 module ElasticAPM
   RSpec.describe Instrumenter, :intercept do
-    let(:config) { Config.new }
+    let(:config) { Config.new(logger: Logger.new($stdout)) }
     let(:agent) { ElasticAPM.agent }
 
     before do
@@ -151,8 +151,6 @@ module ElasticAPM
         subject.end_span
         travel 100
         subject.end_transaction('result')
-
-        sleep 1
 
         txn_set, = agent.metrics.get(:transaction).collect
 
