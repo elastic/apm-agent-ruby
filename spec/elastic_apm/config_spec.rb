@@ -199,6 +199,25 @@ module ElasticAPM
           expect(config.log_level).to eq(Logger::FATAL)
         end
       end
+
+      describe 'ecs logging' do
+        context "when log_ecs_formatting is 'override'" do
+          it 'builds an EcsLogging::Logger' do
+            config = Config.new log_ecs_formatting: 'override'
+            expect(config.logger).to be_a(::EcsLogging::Logger)
+          end
+        end
+
+        context "when the log_ecs_formatting value is not valid" do
+          it 'builds a ::Logger' do
+            config = Config.new log_ecs_formatting: 'invalid_option'
+            # Using be_a(::Logger) would be true even if the logger were
+            # a EcsLogging::Logger because the class inherits from ::Logger.
+            # So we test the negative:
+            expect(config.logger).not_to be_a(::EcsLogging::Logger)
+          end
+        end
+      end
     end
 
     describe 'unknown options' do

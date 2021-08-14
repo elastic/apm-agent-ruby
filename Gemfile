@@ -37,6 +37,7 @@ gem 'aws-sdk-s3', require: nil
 gem 'aws-sdk-sqs', require: nil
 gem 'aws-sdk-sns', require: nil
 gem 'azure-storage-table', require: nil if RUBY_VERSION < '3.0'
+gem 'ecs-logging', require: 'ecs_logging/logger'
 gem 'elasticsearch', require: nil
 gem 'fakeredis', require: nil
 gem 'faraday', require: nil
