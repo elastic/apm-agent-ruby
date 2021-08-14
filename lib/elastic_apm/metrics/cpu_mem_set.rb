@@ -77,7 +77,7 @@ module ElasticAPM
 
       def sampler_for_os(os)
         case os
-        when :linux then Linux.new
+        when /^linux/ then Linux.new
         else
           warn "Disabling system metrics, unsupported host OS '#{os}'"
           disable!
