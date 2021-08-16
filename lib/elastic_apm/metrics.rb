@@ -29,7 +29,7 @@ module ElasticAPM
     end
 
     def self.os
-      @platform ||= RbConfig::CONFIG.fetch('host_os', 'unknown').to_sym
+      @os ||= RbConfig::CONFIG.fetch('host_os', 'unknown').to_sym
     end
 
     # @api private
