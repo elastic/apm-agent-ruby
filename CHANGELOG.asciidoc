@@ -44,6 +44,10 @@ endif::[]
 - Optional span to be ended instead of current span {pull}1039[#1039]
 - Config option `log_ecs_formatting` {pull}1053[#1053]
 
+[float]
+===== Fixed
+- Fixed detecting Linux on Alpine for CPU/MEM metrics {pull}1057[#1057]
+
 [[release-notes-4.3.0]]
 ==== 4.3.0
 
