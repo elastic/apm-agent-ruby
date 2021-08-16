@@ -50,6 +50,7 @@ module ElasticAPM
 
     # rubocop:disable Style/ExplicitBlockArgument
     def self.trace(key, data)
+      pp key
       return yield unless KEYS_TO_NAME.key?(key)
       return yield unless (transaction = ElasticAPM.current_transaction)
 
