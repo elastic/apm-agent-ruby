@@ -26,7 +26,7 @@ module ElasticAPM
       subject { described_class.new config }
 
       context 'Linux' do
-        before { allow(Metrics).to receive(:os) { :linux } }
+        before { allow(Metrics).to receive(:os) { 'linux-musl' } }
 
         describe 'collect' do
           it 'collects all metrics' do
