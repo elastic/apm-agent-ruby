@@ -144,8 +144,6 @@ module ElasticAPM
       end
 
       it 'reports metrics', :mock_time do
-        agent = ElasticAPM.agent
-        ElasticAPM.stop
         subject.start_transaction('a_transaction', config: config)
         travel 100
         subject.start_span('a_span', 'a', subtype: 'b')
