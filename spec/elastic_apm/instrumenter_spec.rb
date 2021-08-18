@@ -152,6 +152,7 @@ module ElasticAPM
         subject.end_span
         sleep(0.1)
         subject.end_transaction('result')
+        ElasticAPM.stop
 
         txn_set, = agent.metrics.get(:transaction).collect
 
