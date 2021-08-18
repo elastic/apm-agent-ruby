@@ -312,6 +312,7 @@ module ElasticAPM
 
     def update_span_metrics(span)
       return unless span.transaction.collect_metrics?
+      puts "updating metrics"
 
       tags = {
         'span.type': span.type,
@@ -321,10 +322,13 @@ module ElasticAPM
 
       tags[:'span.subtype'] = span.subtype if span.subtype
 
-      @metrics.get(:breakdown).timer(
-        :'span.self_time.sum.us',
-        tags: tags, reset_on_collect: true
-      ).update(span.self_time)
+      timer = @metrics.get(:breakdown).timer(
+          :'span.self_time.sum.us',
+          tags: tags, reset_on_collect: true
+      )
+      puts "timer: #{timer.inspect}"
+      timer.update(span.self_time)
+      puts "updated timer: #{timer.inspect}"
 
       @metrics.get(:breakdown).counter(
         :'span.self_time.count',

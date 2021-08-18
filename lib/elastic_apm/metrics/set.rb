@@ -88,8 +88,10 @@ module ElasticAPM
       def collect
         return if disabled?
 
+        puts "collecting metrics"
         @lock.synchronize do
           metrics.each_with_object({}) do |(key, metric), sets|
+            puts metric
             next unless (value = metric.collect)
 
             # metrics have a key of name and flat array of key-value pairs
