@@ -144,7 +144,6 @@ module ElasticAPM
       end
 
       it 'reports metrics' do
-        agent.metrics.stop
         subject.start_transaction('a_transaction', config: config)
         sleep(0.1)
         subject.start_span('a_span', 'a', subtype: 'b')
@@ -152,7 +151,6 @@ module ElasticAPM
         subject.end_span
         sleep(0.1)
         subject.end_transaction('result')
-        ElasticAPM.stop
 
         txn_set, = agent.metrics.get(:transaction).collect
 

@@ -85,7 +85,6 @@ module ElasticAPM
           skip 'implementation'
           subject.handle_forking!
 
-
           subject.stop
         end
       end
