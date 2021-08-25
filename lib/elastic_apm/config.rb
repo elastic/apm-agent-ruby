@@ -92,6 +92,7 @@ module ElasticAPM
     option :source_lines_span_library_frames,  type: :int,    default: 0
     option :span_frames_min_duration,          type: :float,  default: '5ms',   converter: Duration.new(default_unit: 'ms')
     option :stack_trace_limit,                 type: :int,    default: 999_999
+    option :synchronous_send,                  type: :bool,   default: false
     option :transaction_ignore_urls,           type: :list,   default: [],      converter: WildcardPatternList.new
     option :transaction_max_spans,             type: :int,    default: 500
     option :transaction_sample_rate,           type: :float,  default: 1.0,     converter: RoundFloat.new

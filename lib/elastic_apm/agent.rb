@@ -25,6 +25,7 @@ require 'elastic_apm/stacktrace_builder'
 
 require 'elastic_apm/central_config'
 require 'elastic_apm/transport/base'
+require 'elastic_apm/transport/synchronous'
 require 'elastic_apm/metrics'
 
 require 'elastic_apm/spies'
@@ -82,7 +83,10 @@ module ElasticAPM
       @error_builder = ErrorBuilder.new(self)
 
       @central_config = CentralConfig.new(config)
-      @transport = Transport::Base.new(config)
+      if config.synchronous_send?
+        @transport = Transport::Synchronous.new(config)
+      end
+      @transport ||= Transport::Base.new(config)
       @metrics = Metrics.new(config) { |event| enqueue event }
       @instrumenter = Instrumenter.new(
         config,
