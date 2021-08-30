@@ -21,7 +21,7 @@ require 'spec_helper'
 
 module ElasticAPM
   RSpec.describe Instrumenter, :intercept do
-    let(:config) { Config.new(logger: Logger.new($stdout)) }
+    let(:config) { Config.new(logger: Logger.new($stdout), metrics_interval: '100000s') }
     let(:agent) { ElasticAPM.agent }
 
     before do
@@ -143,7 +143,7 @@ module ElasticAPM
         expect(agent).to have_received(:enqueue).with(transaction)
       end
 
-      xit 'reports metrics', :mock_time do
+      it 'reports metrics', :mock_time do
         subject.start_transaction('a_transaction', config: config)
         travel 100
         subject.start_span('a_span', 'a', subtype: 'b')
