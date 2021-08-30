@@ -88,6 +88,31 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/CyclomaticComplexity
 
+    # @deprecated provide `call` method for Rails 3 backward compatibility
+    # instead of having start and finish, rails 3 only calls `call` method
+    # so we have to be creative and fixup the start span
+    def call(name, start_time, finish_time, id, payload)
+      return unless (transaction = @agent.current_transaction)
+      # create start event and then fixup the recorded times in the span
+      notifications = start(name, id, payload)
+      span = notifications.last.span
+
+      if span
+        # set timestamp to match start_time
+        start_micros = Util.micros(start_time)
+        span.timestamp = start_micros
+
+        # when setting clock_start we have to be more careful because clock_start uses monotonic time and the values we get
+        # are relative to different origin than what normal Time.now uses
+        finish_micros = Util.micros(finish_time)
+        duration = finish_micros - start_micros
+        # set clock start relative to monotonic time source by subtracting the event duration
+        span.clock_start = Util.monotonic_micros - duration
+      end
+
+      finish(name, id, payload)
+    end
+
     private
 
     def notifications_regex

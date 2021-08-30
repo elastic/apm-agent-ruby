@@ -80,7 +80,9 @@ module ElasticAPM
       :outcome,
       :subtype,
       :trace_context,
-      :type
+      :type,
+      :timestamp,
+      :clock_start
     )
     attr_reader(
       :context,
@@ -89,7 +91,6 @@ module ElasticAPM
       :sample_rate,
       :self_time,
       :stacktrace,
-      :timestamp,
       :transaction
     )
 
