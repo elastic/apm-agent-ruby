@@ -146,11 +146,11 @@ module ElasticAPM
       it 'reports metrics' do
         agent.metrics.stop
         subject.start_transaction('a_transaction', config: config)
-        sleep(0.5)
+        sleep(0.1)
         subject.start_span('a_span', 'a', subtype: 'b')
-        sleep(0.5)
+        sleep(0.1)
         subject.end_span
-        sleep(0.5)
+        sleep(0.1)
         subject.end_transaction('result')
 
         txn_set, = agent.metrics.get(:transaction).collect
@@ -163,7 +163,7 @@ module ElasticAPM
         spn_self_time = brk_sets.find { |d| d.span&.fetch(:type) == 'a' }
 
         # txn_set
-        expect(txn_set.samples[:'transaction.duration.sum.us']).to be > 1500000
+        expect(txn_set.samples[:'transaction.duration.sum.us']).to be > 300000
         expect(txn_set.samples[:'transaction.duration.count']).to eq 1
         expect(txn_set.transaction).to match(
           name: 'a_transaction',
@@ -175,7 +175,7 @@ module ElasticAPM
         )
 
         # txn_self_time
-        expect(txn_self_time.samples[:'span.self_time.sum.us']).to be > 1000000
+        expect(txn_self_time.samples[:'span.self_time.sum.us']).to be > 200000
         expect(txn_self_time.samples[:'span.self_time.count']).to eq 1
         expect(txn_self_time.transaction).to match(
           name: 'a_transaction',
@@ -184,7 +184,7 @@ module ElasticAPM
         expect(txn_self_time.span).to match(type: 'app', subtype: nil)
 
         # spn_self_time
-        expect(spn_self_time.samples[:'span.self_time.sum.us']).to be > 500000
+        expect(spn_self_time.samples[:'span.self_time.sum.us']).to be > 100000
         expect(spn_self_time.samples[:'span.self_time.count']).to eq 1
         expect(spn_self_time.transaction).to match(
           name: 'a_transaction',
