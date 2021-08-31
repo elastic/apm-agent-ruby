@@ -21,7 +21,7 @@ require 'spec_helper'
 
 module ElasticAPM
   RSpec.describe Instrumenter, :intercept do
-    let(:config) { Config.new(logger: Logger.new($stdout)) }
+    let(:config) { Config.new }
     let(:agent) { ElasticAPM.agent }
 
     before do
