@@ -33,56 +33,69 @@ module ElasticAPM
   #   MyThing.new().empty?
   #     # => true
   module Fields
+    class Field
+      def initialize(key, value: nil, optional: false, default: nil)
+        @key = key
+        @value = value
+        @optional = optional
+        @default = default
+      end
+
+      attr_reader :key, :value, :optional, :default
+    end
+
     module InstanceMethods
       def initialize(**attrs)
+        schema.each do |key, field|
+          send(:"#{key}=", field.default) unless field.default.nil?
+        end
+
         attrs.each do |key, value|
-          self.send(:"#{key}=", value)
+          send(:"#{key}=", value) unless value.nil?
         end
 
         super()
       end
 
       def empty?
-        self.class.fields.each do |key|
-          next if send(key)
-          next if optionals.include?(key)
-
-          return true
+        self.class.schema.each do |key, field|
+          next unless send(key)
+          next if field.optional
+          return false
         end
 
-        false
+        true
       end
 
       def to_h
-        self.class.fields.each_with_object({}) do |key, fields|
-          fields[key] = send(key)
+        schema.each_with_object({}) do |(key, field), hsh|
+          hsh[key] = send(key)
         end
       end
 
       private
 
-      def optionals
-        self.class.optionals
+      def schema
+        self.class.schema
       end
     end
 
     module ClassMethods
-      def field(key, optional: false)
-        attr_accessor(key)
+      def field(key, optional: false, default: nil)
+        field = Field.new(key, optional: optional, default: default)
+        schema[key] = field
 
-        fields.push(key)
-        optionals.push(key) if optional
+        attr_accessor(key)
       end
 
-      attr_reader :fields, :optionals
+      attr_reader :schema
     end
 
     def self.included(cls)
       cls.extend(ClassMethods)
       cls.include(InstanceMethods)
 
-      cls.instance_variable_set(:@fields, [])
-      cls.instance_variable_set(:@optionals, [])
+      cls.instance_variable_set(:@schema, {})
     end
   end
 end
