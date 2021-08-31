@@ -33,8 +33,8 @@ module ElasticAPM
         class Service
           include Fields
 
-          field :name
-          field :type
+          field :name, default: ''
+          field :type, default: ''
           field :resource
         end
 

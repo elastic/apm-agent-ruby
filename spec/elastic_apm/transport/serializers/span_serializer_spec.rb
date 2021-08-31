@@ -277,7 +277,7 @@ module ElasticAPM
               result = subject.build(span)
 
               expect(result.dig(:span, :context, :destination, :service))
-                .to match({ resource: 'a', name: span.type, type: span.type })
+                .to match({ resource: 'a', name: '', type: '' })
 
               expect(result.dig(:span, :context, :destination, :cloud))
                 .to match({ region: 'b' })
