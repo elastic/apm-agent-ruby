@@ -26,7 +26,8 @@ module ElasticAPM
       class Fifo
         include Logging
 
-        FIFO_NAME = 'elastic-apm-fifo'
+        FIFO_DIR = 'tmp'
+        FIFO_NAME = 'elastic-apm-data'
 
         def initialize(config, headers: nil)
           @config = config
@@ -38,7 +39,8 @@ module ElasticAPM
         def open(url)
           @closed.make_false
           begin
-            File.mkfifo(FIFO_NAME)
+            Dir.mkdir(FIFO_DIR)
+            File.mkfifo("#{FIFO_DIR}/#{FIFO_NAME}")
             self
           rescue => e
             puts "error creating pipe, #{e.message}"
