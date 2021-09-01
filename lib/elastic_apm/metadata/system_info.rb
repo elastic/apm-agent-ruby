@@ -50,7 +50,7 @@ module ElasticAPM
       private
 
       def detect_hostname
-        `hostname`.chomp
+        Socket.gethostname.chomp
       end
     end
   end
