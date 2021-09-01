@@ -30,7 +30,7 @@ module ElasticAPM
 
       describe '#initialize' do
         it 'is has no active connection' do
-          expect(subject.http).to be nil
+          expect(subject.io).to be nil
         end
       end
 
@@ -49,10 +49,10 @@ module ElasticAPM
           subject.write('{"msg": "hey!"}')
           sleep 0.2
 
-          expect(subject.http.closed?).to be false
+          expect(subject.io.closed?).to be false
 
           subject.flush
-          expect(subject.http.closed?).to be true
+          expect(subject.io.closed?).to be true
 
           expect(stub).to have_been_requested
         end
@@ -65,12 +65,33 @@ module ElasticAPM
 
             subject.write('{"msg": "hey!"}')
 
-            expect(subject.http).to be nil
+            expect(subject.io).to be nil
 
             subject.flush
 
-            expect(subject.http).to be nil
+            expect(subject.io).to be nil
             expect(stub).to_not have_been_requested
+          end
+        end
+
+        context 'with a named pipe' do
+          let(:config) { Config.new synchronous_send: true }
+
+          it 'uses a fifo pipe' do
+            bytes_written = 0
+            bytes_read = 0
+
+            Thread.new do
+              bytes_written = subject.write('{"msg": "hey!"}')
+            end
+
+            Thread.new do
+              bytes_read = File.read(
+                ElasticAPM::Transport::Connection::Fifo::FIFO_NAME
+              )
+            end
+
+            expect(bytes_read).to eq(bytes_written)
           end
         end
       end
@@ -129,7 +150,7 @@ module ElasticAPM
 
           sleep 0.5
 
-          expect(subject.http.closed?).to be true
+          expect(subject.io.closed?).to be true
 
           expect(stub).to have_been_requested
         end
@@ -140,10 +161,10 @@ module ElasticAPM
           subject.write('{}')
           subject.flush
 
-          expect(subject.http.closed?).to be true
+          expect(subject.io.closed?).to be true
 
           sleep 0.2
-          expect(subject.http.closed?).to be true
+          expect(subject.io.closed?).to be true
         end
       end
 
@@ -163,7 +184,7 @@ module ElasticAPM
           subject.write('{}')
           sleep 0.2
 
-          expect(subject.http.closed?).to be true
+          expect(subject.io.closed?).to be true
 
           expect(stub).to have_been_requested
         end
@@ -174,10 +195,10 @@ module ElasticAPM
           subject.write('{}')
           subject.flush
 
-          expect(subject.http.closed?).to be true
+          expect(subject.io.closed?).to be true
 
           sleep 0.2
-          expect(subject.http.closed?).to be true
+          expect(subject.io.closed?).to be true
         end
 
         context 'and gzip off' do
@@ -200,7 +221,7 @@ module ElasticAPM
             subject.write('{}')
 
             sleep 0.2
-            expect(subject.http.closed?).to be true
+            expect(subject.io.closed?).to be true
             expect(stub).to have_been_requested
           end
         end

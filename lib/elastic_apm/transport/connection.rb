@@ -34,7 +34,6 @@ module ElasticAPM
       # connection some time in the future. To avoid the thread interfering
       # with ongoing write requests to `http`, write and close
       # requests have to be synchronized.
-
       def initialize(config)
         @config = config
         @metadata = JSON.fast_generate(
@@ -44,9 +43,10 @@ module ElasticAPM
         )
         @url = "#{config.server_url}/intake/v2/events"
         @mutex = Mutex.new
+        @io_class = config.synchronous_send? ? Fifo : Http
       end
 
-      attr_reader :http
+      attr_reader :io
 
       def write(str)
         return false if @config.disable_send
@@ -57,8 +57,8 @@ module ElasticAPM
           # The request might get closed from timertask so let's make sure we
           # hold it open until we've written.
           @mutex.synchronize do
-            connect if http.nil? || http.closed?
-            bytes_written = http.write(str)
+            connect if io.nil? || io.closed?
+            bytes_written = io.write(str)
           end
 
           flush(:api_request_size) if bytes_written >= @config.api_request_size
@@ -77,15 +77,15 @@ module ElasticAPM
       def flush(reason = :force)
         # Could happen from the timertask so we need to sync
         @mutex.synchronize do
-          return if http.nil?
-          http.close(reason)
+          return if io.nil?
+          io.close(reason)
         end
       end
 
       def inspect
         format(
           '<%s url:%s closed:%s >',
-          super.split.first, @url, http&.closed?
+          super.split.first, @url, io&.closed?
         )
       end
 
@@ -94,9 +94,9 @@ module ElasticAPM
       def connect
         schedule_closing if @config.api_request_time
 
-        @http =
-          Http.open(@config, @url).tap do |http|
-            http.write(@metadata)
+        @io =
+          @io_class.open(@config, @url).tap do |io|
+            io.write(@metadata)
           end
       end
       # rubocop:enable

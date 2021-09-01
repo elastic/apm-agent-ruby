@@ -25,6 +25,7 @@ require 'elastic_apm/transport/worker'
 require 'elastic_apm/transport/serializers'
 require 'elastic_apm/transport/filters'
 require 'elastic_apm/transport/connection/http'
+require 'elastic_apm/transport/connection/fifo'
 
 require 'elastic_apm/util/throttle'
 
