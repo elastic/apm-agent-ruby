@@ -73,6 +73,22 @@ module ElasticAPM
 
       def process(resource)
         return unless (json = serialize_and_filter(resource))
+        write(json)
+      end
+
+      def concatenate_serialized_events
+        str = ""
+        while (resource = queue.pop) do
+          if s = serialize_and_filter(resource)
+            str += s
+          else
+            break
+          end
+        end
+        str
+      end
+
+      def write(json)
         puts "writing json to connection #{json}"
         connection.write(json)
       end

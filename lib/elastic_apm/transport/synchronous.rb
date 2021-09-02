@@ -67,7 +67,8 @@ module ElasticAPM
       end
 
       def flush
-        worker.work_forever
+        s = worker.concatenate_serialized_events
+        worker.write(s)
       end
 
       def submit(resource)
