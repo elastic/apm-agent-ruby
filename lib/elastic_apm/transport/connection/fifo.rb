@@ -39,8 +39,8 @@ module ElasticAPM
         def open(url)
           @closed.make_false
           begin
-            Dir.mkdir(FIFO_DIR)
-            File.mkfifo("#{FIFO_DIR}/#{FIFO_NAME}")
+            Dir.mkdir(FIFO_DIR) unless File.exists?(FIFO_DIR)
+            File.mkfifo("#{FIFO_DIR}/#{FIFO_NAME}") unless File.exists?("#{FIFO_DIR}/#{FIFO_NAME}")
             self
           rescue => e
             puts "error creating pipe, #{e.message}"
@@ -75,7 +75,7 @@ module ElasticAPM
         end
 
         def write(str)
-          File.open(FIFO_NAME, 'w') do |f|
+          File.open("#{FIFO_DIR}/#{FIFO_NAME}", 'w') do |f|
             f.write(str)
           end
           #@wr.write(str)

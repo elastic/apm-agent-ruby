@@ -87,7 +87,8 @@ module ElasticAPM
 
             Thread.new do
               bytes_read = File.read(
-                ElasticAPM::Transport::Connection::Fifo::FIFO_NAME
+                "#{ElasticAPM::Transport::Connection::Fifo::FIFO_DIR}/" +
+                  "#{ElasticAPM::Transport::Connection::Fifo::FIFO_NAME}"
               )
             end
 
