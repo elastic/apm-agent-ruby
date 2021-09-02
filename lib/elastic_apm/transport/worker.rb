@@ -55,6 +55,7 @@ module ElasticAPM
       attr_reader :queue, :filters, :name, :connection, :serializers
 
       def work_forever
+        puts "queue size: #{queue.size}"
         while (msg = queue.pop)
           case msg
           when StopMessage
@@ -72,6 +73,7 @@ module ElasticAPM
 
       def process(resource)
         return unless (json = serialize_and_filter(resource))
+        puts "writing json to connection #{json}"
         connection.write(json)
       end
 
