@@ -116,7 +116,7 @@ module ElasticAPM
             break
           else
             json = serialize_and_filter(msg)
-            str += json if json
+            str += "#{json}\n" if json
           end
         end
         str
