@@ -21,6 +21,7 @@ require 'elastic_apm/metadata'
 require 'elastic_apm/transport/user_agent'
 require 'elastic_apm/transport/headers'
 require 'elastic_apm/transport/connection'
+require 'elastic_apm/transport/serializable'
 require 'elastic_apm/transport/worker'
 require 'elastic_apm/transport/serializers'
 require 'elastic_apm/transport/filters'
@@ -170,7 +171,7 @@ module ElasticAPM
       end
 
       def send_stop_messages
-        config.pool_size.times { queue.push(Worker::StopMessage.new, true) }
+        config.pool_size.times { queue.push(Serializable::StopMessage.new, true) }
       rescue ThreadError
         warn 'Cannot push stop messages to worker queue as it is full'
       end

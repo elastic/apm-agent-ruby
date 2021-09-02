@@ -85,7 +85,7 @@ module ElasticAPM
           expect(subject.connection).to receive(:flush)
 
           thread = Thread.new { subject.work_forever }
-          queue.push Worker::StopMessage.new
+          queue.push Serializable::StopMessage.new
 
           thread.join 1
         end

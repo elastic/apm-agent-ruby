@@ -22,6 +22,7 @@ module ElasticAPM
     # @api private
     class Worker
       include Logging
+      include Serializable
 
       class << self
         def adapter
@@ -30,12 +31,6 @@ module ElasticAPM
 
         attr_writer :adapter
       end
-
-      # @api private
-      class StopMessage; end
-
-      # @api private
-      class FlushMessage; end
 
       def initialize(
         config,
@@ -55,7 +50,6 @@ module ElasticAPM
       attr_reader :queue, :filters, :name, :connection, :serializers
 
       def work_forever
-        puts "queue size: #{queue.size}"
         while (msg = queue.pop)
           case msg
           when StopMessage
@@ -74,42 +68,6 @@ module ElasticAPM
       def process(resource)
         return unless (json = serialize_and_filter(resource))
         write(json)
-      end
-
-      def concatenate_serialized_events
-        str = ""
-        while (resource = queue.pop) do
-          if s = serialize_and_filter(resource)
-            str += s
-          else
-            break
-          end
-        end
-        str
-      end
-
-      def write(json)
-        puts "writing json to connection #{json}"
-        connection.write(json)
-      end
-
-      private
-
-      def serialize_and_filter(resource)
-        if resource.respond_to?(:prepare_for_serialization!)
-          resource.prepare_for_serialization!
-        end
-
-        serialized = serializers.serialize(resource)
-
-        # if a filter returns nil, it means skip the event
-        return nil if @filters.apply!(serialized) == Filters::SKIP
-
-        JSON.fast_generate(serialized)
-      rescue Exception
-        error format('Failed converting event to JSON: %s', resource.inspect)
-        error serialized.inspect
-        nil
       end
     end
   end

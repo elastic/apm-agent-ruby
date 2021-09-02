@@ -33,6 +33,7 @@ module ElasticAPM
     # @api private
     class Synchronous
       include Logging
+      include Serializable
 
       def initialize(config)
         @config = config
@@ -43,14 +44,10 @@ module ElasticAPM
         @filters = Filters.new(config)
 
         @stopped = Concurrent::AtomicBoolean.new
-        @worker = Worker.new(
-            config, queue,
-            serializers: @serializers,
-            filters: @filters
-        )
+        @connection = Connection.new(config)
       end
 
-      attr_reader :config, :queue, :filters, :worker, :stopped
+      attr_reader :config, :queue, :filters, :stopped, :connection
 
       def start
         debug '%s: Starting Synchronous Transport', pid_str
@@ -67,8 +64,7 @@ module ElasticAPM
       end
 
       def flush
-        s = worker.concatenate_serialized_events
-        worker.write(s)
+        write(concatenate_serialized_events)
       end
 
       def submit(resource)
@@ -107,12 +103,29 @@ module ElasticAPM
 
       private
 
+      def concatenate_serialized_events
+        str = ""
+        while (msg = queue.pop)
+          case msg
+          when StopMessage
+            break
+          else
+            json = serialize_and_filter(msg)
+            str += json if json
+          end
+        end
+        str
+      rescue Exception => e
+        warn 'Worker died with exception: %s', e.inspect
+        debug e.backtrace.join("\n")
+      end
+
       def pid_str
         format('[PID:%s]', Process.pid)
       end
 
       def send_stop_message
-        queue.push(Worker::StopMessage.new, true)
+        queue.push(Serializable::StopMessage.new, true)
       rescue ThreadError
         warn 'Cannot push stop messages to worker queue as it is full'
       end

@@ -41,7 +41,7 @@ module ElasticAPM
           expect(@mock_intake.transactions.size).to eq 0
           subject.stop
 
-          wait_for transactions: 3
+            #wait_for transactions: 3
         end
       end
 
