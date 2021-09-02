@@ -39,7 +39,17 @@ module ElasticAPM
           subject.submit Transaction.new config: config
 
           expect(@mock_intake.transactions.size).to eq 0
-          subject.stop
+
+          Thread.new do
+            subject.stop
+          end
+
+          Thread.new do
+            bytes_read = File.read(
+                "#{ElasticAPM::Transport::Connection::Fifo::FIFO_DIR}/" +
+                    "#{ElasticAPM::Transport::Connection::Fifo::FIFO_NAME}"
+            )
+          end
 
             #wait_for transactions: 3
         end
@@ -70,10 +80,30 @@ module ElasticAPM
       describe 'stop and start again' do
         before do
           subject.start
-          subject.stop
+          Thread.new do
+            subject.stop
+          end
+
+          Thread.new do
+            bytes_read = File.read(
+                "#{ElasticAPM::Transport::Connection::Fifo::FIFO_DIR}/" +
+                    "#{ElasticAPM::Transport::Connection::Fifo::FIFO_NAME}"
+            )
+          end
           subject.start
         end
-        after { subject.stop }
+        after do
+          Thread.new do
+            subject.stop
+          end
+
+          Thread.new do
+            bytes_read = File.read(
+                "#{ElasticAPM::Transport::Connection::Fifo::FIFO_DIR}/" +
+                    "#{ElasticAPM::Transport::Connection::Fifo::FIFO_NAME}"
+            )
+          end
+        end
 
         it 'does something' do
           skip 'implementation'

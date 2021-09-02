@@ -44,7 +44,7 @@ module ElasticAPM
         @serializers = serializers
         @filters = filters
 
-        @connection = self.class.adapter.new(config)
+        @connection = self.class.adapter.new(config, io_class: Connection::Http)
       end
 
       attr_reader :queue, :filters, :name, :connection, :serializers

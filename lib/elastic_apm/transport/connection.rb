@@ -34,7 +34,7 @@ module ElasticAPM
       # connection some time in the future. To avoid the thread interfering
       # with ongoing write requests to `http`, write and close
       # requests have to be synchronized.
-      def initialize(config)
+      def initialize(config, io_class: Http)
         @config = config
         @metadata = JSON.fast_generate(
           Serializers::MetadataSerializer.new(config).build(
@@ -43,7 +43,7 @@ module ElasticAPM
         )
         @url = "#{config.server_url}/intake/v2/events"
         @mutex = Mutex.new
-        @io_class = config.synchronous_send? ? Fifo : Http
+        @io_class = io_class
       end
 
       attr_reader :io
@@ -96,7 +96,7 @@ module ElasticAPM
 
         @io =
           @io_class.open(@config, @url).tap do |io|
-            io.write(@metadata)
+            io.write(@metadata) unless io.is_a?(Fifo)
           end
       end
       # rubocop:enable

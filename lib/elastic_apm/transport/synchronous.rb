@@ -44,7 +44,7 @@ module ElasticAPM
         @filters = Filters.new(config)
 
         @stopped = Concurrent::AtomicBoolean.new
-        @connection = Connection.new(config)
+        @connection = Connection.new(config, io_class: Connection::Fifo)
       end
 
       attr_reader :config, :queue, :filters, :stopped, :connection
@@ -105,6 +105,11 @@ module ElasticAPM
 
       def concatenate_serialized_events
         str = ""
+        str += JSON.fast_generate(
+            Serializers::MetadataSerializer.new(config).build(
+                Metadata.new(config)
+            )
+        )
         while (msg = queue.pop)
           case msg
           when StopMessage

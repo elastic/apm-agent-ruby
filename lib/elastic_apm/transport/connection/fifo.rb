@@ -75,6 +75,7 @@ module ElasticAPM
         end
 
         def write(str)
+          puts "Writing string to FIFO #{str}"
           File.open("#{FIFO_DIR}/#{FIFO_NAME}", 'w') do |f|
             f.write(str)
           end
