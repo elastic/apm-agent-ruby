@@ -69,6 +69,11 @@ module ElasticAPM
             subject.value = 0
             expect(subject.collect).to be nil
           end
+
+          it 'skips NaN values' do
+            subject.value = 0.0/0
+            expect(subject.collect).to be nil
+          end
         end
       end
     end
