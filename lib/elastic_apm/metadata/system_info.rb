@@ -52,7 +52,6 @@ module ElasticAPM
       def detect_hostname
         Socket.gethostname.chomp
       rescue
-        ''
       end
     end
   end
