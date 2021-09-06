@@ -41,7 +41,7 @@ module ElasticAPM
           end
 
           it 'returns an empty string' do
-            expect(subject.detected_hostname).to eq('')
+            expect(subject.detected_hostname).to eq(nil)
           end
         end
       end

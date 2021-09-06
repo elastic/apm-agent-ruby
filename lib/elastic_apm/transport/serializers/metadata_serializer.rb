@@ -90,7 +90,7 @@ module ElasticAPM
           if system.detected_hostname
             base[:detected_hostname] = keyword_field(system.detected_hostname)
           end
-          
+
           base
         end
 
