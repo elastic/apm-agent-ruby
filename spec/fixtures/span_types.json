@@ -11,6 +11,7 @@
     "<type>.subtypes.<subtype>.__used_by": "list of agents that use <subtype> to help document alignment (optional)"
   },
   "app": {
+    "__description": "Spans within application (usually not calling an external system)",
     "allow_null_subtype": true,
     "subtypes": {
       "inferred": {
@@ -90,6 +91,12 @@
           "ruby"
         ]
       },
+      "graphql": {
+        "__description": "GraphQL",
+        "__used_by": [
+          "nodejs"
+        ]
+      },
       "h2": {
         "__description": "H2",
         "__used_by": [
@@ -112,11 +119,23 @@
           "ruby"
         ]
       },
+      "memcached": {
+        "__description": "Memcached",
+        "__used_by": [
+          "nodejs"
+        ]
+      },
       "mongodb": {
         "__description": "MongoDB",
         "__used_by": [
           "java",
           "ruby"
+        ]
+      },
+      "mssql": {
+        "__description": "Microsoft SQL Server",
+        "__used_by": [
+          "nodejs"
         ]
       },
       "mysql": {
@@ -173,20 +192,26 @@
     }
   },
   "external": {
+    "__description": "Request to external service, usually in request/response pattern",
     "subtypes": {
       "dubbo": {
-        "__description": "Apache Dubbo"
+        "__description": "Apache Dubbo",
+        "__used_by": [
+          "java"
+        ]
       },
       "grpc": {
         "__description": "gRPC",
         "__used_by": [
-          "ruby"
+          "ruby",
+          "java"
         ]
       },
       "http": {
         "__description": "HTTP client",
         "__used_by": [
-          "ruby"
+          "ruby",
+          "java"
         ]
       }
     }
@@ -254,11 +279,11 @@
   },
   "storage": {
     "subtypes": {
+      "azureblob": {
+        "__description": "Azure Blob Storage"
+      },
       "azurefile": {
         "__description": "Azure Files"
-      },
-      "azuresblob": {
-        "__description": "Azure Blob Storage"
       },
       "azuretable": {
         "__description": "Azure Storage Table",
@@ -281,5 +306,15 @@
       "ruby"
     ],
     "allow_unlisted_subtype": true
+  },
+  "websocket": {
+    "__description": "Websockets",
+    "subtypes": {
+      "send": {
+        "__used_by": [
+          "nodejs"
+        ]
+      }
+    }
   }
 }
