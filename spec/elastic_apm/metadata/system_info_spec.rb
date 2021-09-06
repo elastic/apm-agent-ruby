@@ -40,7 +40,7 @@ module ElasticAPM
             allow(Socket).to receive(:gethostname).and_raise(StandardError)
           end
 
-          it 'returns an empty string' do
+          it 'returns nil' do
             expect(subject.detected_hostname).to eq(nil)
           end
         end
