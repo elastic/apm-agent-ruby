@@ -42,6 +42,8 @@ module ElasticAPM
       end
 
       attr_reader :key, :value, :optional, :default
+
+      alias :optional? :optional
     end
 
     module InstanceMethods
@@ -60,7 +62,7 @@ module ElasticAPM
       def empty?
         self.class.schema.each do |key, field|
           next unless send(key)
-          next if field.optional
+          next unless (field.optional? && field.value.nil?)
           return false
         end
 

@@ -29,6 +29,13 @@ module ElasticAPM
       field :online, default: true
     end
 
+    class OnlyOptionals
+      include Fields
+
+      field :a, optional: true
+      field :b, optional: true
+    end
+
     it "adds an initializer and accessors" do
       subject = MyObject.new(name: "thing")
       expect(subject.name).to(eq("thing"))
@@ -59,6 +66,11 @@ module ElasticAPM
 
       it "isn't when all fields set" do
         subject = MyObject.new(name: 'a', address: 'b')
+        expect(subject).to_not be_empty
+      end
+
+      it "isn't when optional fields are set" do
+        subject = OnlyOptionals.new(a: 1)
         expect(subject).to_not be_empty
       end
     end
