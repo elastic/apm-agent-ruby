@@ -57,6 +57,8 @@ module ElasticAPM
         @mutex.synchronize do
           collected = @value
 
+          return nil if collected.is_a?(Float) && !collected.finite?
+
           @value = initial_value if reset_on_collect?
 
           return nil if reset_on_collect? && collected == 0
