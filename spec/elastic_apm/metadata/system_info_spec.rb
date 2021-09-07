@@ -34,6 +34,16 @@ module ElasticAPM
         it 'has no newline at the end' do
           expect(subject.detected_hostname).not_to match(/\n\z/)
         end
+
+        context 'when there is an exception' do
+          before do
+            allow(Socket).to receive(:gethostname).and_raise(StandardError)
+          end
+
+          it 'returns nil' do
+            expect(subject.detected_hostname).to eq(nil)
+          end
+        end
       end
     end
   end

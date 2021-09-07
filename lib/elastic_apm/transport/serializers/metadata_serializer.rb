@@ -80,14 +80,18 @@ module ElasticAPM
         end
 
         def build_system(system)
-          {
-            detected_hostname: keyword_field(system.detected_hostname),
+          base = {
             configured_hostname: keyword_field(system.configured_hostname),
             architecture: keyword_field(system.architecture),
             platform: keyword_field(system.platform),
             kubernetes: keyword_object(system.kubernetes),
             container: keyword_object(system.container)
           }
+          if system.detected_hostname
+            base[:detected_hostname] = keyword_field(system.detected_hostname)
+          end
+
+          base
         end
 
         def build_cloud(cloud)
