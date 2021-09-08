@@ -25,7 +25,7 @@ module ElasticAPM
   #   class MyThing
   #     include Fields
   #     field :name
-  #     field :address, optional: true
+  #     field :address, default: 'There'
   #   end
   #
   #   MyThing.new(name: 'AJ').to_h
@@ -34,26 +34,22 @@ module ElasticAPM
   #     # => true
   module Fields
     class Field
-      def initialize(key, value: nil, optional: false, default: nil)
+      def initialize(key, default: nil)
         @key = key
-        @value = value
-        @optional = optional
         @default = default
       end
 
-      attr_reader :key, :value, :optional, :default
-
-      alias :optional? :optional
+      attr_reader :key, :default
     end
 
     module InstanceMethods
       def initialize(**attrs)
         schema.each do |key, field|
-          send(:"#{key}=", field.default) unless field.default.nil?
+          send(:"#{key}=", field.default)
         end
 
         attrs.each do |key, value|
-          send(:"#{key}=", value) unless value.nil?
+          send(:"#{key}=", value)
         end
 
         super()
@@ -61,8 +57,7 @@ module ElasticAPM
 
       def empty?
         self.class.schema.each do |key, field|
-          next unless send(key)
-          next unless (field.optional? && field.value.nil?)
+          next if send(key).nil?
           return false
         end
 
@@ -83,8 +78,8 @@ module ElasticAPM
     end
 
     module ClassMethods
-      def field(key, optional: false, default: nil)
-        field = Field.new(key, optional: optional, default: default)
+      def field(key, default: nil)
+        field = Field.new(key, default: default)
         schema[key] = field
 
         attr_accessor(key)
