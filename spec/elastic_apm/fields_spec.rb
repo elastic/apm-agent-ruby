@@ -25,7 +25,8 @@ module ElasticAPM
       include Fields
 
       field :name
-      field :address, optional: true
+      field :address
+      field :online, default: true
     end
 
     it "adds an initializer and accessors" do
@@ -34,18 +35,42 @@ module ElasticAPM
     end
 
     it "knows its fields" do
-      expect(MyObject.fields).to eq(%i[name address])
+      expect(MyObject.schema.keys).to eq(%i[name address online])
+    end
+
+    describe "with default value" do
+      it 'sets value to default' do
+        subject = MyObject.new
+        expect(subject.online).to be true
+      end
+
+      it 'is overridable' do
+        subject = MyObject.new(online: false)
+        expect(subject.online).to be false
+      end
     end
 
     describe "#empty?" do
       it "is when missing all values" do
         subject = MyObject.new
+        subject.online = nil
         expect(subject).to be_empty
       end
 
       it "isn't when all fields set" do
         subject = MyObject.new(name: 'a', address: 'b')
         expect(subject).to_not be_empty
+      end
+    end
+
+    describe "#to_h" do
+      it "serializes into a hash" do
+        subject = MyObject.new(name: 'a', address: 'b')
+        expect(subject.to_h).to match(
+          name: 'a',
+          address: 'b',
+          online: true
+        )
       end
     end
   end

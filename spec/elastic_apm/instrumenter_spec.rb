@@ -21,7 +21,7 @@ require 'spec_helper'
 
 module ElasticAPM
   RSpec.describe Instrumenter, :intercept do
-    let(:config) { Config.new(logger: Logger.new($stdout)) }
+    let(:config) { Config.new }
     let(:agent) { ElasticAPM.agent }
 
     before do
@@ -287,6 +287,26 @@ module ElasticAPM
             expect do
               expect(subject.start_span('Span')).to be nil
             end.to change(transaction, :started_spans).by 1
+          end
+        end
+
+        context "with an exit_span parent" do
+          it "is nil" do
+            parent = subject.start_span('Parent', exit_span: true)
+
+            span = subject.start_span('Inside')
+            expect(span).to be nil
+
+            subject.end_span(parent)
+          end
+
+          it 'makes a subspan if type/subtype matches' do
+            parent = subject.start_span('Parent', 'my_type', exit_span: true)
+
+            span = subject.start_span('Inside', 'my_type')
+            expect(span).to_not be nil
+
+            subject.end_span(parent)
           end
         end
       end

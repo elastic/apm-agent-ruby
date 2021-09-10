@@ -49,8 +49,8 @@ module ElasticAPM
             expect(subject.port).to eq(80)
 
             # deprecated
-            expect(subject.service.name).to be(nil)
-            expect(subject.service.type).to be(nil)
+            expect(subject.service.name).to be("")
+            expect(subject.service.type).to be("")
           end
 
           context("https") do

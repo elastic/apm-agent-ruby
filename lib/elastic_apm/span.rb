@@ -49,7 +49,8 @@ module ElasticAPM
       action: nil,
       context: nil,
       stacktrace_builder: nil,
-      sync: nil
+      sync: nil,
+      exit_span: false
     )
       @name = name
 
@@ -68,6 +69,8 @@ module ElasticAPM
 
       @context = context || Span::Context.new(sync: sync)
       @stacktrace_builder = stacktrace_builder
+
+      @exit_span = exit_span
     end
     # rubocop:enable Metrics/ParameterLists
 
@@ -75,6 +78,7 @@ module ElasticAPM
 
     attr_accessor(
       :action,
+      :exit_span,
       :name,
       :original_backtrace,
       :outcome,
@@ -93,6 +97,8 @@ module ElasticAPM
       :transaction
     )
 
+    alias :exit_span? :exit_span
+
     # life cycle
 
     def start(clock_start = Util.monotonic_micros)
@@ -106,17 +112,6 @@ module ElasticAPM
       @duration ||= (clock_end - @clock_start)
       @parent.child_stopped
       @self_time = @duration - child_durations.duration
-
-      if exit_span?
-        context.destination ||= Context::Destination.new
-        context.destination.service ||= Context::Destination::Service.new
-        context.destination.service.resource ||= (subtype || type)
-
-        # Deprecated fields but required by some versions of APM Server, so
-        # we auto-infer them from existing fields
-        context.destination.service.name ||= (subtype || type)
-        context.destination.service.type ||= type
-      end
 
       self
     end
@@ -158,6 +153,7 @@ module ElasticAPM
         " type:#{type.inspect}" \
         " subtype:#{subtype.inspect}" \
         " action:#{action.inspect}" \
+        " exit_span:#{exit_span.inspect}" \
         '>'
     end
 
@@ -179,10 +175,6 @@ module ElasticAPM
       return false if min_duration == 0
 
       duration >= min_duration
-    end
-
-    def exit_span?
-      context.destination || context.db || context.message || context.http
     end
   end
 end

@@ -179,7 +179,8 @@ module ElasticAPM
       context: nil,
       trace_context: nil,
       parent: nil,
-      sync: nil
+      sync: nil,
+      exit_span: nil
     )
 
       transaction =
@@ -197,6 +198,15 @@ module ElasticAPM
 
       parent ||= (current_span || current_transaction)
 
+      # To not mess with breakdown metric stats, exit spans MUST not add
+      # sub-spans unless they share the same type and subtype.
+      if parent && parent.is_a?(Span) && parent.exit_span?
+        if parent.type != type || parent.subtype != subtype
+          debug "Skipping new span '#{name}' as its parent is an exit_span"
+          return
+        end
+      end
+
       span = Span.new(
         name: name,
         subtype: subtype,
@@ -207,7 +217,8 @@ module ElasticAPM
         type: type,
         context: context,
         stacktrace_builder: stacktrace_builder,
-        sync: sync
+        sync: sync,
+        exit_span: exit_span
       )
 
       if backtrace && transaction.span_frames_min_duration
