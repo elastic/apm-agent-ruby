@@ -100,12 +100,12 @@ module ElasticAPM
               port: destination.port
             }
 
-            unless destination.service&.empty?
-              base[:service] = destination.service.to_h
+            if (service = destination.service) && !service.empty?
+              base[:service] = service.to_h
             end
 
-            unless destination.cloud&.empty?
-              base[:cloud] = destination.cloud.to_h
+            if (cloud = destination.cloud) && !cloud.empty?
+              base[:cloud] = cloud.to_h
             end
 
             base

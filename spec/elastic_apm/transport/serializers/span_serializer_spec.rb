@@ -30,11 +30,9 @@ module ElasticAPM
           let(:transaction) { Transaction.new(config: config).start }
 
           let(:trace_context) do
-            TraceContext.new(
-              traceparent: TraceContext::Traceparent.parse(
-                             "00-#{'1' * 32}-#{'2' * 16}-01"
-                           )
-            )
+            traceparent =
+              TraceContext::Traceparent.parse("00-#{'1' * 32}-#{'2' * 16}-01")
+            TraceContext.new(traceparent: traceparent)
           end
 
           let :span do
@@ -277,7 +275,7 @@ module ElasticAPM
               result = subject.build(span)
 
               expect(result.dig(:span, :context, :destination, :service))
-                .to match({ resource: 'a', name: span.type, type: span.type })
+                .to match({ resource: 'a', name: '', type: '' })
 
               expect(result.dig(:span, :context, :destination, :cloud))
                 .to match({ region: 'b' })
