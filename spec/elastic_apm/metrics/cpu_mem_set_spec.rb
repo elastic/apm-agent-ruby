@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   module Metrics
     RSpec.describe CpuMemSet do
@@ -24,7 +26,7 @@ module ElasticAPM
       subject { described_class.new config }
 
       context 'Linux' do
-        before { allow(Metrics).to receive(:platform) { :linux } }
+        before { allow(Metrics).to receive(:os) { 'linux-musl' } }
 
         describe 'collect' do
           it 'collects all metrics' do

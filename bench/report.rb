@@ -18,7 +18,7 @@ end
 meta = {
   executed_at: Time.new.iso8601,
   'git.commit' => git_sha,
-  'git.date' => String(git_date).strip != '' && Time.parse(git_date).iso8601,
+  'git.date' => (String(git_date).strip != '' && Time.parse(git_date).iso8601) || Time.now.iso8601,
   'git.subject' => git_msg,
   hostname: `hostname`.chomp,
   engine: RUBY_ENGINE,

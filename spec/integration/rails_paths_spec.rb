@@ -17,16 +17,16 @@
 
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'integration_helper'
 
 if defined?(Rails)
   require 'action_controller/railtie'
 
-  RSpec.describe 'Rails paths' do
+  RSpec.describe 'Rails paths', :mock_intake do
     before :all do
       module RailsTestApp
         class Application < Rails::Application
-          configure_rails_for_test
+          RailsTestHelpers.setup_rails_test_config(config)
 
           config.disable_send = true
 
@@ -44,6 +44,8 @@ if defined?(Rails)
         .to receive(:existent).and_return(['test/path'])
       allow(Rails).to receive(:root).and_return(Pathname.new('rootz'))
 
+      MockIntake.stub!
+
       RailsTestApp::Application.initialize!
     end
 
@@ -52,7 +54,7 @@ if defined?(Rails)
     end
 
     it 'sets the paths' do
-      expect(ElasticAPM.agent.config.__view_paths).to eq(['test/path'])
+      expect(ElasticAPM.agent.config.__view_paths.first).to match(%r{test/path})
       expect(ElasticAPM.agent.config.__root_path).to eq('rootz')
     end
   end

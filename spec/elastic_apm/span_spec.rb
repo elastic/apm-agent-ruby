@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   RSpec.describe Span do
     subject do
@@ -29,7 +31,11 @@ module ElasticAPM
     end
 
     let(:trace_context) do
-      TraceContext.parse("00-#{'1' * 32}-#{'2' * 16}-01")
+      TraceContext.new(
+        traceparent: TraceContext::Traceparent.parse(
+                       "00-#{'1' * 32}-#{'2' * 16}-01"
+                     )
+      )
     end
 
     let(:transaction) { Transaction.new config: Config.new }
@@ -46,6 +52,7 @@ module ElasticAPM
       its(:trace_id) { should eq trace_context.trace_id }
       its(:id) { should eq trace_context.id }
       its(:parent_id) { should eq trace_context.parent_id }
+      its(:sample_rate) { is_expected.to eq transaction.sample_rate }
 
       context 'with a dot-separated type' do
         it 'splits type' do
@@ -71,7 +78,7 @@ module ElasticAPM
       subject do
         described_class.new(
           name: 'Spannest name',
-          transaction: transaction.id,
+          transaction: transaction,
           parent: transaction,
           trace_context: trace_context
         )
@@ -91,7 +98,7 @@ module ElasticAPM
       subject do
         described_class.new(
           name: 'Spannest name',
-          transaction: transaction.id,
+          transaction: transaction,
           parent: transaction,
           trace_context: trace_context
         )
@@ -128,10 +135,7 @@ module ElasticAPM
 
     describe '#done', :mock_time do
       let(:duration_us) { 5_100 }
-      let(:span_frames_min_duration) { '5ms' }
-      let(:config) do
-        Config.new(span_frames_min_duration: span_frames_min_duration)
-      end
+      let(:config) { Config.new }
 
       subject do
         described_class.new(
@@ -152,6 +156,35 @@ module ElasticAPM
 
       it { should be_stopped }
       its(:duration) { should be duration_us }
+    end
+
+    describe "#prepare_for_serialization", :mock_time do
+      let(:duration_us) { 5_100 }
+      let(:span_frames_min_duration) { '5ms' }
+
+      let(:config) do
+        Config.new(span_frames_min_duration: span_frames_min_duration)
+      end
+
+      subject do
+        described_class.new(
+          name: 'Span',
+          transaction: transaction,
+          parent: transaction,
+          trace_context: trace_context,
+          stacktrace_builder: StacktraceBuilder.new(config)
+        )
+      end
+
+      before do
+        subject.original_backtrace = caller
+        subject.start
+        travel duration_us
+        subject.done
+
+        subject.prepare_for_serialization!
+      end
+
       its(:stacktrace) { should be_a Stacktrace }
 
       context 'when shorter than min for stacktrace' do
@@ -163,6 +196,20 @@ module ElasticAPM
         let(:duration) { 0 }
         let(:span_frames_min_duration) { '-1' }
         its(:stacktrace) { should be_a Stacktrace }
+      end
+    end
+
+    describe "#set_destination" do
+      it 'adds destination to context' do
+        subject.set_destination(
+          address: 'asdf',
+          service: { resource: 'xyz' },
+          cloud: { region: 'abc' }
+        )
+        expect(subject.context.destination).to be_a(Span::Context::Destination)
+        expect(subject.context.destination.address).to eq 'asdf'
+        expect(subject.context.destination.service.resource).to eq 'xyz'
+        expect(subject.context.destination.cloud.region).to eq 'abc'
       end
     end
   end

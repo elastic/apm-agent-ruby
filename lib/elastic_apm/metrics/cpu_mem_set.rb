@@ -62,8 +62,8 @@ module ElasticAPM
       def initialize(config)
         super
 
-        @sampler = sampler_for_platform(Metrics.platform)
-        read! # set @previous on boot
+        @sampler = sampler_for_os(Metrics.os)
+        read! # set initial values to calculate deltas from
       end
 
       attr_reader :config
@@ -75,11 +75,11 @@ module ElasticAPM
 
       private
 
-      def sampler_for_platform(platform)
-        case platform
-        when :linux then Linux.new
+      def sampler_for_os(os)
+        case os
+        when /^linux/ then Linux.new
         else
-          warn "Unsupported platform '#{platform}' - Disabling system metrics"
+          warn "Disabling system metrics, unsupported host OS '#{os}'"
           disable!
           nil
         end
@@ -214,6 +214,7 @@ module ElasticAPM
         # @api private
         class Meminfo
           attr_reader :total, :available, :page_size
+
           # rubocop:disable Metrics/PerceivedComplexity
           # rubocop:disable Metrics/CyclomaticComplexity
           def read!

@@ -127,7 +127,7 @@ module ElasticAPM
     end
 
     def stop
-      debug 'Stopping agent'
+      info 'Stopping agent'
 
       central_config.stop
       metrics.stop
@@ -211,8 +211,8 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/ParameterLists
 
-    def end_span
-      instrumenter.end_span
+    def end_span(span = nil)
+      instrumenter.end_span(span)
     end
 
     def set_label(key, value)
@@ -225,6 +225,10 @@ module ElasticAPM
 
     def set_user(user)
       instrumenter.set_user(user)
+    end
+
+    def set_destination(address: nil, port: nil, service: nil, cloud: nil)
+      current_span&.set_destination(address: nil, port: nil, service: nil, cloud: nil)
     end
 
     def build_context(rack_env:, for_type:)
@@ -276,8 +280,8 @@ module ElasticAPM
     def detect_forking!
       return if @pid == Process.pid
 
-      config.logger.debug "Detected forking,
-        restarting threads in process [PID:#{Process.pid}]"
+      config.logger.debug(
+        "Forked process detected, restarting threads in process [PID:#{Process.pid}]")
 
       central_config.handle_forking!
       transport.handle_forking!

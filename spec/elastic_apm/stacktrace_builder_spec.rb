@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   RSpec.describe StacktraceBuilder do
     let(:config) { Config.new }
@@ -102,19 +104,19 @@ module ElasticAPM
 
     context 'determining lib frames' do
       [
-        # rubocop:disable Metrics/LineLength
+        # rubocop:disable Layout/LineLength
         [false, "#{Config.new.__root_path}/app/controllers/somethings_controller.rb:5:in `render'"],
         [true, "/Users/someone/.rubies/ruby-2.5.0/lib/ruby/2.5.0/irb/workspace.rb:85:in `eval'"],
         [true, "/usr/local/lib/ruby/site_ruby/2.5.0/bundler/friendly_errors.rb:122:in `yield'"],
         [true, "/Users/someone/.gem/ruby/2.5.0/gems/railties-5.1.5/lib/rails.rb:24:in `whatever'"],
         [true, "/app/vendor/bundle/ruby/2.5.0/bundler/gems/apm-agent-ruby-8135f18735fb/lib/elastic_apm/subscriber.rb:10:in `things'"],
         [true, "/app/vendor/ruby-2.5.0/lib/ruby/2.5.0/benchmark.rb:10:in `things'"],
-        [true, "org/jruby/RubyBasicObject.java:1728:in `instance_exec'"],
+        [true, "org/jruby/BasicObject.java:1728:in `instance_exec'"],
         [true, "/tmp/vendor/j9.1/jruby/2.3.0/bin/rspec:1:in `<main>'"],
         [true, "/usr/local/lib/ruby/gems/2.5.0/gems/bundler-1.16.1/lib/bundler/friendly_errors.rb:122:in `yield'"]
-        # rubocop:enable Metrics/LineLength
+        # rubocop:enable Layout/LineLength
       ].each do |(expected, frame)|
-        it "is #{expected} for #{frame[0..60] + '...'}" do
+        it "is #{expected} for #{"#{frame[0..60]}..."}" do
           stacktrace = subject.build([frame], type: :error)
           frame, = stacktrace.frames
           expect(frame.library_frame).to be(expected), frame.inspect

@@ -136,18 +136,14 @@ module ElasticAPM
       end
     end
 
-    context 'ignore_url_patterns' do
-      it 'sets ignore_url_patterns to array of regexp' do
-        config = Config.new(
-          ignore_url_patterns: [
-            'PingController#index',
-            'GET /ping'
-          ]
-        )
-        expect(config.ignore_url_patterns).to eq [
-          /PingController#index/,
-          %r{GET /ping}
-        ]
+    describe 'sample rate precision' do
+      context 'sets a minimum' do
+        subject { Config.new(transaction_sample_rate: '0.00001') }
+        its(:transaction_sample_rate) { should eq 0.0001 }
+      end
+      context 'ensures max 4 digits of precision' do
+        subject { Config.new(transaction_sample_rate: '0.55554') }
+        its(:transaction_sample_rate) { should eq 0.5555 }
       end
     end
 
@@ -186,6 +182,42 @@ module ElasticAPM
         expect(logger).to receive(:info).with('MockLog')
         config.logger.info 'MockLog'
       end
+
+      describe 'log level' do
+        it 'can accept integers' do
+          config = Config.new log_level: Logger::FATAL
+          expect(config.log_level).to eq(Logger::FATAL)
+        end
+
+        it 'can accept symbols' do
+          config = Config.new log_level: :fatal
+          expect(config.log_level).to eq(Logger::FATAL)
+        end
+
+        it 'can accept symbols not mapping to native Ruby logger levels' do
+          config = Config.new log_level: :critical
+          expect(config.log_level).to eq(Logger::FATAL)
+        end
+      end
+
+      describe 'ecs logging' do
+        context "when log_ecs_formatting is 'override'" do
+          it 'builds an EcsLogging::Logger' do
+            config = Config.new log_ecs_formatting: 'override'
+            expect(config.logger).to be_a(::EcsLogging::Logger)
+          end
+        end
+
+        context "when the log_ecs_formatting value is not valid" do
+          it 'builds a ::Logger' do
+            config = Config.new log_ecs_formatting: 'invalid_option'
+            # Using be_a(::Logger) would be true even if the logger were
+            # a EcsLogging::Logger because the class inherits from ::Logger.
+            # So we test the negative:
+            expect(config.logger).not_to be_a(::EcsLogging::Logger)
+          end
+        end
+      end
     end
 
     describe 'unknown options' do
@@ -221,65 +253,6 @@ module ElasticAPM
       end
     end
 
-    context 'DEPRECATED' do
-      describe 'default_tags' do
-        subject { Config.new }
-
-        it 'logs a warning and redirects' do
-          expect(subject).to receive(:warn).with(/DEPRECATED/)
-          subject.default_tags = 'oh_no=its_gone'
-
-          expect(subject.default_labels).to eq('oh_no' => 'its_gone')
-        end
-      end
-
-      describe 'disabled_instrumentations' do
-        subject { Config.new }
-
-        it 'logs a warning and redirects' do
-          expect(subject).to receive(:warn).with(/DEPRECATED/)
-          subject.disabled_instrumentations = ['oh no']
-
-          expect(subject.disable_instrumentations).to eq(['oh no'])
-          expect(subject.disabled_instrumentations)
-            .to eq(subject.disable_instrumentations)
-        end
-      end
-
-      describe 'custom_key_filters' do
-        subject { Config.new }
-
-        it 'logs a warning' do
-          expect(subject).to receive(:warn).with(/DEPRECATED/)
-          subject.custom_key_filters = ['oh no']
-
-          expect(subject.custom_key_filters).to eq([/oh no/])
-        end
-      end
-
-      describe 'use_legacy_sql_parser' do
-        subject { Config.new }
-
-        it 'logs a warning' do
-          expect(subject).to receive(:warn).with(/DEPRECATED/)
-          subject.use_experimental_sql_parser = true
-        end
-      end
-
-      describe 'active' do
-        subject { Config.new }
-
-        it 'logs a warning and redirects' do
-          expect(subject).to receive(:warn).with(/DEPRECATED/)
-          subject.active = false
-
-          expect(subject.enabled).to eq(false)
-          expect(subject.active)
-            .to eq(subject.enabled)
-        end
-      end
-    end
-
     describe '#replace_options' do
       subject { Config.new(server_url: 'somewhere-else.com') }
 
@@ -300,9 +273,9 @@ module ElasticAPM
         expect(subject.options).not_to be(original_options)
       end
 
-      it 'updates the log level on the existing logger' do
+      it 'does not update the log level on the existing logger' do
         subject.replace_options(log_level: Logger::DEBUG)
-        expect(subject.logger.level).to eq(Logger::DEBUG)
+        expect(subject.logger.level).to eq(Logger::INFO)
       end
     end
   end

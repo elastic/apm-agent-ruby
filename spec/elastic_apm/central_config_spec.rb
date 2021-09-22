@@ -17,13 +17,16 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   RSpec.describe CentralConfig do
-    after { WebMock.reset! }
-
     let(:config) do
-      Config.new(service_name: 'MyApp',
-                 log_level: Logger::DEBUG)
+      Config.new(
+        central_config: true,
+        service_name: 'MyApp',
+        log_level: Logger::DEBUG
+      )
     end
     subject { described_class.new(config) }
 
@@ -34,6 +37,42 @@ module ElasticAPM
         subject.promise.wait
         expect(req_stub).to have_been_requested.at_least_once
         subject.stop
+      end
+
+      context 'with complex service name' do
+        let(:config) do
+          Config.new(
+            central_config: true,
+            service_name: 'My app with +-_',
+            log_level: Logger::DEBUG
+          )
+        end
+
+        it 'escapes chars' do
+          req_stub = stub_response({}, service_name: 'My%20app%20with%20%2B-_')
+          subject.start
+          subject.promise.wait
+          expect(req_stub).to have_been_requested.at_least_once
+          subject.stop
+        end
+      end
+
+      context 'environment' do
+        let(:config) do
+          Config.new(
+            central_config: true,
+            service_name: 'MyApp',
+            environment: 'staging'
+          )
+        end
+
+        it 'includes env in params' do
+          req_stub = stub_response({}, environment: 'staging')
+          subject.start
+          subject.promise.wait
+          expect(req_stub).to have_been_requested.at_least_once
+          subject.stop
+        end
       end
 
       context 'when disabled' do
@@ -150,7 +189,8 @@ module ElasticAPM
 
           stub_response(
             nil,
-            request: { headers: { 'Etag': '___etag___' } }
+            request: { headers: { 'If-None-Match': '___etag___' } },
+            response: { headers: { 'Etag': '___etag___' } }
           )
 
           subject.fetch_and_apply_config
@@ -271,6 +311,28 @@ module ElasticAPM
         subject.assign(transaction_sample_rate: 0.5)
         expect(subject.config.transaction_sample_rate).to eq(0.5)
       end
+
+      describe 'log level' do
+        it 'maps `trace` to `debug`' do
+          subject.assign(log_level: 'trace')
+          expect(subject.config.log_level).to eq(Logger::DEBUG)
+        end
+
+        it 'maps `critical` to `fatal`' do
+          subject.assign(log_level: 'critical')
+          expect(subject.config.log_level).to eq(Logger::FATAL)
+        end
+
+        it 'maps `off` to `fatal`' do
+          subject.assign(log_level: 'off')
+          expect(subject.config.log_level).to eq(Logger::FATAL)
+        end
+
+        it 'maps `debug` to `debug`' do
+          subject.assign(log_level: 'debug')
+          expect(subject.config.log_level).to eq(Logger::DEBUG)
+        end
+      end
     end
 
     describe '#handle_forking!' do
@@ -286,8 +348,10 @@ module ElasticAPM
       end
     end
 
-    def stub_response(body, request: {}, response: {}, error: nil)
-      url = 'http://localhost:8200/config/v1/agents?service.name=MyApp'
+    def stub_response(body, request: {}, response: {}, error: nil, service_name: "MyApp", environment: ENV['RAILS_ENV'])
+      url = "http://localhost:8200/config/v1/agents" \
+        "?service.name=#{service_name}" \
+        "&service.environment=#{environment}"
 
       return stub_request(:get, url).to_raise(error) if error
 

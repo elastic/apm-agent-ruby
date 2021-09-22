@@ -24,7 +24,8 @@ module ElasticAPM
       def initialize(config)
         @config = config
 
-        @hostname = @config.hostname || `hostname`.chomp
+        @configured_hostname = @config.hostname
+        @detected_hostname = detect_hostname
         @architecture = gem_platform.cpu
         @platform = gem_platform.os
 
@@ -33,12 +34,24 @@ module ElasticAPM
         @kubernetes = container_info.kubernetes
       end
 
-      attr_reader :hostname, :architecture, :platform, :container, :kubernetes
-
-      private
+      attr_reader(
+        :detected_hostname,
+        :configured_hostname,
+        :architecture,
+        :platform,
+        :container,
+        :kubernetes
+      )
 
       def gem_platform
         @gem_platform ||= Gem::Platform.local
+      end
+
+      private
+
+      def detect_hostname
+        Socket.gethostname.chomp
+      rescue
       end
     end
   end

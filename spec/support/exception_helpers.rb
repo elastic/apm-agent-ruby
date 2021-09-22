@@ -20,22 +20,23 @@
 module ExceptionHelpers
   def actual_exception
     1 / 0
-  rescue => e # rubocop:disable Style/RescueStandardError
+  rescue => e
     e
   end
 
-  class One < StandardError; end
-  class Two < StandardError; end
-  class Three < StandardError; end
+  class ChainedErrorOne < StandardError; end
+  class ChainedErrorTwo < StandardError; end
+  class ChainedErrorThree < StandardError; end
+
   def actual_chained_exception
-    raise Three
-  rescue Three
+    raise ChainedErrorThree
+  rescue ChainedErrorThree
     begin
-      raise Two
-    rescue Two
+      raise ChainedErrorTwo
+    rescue ChainedErrorTwo
       begin
-        raise One
-      rescue One => e
+        raise ChainedErrorOne
+      rescue ChainedErrorOne => e
         e
       end
     end

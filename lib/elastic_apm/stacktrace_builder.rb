@@ -23,7 +23,7 @@ require 'elastic_apm/util/lru_cache'
 module ElasticAPM
   # @api private
   class StacktraceBuilder
-    JAVA_FORMAT = /^(.+)\.([^\.]+)\(([^\:]+)\:(\d+)\)$/.freeze
+    JAVA_FORMAT = /^(.+)\.([^.]+)\(([^:]+):(\d+)\)$/.freeze
     RUBY_FORMAT = /^(.+?):(\d+)(?::in `(.+?)')?$/.freeze
 
     RUBY_VERS_REGEX = %r{ruby(/gems)?[-/](\d+\.)+\d}.freeze
@@ -38,7 +38,9 @@ module ElasticAPM
 
     def initialize(config)
       @config = config
-      @cache = Util::LruCache.new(2048, &method(:build_frame))
+      @cache = Util::LruCache.new(2048) do |cache, frame|
+        build_frame(cache, frame)
+      end
     end
 
     attr_reader :config
@@ -86,14 +88,13 @@ module ElasticAPM
       [file, number, method, module_name]
     end
 
-    # rubocop:disable Metrics/CyclomaticComplexity
     def library_frame?(config, abs_path)
       return false unless abs_path
 
       return true if abs_path.start_with?(GEMS_PATH)
 
       if abs_path.start_with?(config.__root_path)
-        return true if abs_path.start_with?(config.__root_path + '/vendor')
+        return true if abs_path.start_with?("#{config.__root_path}/vendor")
         return false
       end
 
@@ -102,7 +103,6 @@ module ElasticAPM
 
       false
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
 
     def strip_load_path(path)
       return nil if path.nil?

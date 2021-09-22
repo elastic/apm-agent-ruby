@@ -17,20 +17,32 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   RSpec.describe Metadata::SystemInfo do
     describe '#initialize' do
       subject { described_class.new(Config.new) }
 
       it 'has values' do
-        %i[hostname architecture platform].each do |key|
+        %i[detected_hostname architecture platform].each do |key|
           expect(subject.send(key)).to_not be_nil
         end
       end
 
       context 'hostname' do
         it 'has no newline at the end' do
-          expect(subject.hostname).not_to match(/\n\z/)
+          expect(subject.detected_hostname).not_to match(/\n\z/)
+        end
+
+        context 'when there is an exception' do
+          before do
+            allow(Socket).to receive(:gethostname).and_raise(StandardError)
+          end
+
+          it 'returns nil' do
+            expect(subject.detected_hostname).to eq(nil)
+          end
         end
       end
     end

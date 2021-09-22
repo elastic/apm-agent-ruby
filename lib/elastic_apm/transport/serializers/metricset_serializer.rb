@@ -46,8 +46,8 @@ module ElasticAPM
         private
 
         def build_samples(samples)
-          samples.each_with_object({}) do |(key, value), hsh|
-            hsh[key] = { value: value }
+          samples.transform_values do |value|
+            { value: value }
           end
         end
       end

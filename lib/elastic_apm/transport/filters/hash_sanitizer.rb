@@ -17,19 +17,43 @@
 
 # frozen_string_literal: true
 
-module ElasticSubscribers
-  def elastic_subscribers
-    unless defined?(::ActiveSupport) && defined?(ElasticAPM::Subscriber)
-      return []
-    end
+require 'elastic_apm/util/deep_dup'
 
-    notifier = ActiveSupport::Notifications.notifier
-    subscribers =
-      notifier.instance_variable_get(:@subscribers) ||
-      notifier.instance_variable_get(:@string_subscribers) # when Rails 6
+module ElasticAPM
+  module Transport
+    module Filters
+      # @api private
+      class HashSanitizer
+        FILTERED = '[FILTERED]'
 
-    subscribers.select do |s|
-      s.instance_variable_get(:@delegate).is_a?(ElasticAPM::Subscriber)
+        def initialize(key_patterns:)
+          @key_patterns = key_patterns
+        end
+
+        attr_accessor :key_patterns
+
+        def strip_from(obj)
+          strip_from!(Util::DeepDup.dup(obj))
+        end
+
+        def strip_from!(obj)
+          return unless obj.is_a?(Hash)
+
+          obj.each_pair do |k, v|
+            case v
+            when Hash
+              strip_from!(v)
+            else
+              next unless filter_key?(k)
+              obj[k] = FILTERED
+            end
+          end
+        end
+
+        def filter_key?(key)
+          @key_patterns.any? { |regex| regex.match(key) }
+        end
+      end
     end
   end
 end

@@ -17,26 +17,131 @@
 
 # frozen_string_literal: true
 
+require 'elastic_apm/util/precision_validator'
+
 module ElasticAPM
   class TraceContext
     # @api private
     class Tracestate
-      def initialize(values = [])
-        @values = values
+      # @api private
+      class Entry
+        def initialize(key, value)
+          @key = key
+          @value = value
+        end
+
+        attr_reader :key, :value
+
+        def to_s
+          "#{key}=#{value}"
+        end
       end
 
-      attr_accessor :values
+      # @api private
+      class EsEntry
+        ASSIGN = ':'
+        SPLIT = ';'
+
+        SHORT_TO_LONG = { 's' => 'sample_rate' }.freeze
+        LONG_TO_SHORT = { 'sample_rate' => 's' }.freeze
+
+        def initialize(values = nil)
+          parse(values)
+        end
+
+        attr_reader :sample_rate
+
+        def key
+          'es'
+        end
+
+        def value
+          LONG_TO_SHORT.map do |l, s|
+            "#{s}#{ASSIGN}#{send(l)}"
+          end.join(SPLIT)
+        end
+
+        def empty?
+          !sample_rate
+        end
+
+        def sample_rate=(val)
+          @sample_rate = Util::PrecisionValidator.validate(
+            val, precision: 4, minimum: 0.0001
+          )
+        end
+
+        def to_s
+          return nil if empty?
+
+          "es=#{value}"
+        end
+
+        private
+
+        def parse(values)
+          return unless values
+
+          values.split(SPLIT).map do |kv|
+            k, v = kv.split(ASSIGN)
+            next unless SHORT_TO_LONG.key?(k)
+            send("#{SHORT_TO_LONG[k]}=", v)
+          end
+        end
+      end
+
+      extend Forwardable
+
+      def initialize(entries: {}, sample_rate: nil)
+        @entries = entries
+
+        self.sample_rate = sample_rate if sample_rate
+      end
+
+      attr_accessor :entries
+
+      def_delegators :es_entry, :sample_rate, :sample_rate=
 
       def self.parse(header)
-        # HTTP allows multiple headers with the same name, eg. multiple
-        # Set-Cookie headers per response.
-        # Rack handles this by joining the headers under the same key, separated
-        # by newlines, see https://www.rubydoc.info/github/rack/rack/file/SPEC
-        new(String(header).split("\n"))
+        entries =
+          split_by_nl_and_comma(header)
+          .each_with_object({}) do |entry, hsh|
+            k, v = entry.split('=')
+
+            hsh[k] =
+              case k
+              when 'es' then EsEntry.new(v)
+              else Entry.new(k, v)
+              end
+          end
+
+        new(entries: entries)
       end
 
       def to_header
-        values.join(',')
+        return "" unless entries.any?
+
+        entries.values.map(&:to_s).join(',')
+      end
+
+      private
+
+      def es_entry
+        # lazy generate this so we only add it if necessary
+        entries['es'] ||= EsEntry.new
+      end
+
+      class << self
+        private
+
+        def split_by_nl_and_comma(str)
+          # HTTP allows multiple headers with the same name, eg. multiple
+          # Set-Cookie headers per response.
+          # Rack handles this by joining the headers under the same key,
+          # separated by newlines.
+          # See https://www.rubydoc.info/github/rack/rack/file/SPEC
+          String(str).split("\n").map { |s| s.split(',') }.flatten
+        end
       end
     end
   end

@@ -2,4 +2,4 @@
 # Tuple of ruby version and frameworks which are in charge to send data to codecov.
 # # is the separator between the ruby version and the framework.
 ENABLED:
-  - ruby:2.6#rails-6.0
+  - ruby:2.7#rails-6.1

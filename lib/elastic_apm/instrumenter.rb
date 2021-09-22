@@ -89,7 +89,7 @@ module ElasticAPM
     end
 
     def subscriber=(subscriber)
-      debug 'Registering subscriber'
+      debug 'Registering ActiveSupport::Notifications subscriber'
       @subscriber = subscriber
       @subscriber.register!
     end
@@ -119,7 +119,13 @@ module ElasticAPM
           "Already inside #{transaction.inspect}"
       end
 
-      sampled = trace_context ? trace_context.recorded? : random_sample?(config)
+      if trace_context
+        sampled = trace_context.recorded?
+        sample_rate = trace_context.tracestate.sample_rate
+      else
+        sampled = random_sample?(config)
+        sample_rate = config.transaction_sample_rate
+      end
 
       transaction =
         Transaction.new(
@@ -128,6 +134,7 @@ module ElasticAPM
           context: context,
           trace_context: trace_context,
           sampled: sampled,
+          sample_rate: sample_rate,
           config: config
         )
 
@@ -172,7 +179,8 @@ module ElasticAPM
       context: nil,
       trace_context: nil,
       parent: nil,
-      sync: nil
+      sync: nil,
+      exit_span: nil
     )
 
       transaction =
@@ -190,6 +198,15 @@ module ElasticAPM
 
       parent ||= (current_span || current_transaction)
 
+      # To not mess with breakdown metric stats, exit spans MUST not add
+      # sub-spans unless they share the same type and subtype.
+      if parent && parent.is_a?(Span) && parent.exit_span?
+        if parent.type != type || parent.subtype != subtype
+          debug "Skipping new span '#{name}' as its parent is an exit_span"
+          return
+        end
+      end
+
       span = Span.new(
         name: name,
         subtype: subtype,
@@ -200,7 +217,8 @@ module ElasticAPM
         type: type,
         context: context,
         stacktrace_builder: stacktrace_builder,
-        sync: sync
+        sync: sync,
+        exit_span: exit_span
       )
 
       if backtrace && transaction.span_frames_min_duration
@@ -215,8 +233,14 @@ module ElasticAPM
     # rubocop:enable Metrics/CyclomaticComplexity
     # rubocop:enable Metrics/PerceivedComplexity
 
-    def end_span
-      return unless (span = current_spans.pop)
+    def end_span(span = nil)
+      if span
+        current_spans.delete(span)
+      else
+        span = current_spans.pop
+      end
+
+      return unless span
 
       span.done
 
@@ -232,7 +256,7 @@ module ElasticAPM
     def set_label(key, value)
       return unless current_transaction
 
-      key = key.to_s.gsub(/[\."\*]/, '_').to_sym
+      key = key.to_s.gsub(/[."*]/, '_').to_sym
       current_transaction.context.labels[key] = value
     end
 
@@ -259,7 +283,7 @@ module ElasticAPM
     end
 
     def update_transaction_metrics(transaction)
-      return unless transaction.collect_metrics
+      return unless transaction.collect_metrics?
 
       tags = {
         'transaction.name': transaction.name,
@@ -298,7 +322,7 @@ module ElasticAPM
     end
 
     def update_span_metrics(span)
-      return unless span.transaction.breakdown_metrics
+      return unless span.transaction.collect_metrics?
 
       tags = {
         'span.type': span.type,

@@ -17,6 +17,13 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
+begin
+  require 'active_job'
+rescue LoadError
+end
+
 begin
   require 'delayed_job'
   require 'delayed/performable_mailer' # or the Rails spec explodes
@@ -66,6 +73,36 @@ if defined?(Delayed::Backend)
         expect(transaction.result).to eq 'success'
       end
 
+      context 'ActiveJob', if: defined?(ActiveJob) do
+        before :all do
+          class ::ActiveJobbyJob < ActiveJob::Base
+            self.queue_adapter = :delayed_job
+            self.logger = nil # stay quiet
+
+            def perform
+              'ok'
+            end
+          end
+        end
+
+        after :all do
+          Object.send(:remove_const, :ActiveJobbyJob)
+        end
+
+        it 'instruments class-based job transaction for active job' do
+          job = ActiveJobbyJob.new
+
+          with_agent do
+            Delayed::Job.new(job).invoke_job
+          end
+
+          transaction, = @intercepted.transactions
+          expect(transaction.name).to eq 'ActiveJobbyJob'
+          expect(transaction.type).to eq 'Delayed::Job'
+          expect(transaction.result).to eq 'success'
+        end
+      end
+
       it 'instruments method-based job transaction' do
         job = TestJob.new
         invokable = Delayed::PerformableMethod.new(job, :perform, [])
@@ -79,6 +116,7 @@ if defined?(Delayed::Backend)
           .to eq 'ElasticAPM::TestJob#perform'
         expect(transaction.type).to eq 'Delayed::Job'
         expect(transaction.result).to eq 'success'
+        expect(transaction.outcome).to eq 'success'
       end
 
       it 'reports errors' do
@@ -94,9 +132,17 @@ if defined?(Delayed::Backend)
         expect(transaction.name).to eq 'ElasticAPM::ExplodingJob'
         expect(transaction.type).to eq 'Delayed::Job'
         expect(transaction.result).to eq 'error'
+        expect(transaction.outcome).to eq 'failure'
 
         error, = @intercepted.errors
         expect(error.exception.type).to eq 'ZeroDivisionError'
+      end
+
+      it "runs when the agent doesn't" do
+        job = TestJob.new
+
+        expect { Delayed::Job.new(job).invoke_job }
+          .to_not raise_error
       end
     end
   end

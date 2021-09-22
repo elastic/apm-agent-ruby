@@ -42,11 +42,12 @@ module ElasticAPM
             Metadata.new(config)
           )
         )
-        @url = config.server_url + '/intake/v2/events'
+        @url = "#{config.server_url}/intake/v2/events"
         @mutex = Mutex.new
       end
 
       attr_reader :http
+
       def write(str)
         return false if @config.disable_send
 
@@ -104,7 +105,7 @@ module ElasticAPM
         @close_task&.cancel
         @close_task =
           Concurrent::ScheduledTask.execute(@config.api_request_time) do
-            flush(:timeout)
+            flush(:scheduled_flush)
           end
       end
     end

@@ -30,7 +30,9 @@ module ElasticAPM
           let(:transaction) { Transaction.new(config: config).start }
 
           let(:trace_context) do
-            TraceContext.parse("00-#{'1' * 32}-#{'2' * 16}-01")
+            traceparent =
+              TraceContext::Traceparent.parse("00-#{'1' * 32}-#{'2' * 16}-01")
+            TraceContext.new(traceparent: traceparent)
           end
 
           let :span do
@@ -60,8 +62,10 @@ module ElasticAPM
                 type: 'custom',
                 context: { sync: true },
                 stacktrace: [],
+                sample_rate: 1,
                 timestamp: 694_224_000_000_000,
-                duration: 10
+                duration: 10,
+                outcome: nil
               }
             )
           end
@@ -141,9 +145,11 @@ module ElasticAPM
                 trace_context: trace_context,
                 context: Span::Context.new(
                   destination: {
-                    name: 'a',
-                    resource: 'b',
-                    type: 'c',
+                    service: {
+                      name: 'a',
+                      resource: 'b',
+                      type: 'c',
+                    },
                     address: 'd',
                     port: 8080
                   }
@@ -163,6 +169,36 @@ module ElasticAPM
                   port: 8080
                 }
               )
+            end
+          end
+
+          context 'with a message' do
+            it 'adds message object' do
+              span = Span.new(
+                name: 'Span',
+                transaction: transaction,
+                parent: transaction,
+                trace_context: trace_context,
+                context: Span::Context.new(
+                  message: {
+                    queue_name: 'my_queue',
+                    age_ms: 1000
+                  }
+                )
+              )
+
+              result = subject.build(span)
+
+              expect(result.dig(:span, :context, :message)).to match(
+                {
+                  queue: {
+                    name: 'my_queue'
+                  },
+                  age: {
+                    ms: 1000
+                  }
+                 }
+               )
             end
           end
 
@@ -200,6 +236,49 @@ module ElasticAPM
 
             it 'joins them for sending' do
               expect(result[:span][:type]).to eq 'a.b.c'
+            end
+          end
+
+          context 'with outcome' do
+            it 'adds the outcome' do
+              span = Span.new(
+                name: 'Span',
+                transaction: transaction,
+                parent: transaction,
+                trace_context: trace_context
+              )
+
+              span.outcome = 'success'
+              result = subject.build(span)
+              expect(result[:span][:outcome]).to eq 'success'
+            end
+          end
+
+          context 'with a destination and cloud' do
+            it 'adds destination with cloud' do
+              span = Span.new(
+                name: 'Span',
+                transaction: transaction,
+                parent: transaction,
+                trace_context: trace_context,
+                context: Span::Context.new(
+                  destination: {
+                    service: { resource: 'a' },
+                    cloud: { region: 'b' }
+                  }
+                )
+              )
+
+              # set auto-infered destination.service fields
+              span.start.done
+
+              result = subject.build(span)
+
+              expect(result.dig(:span, :context, :destination, :service))
+                .to match({ resource: 'a', name: '', type: '' })
+
+              expect(result.dig(:span, :context, :destination, :cloud))
+                .to match({ region: 'b' })
             end
           end
         end

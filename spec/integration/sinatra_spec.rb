@@ -17,7 +17,7 @@
 
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'integration_helper'
 
 if defined?(Sinatra)
   enabled = true
@@ -68,13 +68,18 @@ if enabled
           erb :index
         end
 
+        get '/users/:id' do
+          @name = params[:id].to_s
+          erb :index
+        end
+
         get '/error' do
           raise FancyError, 'Halp!'
         end
       end
 
       MockIntake.stub!
-      ElasticAPM.start(app: SinatraTestApp, api_request_time: '250ms')
+      ElasticAPM.start(app: SinatraTestApp, api_request_time: '200ms')
     end
 
     after(:all) do
@@ -84,7 +89,7 @@ if enabled
     it 'knows Sinatra' do
       response = get '/'
 
-      wait_for metadatas: 1
+      wait_for transactions: 1
 
       expect(response.body).to eq 'Yes!'
 
@@ -96,6 +101,15 @@ if enabled
     end
 
     describe 'transactions' do
+      it 'sets transaction outcome to `success`' do
+        get '/'
+
+        wait_for transactions: 1
+
+        transaction = @mock_intake.transactions.first
+        expect(transaction['outcome']).to eq 'success'
+      end
+
       it 'wraps requests in a transaction named after route' do
         get '/'
 
@@ -104,6 +118,17 @@ if enabled
         expect(@mock_intake.requests.length).to be 1
         transaction = @mock_intake.transactions.first
         expect(transaction['name']).to eq 'GET /'
+      end
+
+      it 'knows variables in routes' do
+        get '/users/666'
+
+        wait_for transactions: 1, spans: 1
+
+        transaction, = @mock_intake.transactions
+        expect(transaction['name']).to eq 'GET /users/:id'
+        span, = @mock_intake.spans
+        expect(span['name']).to eq 'index'
       end
 
       it 'spans inline templates' do
@@ -126,6 +151,7 @@ if enabled
         span = @mock_intake.spans.last
         expect(span['name']).to eq 'index'
         expect(span['type']).to eq 'template.tilt'
+        expect(span['outcome']).to eq 'success'
       end
     end
 
@@ -142,6 +168,18 @@ if enabled
           @mock_intake.errors.first
         exception = error_request['exception']
         expect(exception['type']).to eq 'FancyError'
+      end
+
+      it 'sets the transaction outcome to `failure`' do
+        begin
+          get '/error'
+        rescue FancyError
+        end
+
+        wait_for errors: 1, transactions: 1
+
+        transaction = @mock_intake.transactions.first
+        expect(transaction['outcome']).to eq 'failure'
       end
     end
   end

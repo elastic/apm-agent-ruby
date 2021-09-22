@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 require 'elastic_apm/spies/shoryuken'
 
 begin
@@ -62,6 +64,12 @@ module ElasticAPM
     end
 
     before do
+      unless defined? ::ActiveRecord::Base
+        class ::ActiveRecord
+          class Base; end
+        end
+      end
+
       # Mock this function used in the middleware chain
       allow(::ActiveRecord::Base)
         .to receive(:clear_active_connections!)
@@ -98,6 +106,7 @@ module ElasticAPM
       expect(transaction['type']).to eq 'shoryuken.job'
       expect(transaction['context']['tags']['shoryuken_queue']).to eq 'hard'
       expect(transaction['result']).to eq 'success'
+      expect(transaction['outcome']).to eq 'success'
     end
 
     it 'reports errors' do
@@ -118,6 +127,7 @@ module ElasticAPM
       expect(transaction['context']['tags']['shoryuken_queue'])
         .to eq 'exploding'
       expect(transaction['result']).to eq 'error'
+      expect(transaction['outcome']).to eq 'failure'
 
       expect(error.dig('exception', 'type')).to eq 'ZeroDivisionError'
     end

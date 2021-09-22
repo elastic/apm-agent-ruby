@@ -48,6 +48,24 @@ module ElasticAPM
           expect(subject.context.labels).to match(args: 'yes', context: 'yes')
         end
       end
+
+      context 'trace context' do
+        context 'when sampled' do
+          it 'is `recorded?\' and has sample_rate > 0' do
+            t = Transaction.new(config: config)
+            expect(t.trace_context.recorded?).to be true
+            expect(t.trace_context.tracestate.sample_rate).to be_between(0.1, 1)
+          end
+        end
+
+        context 'when NOT sampled' do
+          it 'is not `recorded?\' and has sample_rate == 0' do
+            t = Transaction.new(config: config, sampled: false)
+            expect(t.trace_context.recorded?).to be false
+            expect(t.trace_context.tracestate.sample_rate).to eq 0
+          end
+        end
+      end
     end
 
     describe '#start', :mock_time do

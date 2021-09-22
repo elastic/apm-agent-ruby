@@ -38,6 +38,7 @@ module ElasticAPM
         :module,
         :colno
       )
+
       def build_context(context_line_count)
         return unless abs_path && context_line_count > 0
 

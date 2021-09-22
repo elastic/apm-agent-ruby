@@ -22,25 +22,31 @@ source 'https://rubygems.org'
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 # Tools
-gem 'bootsnap', require: false
 gem 'cucumber', require: false
-gem 'pry'
 gem 'rack-test'
 gem 'rspec', '~> 3'
 gem 'rspec-its'
-gem 'rubocop', require: nil
-gem 'rubocop-performance', require: nil
+gem 'rubocop', require: false
+gem 'rubocop-performance', require: false
 gem 'timecop'
 gem 'webmock'
 
 # Integrations
+gem 'aws-sdk-dynamodb', require: nil
+gem 'aws-sdk-s3', require: nil
 gem 'aws-sdk-sqs', require: nil
+gem 'aws-sdk-sns', require: nil
+gem 'azure-storage-table', require: nil if RUBY_VERSION < '3.0'
+gem 'ecs-logging', require: 'ecs_logging/logger'
 gem 'elasticsearch', require: nil
 gem 'fakeredis', require: nil
 gem 'faraday', require: nil
 gem 'graphql', require: nil
-gem 'google-protobuf', '< 3.12' if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.5'
-gem 'grpc' if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.7'
+if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.5'
+  gem 'google-protobuf', '< 3.12'
+end
+gem 'grpc' if !defined?(JRUBY_VERSION) && RUBY_VERSION < '3.0'
+gem 'json'
 gem 'json-schema', require: nil
 gem 'mongo', require: nil
 gem 'opentracing', require: nil
@@ -55,6 +61,10 @@ gem 'sneakers', '~> 2.12', require: nil
 gem 'sucker_punch', '~> 2.0', require: nil
 gem 'yard', require: nil
 gem 'yarjuf'
+
+# See issue #6547 in the JRuby repo. When that bug is fixed,
+# we can use the latest version of the i18n gem.
+gem 'i18n', '< 1.8.8'
 
 ## Install Framework
 GITHUB_REPOS = {
@@ -73,8 +83,10 @@ end
 
 frameworks_versions.each do |framework, version|
   case version
-  when 'master'
+  when 'master' # sinatra, grape
     gem framework, github: GITHUB_REPOS.fetch(framework)
+  when 'main' # rails
+    gem framework, github: GITHUB_REPOS.fetch(framework), branch: 'main'
   when /.+/
     gem framework, "~> #{version}.0"
   else
@@ -83,18 +95,26 @@ frameworks_versions.each do |framework, version|
 end
 
 if frameworks_versions.key?('rails')
-  unless frameworks_versions['rails'] =~ /^(master|6)/
+  unless /^(main|6)/.match?(frameworks_versions['rails'])
     gem 'delayed_job', require: nil
   end
 end
 
 if RUBY_PLATFORM == 'java'
-  gem 'activerecord-jdbcsqlite3-adapter'
-  gem 'jdbc-sqlite3'
+  case rails = frameworks_versions['rails']
+  when 'main'
+    gem 'activerecord-jdbcsqlite3-adapter', git: 'https://github.com/jruby/activerecord-jdbc-adapter', glob: 'activerecord-jdbcsqlite3-adapter/*.gemspec'
+  when ''
+    gem 'activerecord-jdbcsqlite3-adapter', "~> 61.0"
+  when nil
+    gem 'jdbc-sqlite3'
+  else
+    gem 'activerecord-jdbcsqlite3-adapter', "~> #{rails.tr('.', '')}.0"
+  end
 elsif frameworks_versions['rails'] =~ /^(4|5)/
   gem 'sqlite3', '~> 1.3.6'
 else
-  gem 'sqlite3' # rubocop:disable Bundler/DuplicatedGem
+  gem 'sqlite3'
 end
 
 group :bench do

@@ -17,15 +17,16 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 require 'elastic_apm/transport/connection'
 
 module ElasticAPM
   module Transport
     RSpec.describe Connection do
       let(:config) { Config.new(http_compression: false) }
-      subject { described_class.new(config) }
 
-      after { WebMock.reset! }
+      subject { described_class.new(config) }
 
       describe '#initialize' do
         it 'is has no active connection' do
@@ -77,11 +78,12 @@ module ElasticAPM
       it 'has a fitting user agent' do
         stub = build_stub(
           headers: {
-            'User-Agent' => %r{
-              \Aelastic-apm-ruby/(\d+\.)+\d+\s
-              http.rb/(\d+\.)+\d+\s
-              j?ruby/(\d+\.)+\d+\z
-            }x
+            'User-Agent' =>
+              %r{
+                \Aelastic-apm-ruby/(\d+\.)+\d([a-z0-9\.]+)?+\s
+                http.rb/(\d+\.)+\d+\s
+                j?ruby/(\d+\.)+\d+\z
+              }x
           }
         )
         subject.write('{}')
@@ -180,6 +182,7 @@ module ElasticAPM
 
         context 'and gzip off' do
           let(:config) { Config.new(http_compression: false) }
+
           let(:metadata) do
             Serializers::MetadataSerializer.new(config).build(
               Metadata.new(config)
@@ -187,7 +190,8 @@ module ElasticAPM
           end
 
           before do
-            config.api_request_size = "#{metadata.to_json.bytesize + 1}b"
+            config.api_request_size =
+              "#{JSON.fast_generate(metadata).bytesize - 1}b"
           end
 
           it 'closes requests when reached' do

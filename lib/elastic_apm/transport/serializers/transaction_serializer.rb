@@ -35,9 +35,11 @@ module ElasticAPM
               name: keyword_field(transaction.name),
               type: keyword_field(transaction.type),
               result: keyword_field(transaction.result.to_s),
+              outcome: keyword_field(transaction.outcome),
               duration: ms(transaction.duration),
               timestamp: transaction.timestamp,
               sampled: transaction.sampled?,
+              sample_rate: transaction.sample_rate,
               context: context_serializer.build(transaction.context),
               span_count: {
                 started: transaction.started_spans,

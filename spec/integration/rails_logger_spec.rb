@@ -17,16 +17,16 @@
 
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'integration_helper'
 
 if defined?(Rails)
   require 'action_controller/railtie'
 
-  RSpec.describe 'Rails logger', :allow_running_agent do
+  RSpec.describe 'Rails logger', :allow_running_agent, :mock_intake do
     before :all do
       module RailsTestApp
         class Application < Rails::Application
-          configure_rails_for_test
+          RailsTestHelpers.setup_rails_test_config(config)
 
           config.disable_send = true
 
@@ -38,11 +38,9 @@ if defined?(Rails)
       class ApplicationController < ActionController::Base
       end
 
-      RailsTestApp::Application.initialize!
-    end
+      MockIntake.stub!
 
-    after :all do
-      ElasticAPM.stop
+      RailsTestApp::Application.initialize!
     end
 
     it 'sets the custom logger' do

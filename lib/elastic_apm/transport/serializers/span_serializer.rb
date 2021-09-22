@@ -42,14 +42,15 @@ module ElasticAPM
               context: context_serializer.build(span.context),
               stacktrace: span.stacktrace.to_a,
               timestamp: span.timestamp,
-              trace_id: span.trace_id
+              trace_id: span.trace_id,
+              sample_rate: span.sample_rate,
+              outcome: keyword_field(span.outcome)
             }
           }
         end
 
         # @api private
         class ContextSerializer < Serializer
-          # rubocop:disable Metrics/CyclomaticComplexity
           def build(context)
             return unless context
 
@@ -64,9 +65,12 @@ module ElasticAPM
               base[:destination] = build_destination(context.destination)
             end
 
+            if context.message
+              base[:message] = build_message(context.message)
+            end
+
             base
           end
-          # rubocop:enable Metrics/CyclomaticComplexity
 
           private
 
@@ -89,14 +93,32 @@ module ElasticAPM
           end
 
           def build_destination(destination)
-            {
-              service: {
-                name: keyword_field(destination.name),
-                resource: keyword_field(destination.resource),
-                type: keyword_field(destination.type)
-              },
+            return unless destination
+
+            base = {
               address: keyword_field(destination.address),
               port: destination.port
+            }
+
+            if (service = destination.service) && !service.empty?
+              base[:service] = service.to_h
+            end
+
+            if (cloud = destination.cloud) && !cloud.empty?
+              base[:cloud] = cloud.to_h
+            end
+
+            base
+          end
+
+          def build_message(message)
+            {
+              queue: {
+                name: keyword_field(message.queue_name)
+              },
+              age: {
+                ms: message.age_ms.to_i
+              }
             }
           end
         end

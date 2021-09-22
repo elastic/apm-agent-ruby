@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   RSpec.describe Instrumenter, :intercept do
     let(:config) { Config.new }
@@ -141,13 +143,14 @@ module ElasticAPM
         expect(agent).to have_received(:enqueue).with(transaction)
       end
 
-      it 'reports metrics', :mock_time do
+      it 'reports metrics' do
+        agent.metrics.stop
         subject.start_transaction('a_transaction', config: config)
-        travel 100
+        sleep(0.1)
         subject.start_span('a_span', 'a', subtype: 'b')
-        travel 100
+        sleep(0.1)
         subject.end_span
-        travel 100
+        sleep(0.1)
         subject.end_transaction('result')
 
         txn_set, = agent.metrics.get(:transaction).collect
@@ -160,7 +163,7 @@ module ElasticAPM
         spn_self_time = brk_sets.find { |d| d.span&.fetch(:type) == 'a' }
 
         # txn_set
-        expect(txn_set.samples[:'transaction.duration.sum.us']).to eq 300
+        expect(txn_set.samples[:'transaction.duration.sum.us']).to be > 300000
         expect(txn_set.samples[:'transaction.duration.count']).to eq 1
         expect(txn_set.transaction).to match(
           name: 'a_transaction',
@@ -172,7 +175,7 @@ module ElasticAPM
         )
 
         # txn_self_time
-        expect(txn_self_time.samples[:'span.self_time.sum.us']).to eq 200
+        expect(txn_self_time.samples[:'span.self_time.sum.us']).to be > 200000
         expect(txn_self_time.samples[:'span.self_time.count']).to eq 1
         expect(txn_self_time.transaction).to match(
           name: 'a_transaction',
@@ -180,8 +183,8 @@ module ElasticAPM
         )
         expect(txn_self_time.span).to match(type: 'app', subtype: nil)
 
-        #spn_self_time
-        expect(spn_self_time.samples[:'span.self_time.sum.us']).to eq 100
+        # spn_self_time
+        expect(spn_self_time.samples[:'span.self_time.sum.us']).to be > 100000
         expect(spn_self_time.samples[:'span.self_time.count']).to eq 1
         expect(spn_self_time.transaction).to match(
           name: 'a_transaction',
@@ -286,6 +289,26 @@ module ElasticAPM
             end.to change(transaction, :started_spans).by 1
           end
         end
+
+        context "with an exit_span parent" do
+          it "is nil" do
+            parent = subject.start_span('Parent', exit_span: true)
+
+            span = subject.start_span('Inside')
+            expect(span).to be nil
+
+            subject.end_span(parent)
+          end
+
+          it 'makes a subspan if type/subtype matches' do
+            parent = subject.start_span('Parent', 'my_type', exit_span: true)
+
+            span = subject.start_span('Inside', 'my_type')
+            expect(span).to_not be nil
+
+            subject.end_span(parent)
+          end
+        end
       end
     end
 
@@ -321,6 +344,23 @@ module ElasticAPM
 
             expect(return_value).to be nested
             expect(subject.current_span).to be span
+          end
+        end
+
+        context 'when passing a span' do
+          let(:another_span) { subject.start_span 'Another Span' }
+
+          before do
+            another_span
+          end
+
+          it 'closes span, sets new current, enqueues' do
+            return_value = subject.end_span(span)
+
+            expect(return_value).to be span
+            expect(span).to be_stopped
+            expect(subject.current_span).to be another_span
+            expect(agent).to have_received(:enqueue).with(span)
           end
         end
       end

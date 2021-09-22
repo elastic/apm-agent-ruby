@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   RSpec.describe Util do
     describe '.micros', mock_time: true do
@@ -44,6 +46,10 @@ module ElasticAPM
         result = Util.truncate('X' * 2000)
         expect(result).to match(/\AX{1023}…\z/)
         expect(result.length).to be 1024
+      end
+
+      it 'converts to string' do
+        expect(Util.truncate(1)).to eq '1'
       end
     end
 

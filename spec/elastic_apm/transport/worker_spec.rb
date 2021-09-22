@@ -92,7 +92,7 @@ module ElasticAPM
 
         context 'when a filter wants to skip the event' do
           before do
-            filters.add(:always_nil, ->(_payload) { nil })
+            filters.add(:always_nil, ->(_payload) {})
           end
 
           it 'applies filters, writes resources to the connection' do
@@ -101,6 +101,17 @@ module ElasticAPM
             Thread.new { subject.work_forever }.join 0.2
 
             expect(subject.connection.calls.length).to be 0
+          end
+        end
+
+        context 'with a preparable resource' do
+          it 'prepares the thing for processing' do
+            preparable = double(prepare_for_serialization!: true)
+
+            queue.push preparable
+            Thread.new { subject.work_forever }.join 0.2
+
+            expect(preparable).to have_received(:prepare_for_serialization!)
           end
         end
       end

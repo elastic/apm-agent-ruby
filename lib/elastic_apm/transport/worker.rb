@@ -53,11 +53,12 @@ module ElasticAPM
       end
 
       attr_reader :queue, :filters, :name, :connection, :serializers
+
       def work_forever
         while (msg = queue.pop)
           case msg
           when StopMessage
-            debug 'Stopping worker -- %s', self
+            debug 'Stopping worker [%s]', self
             connection.flush(:halt)
             break
           else
@@ -77,6 +78,10 @@ module ElasticAPM
       private
 
       def serialize_and_filter(resource)
+        if resource.respond_to?(:prepare_for_serialization!)
+          resource.prepare_for_serialization!
+        end
+
         serialized = serializers.serialize(resource)
 
         # if a filter returns nil, it means skip the event

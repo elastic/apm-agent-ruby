@@ -41,9 +41,14 @@ module ElasticAPM
         ElasticAPM.report(e, context: context, handled: false)
         raise
       ensure
-        if resp && transaction
-          status, headers, _body = resp
-          transaction.add_response(status, headers: headers.dup)
+        if transaction
+          if resp
+            status, headers, _body = resp
+            transaction.add_response(status, headers: headers.dup)
+            transaction&.outcome = Transaction::Outcome.from_http_status(status)
+          else
+            transaction&.outcome = Transaction::Outcome::FAILURE
+          end
         end
 
         ElasticAPM.end_transaction http_result(status)
@@ -59,9 +64,15 @@ module ElasticAPM
     end
 
     def path_ignored?(env)
-      config.ignore_url_patterns.any? do |r|
-        env['PATH_INFO'].match r
+      return true if config.ignore_url_patterns.any? do |r|
+        r.match(env['PATH_INFO'])
       end
+
+      return true if config.transaction_ignore_urls.any? do |r|
+        r.match(env['PATH_INFO'])
+      end
+
+      false
     end
 
     def start_transaction(env)

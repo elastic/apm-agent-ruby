@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 require 'mongo'
 
 module ElasticAPM
@@ -44,6 +46,7 @@ module ElasticAPM
         expect(span.subtype).to eq 'mongodb'
         expect(span.action).to eq 'query'
         expect(span.duration).to_not be_nil
+        expect(span.outcome).to eq 'success'
 
         db = span.context.db
         expect(db.instance).to eq 'elastic-apm-test'
@@ -52,9 +55,20 @@ module ElasticAPM
         expect(db.user).to be nil
 
         destination = span.context.destination
-        expect(destination.name).to eq 'mongodb'
-        expect(destination.resource).to eq 'mongodb'
-        expect(destination.type).to eq 'db'
+        expect(destination.service.name).to eq 'mongodb'
+        expect(destination.service.resource).to eq 'mongodb'
+        expect(destination.service.type).to eq 'db'
+      end
+
+      it 'sets outcome to `failure` for a failed operation', :intercept do
+        span = with_agent do
+          ElasticAPM.with_transaction do
+            subscriber.started(event)
+            subscriber.failed(event)
+          end
+        end
+
+        expect(span.outcome).to eq 'failure'
       end
     end
 
@@ -82,6 +96,7 @@ module ElasticAPM
         expect(span.subtype).to eq 'mongodb'
         expect(span.action).to eq 'query'
         expect(span.duration).to_not be_nil
+        expect(span.outcome).to eq 'success'
 
         db = span.context.db
         expect(db.instance).to eq 'elastic-apm-test'

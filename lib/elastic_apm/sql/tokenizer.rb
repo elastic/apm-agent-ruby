@@ -69,7 +69,7 @@ module ElasticAPM
         when '['   then scan_quoted_indentifier(']')
         when '('   then LPAREN
         when ')'   then RPAREN
-        when '/'   then scan_bracketed_comment
+        when '/'   then scan_bracketed_or_cql_comment
         when '-'   then scan_simple_comment
         when "'"   then scan_string_literal
         when ALPHA then scan_keyword_or_identifier(possible_keyword: true)
@@ -110,7 +110,7 @@ module ElasticAPM
             next next_char
           end
 
-          next next_char if peek =~ ALPHA
+          next next_char if ALPHA.match?(peek)
 
           break
         end
@@ -130,7 +130,7 @@ module ElasticAPM
       end
       # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
-      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      # rubocop:disable Metrics/CyclomaticComplexity
       def scan_dollar_sign
         while (peek = peek_char)
           case peek
@@ -165,7 +165,7 @@ module ElasticAPM
 
         OTHER
       end
-      # rubocop:enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/CyclomaticComplexity
 
       def scan_quoted_indentifier(delimiter)
         while (char = next_char)
@@ -185,10 +185,16 @@ module ElasticAPM
         IDENT
       end
 
+      def scan_bracketed_or_cql_comment
+        case peek_char
+        when '*' then scan_bracketed_comment
+        when '/' then scan_cql_comment
+        else OTHER
+        end
+      end
+
       # rubocop:disable Metrics/CyclomaticComplexity
       def scan_bracketed_comment
-        return OTHER unless peek_char == '*'
-
         nesting = 1
 
         while (char = next_char)
@@ -206,6 +212,16 @@ module ElasticAPM
         end
       end
       # rubocop:enable Metrics/CyclomaticComplexity
+
+      def scan_cql_comment
+        return OTHER unless peek_char == '/'
+
+        while (char = next_char)
+          break if char == "\n"
+        end
+
+        COMMENT
+      end
 
       def scan_simple_comment
         return OTHER unless peek_char == '-'
@@ -251,7 +267,7 @@ module ElasticAPM
           when 'e', 'E'
             return NUMBER if exponent
             next_char
-            next_char if peek_char =~ /[+-]/
+            next_char if /[+-]/.match?(peek_char)
           else break
           end
         end

@@ -17,15 +17,9 @@
 
 # frozen_string_literal: true
 
-enable = false
-begin
-  require 'active_support/notifications'
-  enable = true
-rescue LoadError
-  puts '[INFO] Skipping Subscriber spec'
-end
+require 'spec_helper'
 
-if enable
+if defined?(Rails)
   require 'elastic_apm/subscriber'
 
   module ElasticAPM

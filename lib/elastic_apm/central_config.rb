@@ -19,6 +19,7 @@
 
 require 'elastic_apm/central_config/cache_control'
 
+# rubocop:disable Style/AccessorGrouping
 module ElasticAPM
   # @api private
   class CentralConfig
@@ -27,6 +28,7 @@ module ElasticAPM
     # @api private
     class ResponseError < InternalError
       def initialize(response)
+        super
         @response = response
       end
 
@@ -64,14 +66,15 @@ module ElasticAPM
     def fetch_and_apply_config
       @promise =
         Concurrent::Promise
-        .execute(&method(:fetch_config))
-        .on_success(&method(:handle_success))
-        .rescue(&method(:handle_error))
+        .execute { fetch_config }
+        .on_success { |resp| handle_success(resp) }
+        .rescue { |err| handle_error(err) }
     end
 
     def fetch_config
       resp = perform_request
 
+      # rubocop:disable Lint/DuplicateBranch
       case resp.status
       when 200..299
         resp
@@ -82,6 +85,7 @@ module ElasticAPM
       when 500..599
         raise ServerError, resp
       end
+      # rubocop:enable Lint/DuplicateBranch
     end
 
     def assign(update)
@@ -115,14 +119,14 @@ module ElasticAPM
       end
 
       if resp.status == 304
-        info 'Received 304 Not Modified'
+        debug 'Received 304 Not Modified'
       else
         if resp.body && !resp.body.empty?
           update = JSON.parse(resp.body.to_s)
           assign(update)
         end
 
-        if update && update.any?
+        if update&.any?
           info 'Updated config from Kibana'
           debug 'Modified: %s', update.inspect
           debug 'Modified original options: %s', @modified_options.inspect
@@ -160,11 +164,12 @@ module ElasticAPM
       @server_url ||=
         config.server_url +
         '/config/v1/agents' \
-        "?service.name=#{config.service_name}"
+        "?service.name=#{CGI.escape(config.service_name)}" \
+        "&service.environment=#{CGI.escape(config.environment || '')}"
     end
 
     def headers
-      { 'Etag': @etag }
+      { 'If-None-Match': @etag }
     end
 
     def schedule_next_fetch(resp = nil)
@@ -178,7 +183,8 @@ module ElasticAPM
 
       @scheduled_task =
         Concurrent::ScheduledTask
-        .execute(seconds, &method(:fetch_and_apply_config))
+        .execute(seconds) { fetch_and_apply_config }
     end
   end
 end
+# rubocop:enable Style/AccessorGrouping

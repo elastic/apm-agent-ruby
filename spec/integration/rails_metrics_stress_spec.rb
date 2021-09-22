@@ -17,7 +17,7 @@
 
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'integration_helper'
 
 if defined?(Rails)
   enabled = true
@@ -28,7 +28,7 @@ end
 if enabled
   require 'action_controller/railtie'
 
-  RSpec.describe 'Rails integration', :allow_running_agent, :spec_logger do
+  RSpec.xdescribe 'Rails integration', :allow_running_agent, :spec_logger do
     include Rack::Test::Methods
     include_context 'event_collector'
 
@@ -47,6 +47,7 @@ if enabled
           RailsTestHelpers.setup_rails_test_config(config)
 
           config.elastic_apm.api_request_time = '200ms'
+          config.elastic_apm.cloud_provider = 'none'
           config.elastic_apm.disable_start_message = true
           config.elastic_apm.metrics_interval = '1s'
           config.elastic_apm.pool_size = Concurrent.processor_count

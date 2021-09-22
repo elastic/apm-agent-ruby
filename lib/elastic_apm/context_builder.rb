@@ -76,7 +76,7 @@ module ElasticAPM
       else
         body = req.body.read
         req.body.rewind
-        body.byteslice(0, MAX_BODY_LENGTH).force_encoding('utf-8')
+        body.byteslice(0, MAX_BODY_LENGTH).force_encoding('utf-8').scrub
       end
     end
 

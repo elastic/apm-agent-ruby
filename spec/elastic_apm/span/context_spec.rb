@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   RSpec.describe Span::Context do
     describe 'initialize' do
@@ -30,6 +32,14 @@ module ElasticAPM
 
         it 'adds a db object' do
           expect(subject.db.statement).to eq 'asd'
+        end
+
+        context 'when the statement contains invalid utf-8 byte sequences' do
+          subject { described_class.new db: { statement: ",&\xB4kh" } }
+
+          it 'replaces the byte sequences' do
+            expect(subject.db.statement).to eq ',&�kh'
+          end
         end
       end
 
@@ -57,14 +67,33 @@ module ElasticAPM
       context 'with destination' do
         subject do
           described_class.new(
-            destination: { name: 'nam', resource: 'res', type: 'typ' }
+            destination: {
+              service: {
+                name: 'nam',
+                resource: 'res',
+                type: 'typ'
+              }
+            }
           )
         end
 
         it 'adds a Destination object' do
-          expect(subject.destination.name).to eq 'nam'
-          expect(subject.destination.resource).to eq 'res'
-          expect(subject.destination.type).to eq 'typ'
+          expect(subject.destination.service.name).to eq 'nam'
+          expect(subject.destination.service.resource).to eq 'res'
+          expect(subject.destination.service.type).to eq 'typ'
+        end
+      end
+
+      context 'with message' do
+        subject do
+          described_class.new(
+            message: { queue_name: 'my_queue', age_ms: 1000 }
+          )
+        end
+
+        it 'adds a Message object' do
+          expect(subject.message.queue_name).to eq 'my_queue'
+          expect(subject.message.age_ms).to eq 1000
         end
       end
     end

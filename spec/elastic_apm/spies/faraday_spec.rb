@@ -17,12 +17,12 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 require 'faraday'
 
 module ElasticAPM
   RSpec.describe 'Spy: Faraday', :intercept do
-    after { WebMock.reset! }
-
     let(:client) do
       Faraday.new(url: 'http://example.com')
     end
@@ -40,9 +40,10 @@ module ElasticAPM
 
       expect(span).to_not be nil
       expect(span.name).to eq 'GET example.com'
-      expect(span.type).to eq 'ext'
-      expect(span.subtype).to eq 'faraday'
-      expect(span.action).to eq 'GET'
+      expect(span.type).to eq 'external'
+      expect(span.subtype).to eq 'http'
+      expect(span.action).to be nil
+      expect(span.outcome).to eq 'success'
     end
 
     it 'adds http context' do
@@ -74,9 +75,7 @@ module ElasticAPM
       span, = @intercepted.spans
 
       destination = span.context.destination
-      expect(destination.name).to match('http://example.com')
-      expect(destination.resource).to match('example.com:80')
-      expect(destination.type).to match('external')
+      expect(destination.service.resource).to match('example.com:80')
       expect(destination.address).to match('example.com')
       expect(destination.port).to match(80)
     end
@@ -94,9 +93,9 @@ module ElasticAPM
 
       expect(span).to_not be nil
       expect(span.name).to eq 'GET example.com'
-      expect(span.type).to eq 'ext'
-      expect(span.subtype).to eq 'faraday'
-      expect(span.action).to eq 'GET'
+      expect(span.type).to eq 'external'
+      expect(span.subtype).to eq 'http'
+      expect(span.action).to be nil
     end
 
     it 'spans http calls when url in block' do
@@ -115,9 +114,9 @@ module ElasticAPM
 
       expect(span).to_not be nil
       expect(span.name).to eq 'GET example.com'
-      expect(span.type).to eq 'ext'
-      expect(span.subtype).to eq 'faraday'
-      expect(span.action).to eq 'GET'
+      expect(span.type).to eq 'external'
+      expect(span.subtype).to eq 'http'
+      expect(span.action).to be nil
     end
 
     it 'adds traceparent header' do
@@ -125,7 +124,7 @@ module ElasticAPM
         WebMock.stub_request(:get, %r{http://example.com/.*}).with do |req|
           header = req.headers['Traceparent']
           expect(header).to_not be nil
-          expect { TraceContext.parse(header) }.to_not raise_error
+          expect { TraceContext::Traceparent.parse(header) }.to_not raise_error
         end
 
       with_agent do
@@ -147,6 +146,36 @@ module ElasticAPM
       end
 
       expect(req_stub).to have_been_requested
+    end
+
+    it 'adds failure outcome to a span' do
+      WebMock.stub_request(:get, 'http://example.com')
+             .to_return(status: [400, 'Bad Request'])
+
+      with_agent do
+        ElasticAPM.with_transaction 'Faraday test' do
+          client.get('http://example.com')
+        end
+      end
+
+      span, = @intercepted.spans
+
+      expect(span).to_not be nil
+      expect(span.outcome).to eq 'failure'
+    end
+
+    it 'falls back to localhost when hostname not provided' do
+      WebMock.stub_request(:any, /.*/)
+
+      with_agent do
+        ElasticAPM.with_transaction 'Faraday test' do
+          Faraday.get('/test')
+        end
+      end
+
+      span, = @intercepted.spans
+
+      expect(span.name).to eq 'GET localhost'
     end
   end
 end

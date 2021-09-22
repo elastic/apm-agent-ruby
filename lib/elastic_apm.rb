@@ -32,6 +32,7 @@ require 'elastic_apm/internal_error'
 require 'elastic_apm/logging'
 
 # Core
+require 'elastic_apm/fields'
 require 'elastic_apm/agent'
 require 'elastic_apm/config'
 require 'elastic_apm/context'
@@ -106,6 +107,7 @@ module ElasticAPM
     # @yield [String|nil, String|nil, String|nil] The transaction, span,
     # and trace ids.
     # @return [String] Unless block given
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def log_ids
       trace_id = (current_transaction || current_span)&.trace_id
       if block_given?
@@ -118,6 +120,7 @@ module ElasticAPM
       ids << "trace.id=#{trace_id}" if trace_id
       ids.join(' ')
     end
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
     # Start a new transaction
     #
@@ -183,7 +186,12 @@ module ElasticAPM
             context: context,
             trace_context: trace_context
           )
-        yield transaction
+        result = yield transaction
+        transaction&.outcome ||= Transaction::Outcome::SUCCESS
+        result
+      rescue
+        transaction&.outcome ||= Transaction::Outcome::FAILURE
+        raise
       ensure
         end_transaction
       end
@@ -235,9 +243,12 @@ module ElasticAPM
 
     # Ends the current span
     #
+    # @param span [Span] Optional span to be ended instead of the last span
+    #   created, useful for asynchronous environments where multiple spans are created in parallel
+    #
     # @return [Span]
-    def end_span
-      agent&.end_span
+    def end_span(span = nil)
+      agent&.end_span(span)
     end
 
     # rubocop:disable Metrics/ParameterLists
@@ -287,7 +298,12 @@ module ElasticAPM
             parent: parent,
             sync: sync
           )
-        yield span
+        result = yield span
+        span&.outcome ||= Span::Outcome::SUCCESS
+        result
+      rescue
+        span&.outcome ||= Span::Outcome::FAILURE
+        raise
       ensure
         end_span
       end
@@ -368,6 +384,16 @@ module ElasticAPM
       agent&.set_user(user)
     end
 
+    # Set destination fields on the current span
+    #
+    # @param address [String] Destination address
+    # @param address [String] Destination address
+    # @param address [Hash] Destination service
+    # @param address [Hash] Destination cloud
+    def set_destination(address: nil, port: nil, service: nil, cloud: nil)
+      agent&.set_destination(address: address, port: port, service: service, cloud: cloud)
+    end
+
     # Provide a filter to transform payloads before sending them off
     #
     # @param key [Symbol] Unique filter key
@@ -375,7 +401,7 @@ module ElasticAPM
     # @yield [Hash] A filter. Used if provided. Otherwise using `callback`
     # @return [Bool] true
     def add_filter(key, callback = nil, &block)
-      if callback.nil? && !block_given?
+      if callback.nil? && !block
         raise ArgumentError, '#add_filter needs either `callback\' or a block'
       end
 

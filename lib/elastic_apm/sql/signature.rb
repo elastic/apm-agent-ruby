@@ -36,8 +36,8 @@ module ElasticAPM
       end
 
       def initialize(sql)
-        @sql = sql
-        @tokenizer = Tokenizer.new(sql)
+        @sql = sql.encode('utf-8', invalid: :replace, undef: :replace)
+        @tokenizer = Tokenizer.new(@sql)
       end
 
       def parse
@@ -158,9 +158,11 @@ module ElasticAPM
       def scan_dotted_identifier
         table = @tokenizer.text
 
+        # rubocop:disable Style/WhileUntilModifier
         while scan_token(PERIOD) && scan_token(IDENT)
           table += ".#{@tokenizer.text}"
         end
+        # rubocop:enable Style/WhileUntilModifier
 
         table
       end

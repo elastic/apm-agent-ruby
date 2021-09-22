@@ -17,7 +17,15 @@
 
 # frozen_string_literal: true
 
+require 'elastic_apm/util/precision_validator'
+
 module ElasticAPM
-  RSpec.describe Context::Request do
+  class Config
+    # @api private
+    class RoundFloat
+      def call(value)
+        Util::PrecisionValidator.validate(value, precision: 4, minimum: 0.0001)
+      end
+    end
   end
 end

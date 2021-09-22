@@ -17,16 +17,21 @@
 
 # frozen_string_literal: true
 
-require 'webmock'
-require 'webmock/rspec/matchers'
+SpecLogger = StringIO.new
 
-WebMock.hide_stubbing_instructions!
+module RailsTestHelpers
+  def self.setup_rails_test_config(config)
+    config.secret_key_base = "__secret_key_base"
+    config.consider_all_requests_local = false
+    config.eager_load = false
 
-# We want everything from webmock/rspec except resetting after each example
-RSpec.configure do |config|
-  config.include WebMock::API
-  config.include WebMock::Matchers
+    config.elastic_apm.api_request_time = "200ms"
+    config.elastic_apm.disable_start_message = true
 
-  config.before(:suite) { WebMock.enable! }
-  config.after(:suite) { WebMock.disable! }
+    if config.respond_to?(:action_mailer)
+      config.action_mailer.perform_deliveries = false
+    end
+
+    config.logger = Logger.new(SpecLogger)
+  end
 end

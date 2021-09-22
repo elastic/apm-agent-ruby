@@ -26,31 +26,60 @@ module ElasticAPM
       TYPE = 'db'
       SUBTYPE = 'elasticsearch'
 
-      def install
-        ::Elasticsearch::Transport::Client.class_eval do
-          alias perform_request_without_apm perform_request
+      def self.sanitizer
+        @sanitizer ||=
+          begin
+            config = ElasticAPM.agent.config
+            ElasticAPM::Transport::Filters::HashSanitizer.new(
+              key_patterns: config.custom_key_filters +
+                            config.sanitize_field_names
+            )
+          end
+      end
 
-          def perform_request(method, path, *args, &block)
-            name = format(NAME_FORMAT, method, path)
-            statement = args[0].is_a?(String) ? args[0] : args[0].to_json
+      # @api private
+      module Ext
+        def perform_request(method, path, *args, &block)
+          unless ElasticAPM.current_transaction
+            return super(method, path, *args, &block)
+          end
 
-            context = Span::Context.new(
-              db: { statement: statement },
-              destination: {
+          name = format(NAME_FORMAT, method, path)
+          statement = []
+
+          statement << { params: args&.[](0) }
+
+          if ElasticAPM.agent.config.capture_elasticsearch_queries
+            unless args[1].nil? || args[1].empty?
+              body =
+                ElasticAPM::Spies::ElasticsearchSpy
+                .sanitizer.strip_from(args[1])
+              statement << { body: body }
+            end
+          end
+
+          context = Span::Context.new(
+            db: { statement: statement.reduce({}, :merge).to_json },
+            destination: {
+              service: {
                 name: SUBTYPE,
                 resource: SUBTYPE,
                 type: TYPE
               }
-            )
+            }
+          )
 
-            ElasticAPM.with_span(
-              name,
-              TYPE,
-              subtype: SUBTYPE,
-              context: context
-            ) { perform_request_without_apm(method, path, *args, &block) }
-          end
+          ElasticAPM.with_span(
+            name,
+            TYPE,
+            subtype: SUBTYPE,
+            context: context
+          ) { super(method, path, *args, &block) }
         end
+      end
+
+      def install
+        ::Elasticsearch::Transport::Client.prepend(Ext)
       end
     end
 

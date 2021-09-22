@@ -74,7 +74,7 @@ module ElasticAPM
           debug '%s: Closing request with reason %s', thread_str, reason
           @closed.make_true
 
-          @wr&.close(reason)
+          @wr&.close
           return if @request.nil? || @request&.join(5)
 
           error(
@@ -85,7 +85,7 @@ module ElasticAPM
         end
 
         def closed?
-          @closed.true?
+          @rd.closed? && @closed.true?
         end
 
         def inspect
@@ -117,6 +117,8 @@ module ElasticAPM
               error(
                 "Couldn't establish connection to APM Server:\n%p", e.inspect
               )
+            ensure
+              @rd&.close
             end
           end
         end

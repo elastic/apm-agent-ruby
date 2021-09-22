@@ -25,7 +25,7 @@ module ElasticAPM
       TYPE = 'external'
       SUBTYPE = 'grpc'
 
-      # rubocop:disable Lint/UnusedMethodArgument
+      # rubocop:disable Lint/UnusedMethodArgument, Style/ExplicitBlockArgument
       def request_response(request:, call:, method:, metadata:)
         return yield unless (transaction = ElasticAPM.current_transaction)
         if (trace_context = transaction.trace_context)
@@ -40,7 +40,7 @@ module ElasticAPM
           yield
         end
       end
-      # rubocop:enable Lint/UnusedMethodArgument
+      # rubocop:enable Lint/UnusedMethodArgument, Style/ExplicitBlockArgument
 
       private
 
@@ -50,11 +50,9 @@ module ElasticAPM
 
         split_peer = URI.split(peer)
         destination = ElasticAPM::Span::Context::Destination.new(
-          type: TYPE,
-          name: SUBTYPE,
-          resource: peer,
           address: split_peer[0],
-          port: split_peer[6]
+          port: split_peer[6],
+          service: { type: TYPE, name: SUBTYPE, resource: peer }
         )
         ElasticAPM::Span::Context.new(destination: destination)
       end
@@ -71,7 +69,7 @@ module ElasticAPM
         transaction.done 'success'
       rescue ::Exception => e
         ElasticAPM.report(e, handled: false)
-        transaction.done 'error'
+        transaction&.done 'error'
         raise
       ensure
         ElasticAPM.end_transaction
@@ -91,7 +89,7 @@ module ElasticAPM
       def trace_context(call)
         TraceContext.parse(metadata: call.metadata)
       rescue TraceContext::InvalidTraceparentHeader
-        warn "Couldn't parse invalid trace context header: #{header.inspect}"
+        warn "Couldn't parse invalid trace context header: #{call.metadata}"
         nil
       end
     end

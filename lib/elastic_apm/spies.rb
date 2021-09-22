@@ -56,6 +56,26 @@ module ElasticAPM
       end
     end
 
+    def self.without_faraday
+      return yield unless defined?(FaradaySpy)
+
+      # rubocop:disable Style/ExplicitBlockArgument
+      ElasticAPM::Spies::FaradaySpy.disable_in do
+        yield
+      end
+      # rubocop:enable Style/ExplicitBlockArgument
+    end
+
+    def self.without_net_http
+      return yield unless defined?(NetHTTPSpy)
+
+      # rubocop:disable Style/ExplicitBlockArgument
+      ElasticAPM::Spies::NetHTTPSpy.disable_in do
+        yield
+      end
+      # rubocop:enable Style/ExplicitBlockArgument
+    end
+
     def self.register_require_hook(registration)
       registration.require_paths.each do |path|
         require_hooks[path] = registration
@@ -80,23 +100,25 @@ module ElasticAPM
   end
 end
 
-# @api private
-module Kernel
-  private
+unless ENV['ELASTIC_APM_SKIP_REQUIRE_PATCH'] == '1'
+  # @api private
+  module Kernel
+    private
 
-  alias require_without_apm require
+    alias require_without_apm require
 
-  def require(path)
-    res = require_without_apm(path)
+    def require(path)
+      res = require_without_apm(path)
 
-    begin
-      ElasticAPM::Spies.hook_into(path)
-    rescue ::Exception => e
-      puts "Failed hooking into '#{path}'. Please report this at " \
-        'github.com/elastic/apm-agent-ruby'
-      puts e.backtrace.join("\n")
+      begin
+        ElasticAPM::Spies.hook_into(path)
+      rescue ::Exception => e
+        puts "Failed hooking into '#{path}'. Please report this at " \
+          'github.com/elastic/apm-agent-ruby'
+        puts e.backtrace.join("\n")
+      end
+
+      res
     end
-
-    res
   end
 end

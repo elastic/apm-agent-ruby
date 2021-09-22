@@ -18,6 +18,7 @@
 # frozen_string_literal: true
 
 module ElasticAPM
+  # TODO: Remove this?
   # @api private
   module NaivelyHashable
     def naively_hashable?

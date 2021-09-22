@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   RSpec.describe SpanHelpers do
     class Thing
@@ -31,6 +33,11 @@ module ElasticAPM
         'all ok'
       end
       span_class_method :do_all_things
+
+      def do_the_block_thing(&block)
+        block.call
+      end
+      span_method :do_the_block_thing
     end
 
     context 'on class methods', :intercept do
@@ -58,6 +65,19 @@ module ElasticAPM
 
         expect(@intercepted.spans.length).to be 1
         expect(@intercepted.spans.last.name).to eq 'do_the_thing'
+      end
+
+      it 'handles blocks' do
+        thing = Thing.new
+
+        with_agent do
+          ElasticAPM.with_transaction do
+            thing.do_the_block_thing { 'ok' }
+          end
+        end
+
+        expect(@intercepted.spans.length).to be 1
+        expect(@intercepted.spans.last.name).to eq 'do_the_block_thing'
       end
     end
   end

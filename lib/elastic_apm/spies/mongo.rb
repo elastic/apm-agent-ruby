@@ -44,11 +44,19 @@ module ElasticAPM
         end
 
         def failed(event)
-          pop_event(event)
+          if (span = pop_event(event))
+            span.outcome = Span::Outcome::FAILURE
+          end
+
+          span
         end
 
         def succeeded(event)
-          pop_event(event)
+          if span = pop_event(event)
+            span.outcome = Span::Outcome::SUCCESS
+          end
+
+          span
         end
 
         private
@@ -85,8 +93,8 @@ module ElasticAPM
         end
 
         def pop_event(event)
-          return unless (curr = ElasticAPM.current_span)
           span = @events.delete(event.operation_id)
+          return unless (curr = ElasticAPM.current_span)
 
           curr == span && ElasticAPM.end_span
         end
@@ -100,9 +108,11 @@ module ElasticAPM
               user: nil
             },
             destination: {
-              name: SUBTYPE,
-              resource: SUBTYPE,
-              type: TYPE
+              service: {
+                name: SUBTYPE,
+                resource: SUBTYPE,
+                type: TYPE
+              }
             }
           )
         end

@@ -22,49 +22,49 @@ module ElasticAPM
   module Spies
     # @api private
     class HTTPSpy
-      TYPE = 'ext'
-      SUBTYPE = 'http_rb'
-      def install
-        ::HTTP::Client.class_eval do
-          alias perform_without_apm perform
+      TYPE = 'external'
+      SUBTYPE = 'http'
 
-          def perform(req, options)
-            unless (transaction = ElasticAPM.current_transaction)
-              return perform_without_apm(req, options)
+      # @api private
+      module Ext
+        def perform(req, options)
+          unless (transaction = ElasticAPM.current_transaction)
+            return super(req, options)
+          end
+
+          method = req.verb.to_s.upcase
+          host = req.uri.host
+
+          context = ElasticAPM::Span::Context.new(
+            http: { url: req.uri, method: method },
+            destination: ElasticAPM::Span::Context::Destination.from_uri(req.uri, type: SUBTYPE)
+          )
+
+          name = "#{method} #{host}"
+
+          ElasticAPM.with_span(
+            name,
+            TYPE,
+            subtype: SUBTYPE,
+            context: context
+          ) do |span|
+            trace_context = span&.trace_context || transaction.trace_context
+            trace_context.apply_headers { |key, value| req[key] = value }
+
+            result = super(req, options)
+
+            if (http = span&.context&.http)
+              http.status_code = result.status.to_s
             end
 
-            method = req.verb.to_s.upcase
-            host = req.uri.host
-
-            destination =
-              ElasticAPM::Span::Context::Destination.from_uri(req.uri)
-            context = ElasticAPM::Span::Context.new(
-              http: { url: req.uri, method: method },
-              destination: destination
-            )
-
-            name = "#{method} #{host}"
-
-            ElasticAPM.with_span(
-              name,
-              TYPE,
-              subtype: SUBTYPE,
-              action: method,
-              context: context
-            ) do |span|
-              trace_context = span&.trace_context || transaction.trace_context
-              trace_context.apply_headers { |key, value| req[key] = value }
-
-              result = perform_without_apm(req, options)
-
-              if (http = span&.context&.http)
-                http.status_code = result.status.to_s
-              end
-
-              result
-            end
+            span&.outcome = Span::Outcome.from_http_status(result.status)
+            result
           end
         end
+      end
+
+      def install
+        ::HTTP::Client.prepend(Ext)
       end
     end
 

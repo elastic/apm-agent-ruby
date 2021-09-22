@@ -81,9 +81,23 @@ module ElasticAPM
             ENV.fetch('KUBERNETES_POD_UID', kubernetes_pod_uid)
         end
 
-        CONTAINER_ID_REGEX = /^[0-9A-Fa-f]{64}$/.freeze
-        KUBEPODS_REGEX = %r{(?:^/kubepods/[^/]+/pod([^/]+)$)|(?:^/kubepods\.slice/kubepods-[^/]+\.slice/kubepods-[^/]+-pod([^/]+)\.slice$)}.freeze # rubocop:disable Metrics/LineLength
+        # rubocop:disable Style/RegexpLiteral
+        CONTAINER_ID_REGEXES = [
+          %r{^[[:xdigit:]]{64}$},
+          %r{
+            ^[[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]
+            {4}-[[:xdigit:]]{4}-[[:xdigit:]]{4,}$
+          }x
+        ].freeze
+        KUBEPODS_REGEXES = [
+          %r{(?:^/kubepods[^\s]*/pod([^/]+)$)},
+          %r{
+            (?:^/kubepods\.slice/(kubepods-[^/]+\.slice/)?
+             kubepods[^/]*-pod([^/]+)\.slice$)
+          }x
+        ].freeze
         SYSTEMD_SCOPE_SUFFIX = '.scope'
+        # rubocop:enable Style/RegexpLiteral
 
         # rubocop:disable Metrics/PerceivedComplexity
         # rubocop:disable Metrics/CyclomaticComplexity
@@ -118,18 +132,39 @@ module ElasticAPM
               end
             end
 
-            if (kubepods_match = KUBEPODS_REGEX.match(directory))
-              pod_id = kubepods_match[1] || kubepods_match[2]
+            if (kubepods_match = match_kubepods(directory))
+              unless (pod_id = kubepods_match[1])
+                pod_id = kubepods_match[2]
+                pod_id&.tr!('_', '-')
+              end
 
               self.container_id = container_id
               self.kubernetes_pod_uid = pod_id
-            elsif CONTAINER_ID_REGEX.match(container_id)
+            elsif match_container(container_id)
               self.container_id = container_id
             end
           end
         end
         # rubocop:enable Metrics/PerceivedComplexity
         # rubocop:enable Metrics/CyclomaticComplexity
+
+        def match_kubepods(directory)
+          KUBEPODS_REGEXES.each do |r|
+            next unless (match = r.match(directory))
+            return match
+          end
+
+          nil
+        end
+
+        def match_container(container_id)
+          CONTAINER_ID_REGEXES.each do |r|
+            next unless (match = r.match(container_id))
+            return match
+          end
+
+          nil
+        end
       end
     end
   end

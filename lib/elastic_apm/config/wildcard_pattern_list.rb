@@ -27,6 +27,8 @@ module ElasticAPM
           @pattern = convert(str)
         end
 
+        attr_reader :pattern
+
         def match?(other)
           !!@pattern.match(other)
         end
@@ -36,18 +38,28 @@ module ElasticAPM
         private
 
         def convert(str)
+          case_sensitive = false
+
+          if str.start_with?('(?-i)')
+            str = str.gsub(/^\(\?-\i\)/, '')
+            case_sensitive = true
+          end
+
           parts =
             str.chars.each_with_object([]) do |char, arr|
               arr << (char == '*' ? '.*' : Regexp.escape(char))
             end
 
-          Regexp.new('\A' + parts.join + '\Z', Regexp::IGNORECASE)
+          Regexp.new(
+            '\A' + parts.join + '\Z',
+            case_sensitive ? nil : Regexp::IGNORECASE
+          )
         end
       end
 
       def call(value)
         value = value.is_a?(String) ? value.split(',') : Array(value)
-        value.map(&WildcardPattern.method(:new))
+        value.map { |p| WildcardPattern.new(p) }
       end
     end
   end

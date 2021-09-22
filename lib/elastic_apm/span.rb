@@ -25,6 +25,17 @@ module ElasticAPM
     extend Forwardable
     include ChildDurations::Methods
 
+    # @api private
+    class Outcome
+      FAILURE = "failure"
+      SUCCESS = "success"
+      UNKNOWN = "unknown"
+
+      def self.from_http_status(code)
+        code.to_i >= 400 ? FAILURE : SUCCESS
+      end
+    end
+
     DEFAULT_TYPE = 'custom'
 
     # rubocop:disable Metrics/ParameterLists
@@ -38,7 +49,8 @@ module ElasticAPM
       action: nil,
       context: nil,
       stacktrace_builder: nil,
-      sync: nil
+      sync: nil,
+      exit_span: false
     )
       @name = name
 
@@ -53,9 +65,12 @@ module ElasticAPM
       @transaction = transaction
       @parent = parent
       @trace_context = trace_context || parent.trace_context.child
+      @sample_rate = transaction.sample_rate
 
       @context = context || Span::Context.new(sync: sync)
       @stacktrace_builder = stacktrace_builder
+
+      @exit_span = exit_span
     end
     # rubocop:enable Metrics/ParameterLists
 
@@ -63,8 +78,10 @@ module ElasticAPM
 
     attr_accessor(
       :action,
+      :exit_span,
       :name,
       :original_backtrace,
+      :outcome,
       :subtype,
       :trace_context,
       :type
@@ -73,11 +90,14 @@ module ElasticAPM
       :context,
       :duration,
       :parent,
+      :sample_rate,
       :self_time,
       :stacktrace,
       :timestamp,
       :transaction
     )
+
+    alias :exit_span? :exit_span
 
     # life cycle
 
@@ -92,16 +112,18 @@ module ElasticAPM
       @duration ||= (clock_end - @clock_start)
       @parent.child_stopped
       @self_time = @duration - child_durations.duration
+
       self
     end
 
     def done(clock_end: Util.monotonic_micros)
       stop clock_end
+      self
+    end
 
+    def prepare_for_serialization!
       build_stacktrace! if should_build_stacktrace?
       self.original_backtrace = nil # release original
-
-      self
     end
 
     def stopped?
@@ -116,12 +138,22 @@ module ElasticAPM
       started? && !stopped?
     end
 
-    # relations
+    def set_destination(address: nil, port: nil, service: nil, cloud: nil)
+      context.destination = Span::Context::Destination.new(
+        address: address,
+        port: port,
+        service: service,
+        cloud: cloud
+      )
+    end
 
     def inspect
       "<ElasticAPM::Span id:#{trace_context&.id}" \
         " name:#{name.inspect}" \
         " type:#{type.inspect}" \
+        " subtype:#{subtype.inspect}" \
+        " action:#{action.inspect}" \
+        " exit_span:#{exit_span.inspect}" \
         '>'
     end
 

@@ -9,14 +9,6 @@ end
 
 World(Helpers)
 
-After do
-  @agent&.stop
-end
-
-Given('an agent') do
-  @agent = ElasticAPM.start
-end
-
 When('an api key is set to {string} in the config') do |api_key|
   config.api_key = api_key
 end
@@ -35,8 +27,8 @@ Then('the api key is sent in the Authorization header') do
   headers[:Authorization].include?(config.api_key)
 end
 
-When('a secret_token is set in the config') do
-  config.secret_token = 'abcde'
+When('a secret_token is set to {string} in the config') do |api_key|
+  config.secret_token = api_key
 end
 
 When('an api key is not set in the config') do

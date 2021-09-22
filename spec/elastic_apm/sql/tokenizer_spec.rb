@@ -25,7 +25,7 @@ module ElasticAPM
     RSpec.describe Tokenizer do
       describe 'examples:' do
         examples =
-          JSON.parse(File.read('spec/fixtures/sql_tokenizer_examples.json'))
+          JSON.parse(File.read('spec/fixtures/sql_token_examples.json'))
 
         examples.each do |info|
           desc = info['name']

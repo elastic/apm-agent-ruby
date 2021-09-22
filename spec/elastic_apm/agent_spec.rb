@@ -17,6 +17,8 @@
 
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 module ElasticAPM
   RSpec.describe Agent do
     let(:config) { Config.new }
@@ -99,7 +101,7 @@ module ElasticAPM
               sync: nil
             }
           ],
-          end_span: nil,
+          end_span: [nil],
           set_label: [nil, nil],
           set_custom_context: [nil],
           set_user: [nil]

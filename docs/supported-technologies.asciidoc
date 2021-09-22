@@ -60,6 +60,7 @@ See <<getting-started-grape>>.
 We automatically instrument database actions using:
 
 - ActiveRecord (v4.2+)
+- DynamoDB (v1.0+)
 - Elasticsearch (v0.9+)
 - Mongo (v2.1+)
 - Redis (v3.1+)
@@ -75,6 +76,8 @@ requests using these libraries:
 - `net/http`
 - Http.rb (v0.6+)
 - Faraday (v0.2.1+)
+
+*Note:* These libraries usually assume `localhost` if no `Host` is specified, so the agent does as well. 
 
 [float]
 [[supported-technologies-backgroud-processing]]
