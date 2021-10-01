@@ -105,6 +105,7 @@ module ElasticAPM
       end
 
       def flush
+        puts "flushing connections"
         send_message_to_workers(Worker::FlushMessage.new)
         ensure_worker_count
       end
