@@ -104,6 +104,11 @@ module ElasticAPM
         create_watcher
       end
 
+      def flush
+        send_message_to_workers(Worker::FlushMessage.new)
+        ensure_worker_count
+      end
+
       private
 
       def pid_str
@@ -149,7 +154,7 @@ module ElasticAPM
       def stop_workers
         debug '%s: Stopping workers', pid_str
 
-        send_stop_messages
+        send_message_to_workers(Worker::StopMessage.new)
 
         @worker_mutex.synchronize do
           workers.each do |thread|
@@ -168,8 +173,8 @@ module ElasticAPM
         end
       end
 
-      def send_stop_messages
-        config.pool_size.times { queue.push(Worker::StopMessage.new, true) }
+      def send_message_to_workers(message)
+        config.pool_size.times { queue.push(message, true) }
       rescue ThreadError
         warn 'Cannot push stop messages to worker queue as it is full'
       end

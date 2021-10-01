@@ -61,6 +61,10 @@ module ElasticAPM
             debug 'Stopping worker [%s]', self
             connection.flush(:halt)
             break
+          when FlushMessage
+            debug 'Flushing connection [%s]', self
+            connection.flush(:flush)
+            break
           else
             process msg
           end
