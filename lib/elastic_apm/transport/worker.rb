@@ -64,7 +64,6 @@ module ElasticAPM
           when FlushMessage
             debug 'Flushing connection [%s]', self
             connection.flush(:flush)
-            break
           else
             process msg
           end
