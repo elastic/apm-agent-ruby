@@ -19,48 +19,22 @@
 
 module ElasticAPM
   # @api private
-  module ChildDurations
-    # @api private
-    module Methods
-      def child_durations
-        @child_durations ||= Durations.new
+  module CompressionBuffer
+    def child_stopped(child)
+      super(child)
+
+      if !child.compression_eligible?
+        return # report
       end
 
-      def child_started(child)
-        super(child)
-        child_durations.start
-      end
-
-      def child_stopped(child)
-        super(child)
-        child_durations.stop
+      if compression_buffer.nil?
+        self.compression_buffer = child
+        child.compression_buffered = true
       end
     end
 
-    # @api private
-    class Durations
-      def initialize
-        @nesting_level = 0
-        @start = nil
-        @duration = 0
-        @mutex = Mutex.new
-      end
-
-      attr_reader :duration
-
-      def start
-        @mutex.synchronize do
-          @nesting_level += 1
-          @start = Util.micros if @nesting_level == 1
-        end
-      end
-
-      def stop
-        @mutex.synchronize do
-          @nesting_level -= 1
-          @duration = (Util.micros - @start) if @nesting_level == 0
-        end
-      end
-    end
+    attr_accessor :compression_buffer
+    attr_accessor :compression_buffered
+    alias :compression_buffered? :compression_buffered
   end
 end

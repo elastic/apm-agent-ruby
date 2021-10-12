@@ -32,7 +32,8 @@ module ElasticAPM
     end
 
     extend Forwardable
-    include ChildDurations::Methods
+    prepend ChildDurations::Methods
+    prepend CompressionBuffer
 
     def_delegators :@trace_context,
       :trace_id, :parent_id, :id, :ensure_parent_id
@@ -108,6 +109,9 @@ module ElasticAPM
 
     alias :collect_metrics? :collect_metrics
 
+    def child_started(_); end
+    def child_stopped(_); end
+
     def sampled?
       @sampled
     end
@@ -149,6 +153,14 @@ module ElasticAPM
         end
       end
       true
+    end
+
+    # api
+
+    def child_started(child)
+    end
+
+    def child_stopped(child)
     end
 
     # context

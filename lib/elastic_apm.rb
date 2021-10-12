@@ -211,6 +211,7 @@ module ElasticAPM
     # @param parent [Transaction,Span] The parent transaction or span.
     #   Relevant when the span is created in another thread.
     # @param sync [Boolean] Whether the span is created synchronously or not.
+    # @param exit_span [Boolean] Whether the span is an exit span.
     # @return [Span]
     def start_span(
       name,
@@ -221,7 +222,8 @@ module ElasticAPM
       include_stacktrace: true,
       trace_context: nil,
       parent: nil,
-      sync: nil
+      sync: nil,
+      exit_span: false
     )
       agent&.start_span(
         name,
@@ -231,7 +233,8 @@ module ElasticAPM
         context: context,
         trace_context: trace_context,
         parent: parent,
-        sync: sync
+        sync: sync,
+        exit_span: exit_span
       ).tap do |span|
         break unless span && include_stacktrace
         break unless agent.config.span_frames_min_duration?
@@ -265,6 +268,7 @@ module ElasticAPM
     # @param parent [Transaction,Span] The parent transaction or span.
     #   Relevant when the span is created in another thread.
     # @param sync [Boolean] Whether the span is created synchronously or not.
+    # @param exit_span [Boolean] Whether the span is an exit span.
     # @yield [Span]
     # @return Result of block
     def with_span(
@@ -276,7 +280,8 @@ module ElasticAPM
       include_stacktrace: true,
       trace_context: nil,
       parent: nil,
-      sync: nil
+      sync: nil,
+      exit_span: false
     )
       unless block_given?
         raise ArgumentError,
@@ -296,7 +301,8 @@ module ElasticAPM
             include_stacktrace: include_stacktrace,
             trace_context: trace_context,
             parent: parent,
-            sync: sync
+            sync: sync,
+            exit_span: exit_span
           )
         result = yield span
         span&.outcome ||= Span::Outcome::SUCCESS

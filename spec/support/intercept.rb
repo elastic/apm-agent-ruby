@@ -67,7 +67,7 @@ RSpec.configure do |config|
 
       allowed_subtypes.fetch(subtype) unless info['allow_unlisted_subtype']
     rescue KeyError
-      raise "Unknown span.subtype `#{span.type}'\nPossible subtypes: #{allowed_subtypes}"
+      raise "Unknown span.subtype `#{span.subtype}'\nPossible subtypes: #{allowed_subtypes.keys}"
     end
   end
 

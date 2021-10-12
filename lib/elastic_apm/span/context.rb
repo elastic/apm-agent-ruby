@@ -43,6 +43,7 @@ module ElasticAPM
           when Hash then Message.new(**message)
           end
         @labels = labels
+        @has_propagated = false
       end
 
       attr_reader(
@@ -54,6 +55,9 @@ module ElasticAPM
       )
 
       attr_accessor :destination
+      attr_accessor :has_propagated
+
+      alias :has_propagated? :has_propagated
     end
   end
 end

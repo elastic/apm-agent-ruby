@@ -27,7 +27,6 @@ module ElasticAPM
     before do
       intercept!
       ElasticAPM.start config
-      allow(agent).to receive(:enqueue) { nil }
     end
 
     after do
@@ -440,6 +439,30 @@ module ElasticAPM
         subject.handle_forking!
 
         subject.stop
+      end
+    end
+
+    describe "span compression" do
+      context 'exact match' do
+        it 'compresses to one composite', :mock_time do
+          with_agent do
+            ElasticAPM.with_transaction do
+              ctx = ElasticAPM::Span::Context.new(destination: { service: { resource: "x" } })
+
+              ElasticAPM.with_span(
+                'test', 'custom', subtype: 'sub', action: 'act',
+                exit_span: true, context: ctx
+              ) { travel 2 }
+
+              ElasticAPM.with_span(
+                'test', 'custom', subtype: 'sub', action: 'act',
+                exit_span: true, context: ctx.dup
+              ) { travel 3 }
+            end
+          end
+
+          expect(@intercepted.spans.count).to be(1)
+        end
       end
     end
   end

@@ -189,7 +189,8 @@ module ElasticAPM
       context: nil,
       trace_context: nil,
       parent: nil,
-      sync: nil
+      sync: nil,
+      exit_span: nil
     )
       detect_forking!
 
@@ -206,7 +207,8 @@ module ElasticAPM
         context: context,
         trace_context: trace_context,
         parent: parent,
-        sync: sync
+        sync: sync,
+        exit_span: exit_span
       )
     end
     # rubocop:enable Metrics/ParameterLists

@@ -34,69 +34,71 @@ module ElasticAPM
       %w[password passwd pwd secret *key *token* *session* *credit* *card* authorization set-cookie].freeze
 
     # rubocop:disable Layout/LineLength, Layout/ExtraSpacing
-    option :config_file,                       type: :string, default: 'config/elastic_apm.yml'
-    option :server_url,                        type: :url,    default: 'http://localhost:8200'
-    option :secret_token,                      type: :string
-    option :api_key,                           type: :string
+    option :config_file,                           type: :string, default: 'config/elastic_apm.yml'
+    option :server_url,                            type: :url,    default: 'http://localhost:8200'
+    option :secret_token,                          type: :string
+    option :api_key,                               type: :string
 
-    option :api_buffer_size,                   type: :int,    default: 256
-    option :api_request_size,                  type: :bytes,  default: '750kb', converter: Bytes.new
-    option :api_request_time,                  type: :float,  default: '10s',   converter: Duration.new
-    option :breakdown_metrics,                 type: :bool,   default: true
-    option :capture_body,                      type: :string, default: 'off'
-    option :capture_headers,                   type: :bool,   default: true
-    option :capture_elasticsearch_queries,     type: :bool,   default: false
-    option :capture_env,                       type: :bool,   default: true
-    option :central_config,                    type: :bool,   default: true
-    option :cloud_provider,                    type: :string, default: 'auto'
-    option :current_user_email_method,         type: :string, default: 'email'
-    option :current_user_id_method,            type: :string, default: 'id'
-    option :current_user_username_method,      type: :string, default: 'username'
-    option :custom_key_filters,                type: :list,   default: [],      converter: RegexpList.new
-    option :default_labels,                    type: :dict,   default: {}
-    option :disable_metrics,                   type: :list,   default: [],      converter: WildcardPatternList.new
-    option :disable_send,                      type: :bool,   default: false
-    option :disable_start_message,             type: :bool,   default: false
-    option :disable_instrumentations,          type: :list,   default: %w[json]
-    option :disabled_spies,                    type: :list,   default: []
-    option :enabled,                           type: :bool,   default: true
-    option :environment,                       type: :string, default: ENV['RAILS_ENV'] || ENV['RACK_ENV']
-    option :framework_name,                    type: :string
-    option :framework_version,                 type: :string
-    option :filter_exception_types,            type: :list,   default: []
-    option :global_labels,                     type: :dict
-    option :hostname,                          type: :string
-    option :http_compression,                  type: :bool,   default: true
-    option :ignore_url_patterns,               type: :list,   default: [],      converter: RegexpList.new
-    option :instrument,                        type: :bool,   default: true
-    option :instrumented_rake_tasks,           type: :list,   default: []
-    option :log_ecs_formatting,                type: :string, default: 'off'
-    option :log_level,                         type: :int,    default: Logger::INFO, converter: LogLevelMap.new
-    option :log_path,                          type: :string
-    option :metrics_interval,                  type: :int,    default: '30s',   converter: Duration.new
-    option :pool_size,                         type: :int,    default: 1
-    option :proxy_address,                     type: :string
-    option :proxy_headers,                     type: :dict
-    option :proxy_password,                    type: :string
-    option :proxy_port,                        type: :int
-    option :proxy_username,                    type: :string
-    option :recording,                         type: :bool,   default: true
-    option :sanitize_field_names,              type: :list,   default: SANITIZE_FIELD_NAMES_DEFAULT, converter: WildcardPatternList.new
-    option :server_ca_cert_file,               type: :string
-    option :service_name,                      type: :string
-    option :service_node_name,                 type: :string
-    option :service_version,                   type: :string
-    option :source_lines_error_app_frames,     type: :int,    default: 5
-    option :source_lines_error_library_frames, type: :int,    default: 0
-    option :source_lines_span_app_frames,      type: :int,    default: 5
-    option :source_lines_span_library_frames,  type: :int,    default: 0
-    option :span_frames_min_duration,          type: :float,  default: '5ms',   converter: Duration.new(default_unit: 'ms')
-    option :stack_trace_limit,                 type: :int,    default: 999_999
-    option :transaction_ignore_urls,           type: :list,   default: [],      converter: WildcardPatternList.new
-    option :transaction_max_spans,             type: :int,    default: 500
-    option :transaction_sample_rate,           type: :float,  default: 1.0,     converter: RoundFloat.new
-    option :use_elastic_traceparent_header,    type: :bool,   default: true
-    option :verify_server_cert,                type: :bool,   default: true
+    option :api_buffer_size,                         type: :int,    default: 256
+    option :api_request_size,                        type: :bytes,  default: '750kb', converter: Bytes.new
+    option :api_request_time,                        type: :float,  default: '10s', converter: Duration.new
+    option :breakdown_metrics,                       type: :bool,   default: true
+    option :capture_body,                            type: :string, default: 'off'
+    option :capture_headers,                         type: :bool,   default: true
+    option :capture_elasticsearch_queries,           type: :bool,   default: false
+    option :capture_env,                             type: :bool,   default: true
+    option :central_config,                          type: :bool,   default: true
+    option :cloud_provider,                          type: :string, default: 'auto'
+    option :current_user_email_method,               type: :string, default: 'email'
+    option :current_user_id_method,                  type: :string, default: 'id'
+    option :current_user_username_method,            type: :string, default: 'username'
+    option :custom_key_filters,                      type: :list,   default: [], converter: RegexpList.new
+    option :default_labels,                          type: :dict,   default: {}
+    option :disable_metrics,                         type: :list,   default: [], converter: WildcardPatternList.new
+    option :disable_send,                            type: :bool,   default: false
+    option :disable_start_message,                   type: :bool,   default: false
+    option :disable_instrumentations,                type: :list,   default: %w[json]
+    option :disabled_spies,                          type: :list,   default: []
+    option :enabled,                                 type: :bool,   default: true
+    option :environment,                             type: :string, default: ENV['RAILS_ENV'] || ENV['RACK_ENV']
+    option :framework_name,                          type: :string
+    option :framework_version,                       type: :string
+    option :filter_exception_types,                  type: :list,   default: []
+    option :global_labels,                           type: :dict
+    option :hostname,                                type: :string
+    option :http_compression,                        type: :bool,   default: true
+    option :ignore_url_patterns,                     type: :list,   default: [], converter: RegexpList.new
+    option :instrument,                              type: :bool,   default: true
+    option :instrumented_rake_tasks,                 type: :list,   default: []
+    option :log_ecs_formatting,                      type: :string, default: 'off'
+    option :log_level,                               type: :int,    default: Logger::INFO, converter: LogLevelMap.new
+    option :log_path,                                type: :string
+    option :metrics_interval,                        type: :int,    default: '30s', converter: Duration.new
+    option :pool_size,                               type: :int,    default: 1
+    option :proxy_address,                           type: :string
+    option :proxy_headers,                           type: :dict
+    option :proxy_password,                          type: :string
+    option :proxy_port,                              type: :int
+    option :proxy_username,                          type: :string
+    option :recording,                               type: :bool,   default: true
+    option :sanitize_field_names,                    type: :list,   default: SANITIZE_FIELD_NAMES_DEFAULT, converter: WildcardPatternList.new
+    option :server_ca_cert_file,                     type: :string
+    option :service_name,                            type: :string
+    option :service_node_name,                       type: :string
+    option :service_version,                         type: :string
+    option :source_lines_error_app_frames,           type: :int,    default: 5
+    option :source_lines_error_library_frames,       type: :int,    default: 0
+    option :source_lines_span_app_frames,            type: :int,    default: 5
+    option :source_lines_span_library_frames,        type: :int,    default: 0
+    option :span_compression_exact_match_duration,   type: :int,    default: '5ms', converter: Duration.new(default_unit: 'ms')
+    option :span_compression_same_kind_max_duration, type: :int,    default: '5ms', converter: Duration.new(default_unit: 'ms')
+    option :span_frames_min_duration,                type: :float,  default: '5ms', converter: Duration.new(default_unit: 'ms')
+    option :stack_trace_limit,                       type: :int,    default: 999_999
+    option :transaction_ignore_urls,                 type: :list,   default: [], converter: WildcardPatternList.new
+    option :transaction_max_spans,                   type: :int,    default: 500
+    option :transaction_sample_rate,                 type: :float,  default: 1.0, converter: RoundFloat.new
+    option :use_elastic_traceparent_header,          type: :bool,   default: true
+    option :verify_server_cert,                      type: :bool,   default: true
 
     # rubocop:enable Layout/LineLength, Layout/ExtraSpacing
     def initialize(options = {})

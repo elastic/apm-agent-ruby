@@ -23,7 +23,8 @@ module ElasticAPM
   # @api private
   class Span
     extend Forwardable
-    include ChildDurations::Methods
+    prepend ChildDurations::Methods
+    prepend CompressionBuffer
 
     # @api private
     class Outcome
@@ -104,13 +105,13 @@ module ElasticAPM
     def start(clock_start = Util.monotonic_micros)
       @timestamp = Util.micros
       @clock_start = clock_start
-      @parent.child_started
+      @parent.child_started(self)
       self
     end
 
     def stop(clock_end = Util.monotonic_micros)
       @duration ||= (clock_end - @clock_start)
-      @parent.child_stopped
+      @parent.child_stopped(self)
       @self_time = @duration - child_durations.duration
 
       self
@@ -125,6 +126,9 @@ module ElasticAPM
       build_stacktrace! if should_build_stacktrace?
       self.original_backtrace = nil # release original
     end
+
+    def child_started(_); end
+    def child_stopped(_); end
 
     def stopped?
       !!duration
@@ -145,6 +149,10 @@ module ElasticAPM
         service: service,
         cloud: cloud
       )
+    end
+
+    def compression_eligible?
+      exit_span && !context.has_propagated? && (outcome.nil? || outcome == Outcome::SUCCESS)
     end
 
     def inspect

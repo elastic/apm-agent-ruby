@@ -19,6 +19,7 @@
 
 require 'elastic_apm/trace_context'
 require 'elastic_apm/child_durations'
+require 'elastic_apm/compression_buffer'
 require 'elastic_apm/span'
 require 'elastic_apm/transaction'
 require 'elastic_apm/span_helpers'
@@ -148,9 +149,9 @@ module ElasticAPM
 
       self.current_transaction = nil
 
-      transaction.done result
+      transaction.done(result)
 
-      enqueue.call transaction
+      enqueue.call(transaction)
 
       update_transaction_metrics(transaction)
 
@@ -244,7 +245,11 @@ module ElasticAPM
 
       span.done
 
-      enqueue.call span
+      enqueue.call(span) unless span.compression_buffered?
+
+      # if child = span.compression_buffered_child
+      #   enqueue.call(child)
+      # end
 
       update_span_metrics(span)
 
