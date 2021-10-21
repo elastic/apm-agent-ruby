@@ -48,6 +48,26 @@ module ElasticAPM
 
           expect(subject.send(:workers)).to eq([nil, nil])
         end
+
+        describe '#flush' do
+          let(:config) { Config.new(pool_size: 2) }
+
+          it 'flush all connections', :mock_intake do
+            subject.start
+
+            subject.submit Transaction.new config: config
+            subject.submit Transaction.new config: config
+            subject.submit Transaction.new config: config
+            subject.submit Transaction.new config: config
+            subject.submit Transaction.new config: config
+            subject.submit Transaction.new config: config
+            subject.flush
+
+            wait_for transactions: 6
+
+            expect(subject.send(:workers).size).to eq(2)
+          end
+        end
       end
 
       describe '#submit' do
