@@ -462,6 +462,11 @@ module ElasticAPM
           end
 
           expect(@intercepted.spans.count).to be(1)
+
+          span, = @intercepted.spans
+          expect(span.composite.count).to eq(2)
+          expect(span.composite.sum).to eq(5)
+          expect(span.composite.compression_strategy).to eq('exact_match')
         end
       end
     end

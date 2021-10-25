@@ -247,9 +247,9 @@ module ElasticAPM
 
       enqueue.call(span) unless span.compression_buffered?
 
-      # if child = span.compression_buffered_child
-      #   enqueue.call(child)
-      # end
+      if child = span.compression_buffer
+        enqueue.call(child)
+      end
 
       update_span_metrics(span)
 

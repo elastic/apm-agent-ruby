@@ -63,6 +63,8 @@ module ElasticAPM
       @framework_name = config.framework_name
       @transaction_max_spans = config.transaction_max_spans
       @default_labels = config.default_labels
+      @span_compression_exact_match_duration = config.span_compression_exact_match_duration
+      @span_compression_same_kind_max_duration = config.span_compression_same_kind_max_duration
 
       @sampled = sampled
       @sample_rate = sample_rate
@@ -104,7 +106,9 @@ module ElasticAPM
       :started_spans,
       :timestamp,
       :trace_context,
-      :transaction_max_spans
+      :transaction_max_spans,
+      :span_compression_exact_match_duration,
+      :span_compression_same_kind_max_duration
     )
 
     alias :collect_metrics? :collect_metrics

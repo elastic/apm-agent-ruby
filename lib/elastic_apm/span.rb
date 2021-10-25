@@ -37,6 +37,20 @@ module ElasticAPM
       end
     end
 
+    # @api private
+    class Composite
+      EXACT_MATCH = 'exact_match'
+      SAME_KIND = 'same_kind'
+
+      def initialize(count: 0, sum: 0, compression_strategy: nil)
+        @count = count
+        @sum = sum
+        @compression_strategy = compression_strategy
+      end
+
+      attr_accessor :count, :sum, :compression_strategy
+    end
+
     DEFAULT_TYPE = 'custom'
 
     # rubocop:disable Metrics/ParameterLists
@@ -79,6 +93,7 @@ module ElasticAPM
 
     attr_accessor(
       :action,
+      :composite,
       :exit_span,
       :name,
       :original_backtrace,
@@ -153,6 +168,10 @@ module ElasticAPM
 
     def compression_eligible?
       exit_span && !context.has_propagated? && (outcome.nil? || outcome == Outcome::SUCCESS)
+    end
+
+    def composite?
+      !!@composite
     end
 
     def inspect
