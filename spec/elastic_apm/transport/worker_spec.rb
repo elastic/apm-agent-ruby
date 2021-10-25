@@ -26,6 +26,7 @@ module ElasticAPM
       let(:queue) { Queue.new }
       let(:serializers) { Serializers.new config }
       let(:filters) { Filters.new config }
+
       subject do
         described_class.new(
           config,
@@ -113,24 +114,6 @@ module ElasticAPM
 
             expect(preparable).to have_received(:prepare_for_serialization!)
           end
-        end
-      end
-
-      describe '#process' do
-        it 'rescues exceptions' do
-          event = Transaction.new(
-            "What's in a name ⁉️",
-            (+'👏').force_encoding('ascii-8bit'),
-            config: config
-          )
-
-          expect(config.logger).to receive(:error).twice.and_call_original
-
-          expect do
-            subject.process event
-          end.to_not raise_error
-
-          subject.connection.flush
         end
       end
     end
