@@ -23,7 +23,7 @@ RSpec.configure do |config|
     @mocked_clock = 123_000
 
     def travel(us)
-      Timecop.freeze(@mocked_time += (us / 1_000_000.0))
+      Timecop.freeze(@mocked_time += (us.to_f / 1_000_000.0))
       @mocked_clock += us
     end
 

@@ -90,8 +90,8 @@ module ElasticAPM
     option :source_lines_error_library_frames,       type: :int,    default: 0
     option :source_lines_span_app_frames,            type: :int,    default: 5
     option :source_lines_span_library_frames,        type: :int,    default: 0
-    option :span_compression_exact_match_duration,   type: :int,    default: '5ms', converter: Duration.new(default_unit: 'ms')
-    option :span_compression_same_kind_max_duration, type: :int,    default: '5ms', converter: Duration.new(default_unit: 'ms')
+    option :span_compression_exact_match_duration,   type: :float,  default: '5ms', converter: Duration.new(default_unit: 'ms')
+    option :span_compression_same_kind_max_duration, type: :float,  default: '5ms', converter: Duration.new(default_unit: 'ms')
     option :span_frames_min_duration,                type: :float,  default: '5ms', converter: Duration.new(default_unit: 'ms')
     option :stack_trace_limit,                       type: :int,    default: 999_999
     option :transaction_ignore_urls,                 type: :list,   default: [], converter: WildcardPatternList.new

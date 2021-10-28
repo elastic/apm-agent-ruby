@@ -37,20 +37,6 @@ module ElasticAPM
       end
     end
 
-    # @api private
-    class Composite
-      EXACT_MATCH = 'exact_match'
-      SAME_KIND = 'same_kind'
-
-      def initialize(count: 0, sum: 0, compression_strategy: nil)
-        @count = count
-        @sum = sum
-        @compression_strategy = compression_strategy
-      end
-
-      attr_accessor :count, :sum, :compression_strategy
-    end
-
     DEFAULT_TYPE = 'custom'
 
     # rubocop:disable Metrics/ParameterLists

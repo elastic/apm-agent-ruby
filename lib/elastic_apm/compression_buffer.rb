@@ -20,6 +20,20 @@
 module ElasticAPM
   # @api private
   module CompressionBuffer
+    # @api private
+    class Composite
+      EXACT_MATCH = 'exact_match'
+      SAME_KIND = 'same_kind'
+
+      def initialize(count: 0, sum: 0, compression_strategy: nil)
+        @count = count
+        @sum = sum
+        @compression_strategy = compression_strategy
+      end
+
+      attr_accessor :count, :sum, :compression_strategy
+    end
+
     def child_stopped(child)
       super(child)
 
@@ -30,7 +44,7 @@ module ElasticAPM
       return buffer(child) if compression_buffer.nil?
       return if compression_buffer.try_compress(child)
 
-      compression_buffer.compression_buffered = false
+      # child.compression_buffered = false
       buffer(child)
     end
 
@@ -61,9 +75,12 @@ module ElasticAPM
     def try_compress_regular(other)
       return false unless is_same_kind(other)
 
+      self.composite = Composite.new(count: 1, sum: duration)
+
       if name == other.name
-        if duration <= transaction.span_compression_exact_match_duration &&
-            other.duration <= transaction.span_compression_exact_match_duration
+        exact_match_duration = transaction.span_compression_exact_match_duration * 1_000_000
+
+        if duration <= exact_match_duration && other.duration <= exact_match_duration
           self.composite.compression_strategy = Composite::EXACT_MATCH
           return true
         end
@@ -93,7 +110,7 @@ module ElasticAPM
 
     def buffer(span)
       self.compression_buffer = span
-      span.compression_buffered = true
+      # span.compression_buffered = true
     end
   end
 end
