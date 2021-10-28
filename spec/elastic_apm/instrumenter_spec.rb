@@ -469,6 +469,65 @@ module ElasticAPM
           expect(span.composite.compression_strategy).to eq('exact_match')
         end
       end
+
+      context 'same kind' do
+        it 'compresses to one composite', :mock_time do
+          with_agent do
+            ElasticAPM.with_transaction do
+              ctx = ElasticAPM::Span::Context.new(destination: { service: { resource: "x" } })
+
+              ElasticAPM.with_span(
+                'first', 'custom', subtype: 'sub', action: 'act',
+                exit_span: true, context: ctx
+              ) { travel 2 }
+
+              ElasticAPM.with_span(
+                'second', 'custom', subtype: 'sub', action: 'act',
+                exit_span: true, context: ctx.dup
+              ) { travel 3 }
+            end
+          end
+
+          expect(@intercepted.spans.count).to be(1)
+
+          span, = @intercepted.spans
+          expect(span.composite.count).to eq(2)
+          expect(span.composite.sum).to eq(5)
+          expect(span.composite.compression_strategy).to eq('same_kind')
+        end
+      end
+
+      context 'exact match AFTER same kind' do
+        it 'compresses to one composite', :mock_time do
+          with_agent do
+            ElasticAPM.with_transaction do
+              ctx = ElasticAPM::Span::Context.new(destination: { service: { resource: "x" } })
+
+              ElasticAPM.with_span(
+                'first', 'custom', subtype: 'sub', action: 'act',
+                exit_span: true, context: ctx
+              ) { travel 2 }
+
+              ElasticAPM.with_span(
+                'second', 'custom', subtype: 'sub', action: 'act',
+                exit_span: true, context: ctx.dup
+              ) { travel 3 }
+
+              ElasticAPM.with_span(
+                'first', 'custom', subtype: 'sub', action: 'act',
+                exit_span: true, context: ctx
+              ) { travel 2 }
+            end
+          end
+
+          expect(@intercepted.spans.count).to be(1)
+
+          span, = @intercepted.spans
+          expect(span.composite.count).to eq(3)
+          expect(span.composite.sum).to eq(7)
+          expect(span.composite.compression_strategy).to eq('same_kind')
+        end
+      end
     end
   end
 end

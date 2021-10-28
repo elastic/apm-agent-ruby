@@ -73,14 +73,14 @@ module ElasticAPM
     end
 
     def try_compress_regular(other)
-      return false unless is_same_kind(other)
+      return false unless same_kind?(other)
 
       self.composite = Composite.new(count: 1, sum: duration)
 
-      if name == other.name
-        exact_match_duration = transaction.span_compression_exact_match_duration * 1_000_000
+      exact_match_duration_us = transaction.span_compression_exact_match_duration * 1_000_000
 
-        if duration <= exact_match_duration && other.duration <= exact_match_duration
+      if name == other.name
+        if duration <= exact_match_duration_us && other.duration <= exact_match_duration_us
           self.composite.compression_strategy = Composite::EXACT_MATCH
           return true
         end
@@ -88,20 +88,32 @@ module ElasticAPM
         return false
       end
 
-      if duration <= transaction.span_compression_same_kind_max_duration &&
-          other.duration <= transaction.span_compression_same_kind_max_duration
+      if duration <= exact_match_duration_us && other.duration <= exact_match_duration_us
         self.composite.compression_strategy = Composite::SAME_KIND
-        self.name = "Calls to #{destination.service.resource}"
+        self.name = "Calls to #{context.destination.service.resource}"
         return true
       end
 
       return false
     end
 
-    def is_same_kind(other)
+    def try_compress_composite(other)
+      exact_match_duration_us = transaction.span_compression_exact_match_duration * 1_000_000
+
+      case composite.compression_strategy
+      when Composite::EXACT_MATCH
+        return same_kind?(other) && name == other.name && other.duration <= exact_match_duration_us
+      when Composite::SAME_KIND
+        return same_kind?(other) && other.duration <= exact_match_duration_us
+      else
+        # raise or log?
+      end
+    end
+
+    def same_kind?(other)
       return false unless type == other.type
       return false unless subtype == other.subtype
-      return false unless context.destination&.service&.resource = other.context.destination&.service&.resource
+      return false unless context.destination&.service&.resource == other.context.destination&.service&.resource
 
       true
     end
