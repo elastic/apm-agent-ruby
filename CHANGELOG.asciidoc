@@ -37,6 +37,7 @@ endif::[]
 
 [float]
 ===== Fixed
+
 - Fixed span context fields for DynamoDB instrumentation {pull}1178[#1178]
 
 [[release-notes-4.4.0]]
