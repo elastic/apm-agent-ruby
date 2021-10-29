@@ -87,8 +87,17 @@ module ElasticAPM
 
               resource = "#{SUBTYPE}/#{bucket_name || 'unknown-bucket'}"
               context = ElasticAPM::Span::Context.new(
+                db: {
+                  instance: config.region,
+                  type: SUBTYPE
+                },
                 destination: {
-                  service: { resource: resource },
+                  address: config.endpoint.host,
+                  port: config.endpoint.port,
+                  service: {
+                    name: SUBTYPE,
+                    type: TYPE,
+                    resource: resource },
                   cloud: { region: region }
                 }
               )
