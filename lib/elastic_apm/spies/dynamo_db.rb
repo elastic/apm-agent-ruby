@@ -22,9 +22,9 @@ module ElasticAPM
   module Spies
     # @api private
     class DynamoDBSpy
-      NAME = 'dynamodb'
       TYPE = 'db'
       SUBTYPE = 'dynamodb'
+      ACTION = 'query'
 
       @@formatted_op_names = Concurrent::Map.new
 
@@ -63,7 +63,12 @@ module ElasticAPM
                   statement: params[:key_condition_expression]
                 },
                 destination: {
-                  service: { resource: "#{SUBTYPE}/#{config.region}" },
+                  address: config.endpoint.host,
+                  port: config.endpoint.port,
+                  service: {
+                      name: SUBTYPE,
+                      type: TYPE,
+                      resource: SUBTYPE },
                   cloud: { region: config.region }
                 }
               )
@@ -72,7 +77,7 @@ module ElasticAPM
                 ElasticAPM::Spies::DynamoDBSpy.span_name(operation_name, params),
                 TYPE,
                 subtype: SUBTYPE,
-                action: operation_name,
+                action: ACTION,
                 context: context
               ) do
                 ElasticAPM::Spies::DynamoDBSpy.without_net_http do
