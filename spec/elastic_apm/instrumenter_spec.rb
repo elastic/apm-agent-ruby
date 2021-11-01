@@ -528,6 +528,69 @@ module ElasticAPM
           expect(span.composite.compression_strategy).to eq('same_kind')
         end
       end
+
+      context 'nested spans' do
+        it 'compresses to one composite', :mock_time do
+          with_agent do
+            ElasticAPM.with_transaction do
+              ctx = ElasticAPM::Span::Context.new(destination: { service: { resource: "x" } })
+
+              ElasticAPM.with_span('base', 'custom') do
+                travel 2
+
+                ElasticAPM.with_span(
+                  'first', 'custom', subtype: 'sub', action: 'act',
+                  exit_span: true, context: ctx.dup
+                ) { travel 2 }
+
+                ElasticAPM.with_span(
+                  'second', 'custom', subtype: 'sub', action: 'act',
+                  exit_span: true, context: ctx.dup
+                ) { travel 2 }
+
+                travel 2
+              end
+            end
+          end
+
+          expect(@intercepted.spans.count).to be(2)
+
+          _, span = @intercepted.spans
+          expect(span.composite.count).to eq(2)
+          expect(span.composite.sum).to eq(4)
+          expect(span.composite.compression_strategy).to eq('same_kind')
+        end
+      end
+
+      context 'with next child ineligible' do
+        it 'reports buffer', :mock_time do
+          with_agent do
+            ElasticAPM.with_transaction do
+              ctx = ElasticAPM::Span::Context.new(destination: { service: { resource: "x" } })
+
+              ElasticAPM.with_span('base', 'custom') do |s|
+                s2 =
+                  ElasticAPM.with_span(
+                    'base', 'custom',
+                    exit_span: true, context: ctx.dup
+                  ) { |s| travel 2; s }
+                expect(s.compression_buffer).to eq(s2)
+
+                ElasticAPM.with_span('base', 'custom') { travel 2 }
+
+                expect(s.compression_buffer).to be_nil
+              end
+            end
+          end
+
+          expect(@intercepted.spans.count).to be(3)
+
+          _, span = @intercepted.spans
+          expect(span.composite.count).to eq(2)
+          expect(span.composite.sum).to eq(4)
+          expect(span.composite.compression_strategy).to eq('same_kind')
+        end
+      end
     end
   end
 end
