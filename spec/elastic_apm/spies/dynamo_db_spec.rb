@@ -37,15 +37,20 @@ module ElasticAPM
       expect(span.name).to eq("DynamoDB DeleteItem test")
       expect(span.type).to eq("db")
       expect(span.subtype).to eq("dynamodb")
-      expect(span.action).to eq(:delete_item)
+      expect(span.action).to eq("query")
       expect(span.outcome).to eq("success")
 
       # span context db
       expect(span.context.db.instance).to eq("us-west-1")
+      expect(span.context.db.statement).to be(nil)
       expect(span.context.db.type).to eq("dynamodb")
 
       # span context destination
-      expect(span.context.destination.service.resource).to eq("dynamodb/us-west-1")
+      expect(span.context.destination.address).to eq("dynamodb.us-west-1.amazonaws.com")
+      expect(span.context.destination.port).to eq(443)
+      expect(span.context.destination.service.name).to eq("dynamodb")
+      expect(span.context.destination.service.type).to eq("db")
+      expect(span.context.destination.service.resource).to eq("dynamodb")
       expect(span.context.destination.cloud.region).to eq("us-west-1")
     end
 

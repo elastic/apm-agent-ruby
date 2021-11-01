@@ -35,6 +35,11 @@ endif::[]
 [[release-notes-4.x]]
 === Ruby Agent version 4.x
 
+[float]
+===== Fixed
+
+- Fixed span context fields for DynamoDB instrumentation {pull}1178[#1178]
+
 [[release-notes-4.4.0]]
 ==== 4.4.0
 
