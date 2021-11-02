@@ -43,10 +43,6 @@ module ElasticAPM
         expect(subject.runtime.name).to eq 'jruby'
         expect(subject.runtime.version).to_not be_nil
       end
-
-      it 'has a version from git' do
-        expect(subject.version).to match(/[a-z0-9]{16}/) # git sha
-      end
     end
   end
 end
