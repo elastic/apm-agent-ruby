@@ -41,7 +41,15 @@ module ElasticAPM
       expect(span.action).to eq('CreateBucket')
       expect(span.outcome).to eq('success')
 
+      # span context db
+      expect(span.context.db.instance).to eq('us-west-1')
+      expect(span.context.db.type).to eq('s3')
+
       # span context destination
+      expect(span.context.destination.address).to eq('s3.us-west-1.amazonaws.com')
+      expect(span.context.destination.port).to eq(443)
+      expect(span.context.destination.service.type).to eq('storage')
+      expect(span.context.destination.service.name).to eq('s3')
       expect(span.context.destination.service.resource).to eq('s3/my-bucket')
       expect(span.context.destination.cloud.region).to eq('us-west-1')
     end

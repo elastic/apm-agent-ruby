@@ -39,6 +39,7 @@ endif::[]
 ===== Fixed
 
 - Fixed span context fields for DynamoDB instrumentation {pull}1178[#1178]
+- Fixed span context fields for S3 instrumentation {pull}1179[#1179]
 
 [[release-notes-4.4.0]]
 ==== 4.4.0
