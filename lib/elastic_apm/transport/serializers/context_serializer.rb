@@ -77,8 +77,7 @@ module ElasticAPM
           return unless socket
 
           {
-            remote_addr: socket.remote_addr,
-            encrypted: socket.encrypted
+            remote_addr: socket.remote_addr
           }
         end
 

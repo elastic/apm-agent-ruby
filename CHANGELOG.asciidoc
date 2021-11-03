@@ -42,6 +42,11 @@ endif::[]
 - Fixed span context fields for S3 instrumentation {pull}1179[#1179]
 - Update user agent info to match spec {pull}1182[#1182]
 
+[float]
+===== Changed
+
+- Stop collecting the field `http.request.socket.encrypted` {pull}1181[#1181]
+
 [[release-notes-4.4.0]]
 ==== 4.4.0
 
