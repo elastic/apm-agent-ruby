@@ -26,10 +26,9 @@ module ElasticAPM
       class Socket
         def initialize(req)
           @remote_addr = req.env['REMOTE_ADDR']
-          @encrypted = req.scheme == 'https'
         end
 
-        attr_reader :remote_addr, :encrypted
+        attr_reader :remote_addr
       end
     end
   end
