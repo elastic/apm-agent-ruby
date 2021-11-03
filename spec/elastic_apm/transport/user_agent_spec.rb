@@ -22,24 +22,56 @@ require 'spec_helper'
 module ElasticAPM
   module Transport
     RSpec.describe UserAgent do
-      REGEXP =
-        %r{
-          \Aelastic-apm-ruby/(\d+\.)+\d([a-z0-9\.]+)?+\s
-          http.rb/(\d+\.)+\d+\s
-          j?ruby/(\d+\.)+\d+\z
-        }x
-
-      let(:config) { Config.new }
       subject { described_class.new(config) }
 
-      describe 'to_s' do
+      context 'when there is no service name or version' do
+        let(:regexp) do
+          %r{
+            \Aelastic-apm-ruby\/(\d+\.)+\d([a-z0-9\.]+)?+
+          }x
+        end
+
+        let(:config) { Config.new }
+
         it 'builds a string' do
-          expect(subject.to_s).to match(REGEXP)
+          expect(subject.to_s).to match(regexp)
         end
 
         it 'handles beta versions' do
           subject = described_class.new(config, version: '12.13.14.beta.20')
-          expect(subject.to_s).to match(REGEXP)
+          expect(subject.to_s).to match(regexp)
+        end
+      end
+
+      context 'when there is service name only' do
+        let(:regexp) do
+          %r{
+            \Aelastic-apm-ruby/(\d+\.)+\d([a-z0-9\.]+)?+\s
+            \(MyService\)
+          }x
+        end
+
+        let(:config) { Config.new(service_name: "MyService") }
+
+        it 'builds a string' do
+          expect(subject.to_s).to match(regexp)
+        end
+      end
+
+      context 'when there is service name and version' do
+        let(:regexp) do
+          %r{
+            \Aelastic-apm-ruby\/(\d+\.)+\d([a-z0-9\.]+)?+\s
+            \(MyService\sv42\)
+          }x
+        end
+
+        let(:config) do
+          Config.new(service_name: "MyService", service_version: 'v42')
+        end
+
+        it 'builds a string' do
+          expect(subject.to_s).to match(regexp)
         end
       end
     end
