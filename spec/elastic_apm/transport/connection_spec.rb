@@ -80,9 +80,7 @@ module ElasticAPM
           headers: {
             'User-Agent' =>
               %r{
-                \Aelastic-apm-ruby/(\d+\.)+\d([a-z0-9\.]+)?+\s
-                http.rb/(\d+\.)+\d+\s
-                j?ruby/(\d+\.)+\d+\z
+                \Aelastic-apm-ruby/(\d+\.)+\d([a-z0-9\.]+)?+
               }x
           }
         )

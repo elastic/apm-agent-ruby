@@ -37,12 +37,18 @@ module ElasticAPM
 
         [
           "elastic-apm-ruby/#{@version}",
-          HTTP::Request::USER_AGENT,
-          [
-            service.runtime.name,
-            service.runtime.version
-          ].join('/')
-        ].join(' ')
+          formatted_service_info(service)
+        ].compact.join(' ')
+      end
+
+      def formatted_service_info(service)
+        if service.name
+          "(#{[
+                service.name,
+                service.version
+               ].compact.join(' ')
+             })"
+        end
       end
     end
   end

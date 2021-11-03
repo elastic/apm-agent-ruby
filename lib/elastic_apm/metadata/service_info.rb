@@ -49,7 +49,7 @@ module ElasticAPM
         )
         @language = Language.new(name: 'ruby', version: RUBY_VERSION)
         @runtime = lookup_runtime
-        @version = @config.service_version || Util.git_sha
+        @version = @config.service_version
       end
 
       attr_reader :name, :node_name, :environment, :agent, :framework,
