@@ -64,7 +64,7 @@ gem 'yarjuf'
 
 # See issue #6547 in the JRuby repo. When that bug is fixed,
 # we can use the latest version of the i18n gem.
-gem 'i18n', '< 1.8.8'
+gem 'i18n', '< 1.8.12'
 
 ## Install Framework
 GITHUB_REPOS = {
