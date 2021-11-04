@@ -28,6 +28,7 @@ require 'elastic_apm/spies/sidekiq'
 
 begin
   require 'active_job'
+  require 'i18n/backend/simple'
 rescue LoadError
 end
 
