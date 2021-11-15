@@ -5,7 +5,7 @@ RUN apt-get update \
     && apt-get install -y gcc \
     && rm -rf /var/lib/apt/lists/*
 
-ENV JRUBY_VERSION 9.3.1.0
+ENV JRUBY_VERSION 9.2.16.0
 ENV JRUBY_SHA256 9199707712c683c525252ccb1de5cb8e75f53b790c5b57a18f6367039ec79553
 
 RUN mkdir -p /opt/jruby \
