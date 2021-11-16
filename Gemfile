@@ -97,8 +97,8 @@ if frameworks_versions.key?('rails')
 end
 
 if RUBY_PLATFORM == 'java'
-# See issue #6547 in the JRuby repo. It is fixed in JRuby 9.3
-gem 'i18n', '< 1.8.8' if JRUBY_VERSION < '9.3'
+  # See issue #6547 in the JRuby repo. It is fixed in JRuby 9.3
+  gem 'i18n', '< 1.8.8' if JRUBY_VERSION < '9.3'
 
   case rails = frameworks_versions['rails']
   when 'main'
