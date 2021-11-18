@@ -116,6 +116,9 @@ module ElasticAPM
         process_cpu_usage =
           current.process_cpu_usage - previous.process_cpu_usage
 
+        # No change / avoid dividing by 0
+        return [0, 0] if system_cpu_total == 0
+
         cpu_usage_pct = system_cpu_usage.to_f / system_cpu_total
         cpu_process_pct = process_cpu_usage.to_f / system_cpu_total
 
