@@ -240,7 +240,7 @@ NOTE: This feature requires APM Server and Kibana >= 7.3.
 <<dynamic-configuration, image:./images/dynamic-config.svg[] >>
 
 |============
-| Environment                | `Config` key   | Default | Example |
+| Environment                | `Config` key   | Default | Example
 | `ELASTIC_APM_CAPTURE_BODY` | `capture_body` | `"off"` | `"all"`
 |============
 
