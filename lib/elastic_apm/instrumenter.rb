@@ -290,23 +290,8 @@ module ElasticAPM
         'transaction.type': transaction.type
       }
 
-      @metrics.get(:transaction).timer(
-        :'transaction.duration.sum.us',
-        tags: tags, reset_on_collect: true
-      ).update(transaction.duration)
-
-      @metrics.get(:transaction).counter(
-        :'transaction.duration.count',
-        tags: tags, reset_on_collect: true
-      ).inc!
-
       return unless transaction.sampled?
       return unless transaction.breakdown_metrics
-
-      @metrics.get(:breakdown).counter(
-        :'transaction.breakdown.count',
-        tags: tags, reset_on_collect: true
-      ).inc!
 
       span_tags = tags.merge('span.type': 'app')
 
