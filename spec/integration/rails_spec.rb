@@ -365,7 +365,6 @@ if enabled
             spans: 2,
             timeout: 10
           )
-          wait_for { transaction_metrics.count >= 2 }
           wait_for { span_metrics.count >= 3 }
 
           span_keys_counts =
