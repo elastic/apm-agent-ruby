@@ -240,7 +240,7 @@ NOTE: This feature requires APM Server and Kibana >= 7.3.
 <<dynamic-configuration, image:./images/dynamic-config.svg[] >>
 
 |============
-| Environment                | `Config` key   | Default | Example |
+| Environment                | `Config` key   | Default | Example
 | `ELASTIC_APM_CAPTURE_BODY` | `capture_body` | `"off"` | `"all"`
 |============
 
@@ -502,7 +502,7 @@ Use this option to ignore certain URL patterns such as healthchecks or admin sec
 | `ELASTIC_APM_INSTRUMENTED_RAKE_TASKS` | `instrumented_rake_tasks` | `[]`    | `['my_task']`
 |============
 
-Elastic APM can instrument your Rake tasks. Theis is an opt-in field, as they are used are for a multitude of things.
+Elastic APM can instrument your Rake tasks. This is an opt-in field, as they are used are for a multitude of things.
 
 [float]
 [[config-log-ecs-formatting]]
