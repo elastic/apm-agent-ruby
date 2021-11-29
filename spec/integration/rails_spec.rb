@@ -365,22 +365,7 @@ if enabled
             spans: 2,
             timeout: 10
           )
-          wait_for { transaction_metrics.count >= 2 }
           wait_for { span_metrics.count >= 3 }
-
-          transaction_keys_counts =
-            transaction_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
-              keys[set['samples'].keys] += 1
-            end
-
-          expect(
-            transaction_keys_counts[
-              %w[transaction.duration.sum.us transaction.duration.count]
-            ]
-          ).to be >= 1
-          expect(
-            transaction_keys_counts[%w[transaction.breakdown.count]]
-          ).to be >= 1
 
           span_keys_counts =
             span_metrics.each_with_object(Hash.new { 0 }) do |set, keys|
