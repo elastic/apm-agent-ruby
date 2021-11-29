@@ -150,16 +150,6 @@ class EventCollector
     ) do |set, totals|
       next unless set['transaction']
 
-      samples = set['samples']
-
-      if (count = samples['transaction.duration.count'])
-        next totals[:transaction_durations] += count['value']
-      end
-
-      if (count = samples['transaction.breakdown.count'])
-        next totals[:transaction_breakdowns] += count['value']
-      end
-
       count = set['samples']['span.self_time.count']
 
       case set.dig('span', 'type')
