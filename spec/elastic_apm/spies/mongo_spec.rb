@@ -117,7 +117,7 @@ module ElasticAPM
       end
       let(:subscriber) { Spies::MongoSpy::Subscriber.new }
 
-      it 'captures command properties' do
+      it 'handles multiple threads' do
         thread_count = 1000
 
         span = with_agent do
