@@ -131,6 +131,8 @@ module ElasticAPM
           end.each(&:join)
         end
 
+        sleep 0.5
+
         expect(@intercepted.spans.length).to be(thread_count)
       end
     end
