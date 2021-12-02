@@ -128,10 +128,8 @@ module ElasticAPM
                 subscriber.succeeded(event)
               end
             end
-          end.each(&:join)
+          end.map { |t| t.join(1) }
         end
-
-        sleep 0.5
 
         expect(@intercepted.spans.length).to be(thread_count)
       end
