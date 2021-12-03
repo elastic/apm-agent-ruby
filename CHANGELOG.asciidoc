@@ -35,17 +35,21 @@ endif::[]
 [[release-notes-4.x]]
 === Ruby Agent version 4.x
 
-[float]
-===== Fixed
-
-- Fixed span context fields for DynamoDB instrumentation {pull}1178[#1178]
-- Fixed span context fields for S3 instrumentation {pull}1179[#1179]
-- Update user agent info to match spec {pull}1182[#1182]
+[[release-notes-4.5.0]]
+==== 4.5.0
 
 [float]
 ===== Changed
 
 - Stop collecting the field `http.request.socket.encrypted` {pull}1181[#1181]
+
+[float]
+===== Fixed
+
+- Fixed MongoDB spy thread safety {pull}1202[#1202]
+- Fixed span context fields for DynamoDB instrumentation {pull}1178[#1178]
+- Fixed span context fields for S3 instrumentation {pull}1179[#1179]
+- Update user agent info to match spec {pull}1182[#1182]
 
 [[release-notes-4.4.0]]
 ==== 4.4.0
