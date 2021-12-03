@@ -117,7 +117,7 @@ module ElasticAPM
       end
       let(:subscriber) { Spies::MongoSpy::Subscriber.new }
 
-      it 'handles multiple threads' do
+      it 'handles multiple threads', if: !defined?(JRUBY_VERSION) do
         thread_count = 1000
 
         span = with_agent do
@@ -128,7 +128,7 @@ module ElasticAPM
                 subscriber.succeeded(event)
               end
             end
-          end.map { |t| t.join(1) }
+          end.map(&:join)
         end
 
         expect(@intercepted.spans.length).to be(thread_count)
