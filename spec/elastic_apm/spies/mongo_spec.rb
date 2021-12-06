@@ -106,23 +106,22 @@ module ElasticAPM
       end
     end
 
-    context 'thread safe', :intercept do
-      let(:event) do
-        double('event',
-          command: { 'find' => 'testing',
-                     'filter' => { 'a' => 'bc' } },
-          command_name: 'find',
-          database_name: 'elastic-apm-test',
-          operation_id: 456)
-      end
+    context 'requests in different threads', :intercept do
       let(:subscriber) { Spies::MongoSpy::Subscriber.new }
 
-      it 'handles multiple threads', if: !defined?(JRUBY_VERSION) do
-        thread_count = 1000
+      it 'captures all operations' do
+        thread_count = 50
 
-        span = with_agent do
+        with_agent do
           Array.new(thread_count).map do
             Thread.new do |t|
+              event = double('event',
+                     command: { 'find' => 'testing',
+                                'filter' => { 'a' => 'bc' } },
+                     command_name: 'find',
+                     database_name: 'elastic-apm-test',
+                     operation_id: rand(thread_count+1))
+
               ElasticAPM.with_transaction do
                 subscriber.started(event)
                 subscriber.succeeded(event)

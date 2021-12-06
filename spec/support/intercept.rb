@@ -20,10 +20,10 @@
 RSpec.configure do |config|
   class Intercept
     def initialize
-      @transactions = []
-      @spans = []
-      @errors = []
-      @metricsets = []
+      @transactions = Concurrent::Array.new
+      @spans = Concurrent::Array.new
+      @errors = Concurrent::Array.new
+      @metricsets = Concurrent::Array.new
 
       @span_types = JSON.parse(File.read('./spec/fixtures/span_types.json'))
     end
