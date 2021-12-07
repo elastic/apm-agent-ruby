@@ -37,14 +37,8 @@ module ElasticAPM
 
         EVENT_KEY = :__elastic_instrumenter_mongo_events_key
 
-        class Collection
-          def events
-            Thread.current[EVENT_KEY] ||= {}
-          end
-        end
-
-        def initialize
-          @collection = Collection.new
+        def events
+          Thread.current[EVENT_KEY] ||= {}
         end
 
         def started(event)
@@ -97,11 +91,11 @@ module ElasticAPM
               context: build_context(event)
             )
 
-          @collection.events[event.operation_id] = span
+          events[event.operation_id] = span
         end
 
         def pop_event(event)
-          span = @collection.events.delete(event.operation_id)
+          span = events.delete(event.operation_id)
           return unless (curr = ElasticAPM.current_span)
 
           curr == span && ElasticAPM.end_span
