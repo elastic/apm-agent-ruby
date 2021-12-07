@@ -98,7 +98,6 @@ module ElasticAPM
           span = events.delete(event.operation_id)
           return unless (curr = ElasticAPM.current_span)
 
-          curr == span && ElasticAPM.end_span(span)
         end
 
         def build_context(event)
