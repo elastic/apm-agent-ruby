@@ -96,7 +96,7 @@ module ElasticAPM
 
         def pop_event(event)
           span = events.delete(event.operation_id)
-          return unless (curr = ElasticAPM.current_span)
+          ElasticAPM.end_span(span)
 
         end
 
