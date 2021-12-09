@@ -68,26 +68,25 @@ module ElasticAPM
         private
 
         def push_event(event)
-          @mutex.synchronize do
-            return unless ElasticAPM.current_transaction
-            # Some MongoDB commands are not on collections but rather are db
-            # admin commands. For these commands, the value at the `command_name`
-            # key is the integer 1.
-            # For getMore commands, the value at `command_name` is the cursor id
-            # and the collection name is at the key `collection`
-            collection =
-              if event.command[event.command_name] == 1 ||
-                 event.command[event.command_name].is_a?(BSON::Int64)
-                event.command[:collection]
-              else
-                event.command[event.command_name]
-              end
+          return unless ElasticAPM.current_transaction
+          # Some MongoDB commands are not on collections but rather are db
+          # admin commands. For these commands, the value at the `command_name`
+          # key is the integer 1.
+          # For getMore commands, the value at `command_name` is the cursor id
+          # and the collection name is at the key `collection`
+          collection =
+            if event.command[event.command_name] == 1 ||
+              event.command[event.command_name].is_a?(BSON::Int64)
+              event.command[:collection]
+            else
+              event.command[event.command_name]
+            end
 
-            name = [event.database_name,
-                    collection,
-                    event.command_name].compact.join('.')
+          name = [event.database_name,
+                  collection,
+                  event.command_name].compact.join('.')
 
-            span =
+          span =
               ElasticAPM.start_span(
                 name,
                 TYPE,
@@ -96,16 +95,13 @@ module ElasticAPM
                 context: build_context(event)
               )
 
-            events << span
-          end
+          events << span
         end
 
         def pop_event(event)
-          @mutex.synchronize do
-            return unless (curr = ElasticAPM.current_span)
+          return unless (curr = ElasticAPM.current_span)
 
-            curr == events[-1] && ElasticAPM.end_span(events.pop)
-          end
+          curr == events[-1] && ElasticAPM.end_span(events.pop)
         end
 
         def build_context(event)
