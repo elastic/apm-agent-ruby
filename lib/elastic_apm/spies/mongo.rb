@@ -41,10 +41,6 @@ module ElasticAPM
           Thread.current[EVENT_KEY] ||= []
         end
 
-        def initialize
-          @mutex = Mutex.new
-        end
-
         def started(event)
           push_event(event)
         end
@@ -87,13 +83,13 @@ module ElasticAPM
                   event.command_name].compact.join('.')
 
           span =
-              ElasticAPM.start_span(
-                name,
-                TYPE,
-                subtype: SUBTYPE,
-                action: ACTION,
-                context: build_context(event)
-              )
+            ElasticAPM.start_span(
+              name,
+              TYPE,
+              subtype: SUBTYPE,
+              action: ACTION,
+              context: build_context(event)
+            )
 
           events << span
         end
