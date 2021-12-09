@@ -38,7 +38,7 @@ module ElasticAPM
         EVENT_KEY = :__elastic_instrumenter_mongo_events_key
 
         def events
-          Thread.current[EVENT_KEY] ||= {}
+          Thread.current[EVENT_KEY] ||= []
         end
 
         def started(event)
@@ -91,14 +91,13 @@ module ElasticAPM
               context: build_context(event)
             )
 
-          events[event.operation_id] = span
+          events << span
         end
 
         def pop_event(event)
-          span = events.delete(event.operation_id)
           return unless (curr = ElasticAPM.current_span)
 
-          curr == span && ElasticAPM.end_span
+          curr == events[-1] && ElasticAPM.end_span(events.pop)
         end
 
         def build_context(event)
