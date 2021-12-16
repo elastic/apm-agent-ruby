@@ -133,5 +133,33 @@ module ElasticAPM
         expect(@intercepted.spans.length).to be(thread_count)
       end
     end
+
+    context 'forking', :intercept do
+      let(:event) do
+        double('event',
+          command: { 'find' => 'testing',
+                     'filter' => { 'a' => 'bc' } },
+          command_name: 'find',
+          database_name: 'elastic-apm-test',
+          operation_id: 456)
+      end
+      let(:subscriber) { Spies::MongoSpy::Subscriber.new }
+
+      it 'clears the thread local variables' do
+        with_agent do
+          ElasticAPM.with_transaction do
+            subscriber.started(event)
+            expect(Thread.current[Spies::MongoSpy::Subscriber::EVENT_KEY][0]).to be_a(Span)
+            fork do
+              ElasticAPM.agent.detect_forking!
+              expect(Thread.current[Spies::MongoSpy::Subscriber::EVENT_KEY]).to be_empty
+            end
+            subscriber.succeeded(event)
+          end
+        end
+
+        expect(@intercepted.spans.size).to be 1
+      end
+    end
   end
 end
