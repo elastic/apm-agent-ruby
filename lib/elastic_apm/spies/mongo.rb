@@ -38,7 +38,7 @@ module ElasticAPM
         EVENT_KEY = :__elastic_instrumenter_mongo_events_key
 
         def events
-          Thread.current[EVENT_KEY] ||= {}
+          Thread.current[EVENT_KEY] ||= []
         end
 
         def started(event)
@@ -72,7 +72,7 @@ module ElasticAPM
           # and the collection name is at the key `collection`
           collection =
             if event.command[event.command_name] == 1 ||
-               event.command[event.command_name].is_a?(BSON::Int64)
+              event.command[event.command_name].is_a?(BSON::Int64)
               event.command[:collection]
             else
               event.command[event.command_name]
@@ -91,14 +91,13 @@ module ElasticAPM
               context: build_context(event)
             )
 
-          events[event.operation_id] = span
+          events << span
         end
 
         def pop_event(event)
-          span = events.delete(event.operation_id)
           return unless (curr = ElasticAPM.current_span)
 
-          curr == span && ElasticAPM.end_span
+          curr == events[-1] && ElasticAPM.end_span(events.pop)
         end
 
         def build_context(event)
