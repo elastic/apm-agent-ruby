@@ -150,15 +150,16 @@ module ElasticAPM
           ElasticAPM.with_transaction do
             subscriber.started(event)
             expect(Thread.current[Spies::MongoSpy::Subscriber::EVENT_KEY][0]).to be_a(Span)
-            fork do
-              ElasticAPM.agent.detect_forking!
-              expect(Thread.current[Spies::MongoSpy::Subscriber::EVENT_KEY]).to be_empty
-            end
+
+            # Simulate the following happening in a new fork
+            allow(Process).to receive(:pid).and_return(1)
+            ElasticAPM.agent.detect_forking!
+            expect(Thread.current[Spies::MongoSpy::Subscriber::EVENT_KEY]).to be_empty
             subscriber.succeeded(event)
+
+            expect(@intercepted.spans.length).to be 0
           end
         end
-
-        expect(@intercepted.spans.size).to be 1
       end
     end
   end
