@@ -42,7 +42,7 @@ pipeline {
     issueCommentTrigger("(${obltGitHubComments()}|^run benchmark tests)")
   }
   parameters {
-    booleanParam(name: 'Run_As_Master_Branch', defaultValue: false, description: 'Allow to run any steps on a PR, some steps normally only run on master branch.')
+    booleanParam(name: 'Run_As_Main_Branch', defaultValue: false, description: 'Allow to run any steps on a PR, some steps normally only run on main branch.')
     booleanParam(name: 'bench_ci', defaultValue: true, description: 'Enable run benchmarks.')
   }
   stages {
@@ -71,7 +71,7 @@ pipeline {
           expression { return env.ONLY_DOCS == "false" }
           anyOf {
             not { changeRequest() }
-            expression { return params.Run_As_Master_Branch }
+            expression { return params.Run_As_Main_Branch }
           }
         }
       }
@@ -115,11 +115,11 @@ pipeline {
             }
           }
         }
-        stage('Master Tests frameworks') {
+        stage('Main Tests frameworks') {
           options { skipDefaultCheckout() }
           steps {
-            catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: "The tests for the master framework have failed. Let's warn instead.") {
-              runTests('.ci/.jenkins_master_framework.yml')
+            catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: "The tests for the main framework have failed. Let's warn instead.") {
+              runTests('.ci/.jenkins_main_framework.yml')
             }
           }
         }
@@ -129,7 +129,7 @@ pipeline {
             beforeAgent true
             anyOf {
               changeRequest()
-              expression { return !params.Run_As_Master_Branch }
+              expression { return !params.Run_As_Main_Branch }
             }
           }
           steps {
@@ -150,11 +150,11 @@ pipeline {
         beforeAgent true
         allOf {
           anyOf {
-            branch 'master'
+            branch 'main'
             branch "\\d+\\.\\d+"
             branch "v\\d?"
             tag pattern: 'v\\d+.*', comparator: "REGEXP"
-            expression { return params.Run_As_Master_Branch }
+            expression { return params.Run_As_Main_Branch }
             expression { return env.GITHUB_COMMENT?.contains('benchmark tests') }
           }
           expression { return params.bench_ci }
@@ -261,7 +261,7 @@ pipeline {
                   branch: 'main')
               // It's required to transform the tag value to the gem version
               sh script: ".ci/bump-version.sh ${env.VERSION}", label: 'Bump version'
-              // The opbeans pipeline will trigger a release for the master branch
+              // The opbeans pipeline will trigger a release for the main branch
               gitPush()
               // The opbeans pipeline will trigger a release for the release tag
               gitCreateTag(tag: "${env.BRANCH_NAME}")
