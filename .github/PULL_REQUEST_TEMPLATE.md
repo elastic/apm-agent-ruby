@@ -34,16 +34,16 @@ Add a checklist of things that are required to be reviewed in order to have the 
 List here all the items you have verified BEFORE sending this PR. Please DO NOT remove any item, striking through those that do not apply. (Just in case, strikethrough uses two tildes. ~~Scratch this.~~)
 -->
 
-- [ ] I have signed the [Contributor License Agreement](https://www.elastic.co/contributor-agreement/). 
+- [ ] I have signed the [Contributor License Agreement](https://www.elastic.co/contributor-agreement/).
 - [ ] My code follows the style guidelines of this project (See `.rubocop.yml`)
-- [ ] I have rebased my changes on top of the latest master branch
+- [ ] I have rebased my changes on top of the latest main branch
 <!--
-Update your local repository with the most recent code from the main repo, and rebase your branch on top of the latest master branch. We prefer your initial changes to be squashed into a single commit. Later, if we ask you to make changes, add them as separate commits. This makes them easier to review.
+Update your local repository with the most recent code from the main repo, and rebase your branch on top of the latest main branch. We prefer your initial changes to be squashed into a single commit. Later, if we ask you to make changes, add them as separate commits. This makes them easier to review.
 -->
 - [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing [**unit** tests](https://github.com/elastic/apm-agent-ruby/blob/master/CONTRIBUTING.md#testing) pass locally with my changes
+- [ ] New and existing [**unit** tests](https://github.com/elastic/apm-agent-ruby/blob/main/CONTRIBUTING.md#testing) pass locally with my changes
 <!--
-Run the test suite to make sure that nothing is broken. See https://github.com/elastic/apm-agent-ruby/blob/master/CONTRIBUTING.md#testing for details.
+Run the test suite to make sure that nothing is broken. See https://github.com/elastic/apm-agent-ruby/blob/main/CONTRIBUTING.md#testing for details.
 -->
 - [ ] I have made corresponding changes to the documentation
 - [ ] I have updated [CHANGELOG.asciidoc](CHANGELOG.asciidoc)
