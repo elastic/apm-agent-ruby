@@ -20,7 +20,7 @@ or that there are particular issues that you should know about before implementi
 
 ### Workflow
 
-All feature development and most bug fixes hit the master branch first.
+All feature development and most bug fixes hit the main branch first.
 Pull requests should be reviewed by someone with commit access.
 Once approved, the author of the pull request,
 or reviewer if the author does not have commit access,
@@ -42,7 +42,7 @@ To release a new version:
 
 1. Update `VERSION` in `lib/elastic_apm/version.rb` according to the changes (major, minor, patch).
 1. Update `CHANGELOG.md` to reflect the new version – change _Unreleased_ section to _Version (release date)_.
-1. For Majors: Add a new row to the EOL table in `docs/upgrading.asciidoc`. The EOL date is the release date plus 18 months. 
+1. For Majors: Add a new row to the EOL table in `docs/upgrading.asciidoc`. The EOL date is the release date plus 18 months.
 1. Make a new commit with the changes above, with a message in the style of `vX.X.X`.
 1. Run `rake release`. This will...
     1. Tag the current commit as new version.
