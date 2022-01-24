@@ -334,7 +334,7 @@ Labels are basic key-value pairs that are indexed in your Elasticsearch database
 The value can be a string, nil, numeric or boolean.
 
 TIP: Before using custom labels, ensure you understand the different types of
-{apm-overview-ref-v}/metadata.html[metadata] that are available.
+{apm-guide-ref}/data-model-metadata.html[metadata] that are available.
 
 [source,ruby]
 ----
@@ -361,7 +361,7 @@ Use this to further specify a context that will help you track or diagnose what'
 going on inside your app.
 
 TIP: Before using custom context, ensure you understand the different types of
-{apm-overview-ref-v}/metadata.html[metadata] that are available.
+{apm-guide-ref}/data-model-metadata.html[metadata] that are available.
 
 If called several times during a transaction the custom context will be destructively
 merged with `merge!`.
