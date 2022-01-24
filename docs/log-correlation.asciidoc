@@ -118,4 +118,4 @@ PUT _ingest/pipeline/extract_trace_id
 }
 ----
 
-Please see {apm-overview-ref-v}/observability-integrations.html[Observability integrations] for more information.
+Please see {apm-guide-ref}/log-correlation.html[Observability integrations] for more information.

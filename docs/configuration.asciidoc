@@ -170,7 +170,7 @@ WARNING: Secret tokens only provide any real security if your APM server uses TL
 |============
 
 This base64-encoded string is used to ensure that only your agents can send data to your APM server.
-The API key must be created using the {apm-server-ref-v}/api-key.html[APM server command-line tool]. 
+The API key must be created using the {apm-guide-ref}/api-key.html[APM server command-line tool]. 
 
 WARNING: API keys only provide any real security if your APM server uses TLS.
 
