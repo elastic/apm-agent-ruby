@@ -44,8 +44,8 @@ gem 'faraday', require: nil
 gem 'graphql', require: nil
 if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.5'
   gem 'google-protobuf', '>= 3.19.2'
+  gem 'grpc'
 end
-gem 'grpc' if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.5'
 gem 'json'
 gem 'json-schema', require: nil
 gem 'mongo', require: nil
