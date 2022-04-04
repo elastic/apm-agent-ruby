@@ -38,7 +38,7 @@ module ElasticAPM
       end
 
       def self.get_topic(params)
-        return '<PHONE_NUMBER>' if params[:phone_number]
+        return '[PHONENUMBER]' if params[:phone_number]
 
         last_after_slash_or_colon(
           params[:topic_arn] || params[:target_arn]
