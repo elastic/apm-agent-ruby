@@ -183,6 +183,15 @@ module ElasticAPM
         config.logger.info 'MockLog'
       end
 
+      it 'overrides the logger if given a log_path' do
+        Tempfile.open 'elastic-apm' do |file|
+          logger = double(Logger)
+          config = Config.new logger: logger, log_path: file.path
+          config.logger.info 'This test ran'
+          expect(file.read).to match(/This test ran$/)
+        end
+      end
+
       describe 'log level' do
         it 'can accept integers' do
           config = Config.new log_level: Logger::FATAL
