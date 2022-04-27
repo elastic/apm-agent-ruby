@@ -1,5 +1,5 @@
 repos:
--   repo: git://github.com/pre-commit/pre-commit-hooks
+-   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.2.3
     hooks:
     -   id: check-case-conflict
@@ -9,7 +9,7 @@ repos:
     -   id: check-yaml
     -   id: check-xml
 
--   repo: git@github.com:elastic/apm-pipeline-library
+-   repo: https://github.com/elastic/apm-pipeline-library
     rev: current
     hooks:
     -   id: check-bash-syntax
