@@ -36,8 +36,6 @@ module ElasticAPM
     class Registry
       include Logging
 
-      TIMEOUT_INTERVAL = 5 # seconds
-
       def initialize(config, &block)
         @config = config
         @callback = block
@@ -76,8 +74,7 @@ module ElasticAPM
 
         @timer_task = Concurrent::TimerTask.execute(
           run_now: true,
-          execution_interval: config.metrics_interval,
-          timeout_interval: TIMEOUT_INTERVAL
+          execution_interval: config.metrics_interval
         ) do
           begin
             debug 'Collecting metrics'
