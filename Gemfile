@@ -50,14 +50,13 @@ gem 'json'
 gem 'json-schema', require: nil
 gem 'mongo', require: nil
 gem 'opentracing', require: nil
-gem 'rake', require: nil
+gem 'rake', '>= 13.0', require: nil
 gem 'resque', require: nil
 gem 'sequel', require: nil
 gem 'shoryuken', require: nil
 gem 'sidekiq', require: nil
 gem 'simplecov', require: false
 gem 'simplecov-cobertura', require: false
-gem 'sneakers', '~> 2.12', require: nil
 gem 'sucker_punch', '~> 2.0', require: nil
 gem 'yard', require: nil
 gem 'yarjuf'
