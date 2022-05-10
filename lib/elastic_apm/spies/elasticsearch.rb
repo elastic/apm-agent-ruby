@@ -80,15 +80,23 @@ module ElasticAPM
 
       def install
         if defined?(::ElasticSearch::Transport::Client)
-          ::Elasticsearch::Transport::Client.prepend(Ext)
+          ::ElasticSearch::Transport::Client.prepend(Ext)
         elsif defined?(::Elastic::Transport::Client)
           ::Elastic::Transport::Client.prepend(Ext)
+        elsif defined?(::Elasticsearch::Transport::Client)
+          ::Elasticsearch::Transport::Client.prepend(Ext)
         end
       end
     end
 
     register(
       'Elasticsearch::Transport::Client',
+      'elasticsearch-transport',
+      ElasticsearchSpy.new
+    )
+
+    register(
+      'ElasticSearch::Transport::Client',
       'elasticsearch-transport',
       ElasticsearchSpy.new
     )
