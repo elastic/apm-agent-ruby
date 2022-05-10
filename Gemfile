@@ -46,7 +46,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.5'
   gem 'google-protobuf', '< 3.12'
 end
 gem 'grpc' if !defined?(JRUBY_VERSION) && RUBY_VERSION < '3.0'
-gem 'json'
+gem 'json', '2.5.1'
 gem 'json-schema', require: nil
 gem 'mongo', require: nil
 gem 'opentracing', require: nil
