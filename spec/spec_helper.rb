@@ -36,7 +36,6 @@ end
 
 require "webmock/rspec"
 require "elastic-apm"
-require "json/pure"
 
 RSpec.configure do |config|
   config.order = :random
