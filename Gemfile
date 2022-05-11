@@ -57,7 +57,7 @@ gem 'shoryuken', require: nil
 gem 'sidekiq', require: nil
 gem 'simplecov', require: false
 gem 'simplecov-cobertura', require: false
-gem 'sneakers', require: nil
+gem 'sneakers', github: 'jondot/sneakers', ref: 'd761dfe1493', require: nil
 gem 'sucker_punch', '~> 2.0', require: nil
 gem 'yard', require: nil
 gem 'yarjuf'
