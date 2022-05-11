@@ -57,7 +57,6 @@ gem 'shoryuken', require: nil
 gem 'sidekiq', require: nil
 gem 'simplecov', require: false
 gem 'simplecov-cobertura', require: false
-gem 'sneakers', github: 'jondot/sneakers', ref: 'd761dfe1493', require: nil
 gem 'sucker_punch', '~> 2.0', require: nil
 gem 'yard', require: nil
 gem 'yarjuf'
@@ -114,6 +113,11 @@ elsif frameworks_versions['rails'] =~ /^(4|5)/
   gem 'sqlite3', '~> 1.3.6'
 else
   gem 'sqlite3'
+end
+
+# current sneakers only supports >=2.5.0
+if Gem::Version.create(RUBY_VERSION) >= Gem::Version.create('2.5.0')
+  gem 'sneakers', github: 'jondot/sneakers', ref: 'd761dfe1493', require: nil
 end
 
 group :bench do
