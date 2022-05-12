@@ -46,6 +46,7 @@ endif::[]
 ===== Fixed
 
 - Fixed dependencies to allow CI to build successfully {pull}1259[#1259]
+- Fixed warnings related to TimeTask timeouts {pull}1255[#1255]
 
 [[release-notes-4.5.0]]
 ==== 4.5.0
