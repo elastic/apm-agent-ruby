@@ -23,9 +23,8 @@ module ElasticAPM
   class Config
     RSpec.describe(WildcardPatternList::WildcardPattern) do
       subject { described_class.new(pattern) }
-      json_file = File.read("spec/fixtures/wildcard_matcher_tests.json", :encoding => 'utf-8')
       JSON.parse(
-        json_file
+        File.read("spec/fixtures/wildcard_matcher_tests.json", :encoding => 'utf-8')
       ).each do |category, group|
         context(category) do
           group.each do |pattern, examples|
