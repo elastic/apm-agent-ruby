@@ -35,6 +35,14 @@ endif::[]
 [[release-notes-4.x]]
 === Ruby Agent version 4.x
 
+[[release-notes-4.5.1]]
+==== 4.5.1
+
+[float]
+===== Changed
+
+- Update elasticsearch spy to use new transport gem name {pull}1257[#1257]
+
 [[release-notes-4.5.0]]
 ==== 4.5.0
 
