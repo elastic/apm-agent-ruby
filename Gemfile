@@ -46,18 +46,17 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.5'
   gem 'google-protobuf', '< 3.12'
 end
 gem 'grpc' if !defined?(JRUBY_VERSION) && RUBY_VERSION < '3.0'
-gem 'json'
+gem 'json', '2.5.1' # note: can be unpinned when https://github.com/flori/json/issues/495 is resolved
 gem 'json-schema', require: nil
 gem 'mongo', require: nil
 gem 'opentracing', require: nil
-gem 'rake', require: nil
+gem 'rake', '>= 13.0', require: nil
 gem 'resque', require: nil
 gem 'sequel', require: nil
 gem 'shoryuken', require: nil
 gem 'sidekiq', require: nil
 gem 'simplecov', require: false
 gem 'simplecov-cobertura', require: false
-gem 'sneakers', '~> 2.12', require: nil
 gem 'sucker_punch', '~> 2.0', require: nil
 gem 'yard', require: nil
 gem 'yarjuf'
@@ -114,6 +113,11 @@ elsif frameworks_versions['rails'] =~ /^(4|5)/
   gem 'sqlite3', '~> 1.3.6'
 else
   gem 'sqlite3'
+end
+
+# current sneakers only supports >=2.5.0
+if Gem::Version.create(RUBY_VERSION) >= Gem::Version.create('2.5.0')
+  gem 'sneakers', github: 'jondot/sneakers', ref: 'd761dfe1493', require: nil
 end
 
 group :bench do

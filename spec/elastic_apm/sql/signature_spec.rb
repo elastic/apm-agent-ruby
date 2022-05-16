@@ -25,7 +25,7 @@ module ElasticAPM
     RSpec.describe Signature do
       describe 'examples:' do
         examples =
-          JSON.parse(File.read('spec/fixtures/sql_signature_examples.json'))
+          JSON.parse(File.read('spec/fixtures/sql_signature_examples.json', :encoding => 'utf-8'))
 
         examples.each_with_index.each do |info, i|
           desc = "0#{i}"[-2..-1] + ': '

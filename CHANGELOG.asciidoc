@@ -43,6 +43,10 @@ endif::[]
 
 - Update elasticsearch spy to use new transport gem name {pull}1257[#1257]
 
+===== Fixed
+
+- Fixed dependencies to allow CI to build successfully {pull}1259[#1259]
+
 [[release-notes-4.5.0]]
 ==== 4.5.0
 
