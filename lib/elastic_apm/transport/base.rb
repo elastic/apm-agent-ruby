@@ -35,7 +35,6 @@ module ElasticAPM
       include Logging
 
       WATCHER_EXECUTION_INTERVAL = 5
-      WATCHER_TIMEOUT_INTERVAL = 4
       WORKER_JOIN_TIMEOUT = 5
 
       def initialize(config)
@@ -112,8 +111,7 @@ module ElasticAPM
 
       def create_watcher
         @watcher = Concurrent::TimerTask.execute(
-          execution_interval: WATCHER_EXECUTION_INTERVAL,
-          timeout_interval: WATCHER_TIMEOUT_INTERVAL
+          execution_interval: WATCHER_EXECUTION_INTERVAL
         ) { ensure_worker_count }
       end
 
