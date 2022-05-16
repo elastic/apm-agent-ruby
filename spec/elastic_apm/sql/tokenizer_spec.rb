@@ -24,8 +24,9 @@ module ElasticAPM
   module Sql
     RSpec.describe Tokenizer do
       describe 'examples:' do
+        file_contents = File.read('spec/fixtures/sql_token_examples.json', :encoding => 'utf-8')
         examples =
-          JSON.parse(File.read('spec/fixtures/sql_token_examples.json'))
+          JSON.parse(file_contents)
 
         examples.each do |info|
           desc = info['name']
