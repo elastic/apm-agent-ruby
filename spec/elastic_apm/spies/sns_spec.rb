@@ -100,9 +100,9 @@ module ElasticAPM
 
           span = @intercepted.spans.first
 
-          expect(span.name).to eq('SNS PUBLISH to <PHONE_NUMBER>')
-          expect(span.context.destination.service.resource).to eq('sns/<PHONE_NUMBER>')
-          expect(span.context.message.queue_name).to eq('<PHONE_NUMBER>')
+          expect(span.name).to eq('SNS PUBLISH to [PHONENUMBER]')
+          expect(span.context.destination.service.resource).to eq('sns/[PHONENUMBER]')
+          expect(span.context.message.queue_name).to eq('[PHONENUMBER]')
         end
       end
 

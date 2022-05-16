@@ -42,6 +42,7 @@ endif::[]
 ===== Changed
 
 - Update elasticsearch spy to use new transport gem name {pull}1257[#1257]
+- Standardize placeholder for phone numbers as [PHONENUMBER] per https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-aws.md {pull}1246[#1246]
 
 ===== Fixed
 
