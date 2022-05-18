@@ -201,6 +201,13 @@ module ElasticAPM
       end
 
       describe 'ecs logging' do
+        context "when old config option is used, with 'override'" do
+          it 'builds an EcsLogging::Logger' do
+            config = Config.new log_ecs_formatting: 'override'
+            expect(config.logger).to be_a(::EcsLogging::Logger)
+          end
+        end
+
         context "when log_ecs_reformatting is 'override'" do
           it 'builds an EcsLogging::Logger' do
             config = Config.new log_ecs_reformatting: 'override'
