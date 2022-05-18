@@ -31,7 +31,7 @@ module ElasticAPM
     extend Options
 
     SANITIZE_FIELD_NAMES_DEFAULT =
-      %w[password passwd pwd secret *key *token* *session* *credit* *card* authorization set-cookie].freeze
+      %w[password passwd pwd secret *key *token* *session* *credit* *card* *auth* set-cookie].freeze
 
     # rubocop:disable Layout/LineLength, Layout/ExtraSpacing
     option :config_file,                       type: :string, default: 'config/elastic_apm.yml'
