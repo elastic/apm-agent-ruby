@@ -308,6 +308,7 @@ module ElasticAPM
       self.framework_name ||= 'Ruby on Rails'
       self.framework_version ||= ::Rails::VERSION::STRING
       self.logger ||= ::Rails.logger
+      self.log_level ||= ::Rails.logger.log_level
 
       self.__root_path = ::Rails.root.to_s
       self.__view_paths = app.config.paths['app/views'].existent +
