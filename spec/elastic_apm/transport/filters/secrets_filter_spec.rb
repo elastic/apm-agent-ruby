@@ -44,7 +44,7 @@ module ElasticAPM
             error: {
               context: {
                 request: Util::DeepDup.dup(values),
-                response: { headers: { ApiKey: '1' } }
+                response: { headers: { ApiKey: '1', Auth: '2' } }
               }
             },
             something_else: { ApiKey: '1' }
@@ -62,6 +62,7 @@ module ElasticAPM
           expect(payload.dig(:error, :context, :request, :env, :ApiKey)).to eq '[FILTERED]'
           expect(payload.dig(:error, :context, :request, :headers, :ApiKey)).to eq '[FILTERED]'
           expect(payload.dig(:error, :context, :response, :headers, :ApiKey)).to eq '[FILTERED]'
+          expect(payload.dig(:error, :context, :response, :headers, :Auth)).to eq '[FILTERED]'
           expect(payload.dig(:something_else, :ApiKey)).to eq '1'
         end
 
