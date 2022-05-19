@@ -35,8 +35,8 @@ Gem::Specification.new do |spec|
     f.match(%r{^(test|spec|features)/})
   end
 
-  spec.add_dependency('concurrent-ruby', '~> 1.0')
-  spec.add_dependency('http', '>= 3.0')
+  spec.add_dependency('concurrent-ruby', '1.1.10')
+  spec.add_dependency('http', '5.0.4')
 
   spec.require_paths = ['lib']
 end
