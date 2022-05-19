@@ -45,7 +45,11 @@ endif::[]
 
 ===== Changed
 - Expanded filtering to sanitize any key that contains the string 'auth' {pull}1266[#1266]
+<<<<<<< HEAD
 - Rename `log_ecs_formatting` option to `log_ecs_reformatting`, deprecate old option name {pull}1248[#1248]
+=======
+- Standardize placeholder for phone numbers as [PHONENUMBER] per https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-aws.md {pull}1246[#1246]
+>>>>>>> 0149556 (Fix lost CHANGELOG.asciidoc entry)
 
 [[release-notes-4.5.1]]
 ==== 4.5.1
