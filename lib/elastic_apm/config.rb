@@ -24,11 +24,13 @@ require 'elastic_apm/config/options'
 require 'elastic_apm/config/round_float'
 require 'elastic_apm/config/regexp_list'
 require 'elastic_apm/config/wildcard_pattern_list'
+require 'elastic_apm/deprecations'
 
 module ElasticAPM
   # @api private
   class Config
     extend Options
+    extend Deprecations
 
     SANITIZE_FIELD_NAMES_DEFAULT =
       %w[password passwd pwd secret *key *token* *session* *credit* *card* *auth* set-cookie].freeze
@@ -70,7 +72,7 @@ module ElasticAPM
     option :ignore_url_patterns,               type: :list,   default: [],      converter: RegexpList.new
     option :instrument,                        type: :bool,   default: true
     option :instrumented_rake_tasks,           type: :list,   default: []
-    option :log_ecs_formatting,                type: :string, default: 'off'
+    option :log_ecs_reformatting,              type: :string, default: 'off'
     option :log_level,                         type: :int,    default: Logger::INFO, converter: LogLevelMap.new
     option :log_path,                          type: :string
     option :metrics_interval,                  type: :int,    default: '30s',   converter: Duration.new
@@ -97,6 +99,16 @@ module ElasticAPM
     option :transaction_sample_rate,           type: :float,  default: 1.0,     converter: RoundFloat.new
     option :use_elastic_traceparent_header,    type: :bool,   default: true
     option :verify_server_cert,                type: :bool,   default: true
+
+    def log_ecs_formatting
+      log_ecs_reformatting
+    end
+
+    def log_ecs_formatting=(value)
+      @options[:log_ecs_reformatting].set(value)
+    end
+
+    deprecate :log_ecs_formatting, :log_ecs_reformatting
 
     # rubocop:enable Layout/LineLength, Layout/ExtraSpacing
     def initialize(options = {})
@@ -247,7 +259,7 @@ module ElasticAPM
     end
 
     def build_logger
-      if self.log_ecs_formatting == 'override'
+      if self.log_ecs_reformatting == 'override'
         begin
           return build_ecs_logger
         rescue LoadError

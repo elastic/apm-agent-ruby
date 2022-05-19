@@ -30,7 +30,7 @@ if defined?(Rails)
 
           config.disable_send = true
 
-          config.elastic_apm.log_ecs_formatting = 'override'
+          config.elastic_apm.log_ecs_reformatting = 'override'
         end
       end
 
