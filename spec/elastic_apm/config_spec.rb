@@ -201,16 +201,23 @@ module ElasticAPM
       end
 
       describe 'ecs logging' do
-        context "when log_ecs_formatting is 'override'" do
+        context "when old config option is used, with 'override'" do
           it 'builds an EcsLogging::Logger' do
             config = Config.new log_ecs_formatting: 'override'
             expect(config.logger).to be_a(::EcsLogging::Logger)
           end
         end
 
-        context "when the log_ecs_formatting value is not valid" do
+        context "when log_ecs_reformatting is 'override'" do
+          it 'builds an EcsLogging::Logger' do
+            config = Config.new log_ecs_reformatting: 'override'
+            expect(config.logger).to be_a(::EcsLogging::Logger)
+          end
+        end
+
+        context "when the log_ecs_reformatting value is not valid" do
           it 'builds a ::Logger' do
-            config = Config.new log_ecs_formatting: 'invalid_option'
+            config = Config.new log_ecs_reformatting: 'invalid_option'
             # Using be_a(::Logger) would be true even if the logger were
             # a EcsLogging::Logger because the class inherits from ::Logger.
             # So we test the negative:

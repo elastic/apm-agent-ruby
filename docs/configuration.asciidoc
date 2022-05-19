@@ -506,12 +506,12 @@ Elastic APM can instrument your Rake tasks. This is an opt-in field, as they are
 
 [float]
 [[config-log-ecs-formatting]]
-==== `log_ecs_formatting`
+==== `log_ecs_reformatting`
 
 [options="header"]
 |============
 | Environment             | `Config` key | Default
-| `ELASTIC_APM_LOG_ECS_FORMATTING` | `log_ecs_formatting`  | `off`
+| `ELASTIC_APM_LOG_ECS_REFORMATTING` | `log_ecs_reformatting`  | `off`
 |============
 
 This is an experimental option that configures the agent to use the logger from the `ecs-logging` gem. The two
@@ -520,7 +520,7 @@ valid options are `off` and `override`.
 Setting this option to `override` will set the agent logger to a `EcsLogging::Logger` instance and all logged output
 will be in ECS-compatible json.
 
-The `ecs-logging` gem must be installed before the agent is started. If `log_ecs_formatting` is set to `override`,
+The `ecs-logging` gem must be installed before the agent is started. If `log_ecs_reformatting` is set to `override`,
 the agent will attempt to require the gem and if it cannot be loaded, it will fall back to using the standard Ruby
 `::Logger` and log the load error.
 
