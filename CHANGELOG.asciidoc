@@ -39,6 +39,10 @@ endif::[]
 ==== 4.6.0
 
 [float]
+===== Added
+
+- Added transaction_name to reported error to allow grouping by transaction name {pull}1267[#1267]
+
 ===== Changed
 - Expanded filtering to sanitize any key that contains the string 'auth' {pull}1266[#1266]
 - Rename `log_ecs_formatting` option to `log_ecs_reformatting`, deprecate old option name {pull}1248[#1248]
