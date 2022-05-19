@@ -39,9 +39,15 @@ endif::[]
 ==== 4.6.0
 
 [float]
+===== Added
+
+- Added transaction_name to reported error to allow grouping by transaction name {pull}1267[#1267]
+
 ===== Changed
+
 - Expanded filtering to sanitize any key that contains the string 'auth' {pull}1266[#1266]
 - Rename `log_ecs_formatting` option to `log_ecs_reformatting`, deprecate old option name {pull}1248[#1248]
+- Standardize placeholder for phone numbers as [PHONENUMBER] per https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-aws.md {pull}1246[#1246]
 
 [[release-notes-4.5.1]]
 ==== 4.5.1
