@@ -654,7 +654,7 @@ when this option is false.
 [options="header"]
 |============
 | Environment                        | `Config` key           | Default                                                                                        | Example
-| `ELASTIC_APM_SANITIZE_FIELD_NAMES` | `sanitize_field_names` | `"password,passwd,pwd,secret,*key,*token*,*session*,*credit*,*card*,authorization,set-cookie"` | `Auth*tion,abc*,*xyz`
+| `ELASTIC_APM_SANITIZE_FIELD_NAMES` | `sanitize_field_names` | `"password,passwd,pwd,secret,*key,*token*,*session*,*credit*,*card*,*auth*,set-cookie"` | `Auth*tion,abc*,*xyz`
 |============
 
 Sometimes it is necessary to sanitize the data sent to Elastic APM to remove sensitive values.
