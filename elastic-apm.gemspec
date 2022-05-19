@@ -36,7 +36,7 @@ Gem::Specification.new do |spec|
   end
 
   spec.add_dependency('concurrent-ruby', '1.1.10')
-  spec.add_dependency('http', '5.0.4')
+  spec.add_dependency('http', '4.4.1')
 
   spec.require_paths = ['lib']
 end
