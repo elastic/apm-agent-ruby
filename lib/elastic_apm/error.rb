@@ -33,7 +33,7 @@ module ElasticAPM
     end
 
     attr_accessor :id, :culprit, :exception, :log, :transaction_id,
-      :transaction, :context, :parent_id, :trace_id
+      :transaction_name, :transaction, :context, :parent_id, :trace_id
     attr_reader :timestamp
 
     def inspect
@@ -41,6 +41,7 @@ module ElasticAPM
         " culprit:#{culprit}" \
         " timestamp:#{timestamp}" \
         " transaction_id:#{transaction_id}" \
+        " transaction_name:#{transaction_name}" \
         " trace_id:#{trace_id}" \
         " exception:#{exception.inspect}" \
         '>'

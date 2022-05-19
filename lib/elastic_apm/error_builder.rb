@@ -74,6 +74,7 @@ module ElasticAPM
       return unless transaction
 
       error.transaction_id = transaction.id
+      error.transaction_name = transaction.name
       error.transaction = {
         sampled: transaction.sampled?,
         type: transaction.type
