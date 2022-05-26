@@ -184,9 +184,9 @@ if enabled
     end
 
     context 'log level' do
-      it 'respects the Rails logger level' do
+      it 'uses the default log level' do
         log_level = ElasticAPM.agent.config.logger.level
-        expect(log_level).to eq Logger::DEBUG
+        expect(log_level).to eq Logger::INFO
       end
 
       context 'when the log level is updated via central config' do

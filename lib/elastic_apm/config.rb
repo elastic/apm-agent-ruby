@@ -128,7 +128,9 @@ module ElasticAPM
 
       yield self if block_given?
 
-      self.logger ||= build_logger
+      if self.logger.nil? || self.log_path
+        self.logger = build_logger
+      end
 
       @__view_paths ||= []
       @__root_path ||= Dir.pwd
@@ -306,6 +308,7 @@ module ElasticAPM
       self.framework_name ||= 'Ruby on Rails'
       self.framework_version ||= ::Rails::VERSION::STRING
       self.logger ||= ::Rails.logger
+      self.log_level ||= ::Rails.logger.log_level
 
       self.__root_path = ::Rails.root.to_s
       self.__view_paths = app.config.paths['app/views'].existent +

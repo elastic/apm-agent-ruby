@@ -556,6 +556,8 @@ A path to a log file.
 
 By default Elastic APM logs to `stdout` or uses `Rails.log` when used with Rails.
 
+If `log_path` is specified, this will override `Rails.log` to point to that path instead.
+
 This should support both absolute and relative paths. Please be sure the directory exists.
 
 [float]

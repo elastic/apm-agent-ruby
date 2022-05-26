@@ -47,7 +47,7 @@ endif::[]
 
 - Expanded filtering to sanitize any key that contains the string 'auth' {pull}1266[#1266]
 - Rename `log_ecs_formatting` option to `log_ecs_reformatting`, deprecate old option name {pull}1248[#1248]
-- Standardize placeholder for phone numbers as [PHONENUMBER] per https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-aws.md {pull}1246[#1246]
+- When the configuration value for `log_path` is set, override the `logger` to point to that path instead of using e.g. Rails logger {pull}1247[#1247]
 
 [[release-notes-4.5.1]]
 ==== 4.5.1
@@ -56,6 +56,7 @@ endif::[]
 ===== Changed
 
 - Update elasticsearch spy to use new transport gem name {pull}1257[#1257]
+- Standardize placeholder for phone numbers as [PHONENUMBER] per https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-aws.md {pull}1246[#1246]
 
 ===== Fixed
 
