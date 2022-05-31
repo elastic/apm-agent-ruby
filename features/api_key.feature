@@ -21,3 +21,4 @@ Feature: APM server authentication with API key and secret token
       | secret_token  | secr3tT0ken   |
     When the agent sends a request to APM server
     Then the Authorization header of the request is 'ApiKey MjlXNEJasdfDt'
+
