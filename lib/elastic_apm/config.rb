@@ -244,6 +244,10 @@ module ElasticAPM
       super.split.first + '>'
     end
 
+    def version
+      @version ||= ServerInfo.new(self).version
+    end
+
     private
 
     def load_config_file

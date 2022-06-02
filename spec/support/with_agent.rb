@@ -28,11 +28,16 @@ module WithAgent
         :get, %r{^http://localhost:8200/config/v1/agents/?$}
       ).to_return(body: '{}')
 
+    @server_version_stub =
+      WebMock.stub_request(:get, %r{^http://localhost:8200/$}).
+      to_return(body: '{"version":8.0}')
+
     klass.start(*args, **config)
     yield
   ensure
     ElasticAPM.stop
 
     @central_config_stub = nil
+    @server_version_stub = nil
   end
 end

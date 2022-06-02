@@ -30,16 +30,14 @@ module ElasticAPM
 
       def execute
         resp = http.get(config.server_url)
-        begin
-          @payload = JSON.parse(resp.body)
-        rescue
-          @payload = {version: nil}
-        end
+        @payload = JSON.parse(resp.body)
+      rescue
+        @payload = {"version" => nil}
       end
 
       def version
         execute unless payload
-        payload[:version]
+        payload["version"]
       end
     end
   end
