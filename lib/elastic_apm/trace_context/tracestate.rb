@@ -107,7 +107,7 @@ module ElasticAPM
           split_by_nl_and_comma(header)
           .each_with_object({}) do |entry, hsh|
             k, v = entry.split('=')
-
+            next unless k && v && !k.empty? && !v.empty?
             hsh[k] =
               case k
               when 'es' then EsEntry.new(v)

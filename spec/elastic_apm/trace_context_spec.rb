@@ -70,6 +70,23 @@ module ElasticAPM
         its(:tracestate) { is_expected.to be_a TraceContext::Tracestate }
       end
 
+      context 'with traceparent and an empty tracestate' do
+        let(:env) do
+          Rack::MockRequest.env_for(
+            '/',
+            'HTTP_ELASTIC_APM_TRACEPARENT' =>
+            '00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-00',
+            'HTTP_TRACESTATE' => ''
+          )
+        end
+
+        its(:traceparent) { is_expected.to be_a TraceContext::Traceparent }
+        its(:tracestate) { is_expected.to be_a TraceContext::Tracestate }
+        it 'generates no tracestate header' do
+          expect(subject.tracestate.to_header).to eq ""
+        end
+      end
+
       context 'with neither' do
         let(:env) do
           Rack::MockRequest.env_for('/')
@@ -125,10 +142,9 @@ module ElasticAPM
           end
 
           expect(calls).to match(
-            'Traceparent' => String,
-            'Tracestate' => String
+            'Traceparent' => String
           )
-          expect(calls.length).to be 2
+          expect(calls.length).to eq 1
         end
       end
 
@@ -143,10 +159,9 @@ module ElasticAPM
 
           expect(calls).to match(
             'Traceparent' => String,
-            'Elastic-Apm-Traceparent' => String,
-            'Tracestate' => String
+            'Elastic-Apm-Traceparent' => String
           )
-          expect(calls.values.uniq.length).to be 2
+          expect(calls.values.uniq.length).to eq 1
         end
       end
 
