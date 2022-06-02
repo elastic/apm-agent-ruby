@@ -25,6 +25,7 @@ require 'elastic_apm/config/round_float'
 require 'elastic_apm/config/regexp_list'
 require 'elastic_apm/config/wildcard_pattern_list'
 require 'elastic_apm/deprecations'
+require 'elastic_apm/config/server_info'
 
 module ElasticAPM
   # @api private
