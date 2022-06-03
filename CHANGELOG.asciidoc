@@ -48,6 +48,7 @@ endif::[]
 - Expanded filtering to sanitize any key that contains the string 'auth' {pull}1266[#1266]
 - Rename `log_ecs_formatting` option to `log_ecs_reformatting`, deprecate old option name {pull}1248[#1248]
 - When the configuration value for `log_path` is set, override the `logger` to point to that path instead of using e.g. Rails logger {pull}1247[#1247]
+- Only send tracestate header for distributed tracing when it has content {pull}1277[#1277]
 
 [[release-notes-4.5.1]]
 ==== 4.5.1
