@@ -96,7 +96,7 @@ module ElasticAPM
     def apply_headers
       yield 'Traceparent', traceparent.to_header
 
-      if tracestate
+      if tracestate && !tracestate.to_header.empty?
         yield 'Tracestate', tracestate.to_header
       end
 
