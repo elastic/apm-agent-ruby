@@ -68,6 +68,10 @@ class MockIntake
         :get, %r{^http://localhost:8200/config/v1/agents/?$}
       ).to_return(body: '{}')
 
+    @server_version_stub =
+      WebMock.stub_request(:get, %r{^http://localhost:8200/$}).
+      to_return(body: '{"version":8.0}')
+
     @request_stub =
       WebMock.stub_request(
         :post, %r{^http://localhost:8200/intake/v2/events/?$}
@@ -95,6 +99,7 @@ class MockIntake
     @request_stub = nil
     @central_config_stub = nil
     @cloud_provider_stubs = nil
+    @server_version_stub = nil
   end
 
   def call(env)

@@ -17,27 +17,29 @@
 
 # frozen_string_literal: true
 
-module WithAgent
-  def with_agent(klass: ElasticAPM, args: [], **config)
-    unless @mock_intake || @intercepted
-      raise 'Using with_agent but neither MockIntake nor Intercepted'
+module ElasticAPM
+  class Config
+    # @api private
+    class ServerInfo
+      attr_reader :payload, :config, :http
+
+      def initialize(config)
+        @config = config
+        @http = Transport::Connection::Http.new(config)
+      end
+
+      def execute
+        resp = http.get(config.server_url)
+        @payload = JSON.parse(resp.body)
+      rescue
+        @payload = {"version" => nil}
+      end
+
+      def version
+        execute unless payload
+        payload["version"]
+      end
     end
-
-    @central_config_stub ||=
-      WebMock.stub_request(
-        :get, %r{^http://localhost:8200/config/v1/agents/?$}
-      ).to_return(body: '{}')
-
-    @server_version_stub =
-      WebMock.stub_request(:get, %r{^http://localhost:8200/$}).
-      to_return(body: '{"version":8.0}')
-
-    klass.start(*args, **config)
-    yield
-  ensure
-    ElasticAPM.stop
-
-    @central_config_stub = nil
-    @server_version_stub = nil
   end
 end
+  

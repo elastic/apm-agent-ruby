@@ -294,5 +294,19 @@ module ElasticAPM
         expect(subject.logger.level).to eq(Logger::INFO)
       end
     end
+
+    describe "#version" do
+      it "has no version if the server does not respond" do
+        WebMock.stub_request(:get, "http://localhost:8200/")
+          .to_return(status: 404, body: "")
+        expect(Config.new.version).to be_nil
+      end
+
+      it "returns the version from the server" do
+        WebMock.stub_request(:get, "http://localhost:8200/")
+          .to_return(status: 200, body: '{"version": 8.0}')
+        expect(Config.new.version).to eq 8.0
+      end
+    end
   end
 end
