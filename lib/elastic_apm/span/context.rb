@@ -55,11 +55,10 @@ module ElasticAPM
         :http,
         :labels,
         :sync,
-        :message,
-        :service
+        :message
       )
 
-      attr_accessor :destination
+      attr_accessor :destination, :service
     end
   end
 end
@@ -68,3 +67,4 @@ require 'elastic_apm/span/context/db'
 require 'elastic_apm/span/context/http'
 require 'elastic_apm/span/context/destination'
 require 'elastic_apm/span/context/message'
+require 'elastic_apm/span/context/service'
