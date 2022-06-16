@@ -43,6 +43,11 @@ module ElasticAPM
           when Hash then Message.new(**message)
           end
         @labels = labels
+        @service =
+          case service
+          when Service then service
+          when Hash then Service.new(**service)
+          end
       end
 
       attr_reader(
@@ -50,7 +55,8 @@ module ElasticAPM
         :http,
         :labels,
         :sync,
-        :message
+        :message,
+        :service
       )
 
       attr_accessor :destination
