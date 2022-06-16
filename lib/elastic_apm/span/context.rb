@@ -56,7 +56,8 @@ module ElasticAPM
         :http,
         :labels,
         :sync,
-        :message
+        :message,
+        :service
       )
 
       attr_accessor :destination, :service
