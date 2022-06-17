@@ -52,8 +52,8 @@ module ElasticAPM
           end
         @links =
         case links
-        when Links then links
-        when Array then Links.new(links)
+          when Links then links
+          when Array then Links.new(links)
         end
       end
 
