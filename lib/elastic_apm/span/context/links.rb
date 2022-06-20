@@ -21,16 +21,10 @@ module ElasticAPM
     class Span
       class Context
         # @api private
-        class Links
-          def initialize(
-            linked_spans
-          )
-            @linked_spans = linked_spans
+        class Links < Array
+          # @api private
+          class Link < Struct.new(:trace_id, :span_id)
           end
-  
-          attr_reader(
-            :linked_spans
-          )
         end
       end
     end

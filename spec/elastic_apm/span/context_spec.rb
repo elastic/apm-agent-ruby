@@ -114,18 +114,6 @@ module ElasticAPM
           expect(subject.message.age_ms).to eq 1000
         end
       end
-      context 'with links' do
-        subject do
-          described_class.new(
-            links: [1000]
-          )
-        end
-
-        it 'adds a Links object' do
-          expect(subject.links).not_to be_nil
-          expect(subject.links.linked_spans.first).to eq 1000
-        end
-      end
     end
   end
 end

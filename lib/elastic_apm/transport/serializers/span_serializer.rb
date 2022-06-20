@@ -69,8 +69,13 @@ module ElasticAPM
               base[:message] = build_message(context.message)
             end
 
+<<<<<<< HEAD
             if context.service
               base[:service] = build_service(context.service)
+=======
+            if context.links && !context.links.empty?
+              base[:links] = build_links(context.links)
+>>>>>>> bfa9880 (Proper layout of linked spans in span context)
             end
 
             base
@@ -132,6 +137,14 @@ module ElasticAPM
                 name: keyword_field(service.target&.name),
                 type: keyword_field(service.target&.type)
               }
+            }
+          end
+
+          def build_links(links)
+            {
+              links: links.map do |link|
+                {"trace_id" => link.trace_id, "span_id" => link.span_id}
+              end
             }
           end
         end

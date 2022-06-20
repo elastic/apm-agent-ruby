@@ -51,10 +51,10 @@ module ElasticAPM
           when Hash then Service.new(**service)
           end
         @links =
-        case links
+          case links
           when Links then links
           when Array then Links.new(links)
-        end
+          end
       end
 
       attr_reader(
