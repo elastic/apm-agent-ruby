@@ -21,6 +21,7 @@ module ElasticAPM
   module Transport
     # @api private
     class Worker
+      TIMEOUT = 5
       include Logging
 
       class << self
@@ -41,7 +42,8 @@ module ElasticAPM
         config,
         queue,
         serializers:,
-        filters:
+        filters:,
+        parent:
       )
         @config = config
         @queue = queue
@@ -50,11 +52,14 @@ module ElasticAPM
         @filters = filters
 
         @connection = self.class.adapter.new(config)
+        @parent = parent
+        @thread = nil
       end
 
-      attr_reader :queue, :filters, :name, :connection, :serializers
+      attr_reader :queue, :filters, :name, :connection, :serializers, :parent, :thread
 
       def work_forever
+        @thread = Thread.current
         while (msg = queue.pop)
           case msg
           when StopMessage
@@ -73,6 +78,22 @@ module ElasticAPM
       def process(resource)
         return unless (json = serialize_and_filter(resource))
         connection.write(json)
+      end
+
+      def stop
+        return if Thread.current == parent && thread.nil?
+        return unless thread.alive?
+        return if thread.join(TIMEOUT)
+        thread.kill
+        @thread = nil
+      end
+
+      def alive?
+        thread&.alive?
+      end
+
+      def status
+        thread&.status
       end
 
       private

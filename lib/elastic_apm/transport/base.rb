@@ -35,7 +35,6 @@ module ElasticAPM
       include Logging
 
       WATCHER_EXECUTION_INTERVAL = 5
-      WORKER_JOIN_TIMEOUT = 5
 
       def initialize(config)
         @config = config
@@ -120,8 +119,8 @@ module ElasticAPM
           return if all_workers_alive?
           return if stopped.true?
 
-          @workers.map! do |thread|
-            next thread if thread&.alive?
+          workers.map! do |worker|
+            next worker if worker&.alive?
 
             boot_worker
           end
@@ -129,19 +128,21 @@ module ElasticAPM
       end
 
       def all_workers_alive?
-        !!workers.all? { |t| t&.alive? }
+        !!workers.all? { |worker| worker&.alive? }
       end
 
       def boot_worker
         debug '%s: Booting worker...', pid_str
-
+        worker = Worker.new(
+          config, queue,
+          serializers: @serializers,
+          filters: @filters,
+          parent: Thread.current
+        )
         Thread.new do
-          Worker.new(
-            config, queue,
-            serializers: @serializers,
-            filters: @filters
-          ).work_forever
+          worker.work_forever
         end
+        worker
       end
 
       def stop_workers
@@ -150,19 +151,12 @@ module ElasticAPM
         send_stop_messages
 
         @worker_mutex.synchronize do
-          workers.each do |thread|
-            next if thread.nil?
-            next if thread.join(WORKER_JOIN_TIMEOUT)
-
-            debug(
-              '%s: Worker did not stop in %ds, killing...',
-              pid_str, WORKER_JOIN_TIMEOUT
-            )
-            thread.kill
+          workers.each do |worker|
+            worker&.stop
           end
 
           # Maintain the @worker array size for when transport is restarted
-          @workers.fill(nil)
+          workers.fill(nil)
         end
       end
 
