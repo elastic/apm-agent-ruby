@@ -51,6 +51,10 @@ endif::[]
 - When the configuration value for `log_path` is set, override the `logger` to point to that path instead of using e.g. Rails logger {pull}1247[#1247]
 - Only send tracestate header for distributed tracing when it has content {pull}1277[#1277]
 
+====== Fixed
+
+- Small change to Sidekiq tests to handle new configuration passing method {pull}1283[#1283]
+
 [[release-notes-4.5.1]]
 ==== 4.5.1
 
