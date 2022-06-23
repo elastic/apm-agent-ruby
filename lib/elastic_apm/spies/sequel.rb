@@ -46,6 +46,7 @@ module ElasticAPM
 
           context = ElasticAPM::Span::Context.new(
             db: { statement: sql, type: 'sql', user: opts[:user] },
+            service: {target: {type: subtype }},
             destination: { service: { resource: subtype } }
           )
 
