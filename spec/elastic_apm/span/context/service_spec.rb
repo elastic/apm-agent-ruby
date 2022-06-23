@@ -14,42 +14,24 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
 # frozen_string_literal: true
+
+require "spec_helper"
 
 module ElasticAPM
   class Span
     class Context
-      # @api private
-      class Service
-        include Fields
-
-        field :target
-
-        # @api private
-        class Target
-          include Fields
-
-          field :name, default: ''
-          field :type, default: ''
-        end
-
-        def initialize(target: nil, **attrs)
-          super(**attrs)
-
-          self.target = build_target(target)
-        end
-
-        private
-
-        def build_target(target = nil)
-          return Target.new unless target
-          return target if target.is_a?(Target)
-
-          Target.new(**target)
+      RSpec.describe Service do
+        context '.new' do
+          it 'accepts a hash of arguments' do
+            result = described_class.new(target: {name: 'name', type: 'sql'})
+            expect(result.target).not_to be_nil
+            expect(result.target.name).to eq('name')
+            expect(result.target.type).to eq('sql')
+          end
         end
       end
     end
   end
 end
-  

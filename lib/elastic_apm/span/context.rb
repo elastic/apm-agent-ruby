@@ -27,7 +27,8 @@ module ElasticAPM
         http: nil,
         labels: {},
         sync: nil,
-        message: nil
+        message: nil,
+        service: nil
       )
         @sync = sync
         @db = db && Db.new(**db)
