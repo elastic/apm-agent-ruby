@@ -62,7 +62,9 @@ module ElasticAPM
 
       manager =
         if Gem::Version.new(Sidekiq::VERSION) >= Gem::Version.new('6.1.0')
-          Sidekiq::Manager.new(fetch: Sidekiq::BasicFetch.new(opts))
+          config = Sidekiq
+          config[:fetch] = Sidekiq::BasicFetch.new(opts)
+          Sidekiq::Manager.new(config)
         else
           Sidekiq::Manager.new(opts)
         end
