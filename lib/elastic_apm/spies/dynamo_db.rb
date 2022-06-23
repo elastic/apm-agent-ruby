@@ -66,10 +66,14 @@ module ElasticAPM
                   address: config.endpoint.host,
                   port: config.endpoint.port,
                   service: {
-                      name: SUBTYPE,
-                      type: TYPE,
                       resource: SUBTYPE },
                   cloud: { region: config.region }
+                },
+                service: {
+                  target: {
+                    name: config.region,
+                    type: SUBTYPE
+                  }
                 }
               )
 
