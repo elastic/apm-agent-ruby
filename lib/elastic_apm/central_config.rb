@@ -181,6 +181,11 @@ module ElasticAPM
           DEFAULT_MAX_AGE
         end
 
+      if seconds < DEFAULT_MAX_AGE
+        debug "Next fetch is too low (#{seconds}s) - increasing to default"
+        seconds = DEFAULT_MAX_AGE
+      end
+
       @scheduled_task =
         Concurrent::ScheduledTask
         .execute(seconds) { fetch_and_apply_config }
