@@ -168,7 +168,7 @@ pipeline {
           }
           post {
             always {
-              cleanWs()
+              cleanWs(notFailBuild: true)
             }
           }
         }
@@ -299,8 +299,6 @@ def runBenchmark(version){
             }
             try{
               sh """./spec/scripts/benchmarks.sh "${version}" "${REFERENCE_REPO}" """
-            } catch(e){
-              throw e
             } finally {
               archiveArtifacts(
                 allowEmptyArchive: true,
@@ -308,6 +306,7 @@ def runBenchmark(version){
                 onlyIfSuccessful: false)
               sendBenchmarks(file: "benchmark-${transformedVersion}.bulk",
                 index: "benchmark-ruby", archive: true)
+              cleanWs(notFailBuild: true)
             }
           }
         }
