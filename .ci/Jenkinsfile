@@ -162,13 +162,13 @@ pipeline {
       }
       stages {
         stage('Clean Workspace') {
-          agent { label 'metal' }
+          agent { label 'microbenchmarks-pool' }
           steps {
             echo "Cleaning Workspace"
           }
           post {
             always {
-              cleanWs()
+              cleanWs(notFailBuild: true)
             }
           }
         }
@@ -283,7 +283,7 @@ pipeline {
 */
 def runBenchmark(version){
   return {
-    node('metal'){
+    node('microbenchmarks-pool'){
       // Transform the versions like:
       //  - docker.elastic.co/observability-ci/jruby:9.2-12-jdk to jruby-9.2-12-jdk
       //  - jruby:9.1 to jruby-9.1
@@ -299,8 +299,6 @@ def runBenchmark(version){
             }
             try{
               sh """./spec/scripts/benchmarks.sh "${version}" "${REFERENCE_REPO}" """
-            } catch(e){
-              throw e
             } finally {
               archiveArtifacts(
                 allowEmptyArchive: true,
@@ -308,6 +306,7 @@ def runBenchmark(version){
                 onlyIfSuccessful: false)
               sendBenchmarks(file: "benchmark-${transformedVersion}.bulk",
                 index: "benchmark-ruby", archive: true)
+              cleanWs(notFailBuild: true)
             }
           }
         }
