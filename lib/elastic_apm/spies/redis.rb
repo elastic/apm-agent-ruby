@@ -25,7 +25,7 @@ module ElasticAPM
       # @api private
       module Ext
         def call(command, &block)
-          name = command[0].upcase
+          name = command[0].to_s.upcase
 
           return super(command, &block) if command[0] == :auth
 
