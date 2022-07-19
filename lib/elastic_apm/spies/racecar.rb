@@ -22,34 +22,58 @@ module ElasticAPM
   module Spies
     # @api private
     class RacecarSpy
-      TYPE = 'Kafka'
+      TYPE = 'kafka'
+      SUBTYPE = 'racecar'
 
       # @api private
-      module ConsumerSpy
-        def process_message(event)
-          with_span() do
-            super
-          end
+      module ConsumerSubscriber
+        def start_process_message(event)
+          start_process_span(event: event, kind: 'process_message')
+        end
+        def process_message(_event)
+          end_current_span
         end
 
-        def process_batch(event)
-          with_span() do
-            super
-          end
+        def start_process_batch(event)
+          start_process_span(event: event, kind: 'process_batch')
+        end
+        def process_batch(_event)
+          end_current_span
+        end
+
+        private # only public methods will be subscribed
+
+        def start_process_span(event:, kind:)
+          @current_span = ElasticAPM.start_span(
+            name,
+            TYPE,
+            subtype: SUBTYPE,
+            action: kind,
+            context: build_context(event)
+          )
+
+        def end_current_span
+          return unless @current_span == ElasticAPM.current_span
+          @current_span.ElasticAPM.end_span(@current_span)
+        end
+
+        def build_context(event)
         end
       end
 
-      module ProducerSpy
-        def deliver_messages(*args)
-          with_span() do
-            super
-          end
+      module ProducerSubscriber
+        def start_deliver_message(_event)
+          @current_span = start_span
+        end
+
+        def deliver_message(_event)
+          @current_span.stop
         end
       end
 
       def install
-        Racecar::Consumer.prepend(ConsumerSpy)
-        Racecar::Producer.prepend(ProducerSpy)
+        ConsumerSubscriber.attach_to(:racecar)
+        ProducerSubscriber.attach_to(:racecar)
       end
     end
 
