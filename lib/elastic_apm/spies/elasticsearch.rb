@@ -62,12 +62,8 @@ module ElasticAPM
             db: { statement: statement.reduce({}, :merge).to_json },
             destination: {
               service: {
-                resource: SUBTYPE,
-              }
-            },
-            service: {
-              target: {
                 name: SUBTYPE,
+                resource: SUBTYPE,
                 type: TYPE
               }
             }
