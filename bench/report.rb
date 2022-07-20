@@ -11,7 +11,7 @@ git_date = `git log -n 1 --pretty="format:%ai"`
 platform = Gem::Platform.local
 
 def doc(payload)
-  puts({ index: { _index: "benchmark-ruby", _type: "_doc" } }.to_json)
+  puts({ index: { _index: "benchmark-ruby" } }.to_json)
   puts(payload.to_json)
 end
 
