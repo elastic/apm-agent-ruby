@@ -32,9 +32,10 @@ module ElasticAPM
             action = formatted_op_name(operation_name)
             account_name = account_name_from_storage_table_host(service.storage_service_host[:primary])
 
-            resource = "#{SUBTYPE}/#{account_name}"
+            destination = ElasticAPM::Span::Context::Destination.from_uri(service.storage_service_host[:primary])
+            destination.service.resource = "#{SUBTYPE}/#{account_name}"
 
-            context = ElasticAPM::Span::Context.new(destination: {service: {resource: resource}}, service: {target: {name: account_name, type: SUBTYPE}})
+            context = ElasticAPM::Span::Context.new(destination: destination)
 
             ElasticAPM.with_span(span_name, TYPE, subtype: SUBTYPE, action: action, context: context) do
               ElasticAPM::Spies.without_faraday do
