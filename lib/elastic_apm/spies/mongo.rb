@@ -108,15 +108,11 @@ module ElasticAPM
               type: 'mongodb',
               user: nil
             },
-            service: {
-              target: {
-                name: event.database_name,
-                type: SUBTYPE
-              }
-            },
             destination: {
               service: {
-                resource: SUBTYPE
+                name: SUBTYPE,
+                resource: SUBTYPE,
+                type: TYPE
               }
             }
           )
