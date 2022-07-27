@@ -146,7 +146,7 @@ module ElasticAPM
         cloud: cloud
       )
       context.service = Span::Context::Service.new(
-        target: Span::Context::Service::Target.new(type: context.destination.service.name, name: context.destination.service.type )
+        target: Span::Context::Service::Target.new(name: context.destination.service.name, type: context.destination.service.type )
       )
     end
 

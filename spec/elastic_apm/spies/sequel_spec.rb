@@ -54,6 +54,7 @@ module ElasticAPM
       service = span.context.service
       expect(service.target.name).not_to be_nil
       expect(service.target.type).to eq('sqlite')
+      expect(destination.service.name).to eq('')
       expect(destination.service.resource).to eq 'sqlite'
     end
 
