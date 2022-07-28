@@ -159,6 +159,7 @@ module ElasticAPM
         mongo
         net_http
         rake
+        racecar
         redis
         resque
         s3
