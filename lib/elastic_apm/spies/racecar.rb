@@ -16,7 +16,6 @@
 # under the License.
 
 # frozen_string_literal: true
-
 module ElasticAPM
   # @api private
   module Spies
@@ -26,7 +25,7 @@ module ElasticAPM
       SUBTYPE = 'racecar'
 
       # @api private
-      module ConsumerSubscriber
+      class ConsumerSubscriber < ActiveSupport::Subscriber
         def start_process_message(event)
           start_process_transaction(event: event, kind: 'process_message')
         end
@@ -44,11 +43,13 @@ module ElasticAPM
         private # only public methods will be subscribed
 
         def start_process_transaction(event:, kind:)
+          raise 'started'
           @current_transaction = ElasticAPM.start_transaction(
             kind,
             TYPE,
             context: build_context(event, kind)
           )
+        end
 
         def build_context(event, kind)
           {
@@ -58,7 +59,7 @@ module ElasticAPM
         end
       end
 
-      module ProducerSubscriber
+      class ProducerSubscriber < ActiveSupport::Subscriber
         def start_deliver_message(event)
           ElasticAPM.start_transaction(
             'Racecar Delivery',
@@ -86,7 +87,6 @@ module ElasticAPM
         ProducerSubscriber.attach_to(:racecar)
       end
     end
-
-    register 'Racecar', 'racecar', RacecarSpy.new
+    register 'Racecar::Consumer', 'racecar', RacecarSpy.new
   end
 end

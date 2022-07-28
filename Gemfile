@@ -51,6 +51,7 @@ gem 'json-schema', require: nil
 gem 'mongo', require: nil
 gem 'opentracing', require: nil
 gem 'rake', '>= 13.0', require: nil
+gem 'racecar', require: nil
 gem 'resque', require: nil
 gem 'sequel', require: nil
 gem 'shoryuken', require: nil
