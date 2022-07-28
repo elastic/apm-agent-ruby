@@ -84,6 +84,24 @@ module ElasticAPM
         end
       end
 
+      context 'with service' do
+        subject do
+          described_class.new(
+              service: {
+                target: {
+                  name: 'nam',
+                  type: 'typ'
+                }
+            }
+          )
+        end
+
+        it 'adds a Service Target object' do
+          expect(subject.service.target.name).to eq 'nam'
+          expect(subject.service.target.type).to eq 'typ'
+        end
+      end
+
       context 'with message' do
         subject do
           described_class.new(

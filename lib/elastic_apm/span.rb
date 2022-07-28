@@ -145,6 +145,9 @@ module ElasticAPM
         service: service,
         cloud: cloud
       )
+      context.service = Span::Context::Service.new(
+        target: Span::Context::Service::Target.new(name: context.destination.service.name, type: context.destination.service.type )
+      )
     end
 
     def inspect

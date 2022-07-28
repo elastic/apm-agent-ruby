@@ -27,7 +27,8 @@ module ElasticAPM
         http: nil,
         labels: {},
         sync: nil,
-        message: nil
+        message: nil,
+        service: nil
       )
         @sync = sync
         @db = db && Db.new(**db)
@@ -43,6 +44,11 @@ module ElasticAPM
           when Hash then Message.new(**message)
           end
         @labels = labels
+        @service =
+          case service
+          when Service then service
+          when Hash then Service.new(**service)
+          end
       end
 
       attr_reader(
@@ -53,7 +59,7 @@ module ElasticAPM
         :message
       )
 
-      attr_accessor :destination
+      attr_accessor :destination, :service
     end
   end
 end
@@ -62,3 +68,4 @@ require 'elastic_apm/span/context/db'
 require 'elastic_apm/span/context/http'
 require 'elastic_apm/span/context/destination'
 require 'elastic_apm/span/context/message'
+require 'elastic_apm/span/context/service'

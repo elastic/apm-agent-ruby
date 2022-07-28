@@ -203,13 +203,15 @@ module ElasticAPM
       it 'adds destination to context' do
         subject.set_destination(
           address: 'asdf',
-          service: { resource: 'xyz' },
+          service: { name: 'something', type: 'service', resource: 'xyz' },
           cloud: { region: 'abc' }
         )
         expect(subject.context.destination).to be_a(Span::Context::Destination)
         expect(subject.context.destination.address).to eq 'asdf'
         expect(subject.context.destination.service.resource).to eq 'xyz'
         expect(subject.context.destination.cloud.region).to eq 'abc'
+        expect(subject.context.service.target.name).to eq 'something'
+        expect(subject.context.service.target.type).to eq 'service'
       end
     end
   end
