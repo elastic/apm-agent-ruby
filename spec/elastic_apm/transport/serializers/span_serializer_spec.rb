@@ -81,7 +81,8 @@ module ElasticAPM
                   db: { statement: 'asd' },
                   http: { url: 'dsa' },
                   sync: false,
-                  labels: { foo: 'bar' }
+                  labels: { foo: 'bar' },
+                  service: {target: {name: 'test', type: 'db'}}
                 )
               )
             end
@@ -92,6 +93,8 @@ module ElasticAPM
               expect(result.dig(:span, :context, :http, :url)).to eq 'dsa'
               expect(result.dig(:span, :context, :sync)).to eq false
               expect(result.dig(:span, :context, :tags, :foo)).to eq 'bar'
+              expect(result.dig(:span, :context, :service, :target, :name)).to eq 'test'
+              expect(result.dig(:span, :context, :service, :target, :type)).to eq 'db'
             end
 
             context 'with rows_affected' do

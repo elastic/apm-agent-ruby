@@ -51,6 +51,10 @@ module ElasticAPM
         .to eq "SELECT count(*) AS 'count' FROM `users` LIMIT 1"
 
       destination = span.context.destination
+      service = span.context.service
+      expect(service.target.name).not_to be_nil
+      expect(service.target.type).to eq('sqlite')
+      expect(destination.service.name).to eq('')
       expect(destination.service.resource).to eq 'sqlite'
     end
 
