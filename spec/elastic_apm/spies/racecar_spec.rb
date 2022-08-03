@@ -19,22 +19,23 @@
 
 require 'spec_helper'
 
+require 'active_support/notifications'
 require "active_support/subscriber"
 require 'racecar'
 
 module ElasticAPM
   RSpec.describe 'Spy: Racecar', :intercept do
-    class TestConsumer < Racecar::Consumer
-      subscribes_to "a_queue"
-      def process(message)
-        ElasticAPM.current_transaction.inspect
+    it 'captures the instrumentation' do
+      with_agent do
+        ActiveSupport::Notifications.instrument('start_process_message.racecar')
+        ActiveSupport::Notifications.instrument('process_message.racecar') do
+          # this is the body of the racecar consumer #process method
+        end
+        first_transaction = @intercepted.transactions.first
+        expect(first_transaction).not_to be_nil
+        expect(first_transaction.name).to eq('process_message')
+        expect(first_transaction.type).to eq('kafka')
       end
-    end
-
-    it 'has a current transaction' do 
-      consumer = TestConsumer.new
-      current_transaction = consumer.process(nil)
-      expect(current_transaction).to be_a(ElasticAPM::Transaction)
     end
   end
 end

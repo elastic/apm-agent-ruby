@@ -15,6 +15,8 @@
 # specific language governing permissions and limitations
 # under the License.
 
+require 'active_support/notifications'
+
 # frozen_string_literal: true
 module ElasticAPM
   # @api private
@@ -43,42 +45,19 @@ module ElasticAPM
         private # only public methods will be subscribed
 
         def start_process_transaction(event:, kind:)
-          raise 'started'
-          @current_transaction = ElasticAPM.start_transaction(
-            kind,
-            TYPE,
-            context: build_context(event, kind)
-          )
-        end
-
-        def build_context(event, kind)
-          {
-            subtype: SUBTYPE,
-            action: kind,
-          }
+          ElasticAPM.start_transaction(kind, TYPE)
+          ElasticAPM.current_transaction.context.set_service(framework_name: 'racecar', framework_version: Racecar::VERSION)
         end
       end
 
       class ProducerSubscriber < ActiveSupport::Subscriber
         def start_deliver_message(event)
-          ElasticAPM.start_transaction(
-            'Racecar Delivery',
-            TYPE,
-            context: build_context(event)
-          )
+          ElasticAPM.start_transaction('deliver_message',TYPE)
+          ElasticAPM.current_transaction.context.set_service(framework_name: 'racecar', framework_version: Racecar::VERSION)
         end
 
         def deliver_message(_event)
           ElasticAPM.end_transaction
-        end
-
-        private
-
-        def build_context(event)
-          {
-            subtype: SUBTYPE,
-            action: 'deliver_message',
-          }
         end
       end
 
@@ -87,6 +66,6 @@ module ElasticAPM
         ProducerSubscriber.attach_to(:racecar)
       end
     end
-    register 'Racecar::Consumer', 'racecar', RacecarSpy.new
+    register 'Racecar', 'racecar', RacecarSpy.new
   end
 end
