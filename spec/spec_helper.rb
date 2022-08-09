@@ -35,8 +35,6 @@ Dir["spec/support/*.rb"].each do |file|
 end
 
 require "webmock/rspec"
-require "active_support/subscriber"
-require 'racecar'
 require "elastic-apm"
 
 RSpec.configure do |config|
