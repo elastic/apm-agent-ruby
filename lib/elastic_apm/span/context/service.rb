@@ -18,28 +18,38 @@
 # frozen_string_literal: true
 
 module ElasticAPM
-  # @api private
-  module Spies
-    # @api private
-    class RedisSpy
+  class Span
+    class Context
       # @api private
-      module Ext
-        def call(command, &block)
-          name = command[0].to_s.upcase
+      class Service
+        include Fields
 
-          return super(command, &block) if command[0] == :auth
+        field :target
 
-          ElasticAPM.with_span(name.to_s, 'db.redis') do
-            super(command, &block)
-          end
+        # @api private
+        class Target
+          include Fields
+
+          field :name, default: ''
+          field :type, default: ''
+        end
+
+        def initialize(target: nil, **attrs)
+          super(**attrs)
+
+          self.target = build_target(target)
+        end
+
+        private
+
+        def build_target(target = nil)
+          return Target.new unless target
+          return target if target.is_a?(Target)
+
+          Target.new(**target)
         end
       end
-
-      def install
-        ::Redis::Client.prepend(Ext)
-      end
     end
-
-    register 'Redis', 'redis', RedisSpy.new
   end
 end
+  

@@ -14,32 +14,24 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+#
 # frozen_string_literal: true
 
+require "spec_helper"
+
 module ElasticAPM
-  # @api private
-  module Spies
-    # @api private
-    class RedisSpy
-      # @api private
-      module Ext
-        def call(command, &block)
-          name = command[0].to_s.upcase
-
-          return super(command, &block) if command[0] == :auth
-
-          ElasticAPM.with_span(name.to_s, 'db.redis') do
-            super(command, &block)
+  class Span
+    class Context
+      RSpec.describe Service do
+        context '.new' do
+          it 'accepts a hash of arguments' do
+            result = described_class.new(target: {name: 'name', type: 'sql'})
+            expect(result.target).not_to be_nil
+            expect(result.target.name).to eq('name')
+            expect(result.target.type).to eq('sql')
           end
         end
       end
-
-      def install
-        ::Redis::Client.prepend(Ext)
-      end
     end
-
-    register 'Redis', 'redis', RedisSpy.new
   end
 end

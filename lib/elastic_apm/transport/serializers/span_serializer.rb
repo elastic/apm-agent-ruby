@@ -69,6 +69,10 @@ module ElasticAPM
               base[:message] = build_message(context.message)
             end
 
+            if context.service
+              base[:service] = build_service(context.service)
+            end
+
             base
           end
 
@@ -118,6 +122,15 @@ module ElasticAPM
               },
               age: {
                 ms: message.age_ms.to_i
+              }
+            }
+          end
+
+          def build_service(service)
+            {
+              target: {
+                name: keyword_field(service.target&.name),
+                type: keyword_field(service.target&.type)
               }
             }
           end

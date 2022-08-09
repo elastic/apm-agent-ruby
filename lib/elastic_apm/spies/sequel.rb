@@ -44,8 +44,17 @@ module ElasticAPM
           name =
             ElasticAPM::Spies::SequelSpy.summarizer.summarize sql
 
+          db_name = ''
+          # postgresql shows current database
+          db_name = connection&.db.to_s if connection.respond_to?(:db)
+          # sqlite may expose a filename
+          db_name = connection&.filename.to_s if db_name == '' && connection.respond_to?(:filename)
+          # fall back to adapter class name
+          db_name = connection.class.to_s if db_name == ''
+
           context = ElasticAPM::Span::Context.new(
             db: { statement: sql, type: 'sql', user: opts[:user] },
+            service: {target: {type: subtype, name: db_name }},
             destination: { service: { resource: subtype } }
           )
 
