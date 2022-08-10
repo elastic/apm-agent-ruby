@@ -55,6 +55,7 @@ endif::[]
 
 - Small change to Sidekiq tests to handle new configuration passing method {pull}1283[#1283]
 
+
 [[release-notes-4.5.1]]
 ==== 4.5.1
 
