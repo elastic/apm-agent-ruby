@@ -26,6 +26,7 @@ require 'logger'
 require 'concurrent'
 require 'forwardable'
 require 'securerandom'
+require 'ruby2_keywords'
 
 require 'elastic_apm/version'
 require 'elastic_apm/internal_error'
