@@ -29,7 +29,7 @@ gem 'rspec-its'
 gem 'rubocop', require: false
 gem 'rubocop-performance', require: false
 gem 'timecop'
-gem 'webmock'
+gem 'webmock', '~> 3.15.0'
 
 # Integrations
 gem 'aws-sdk-dynamodb', require: nil
