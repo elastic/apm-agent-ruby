@@ -181,9 +181,9 @@ module ElasticAPM
           DEFAULT_MAX_AGE
         end
 
-      if seconds < DEFAULT_MAX_AGE
+      if seconds < 5
         debug "Next fetch is too low (#{seconds}s) - increasing to default"
-        seconds = DEFAULT_MAX_AGE
+        seconds = 5
       end
 
       @scheduled_task =
