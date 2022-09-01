@@ -43,6 +43,7 @@ endif::[]
 
 - Added transaction_name to reported error to allow grouping by transaction name {pull}1267[#1267]
 - Added ability to query server for version (useful in the future) {pull}1278[#1278]
+- Added instrumentation for https://github.com/zendesk/racecar/ Racecar Kafka library {pull}1284[#1284]
 
 ===== Changed
 
