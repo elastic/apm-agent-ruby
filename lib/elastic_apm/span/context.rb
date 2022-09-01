@@ -28,8 +28,8 @@ module ElasticAPM
         labels: {},
         sync: nil,
         message: nil,
-        service: nil
-        links: nil,
+        service: nil,
+        links: nil
       )
         @sync = sync
         @db = db && Db.new(**db)
