@@ -82,7 +82,8 @@ module ElasticAPM
                   http: { url: 'dsa' },
                   sync: false,
                   labels: { foo: 'bar' },
-                  service: {target: {name: 'test', type: 'db'}}
+                  service: {target: {name: 'test', type: 'db'}},
+                  links: [Span::Context::Links::Link.new(trace_id: 'abc', span_id: '123')]
                 )
               )
             end
@@ -95,6 +96,7 @@ module ElasticAPM
               expect(result.dig(:span, :context, :tags, :foo)).to eq 'bar'
               expect(result.dig(:span, :context, :service, :target, :name)).to eq 'test'
               expect(result.dig(:span, :context, :service, :target, :type)).to eq 'db'
+              expect(result.dig(:span, :context, :links).length).to eq 1
             end
 
             context 'with rows_affected' do
