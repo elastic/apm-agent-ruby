@@ -56,6 +56,7 @@ module ElasticAPM
             service: { resource: "#{SUBTYPE}/#{queue_name}" },
             cloud: { region: region }
           }
+          # span links added here?
         )
       end
 
