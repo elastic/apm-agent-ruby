@@ -69,13 +69,12 @@ module ElasticAPM
               base[:message] = build_message(context.message)
             end
 
-<<<<<<< HEAD
             if context.service
               base[:service] = build_service(context.service)
-=======
+            end
+
             if context.links && !context.links.empty?
               base[:links] = build_links(context.links)
->>>>>>> bfa9880 (Proper layout of linked spans in span context)
             end
 
             base
