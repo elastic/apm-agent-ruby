@@ -17,6 +17,7 @@
 
 begin
 require 'active_support/notifications'
+require 'active_support/subscriber'
 
   # frozen_string_literal: true
   module ElasticAPM
