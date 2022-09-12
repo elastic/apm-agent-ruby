@@ -22,8 +22,8 @@ require 'elastic_apm/version'
 Gem::Specification.new do |spec|
   spec.name    = 'elastic-apm'
   spec.version = ElasticAPM::VERSION
-  spec.authors = ['Justin George', 'Emily Stolfo', 'Mikkel Malmberg']
-  spec.email   = ['justin.george@elastic.co', 'emily.stolfo@elastic.co']
+  spec.authors = ['Mikkel Malmberg', 'Emily Stolfo']
+  spec.email   = ['info@elastic.co']
 
   spec.summary  = 'The official Elastic APM agent for Ruby'
   spec.homepage = 'https://github.com/elastic/apm-agent-ruby'
