@@ -12,7 +12,7 @@ exclude:
   - RUBY_VERSION: ruby:2.4
     FRAMEWORK: grape-1.6
   - RUBY_VERSION: ruby:2.4
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-6.0
+    FRAMEWORK: grape-1.6,sinatra-1.4,rails-6.0
   - RUBY_VERSION: ruby:2.4
     FRAMEWORK: rails-main
   - RUBY_VERSION: ruby:2.4
