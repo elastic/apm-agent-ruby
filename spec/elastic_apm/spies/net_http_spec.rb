@@ -227,5 +227,36 @@ module ElasticAPM
 
       expect(span.outcome).to eq 'failure'
     end
+
+    # See issue #1304
+    # it 'defaults missing host to localhost' do
+    #   WebMock.stub_request(:any, %r{http://*})
+    #
+    #   with_agent do
+    #     ElasticAPM.with_transaction 'Net::HTTP test' do
+    #       Net::HTTP.start(nil) do |http|
+    #         http.get '/bar'
+    #       end
+    #     end
+    #   end
+    #
+    #   span, = @intercepted.spans
+    #   expect(span.context.http.url).to eq 'http://localhost/bar'
+    # end
+    #
+    # it 'supports path being a uri' do
+    #   WebMock.stub_request(:any, %r{http://*})
+    #
+    #   with_agent do
+    #     ElasticAPM.with_transaction 'Net::HTTP test' do
+    #       Net::HTTP.start(nil) do |http|
+    #         http.get 'https://www.foo.bar/test'
+    #       end
+    #     end
+    #   end
+    #
+    #   span, = @intercepted.spans
+    #   expect(span.context.http.url).to eq 'https://www.foo.bar/test'
+    # end
   end
 end
