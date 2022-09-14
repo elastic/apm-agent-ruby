@@ -164,18 +164,31 @@ module ElasticAPM
       expect(span.outcome).to eq 'failure'
     end
 
-    it 'falls back to localhost when hostname not provided' do
-      WebMock.stub_request(:any, /.*/)
-
-      with_agent do
-        ElasticAPM.with_transaction 'Faraday test' do
-          Faraday.get('/test')
-        end
+    context 'when hostname is not provided' do
+      before do
+        # Webmock throws its own error if there's no address
+        # before we get to the instrumented Faraday code
+        WebMock.disable!
       end
 
-      span, = @intercepted.spans
+      after do
+        WebMock.enable!
+      end
 
-      expect(span.name).to eq 'GET localhost'
+      it 'falls back to localhost when hostname not provided' do
+        with_agent do
+          begin
+            ElasticAPM.with_transaction 'Faraday test' do
+              Faraday.get('/test')
+            end
+          rescue Faraday::ConnectionFailed
+          end
+        end
+
+        span, = @intercepted.spans
+
+        expect(span.name).to eq 'GET localhost'
+      end
     end
   end
 end
