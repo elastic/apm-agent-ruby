@@ -78,6 +78,10 @@ frameworks_versions = parsed_frameworks.inject({}) do |frameworks, str|
 end
 
 frameworks_versions.each do |framework, version|
+  if framework =='rails' && RUBY_VERSION >= '3.1'
+    gem 'net-smtp', require: false
+  end
+
   case version
   when 'master' # sinatra, grape
     gem framework, github: GITHUB_REPOS.fetch(framework)
