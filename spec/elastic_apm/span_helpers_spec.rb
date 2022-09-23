@@ -38,6 +38,11 @@ module ElasticAPM
         block.call
       end
       span_method :do_the_block_thing
+
+      def do_mixed_args_thing(one, two, three: nil)
+        [one, two, three]
+      end
+      span_method :do_mixed_args_thing
     end
 
     context 'on class methods', :intercept do
@@ -78,6 +83,19 @@ module ElasticAPM
 
         expect(@intercepted.spans.length).to be 1
         expect(@intercepted.spans.last.name).to eq 'do_the_block_thing'
+      end
+
+      it 'handles mixed positional and keyword arguments' do
+        thing = Thing.new
+
+        with_agent do
+          ElasticAPM.with_transaction do
+            thing.do_mixed_args_thing('one', 'two', three: 'three')
+          end
+        end
+
+        expect(@intercepted.spans.length).to be 1
+        expect(@intercepted.spans.last.name).to eq 'do_mixed_args_thing'
       end
     end
   end
