@@ -37,6 +37,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency('concurrent-ruby', '~> 1.0')
   spec.add_dependency('http', '>= 3.0')
+  spec.add_runtime_dependency('ruby2_keywords')
 
   spec.require_paths = ['lib']
 end
