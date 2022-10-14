@@ -33,14 +33,15 @@ module ElasticAPM
 
         attr_reader :cgroup_path
 
-        def read!
+        def read!(hostname)
           read_from_cgroup!
+          self.kubernetes_pod_name = hostname if kubernetes_pod_uid
           read_from_env!
           self
         end
 
-        def self.read!
-          new.read!
+        def self.read!(hostname)
+          new.read!(hostname)
         end
 
         def container

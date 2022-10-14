@@ -31,7 +31,7 @@ module ElasticAPM
               'KUBERNETES_POD_NAME' => 'my-pod-name',
               'KUBERNETES_POD_UID' => 'my-pod-uid'
             ) do
-              subject.read!
+              subject.read!('test_hn')
 
               expect(subject.kubernetes_namespace).to eq('my-namespace')
               expect(subject.kubernetes_node_name).to eq('my-node-name')
@@ -41,7 +41,17 @@ module ElasticAPM
           end
         end
 
-        context 'with cgroup' do
+        context 'no cgroup' do
+          subject do
+            described_class.new.read!('test_hn')
+          end
+
+          it 'does not set the pod name' do
+            expect(subject.kubernetes_pod_name).to be_nil
+          end
+        end
+
+      context 'with cgroup' do
           let(:tempfile) { Tempfile.new }
 
           before do
@@ -53,7 +63,7 @@ module ElasticAPM
           after { tempfile.unlink }
 
           subject do
-            described_class.new(cgroup_path: tempfile.path).read!
+            described_class.new(cgroup_path: tempfile.path).read!('test_hn')
           end
 
           # container_id, kubernetes_pod_uid, *lines
@@ -94,6 +104,11 @@ module ElasticAPM
               let(:lines) { lines }
               its(:container_id) { is_expected.to eq c_id }
               its(:kubernetes_pod_uid) { is_expected.to eq kp_id }
+              context 'pod name' do
+                it "#{kp_id ? 'defaults to the hostname' : 'is unset'}" do
+                  expect(subject.kubernetes_pod_name).to eq(kp_id ? 'test_hn' : nil)
+                end
+              end
             end
           end
         end

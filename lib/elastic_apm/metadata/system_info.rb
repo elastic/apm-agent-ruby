@@ -29,7 +29,7 @@ module ElasticAPM
         @architecture = gem_platform.cpu
         @platform = gem_platform.os
 
-        container_info = ContainerInfo.read!
+        container_info = ContainerInfo.read!(@detected_hostname)
         @container = container_info.container
         @kubernetes = container_info.kubernetes
       end
