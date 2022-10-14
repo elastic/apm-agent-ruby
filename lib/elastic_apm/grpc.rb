@@ -59,7 +59,7 @@ module ElasticAPM
     end
 
     # @api private
-    class ServerInterceptor < ::GRPC::ClientInterceptor
+    class ServerInterceptor < ::GRPC::ServerInterceptor
       TYPE = 'request'
 
       # rubocop:disable Lint/UnusedMethodArgument

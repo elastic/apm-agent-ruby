@@ -42,10 +42,9 @@ gem 'elasticsearch', require: nil
 gem 'fakeredis', require: nil
 gem 'faraday', require: nil
 gem 'graphql', require: nil
-if !defined?(JRUBY_VERSION) && RUBY_VERSION < '2.5'
-  gem 'google-protobuf', '< 3.12'
+if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
+  gem 'grpc'
 end
-gem 'grpc' if !defined?(JRUBY_VERSION) && RUBY_VERSION < '3.0'
 gem 'json', '2.6.2' # note: can be unpinned when https://github.com/flori/json/issues/495 is resolved
 gem 'json-schema', require: nil
 gem 'mongo', require: nil
