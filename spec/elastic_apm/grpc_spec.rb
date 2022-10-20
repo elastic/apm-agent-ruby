@@ -113,6 +113,11 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
             end
             expect(message).to eq('Hello goodbye')
             expect(@intercepted.spans.size).to eq(0)
+            if @intercepted.transactions.size > 1
+              @intercepted.transactions.each do |transaction|
+                ElasticAPM::Transport::Serializers::TransactionSerializer.new(Config.new).build(transaction)
+              end
+            end
             expect(@intercepted.transactions.size).to eq(1)
 
             server.stop
