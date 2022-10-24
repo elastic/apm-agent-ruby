@@ -52,7 +52,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
           skip 'gRPC is not running' unless server.wait_till_running
 
           message = with_agent do
-            ElasticAPM.with_transaction 'GRPC test' do
+            ElasticAPM.with_transaction 'GRPC test3' do
               stub.say_hello(
                 Helloworld::HelloRequest.new(name: 'goodbye')
               ).message
@@ -89,6 +89,9 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
             end
             expect(message).to eq('Hello goodbye')
             expect(@mock_intake.spans.size).to eq(0)
+            if @mock_intake.transactions.size > 0
+              @mock_intake.transactions.each {|t| puts t }
+            end
             expect(@mock_intake.transactions.size).to eq(0)
 
             server.stop
@@ -105,7 +108,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
             skip 'gRPC is not running' unless server.wait_till_running
 
             message = with_agent(**config) do
-              ElasticAPM.with_transaction 'GRPC test' do
+              ElasticAPM.with_transaction 'GRPC test1' do
                 stub.say_hello(
                   Helloworld::HelloRequest.new(name: 'goodbye')
                 ).message
@@ -116,6 +119,9 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
             wait_for transactions: 1
 
             expect(@mock_intake.spans.size).to eq(0)
+            if @mock_intake.transactions.size > 1
+              @mock_intake.transactions.each {|t| puts t }
+            end
             expect(@mock_intake.transactions.size).to eq(1)
 
             server.stop
@@ -137,7 +143,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
 
             message = with_agent do
               ElasticAPM.with_transaction(
-                'GRPC test', trace_context: trace_context
+                'GRPC test2', trace_context: trace_context
               ) do
                 stub.say_hello(
                   Helloworld::HelloRequest.new(name: 'goodbye')
