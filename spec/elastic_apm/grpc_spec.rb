@@ -90,6 +90,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
             expect(message).to eq('Hello goodbye')
             expect(@mock_intake.spans.size).to eq(0)
             if @mock_intake.transactions.size > 0
+              puts "Too many transactions, should be 0, sample rate is 0"
               @mock_intake.transactions.each {|t| puts t }
             end
             expect(@mock_intake.transactions.size).to eq(0)
@@ -120,6 +121,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
 
             expect(@mock_intake.spans.size).to eq(0)
             if @mock_intake.transactions.size > 1
+              puts "Too many transactions, should be 1, GRPC test1:"
               @mock_intake.transactions.each {|t| puts t }
             end
             expect(@mock_intake.transactions.size).to eq(1)
