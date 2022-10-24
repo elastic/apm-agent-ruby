@@ -23,14 +23,14 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
   require 'grpc'
 
   module ElasticAPM
-    RSpec.describe GRPC, :intercept do
+    RSpec.describe GRPC do
       class GreeterServer < Helloworld::Greeter::Service
         def say_hello(hello_req, _unused_call)
           Helloworld::HelloReply.new(message: "Hello #{hello_req.name}")
         end
       end
 
-      describe GRPC::ClientInterceptor do
+      describe GRPC::ClientInterceptor, :mock_intake do
         let(:stub) do
           Helloworld::Greeter::Stub.new(
             'localhost:50051',
@@ -49,7 +49,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
         it 'creates a span' do
           thread = Thread.new { server.run }
           # Sometimes the gRPC server doesn't start so we skip the test
-          skip 'gRPC is not running' unless server.wait_till_running && server.running?
+          skip 'gRPC is not running' unless server.wait_till_running
 
           message = with_agent do
             ElasticAPM.with_transaction 'GRPC test' do
@@ -60,15 +60,15 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
           end
           expect(message).to eq('Hello goodbye')
 
-          span, = @intercepted.spans
-          expect(span.name).to eq('/helloworld.Greeter/SayHello')
-          expect(span.type).to eq('external')
-          expect(span.subtype).to eq('grpc')
-          expect(span.context.destination.service.type).to eq(span.type)
-          expect(span.context.destination.service.name).to eq('grpc')
-          expect(span.context.destination.service.resource).to eq('localhost:50051')
-          expect(span.context.destination.address).to eq('localhost')
-          expect(span.context.destination.port).to eq('50051')
+          wait_for spans: 1
+
+          span, = @mock_intake.spans
+          expect(span['name']).to eq('/helloworld.Greeter/SayHello')
+          expect(span['type']).to eq('external.grpc')
+          expect(span.dig('context', 'destination', 'service', 'type')).to eq('external')
+          expect(span.dig('context', 'destination', 'service', 'name')).to eq('grpc')
+          expect(span.dig('context', 'destination', 'service', 'resource')).to eq('localhost:50051')
+          expect(span.dig('context', 'destination', 'port')).to eq('50051')
 
           server.stop
           thread.kill
@@ -80,7 +80,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
           it 'does not create a span' do
             thread = Thread.new { server.run }
             # Sometimes the gRPC server doesn't start so we skip the test
-            skip 'gRPC is not running' unless server.wait_till_running && server.running?
+            skip 'gRPC is not running' unless server.wait_till_running
 
             message = with_agent do
               stub.say_hello(
@@ -88,8 +88,8 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
               ).message
             end
             expect(message).to eq('Hello goodbye')
-            expect(@intercepted.spans.size).to eq(0)
-            expect(@intercepted.transactions.size).to eq(0)
+            expect(@mock_intake.spans.size).to eq(0)
+            expect(@mock_intake.transactions.size).to eq(0)
 
             server.stop
             thread.kill
@@ -102,7 +102,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
           it 'does not create a span' do
             thread = Thread.new { server.run }
             # Sometimes the gRPC server doesn't start so we skip the test
-            skip 'gRPC is not running' unless server.wait_till_running && server.running?
+            skip 'gRPC is not running' unless server.wait_till_running
 
             message = with_agent(**config) do
               ElasticAPM.with_transaction 'GRPC test' do
@@ -112,13 +112,11 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
               end
             end
             expect(message).to eq('Hello goodbye')
-            expect(@intercepted.spans.size).to eq(0)
-            if @intercepted.transactions.size > 1
-              @intercepted.transactions.each do |transaction|
-                ElasticAPM::Transport::Serializers::TransactionSerializer.new(Config.new).build(transaction)
-              end
-            end
-            expect(@intercepted.transactions.size).to eq(1)
+
+            wait_for transactions: 1
+
+            expect(@mock_intake.spans.size).to eq(0)
+            expect(@mock_intake.transactions.size).to eq(1)
 
             server.stop
             thread.kill
@@ -135,7 +133,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
           it 'passes it to the span' do
             thread = Thread.new { server.run }
             # Sometimes the gRPC server doesn't start so we skip the test
-            skip 'gRPC is not running' unless server.wait_till_running && server.running?
+            skip 'gRPC is not running' unless server.wait_till_running
 
             message = with_agent do
               ElasticAPM.with_transaction(
@@ -148,8 +146,10 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
             end
             expect(message).to eq('Hello goodbye')
 
-            span, = @intercepted.spans
-            expect(span.trace_id).to eq('123')
+            wait_for spans: 1
+
+            span, = @mock_intake.spans
+            expect(span['trace_id']).to eq('123')
 
             server.stop
             thread.kill
@@ -157,7 +157,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
         end
       end
 
-      describe GRPC::ServerInterceptor do
+      describe GRPC::ServerInterceptor, :mock_intake do
         let(:stub) do
           Helloworld::Greeter::Stub.new(
             'localhost:50051',
@@ -177,7 +177,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
         it 'creates a transaction' do
           thread = Thread.new { server.run }
           # Sometimes the gRPC server doesn't start so we skip the test
-          skip 'gRPC is not running' unless server.wait_till_running && server.running?
+          skip 'gRPC is not running' unless server.wait_till_running
 
           message = with_agent do
             stub.say_hello(
@@ -186,10 +186,12 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
           end
           expect(message).to eq('Hello goodbye')
 
-          transaction, = @intercepted.transactions
-          expect(transaction.name).to eq('grpc')
-          expect(transaction.type).to eq('request')
-          expect(transaction.result).to eq('success')
+          wait_for transactions: 1
+
+          transaction, = @mock_intake.transactions
+          expect(transaction['name']).to eq('grpc')
+          expect(transaction['type']).to eq('request')
+          expect(transaction['result']).to eq('success')
 
           server.stop
           thread.kill
@@ -205,7 +207,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
           it 'sets it on the transaction' do
             thread = Thread.new { server.run }
             # Sometimes the gRPC server doesn't start so we skip the test
-            skip 'gRPC is not running' unless server.wait_till_running && server.running?
+            skip 'gRPC is not running' unless server.wait_till_running
 
             message = with_agent do
               stub.say_hello(
@@ -217,12 +219,14 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
             end
             expect(message).to eq('Hello goodbye')
 
-            transaction, = @intercepted.transactions
-            expect(transaction.name).to eq('grpc')
-            expect(transaction.type).to eq('request')
-            expect(transaction.result).to eq('success')
-            expect(transaction.trace_id).to eq(trace_context.trace_id)
-            expect(transaction.parent_id).to eq(trace_context.id)
+            wait_for transactions: 1
+
+            transaction, = @mock_intake.transactions
+            expect(transaction['name']).to eq('grpc')
+            expect(transaction['type']).to eq('request')
+            expect(transaction['result']).to eq('success')
+            expect(transaction['trace_id']).to eq(trace_context.trace_id)
+            expect(transaction['parent_id']).to eq(trace_context.id)
 
             server.stop
             thread.kill
@@ -236,7 +240,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
             it 'sets it on the transaction' do
               thread = Thread.new { server.run }
               # Sometimes the gRPC server doesn't start so we skip the test
-              skip 'gRPC is not running' unless server.wait_till_running && server.running?
+              skip 'gRPC is not running' unless server.wait_till_running
 
               message = with_agent do
                 stub.say_hello(
@@ -248,14 +252,14 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
               end
               expect(message).to eq('Hello goodbye')
 
-              transaction, = @intercepted.transactions
-              expect(transaction.name).to eq('grpc')
-              expect(transaction.type).to eq('request')
-              expect(transaction.result).to eq('success')
-              expect(transaction.trace_id).to eq(trace_context.trace_id)
-              expect(transaction.parent_id).to eq(trace_context.id)
-              expect(transaction.trace_context.tracestate.to_header)
-                .to eq("a=b,")
+              wait_for transactions: 1
+
+              transaction, = @mock_intake.transactions
+              expect(transaction['name']).to eq('grpc')
+              expect(transaction['type']).to eq('request')
+              expect(transaction['result']).to eq('success')
+              expect(transaction['trace_id']).to eq(trace_context.trace_id)
+              expect(transaction['parent_id']).to eq(trace_context.id)
 
               server.stop
               thread.kill
@@ -303,17 +307,19 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
               end
             end.to raise_exception(Exception)
 
-            transaction, = @intercepted.transactions
-            expect(transaction.name).to eq('grpc')
-            expect(transaction.type).to eq('request')
-            expect(transaction.result).to eq('error')
+            wait_for transactions: 1, errors: 1
 
-            error, = @intercepted.errors
-            expect(error.culprit).to eq 'say_hello'
-            expect(error.timestamp).to eq 694_224_000_000_000
-            expect(error.exception.message).to eq 'boom!'
-            expect(error.exception.type).to eq 'ElasticAPM::FancyError'
-            expect(error.exception.handled).to be false
+            transaction, = @mock_intake.transactions
+            expect(transaction['name']).to eq('grpc')
+            expect(transaction['type']).to eq('request')
+            expect(transaction['result']).to eq('error')
+
+            error, = @mock_intake.errors
+            expect(error['culprit']).to eq 'say_hello'
+            expect(error['timestamp']).to eq 694_224_000_000_000
+            expect(error.dig('exception', 'message')).to eq 'boom!'
+            expect(error.dig('exception', 'type')).to eq 'ElasticAPM::FancyError'
+            expect(error.dig('exception', 'handled')).to be false
 
             server.stop
             thread.kill
