@@ -321,7 +321,7 @@ def runScript(Map params = [:]){
   def framework = params.framework
   log(level: 'INFO', text: "${label}")
   retry(2){
-    withEnv(["HOME=${env.WORKSPACE}", "PATH=${env.PATH}:${env.WORKSPACE}/bin"
+    withEnv(["HOME=${env.WORKSPACE}", "PATH=${env.PATH}:${env.WORKSPACE}/bin",
              "RUBY_VERSION=${ruby}"]) {
       deleteDir()
       unstash 'source'
