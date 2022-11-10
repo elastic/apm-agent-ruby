@@ -35,7 +35,7 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJson(needs.filter.outputs.matrix) }}
     steps:
-      - run: echo "${{ matrix.version }} ${{ matrix.framework }}"
+      - uses: actions/checkout@v3
       - name: Run BDD tests
         run: ./spec/scripts/features.sh "${{ matrix.version }}"
       - name: Run version/framework
