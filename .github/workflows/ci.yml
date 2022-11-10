@@ -46,4 +46,4 @@ jobs:
       - name: Run BDD tests
         run: ./spec/scripts/features.sh "${{ matrix.version }}"
       - name: Run version/framework
-        run: ./spec/scripts/spec.sh "${{ matrix.version }}" " ${{ matrix.framework }}"
+        run: ./spec/scripts/spec.sh "${{ matrix.version }}" "${{ matrix.framework }}"
