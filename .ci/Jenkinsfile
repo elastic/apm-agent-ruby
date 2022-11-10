@@ -62,34 +62,6 @@ pipeline {
         }
       }
     }
-    stage('Sanity checks') {
-      when {
-        beforeAgent true
-        allOf {
-          expression { return env.ONLY_DOCS == "false" }
-          anyOf {
-            not { changeRequest() }
-            expression { return params.Run_As_Main_Branch }
-          }
-        }
-      }
-      options { skipDefaultCheckout() }
-      environment {
-        HOME = "${env.WORKSPACE}"
-        PATH = "${env.WORKSPACE}/bin:${env.PATH}"
-      }
-      steps {
-        withGithubNotify(context: 'Sanity checks') {
-          deleteDir()
-          unstash 'source'
-          dir(BASE_DIR) {
-            catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: 'Sanity checks failed but keep running the build') {
-              preCommit(commit: "${GIT_BASE_COMMIT}", junit: true)
-            }
-          }
-        }
-      }
-    }
     /**
     Execute unit tests.
     */
@@ -100,19 +72,6 @@ pipeline {
       }
       failFast false
       parallel {
-        stage('Tests') {
-          options { skipDefaultCheckout() }
-          steps {
-            withGithubNotify(context: 'Tests', tab: 'tests') {
-              runTests('.ci/.jenkins_framework.yml')
-            }
-          }
-          post {
-            always {
-              convergeCoverage()
-            }
-          }
-        }
         stage('Main Tests frameworks') {
           options { skipDefaultCheckout() }
           steps {
@@ -164,7 +123,7 @@ pipeline {
                 script {
                   def versions = readYaml(file: ".ci/.jenkins_ruby.yml")
                   def benchmarkTask = [:]
-                  versions['RUBY_VERSION'].each{ v ->
+                  versions['VERSION'].each{ v ->
                     benchmarkTask[v] = runBenchmark(v)
                   }
                   parallel(benchmarkTask)
@@ -339,7 +298,7 @@ def runTests(frameworkFile) {
   unstash "source"
   dir("${BASE_DIR}"){
     rubyTasksGen = new RubyParallelTaskGenerator(
-      xKey: 'RUBY_VERSION',
+      xKey: 'VERSION',
       yKey: 'FRAMEWORK',
       xFile: ".ci/.jenkins_ruby.yml",
       yFile: frameworkFile,
@@ -362,7 +321,8 @@ def runScript(Map params = [:]){
   def framework = params.framework
   log(level: 'INFO', text: "${label}")
   retry(2){
-    withEnv(["HOME=${env.WORKSPACE}", "PATH=${env.PATH}:${env.WORKSPACE}/bin"]) {
+    withEnv(["HOME=${env.WORKSPACE}", "PATH=${env.PATH}:${env.WORKSPACE}/bin"
+             "RUBY_VERSION=${ruby}"]) {
       deleteDir()
       unstash 'source'
       dir("${BASE_DIR}"){

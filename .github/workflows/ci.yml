@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: elastic/apm-pipeline-library/.github/actions/pre-commit@current
+
+  filter:
+    needs: [pre-commit]
+    runs-on: ubuntu-latest
+    outputs:
+      # Output the generated matrix to be consumed in the following jobs
+      matrix: ${{ steps.generate.outputs.matrix }}
+    steps:
+      - id: generate
+        uses: elastic/apm-pipeline-library/.github/actions/version-framework@feature/add-matrix-version-framework
+        with:
+          versionsFile: .ci/.jenkins_ruby.yml
+          frameworksFile: .ci/.jenkins_framework.yml
+          excludedFile: .ci/.jenkins_exclude.yml
+      - run: |
+          echo '${{ steps.generate.outputs.matrix }}'
+  test:
+    runs-on: ubuntu-latest
+    needs: [filter]
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.filter.outputs.matrix) }}
+    steps:
+      - run: echo "${{ matrix.version }} ${{ matrix.framework }}"
+      - name: Run BDD tests
+        run: ./spec/scripts/features.sh "${{ matrix.version }}"
+      - name: Run version/framework
+        run: ./spec/scripts/spec.sh "${{ matrix.version }}" " ${{ matrix.framework }}"

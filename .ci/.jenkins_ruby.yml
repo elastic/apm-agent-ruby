@@ -1,4 +1,4 @@
-RUBY_VERSION:
+VERSION:
   - ruby:3.1
   - ruby:3.0
   - ruby:2.7
