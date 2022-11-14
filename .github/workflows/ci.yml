@@ -5,7 +5,13 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '**.md'
+      - '**.asciidoc'
   pull_request:
+    paths-ignore:
+      - '**.md'
+      - '**.asciidoc'
 
 # limit the access of the generated GITHUB_TOKEN
 permissions:
