@@ -33,13 +33,13 @@ jobs:
       matrix-main: ${{ steps.generate-main.outputs.matrix }}
     steps:
       - id: generate
-        uses: elastic/apm-pipeline-library/.github/actions/version-framework@feature/add-matrix-version-framework
+        uses: elastic/apm-pipeline-library/.github/actions/version-framework@current
         with:
           versionsFile: .ci/.jenkins_ruby.yml
           frameworksFile: .ci/.jenkins_framework.yml
           excludedFile: .ci/.jenkins_exclude.yml
       - id: generate-main
-        uses: elastic/apm-pipeline-library/.github/actions/version-framework@feature/add-matrix-version-framework
+        uses: elastic/apm-pipeline-library/.github/actions/version-framework@current
         with:
           versionsFile: .ci/.jenkins_ruby.yml
           frameworksFile: .ci/.jenkins_main_framework.yml
