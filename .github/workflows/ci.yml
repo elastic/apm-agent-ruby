@@ -23,8 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     outputs:
-      # Output the generated matrix to be consumed in the following jobs
       matrix: ${{ steps.generate.outputs.matrix }}
+      matrix-main: ${{ steps.generate-main.outputs.matrix }}
     steps:
       - id: generate
         uses: elastic/apm-pipeline-library/.github/actions/version-framework@feature/add-matrix-version-framework
@@ -32,8 +32,13 @@ jobs:
           versionsFile: .ci/.jenkins_ruby.yml
           frameworksFile: .ci/.jenkins_framework.yml
           excludedFile: .ci/.jenkins_exclude.yml
-      - run: |
-          echo '${{ steps.generate.outputs.matrix }}'
+      - id: generate-main
+        uses: elastic/apm-pipeline-library/.github/actions/version-framework@feature/add-matrix-version-framework
+        with:
+          versionsFile: .ci/.jenkins_ruby.yml
+          frameworksFile: .ci/.jenkins_main_framework.yml
+          excludedFile: .ci/.jenkins_exclude.yml
+
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -41,6 +46,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.filter.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run BDD tests
+        run: ./spec/scripts/features.sh "${{ matrix.version }}"
+      - name: Run version/framework
+        run: ./spec/scripts/spec.sh "${{ matrix.version }}" "${{ matrix.framework }}"
+
+  test-main:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [filter]
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.filter.outputs.matrix-main) }}
     steps:
       - uses: actions/checkout@v3
       - name: Run BDD tests
