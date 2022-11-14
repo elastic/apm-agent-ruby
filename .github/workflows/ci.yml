@@ -63,6 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: [filter]
+    continue-on-error: true # Test main versions might fail, so we don't fail
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.filter.outputs.matrix-main) }}
