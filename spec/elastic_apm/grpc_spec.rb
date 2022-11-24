@@ -31,29 +31,33 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
       end
 
       describe GRPC::ClientInterceptor, :mock_intake do
+        let(:server) do
+          ::GRPC::RpcServer.new(pool_size: 1).tap do |s|
+            s.add_http2_port('0.0.0.0:50051', :this_port_is_insecure)
+            s.handle(GreeterServer)
+            Thread.new { s.run }
+          end
+        end
+
+        after do
+          server.stop
+        end
+
+        let(:stub) do
+          Helloworld::Greeter::Stub.new(
+            'localhost:50051',
+            :this_channel_is_insecure,
+            interceptors: [described_class.new]
+          )
+        end
+
         context 'request to grpc server' do
-          let(:stub) do
-            Helloworld::Greeter::Stub.new(
-              'localhost:50051',
-              :this_channel_is_insecure,
-              interceptors: [described_class.new]
-            )
-          end
-
-          let(:server) do
-            ::GRPC::RpcServer.new.tap do |s|
-              s.add_http2_port('0.0.0.0:50051', :this_port_is_insecure)
-              s.handle(GreeterServer)
-            end
-          end
-
           it 'creates a span' do
-            thread = Thread.new { server.run }
             # Sometimes the gRPC server doesn't start so we skip the test
-            skip 'gRPC is not running' unless server.wait_till_running
+            skip 'gRPC server is not running' unless server.wait_till_running
 
             message = with_agent do
-              ElasticAPM.with_transaction 'GRPC test3' do
+              ElasticAPM.with_transaction 'GRPC test request' do
                 stub.say_hello(
                   Helloworld::HelloRequest.new(name: 'goodbye')
                 ).message
@@ -70,32 +74,11 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
             expect(span.dig('context', 'destination', 'service', 'name')).to eq('grpc')
             expect(span.dig('context', 'destination', 'service', 'resource')).to eq('localhost:50051')
             expect(span.dig('context', 'destination', 'port')).to eq('50051')
-
-            server.stop
-            thread.kill
           end
         end
 
         context 'when no transaction is started' do
-          let(:config) { { transaction_sample_rate: 0.0 } }
-
-          let(:stub) do
-            Helloworld::Greeter::Stub.new(
-              'localhost:50052',
-              :this_channel_is_insecure,
-              interceptors: [described_class.new]
-            )
-          end
-
-          let(:server) do
-            ::GRPC::RpcServer.new.tap do |s|
-              s.add_http2_port('0.0.0.0:50052', :this_port_is_insecure)
-              s.handle(GreeterServer)
-            end
-          end
-
           it 'does not create a span' do
-            thread = Thread.new { server.run }
             # Sometimes the gRPC server doesn't start so we skip the test
             skip 'gRPC is not running' unless server.wait_till_running
 
@@ -106,42 +89,19 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
             end
             expect(message).to eq('Hello goodbye')
             expect(@mock_intake.spans.size).to eq(0)
-            if @mock_intake.transactions.size > 0
-              puts "Too many transactions, should be 0, sample rate is 0"
-              @mock_intake.transactions.each {|t| puts t }
-            end
             expect(@mock_intake.transactions.size).to eq(0)
-
-            server.stop
-            thread.kill
           end
         end
 
         context 'when max spans is reached' do
           let(:config) { { transaction_max_spans: 0 } }
 
-          let(:stub) do
-            Helloworld::Greeter::Stub.new(
-              'localhost:50053',
-              :this_channel_is_insecure,
-              interceptors: [described_class.new]
-            )
-          end
-
-          let(:server) do
-            ::GRPC::RpcServer.new.tap do |s|
-              s.add_http2_port('0.0.0.0:50053', :this_port_is_insecure)
-              s.handle(GreeterServer)
-            end
-          end
-
           it 'does not create a span' do
-            thread = Thread.new { server.run }
             # Sometimes the gRPC server doesn't start so we skip the test
             skip 'gRPC is not running' unless server.wait_till_running
 
             message = with_agent(**config) do
-              ElasticAPM.with_transaction 'GRPC test1' do
+              ElasticAPM.with_transaction 'GRPC test max spans' do
                 stub.say_hello(
                   Helloworld::HelloRequest.new(name: 'goodbye')
                 ).message
@@ -157,9 +117,6 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
               @mock_intake.transactions.each {|t| puts t }
             end
             expect(@mock_intake.transactions.size).to eq(1)
-
-            server.stop
-            thread.kill
           end
         end
 
@@ -170,29 +127,13 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
             )
           end
 
-          let(:stub) do
-            Helloworld::Greeter::Stub.new(
-              'localhost:50054',
-              :this_channel_is_insecure,
-              interceptors: [described_class.new]
-            )
-          end
-
-          let(:server) do
-            ::GRPC::RpcServer.new.tap do |s|
-              s.add_http2_port('0.0.0.0:50054', :this_port_is_insecure)
-              s.handle(GreeterServer)
-            end
-          end
-
           it 'passes it to the span' do
-            thread = Thread.new { server.run }
             # Sometimes the gRPC server doesn't start so we skip the test
             skip 'gRPC is not running' unless server.wait_till_running
 
             message = with_agent do
               ElasticAPM.with_transaction(
-                'GRPC test2', trace_context: trace_context
+                'GRPC test trace context', trace_context: trace_context
               ) do
                 stub.say_hello(
                   Helloworld::HelloRequest.new(name: 'goodbye')
@@ -205,33 +146,34 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
 
             span, = @mock_intake.spans
             expect(span['trace_id']).to eq('123')
-
-            server.stop
-            thread.kill
           end
         end
       end
 
       describe GRPC::ServerInterceptor, :mock_intake do
+        let(:stub) do
+          Helloworld::Greeter::Stub.new(
+            'localhost:50051',
+            :this_channel_is_insecure
+          )
+        end
+
+        let(:server) do
+          ::GRPC::RpcServer.new(
+            interceptors: [described_class.new]
+          ).tap do |s|
+            s.add_http2_port('0.0.0.0:50051', :this_port_is_insecure)
+            s.handle(GreeterServer)
+            Thread.new { server.run }
+          end
+        end
+
+        after do
+          server.stop
+        end
+
         context 'request made to grpc server' do
-          let(:stub) do
-            Helloworld::Greeter::Stub.new(
-              'localhost:50055',
-              :this_channel_is_insecure
-            )
-          end
-
-          let(:server) do
-            ::GRPC::RpcServer.new(
-              interceptors: [described_class.new]
-            ).tap do |s|
-              s.add_http2_port('0.0.0.0:50055', :this_port_is_insecure)
-              s.handle(GreeterServer)
-            end
-          end
-
           it 'creates a transaction' do
-            thread = Thread.new { server.run }
             # Sometimes the gRPC server doesn't start so we skip the test
             skip 'gRPC is not running' unless server.wait_till_running
 
@@ -248,9 +190,6 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
             expect(transaction['name']).to eq('grpc')
             expect(transaction['type']).to eq('request')
             expect(transaction['result']).to eq('success')
-
-            server.stop
-            thread.kill
           end
         end
 
@@ -261,24 +200,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
             )
           end
 
-          let(:stub) do
-            Helloworld::Greeter::Stub.new(
-              'localhost:50056',
-              :this_channel_is_insecure
-            )
-          end
-
-          let(:server) do
-            ::GRPC::RpcServer.new(
-              interceptors: [described_class.new]
-            ).tap do |s|
-              s.add_http2_port('0.0.0.0:50056', :this_port_is_insecure)
-              s.handle(GreeterServer)
-            end
-          end
-
           it 'sets it on the transaction' do
-            thread = Thread.new { server.run }
             # Sometimes the gRPC server doesn't start so we skip the test
             skip 'gRPC is not running' unless server.wait_till_running
 
@@ -300,9 +222,6 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
             expect(transaction['result']).to eq('success')
             expect(transaction['trace_id']).to eq(trace_context.trace_id)
             expect(transaction['parent_id']).to eq(trace_context.id)
-
-            server.stop
-            thread.kill
           end
 
           context 'with tracestate' do
@@ -310,24 +229,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
               trace_context.tracestate = TraceContext::Tracestate.parse('a=b')
             end
 
-            let(:stub) do
-              Helloworld::Greeter::Stub.new(
-                'localhost:50057',
-                :this_channel_is_insecure
-              )
-            end
-
-            let(:server) do
-              ::GRPC::RpcServer.new(
-                interceptors: [described_class.new]
-              ).tap do |s|
-                s.add_http2_port('0.0.0.0:50057', :this_port_is_insecure)
-                s.handle(GreeterServer)
-              end
-            end
-
             it 'sets it on the transaction' do
-              thread = Thread.new { server.run }
               # Sometimes the gRPC server doesn't start so we skip the test
               skip 'gRPC is not running' unless server.wait_till_running
 
@@ -349,9 +251,6 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
               expect(transaction['result']).to eq('success')
               expect(transaction['trace_id']).to eq(trace_context.trace_id)
               expect(transaction['parent_id']).to eq(trace_context.id)
-
-              server.stop
-              thread.kill
             end
           end
         end
@@ -360,24 +259,18 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
           class FancyError < ::StandardError; end
 
           class GreeterErrorServer < Helloworld::Greeter::Service
-            def say_hello(hello_req, _unused_call)
+            def say_hello(_unused_hello_req, _unused_call)
               raise FancyError, 'boom!'
             end
-          end
-
-          let(:stub) do
-            Helloworld::Greeter::Stub.new(
-              'localhost:50058',
-              :this_channel_is_insecure
-            )
           end
 
           let(:server) do
             ::GRPC::RpcServer.new(
               interceptors: [described_class.new]
             ).tap do |s|
-              s.add_http2_port('0.0.0.0:50058', :this_port_is_insecure)
+              s.add_http2_port('0.0.0.0:50051', :this_port_is_insecure)
               s.handle(GreeterErrorServer)
+              Thread.new { server.run }
             end
           end
 
@@ -393,7 +286,6 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
           end
 
           it 'reports the error', :mock_time do
-            thread = Thread.new { server.run }
             # Sometimes the gRPC server doesn't start so we skip the test
             skip 'gRPC is not running' unless server.wait_till_running
 
@@ -416,9 +308,6 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
             expect(error.dig('exception', 'message')).to eq 'boom!'
             expect(error.dig('exception', 'type')).to eq 'ElasticAPM::FancyError'
             expect(error.dig('exception', 'handled')).to be false
-
-            server.stop
-            thread.kill
           end
         end
       end
