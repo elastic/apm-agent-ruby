@@ -42,6 +42,7 @@ module ElasticAPM
     end
 
     class HardWorker < TestingWorker; end
+
     class ExplodingWorker < TestingWorker
       def perform
         super
@@ -53,21 +54,25 @@ module ElasticAPM
       Sidekiq::Testing.server_middleware do |chain|
         chain.add Spies::SidekiqSpy::Middleware
       end
-
-      Sidekiq.logger = Logger.new(nil) # sssshh, we're testing
     end
 
     it 'starts when sidekiq processors do' do
       opts = { concurrency: 1, queues: ['default'] }
 
       manager =
-        if Gem::Version.new(Sidekiq::VERSION) >= Gem::Version.new('6.1.0')
-          config = Sidekiq
-          config[:fetch] = Sidekiq::BasicFetch.new(opts)
-          Sidekiq::Manager.new(config)
-        else
-          Sidekiq::Manager.new(opts)
-        end
+      if Gem::Version.new(Sidekiq::VERSION) >= Gem::Version.new('7.0')
+        logger = Logger.new(nil)
+        logger.level = ::Logger::UNKNOWN
+        config = Sidekiq::Config.new(concurrency: 1)
+        config.logger = logger
+        Sidekiq::Manager.new(config.default_capsule)
+      elsif Gem::Version.new(Sidekiq::VERSION) >= Gem::Version.new('6.1.0')
+        Sidekiq.logger = Logger.new(nil)
+        Sidekiq::Manager.new(fetch: Sidekiq::BasicFetch.new(opts))
+      else
+        Sidekiq.logger = Logger.new(nil)
+        Sidekiq::Manager.new(opts)
+      end
 
       manager.start
 

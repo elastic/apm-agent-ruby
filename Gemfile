@@ -55,7 +55,7 @@ gem 'racecar', require: nil if !defined?(JRUBY_VERSION)
 gem 'resque', require: nil
 gem 'sequel', require: nil
 gem 'shoryuken', require: nil
-gem 'sidekiq', '<7', require: nil
+gem 'sidekiq', require: nil
 gem 'simplecov', require: false
 gem 'simplecov-cobertura', require: false
 gem 'sucker_punch', '~> 2.0', require: nil
