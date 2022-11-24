@@ -27,6 +27,7 @@ module ElasticAPM
 
       # rubocop:disable Lint/UnusedMethodArgument, Style/ExplicitBlockArgument
       def request_response(request:, call:, method:, metadata:)
+        puts "sending request"
         return yield unless (transaction = ElasticAPM.current_transaction)
         if (trace_context = transaction.trace_context)
           trace_context.apply_headers { |k, v| metadata[k.downcase] = v }
@@ -37,7 +38,9 @@ module ElasticAPM
           subtype: SUBTYPE,
           context: span_context(call)
         ) do
-          yield
+          result = yield
+          puts "sent request"
+          result
         end
       end
       # rubocop:enable Lint/UnusedMethodArgument, Style/ExplicitBlockArgument
@@ -65,7 +68,9 @@ module ElasticAPM
       # rubocop:disable Lint/UnusedMethodArgument
       def request_response(request:, call:, method:)
         transaction = start_transaction(call)
+        puts "transaction started"
         yield
+        puts "transaction complete"
         transaction.done 'success'
       rescue ::Exception => e
         ElasticAPM.report(e, handled: false)

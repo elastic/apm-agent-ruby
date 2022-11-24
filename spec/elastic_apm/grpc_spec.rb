@@ -64,6 +64,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
               end
             end
             expect(message).to eq('Hello goodbye')
+            puts "received message #{message} in test request"
 
             wait_for spans: 1
 
@@ -80,7 +81,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
         context 'when no transaction is started' do
           it 'does not create a span' do
             # Sometimes the gRPC server doesn't start so we skip the test
-            skip 'gRPC is not running' unless server.wait_till_running
+            skip 'gRPC server is not running' unless server.wait_till_running
 
             message = with_agent do
               stub.say_hello(
@@ -88,6 +89,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
               ).message
             end
             expect(message).to eq('Hello goodbye')
+            puts "received message #{message} in test no span"
             expect(@mock_intake.spans.size).to eq(0)
             expect(@mock_intake.transactions.size).to eq(0)
           end
@@ -98,7 +100,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
 
           it 'does not create a span' do
             # Sometimes the gRPC server doesn't start so we skip the test
-            skip 'gRPC is not running' unless server.wait_till_running
+            skip 'gRPC server is not running' unless server.wait_till_running
 
             message = with_agent(**config) do
               ElasticAPM.with_transaction 'GRPC test max spans' do
@@ -108,6 +110,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
               end
             end
             expect(message).to eq('Hello goodbye')
+            puts "received message #{message} in test max spans"
 
             wait_for transactions: 1
 
@@ -129,7 +132,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
 
           it 'passes it to the span' do
             # Sometimes the gRPC server doesn't start so we skip the test
-            skip 'gRPC is not running' unless server.wait_till_running
+            skip 'gRPC server is not running' unless server.wait_till_running
 
             message = with_agent do
               ElasticAPM.with_transaction(
@@ -141,6 +144,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
               end
             end
             expect(message).to eq('Hello goodbye')
+            puts "received message #{message} in test trace context"
 
             wait_for spans: 1
 
@@ -175,7 +179,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
         context 'request made to grpc server' do
           it 'creates a transaction' do
             # Sometimes the gRPC server doesn't start so we skip the test
-            skip 'gRPC is not running' unless server.wait_till_running
+            skip 'gRPC server is not running' unless server.wait_till_running
 
             message = with_agent do
               stub.say_hello(
@@ -183,6 +187,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
               ).message
             end
             expect(message).to eq('Hello goodbye')
+            puts "received message #{message} in test transaction created"
 
             wait_for transactions: 1
 
@@ -202,7 +207,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
 
           it 'sets it on the transaction' do
             # Sometimes the gRPC server doesn't start so we skip the test
-            skip 'gRPC is not running' unless server.wait_till_running
+            skip 'gRPC server is not running' unless server.wait_till_running
 
             message = with_agent do
               stub.say_hello(
@@ -213,6 +218,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
               ).message
             end
             expect(message).to eq('Hello goodbye')
+            puts "received message #{message} in test trace context on transaction"
 
             wait_for transactions: 1
 
@@ -231,7 +237,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
 
             it 'sets it on the transaction' do
               # Sometimes the gRPC server doesn't start so we skip the test
-              skip 'gRPC is not running' unless server.wait_till_running
+              skip 'gRPC server is not running' unless server.wait_till_running
 
               message = with_agent do
                 stub.say_hello(
@@ -242,6 +248,7 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
                 ).message
               end
               expect(message).to eq('Hello goodbye')
+              puts "received message #{message} in test tracestate"
 
               wait_for transactions: 1
 
@@ -287,13 +294,14 @@ if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '2.6'
 
           it 'reports the error', :mock_time do
             # Sometimes the gRPC server doesn't start so we skip the test
-            skip 'gRPC is not running' unless server.wait_till_running
+            skip 'gRPC server is not running' unless server.wait_till_running
 
             expect do
               with_agent do
                 stub.say_hello(Helloworld::HelloRequest.new(name: 'goodbye'))
               end
             end.to raise_exception(Exception)
+            puts "exception raised: #{Exception}"
 
             wait_for transactions: 1, errors: 1
 
