@@ -66,8 +66,12 @@ module ElasticAPM
         config = Sidekiq::Config.new(concurrency: 1)
         config.logger = logger
         Sidekiq::Manager.new(config.default_capsule)
-      elsif Gem::Version.new(Sidekiq::VERSION) >= Gem::Version.new('6.1.0')
+      elsif Gem::Version.new(Sidekiq::VERSION) >= Gem::Version.new('6.5')
         Sidekiq.logger = Logger.new(nil)
+        config = Sidekiq
+        config[:fetch] = Sidekiq::BasicFetch.new(config)
+        Sidekiq::Manager.new(config)
+      elsif Gem::Version.new(Sidekiq::VERSION) >= Gem::Version.new('6.1.0')
         Sidekiq::Manager.new(fetch: Sidekiq::BasicFetch.new(opts))
       else
         Sidekiq.logger = Logger.new(nil)
