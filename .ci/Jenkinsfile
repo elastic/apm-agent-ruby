@@ -25,6 +25,7 @@ pipeline {
     OPBEANS_REPO = 'opbeans-ruby'
     REFERENCE_REPO = '/var/lib/jenkins/.git-references/apm-agent-ruby.git'
     SLACK_CHANNEL = '#apm-agent-ruby'
+    RUBY_DOCKER_TAG = 'ruby:2.6'
   }
   options {
     timeout(time: 2, unit: 'HOURS')
@@ -123,6 +124,37 @@ pipeline {
         }
       }
     }
+    stage('Publish snapshot packages') {
+      options { skipDefaultCheckout() }
+      environment {
+        PATH = "${env.WORKSPACE}/.local/bin:${env.WORKSPACE}/bin:${env.PATH}"
+        BUCKET_NAME = 'oblt-artifacts'
+        DOCKER_REGISTRY = 'docker.elastic.co'
+        DOCKER_REGISTRY_SECRET = 'secret/observability-team/ci/docker-registry/prod'
+        GCS_ACCOUNT_SECRET = 'secret/observability-team/ci/snapshoty'
+      }
+      when { branch 'main' }
+      steps {
+        withGithubNotify(context: 'Publish snapshot packages') {
+          deleteDir()
+          unstash 'source'
+          dir(env.BASE_DIR) {
+            script {
+              docker.image(env.RUBY_DOCKER_TAG).inside() {
+                sh(label: 'install build system', script: 'gem install rake yard rspec')
+                sh(label: 'create gem', script: 'rake build')
+              }
+              snapshoty(
+                bucket: env.BUCKET_NAME,
+                gcsAccountSecret: env.GCS_ACCOUNT_SECRET,
+                dockerRegistry: env.DOCKER_REGISTRY,
+                dockerSecret: env.DOCKER_REGISTRY_SECRET
+              )
+            }
+          }
+        }
+      }
+    }
     stage('Benchmarks') {
       options { skipDefaultCheckout() }
       when {
@@ -178,7 +210,6 @@ pipeline {
     stage('Release') {
       options { skipDefaultCheckout() }
       environment {
-        RUBY_DOCKER_TAG = 'ruby:2.6'
         HOME = '/var/lib/jenkins'
       }
       when {
@@ -389,7 +420,7 @@ def convergeCoverage() {
 
 def prepareRelease(Closure body){
   dir("${env.BASE_DIR}"){
-    docker.image("${env.RUBY_DOCKER_TAG}").inside('-v ${REFERENCE_REPO}:${REFERENCE_REPO} -v /etc/passwd:/etc/passwd -v ${HOME}/.ssh:${HOME}/.ssh') {
+    docker.image(env.RUBY_DOCKER_TAG).inside('-v ${REFERENCE_REPO}:${REFERENCE_REPO} -v /etc/passwd:/etc/passwd -v ${HOME}/.ssh:${HOME}/.ssh') {
       withEnv(["HOME=${env.WORKSPACE}/${env.BASE_DIR ?: ''}"]) {
         rubygemsLogin.withApi(secret: "${env.RELEASE_SECRET}") {
           withGitRelease(credentialsId: '2a9602aa-ab9f-4e52-baf3-b71ca88469c7-UserAndToken') {
