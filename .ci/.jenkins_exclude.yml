@@ -57,8 +57,6 @@ exclude:
   # rails-6.0 and rails-6.1 exclusions
   # Don't test on ruby 2.4
   - RUBY_VERSION: ruby:2.4
-    FRAMEWORK: rails-7.0
-  - RUBY_VERSION: ruby:2.4
     FRAMEWORK: rails-6.1
   - RUBY_VERSION: ruby:2.4
     FRAMEWORK: rails-6.0
@@ -82,6 +80,8 @@ exclude:
     FRAMEWORK: rails-main
 
   # Only test rails 7.0 on ruby >= 2.7
+  - RUBY_VERSION: ruby:2.4
+    FRAMEWORK: rails-7.0
   - RUBY_VERSION: ruby:2.6
     FRAMEWORK: rails-7.0
   - RUBY_VERSION: ruby:2.5
