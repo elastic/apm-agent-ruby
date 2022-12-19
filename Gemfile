@@ -120,8 +120,8 @@ else
   gem 'sqlite3'
 end
 
-# current sneakers only supports >=2.5.0
-if Gem::Version.create(RUBY_VERSION) >= Gem::Version.create('2.5.0')
+# sneakers main only supports >=2.5.0
+if Gem::Version.create(RUBY_VERSION) >= Gem::Version.create('2.5.0') && !defined?(JRUBY_VERSION)
   gem 'sneakers', github: 'jondot/sneakers', ref: 'd761dfe1493', require: nil
 end
 

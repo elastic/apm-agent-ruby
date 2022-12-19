@@ -18,7 +18,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-unless Gem::Specification.find_all_by_name('sneakers', '>=2.12.0').empty?
+unless Gem::Specification.find_all_by_name('sneakers', '>=2.12.0').empty? || defined?(JRUBY_VERSION)
   require 'sneakers'
   require 'elastic_apm/spies/sneakers'
 
