@@ -124,7 +124,7 @@ module ElasticAPM
         sample_rate = trace_context.tracestate.sample_rate
       else
         sampled = random_sample?(config)
-        sample_rate = config.transaction_sample_rate
+        sample_rate = sampled ? config.transaction_sample_rate : 0
       end
 
       transaction =
