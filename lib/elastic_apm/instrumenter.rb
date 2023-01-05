@@ -150,7 +150,9 @@ module ElasticAPM
 
       transaction.done result
 
-      enqueue.call transaction
+      if transaction.sampled? || @config.version < Config::ServerInfo::VERSION_8_0
+        enqueue.call transaction
+      end
 
       update_transaction_metrics(transaction)
 
