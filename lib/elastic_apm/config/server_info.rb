@@ -35,7 +35,7 @@ module ElasticAPM
         resp = http.get(config.server_url)
         @payload = JSON.parse(resp.body)
       rescue
-        @payload = {"version" => '0'}
+        @payload = { "version" => VERSION_0 }
       end
 
       def version
