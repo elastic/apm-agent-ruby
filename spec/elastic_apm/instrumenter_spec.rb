@@ -132,7 +132,7 @@ module ElasticAPM
           expect(subject).to receive(:random_sample?) { false }
           t = subject.start_transaction 'Test', 't', config: config
           expect(t.sampled?).to be false
-          expect(t.sample_rate).to be 0
+          expect(t.sample_rate).to eq 0
         end
       end
 
@@ -142,7 +142,7 @@ module ElasticAPM
           expect(subject).to receive(:random_sample?) { true }
           t = subject.start_transaction 'Test', 't', config: config
           expect(t.sampled?).to be true
-          expect(t.sample_rate).to be 0.2
+          expect(t.sample_rate).to eq 0.2
         end
       end
     end
