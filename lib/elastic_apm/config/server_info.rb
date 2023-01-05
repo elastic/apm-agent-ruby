@@ -23,6 +23,9 @@ module ElasticAPM
     class ServerInfo
       attr_reader :payload, :config, :http
 
+      VERSION_8_0 = '8.0'
+      VERSION_0 = '0'
+
       def initialize(config)
         @config = config
         @http = Transport::Connection::Http.new(config)
@@ -32,12 +35,14 @@ module ElasticAPM
         resp = http.get(config.server_url)
         @payload = JSON.parse(resp.body)
       rescue
-        @payload = {"version" => nil}
+        @payload = {"version" => '0'}
       end
 
       def version
-        execute unless payload
-        payload["version"]
+        @version ||= begin
+          execute
+          payload["version"] ? payload["version"].to_s : VERSION_0
+        end
       end
     end
   end
