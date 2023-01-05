@@ -30,7 +30,7 @@ module WithAgent
 
     @server_version_stub =
       WebMock.stub_request(:get, %r{^http://localhost:8200/$}).
-      to_return(body: '{"version":8.0}')
+      to_return(body: '{"version":"8.0"}')
 
     klass.start(*args, **config)
     yield
