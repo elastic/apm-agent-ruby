@@ -125,6 +125,26 @@ module ElasticAPM
           expect(transaction.context.labels).to match(more: 'yes!')
         end
       end
+
+      context 'when the transaction is unsampled' do
+        let(:config) { Config.new }
+        it 'sets the sample rate to 0' do
+          expect(subject).to receive(:random_sample?) { false }
+          t = subject.start_transaction 'Test', 't', config: config
+          expect(t.sampled?).to be false
+          expect(t.sample_rate).to be 0
+        end
+      end
+
+      context 'when the transaction is sampled' do
+        let(:config) { Config.new(transaction_sample_rate: '0.2') }
+        it 'sets the sample rate to the configured sample rate' do
+          expect(subject).to receive(:random_sample?) { true }
+          t = subject.start_transaction 'Test', 't', config: config
+          expect(t.sampled?).to be true
+          expect(t.sample_rate).to be 0.2
+        end
+      end
     end
 
     describe '#end_transaction' do
