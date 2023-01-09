@@ -445,5 +445,29 @@ module ElasticAPM
         subject.stop
       end
     end
+
+    describe 'unsampled transactions' do
+      let(:config) { Config.new(transaction_sample_rate: '0') }
+
+      context 'when the server version is less than 8.0' do
+        it 'enqueues the transaction' do
+          stub_request(:get, "http://localhost:8200/")
+            .to_return(status: 200, body: '{"version": "7.17.4"}')
+          expect(subject.enqueue).to receive(:call).and_call_original
+          subject.start_transaction 'Test', config: config
+          subject.end_transaction
+        end
+      end
+
+      context 'when the server version is at least 8.0' do
+        it 'does not enqueue the transaction' do
+          stub_request(:get, "http://localhost:8200/")
+            .to_return(status: 200, body: '{"version": "8.5.3"}')
+          expect(subject.enqueue).not_to receive(:call)
+          subject.start_transaction 'Test', config: config
+          subject.end_transaction
+        end
+      end
+    end
   end
 end

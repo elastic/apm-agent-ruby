@@ -296,16 +296,16 @@ module ElasticAPM
     end
 
     describe "#version" do
-      it "has no version if the server does not respond" do
+      it "has version 0 if the server does not respond" do
         WebMock.stub_request(:get, "http://localhost:8200/")
           .to_return(status: 404, body: "")
-        expect(Config.new.version).to be_nil
+        expect(Config.new.version).to eq '0'
       end
 
       it "returns the version from the server" do
         WebMock.stub_request(:get, "http://localhost:8200/")
-          .to_return(status: 200, body: '{"version": 8.0}')
-        expect(Config.new.version).to eq 8.0
+          .to_return(status: 200, body: '{"version": 8.5}')
+        expect(Config.new.version).to eq '8.5'
       end
     end
   end

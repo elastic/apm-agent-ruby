@@ -115,6 +115,11 @@ module ElasticAPM
       context 'with valid header' do
         it 'recognizes trace_context' do
           with_agent do
+            # The apm server version must be < 8.0 in order for a transaction
+            # to be enqueued when it's unsampled.
+            # See issue https://github.com/elastic/apm-agent-ruby/issues/1340
+            WebMock.stub_request(:get, %r{^http://localhost:8200/$}).
+              to_return(body: '{"version":"7.17.4"}')
             app.call(
               Rack::MockRequest.env_for(
                 '/',
@@ -136,6 +141,11 @@ module ElasticAPM
       context 'with tracestate' do
         it 'recognizes trace_context' do
           with_agent do
+            # The apm server version must be < 8.0 in order for a transaction
+            # to be enqueued when it's unsampled.
+            # See issue https://github.com/elastic/apm-agent-ruby/issues/1340
+            WebMock.stub_request(:get, %r{^http://localhost:8200/$}).
+              to_return(body: '{"version":"7.17.4"}')
             app.call(
               Rack::MockRequest.env_for(
                 '/',
@@ -191,6 +201,11 @@ module ElasticAPM
       context 'with a prefix-less header' do
         it 'recognizes trace_context' do
           with_agent do
+            # The apm server version must be < 8.0 in order for a transaction
+            # to be enqueued when it's unsampled.
+            # See issue https://github.com/elastic/apm-agent-ruby/issues/1340
+            WebMock.stub_request(:get, %r{^http://localhost:8200/$}).
+              to_return(body: '{"version":"7.17.4"}')
             app.call(
               Rack::MockRequest.env_for(
                 '/',
@@ -212,6 +227,11 @@ module ElasticAPM
       context 'with both types of headers' do
         it 'picks the prefixed' do
           with_agent do
+            # The apm server version must be < 8.0 in order for a transaction
+            # to be enqueued when it's unsampled.
+            # See issue https://github.com/elastic/apm-agent-ruby/issues/1340
+            WebMock.stub_request(:get, %r{^http://localhost:8200/$}).
+              to_return(body: '{"version":"7.17.4"}')
             app.call(
               Rack::MockRequest.env_for(
                 '/',
