@@ -56,6 +56,8 @@ endif::[]
 ====== Fixed
 
 - Small change to Sidekiq tests to handle new configuration passing method {pull}1283[#1283]
+- Set transaction sample rate to 0 when it's unsampled {pull}1339[#1339]
+- Don't send unsampled transactions to APM server >= 8.0 {pull}1341[#1341]
 
 [[release-notes-4.5.1]]
 ==== 4.5.1
