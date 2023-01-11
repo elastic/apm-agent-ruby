@@ -162,7 +162,7 @@ pipeline {
               unstash 'source'
               dir("${BASE_DIR}"){
                 script {
-                  def versions = readYaml(file: ".ci/.jenkins_ruby.yml")
+                  def versions = readYaml(file: ".ci/.jenkins_ruby_benchmarks.yml")
                   def benchmarkTask = [:]
                   versions['RUBY_VERSION'].each{ v ->
                     benchmarkTask[v] = runBenchmark(v)
