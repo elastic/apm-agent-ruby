@@ -116,8 +116,8 @@ if RUBY_PLATFORM == 'java'
   end
 elsif frameworks_versions['rails'] =~ /^(4|5)/
   gem 'sqlite3', '~> 1.3.6'
-elsif frameworks_versions['rails'] && RUBY_VERSION < '2.7' # rails 6.0 tested with ruby 2.6
-  gem 'sqlite3', '~> 1.3.6'
+elsif RUBY_VERSION < '2.7'
+  gem 'sqlite3', '~> 1.5.4'
 else
   gem 'sqlite3'
 end
