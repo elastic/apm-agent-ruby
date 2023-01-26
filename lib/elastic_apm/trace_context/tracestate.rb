@@ -92,6 +92,8 @@ module ElasticAPM
 
       extend Forwardable
 
+      ENTRY_SPLIT_REGEX = /\s*[\n,]+\s*/
+
       def initialize(entries: {}, sample_rate: nil)
         @entries = entries
 
@@ -140,7 +142,7 @@ module ElasticAPM
           # Rack handles this by joining the headers under the same key,
           # separated by newlines.
           # See https://www.rubydoc.info/github/rack/rack/file/SPEC
-          String(str).split("\n").map { |s| s.split(',') }.flatten
+          String(str).split(ENTRY_SPLIT_REGEX).flatten
         end
       end
     end

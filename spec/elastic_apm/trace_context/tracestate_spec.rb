@@ -32,6 +32,15 @@ module ElasticAPM
           expect(subject.entries.count).to be 3
         end
       end
+
+      context 'with whitespace' do
+        let(:header) { "a=b, c=d\ne=f ,g=h \ni=j\n k=l" }
+
+        it 'strips whitespace and splits entries by key' do
+          expect(subject.entries.keys).to eq %w[a c e g i k]
+          expect(subject.entries.values.collect(&:value)).to eq %w[b d f h j l]
+        end
+      end
     end
 
     describe '#to_header' do
