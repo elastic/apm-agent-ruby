@@ -43,6 +43,7 @@ IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} USER_ID="$(id -u):$(id -g)" \
   -e INCLUDE_SCHEMA_SPECS=1 \
   -e JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS}" \
   -e JRUBY_OPTS="${JRUBY_OPTS}" \
+  -e FRAMEWORKS="${FRAMEWORKS}" \
   -e HOME="/tmp" \
   -v "$(dirname "$(pwd)"):/app" \
   -w /app \
