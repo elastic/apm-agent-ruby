@@ -95,6 +95,26 @@ module ElasticAPM
         end
       end
 
+      describe 'when exception is raised before write' do
+        subject! { described_class.new(config) }
+
+        before do
+          allow(subject).to receive(:post).and_raise
+        end
+
+        it 'closes the connection on close' do
+          stub = build_stub(body: /{"msg": "hey!"}/, headers: headers)
+          subject.open(url)
+
+          sleep 0.2
+          subject.write('{"msg": "hey!"}')
+
+          expect(subject.closed?).to be false
+          subject.close(:scheduled_flush)
+          expect(subject.closed?).to be true
+        end
+      end
+
       context 'http compression' do
         let(:config) { Config.new }
 

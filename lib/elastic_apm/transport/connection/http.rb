@@ -75,7 +75,15 @@ module ElasticAPM
           @closed.make_true
 
           @wr&.close
-          return if @request.nil? || @request&.join(5)
+
+          if @request&.join(5)
+            @rd&.close
+            return
+          end
+
+          @rd&.close
+
+          return if @request.nil?
 
           error(
             '%s: APM Server not responding in time, terminating request',
@@ -117,8 +125,6 @@ module ElasticAPM
               error(
                 "Couldn't establish connection to APM Server:\n%p", e.inspect
               )
-            ensure
-              @rd&.close
             end
           end
         end
