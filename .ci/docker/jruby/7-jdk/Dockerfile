@@ -38,4 +38,7 @@ ENV PATH $BUNDLE_BIN:$PATH
 RUN mkdir -p "$GEM_HOME" "$BUNDLE_BIN" \
     && chmod 777 "$GEM_HOME" "$BUNDLE_BIN"
 
+RUN useradd -rm -d /home/jruby -u 1001 jruby
+USER jruby
+WORKDIR /home/jruby
 CMD [ "irb" ]
