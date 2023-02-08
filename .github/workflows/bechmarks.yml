@@ -27,4 +27,4 @@ jobs:
           gh api -H 'Accept: application/vnd.github.everest-preview+json' \
             repos/elastic/${{ env.PROJECT }}/dispatches \
             -X POST \
-            --input - <<< "{\"event_type\":\"benchmark-java\",\"client_payload\":{ \"ref\": \"${{ github.event.pull_request.head.sha }}\", \"repository\": \"${{ github.repository }}\"}}"
+            --input - <<< "{\"event_type\":\"benchmark\",\"client_payload\":{ \"ref\": \"${{ github.event.pull_request.head.sha }}\", \"repository\": \"${{ github.repository }}\"}}"
