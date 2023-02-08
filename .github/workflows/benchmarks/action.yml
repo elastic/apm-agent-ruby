@@ -22,20 +22,21 @@ runs:
   steps:
 
   - name: Run benchmarks script
-    id: benchmark
+    id: benchmarks
     run: .ci/bench.sh
     shell: bash
 
   - name: Create GitHub check
     if: always()
     env:
+      REPO: 'apm-agent-ruby'
       GH_TOKEN: ${{ inputs.githubToken }}
       RUN_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"
-      STATE: "${{ steps.benchmark.conclusion == 'success' && 'success' || 'failure' }}"
+      STATE: "${{ steps.benchmarks.conclusion == 'success' && 'success' || 'failure' }}"
     run: |
-      gh api repos/elastic/apm-pipeline-library/statuses/${{ inputs.sha }} \
+      gh api repos/elastic/${{ env.REPO }}/statuses/${{ inputs.sha }} \
       -X POST \
-      --input - <<< "{\"state\":\"${{ env.STATE }}\",\"context\": \"benchmarks\", \"target_url\": \"${{ env.RUN_URL }}\", \"description\":\"The benchmark ran\"}"
+      --input - <<< "{\"state\":\"${{ env.STATE }}\",\"context\": \"benchmarks\", \"target_url\": \"${{ env.RUN_URL }}\", \"description\":\"The benchmarks ran\"}"
     shell: bash
 
   - name: Report results
