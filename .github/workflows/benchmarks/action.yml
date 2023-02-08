@@ -21,9 +21,9 @@ runs:
   using: "composite"
   steps:
 
-  - name: Run benchmark script
+  - name: Run benchmarks script
     id: benchmark
-    run: .ci/scripts/bench.sh
+    run: .ci/bench.sh
     shell: bash
 
   - name: Create GitHub check

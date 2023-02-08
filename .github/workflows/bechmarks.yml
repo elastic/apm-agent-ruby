@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 jobs:
-  benchmark:
+  benchmarks:
     runs-on: ubuntu-latest
     steps:
       - uses: elastic/apm-pipeline-library/.github/actions/github-token@current
