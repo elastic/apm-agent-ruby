@@ -1,0 +1,48 @@
+name: benchmarks
+
+inputs:
+  vaultUrl:
+    description: 'Vault URL'
+    required: true
+  vaultRoleId:
+    description: 'Vault role ID'
+    required: true
+  vaultSecretId:
+    description: 'Vault secret ID'
+    required: true
+  githubToken:
+    description: 'GitHub token'
+    required: true
+  sha:
+    description: 'The Git Sha commit'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+
+  - name: Run benchmark script
+    id: benchmark
+    run: .ci/scripts/bench.sh
+    shell: bash
+
+  - name: Create GitHub check
+    if: always()
+    env:
+      GH_TOKEN: ${{ inputs.githubToken }}
+      RUN_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}"
+      STATE: "${{ steps.benchmark.conclusion == 'success' && 'success' || 'failure' }}"
+    run: |
+      gh api repos/elastic/apm-pipeline-library/statuses/${{ inputs.sha }} \
+      -X POST \
+      --input - <<< "{\"state\":\"${{ env.STATE }}\",\"context\": \"benchmarks\", \"target_url\": \"${{ env.RUN_URL }}\", \"description\":\"The benchmark ran\"}"
+    shell: bash
+
+  - name: Report results
+    if: always()
+    uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
+    with:
+      vaultUrl: ${{ inputs.vaultUrl }}
+      vaultRoleId: ${{ inputs.vaultRoleId }}
+      vaultSecretId: ${{ inputs.vaultSecretId }}
+      slackChannel: '#on-week-oblt-productivity'
