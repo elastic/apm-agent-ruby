@@ -2,7 +2,7 @@ FROM openjdk:7-jdk
 
 RUN apt-get update \
     && apt-get install -y libc6-dev --no-install-recommends \
-    && apt-get install -y gcc \
+    && apt-get install --force-yes -y gcc \
     && rm -rf /var/lib/apt/lists/*
 
 ENV JRUBY_VERSION 9.3.1.0
