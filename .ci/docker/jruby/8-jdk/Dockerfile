@@ -25,7 +25,9 @@ RUN mkdir -p /opt/jruby/etc \
     } >> /opt/jruby/etc/gemrc
 
 # install bundler, gem requires bash to work
-RUN gem install bundler rake net-telnet xmlrpc tzinfo-data
+# https://github.com/rubygems/rubygems/issues/2534#issuecomment-448843746
+RUN gem update --system --conservative || (gem i "rubygems-update:~>2.7" --no-document && update_rubygems) \
+    && gem install bundler:2.3.26 rake net-telnet xmlrpc tzinfo-data
 
 # install things globally, for great justice
 # and don't create ".bundle" in all our apps
