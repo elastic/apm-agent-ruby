@@ -122,29 +122,28 @@ module ElasticAPM
       end
       # rubocop:enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
 
-      class TracingMiddleware < ::Faraday::Middleware
-        attr_reader :span
+      def install
+        tracing_middleware = Class.new ::Faraday::Middleware do
+          attr_reader :span
 
-        def initialize(app, span = nil, options = {})
-          super(app)
-          @span = span
-        end
+          def initialize(app, span = nil, options = {})
+            super(app)
+            @span = span
+          end
 
-        def on_complete(env)
-          status = env[:status]
-          http = span&.context&.http
-          if http && status
-            http.status_code = status.to_s
-            span.outcome = Span::Outcome.from_http_status(status)
+          def on_complete(env)
+            status = env[:status]
+            http = span&.context&.http
+            if http && status
+              http.status_code = status.to_s
+              span.outcome = Span::Outcome.from_http_status(status)
+            end
           end
         end
-      end
-
-      def install
-        ::Faraday::Connection.prepend(Ext)
         ::Faraday::Response.register_middleware(
-          elastic_apm_middleware: -> { ElasticAPM::Spies::FaradaySpy::TracingMiddleware }
+          elastic_apm_middleware: -> { tracing_middleware }
         )
+        ::Faraday::Connection.prepend(Ext)
       end
     end
 
