@@ -102,6 +102,7 @@ module ElasticAPM
           ) do |span|
             ElasticAPM::Spies.without_net_http do
               trace_context = span&.trace_context || transaction.trace_context
+              self.response :elastic_apm_middleware, span # middleware
 
               result = super(method, url, body, headers) do |req|
                 trace_context.apply_headers { |k, v| req[k] = v }
@@ -122,6 +123,28 @@ module ElasticAPM
       # rubocop:enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
 
       def install
+        # This middleware class has to be defined here because it inherits from
+        # ::Faraday::Middleware, which isn't defined when this file loads.
+        tracing_middleware = Class.new ::Faraday::Middleware do
+          attr_reader :span
+
+          def initialize(app, span = nil, options = {})
+            super(app)
+            @span = span
+          end
+
+          def on_complete(env)
+            status = env[:status]
+            http = span&.context&.http
+            if http && status
+              http.status_code = status.to_s
+              span.outcome = Span::Outcome.from_http_status(status)
+            end
+          end
+        end
+        ::Faraday::Response.register_middleware(
+          elastic_apm_middleware: -> { tracing_middleware }
+        )
         ::Faraday::Connection.prepend(Ext)
       end
     end

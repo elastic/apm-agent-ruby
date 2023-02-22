@@ -190,5 +190,32 @@ module ElasticAPM
         expect(span.name).to eq 'GET localhost'
       end
     end
+
+    describe 'faraday middleware' do
+      let(:client) do
+        Faraday.new(url: 'http://example.com') do |faraday|
+          faraday.use Faraday::Response::RaiseError
+        end
+      end
+
+      it 'should capture status_code' do
+        WebMock.stub_request(:get, 'http://example.com')
+          .to_return(status: [404, 'Not Found'])
+
+        with_agent do
+          begin
+            ElasticAPM.with_transaction 'Faraday Middleware test' do
+              client.get('http://example.com')
+            end
+          rescue Faraday::ResourceNotFound
+          end
+        end
+
+        span, = @intercepted.spans
+
+        http = span.context.http
+        expect(http.status_code).to match('404')
+      end
+    end
   end
 end
