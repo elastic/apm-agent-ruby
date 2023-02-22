@@ -123,6 +123,8 @@ module ElasticAPM
       # rubocop:enable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
 
       def install
+        # This middleware class has to be defined here because it inherits from
+        # ::Faraday::Middleware, which isn't defined when this file loads.
         tracing_middleware = Class.new ::Faraday::Middleware do
           attr_reader :span
 
