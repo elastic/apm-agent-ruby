@@ -32,14 +32,15 @@ endif::[]
 ==== Unreleased
 ////
 
-[[release-notes-4.x]]
-=== Ruby Agent version 4.x
+[[release-notes-4.6.1]]
+==== 4.6.1
 
 [float]
 ===== Fixed
 
 - Fix growing number of open file descriptors when HTTP request to APM is never sent {pull}1351[#1351]
 - Fix setting span http status code when Faraday Middleware is used {pull}1368[#1368]
+- Handle whitespace when splitting tracestate entries {pull}1353[#1353]
 
 [[release-notes-4.6.0]]
 ==== 4.6.0
