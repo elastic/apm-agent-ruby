@@ -32,6 +32,9 @@ endif::[]
 ==== Unreleased
 ////
 
+[[release-notes-4.x]]
+=== Ruby Agent version 4.x
+
 [[release-notes-4.6.1]]
 ==== 4.6.1
 
