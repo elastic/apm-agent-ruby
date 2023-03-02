@@ -24,9 +24,9 @@ desc 'Post release action:'\
 
 namespace :release do
   task :update_branch do
-    `git checkout 3.x &&
+    `git checkout 4.x &&
     git rebase main &&
-    git push origin 3.x &&
+    git push origin 4.x &&
     git checkout main`
   end
 end
