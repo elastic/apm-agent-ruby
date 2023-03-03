@@ -103,20 +103,19 @@ module ElasticAPM
             ElasticAPM::Spies.without_net_http do
               trace_context = span&.trace_context || transaction.trace_context
 
-              result = super(method, url, body, headers) do |req|
-                trace_context.apply_headers { |k, v| req[k] = v }
-
-                begin
+              begin
+                result = super(method, url, body, headers) do |req|
+                  trace_context.apply_headers { |k, v| req[k] = v }
                   yield req if block
-                rescue Faraday::ClientError, Faraday::ServerError => e # Faraday::Response::RaiseError
-                  status = e.status
-                  http = span&.context&.http
-                  if http
-                    http.status_code = status.to_s
-                    span.outcome = Span::Outcome.from_http_status(status)
-                  end
-                  raise e
                 end
+              rescue Faraday::ClientError, Faraday::ServerError => e # Faraday::Response::RaiseError
+                status = e.response[:status]
+                http = span&.context&.http
+                if http && status
+                  http.status_code = status.to_s
+                  span.outcome = Span::Outcome.from_http_status(status)
+                end
+                raise e
               end
 
               if (http = span&.context&.http)
