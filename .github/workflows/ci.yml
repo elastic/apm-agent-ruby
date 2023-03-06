@@ -62,7 +62,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install build system
-        run: gem install rake yard rspec
+        run: .ci/scripts/install-build-system.sh
       - name: Create gem
         run: rake build
       - uses: actions/upload-artifact@v3

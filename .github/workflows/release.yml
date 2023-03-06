@@ -32,7 +32,7 @@ jobs:
           echo ":rubygems_api_key: ${API_KEY}" >> ~/.gem/credentials
           chmod 0600 "${RUBY_CREDENTIALS_FILE}"
       - name: Install build system
-        run: gem install rake yard rspec
+        run: .ci/scripts/install-build-system.sh
       - run: rake release
   update-branch:
     needs:
@@ -45,7 +45,7 @@ jobs:
       - name: Setup Git
         uses: elastic/apm-pipeline-library/.github/actions/setup-git@current
       - name: Install build system
-        run: gem install rake yard rspec
+        run: .ci/scripts/install-build-system.sh
       - run: rake release:update_branch
 
   status:
