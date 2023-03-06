@@ -8,6 +8,10 @@ on:
     types:
       - completed
 
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   report:
     runs-on: ubuntu-latest

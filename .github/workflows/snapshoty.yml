@@ -9,6 +9,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   publish:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
