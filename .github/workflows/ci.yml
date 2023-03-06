@@ -12,6 +12,9 @@ on:
       - "**/*.asciidoc"
       - "**/*.md"
 
+permissions:
+  contents: read
+
 jobs:
   sanity-checks:
     runs-on: ubuntu-latest
