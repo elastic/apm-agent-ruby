@@ -1,19 +1,40 @@
+---
+# Runs the tests based on the provided files in ci.yml
 name: run-matrix
 
 on:
   workflow_call:
     inputs:
-      matrix:
+      versionsFile:
         required: true
-        description: Matrix JSON string
+        type: string
+      frameworksFile:
+        required: true
+        type: string
+      excludedFile:
+        required: true
         type: string
 
 jobs:
+  create-test-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.generate.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: generate
+        uses: elastic/apm-pipeline-library/.github/actions/version-framework@current
+        with:
+          versionsFile: ${{ inputs.versionsFile }}
+          frameworksFile: ${{ inputs.frameworksFile }}
+          excludedFile: ${{ inputs.excludedFile }}
   test:
+    needs:
+      - create-test-matrix
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(inputs.matrix) }}
+      matrix: ${{ fromJSON(needs.create-test-matrix.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v3
       - name: Run BDD tests

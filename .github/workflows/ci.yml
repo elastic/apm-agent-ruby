@@ -21,39 +21,22 @@ jobs:
     steps:
       - uses: elastic/apm-pipeline-library/.github/actions/pre-commit@current
 
-  create-test-matrix:
-    outputs:
-      default-matrix: ${{ steps.generate.outputs.matrix }}
-      main-matrix: ${{ steps.generate-main.outputs.matrix }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - id: generate
-        uses: elastic/apm-pipeline-library/.github/actions/version-framework@current
-        with:
-          versionsFile: .ci/.jenkins_ruby.yml
-          frameworksFile: .ci/.jenkins_framework.yml
-          excludedFile: .ci/.jenkins_exclude.yml
-      - id: generate-main
-        uses: elastic/apm-pipeline-library/.github/actions/version-framework@current
-        with:
-          versionsFile: .ci/.jenkins_ruby.yml
-          frameworksFile: .ci/.jenkins_main_framework.yml
-          excludedFile: .ci/.jenkins_exclude.yml
-
+  # Invokes the actual matrix workflow with the provided files.
   default:
-    needs:
-      - create-test-matrix
     uses: ./.github/workflows/run-matrix.yml
     with:
-      matrix: ${{ toJSON(fromJSON(needs.create-test-matrix.outputs.default-matrix)) }}
+      versionsFile: .ci/.jenkins_ruby.yml
+      frameworksFile: .ci/.jenkins_framework.yml
+      excludedFile: .ci/.jenkins_exclude.yml
 
+  # Invokes the actual matrix workflow with the provided files.
+  # In this case it's for the main frameworks.
   main:
-    needs:
-      - create-test-matrix
     uses: ./.github/workflows/run-matrix.yml
     with:
-      matrix: ${{ toJSON(fromJSON(needs.create-test-matrix.outputs.main-matrix)) }}
+      versionsFile: .ci/.jenkins_ruby.yml
+      frameworksFile: .ci/.jenkins_main_framework.yml
+      excludedFile: .ci/.jenkins_exclude.yml
 
   package:
     runs-on: ubuntu-latest
