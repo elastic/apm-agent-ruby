@@ -1,0 +1,65 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v[0-9]+*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    container:
+      image: ruby:2.6
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/vault-action@v2.4.2
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          method: approle
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET_ID }}
+          secrets: |
+            secret/apm-team/ci/apm-agent-ruby-rubygems-release apiKey | API_KEY ;
+      - name: RubyGems login
+        run: |
+          RUBY_HOME="${HOME}/.gem"
+          RUBY_CREDENTIALS_FILE="${RUBY_HOME}/credentials"
+          mkdir -p "${RUBY_HOME}"
+          echo '---' > "${RUBY_CREDENTIALS_FILE}"
+          echo ":rubygems_api_key: ${API_KEY}" >> ~/.gem/credentials
+          chmod 0600 "${RUBY_CREDENTIALS_FILE}"
+      - name: Install build system
+        run: gem install rake yard rspec
+      - run: rake release
+  update-branch:
+    needs:
+      - release
+    runs-on: ubuntu-latest
+    container:
+      image: ruby:2.6
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Git
+        uses: elastic/apm-pipeline-library/.github/actions/setup-git@current
+      - name: Install build system
+        run: gem install rake yard rspec
+      - run: rake release:update_branch
+
+  status:
+    if: always()
+    runs-on: ubuntu-latest
+    needs:
+      - release
+      - update-branch
+    steps:
+      - run: test $(echo '${{ toJSON(needs) }}' | jq -s 'map(.[].result) | all(.=="success")') = 'true'
+      - if: always()
+        uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
+        with:
+          vaultUrl: ${{ secrets.VAULT_ADDR }}
+          vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
+          vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
+          slackChannel: "#apm-agent-ruby"

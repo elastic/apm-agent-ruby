@@ -1,0 +1,68 @@
+name: ci
+
+on:
+  pull_request:
+    paths-ignore:
+      - "**/*.asciidoc"
+      - "**/*.md"
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "**/*.asciidoc"
+      - "**/*.md"
+
+jobs:
+  sanity-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: elastic/apm-pipeline-library/.github/actions/pre-commit@current
+
+  create-test-matrix:
+    outputs:
+      default-matrix: ${{ steps.generate.outputs.matrix }}
+      main-matrix: ${{ steps.generate-main.outputs.matrix }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - id: generate
+        uses: elastic/apm-pipeline-library/.github/actions/version-framework@current
+        with:
+          versionsFile: .ci/.jenkins_ruby.yml
+          frameworksFile: .ci/.jenkins_framework.yml
+          excludedFile: .ci/.jenkins_exclude.yml
+      - id: generate-main
+        uses: elastic/apm-pipeline-library/.github/actions/version-framework@current
+        with:
+          versionsFile: .ci/.jenkins_ruby.yml
+          frameworksFile: .ci/.jenkins_main_framework.yml
+          excludedFile: .ci/.jenkins_exclude.yml
+
+  default:
+    needs:
+      - create-test-matrix
+    uses: ./.github/workflows/run-matrix.yml
+    with:
+      matrix: ${{ toJSON(fromJSON(needs.create-test-matrix.outputs.default-matrix)) }}
+
+  main:
+    needs:
+      - create-test-matrix
+    uses: ./.github/workflows/run-matrix.yml
+    with:
+      matrix: ${{ toJSON(fromJSON(needs.create-test-matrix.outputs.main-matrix)) }}
+
+  package:
+    runs-on: ubuntu-latest
+    container:
+      image: ruby:2.6
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install build system
+        run: gem install rake yard rspec
+      - name: Create gem
+        run: rake build
+      - uses: actions/upload-artifact@v3
+        with:
+          name: package
+          path: ./pkg/**/*

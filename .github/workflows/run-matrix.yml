@@ -1,0 +1,34 @@
+name: run-matrix
+
+on:
+  workflow_call:
+    inputs:
+      matrix:
+        required: true
+        description: Matrix JSON string
+        type: string
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(inputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run BDD tests
+        run: ./spec/scripts/features.sh ${{ matrix.version }}
+      - name: Run test
+        run: ./spec/scripts/spec.sh ${{ matrix.version }} ${{ matrix.framework }}
+        env:
+          JUNIT_PREFIX: ${{ matrix.version }}-${{ matrix.framework }}
+      - if: success() || failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: "**/spec/junit-reports/**/*ruby-agent-junit.xml"
+      - if: success() || failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: "coverage/"
