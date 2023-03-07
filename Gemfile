@@ -83,9 +83,9 @@ frameworks_versions.each do |framework, version|
   end
 
   case version
-  when 'master' # sinatra, grape
+  when 'master' # grape
     gem framework, github: GITHUB_REPOS.fetch(framework)
-  when 'main' # rails
+  when 'main' # sinatra, rails
     gem framework, github: GITHUB_REPOS.fetch(framework), branch: 'main'
   when /.+/
     gem framework, "~> #{version}.0"
