@@ -17,7 +17,7 @@ fi
 
 test_name="Test Hello World"
 # random operation to verify that ruby evaluates the passed string correctly
-docker run -t --rm $image jruby -e "foo = 3 * 4; puts foo" | grep -q '13' # && printf '\t\t%-40s %s\n' "${test_name}" "PASSED" || printf '\t\t%-40s %s\n' "${test_name}" "FAILED"
+docker run -t --rm $image jruby -e "foo = 3 * 4; puts foo" | grep -q '13'
 TEST_HELLO_WORLD_RESULT=$?
 if [[ $TEST_HELLO_WORLD_RESULT -eq 0 ]]; then
   printf '\t\t%-40s %s\n' "${test_name}" "PASSED"
