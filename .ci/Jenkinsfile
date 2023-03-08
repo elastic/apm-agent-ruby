@@ -55,40 +55,6 @@ pipeline {
         deleteDir()
         gitCheckout(basedir: "${BASE_DIR}", githubNotifyFirstTimeContributor: true, reference: "${env.REFERENCE_REPO}")
         stash allowEmpty: true, name: 'source', useDefaultExcludes: false
-        script {
-          dir("${BASE_DIR}"){
-            // Skip all the stages except docs for PR's with asciidoc and md changes only
-            env.ONLY_DOCS = isGitRegionMatch(patterns: [ '.*\\.(asciidoc|md)' ], shouldMatchAll: true)
-          }
-        }
-      }
-    }
-    stage('Sanity checks') {
-      when {
-        beforeAgent true
-        allOf {
-          expression { return env.ONLY_DOCS == "false" }
-          anyOf {
-            not { changeRequest() }
-            expression { return params.Run_As_Main_Branch }
-          }
-        }
-      }
-      options { skipDefaultCheckout() }
-      environment {
-        HOME = "${env.WORKSPACE}"
-        PATH = "${env.WORKSPACE}/bin:${env.PATH}"
-      }
-      steps {
-        withGithubNotify(context: 'Sanity checks') {
-          deleteDir()
-          unstash 'source'
-          dir(BASE_DIR) {
-            catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: 'Sanity checks failed but keep running the build') {
-              preCommit(commit: "${GIT_BASE_COMMIT}", junit: true)
-            }
-          }
-        }
       }
     }
     stage('Benchmarks') {
