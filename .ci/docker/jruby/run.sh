@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-set -uo pipefail
+set -o pipefail
+
+# 7-jdk is excluded by default. See https://github.com/elastic/apm-agent-ruby/pull/1367#issuecomment-1437228929
+EXCLUDE=("7-jdk")
 
 while (( "$#" )); do
   case "$1" in
@@ -9,7 +12,7 @@ while (( "$#" )); do
       shift 2
       ;;
     -e|--exclude)
-      EXCLUDE=$2
+      EXCLUDE+=("$2")
       shift 2
       ;;
     -a|--action)
@@ -30,9 +33,14 @@ while (( "$#" )); do
   esac
 done
 
+function convert_exclude_opts() {
+      for val in "${EXCLUDE[@]}"; do
+        printf "! -path \"./%s/*\" " $val
+      done
+}
 
-if [ -n "$EXCLUDE" ] ; then
-  search=$(find . -path ./$EXCLUDE -prune -o -name 'Dockerfile' -print)
+if [ "${#EXCLUDE[@]}" -gt 0 ] ; then
+  search=$(bash -c "find . -name 'Dockerfile' $(convert_exclude_opts) -print")
 else
   search=$(find . -name 'Dockerfile' -print)
 fi
@@ -90,4 +98,4 @@ for i in ${search}; do
   EXIT_CODE=$(max $EXIT_CODE $result)
 done
 
-exit $EXIT_CODE
+exit "${EXIT_CODE}"
