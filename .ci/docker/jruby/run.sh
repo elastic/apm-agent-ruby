@@ -39,11 +39,7 @@ function convert_exclude_opts() {
       done
 }
 
-if [ "${#EXCLUDE[@]}" -gt 0 ] ; then
-  search=$(bash -c "find . -name 'Dockerfile' $(convert_exclude_opts) -print")
-else
-  search=$(find . -name 'Dockerfile' -print)
-fi
+search=$(bash -c "find . -name 'Dockerfile' $(convert_exclude_opts) -print")
 
 function report {
   if [ $1 -eq 0 ] ; then
