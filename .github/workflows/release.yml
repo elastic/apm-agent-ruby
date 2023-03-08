@@ -55,7 +55,11 @@ jobs:
       - release
       - update-branch
     steps:
-      - run: test $(echo '${{ toJSON(needs) }}' | jq -s 'map(.[].result) | all(.=="success")') = 'true'
+      - id: check
+        uses: elastic/apm-pipeline-library/.github/actions/check-dependent-jobs@current
+        with:
+          needs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.isSuccess }}
       - if: always()
         uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
         with:
