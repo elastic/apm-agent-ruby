@@ -34,6 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      max-parallel: 20
       matrix: ${{ fromJSON(needs.create-test-matrix.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v3
