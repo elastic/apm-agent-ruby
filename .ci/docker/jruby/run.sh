@@ -34,9 +34,9 @@ while (( "$#" )); do
 done
 
 function convert_exclude_opts() {
-      for val in "${EXCLUDE[@]}"; do
-        printf "! -path \"./%s/*\" " $val
-      done
+    for val in "${EXCLUDE[@]}"; do
+      printf "! -path \"./%s/*\" " $val
+    done
 }
 
 search=$(bash -c "find . -name 'Dockerfile' $(convert_exclude_opts) -print")
