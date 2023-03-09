@@ -25,7 +25,7 @@ endif::[]
 
 [float]
 ===== Fixed
-- Fix {pull}2526[#2526]
+- Fix Faraday::RackBuilder::StackLocked {pull}1371[#1371]
 
 [float]
 [[unreleased]]
