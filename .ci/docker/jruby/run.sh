@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+set -o pipefail
+
+# 7-jdk is excluded by default. See https://github.com/elastic/apm-agent-ruby/pull/1367#issuecomment-1437228929
+EXCLUDE=("7-jdk")
+
 while (( "$#" )); do
   case "$1" in
     -r|--registry)
@@ -7,7 +12,7 @@ while (( "$#" )); do
       shift 2
       ;;
     -e|--exclude)
-      EXCLUDE=$2
+      EXCLUDE+=("$2")
       shift 2
       ;;
     -a|--action)
@@ -28,12 +33,13 @@ while (( "$#" )); do
   esac
 done
 
+function convert_exclude_opts() {
+    for val in "${EXCLUDE[@]}"; do
+      printf "! -path \"./%s/*\" " $val
+    done
+}
 
-if [ -n "$EXCLUDE" ] ; then
-  search=$(find . -path ./$EXCLUDE -prune -o -name 'Dockerfile' -print)
-else
-  search=$(find . -name 'Dockerfile' -print)
-fi
+search=$(bash -c "find . -name 'Dockerfile' $(convert_exclude_opts) -print")
 
 function report {
   if [ $1 -eq 0 ] ; then
@@ -43,7 +49,18 @@ function report {
   fi
 }
 
+function max {
+  if [ "$1" -gt "$2" ]; then
+    echo "$1"
+  else
+    echo "$2"
+  fi
+}
+
 echo "${ACTION} docker images"
+
+EXIT_CODE=0
+
 for i in ${search}; do
   jdk_image=$(basename `dirname "$i"`)
   jdk_version=$(echo "$jdk_image" | cut -d'-' -f1)
@@ -63,11 +80,18 @@ for i in ${search}; do
 
   if [ "${ACTION}" == "build" ] ; then
     docker build --tag "${name}" -< $i >> output.log 2>&1
-    report $? "${name}"
+    result=$?
+    report $result "${name}"
   elif [ "${ACTION}" == "push" ] ; then
     docker push "${name}" >> output.log 2>&1
-    report $? "${name}"
+    result=$?
+    report $result "${name}"
   else
     ./test.sh "${name}" $jdk_version
+    result=$?
   fi
+
+  EXIT_CODE=$(max $EXIT_CODE $result)
 done
+
+exit "${EXIT_CODE}"

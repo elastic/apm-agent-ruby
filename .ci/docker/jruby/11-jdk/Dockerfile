@@ -6,11 +6,11 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 ENV JRUBY_VERSION 9.2.16.0
-ENV JRUBY_SHA256 9199707712c683c525252ccb1de5cb8e75f53b790c5b57a18f6367039ec79553
 
 RUN mkdir -p /opt/jruby \
+    && curl -fSL https://repo1.maven.org/maven2/org/jruby/jruby-dist/${JRUBY_VERSION}/jruby-dist-${JRUBY_VERSION}-bin.tar.gz.sha256 -o /tmp/jruby.sha256 \
     && curl -fSL https://repo1.maven.org/maven2/org/jruby/jruby-dist/${JRUBY_VERSION}/jruby-dist-${JRUBY_VERSION}-bin.tar.gz -o /tmp/jruby.tar.gz \
-    && echo "$JRUBY_SHA256 */tmp/jruby.tar.gz" | sha256sum -c - \
+    && echo "$(cat /tmp/jruby.sha256) */tmp/jruby.tar.gz" | sha256sum -c - \
     && tar -zx --strip-components=1 -f /tmp/jruby.tar.gz -C /opt/jruby \
     && update-alternatives --install /usr/local/bin/ruby ruby /opt/jruby/bin/jruby 1
 
@@ -25,7 +25,9 @@ RUN mkdir -p /opt/jruby/etc \
     } >> /opt/jruby/etc/gemrc
 
 # install bundler, gem requires bash to work
-RUN gem install bundler rake net-telnet xmlrpc tzinfo-data
+# https://github.com/rubygems/rubygems/issues/2534#issuecomment-448843746
+RUN gem update --system --conservative || (gem i "rubygems-update:~>2.7" --no-document && update_rubygems) \
+    && gem install bundler:2.3.26 rake net-telnet xmlrpc tzinfo-data
 
 # install things globally, for great justice
 # and don't create ".bundle" in all our apps
