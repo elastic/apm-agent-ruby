@@ -12,7 +12,7 @@ To build the images run
 
 You can set your own docker registry with the flag `--registry x.y.z/org`
 
-You can exclude what images can be built with the flag `--exclude jdk-7`
+You can exclude what images can be built with the flag `--exclude jdk-7`. Multiple usages of `--exclude` are accepted.
 
 ## Test
 
