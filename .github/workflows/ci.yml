@@ -60,7 +60,7 @@ jobs:
     needs:
       - sanity-checks
       - matrix
-      - main-frameworks
+      - matrix-main-frameworks
       - package
     steps:
       - id: check
