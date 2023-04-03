@@ -38,10 +38,11 @@ jobs:
     needs:
       - release
     runs-on: ubuntu-latest
-    container:
-      image: ruby:2.6
     steps:
       - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
       - name: Setup Git
         uses: elastic/apm-pipeline-library/.github/actions/setup-git@current
       - name: Install build system
