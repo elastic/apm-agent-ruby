@@ -40,10 +40,11 @@ jobs:
 
   package:
     runs-on: ubuntu-latest
-    container:
-      image: ruby:2.6
     steps:
       - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
       - name: Install build system
         run: .ci/scripts/install-build-system.sh
       - name: Create gem
