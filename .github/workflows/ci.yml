@@ -22,7 +22,7 @@ jobs:
       - uses: elastic/apm-pipeline-library/.github/actions/pre-commit@current
 
   # Invokes the actual matrix workflow with the provided files.
-  default:
+  matrix:
     uses: ./.github/workflows/run-matrix.yml
     with:
       versionsFile: .ci/.jenkins_ruby.yml
@@ -31,7 +31,7 @@ jobs:
 
   # Invokes the actual matrix workflow with the provided files.
   # In this case it's for the main frameworks.
-  main:
+  matrix-main-frameworks:
     uses: ./.github/workflows/run-matrix.yml
     with:
       versionsFile: .ci/.jenkins_ruby.yml
@@ -59,8 +59,8 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - sanity-checks
-      - default
-      - main
+      - matrix
+      - main-frameworks
       - package
     steps:
       - id: check
