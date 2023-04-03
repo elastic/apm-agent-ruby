@@ -4,6 +4,14 @@ name: OpenTelemetry Export Trace
 on:
   workflow_run:
     workflows:
+      - Auto Assign to Project(s)
+      - Issue Labeler
+      - ci
+      - coverage-reporter
+      - release
+      - run-matrix
+      - snapshoty
+      - test-reporter
       - updatecli
     types: [completed]
 

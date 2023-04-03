@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+JUNIT_PREFIX=${JUNIT_PREFIX:-""}
+
 runRspec(){
   local case=${1:-""}
   local bn=${case}
@@ -10,7 +12,7 @@ runRspec(){
   fi
   bundle exec rspec \
     -f progress \
-    -r yarjuf -f JUnit -o spec/junit-reports/${bn}ruby-agent-junit.xml \
+    -r yarjuf -f JUnit -o spec/junit-reports/${JUNIT_PREFIX}${bn}ruby-agent-junit.xml \
     ${case}
 }
 specific_spec=$1
