@@ -5,7 +5,7 @@ name: ci # The name must be the same as in ci.yml
 
 on:
   pull_request:
-    paths-ignore: # This expression needs to match the paths ignored on test.yml.
+    paths-ignore: # This expression needs to match the paths ignored on ci.yml.
       - '**'
       - '!**/*.md'
       - '!**/*.asciidoc'
