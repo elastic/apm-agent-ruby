@@ -1,0 +1,42 @@
+---
+# This workflow sets the test / all status check to success in case it's a docs only PR and test.yml is not triggered
+# https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks
+name: ci # The name must be the same as in ci.yml
+
+on:
+  pull_request:
+    paths-ignore: # This expression needs to match the paths ignored on test.yml.
+      - '**'
+      - '!**/*.md'
+      - '!**/*.asciidoc'
+
+permissions:
+  contents: read
+
+jobs:
+  all:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "No build required"'
+      # As long as this workflow uses the same name than .github/workflows/ci.yml and
+      # the test-reporter requires artifacts with the test results to exist.
+      # let's produce a dummy test so the test-report don't fail in this particular
+      # case
+      - name: Generate junit placeholder - to integrate with test-reporter
+        run: |-
+          cat > docs-ruby-agent-junit.xml << ENDOFFILE
+          <?xml version="1.0" encoding="UTF-8"?>
+          <testsuites name="apm-agent-ruby" tests="1" failures="0" errors="0" time="1">
+            <testsuite name="apm-agent-ruby-docs" errors="0" failures="0" skipped="1" time="1" tests="1">
+              <testcase classname="docs" name="Skipped test" time="0">
+                <skipped/>
+              </testcase>
+            </testsuite>
+          </testsuites>
+          ENDOFFILE
+      - if: success() || failure()
+        name: Upload JUnit Test Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: "docs-ruby-agent-junit.xml"
