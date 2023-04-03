@@ -7,6 +7,7 @@ on:
       - Auto Assign to Project(s)
       - Issue Labeler
       - ci
+      - ci-docs
       - coverage-reporter
       - release
       - run-matrix
