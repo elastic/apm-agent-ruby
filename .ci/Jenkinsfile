@@ -110,11 +110,6 @@ pipeline {
       }
     }
   }
-  post {
-    cleanup {
-      notifyBuildResult()
-    }
-  }
 }
 
 /**
