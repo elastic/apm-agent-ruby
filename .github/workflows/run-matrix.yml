@@ -1,0 +1,56 @@
+---
+# Runs the tests based on the provided files in ci.yml
+name: run-matrix
+
+on:
+  workflow_call:
+    inputs:
+      versionsFile:
+        required: true
+        type: string
+      frameworksFile:
+        required: true
+        type: string
+      excludedFile:
+        required: true
+        type: string
+
+jobs:
+  create-test-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.generate.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: generate
+        uses: elastic/apm-pipeline-library/.github/actions/version-framework@current
+        with:
+          versionsFile: ${{ inputs.versionsFile }}
+          frameworksFile: ${{ inputs.frameworksFile }}
+          excludedFile: ${{ inputs.excludedFile }}
+  test:
+    needs:
+      - create-test-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix: ${{ fromJSON(needs.create-test-matrix.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run BDD tests
+        run: ./spec/scripts/features.sh ${{ matrix.version }}
+      - name: Run test
+        run: ./spec/scripts/spec.sh ${{ matrix.version }} ${{ matrix.framework }}
+        env:
+          JUNIT_PREFIX: ${{ matrix.version }}-${{ matrix.framework }}
+      - if: success() || failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: "**/spec/junit-reports/**/*ruby-agent-junit.xml"
+      - if: success() || failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: "coverage/"

@@ -1,0 +1,34 @@
+---
+## Workflow to process coverage report
+## For now the coverage is not reported. This workflow is just here as preparation for
+## https://github.com/elastic/observability-robots/issues/1546
+name: coverage-reporter
+on:
+  workflow_run:
+    workflows:
+      - test
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download artifacts
+        run: >
+          gh run download ${{ github.event.workflow_run.id }}
+          --name coverage
+          --repo "${GITHUB_REPOSITORY}" 
+          --dir coverage
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - run: ls -l coverage/matrix_results
+#      - run: ./spec/scripts/coverage_converge.sh
+#      - uses: actions/upload-artifact@v3
+#        with:
+#          name: coverage-report
+#          path: coverage/coverage.xml

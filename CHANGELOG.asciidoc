@@ -25,7 +25,6 @@ endif::[]
 
 [float]
 ===== Fixed
-- Fix {pull}2526[#2526]
 
 [float]
 [[unreleased]]
@@ -34,6 +33,13 @@ endif::[]
 
 [[release-notes-4.x]]
 === Ruby Agent version 4.x
+
+[[release-notes-4.6.2]]
+==== 4.6.2
+
+[float]
+===== Fixed
+- Fix Faraday::RackBuilder::StackLocked {pull}1371[#1371]
 
 [[release-notes-4.6.1]]
 ==== 4.6.1

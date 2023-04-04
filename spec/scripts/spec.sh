@@ -7,7 +7,7 @@
 #
 # Usage: ./spec/scripts/spec.sh jruby:9.1 sinatra-2.0
 #
-set -ex
+set -exo pipefail
 
 if [ $# -lt 2 ]; then
   echo "Arguments missing"
@@ -44,6 +44,7 @@ IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} USER_ID="$(id -u):$(id -g)" \
   -e INCLUDE_SCHEMA_SPECS=1 \
   -e JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS}" \
   -e JRUBY_OPTS="${JRUBY_OPTS}" \
+  -e JUNIT_PREFIX="${JUNIT_PREFIX//:/-}" \
   -e HOME="/tmp" \
   -v "$(dirname "$(pwd)"):/app" \
   -w /app \

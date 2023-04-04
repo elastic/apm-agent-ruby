@@ -1,0 +1,70 @@
+name: ci
+
+on:
+  pull_request:
+    paths-ignore:
+      - "**/*.asciidoc"
+      - "**/*.md"
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "**/*.asciidoc"
+      - "**/*.md"
+
+permissions:
+  contents: read
+
+jobs:
+  sanity-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: elastic/apm-pipeline-library/.github/actions/pre-commit@current
+
+  # Invokes the actual matrix workflow with the provided files.
+  matrix:
+    uses: ./.github/workflows/run-matrix.yml
+    with:
+      versionsFile: .ci/.jenkins_ruby.yml
+      frameworksFile: .ci/.jenkins_framework.yml
+      excludedFile: .ci/.jenkins_exclude.yml
+
+  # Invokes the actual matrix workflow with the provided files.
+  # In this case it's for the main frameworks.
+  matrix-main-frameworks:
+    uses: ./.github/workflows/run-matrix.yml
+    with:
+      versionsFile: .ci/.jenkins_ruby.yml
+      frameworksFile: .ci/.jenkins_main_framework.yml
+      excludedFile: .ci/.jenkins_exclude.yml
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+      - name: Install build system
+        run: .ci/scripts/install-build-system.sh
+      - name: Create gem
+        run: rake build
+      - uses: actions/upload-artifact@v3
+        with:
+          name: package
+          path: ./pkg/**/*
+
+  all:
+    if: always()
+    runs-on: ubuntu-latest
+    needs:
+      - sanity-checks
+      - matrix
+      - matrix-main-frameworks
+      - package
+    steps:
+      - id: check
+        uses: elastic/apm-pipeline-library/.github/actions/check-dependent-jobs@current
+        with:
+          needs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.isSuccess }}

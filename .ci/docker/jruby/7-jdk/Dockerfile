@@ -2,15 +2,15 @@ FROM openjdk:7-jdk
 
 RUN apt-get update \
     && apt-get install -y libc6-dev --no-install-recommends \
-    && apt-get install -y gcc \
+    && apt-get install --force-yes -y gcc \
     && rm -rf /var/lib/apt/lists/*
 
 ENV JRUBY_VERSION 9.3.1.0
-ENV JRUBY_SHA256 6a22f7bf8fef1a52530a9c9781a9d374ad07bbbef0d3d8e2af0ff5cbead0dfd5
 
 RUN mkdir -p /opt/jruby \
+    && curl -fSL https://repo1.maven.org/maven2/org/jruby/jruby-dist/${JRUBY_VERSION}/jruby-dist-${JRUBY_VERSION}-bin.tar.gz.sha256 -o /tmp/jruby.sha256 \
     && curl -fSL https://repo1.maven.org/maven2/org/jruby/jruby-dist/${JRUBY_VERSION}/jruby-dist-${JRUBY_VERSION}-bin.tar.gz -o /tmp/jruby.tar.gz \
-    && echo "$JRUBY_SHA256 */tmp/jruby.tar.gz" | sha256sum -c - \
+    && echo "$(cat /tmp/jruby.sha256) */tmp/jruby.tar.gz" | sha256sum -c - \
     && tar -zx --strip-components=1 -f /tmp/jruby.tar.gz -C /opt/jruby \
     && update-alternatives --install /usr/local/bin/ruby ruby /opt/jruby/bin/jruby 1
 
