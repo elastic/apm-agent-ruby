@@ -24,7 +24,7 @@ When using this method, strings are split by comma, e.g.,
 [[configuration-precedence]]
 === Configuration precedence
 
-Options are applied in the following order (last one wins): 
+Options are applied in the following order (last one wins):
 
 1. Defaults
 2. Arguments to `ElasticAPM.start` / `Config.new`
@@ -170,7 +170,7 @@ WARNING: Secret tokens only provide any real security if your APM server uses TL
 |============
 
 This base64-encoded string is used to ensure that only your agents can send data to your APM server.
-The API key must be created using the {apm-guide-ref}/api-key.html[APM server command-line tool]. 
+The API key must be created using the {apm-guide-ref}/api-key.html[APM server command-line tool].
 
 WARNING: API keys only provide any real security if your APM server uses TLS.
 
@@ -199,7 +199,7 @@ The <<config-log-path,logs>> should tell you what went wrong.
 | `ELASTIC_APM_API_REQUEST_SIZE` | `api_request_size` | `"750kb"`
 |============
 
-The maximum amount of bytes sent over one request to APM Server. The agent will open a new request when this limit is reached. 
+The maximum amount of bytes sent over one request to APM Server. The agent will open a new request when this limit is reached.
 
 This must be provided in *<<config-format-size, size format>>*.
 
@@ -301,7 +301,8 @@ If set to `true`, the client will poll the APM Server regularly for new agent co
 
 Usually APM Server determines how often to poll, but if not, set the default interval is 5 minutes.
 
-NOTE: This feature requires APM Server v7.3 or later and that the APM Server is configured with `kibana.enabled: true`.
+NOTE: This feature requires APM Server v7.3 or later.
+See {kibana-ref}/agent-configuration.html[APM Agent central configuration] for more information.
 
 [float]
 [[config-cloud-provider]]
@@ -701,7 +702,7 @@ The name of the given service node. This is optional, and if omitted, the APM
 Server will fall back on `system.container.id` if available, and
 `host.name` if necessary.
 
-This option allows you to set the node name manually to ensure it's unique and meaningful. 
+This option allows you to set the node name manually to ensure it's unique and meaningful.
 
 [float]
 [[config-service-version]]
