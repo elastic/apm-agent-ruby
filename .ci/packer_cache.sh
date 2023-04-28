@@ -10,7 +10,10 @@ if [ -x "$(command -v docker)" ]; then
       transformedVersion=$(echo "${version}" | cut -d":" -f2)
       imageName="apm-agent-ruby"
       registryImageName="docker.elastic.co/observability-ci/${imageName}:${transformedName}"
-      (retry 2 docker pull "${registryImageName}")
-      docker tag "${registryImageName}" "${imageName}:${transformedVersion}"
+      if retry 2 docker pull "${registryImageName}"; then
+        docker tag "${registryImageName}" "${imageName}:${transformedVersion}"
+      else
+        printf "Could not pull image %s\n" "${registryImageName}"
+      fi
   done
 fi
