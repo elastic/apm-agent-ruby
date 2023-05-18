@@ -26,6 +26,7 @@ for VERSION in "ruby:3.1" "ruby:3.0" "ruby:2.7" "ruby:2.6" "ruby:9.2" ; do
     ## jruby:9.1 to jruby-9.1
 	OUTPUT_NAME=benchmark-$(echo "${VERSION//:/-}")
 
+	# TBC, maybe a timeout could help so it can run the other versions?
 	# APM_AGENT_GO* env variables are provided by the Buildkite hooks.
 	./spec/scripts/benchmarks.sh "${VERSION}" "${OUTPUT_NAME}" "$(pwd)"
 
@@ -34,7 +35,7 @@ for VERSION in "ruby:3.1" "ruby:3.0" "ruby:2.7" "ruby:2.6" "ruby:9.2" ; do
 	fi
 
 	# Then we ship the data using the helper
-	echo "TBCsendBenchmarks(file: \"{OUTPUT_NAME}.bulk\", index: \"benchmark-ruby\", archive: true)"
+	echo "TBC: sendBenchmarks(file: \"{OUTPUT_NAME}.bulk\", index: \"benchmark-ruby\", archive: true)"
 done
 
 exit $status
