@@ -25,18 +25,18 @@ jobs:
   matrix:
     uses: ./.github/workflows/run-matrix.yml
     with:
-      versionsFile: .ci/.jenkins_ruby.yml
-      frameworksFile: .ci/.jenkins_framework.yml
-      excludedFile: .ci/.jenkins_exclude.yml
+      versionsFile: .ci/.ruby.yml
+      frameworksFile: .ci/.framework.yml
+      excludedFile: .ci/.exclude.yml
 
   # Invokes the actual matrix workflow with the provided files.
   # In this case it's for the main frameworks.
   matrix-main-frameworks:
     uses: ./.github/workflows/run-matrix.yml
     with:
-      versionsFile: .ci/.jenkins_ruby.yml
-      frameworksFile: .ci/.jenkins_main_framework.yml
-      excludedFile: .ci/.jenkins_exclude.yml
+      versionsFile: .ci/.ruby.yml
+      frameworksFile: .ci/.main_framework.yml
+      excludedFile: .ci/.exclude.yml
 
   package:
     runs-on: ubuntu-latest
