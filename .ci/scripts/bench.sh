@@ -21,7 +21,8 @@ fi
 # It does not fail so it runs for every single version and then we report the error at the end.
 set +e
 status=0
-for VERSION in "ruby:3.1" "ruby:3.0" "ruby:2.7" "ruby:2.6" "ruby:9.2" ; do
+
+for VERSION in "ruby:3.1" "ruby:3.0" "ruby:2.7" "ruby:2.6" "ruby:9.2" "jruby:9.2" ; do
     ## Transform the versions like:
     ## jruby:9.1 to jruby-9.1
 	OUTPUT_NAME=benchmark-$(echo "${VERSION//:/-}")
@@ -30,6 +31,7 @@ for VERSION in "ruby:3.1" "ruby:3.0" "ruby:2.7" "ruby:2.6" "ruby:9.2" ; do
 	# APM_AGENT_GO* env variables are provided by the Buildkite hooks.
 	./spec/scripts/benchmarks.sh "${VERSION}" "${OUTPUT_NAME}" "$(pwd)"
 
+	# Gather error if any
 	if [ $? -gt 0 ] ; then
 		status=1
 	fi
@@ -38,4 +40,5 @@ for VERSION in "ruby:3.1" "ruby:3.0" "ruby:2.7" "ruby:2.6" "ruby:9.2" ; do
 	echo "TBC: sendBenchmarks(file: \"{OUTPUT_NAME}.bulk\", index: \"benchmark-ruby\", archive: true)"
 done
 
+# Report status
 exit $status
