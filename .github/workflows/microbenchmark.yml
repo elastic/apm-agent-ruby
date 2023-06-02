@@ -28,7 +28,7 @@ jobs:
           vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
           vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
           pipeline: apm-agent-microbenchmark
-          triggerMessage: "${{ github.ref_name }}@${{ github.ref_name }}"
+          triggerMessage: "${{ github.repository }}@${{ github.ref_name }}"
           waitFor: true
           printBuildLogs: true
           buildEnvVars: |
