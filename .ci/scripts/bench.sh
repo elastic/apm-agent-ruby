@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -exo pipefail
+set -eo pipefail
 
 ## Buildkite specific configuration
 if [ "$CI" == "true" ] ; then
