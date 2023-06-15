@@ -20,6 +20,7 @@ fi
 
 local_vendor_path="$HOME/.cache/ruby-vendor"
 container_vendor_path="/tmp/vendor/${OUTPUT_NAME/ruby-/}"
+spec_path="$(dirname "$(pwd)")"
 
 mkdir -p "${local_vendor_path}"
 
@@ -35,7 +36,7 @@ IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} \
   -w /app \
   -e LOCAL_USER_ID=$UID \
   -v "$local_vendor_path:$container_vendor_path" \
-  -v "$(dirname "$(pwd)"):/app" \
+  -v "${spec_path}:/app" \
   ${REFERENCE_REPO_FLAG} \
   --rm ruby_rspec \
   /bin/bash -c "set -x
@@ -44,6 +45,6 @@ IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} \
     gem install bundler
     bundle config --global set path '/tmp/.vendor'
     bundle install
-    bench/benchmark.rb 2> ${OUTPUT_NAME}.error > ${OUTPUT_NAME}.raw
-    bench/report.rb < ${OUTPUT_NAME}.raw > ${OUTPUT_NAME}.bulk"
+    bench/benchmark.rb 2> ${spec_path}/${OUTPUT_NAME}.error > ${spec_path}/${OUTPUT_NAME}.raw
+    bench/report.rb < ${spec_path}/${OUTPUT_NAME}.raw > ${spec_path}/${OUTPUT_NAME}.bulk"
 
