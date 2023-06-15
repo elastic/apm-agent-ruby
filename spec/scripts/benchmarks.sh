@@ -24,7 +24,7 @@ else
   REFERENCE_REPO_FLAG="-v ${REFERENCE_REPO}:${REFERENCE_REPO}"
 fi
 
-local_vendor_path="$HOME/.cache/ruby-vendor"
+local_vendor_path="${BASE_PROJECT}/.cache/ruby-vendor"
 container_vendor_path="/tmp/vendor/${OUTPUT_NAME/ruby-/}"
 
 mkdir -p "${local_vendor_path}"
