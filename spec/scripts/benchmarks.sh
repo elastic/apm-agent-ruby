@@ -33,7 +33,7 @@ cd "${BASE_PROJECT}/spec"
 
 docker build --pull --force-rm --build-arg "RUBY_IMAGE=${IMAGE_NAME}" -t "apm-agent-ruby:${VERSION}" .
 
-IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} USER_ID=${USER_ID} \
+IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} USER_ID=${UID} \
   docker-compose -f ../docker-compose.yml run \
   -e HOME=/tmp \
   -e FRAMEWORK=rails \
