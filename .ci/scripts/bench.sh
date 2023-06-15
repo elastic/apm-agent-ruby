@@ -36,13 +36,14 @@ for VERSION in "ruby:3.1" "ruby:3.0" "ruby:2.7" "ruby:2.6" "jruby:9.2" ; do
 
   # TBC, maybe a timeout could help so it can run the other versions?
   ./spec/scripts/benchmarks.sh "${VERSION}" "${OUTPUT_NAME}" "${BASE_PROJECT}"
-  cat "${BASE_PROJECT}/spec/${OUTPUT_NAME}.raw"
-  cat "${BASE_PROJECT}/spec/${OUTPUT_NAME}.error"
 
   # Gather error if any
   if [ $? -gt 0 ] ; then
     status=1
   fi
+
+  cat "${BASE_PROJECT}/spec/${OUTPUT_NAME}.raw"
+  cat "${BASE_PROJECT}/spec/${OUTPUT_NAME}.error"
 
   # Then we ship the data using the helper
   echo "TBC: sendBenchmarks(file: \"{OUTPUT_NAME}.bulk\", index: \"benchmark-ruby\", archive: true)"

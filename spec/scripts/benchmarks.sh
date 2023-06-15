@@ -31,16 +31,13 @@ mkdir -p "${local_vendor_path}"
 
 cd "${BASE_PROJECT}/spec"
 
-docker build --pull --force-rm --build-arg "RUBY_IMAGE=${IMAGE_NAME}" -t "apm-agent-ruby:${VERSION}" .
+docker buildx build --pull --force-rm --build-arg "RUBY_IMAGE=${IMAGE_NAME}" -t "apm-agent-ruby:${VERSION}" .
 
-IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} \
+IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} USER_ID=${USER_ID} \
   docker-compose -f ../docker-compose.yml run \
-  --user $UID \
   -e HOME=/tmp \
   -e FRAMEWORK=rails \
   -w /app \
-  -e LOCAL_USER_ID=$UID \
-  -e USER_ID=$UID \
   -v "$local_vendor_path:$container_vendor_path" \
   -v "${BASE_PROJECT}:/app" \
   ${REFERENCE_REPO_FLAG} \
