@@ -28,7 +28,8 @@ fi
 set +e
 status=0
 
-for VERSION in "ruby:3.1" "ruby:3.0" "ruby:2.7" "ruby:2.6" "jruby:9.2" ; do
+# for VERSION in "ruby:3.1" "ruby:3.0" "ruby:2.7" "ruby:2.6" "jruby:9.2" ; do
+for VERSION in "ruby:3.1"; do
     ## Transform the versions like:
     ## jruby:9.1 to jruby-9.1
   echo "--- Benchmark for :ruby: ${VERSION}"
@@ -41,9 +42,6 @@ for VERSION in "ruby:3.1" "ruby:3.0" "ruby:2.7" "ruby:2.6" "jruby:9.2" ; do
   if [ $? -gt 0 ] ; then
     status=1
   fi
-
-  cat "${BASE_PROJECT}/spec/${OUTPUT_NAME}.raw"
-  cat "${BASE_PROJECT}/spec/${OUTPUT_NAME}.error"
 
   # Then we ship the data using the helper
   echo "TBC: sendBenchmarks(file: \"{OUTPUT_NAME}.bulk\", index: \"benchmark-ruby\", archive: true)"

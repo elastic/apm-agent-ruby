@@ -35,8 +35,12 @@ services:
   ruby_rspec:
     image: apm-agent-ruby:${RUBY_VERSION}
     environment:
+      FRAMEWORK: rails
+      LOCAL_USER_ID: ${LOCAL_USER_ID}
+      LOCAL_GROUP_ID: ${LOCAL_GROUP_ID}
       MONGODB_URL: 'mongodb:27017'
-    user: ${USER_ID}
+      REPORT_OUTPUT_NAME: ${REPORT_OUTPUT_NAME}
+      VENDOR_PATH: ${VENDOR_PATH}
     security_opt:
       - no-new-privileges
 
