@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+# Found current script directory
+RELATIVE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+# Found project directory
+BASE_PROJECT="$(dirname "$(dirname "${RELATIVE_DIR}")")"
+
 ## Buildkite specific configuration
 if [ "$CI" == "true" ] ; then
 	# If HOME is not set then use the Buildkite workspace
@@ -29,9 +35,9 @@ for VERSION in "ruby:3.1" "ruby:3.0" "ruby:2.7" "ruby:2.6" "jruby:9.2" ; do
   OUTPUT_NAME=benchmark-$(echo "${VERSION//:/-}")
 
   # TBC, maybe a timeout could help so it can run the other versions?
-  ./spec/scripts/benchmarks.sh "${VERSION}" "${OUTPUT_NAME}" "$(pwd)"
-  cat "${BUILDKITE_BUILD_CHECKOUT_PATH}/.apm-agent-ruby/spec/${OUTPUT_NAME}.raw"
-  cat "${BUILDKITE_BUILD_CHECKOUT_PATH}/.apm-agent-ruby/spec/${OUTPUT_NAME}.error"
+  ./spec/scripts/benchmarks.sh "${VERSION}" "${OUTPUT_NAME}" "${BASE_PROJECT}"
+  cat "${BASE_PROJECT}/spec/${OUTPUT_NAME}.raw"
+  cat "${BASE_PROJECT}/spec/${OUTPUT_NAME}.error"
 
   # Gather error if any
   if [ $? -gt 0 ] ; then
