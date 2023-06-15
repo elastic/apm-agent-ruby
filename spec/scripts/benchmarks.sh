@@ -31,7 +31,8 @@ mkdir -p "${local_vendor_path}"
 
 cd "${BASE_PROJECT}/spec"
 
-docker buildx build --pull --force-rm --build-arg "RUBY_IMAGE=${IMAGE_NAME}" -t "apm-agent-ruby:${VERSION}" .
+docker buildx build --build-arg "RUBY_IMAGE=${IMAGE_NAME}" -t "apm-agent-ruby:${VERSION}" .
+# TODO: docker buildx build --pull --build-arg "RUBY_IMAGE=${IMAGE_NAME}" -t "apm-agent-ruby:${VERSION}" .
 
 IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} USER_ID=${USER_ID} \
   docker-compose -f ../docker-compose.yml run \
