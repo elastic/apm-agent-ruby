@@ -14,10 +14,10 @@ COPY build/run-bench.sh /usr/local/bin/run-bench.sh
 RUN \
   apt-get update > /dev/null \
   && apt-get install -qq -y build-essential libpq-dev git tzdata \
-  && gem update --system --conservative --without rubygems-update \
+  && gem update --system \
     || gem i "rubygems-update:~>2.7" --no-document \
     && update_rubygems \
-  && gem install bundler --conservative
+  && gem install bundler
 
 RUN \
   curl -o /usr/local/bin/gosu -sSL "https://github.com/tianon/gosu/releases/download/1.16/gosu-$(dpkg --print-architecture)" \
