@@ -28,8 +28,7 @@ fi
 set +e
 status=0
 
-for VERSION in "jruby:9.2" ; do
-# for VERSION in "ruby:3.1" "ruby:3.0" "ruby:2.7" "ruby:2.6" "jruby:9.2" ; do
+for VERSION in "ruby:3.1" "ruby:3.0" "ruby:2.7" "ruby:2.6" "jruby:9.2" ; do
     ## Transform the versions like:
     ## jruby:9.1 to jruby-9.1
   echo "--- Benchmark for :ruby: ${VERSION}"

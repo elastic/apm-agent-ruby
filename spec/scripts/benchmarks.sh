@@ -26,23 +26,17 @@ else
   REFERENCE_REPO_FLAG="-v ${REFERENCE_REPO}:${REFERENCE_REPO}"
 fi
 
-local_vendor_path="${BASE_PROJECT}/.cache/ruby-vendor"
-container_vendor_path="/tmp/vendor/${REPORT_OUTPUT_NAME/ruby-/}"
-
-mkdir -p "${local_vendor_path}"
-
 cd "${BASE_PROJECT}/spec"
 
 docker build --pull --force-rm --build-arg "RUBY_IMAGE=${IMAGE_NAME}" -t "apm-agent-ruby:${VERSION}" .
 
+APP_PATH="/app" \
 IMAGE_NAME="${IMAGE_NAME}" \
 LOCAL_GROUP_ID="$(id -g)" \
 LOCAL_USER_ID="$(id -u)" \
 REPORT_OUTPUT_NAME="${REPORT_OUTPUT_NAME}" \
 RUBY_VERSION="${VERSION}" \
-VENDOR_PATH="${container_vendor_path}" \
   docker-compose -f ../docker-compose.yml run \
-  -v "$local_vendor_path:$container_vendor_path" \
   -v "${BASE_PROJECT}:/app" \
   ${REFERENCE_REPO_FLAG} \
   --rm ruby_rspec \
