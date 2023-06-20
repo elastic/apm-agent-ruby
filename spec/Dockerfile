@@ -14,7 +14,7 @@ COPY build/run-bench.sh /usr/local/bin/run-bench.sh
 RUN \
   apt-get update > /dev/null \
   && apt-get install -qq -y build-essential libpq-dev git tzdata \
-  && gem update --system \
+  && gem update --system --conservative \
     || gem i "rubygems-update:~>2.7" --no-document \
     && update_rubygems \
   && gem install bundler
