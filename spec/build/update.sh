@@ -21,4 +21,3 @@ else
   gem update --system --no-document
   gem install bundler --no-document
 fi
-
