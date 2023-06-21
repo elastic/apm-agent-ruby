@@ -4,10 +4,19 @@ FROM ${RUBY_IMAGE}
 
 # Env arguments
 ENV \
+  APP_WORKDIR="/var/app" \
   CI="1" \
-  DEBIAN_FRONTEND=noninteractive \
+  DEBIAN_FRONTEND="noninteractive" \
   INCLUDE_COVERAGE="1" \
+  LANG=C.UTF-8 \
   GOSU_VERSION="1.16"
+
+ENV \
+  BUNDLE_BIN="$APP_WORKDIR/vendor/bin" \
+  BUNDLE_CACHE_PATH="$APP_WORKDIR/cache" \
+  BUNDLE_PATH="$APP_WORKDIR/vendor" \
+  GEM_HOME="$APP_WORKDIR/vendor" \
+  PATH="/opt/app/bin:$APP_WORKDIR/vendor/bin:$PATH"
 
 # Copy specific scripts
 COPY build/ /usr/local/bin/

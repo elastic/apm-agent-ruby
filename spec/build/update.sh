@@ -15,3 +15,6 @@ else
   gem update --system --no-document
   gem install bundler --no-document
 fi
+
+# Install rake
+gem install rake --no-document

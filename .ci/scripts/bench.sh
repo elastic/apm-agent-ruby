@@ -37,7 +37,7 @@ for VERSION in "ruby:3.1" "ruby:3.0" "ruby:2.7" "ruby:2.6" "jruby:9.2" ; do
   OUTPUT_NAME=benchmark-$(echo "${VERSION//:/-}")
 
   # TBC, maybe a timeout could help so it can run the other versions?
-  ${BASE_PROJECT}/spec/scripts/benchmarks.sh "${VERSION}" "${OUTPUT_NAME}" "${BASE_PROJECT}"
+  ${BASE_PROJECT}/spec/scripts/benchmarks.sh "${VERSION}" "${OUTPUT_NAME}"
 
   # Gather error if any
   if [ $? -gt 0 ] ; then
