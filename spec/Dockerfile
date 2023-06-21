@@ -9,13 +9,16 @@ ENV \
   INCLUDE_COVERAGE="1" \
   GOSU_VERSION="1.16"
 
+# Copy specific scripts
 COPY build/ /usr/local/bin/
 
+# Install dependencies and upgrade ruby system
 RUN \
   apt-get update > /dev/null \
   && apt-get install -qq -y build-essential libpq-dev git tzdata \
   && update.sh
 
+# Install gosu
 RUN \
   curl -o /usr/local/bin/gosu -sSL "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-$(dpkg --print-architecture)" \
   && curl -o /usr/local/bin/gosu.asc -sSL "https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-$(dpkg --print-architecture).asc" \
@@ -24,6 +27,8 @@ RUN \
   && rm /usr/local/bin/gosu.asc \
   && chmod +x /usr/local/bin/gosu
 
+# Set workdir
 WORKDIR /app
 
+# Set specific entrypoint
 ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]

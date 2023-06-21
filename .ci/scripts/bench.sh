@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+
+# Bash strict mode
 set -eo pipefail
 
 # Found current script directory
@@ -9,19 +11,19 @@ BASE_PROJECT="$(dirname "$(dirname "${RELATIVE_DIR}")")"
 
 ## Buildkite specific configuration
 if [ "$CI" == "true" ] ; then
-	# If HOME is not set then use the Buildkite workspace
-	# that's normally happening when running in the CI
-	# owned by Elastic.
-	if [ -z "$HOME" ] ; then
-		HOME=$BUILDKITE_BUILD_CHECKOUT_PATH
-		export HOME
-	fi
+  # If HOME is not set then use the Buildkite workspace
+  # that's normally happening when running in the CI
+  # owned by Elastic.
+  if [ -z "$HOME" ] ; then
+    HOME=$BUILDKITE_BUILD_CHECKOUT_PATH
+    export HOME
+  fi
 
-	# required when running the benchmark
-	PATH=$PATH:$HOME/.local/bin
-	export PATH
+  # required when running the benchmark
+  PATH=$PATH:$HOME/.local/bin
+  export PATH
 
-	echo 'Docker login is done in the Buildkite hooks'
+  echo 'Docker login is done in the Buildkite hooks'
 fi
 
 # It does not fail so it runs for every single version and then we report the error at the end.
