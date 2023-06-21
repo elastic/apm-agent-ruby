@@ -35,7 +35,7 @@ for VERSION in "ruby:3.1" "ruby:3.0" "ruby:2.7" "ruby:2.6" "jruby:9.2" ; do
   OUTPUT_NAME=benchmark-$(echo "${VERSION//:/-}")
 
   # TBC, maybe a timeout could help so it can run the other versions?
-  ./spec/scripts/benchmarks.sh "${VERSION}" "${OUTPUT_NAME}" "${BASE_PROJECT}"
+  ${BASE_PROJECT}/spec/scripts/benchmarks.sh "${VERSION}" "${OUTPUT_NAME}" "${BASE_PROJECT}"
 
   # Gather error if any
   if [ $? -gt 0 ] ; then
@@ -43,7 +43,7 @@ for VERSION in "ruby:3.1" "ruby:3.0" "ruby:2.7" "ruby:2.6" "jruby:9.2" ; do
   fi
 
   # Then we ship the data using the helper
-  echo "TBC: sendBenchmarks(file: \"{OUTPUT_NAME}.bulk\", index: \"benchmark-ruby\", archive: true)"
+  sendBenchmark "${ES_USER_SECRET}" "${ES_PASS_SECRET}" "${ES_URL_SECRET}" "${BASE_PROJECT}/spec/${OUTPUT_NAME}.bulk"
 done
 
 # Report status
