@@ -7,7 +7,7 @@ set -eo pipefail
 RUBY_VERSION=$(ruby -e 'print "#{ RUBY_VERSION }\n"')
 
 # Install specific dependencies for 2.5.x ruby versions
-if [[ "${RUBY_VERSION}" == "2.5"* ]]; then
+if [[ "${RUBY_VERSION}" =~ ^2\.(4|5).+ ]]; then
   gem i "rubygems-update:~>2.7" --no-document
   update_rubygems --no-document
   gem i "bundler:~>2.3.26" --no-document

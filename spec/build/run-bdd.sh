@@ -12,7 +12,7 @@ cp -r ${APP_PATH}/. "${APP_WORKDIR}"
 cd "${APP_WORKDIR}"
 
 # Install project dependencies
-bundle update
+bundle install
 
 # Run tests
 timeout -s9 15m "${APP_WORKDIR}/bin/run-bdd" "${TEST:-}"
