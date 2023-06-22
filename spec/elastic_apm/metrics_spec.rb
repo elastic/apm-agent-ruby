@@ -70,10 +70,10 @@ module ElasticAPM
 
     describe '.collect' do
       before do
+        subject.start
         subject.sets.each_value do |sampler|
           expect(sampler).to receive(:collect).at_least(:once)
         end
-        subject.start
       end
       after { subject.stop }
 
