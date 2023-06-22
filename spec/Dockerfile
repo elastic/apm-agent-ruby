@@ -21,6 +21,9 @@ ENV \
 # Copy specific scripts
 COPY build/ /usr/local/bin/
 
+# Reset to root user
+USER root
+
 # Install dependencies and upgrade ruby system
 RUN \
   apt-get update > /dev/null \
