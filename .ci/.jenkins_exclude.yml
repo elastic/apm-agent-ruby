@@ -23,12 +23,14 @@ exclude:
     FRAMEWORK: grape-master
 
   # rails-4.2 exclusions
-  # Only test on ruby 2.6, 2.5, 2.4
+  # Only test on ruby 2.4
   - VERSION: ruby:3.1
     FRAMEWORK: rails-4.2
   - VERSION: ruby:3.0
     FRAMEWORK: rails-4.2
   - VERSION: ruby:2.7
+    FRAMEWORK: rails-4.2
+  - VERSION: ruby:2.6
     FRAMEWORK: rails-4.2
   - VERSION: jruby:9.2
     FRAMEWORK: rails-4.2
