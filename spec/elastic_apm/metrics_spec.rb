@@ -69,13 +69,15 @@ module ElasticAPM
     end
 
     describe '.collect' do
-      before { subject.start }
-      after { subject.stop }
-
-      it 'samples all samplers' do
+      before do
         subject.sets.each_value do |sampler|
           expect(sampler).to receive(:collect).at_least(:once)
         end
+        subject.start
+      end
+      after { subject.stop }
+
+      it 'samples all samplers' do
         subject.collect
       end
     end
