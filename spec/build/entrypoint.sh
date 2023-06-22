@@ -3,6 +3,12 @@
 # Bash strict mode
 set -eo pipefail
 
+# Remove jruby user if exists
+# The uid can collide with the one, we are trying to use
+if id "jruby" >/dev/null 2>&1; then
+  userdel "jruby"
+fi
+
 # Create a new specific user
 USER_ID=${LOCAL_USER_ID:-1001}
 GROUP_ID=${LOCAL_GROUP_ID:-1001}
