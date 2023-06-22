@@ -1,6 +1,6 @@
 exclude:
   # Ruby 2.4
-  # Only test on rails-5.2, sinatra-1.4
+  # Only test on rails-4.2, sinatra-1.4
   - VERSION: ruby:2.4
     FRAMEWORK: rails-7.0
   - VERSION: ruby:2.4
@@ -8,7 +8,7 @@ exclude:
   - VERSION: ruby:2.4
     FRAMEWORK: rails-6.0
   - VERSION: ruby:2.4
-    FRAMEWORK: rails-4.2
+    FRAMEWORK: rails-5.2
   - VERSION: ruby:2.4
     FRAMEWORK: sinatra-2.2
   - VERSION: ruby:2.4
