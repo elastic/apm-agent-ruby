@@ -24,8 +24,7 @@ COPY build/ /usr/local/bin/
 # Install dependencies and upgrade ruby system
 RUN \
   apt-get update > /dev/null \
-  && apt-get install -qq -y build-essential libpq-dev git tzdata \
-  && update.sh
+  && apt-get install -qq -y build-essential libpq-dev git tzdata
 
 # Install gosu
 RUN \

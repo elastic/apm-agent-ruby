@@ -12,6 +12,11 @@ useradd -u "${USER_ID}" --gid "${GROUP_ID}" -s "/bin/false" -d "${APP_WORKDIR}" 
 
 # Create the app dir
 mkdir -p "${APP_WORKDIR}"
+
+# Install system dependencies
+update.sh
+
+# Fix permission for user
 chown -R "${USER_ID}:${GROUP_ID}" "${APP_WORKDIR}"
 
 # Run command with lower priviledge
