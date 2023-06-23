@@ -6,7 +6,7 @@ set -eo pipefail
 # Extract ruby version
 RUBY_VERSION=$(ruby -e 'print "#{ RUBY_VERSION }\n"')
 
-# Install specific dependencies for 2.5.x ruby versions
+# Install specific dependencies for rails 4.x versions
 if [[ "${FRAMEWORK}" =~ ^rails-4\.([0-9]) ]]; then
   gem i "rubygems-update:~>2.7" --no-document
   update_rubygems --no-document
