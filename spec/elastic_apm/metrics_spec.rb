@@ -82,6 +82,7 @@ module ElasticAPM
 
     describe '.collect_and_send' do
       context 'when samples' do
+        let(:callback) { ->(_) {} }
         before { subject.start }
         after { subject.stop }
 
@@ -95,9 +96,10 @@ module ElasticAPM
       end
 
       context 'when no samples' do
+        let(:callback) { ->(_) {} }
         before { subject.start }
         after { subject.stop }
-        
+
         it 'calls callback' do
           subject.sets.each_value do |sampler|
             expect(sampler).to receive(:collect).at_least(:once) { nil }
