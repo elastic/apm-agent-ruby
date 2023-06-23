@@ -51,11 +51,12 @@ module ElasticAPM
         before do
           with_agent do
             TestJob.perform_async
+            sleep(1)
           end
         end
 
         it 'creates a transaction' do
-          sleep(0.5)
+
           expect(@intercepted.transactions.size).to eq 1
           transaction, = @intercepted.transactions
           expect(transaction.name).to eq 'ElasticAPM::TestJob'
