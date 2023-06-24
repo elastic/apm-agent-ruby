@@ -44,7 +44,7 @@ module ElasticAPM
       request = context.request
 
       request.socket = Context::Request::Socket.new(req)
-      request.http_version = build_http_version rack_env
+      request.http_version = build_http_version req
       request.method = req.request_method
       request.url = Context::Request::Url.new(req)
 
@@ -104,8 +104,8 @@ module ElasticAPM
       key.gsub(/^HTTP_/, '').split('_').map(&:capitalize).join('-')
     end
 
-    def build_http_version(rack_env)
-      return unless (http_version = rack_env['HTTP_VERSION'])
+    def build_http_version(req)
+      return unless (http_version = req.env['HTTP_VERSION'])
       http_version.gsub(%r{HTTP/}, '')
     end
   end
