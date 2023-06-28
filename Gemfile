@@ -62,6 +62,10 @@ gem 'sucker_punch', '~> 2.0', require: nil
 gem 'yard', require: nil
 gem 'yarjuf'
 
+if RUBY_VERSION < '2.5'
+  gem 'loofah', '~> 2.20.0', require: nil
+end
+
 ## Install Framework
 GITHUB_REPOS = {
   'grape' => 'ruby-grape/grape',
