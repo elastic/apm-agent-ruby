@@ -23,11 +23,11 @@ include::./api.asciidoc[]
 
 include::./metrics.asciidoc[]
 
+include::./logs.asciidoc[]
+
 include::./opentracing.asciidoc[]
 
 include::./graphql.asciidoc[]
-
-include::./log-correlation.asciidoc[]
 
 include::./performance-tuning.asciidoc[]
 
