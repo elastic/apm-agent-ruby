@@ -69,10 +69,10 @@ module ElasticAPM
     end
 
     describe '.collect' do
-      before { subject.start }
       after { subject.stop }
 
       it 'samples all samplers' do
+        subject.start
         subject.sets.each_value do |sampler|
           expect(sampler).to receive(:collect).at_least(:once)
         end
@@ -81,10 +81,10 @@ module ElasticAPM
     end
 
     describe '.collect_and_send' do
-      before { subject.start }
-      after { subject.stop }
-
       context 'when samples' do
+        before { subject.start }
+        after { subject.stop }
+
         it 'calls callback' do
           subject.collect_and_send # disable on unsupported jruby
           next unless subject.sets.values.select { |s| s.metrics.any? }.any?
@@ -95,6 +95,9 @@ module ElasticAPM
       end
 
       context 'when no samples' do
+        before { subject.start }
+        after { subject.stop }
+        
         it 'calls callback' do
           subject.sets.each_value do |sampler|
             expect(sampler).to receive(:collect).at_least(:once) { nil }

@@ -5,49 +5,34 @@
 #
 # Usage: ./spec/scripts/benchmarks.sh jruby:9.1
 #
+
+# Bash strict mode
 set -exo pipefail
 
+# Found current script directory
+RELATIVE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+# Found project directory
+BASE_PROJECT="$(dirname "$(dirname "${RELATIVE_DIR}")")"
+
+# Arguments
 IMAGE_NAME=${1:?"missing RUBY IMAGE NAME"}
 VERSION=$(echo "${IMAGE_NAME}" | cut -d":" -f2)
-REFERENCE_REPO=${2}
+REPORT_OUTPUT_NAME=${2:?"missing THE REPORT OUTPUT NAME"}
 
-if [ -z "${REFERENCE_REPO}" ] ; then
-  REFERENCE_REPO_FLAG=""
-else
-  REFERENCE_REPO_FLAG="-v ${REFERENCE_REPO}:${REFERENCE_REPO}"
-fi
+# Move in spec
+cd "${BASE_PROJECT}/spec"
 
-## Transform the versions like:
-##  - docker.elastic.co/observability-ci/jruby:9.2-12-jdk to jruby-9.2-12-jdk
-##  - jruby:9.1 to jruby-9.1
-TRANSFORMED_VERSION=$(basename "${IMAGE_NAME}" | sed "s#:#-#g")
-
-local_vendor_path="$HOME/.cache/ruby-vendor"
-container_vendor_path="/tmp/vendor/${TRANSFORMED_VERSION/ruby-/}"
-
-mkdir -p "${local_vendor_path}"
-
-cd spec
-
+# Build custom container image
 docker build --pull --force-rm --build-arg "RUBY_IMAGE=${IMAGE_NAME}" -t "apm-agent-ruby:${VERSION}" .
 
-IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} \
+# Run bench
+IMAGE_NAME="${IMAGE_NAME}" \
+LOCAL_GROUP_ID="$(id -g)" \
+LOCAL_USER_ID="$(id -u)" \
+RUBY_VERSION="${VERSION}" \
   docker-compose -f ../docker-compose.yml run \
-  --user $UID \
-  -e HOME=/tmp \
-  -e FRAMEWORK=rails \
-  -w /app \
-  -e LOCAL_USER_ID=$UID \
-  -v "$local_vendor_path:$container_vendor_path" \
-  -v "$(dirname "$(pwd)"):/app" \
-  ${REFERENCE_REPO_FLAG} \
+  -e REPORT_OUTPUT_NAME="${REPORT_OUTPUT_NAME}" \
+  -v "${BASE_PROJECT}:/opt/app" \
   --rm ruby_rspec \
-  /bin/bash -c "set -x
-    cp -rf ${container_vendor_path} /tmp/.vendor
-    gem update --system
-    gem install bundler
-    bundle config --global set path '/tmp/.vendor'
-    bundle install
-    bench/benchmark.rb 2> benchmark-${TRANSFORMED_VERSION}.error > benchmark-${TRANSFORMED_VERSION}.raw
-    bench/report.rb < benchmark-${TRANSFORMED_VERSION}.raw > benchmark-${TRANSFORMED_VERSION}.bulk"
-
+  run-bench.sh

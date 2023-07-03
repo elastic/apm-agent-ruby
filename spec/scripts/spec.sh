@@ -7,21 +7,29 @@
 #
 # Usage: ./spec/scripts/spec.sh jruby:9.1 sinatra-2.0
 #
+
+# Bash strict mode
 set -exo pipefail
+
+# Found current script directory
+RELATIVE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+# Found project directory
+BASE_PROJECT="$(dirname "$(dirname "${RELATIVE_DIR}")")"
 
 if [ $# -lt 2 ]; then
   echo "Arguments missing"
   exit 2
 fi
 
-IMAGE_NAME=${1}
-FRAMEWORK=${2}
-TEST=${3}
+# Arguments
+IMAGE_NAME="${1}"
+FRAMEWORK="${2}"
+TEST="${3}"
 VERSION=$(echo "${IMAGE_NAME}" | cut -d":" -f2)
 
-cd spec
-
-IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} USER_ID="$(id -u):$(id -g)" docker-compose up -d mongodb
+# Move in spec
+cd "${BASE_PROJECT}/spec"
 
 ## Customise the docker container to enable the access to the internal of the jdk
 ## for the jruby docker images.
@@ -35,9 +43,17 @@ fi
 
 CLEAN_IMAGE_NAME=$(echo $IMAGE_NAME | sed s/:/-/ )
 
-docker build --build-arg "RUBY_IMAGE=${IMAGE_NAME}" -t "apm-agent-ruby:${VERSION}" .
+# Build custom container image
+docker build --pull --force-rm --build-arg "RUBY_IMAGE=${IMAGE_NAME}" -t "apm-agent-ruby:${VERSION}" .
 
-IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} USER_ID="$(id -u):$(id -g)" \
+# Start mongodb
+docker-compose up -d mongodb
+
+# Run tests
+IMAGE_NAME="${IMAGE_NAME}" \
+LOCAL_GROUP_ID="$(id -g)" \
+LOCAL_USER_ID="$(id -u)" \
+RUBY_VERSION="${VERSION}" \
   docker-compose -f ../docker-compose.yml run \
   -e FRAMEWORK="${FRAMEWORK}" \
   -e TEST_MATRIX="${FRAMEWORK}-${CLEAN_IMAGE_NAME}" \
@@ -45,11 +61,7 @@ IMAGE_NAME=${IMAGE_NAME} RUBY_VERSION=${VERSION} USER_ID="$(id -u):$(id -g)" \
   -e JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS}" \
   -e JRUBY_OPTS="${JRUBY_OPTS}" \
   -e JUNIT_PREFIX="${JUNIT_PREFIX//:/-}" \
-  -e HOME="/tmp" \
-  -v "$(dirname "$(pwd)"):/app" \
-  -w /app \
+  -e TEST="${TEST}" \
+  -v "${BASE_PROJECT}:/opt/app" \
   --rm ruby_rspec \
-  /bin/bash -c "\
-    gem install rake && \
-    bundle update && \
-    timeout -s9 15m bin/run-tests ${TEST}"
+  run-tests.sh

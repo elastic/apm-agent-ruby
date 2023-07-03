@@ -8,6 +8,7 @@ on:
       - Issue Labeler
       - ci
       - coverage-reporter
+      - microbenchmark
       - release
       - run-matrix
       - snapshoty
