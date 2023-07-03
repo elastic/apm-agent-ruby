@@ -100,18 +100,17 @@ module ElasticAPM
       end
 
       context 'when no samples' do
-        subject { described_class.new(config, &callback) }
-        let(:callback) { ->(_) {} }
-        before { subject.start }
-        after { subject.stop }
-
         it 'calls callback' do
+          callback = ->(_) {}
+          subject = described_class.new(config, &callback)
+          subject.start
           subject.sets.each_value do |sampler|
             expect(sampler).to receive(:collect).at_least(:once) { nil }
           end
           expect(callback).to_not receive(:call)
 
           subject.collect_and_send
+          subject.stop
         end
       end
 
