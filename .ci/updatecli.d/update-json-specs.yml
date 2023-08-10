@@ -70,13 +70,13 @@ actions:
         * https://github.com/elastic/apm/commit/{{ source "sha" }}
 
 targets:
-  cgroup_parsing.json:
-    name: cgroup_parsing.json
+  container_metadata_discovery.json:
+    name: container_metadata_discovery.json
     scmid: default
-    sourceid: cgroup_parsing.json
+    sourceid: container_metadata_discovery.json
     kind: file
     spec:
-      file: spec/fixtures/cgroup_parsing.json
+      file: spec/fixtures/container_metadata_discovery.json
   service_resource_inference.json:
     name: service_resource_inference.json
     scmid: default
