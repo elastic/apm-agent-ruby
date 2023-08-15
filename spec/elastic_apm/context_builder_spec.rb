@@ -54,7 +54,7 @@ module ElasticAPM
 
         expect(request.headers).to eq(
           'Content-Type' => 'application/json',
-          'Cookie' => 'things=1'
+          'Cookie' => '[SKIPPED]'
         )
       end
 
