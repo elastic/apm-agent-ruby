@@ -22,17 +22,17 @@ module ElasticAPM
   module SpanHelpers
     # @api private
     module ClassMethods
-      def span_class_method(method, name = nil, type = nil)
-        __span_method_on(singleton_class, method, name, type)
+      def span_class_method(method, name = nil, type = nil, **kwargs)
+        __span_method_on(singleton_class, method, name, type, **kwargs)
       end
 
-      def span_method(method, name = nil, type = nil)
-        __span_method_on(self, method, name, type)
+      def span_method(method, name = nil, type = nil, **kwargs)
+        __span_method_on(self, method, name, type, **kwargs)
       end
 
       private
 
-      def __span_method_on(klass, method, name = nil, type = nil)
+      def __span_method_on(klass, method, name = nil, type = nil, **kwargs)
         name ||= method.to_s
         type ||= Span::DEFAULT_TYPE
 
@@ -42,7 +42,7 @@ module ElasticAPM
               return super(*args, &block)
             end
 
-            ElasticAPM.with_span name.to_s, type.to_s do
+            ElasticAPM.with_span name.to_s, type.to_s, **kwargs do
               super(*args, &block)
             end
           end)
