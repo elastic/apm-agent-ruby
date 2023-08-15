@@ -23,9 +23,10 @@ module ElasticAPM
   RSpec.describe Metrics do
     let(:config) { Config.new }
     let(:callback) { ->(_) {} }
-    subject { described_class.new(config, &callback) }
 
     describe 'life cycle' do
+      subject { described_class.new(config, &callback) }
+
       describe '#start' do
         before { subject.start }
         it { should be_running }
@@ -65,10 +66,12 @@ module ElasticAPM
     end
 
     describe '.new' do
+      subject { described_class.new(config, &callback) }
       it { should be_a Metrics::Registry }
     end
 
     describe '.collect' do
+      subject { described_class.new(config, &callback) }
       after { subject.stop }
 
       it 'samples all samplers' do
@@ -82,6 +85,8 @@ module ElasticAPM
 
     describe '.collect_and_send' do
       context 'when samples' do
+        subject { described_class.new(config, &callback) }
+        let(:callback) { ->(_) {} }
         before { subject.start }
         after { subject.stop }
 
@@ -95,20 +100,23 @@ module ElasticAPM
       end
 
       context 'when no samples' do
-        before { subject.start }
-        after { subject.stop }
-        
         it 'calls callback' do
+          callback = ->(_) {}
+          subject = described_class.new(config, &callback)
+          subject.start
           subject.sets.each_value do |sampler|
             expect(sampler).to receive(:collect).at_least(:once) { nil }
           end
           expect(callback).to_not receive(:call)
 
           subject.collect_and_send
+          subject.stop
         end
       end
 
       context 'when recording is false' do
+        subject { described_class.new(config, &callback) }
+        let(:callback) { ->(_) {} }
         let(:config) { Config.new(recording: false) }
         it 'does not collect metrics' do
           expect(subject).to_not receive(:collect)
@@ -170,6 +178,7 @@ module ElasticAPM
     end
 
     describe '#handle_forking!' do
+      subject { described_class.new(config, &callback) }
       before do
         subject.handle_forking!
       end
