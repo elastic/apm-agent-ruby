@@ -216,6 +216,25 @@ module ElasticAPM
         http = span.context.http
         expect(http.status_code).to match('404')
       end
+
+      it 'should handle a nil response' do
+        WebMock.stub_request(:get, 'http://example.com')
+          .to_raise(Faraday::ClientError)
+
+        with_agent do
+          begin
+            ElasticAPM.with_transaction 'Faraday Middleware test' do
+              client.get('http://example.com')
+            end
+          rescue Faraday::ClientError
+          end
+        end
+        span, = @intercepted.spans
+
+        http = span.context.http
+        expect(http.status_code).to be nil
+      end
+
     end
   end
 end

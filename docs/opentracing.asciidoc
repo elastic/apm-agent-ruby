@@ -89,6 +89,6 @@ The `Span.set_baggage` method is not supported.
 Baggage items are dropped with a warning log message.
 
 [float]
-[[logs]]
+[[opentracing-logs]]
 === Logs
 Logs are currently not supported.
