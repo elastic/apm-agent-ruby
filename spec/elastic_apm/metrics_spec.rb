@@ -75,10 +75,11 @@ module ElasticAPM
       after { subject.stop }
 
       it 'samples all samplers' do
-        subject.start
+        subject.define_sets
         subject.sets.each_value do |sampler|
           expect(sampler).to receive(:collect).at_least(:once)
         end
+        subject.start
         subject.collect
       end
     end
@@ -103,10 +104,11 @@ module ElasticAPM
         it 'calls callback' do
           callback = ->(_) {}
           subject = described_class.new(config, &callback)
-          subject.start
+          subject.define_sets
           subject.sets.each_value do |sampler|
             expect(sampler).to receive(:collect).at_least(:once) { nil }
           end
+          subject.start
           expect(callback).to_not receive(:call)
 
           subject.collect_and_send
