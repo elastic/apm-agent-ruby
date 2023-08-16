@@ -50,27 +50,9 @@ module ElasticAPM
           return
         end
 
+        define_sets
+
         debug 'Starting metrics'
-
-        # Only set the @sets once, in case we stop
-        # and start again.
-        if @sets.nil?
-          sets = {
-            system: CpuMemSet,
-            vm: VMSet,
-            breakdown: BreakdownSet,
-            transaction: TransactionSet
-          }
-          if defined?(JVMSet)
-            debug "Enabling JVM metrics collection"
-            sets[:jvm] = JVMSet
-          end
-
-          @sets = sets.each_with_object({}) do |(key, kls), _sets_|
-            debug "Adding metrics collector '#{kls}'"
-            _sets_[key] = kls.new(config)
-          end
-        end
 
         @timer_task = Concurrent::TimerTask.execute(
           run_now: true,
@@ -133,6 +115,28 @@ module ElasticAPM
           samples = set.collect
           next unless samples
           arr.concat(samples)
+        end
+      end
+
+      def define_sets
+        # Only set the @sets once, in case we stop
+        # and start again.
+        return unless @sets.nil?
+
+        sets = {
+          system: CpuMemSet,
+          vm: VMSet,
+          breakdown: BreakdownSet,
+          transaction: TransactionSet
+        }
+        if defined?(JVMSet)
+          debug "Enabling JVM metrics collection"
+          sets[:jvm] = JVMSet
+        end
+
+        @sets = sets.each_with_object({}) do |(key, kls), _sets_|
+          debug "Adding metrics collector '#{kls}'"
+          _sets_[key] = kls.new(config)
         end
       end
     end
