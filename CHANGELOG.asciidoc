@@ -34,6 +34,15 @@ endif::[]
 [[release-notes-4.x]]
 === Ruby Agent version 4.x
 
+[float]
+===== Fixed
+- Handle Faraday response being nil {pull}1382[#1382]
+- Fix error with invalid %-encoding {pull}1400[#1400]
+
+[float]
+===== Added
+- Add keyword args for span_method helper {pull}1395[#1395]
+
 [[release-notes-4.6.2]]
 ==== 4.6.2
 
