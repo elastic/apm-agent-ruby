@@ -10,9 +10,16 @@ runRspec(){
   if [ -n "${case}" ]; then
     bn="$(basename ${case} _spec.rb)/"
   fi
+  # If working on an isolated environment then copy the file to
+  # the original location
+  TEST_REPORT_DIR=spec/junit-reports/${JUNIT_PREFIX}${bn}
+  if [ -n "$APP_PATH" ] ; then
+    TEST_REPORT_DIR=$APP_PATH/$TEST_REPORT_DIR
+    mkdir -p $TEST_REPORT_DIR
+  fi
   bundle exec rspec \
     -f progress \
-    -r yarjuf -f JUnit -o spec/junit-reports/${JUNIT_PREFIX}${bn}ruby-agent-junit.xml \
+    -r yarjuf -f JUnit -o ${TEST_REPORT_DIR}ruby-agent-junit.xml \
     ${case}
 }
 specific_spec=$1
