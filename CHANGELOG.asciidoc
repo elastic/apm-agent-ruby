@@ -34,6 +34,9 @@ endif::[]
 [[release-notes-4.x]]
 === Ruby Agent version 4.x
 
+[[release-notes-4.7.0]]
+==== 4.7.0
+
 [float]
 ===== Fixed
 - Handle Faraday response being nil {pull}1382[#1382]
