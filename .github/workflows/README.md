@@ -41,7 +41,7 @@ Once a PR has been opened then there are two different ways you can trigger buil
 
 #### Branches
 
-Every time there is a merge to main or any release branches the whole workflow will compile and test every entry in the compatibility matrix for Linux and Windows.
+Every time there is a merge to main or any release branches the whole workflow will compile and test every entry in the compatibility matrix for Linux.
 
 ### Release process
 
