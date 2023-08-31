@@ -1,10 +1,11 @@
 ## CI/CD
 
-There are 4 main stages that run on GitHub actions:
+There are 5 main stages that run on GitHub actions:
 
 * Linting
-* Pack
 * Test
+* Test `main` versions
+* Package
 * Release
 
 There are some other stages that run for every push on the main branches:
