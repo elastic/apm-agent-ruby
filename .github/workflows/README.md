@@ -25,10 +25,10 @@ There are some other stages that run for every push on the main branches:
 
 Ruby agent supports compatibility to different ruby versions and frameworks, those are defined in:
 
-* [frameworks](https://github.com/elastic/apm-agent-ruby/blob/main/.ci/framework.yml) for all the PRs.
-* [frameworks](https://github.com/elastic/apm-agent-ruby/blob/main/.ci/.main_framework.yml) for all the PRs using the `main` branches.
-* Ruby [versions](https://github.com/elastic/apm-agent-ruby/blob/main/.ci/.ruby.yml) for all the `*nix` builds.
-* [Exclude list](https://github.com/elastic/apm-agent-ruby/blob/main/.ci/exclude.yml) for the above entries.
+* [frameworks](../../.ci/framework.yml) for all the PRs.
+* [frameworks](../../.ci/.main_framework.yml) for all the PRs using the `main` branches.
+* Ruby [versions](../../.ci/.ruby.yml) for all the `*nix` builds.
+* [Exclude list](../../.ci/exclude.yml) for the above entries.
 
 ### How to interact with the CI?
 
