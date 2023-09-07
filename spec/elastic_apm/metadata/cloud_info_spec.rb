@@ -107,16 +107,12 @@ module ElasticAPM
           subject.fetch!
 
           expect(subject.provider).to eq('gcp')
-          # rubocop:disable Style/NumericLiterals
-          expect(subject.instance_id).to eq(4306570268266786072)
+          expect(subject.instance_id).to eq("4306570268266786072")
           expect(subject.instance_name).to eq("basepi-test")
-          expect(subject.project_id).to eq(513326162531)
-          # rubocop:enable Style/NumericLiterals
-          expect(subject.instance_name).to eq('basepi-test')
-          expect(subject.project_name).to eq('elastic-apm')
+          expect(subject.project_id).to eq('elastic-apm')
           expect(subject.availability_zone).to eq('us-west3-a')
           expect(subject.region).to eq('us-west3')
-          expect(subject.machine_type).to eq('projects/513326162531/machineTypes/n1-standard-1')
+          expect(subject.machine_type).to eq('n1-standard-1')
 
           expect(@gcp_mock).to have_been_requested
         end
