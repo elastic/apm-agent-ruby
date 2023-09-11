@@ -102,7 +102,7 @@ module ElasticAPM
         self.project_id = metadata["project"]["projectId"]
         self.availability_zone = zone
         self.region = zone.split("-")[0..-2].join("-")
-        self.machine_type = metadata["instance"]["machineType"].split("/")&.at(-1)
+        self.machine_type = metadata["instance"]["machineType"].split("/")[-1]
       rescue HTTP::TimeoutError, HTTP::ConnectionError
         nil
       end
