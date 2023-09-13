@@ -131,6 +131,10 @@ if Gem::Version.create(RUBY_VERSION) >= Gem::Version.create('2.5.0') && !defined
   gem 'sneakers', github: 'jondot/sneakers', ref: 'd761dfe1493', require: nil
 end
 
+if Gem::Version.create(RUBY_VERSION) <= Gem::Version.create('2.5.0')
+  gem 'bigdecimal', '1.3.5'
+end
+
 group :bench do
   gem 'ruby-prof', require: nil, platforms: %i[ruby]
   gem 'stackprof', require: nil, platforms: %i[ruby]
