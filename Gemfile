@@ -132,7 +132,7 @@ if Gem::Version.create(RUBY_VERSION) >= Gem::Version.create('2.5.0') && !defined
 end
 
 if Gem::Version.create(RUBY_VERSION) <= Gem::Version.create('2.5.0')
-  gem 'bigdecimal', '~> 1.3'
+  gem 'bigdecimal', '1.3.5'
 end
 
 group :bench do
