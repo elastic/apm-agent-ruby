@@ -3,7 +3,9 @@ updates:
 - package-ecosystem: bundler
   directory: "/"
   schedule:
-    interval: daily
+    interval: "weekly"
+    day: "sunday"
+    time: "22:00"
   open-pull-requests-limit: 10
   ignore:
   - dependency-name: sucker_punch
@@ -14,3 +16,17 @@ updates:
     - 1.8.10
     - 1.8.8
     - 1.8.9
+
+  # GitHub actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    reviewers:
+      - "elastic/observablt-ci"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "22:00"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
