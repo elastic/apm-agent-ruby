@@ -24,11 +24,19 @@ module ElasticAPM
     class ActionDispatchSpy
       # @api private
       module Ext
-        def render_exception(env, exception)
-          context = ElasticAPM.build_context(rack_env: env, for_type: :error)
+        def render_exception(request, exception_or_wrapper)
+          context = ElasticAPM.build_context(
+            rack_env: request, for_type: :error
+          )
+          exception =
+            if exception_or_wrapper.is_a?(ActionDispatch::ExceptionWrapper)
+              exception_or_wrapper.exception
+            else
+              exception_or_wrapper
+            end
           ElasticAPM.report(exception, context: context, handled: false)
 
-          super(env, exception)
+          super(request, exception_or_wrapper)
         end
       end
 
