@@ -55,6 +55,9 @@ module ElasticAPM
       request.env = env if config.capture_env?
 
       request.cookies = req.cookies.dup
+      unless request.cookies.empty?
+        request.headers['Cookie'] = SKIPPED if request.headers.has_key?('Cookie')
+      end
 
       context
     end
