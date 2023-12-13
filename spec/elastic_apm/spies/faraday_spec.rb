@@ -243,7 +243,7 @@ module ElasticAPM
           undef response_status
         end
         WebMock.stub_request(:get, 'http://example.com')
-          .to_raise(FaradayErrorWithResponseObject.new)
+          .to_raise(FaradayErrorWithResponseObject.new(nil))
 
         with_agent do
           begin
@@ -267,7 +267,7 @@ module ElasticAPM
           undef response_status
         end
         WebMock.stub_request(:get, 'http://example.com')
-          .to_raise(FaradayErrorWithResponseHash.new)
+          .to_raise(FaradayErrorWithResponseHash.new(nil))
 
         with_agent do
           begin
@@ -291,7 +291,7 @@ module ElasticAPM
           undef response_status
         end
         WebMock.stub_request(:get, 'http://example.com')
-          .to_raise(FaradayErrorWithResponseString.new)
+          .to_raise(FaradayErrorWithResponseString.new(nil))
 
         with_agent do
           begin
