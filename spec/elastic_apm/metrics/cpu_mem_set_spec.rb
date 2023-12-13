@@ -46,7 +46,7 @@ module ElasticAPM
               'system.memory.total': 4_042_711_040,
               'system.process.cpu.total.norm.pct': 0.2,
               'system.process.memory.size': 53_223_424,
-              'system.process.memory.rss.bytes': 12_738_560
+              'system.process.memory.rss.bytes': 25_477_120
             )
           end
 
@@ -72,7 +72,7 @@ module ElasticAPM
                 'system.memory.total': 4_042_711_040,
                 'system.process.cpu.total.norm.pct': 0.2,
                 'system.process.memory.size': 53_223_424,
-                'system.process.memory.rss.bytes': 12_738_560
+                'system.process.memory.rss.bytes': 25_477_120
               )
             end
           end
@@ -100,6 +100,8 @@ module ElasticAPM
         proc_stat_format: :debian,
         proc_meminfo_format: nil
       )
+        allow_any_instance_of(ElasticAPM::Metrics::CpuMemSet::Linux::Meminfo).
+          to receive(:`).with('getconf PAGESIZE').and_return('8192')
         {
           '/proc/stat' =>
             ["proc_stat_#{proc_stat_format}", { user: user, idle: idle }],
