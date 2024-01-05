@@ -18,28 +18,38 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-
 begin
   require 'active_support/notifications'
-  require "active_support/subscriber"
+  require 'active_support/subscriber'
   require 'racecar'
-
   module ElasticAPM
     RSpec.describe 'Spy: Racecar', :intercept do
       it 'captures the instrumentation' do
         with_agent do
-          ActiveSupport::Notifications.instrument('start_process_message.racecar')
-          ActiveSupport::Notifications.instrument('process_message.racecar') do
+          instrumentation_payload = {
+            consumer_class: 'SpecConsumer',
+            topic:          'spec_topic',
+            partition:      '0',
+            offset:         '1',
+            create_time:    Time.now,
+            key:            '1',
+            value:          {key: 'value'},
+            headers:        {key: 'value'}
+          }
+          ActiveSupport::Notifications.instrument('start_process_message.racecar', instrumentation_payload)
+          ActiveSupport::Notifications.instrument('process_message.racecar', instrumentation_payload) do
             # this is the body of the racecar consumer #process method
           end
           first_transaction = @intercepted.transactions.first
           expect(first_transaction).not_to be_nil
-          expect(first_transaction.name).to eq('process_message')
+          expect(first_transaction.name).to eq("#{instrumentation_payload[:consumer_class]}#process_message")
           expect(first_transaction.type).to eq('kafka')
+          expect(first_transaction.context.service.framework.name).to eq('racecar')
         end
       end
     end
   end
 
 rescue LoadError # in case we don't have ActiveSupport
+  STDERR.puts "ActiveSupport not found, skipping."
 end
