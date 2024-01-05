@@ -47,7 +47,7 @@ require 'active_support/subscriber'
           private # only public methods will be subscribed
 
           def start_process_transaction(event:, kind:)
-            ElasticAPM.start_transaction(kind, TYPE)
+            ElasticAPM.start_transaction("#{event.payload[:consumer_class]}##{kind}", TYPE)
             ElasticAPM.current_transaction.context.set_service(framework_name: 'racecar', framework_version: Racecar::VERSION)
           end
         end
@@ -74,4 +74,5 @@ require 'active_support/subscriber'
 
 rescue LoadError
   # no active support available
+  STDERR.puts "ActiveSupport not found."
 end
