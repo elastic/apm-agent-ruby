@@ -24,16 +24,16 @@ begin
   require 'racecar'
   module ElasticAPM
     RSpec.describe 'Spy: Racecar', :intercept do
-      let(:instrumentation_payload) {
+      let(:instrumentation_payload) do
         { consumer_class: 'SpecConsumer',
-          topic:          'spec_topic',
-          partition:      '0',
-          offset:         '1',
-          create_time:    Time.now,
-          key:            '1',
-          value:          {key: 'value'},
-          headers:        {key: 'value'} }
-      }
+          topic: 'spec_topic',
+          partition: '0',
+          offset: '1',
+          create_time: Time.now,
+          key: '1',
+          value: { key: 'value' },
+          headers: { key: 'value' } }
+      end
       it 'captures the instrumentation' do
         with_agent do
           ActiveSupport::Notifications.instrument('start_process_message.racecar', instrumentation_payload)
@@ -84,7 +84,6 @@ begin
       end
     end
   end
-
 rescue LoadError # in case we don't have ActiveSupport
-  STDERR.puts "ActiveSupport not found, skipping."
+  warn "ActiveSupport not found, skipping."
 end
