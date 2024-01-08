@@ -33,14 +33,24 @@ require 'active_support/subscriber'
           def start_process_message(event)
             start_process_transaction(event: event, kind: 'process_message')
           end
-          def process_message(_event)
+          def process_message(event)
+            transaction = ElasticAPM.current_transaction
+            error_present = !event.payload[:unrecoverable_delivery_error].nil?
+            transaction.outcome = error_present ? Transaction::Outcome::FAILURE : Transaction::Outcome::SUCCESS
+            transaction.done(error_present ? :error : :success)
+
             ElasticAPM.end_transaction
           end
 
           def start_process_batch(event)
             start_process_transaction(event: event, kind: 'process_batch')
           end
-          def process_batch(_event)
+          def process_batch(event)
+            transaction = ElasticAPM.current_transaction
+            error_present = !event.payload[:unrecoverable_delivery_error].nil?
+            transaction.outcome = error_present ? Transaction::Outcome::FAILURE : Transaction::Outcome::SUCCESS
+            transaction.done(error_present ? :error : :success)
+
             ElasticAPM.end_transaction
           end
 
