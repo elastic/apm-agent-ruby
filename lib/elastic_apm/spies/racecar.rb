@@ -34,11 +34,7 @@ require 'active_support/subscriber'
             start_process_transaction(event: event, kind: 'process_message')
           end
           def process_message(event)
-            transaction = ElasticAPM.current_transaction
-            error_present = !event.payload[:unrecoverable_delivery_error].nil?
-            transaction.outcome = error_present ? Transaction::Outcome::FAILURE : Transaction::Outcome::SUCCESS
-            transaction.done(error_present ? :error : :success)
-
+            record_outcome(event: event)
             ElasticAPM.end_transaction
           end
 
@@ -46,11 +42,7 @@ require 'active_support/subscriber'
             start_process_transaction(event: event, kind: 'process_batch')
           end
           def process_batch(event)
-            transaction = ElasticAPM.current_transaction
-            error_present = !event.payload[:unrecoverable_delivery_error].nil?
-            transaction.outcome = error_present ? Transaction::Outcome::FAILURE : Transaction::Outcome::SUCCESS
-            transaction.done(error_present ? :error : :success)
-
+            record_outcome(event: event)
             ElasticAPM.end_transaction
           end
 
@@ -59,6 +51,13 @@ require 'active_support/subscriber'
           def start_process_transaction(event:, kind:)
             ElasticAPM.start_transaction("#{event.payload[:consumer_class]}##{kind}", TYPE)
             ElasticAPM.current_transaction.context.set_service(framework_name: 'racecar', framework_version: Racecar::VERSION)
+          end
+
+          def record_outcome(event:)
+            transaction = ElasticAPM.current_transaction
+            error_present = !event.payload[:unrecoverable_delivery_error].nil?
+            transaction.outcome = error_present ? Transaction::Outcome::FAILURE : Transaction::Outcome::SUCCESS
+            transaction.done(error_present ? :error : :success)
           end
         end
 
