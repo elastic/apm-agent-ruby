@@ -16,8 +16,8 @@
 # under the License.
 
 begin
-require 'active_support/notifications'
-require 'active_support/subscriber'
+  require 'active_support/notifications'
+  require 'active_support/subscriber'
 
   # frozen_string_literal: true
   module ElasticAPM
@@ -25,14 +25,15 @@ require 'active_support/subscriber'
     module Spies
       # @api private
       class RacecarSpy
-        TYPE = 'kafka'
-        SUBTYPE = 'racecar'
+        TYPE = 'kafka'.freeze
+        SUBTYPE = 'racecar'.freeze
 
         # @api private
         class ConsumerSubscriber < ActiveSupport::Subscriber
           def start_process_message(event)
             start_process_transaction(event: event, kind: 'process_message')
           end
+
           def process_message(event)
             record_outcome(event: event)
             ElasticAPM.end_transaction
@@ -41,6 +42,7 @@ require 'active_support/subscriber'
           def start_process_batch(event)
             start_process_transaction(event: event, kind: 'process_batch')
           end
+
           def process_batch(event)
             record_outcome(event: event)
             ElasticAPM.end_transaction
@@ -50,7 +52,8 @@ require 'active_support/subscriber'
 
           def start_process_transaction(event:, kind:)
             ElasticAPM.start_transaction("#{event.payload[:consumer_class]}##{kind}", TYPE)
-            ElasticAPM.current_transaction.context.set_service(framework_name: 'racecar', framework_version: Racecar::VERSION)
+            ElasticAPM.current_transaction.context.set_service(framework_name: 'racecar',
+              framework_version: Racecar::VERSION)
           end
 
           def record_outcome(event:)
@@ -61,10 +64,12 @@ require 'active_support/subscriber'
           end
         end
 
+        # @api private
         class ProducerSubscriber < ActiveSupport::Subscriber
-          def start_deliver_message(event)
-            ElasticAPM.start_transaction('deliver_message',TYPE)
-            ElasticAPM.current_transaction.context.set_service(framework_name: 'racecar', framework_version: Racecar::VERSION)
+          def start_deliver_message(_event)
+            ElasticAPM.start_transaction('deliver_message', TYPE)
+            ElasticAPM.current_transaction.context.set_service(framework_name: 'racecar',
+              framework_version: Racecar::VERSION)
           end
 
           def deliver_message(_event)
@@ -80,8 +85,7 @@ require 'active_support/subscriber'
       register 'Racecar', 'racecar', RacecarSpy.new
     end
   end
-
 rescue LoadError
   # no active support available
-  STDERR.puts "ActiveSupport not found."
+  warn "ActiveSupport not found."
 end
