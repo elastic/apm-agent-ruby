@@ -198,7 +198,7 @@ module ElasticAPM
         end
       end
 
-      it 'should capture status_code' do
+      it 'captures status_code' do
         WebMock.stub_request(:get, 'http://example.com')
           .to_return(status: [404, 'Not Found'])
 
@@ -217,7 +217,7 @@ module ElasticAPM
         expect(http.status_code).to match('404')
       end
 
-      it 'should handle a nil response' do
+      it 'handles a nil response' do
         WebMock.stub_request(:get, 'http://example.com')
           .to_raise(Faraday::ClientError)
 
@@ -235,6 +235,77 @@ module ElasticAPM
         expect(http.status_code).to be nil
       end
 
+      it 'handles faraday response' do
+        class FaradayErrorWithResponseObject < Faraday::ClientError
+          def response
+            Faraday::Response.new(status: 500)
+          end
+          undef response_status
+        end
+        WebMock.stub_request(:get, 'http://example.com')
+          .to_raise(FaradayErrorWithResponseObject.new(nil))
+
+        with_agent do
+          begin
+            ElasticAPM.with_transaction 'Faraday Middleware test' do
+              client.get('http://example.com')
+            end
+          rescue Faraday::ClientError
+          end
+        end
+        span, = @intercepted.spans
+
+        http = span.context.http
+        expect(http.status_code).to eq('500')
+      end
+
+      it 'handles faraday response hash' do
+        class FaradayErrorWithResponseHash < Faraday::ClientError
+          def response
+            { status: 500 }
+          end
+          undef response_status
+        end
+        WebMock.stub_request(:get, 'http://example.com')
+          .to_raise(FaradayErrorWithResponseHash.new(nil))
+
+        with_agent do
+          begin
+            ElasticAPM.with_transaction 'Faraday Middleware test' do
+              client.get('http://example.com')
+            end
+          rescue Faraday::ClientError
+          end
+        end
+        span, = @intercepted.spans
+
+        http = span.context.http
+        expect(http.status_code).to eq('500')
+      end
+
+      it 'does not raise error when response is string' do
+        class FaradayErrorWithResponseString < Faraday::ClientError
+          def response
+            'whatever'
+          end
+          undef response_status
+        end
+        WebMock.stub_request(:get, 'http://example.com')
+          .to_raise(FaradayErrorWithResponseString.new(nil))
+
+        with_agent do
+          begin
+            ElasticAPM.with_transaction 'Faraday Middleware test' do
+              client.get('http://example.com')
+            end
+          rescue Faraday::ClientError
+          end
+        end
+        span, = @intercepted.spans
+
+        http = span.context.http
+        expect(http.status_code).to be nil
+      end
     end
   end
 end

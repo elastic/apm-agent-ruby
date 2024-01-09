@@ -34,6 +34,10 @@ endif::[]
 [[release-notes-4.x]]
 === Ruby Agent version 4.x
 
+[float]
+===== Fixed
+- Guard against various Faraday exception response formats {pull}1428[#1428]
+
 [[release-notes-4.7.0]]
 ==== 4.7.0
 
