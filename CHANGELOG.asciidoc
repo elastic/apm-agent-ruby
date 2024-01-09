@@ -34,9 +34,19 @@ endif::[]
 [[release-notes-4.x]]
 === Ruby Agent version 4.x
 
+[[release-notes-4.7.1]
+==== 4.7.1
+
 [float]
 ===== Fixed
+- Skip capturing cookie header when it's set separately {pull}1405[#1405]
+- Changes/fixes to metadata.cloud.* fields collected for GCP {pull}1415[#1415]
+- Pin version of bigdecimal for ruby 2.4 {pull}1417[#1417]
+- Use response method on Faraday error for older versions of the library {pull}1419[#1419]
+- Fix ActionDispatchSpy#render_exception for Rails 7.1 {pull}1423[#1423]
+- Use graphql < 2.1 when Ruby < 2.7 {pull}1425[#1425]
 - Guard against various Faraday exception response formats {pull}1428[#1428]
+
 
 [[release-notes-4.7.0]]
 ==== 4.7.0
