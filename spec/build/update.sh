@@ -11,6 +11,10 @@ if [[ "${FRAMEWORK}" =~ ^rails-4\.([0-9]) ]]; then
   gem i "rubygems-update:~>2.7" --no-document
   update_rubygems --no-document
   gem i "bundler:~>1.17.3" --no-document
+elif [[ "${RUBY_VERSION}" =~ ^2\.(6|7).+ ]]; then
+  gem i "rubygems-update:~>3.4.0" --no-document
+  update_rubygems --no-document
+  gem i bundler --no-document
 # Install specific dependencies for 2.4.x and 2.5.x ruby versions
 elif [[ "${RUBY_VERSION}" =~ ^2\.(4|5).+ ]]; then
   gem i "rubygems-update:~>2.7" --no-document
