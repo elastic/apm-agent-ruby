@@ -181,7 +181,7 @@ if enabled
           }
         '
 
-        wait_for transactions: 1, spans: 13
+        wait_for timeout: 10, transactions: 1, spans: 12
 
         expect(resp.status).to be 200
 

@@ -48,7 +48,7 @@ else
 end
 if !defined?(JRUBY_VERSION)
   gem 'google-protobuf', '< 3.12' if RUBY_VERSION < '2.5'
-  gem 'google-protobuf', '< 3.25' if RUBY_VERSION < '2.7' && RUBY_VERSION > '2.5'
+  gem 'google-protobuf', '< 3.23' if RUBY_VERSION < '2.7' && RUBY_VERSION > '2.5'
 end
 gem 'grpc' if !defined?(JRUBY_VERSION) && RUBY_VERSION < '3.0'
 gem 'json'
