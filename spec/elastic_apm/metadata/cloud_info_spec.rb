@@ -54,6 +54,22 @@ module ElasticAPM
         }
       JSON
 
+      GCP_NO_MACHINE_EXAMPLE =  <<-JSON
+        {
+          "instance": {
+            "id": 4306570268266786072,
+            "name": "basepi-test",
+            "zone": "projects/513326162531/zones/us-west3-a"
+          },
+          "project": {"numericProjectId": 513326162531, "projectId": "elastic-apm"}
+        }
+      JSON
+
+      GCP_NO_INSTANCE_EXAMPLE =  <<-JSON
+        { "project": {"numericProjectId": 513326162531, "projectId": "elastic-apm"} }
+      JSON
+
+
       AZURE_EXAMPLE = <<-JSON
         {
           "location": "westus2",
@@ -113,6 +129,52 @@ module ElasticAPM
           expect(subject.availability_zone).to eq('us-west3-a')
           expect(subject.region).to eq('us-west3')
           expect(subject.machine_type).to eq('n1-standard-1')
+
+          expect(@gcp_mock).to have_been_requested
+        end
+      end
+
+      context 'gcp no machine_type' do
+        let (:config) { Config.new(cloud_provider: 'gcp') }
+        before do
+          @gcp_mock =
+            WebMock.stub_request(:get, Metadata::CloudInfo::GCP_URI)
+              .to_return(body: CloudExamples::GCP_NO_MACHINE_EXAMPLE)
+        end
+
+        it 'fetches metadata from gcp' do
+          subject.fetch!
+
+          expect(subject.provider).to eq('gcp')
+          expect(subject.instance_id).to eq("4306570268266786072")
+          expect(subject.instance_name).to eq("basepi-test")
+          expect(subject.project_id).to eq('elastic-apm')
+          expect(subject.availability_zone).to eq('us-west3-a')
+          expect(subject.region).to eq('us-west3')
+          expect(subject.machine_type).to be nil
+
+          expect(@gcp_mock).to have_been_requested
+        end
+      end
+
+      context 'gcp no instance' do
+        let (:config) { Config.new(cloud_provider: 'gcp') }
+        before do
+          @gcp_mock =
+            WebMock.stub_request(:get, Metadata::CloudInfo::GCP_URI)
+              .to_return(body: CloudExamples::GCP_NO_INSTANCE_EXAMPLE)
+        end
+
+        it 'fetches metadata from gcp' do
+          subject.fetch!
+
+          expect(subject.provider).to eq('gcp')
+          expect(subject.project_id).to eq('elastic-apm')
+          expect(subject.instance_id).to be nil
+          expect(subject.instance_name).to be nil
+          expect(subject.availability_zone).to be nil
+          expect(subject.region).to be nil
+          expect(subject.machine_type).to be nil
 
           expect(@gcp_mock).to have_been_requested
         end
