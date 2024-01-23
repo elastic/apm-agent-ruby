@@ -94,15 +94,18 @@ module ElasticAPM
         return unless resp.status == 200
         return unless (metadata = JSON.parse(resp.body.to_s))
 
-        zone = metadata["instance"]["zone"]&.split("/")&.at(-1)
-
         self.provider = "gcp"
-        self.instance_id = metadata["instance"]["id"].to_s
-        self.instance_name = metadata["instance"]["name"]
         self.project_id = metadata["project"]["projectId"]
+
+        return unless metadata['instance']
+
+        zone = metadata["instance"]["zone"]&.split("/")&.at(-1)
         self.availability_zone = zone
         self.region = zone.split("-")[0..-2].join("-")
-        self.machine_type = metadata["instance"]["machineType"].split("/")[-1]
+
+        self.instance_id = metadata["instance"]["id"].to_s
+        self.instance_name = metadata["instance"]["name"]
+        self.machine_type = metadata["instance"]["machineType"]&.split("/")&.at(-1)
       rescue HTTP::TimeoutError, HTTP::ConnectionError
         nil
       end
