@@ -34,6 +34,13 @@ endif::[]
 [[release-notes-4.x]]
 === Ruby Agent version 4.x
 
+[[release-notes-4.7.2]
+==== 4.7.2
+
+[float]
+===== Fixed
+- Address machineType not being returned in GCP metadata {pull}1435[#1435]
+
 [[release-notes-4.7.1]
 ==== 4.7.1
 
