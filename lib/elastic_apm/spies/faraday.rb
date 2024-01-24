@@ -58,7 +58,7 @@ module ElasticAPM
             return super(method, url, body, headers, &block)
           end
 
-          uri = URI(build_url(url))
+          uri = Faraday::Utils.URI(build_url(url))
 
           # If url is set inside block it isn't available until yield,
           # so we temporarily build the request to yield. This could be a
@@ -68,7 +68,7 @@ module ElasticAPM
             tmp_request = build_request(method) do |req|
               yield(req) if block_given?
             end
-            uri = tmp_request.path && URI(tmp_request.path)
+            uri = tmp_request.path && Faraday::Utils.URI(tmp_request.path)
           end
 
           host = uri&.host || 'localhost'
