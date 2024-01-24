@@ -34,6 +34,10 @@ endif::[]
 [[release-notes-4.x]]
 === Ruby Agent version 4.x
 
+[float]
+===== Fixed
+- Use Faraday's URI util in Faraday context {pull}1437[#1437]
+
 [[release-notes-4.7.2]
 ==== 4.7.2
 
