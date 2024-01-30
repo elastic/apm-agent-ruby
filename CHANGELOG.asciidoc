@@ -22,6 +22,7 @@ endif::[]
 [float]
 ===== Changed
 - Change {pull}2526[#2526]
+- Racecar consumer instrumentation improvements {pull}
 
 [float]
 ===== Fixed
