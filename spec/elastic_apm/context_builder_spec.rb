@@ -115,6 +115,21 @@ module ElasticAPM
           expect(result.request.body.valid_encoding?).to be true
         end
       end
+
+      context 'with capture_headers false' do
+        let(:config) { Config.new capture_headers: false }
+
+        it 'does not break on the cookies' do
+          env = Rack::MockRequest.env_for(
+            '/somewhere/in/there?q=yes',
+            method: 'POST',
+            'HTTP_COOKIE' => 'things=1'
+          )
+          env['HTTP_CONTENT_TYPE'] = 'application/json'
+
+          expect { subject.build(rack_env: env, for_type: :transaction) }.not_to raise_error
+        end
+      end
     end
   end
 end
