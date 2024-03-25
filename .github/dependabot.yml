@@ -1,21 +1,23 @@
+---
 version: 2
 updates:
-- package-ecosystem: bundler
-  directory: "/"
-  schedule:
-    interval: "weekly"
-    day: "sunday"
-    time: "22:00"
-  open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: sucker_punch
-    versions:
-    - "> 2.0"
-  - dependency-name: i18n
-    versions:
-    - 1.8.10
-    - 1.8.8
-    - 1.8.9
+
+  - package-ecosystem: bundler
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "22:00"
+    open-pull-requests-limit: 5
+    ignore:
+    - dependency-name: sucker_punch
+      versions:
+        - "> 2.0"
+    - dependency-name: i18n
+      versions:
+        - 1.8.10
+        - 1.8.8
+        - 1.8.9
 
   # GitHub actions
   - package-ecosystem: "github-actions"
@@ -26,6 +28,7 @@ updates:
       interval: "weekly"
       day: "sunday"
       time: "22:00"
+    open-pull-requests-limit: 15
     groups:
       github-actions:
         patterns:
