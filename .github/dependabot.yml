@@ -19,16 +19,18 @@ updates:
         - 1.8.8
         - 1.8.9
 
-  # GitHub actions
+  # Maintain dependencies for GitHub Actions (/.github/workflows)
   - package-ecosystem: "github-actions"
     directory: "/"
-    reviewers:
-      - "elastic/observablt-ci"
     schedule:
       interval: "weekly"
       day: "sunday"
       time: "22:00"
-    open-pull-requests-limit: 15
+    open-pull-requests-limit: 5
+    reviewers:
+      - "elastic/observablt-ci"
+    labels:
+      - dependencies
     groups:
       github-actions:
         patterns:
