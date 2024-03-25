@@ -4,6 +4,9 @@ on:
   push:
     tags:
       - "v[0-9]+*"
+    branches:
+      - main
+      - provenance
 
 permissions:
   contents: read
@@ -35,9 +38,17 @@ jobs:
           echo '---' > "${RUBY_CREDENTIALS_FILE}"
           echo ":rubygems_api_key: ${API_KEY}" >> "${RUBY_CREDENTIALS_FILE}"
           chmod 0600 "${RUBY_CREDENTIALS_FILE}"
+
       - name: Install build system
         run: .ci/scripts/install-build-system.sh
-      - run: rake release
+
+      - name: rake release (only for tags)
+        run: rake release
+        if: startsWith(github.ref, 'refs/tags')
+
+      - name: rake build
+        run: rake build
+        if:  ${{ ! startsWith(github.ref, 'refs/tags') }}
 
       - name: generate build provenance
         uses: github-early-access/generate-build-provenance@main
@@ -59,7 +70,9 @@ jobs:
         uses: elastic/apm-pipeline-library/.github/actions/setup-git@current
       - name: Install build system
         run: .ci/scripts/install-build-system.sh
-      - run: rake release:update_branch
+      - name: rake release:update_branch (only for tags)
+        run: rake release:update_branch
+        if: startsWith(github.ref, 'refs/tags')
 
   status:
     if: always()
@@ -73,7 +86,7 @@ jobs:
         with:
           needs: ${{ toJSON(needs) }}
       - run: ${{ steps.check.outputs.isSuccess }}
-      - if: always()
+      - if: ${{ always() && startsWith(github.ref, 'refs/tags') }}
         uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
         with:
           vaultUrl: ${{ secrets.VAULT_ADDR }}
