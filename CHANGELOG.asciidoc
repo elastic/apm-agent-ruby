@@ -34,6 +34,10 @@ endif::[]
 [[release-notes-4.x]]
 === Ruby Agent version 4.x
 
+[float]
+===== Fixed
+- Compatibility with `.trace_with` introduced in graphql-ruby 2.3+ {pull}1446[#1446]
+
 [[release-notes-4.7.2]
 ==== 4.7.2
 

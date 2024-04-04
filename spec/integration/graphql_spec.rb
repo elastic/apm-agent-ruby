@@ -95,7 +95,7 @@ if enabled
 
         class GraphQLTestAppSchema < GraphQL::Schema
           query QueryType
-          tracer ElasticAPM::GraphQL
+          trace_with ElasticAPM::GraphQL
         end
       end
 
