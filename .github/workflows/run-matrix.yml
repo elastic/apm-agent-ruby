@@ -24,7 +24,7 @@ jobs:
     outputs:
       matrix: ${{ steps.generate.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - id: generate
         uses: elastic/apm-pipeline-library/.github/actions/version-framework@current
         with:
@@ -40,7 +40,7 @@ jobs:
       max-parallel: 20
       matrix: ${{ fromJSON(needs.create-test-matrix.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run BDD tests
         run: ./spec/scripts/features.sh ${{ matrix.version }}
       - name: Run test
