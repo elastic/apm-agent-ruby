@@ -6,7 +6,6 @@ on:
       - "v[0-9]+*"
     branches:
       - main
-      - provenance
 
 permissions:
   contents: read
