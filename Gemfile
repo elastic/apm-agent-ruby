@@ -64,7 +64,7 @@ gem 'sidekiq', require: nil
 gem 'simplecov', require: false
 gem 'simplecov-cobertura', require: false
 gem 'sucker_punch', '~> 2.0', require: nil
-gem 'syck', require: nil
+gem 'syck', require: nil if !defined?(JRUBY_VERSION)
 gem 'yard', require: nil
 gem 'yarjuf'
 
