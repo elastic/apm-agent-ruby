@@ -17,7 +17,7 @@ jobs:
   report:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Download artifacts
         run: >
           gh run download ${{ github.event.workflow_run.id }}
