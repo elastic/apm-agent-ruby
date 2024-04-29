@@ -17,13 +17,15 @@
 
 # frozen_string_literal: true
 
-require 'integration_helper'
-require 'syck'
+if !defined?(JRUBY_VERSION)
+  require 'integration_helper'
+  require 'syck'
 
-RSpec.describe 'Syck YAML' do
+  RSpec.describe 'Syck YAML' do
 
-  it 'loads from config file' do
-    config = ElasticAPM::Config.new(config_file: 'spec/fixtures/elastic_apm.yml')
-    expect(config.server_url).to eq 'somewhere-config.com'
+    it 'loads from config file' do
+      config = ElasticAPM::Config.new(config_file: 'spec/fixtures/elastic_apm.yml')
+      expect(config.server_url).to eq 'somewhere-config.com'
+    end
   end
 end
