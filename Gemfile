@@ -129,7 +129,7 @@ elsif frameworks_versions['rails'] =~ /^(4|5)/
 # elsif RUBY_VERSION < '2.7'
 #   gem 'sqlite3', '~> 1.4.4'
 else
-  gem 'sqlite3'
+  gem 'sqlite3', '~> 1.4.4'
 end
 
 # sneakers main only supports >=2.5.0
