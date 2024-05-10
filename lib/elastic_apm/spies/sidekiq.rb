@@ -29,7 +29,7 @@ module ElasticAPM
       class Middleware
         def call(_worker, job, queue)
           name = SidekiqSpy.name_for(job)
-          transaction = ElasticAPM.start_transaction(name, 'Sidekiq')
+          transaction = ElasticAPM.start_transaction(name, 'Sidekiq', trace_context: get_trace_context_from(job))
           ElasticAPM.set_label(:queue, queue)
 
           yield
@@ -43,6 +43,35 @@ module ElasticAPM
           raise
         ensure
           ElasticAPM.end_transaction
+        end
+
+        private
+
+        def get_trace_context_from(job)
+          return unless job['elastic_trace_context']
+
+          ElasticAPM::TraceContext.parse(metadata: job['elastic_trace_context'])
+        end
+      end
+
+      # @api private
+      class ClientMiddleware
+        def call(_worker_class, job, _queue, _redis_pool)
+          job['elastic_trace_context'] = elastic_trace_context
+          yield
+        end
+
+        private
+
+        def elastic_trace_context
+          return unless ElasticAPM.current_transaction
+
+          trace_context = ElasticAPM.current_transaction.trace_context
+
+          {
+            'traceparent' => trace_context.traceparent.to_header,
+            'tracestate' => trace_context.tracestate.to_header
+          }
         end
       end
 
@@ -61,6 +90,12 @@ module ElasticAPM
         Sidekiq.configure_server do |config|
           config.server_middleware do |chain|
             chain.add Middleware
+          end
+        end
+
+        Sidekiq.configure_client do |config|
+          config.server_middleware do |chain|
+            chain.add ClientMiddleware
           end
         end
       end
