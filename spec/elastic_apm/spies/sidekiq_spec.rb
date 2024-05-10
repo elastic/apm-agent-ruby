@@ -132,15 +132,15 @@ module ElasticAPM
           transaction = ElasticAPM.start_transaction 'Test'
           ElasticAPM.end_transaction
 
-          fake_trace_context = transaction.trace_context
+          fake_trace_context = ElasticAPM::TraceContext.parse(
+            metadata: {
+              'traceparent' => transaction.trace_context.traceparent.to_header,
+              'tracestate' => transaction.trace_context.tracestate.to_header
+            }
+          )
 
-          allow_any_instance_of(ElasticAPM::Spies::SidekiqSpy::Middleware).to receive(:get_trace_context_from).and_return(
-            ElasticAPM::TraceContext.parse(
-              metadata: {
-                'traceparent' => fake_trace_context.traceparent.to_header,
-                'tracestate' => fake_trace_context.tracestate.to_header
-              }
-            )
+          allow_any_instance_of(ElasticAPM::Spies::SidekiqSpy::Middleware).to(
+            receive(:get_trace_context_from).and_return(fake_trace_context)
           )
 
           Sidekiq::Testing.inline! do
