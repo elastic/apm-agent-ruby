@@ -22,21 +22,13 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.6
-      - uses: hashicorp/vault-action@v3.0.0
-        with:
-          url: ${{ secrets.VAULT_ADDR }}
-          method: approle
-          roleId: ${{ secrets.VAULT_ROLE_ID }}
-          secretId: ${{ secrets.VAULT_SECRET_ID }}
-          secrets: |
-            secret/apm-team/ci/apm-agent-ruby-rubygems-release apiKey | API_KEY ;
       - name: RubyGems login
         run: |
           RUBY_HOME="${HOME}/.gem"
           RUBY_CREDENTIALS_FILE="${RUBY_HOME}/credentials"
           mkdir -p "${RUBY_HOME}"
           echo '---' > "${RUBY_CREDENTIALS_FILE}"
-          echo ":rubygems_api_key: ${API_KEY}" >> "${RUBY_CREDENTIALS_FILE}"
+          echo ":rubygems_api_key: ${{ secrets.RUBYGEMS_API_KEY }}" >> "${RUBY_CREDENTIALS_FILE}"
           chmod 0600 "${RUBY_CREDENTIALS_FILE}"
 
       - name: Install build system
@@ -87,9 +79,8 @@ jobs:
           needs: ${{ toJSON(needs) }}
       - run: ${{ steps.check.outputs.isSuccess }}
       - if: ${{ always() && startsWith(github.ref, 'refs/tags') }}
-        uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
+        uses: elastic/oblt-actions/slack/notify-result@v1
         with:
-          vaultUrl: ${{ secrets.VAULT_ADDR }}
-          vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
-          vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
-          slackChannel: "#apm-agent-ruby"
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#apm-agent-ruby"
+          message: ":traffic_cone: updatecli failed for `${{ github.repository }}@${{ github.ref_name }}`, @robots-ci please look what's going on <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>"
