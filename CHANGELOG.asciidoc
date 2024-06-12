@@ -20,6 +20,10 @@ endif::[]
 - Feature {pull}2526[#2526]
 
 [float]
+===== Fixed
+- Fix Resque class names when used through ActiveJob {pull}1233[#1233]
+
+[float]
 ===== Changed
 - Change {pull}2526[#2526]
 
