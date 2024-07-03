@@ -19,7 +19,7 @@
 
 require 'json'
 require 'timeout'
-require 'rack/chunked'
+require 'rack/chunked' if ::Rack.release < '3.1.0'
 
 class MockIntake
   def initialize
