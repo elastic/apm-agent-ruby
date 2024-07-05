@@ -1,7 +1,5 @@
 scm:
   enabled: true
-  owner: elastic
-  repository: apm-agent-ruby
   branch: main
 
 signedcommit: true
