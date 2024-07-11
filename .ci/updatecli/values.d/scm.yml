@@ -3,7 +3,6 @@ scm:
   owner: elastic
   repository: apm-agent-ruby
   branch: main
-  branch: main
   # begin update-compose policy values
   user: obltmachine
   email: obltmachine@users.noreply.github.com
