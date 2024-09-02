@@ -31,7 +31,7 @@ IMAGE_NAME="${IMAGE_NAME}" \
 LOCAL_GROUP_ID="$(id -g)" \
 LOCAL_USER_ID="$(id -u)" \
 RUBY_VERSION="${VERSION}" \
-  docker-compose -f ../docker-compose.yml run \
+  docker compose -f ../docker-compose.yml run \
   -e REPORT_OUTPUT_NAME="${REPORT_OUTPUT_NAME}" \
   -v "${BASE_PROJECT}:/opt/app" \
   --rm ruby_rspec \
