@@ -59,7 +59,7 @@ jobs:
         with:
           ruby-version: 2.6
       - name: Setup Git
-        uses: elastic/apm-pipeline-library/.github/actions/setup-git@current
+        uses: elastic/oblt-actions/git/setup@v1
       - name: Install build system
         run: .ci/scripts/install-build-system.sh
       - name: rake release:update_branch (only for tags)
