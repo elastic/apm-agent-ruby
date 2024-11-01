@@ -28,6 +28,7 @@ module ElasticAPM
       module Ext
         def perform
           name = @payload && @payload['class']&.to_s
+          name = @payload['args'].first['job_class'] if name == 'ActiveJob::QueueAdapters::ResqueAdapter::JobWrapper'
           transaction = ElasticAPM.start_transaction(name, TYPE)
           super
           transaction&.done 'success'
