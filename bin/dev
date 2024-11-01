@@ -40,7 +40,7 @@ def run(cmd)
 end
 
 unless options[:skip_build]
-  run 'docker-compose build ' \
+  run 'docker compose build ' \
     " --build-arg RUBY_IMAGE=#{RUBY_IMAGE}" \
     " --build-arg USER_ID_GROUP=#{USER_ID_GROUP}" \
     " --build-arg FRAMEWORKS=#{FRAMEWORKS}" \
@@ -48,7 +48,7 @@ unless options[:skip_build]
   exit $?.exitstatus unless $?.success?
 end
 
-run 'docker-compose run' \
+run 'docker compose run' \
   " -u #{USER_ID_GROUP}" \
   ' --rm' \
   " specs #{ARGV.join}"
