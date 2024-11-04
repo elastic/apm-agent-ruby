@@ -48,9 +48,10 @@ jobs:
         env:
           JUNIT_PREFIX: ${{ matrix.version }}-${{ matrix.framework }}
       - if: success() || failure()
-        uses: actions/upload-artifact@v3
+        name: Upload JUnit Test Results
+        uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: test-results-${{ matrix.framework }}-${{ matrix.version }}
           path: "**/spec/junit-reports/**/*ruby-agent-junit.xml"
       - if: success() || failure()
         uses: actions/upload-artifact@v3
