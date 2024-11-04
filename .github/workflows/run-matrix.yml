@@ -26,11 +26,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: generate
-        uses: elastic/apm-pipeline-library/.github/actions/version-framework@current
+        uses: elastic/oblt-actions/version-framework@v1
         with:
-          versionsFile: ${{ inputs.versionsFile }}
-          frameworksFile: ${{ inputs.frameworksFile }}
-          excludedFile: ${{ inputs.excludedFile }}
+          versions-file: ${{ inputs.versionsFile }}
+          frameworks-file: ${{ inputs.frameworksFile }}
+          excluded-file: ${{ inputs.excludedFile }}
   test:
     needs:
       - create-test-matrix
