@@ -47,10 +47,24 @@ jobs:
         run: ./spec/scripts/spec.sh ${{ matrix.version }} ${{ matrix.framework }}
         env:
           JUNIT_PREFIX: ${{ matrix.version }}-${{ matrix.framework }}
+
       - if: success() || failure()
-        uses: actions/upload-artifact@v3
+        id: normalize-junit
+        uses: actions/github-script@v7
         with:
-          name: test-results
+          result-encoding: string
+          script: |
+            function normalizeName(name) {
+              return name.replace(/["/:<>|*?\\]/g, '-')
+            }
+            const framework = normalizeName('${{ matrix.framework }}')
+            const version = normalizeName('${{ matrix.version }}')
+            return `test-results-${version}-${framework}`
+      - if: success() || failure()
+        name: Upload JUnit Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.normalize-junit.outputs.result }}
           path: "**/spec/junit-reports/**/*ruby-agent-junit.xml"
       - if: success() || failure()
         uses: actions/upload-artifact@v3
