@@ -59,15 +59,10 @@ jobs:
             }
             const framework = normalizeName('${{ matrix.framework }}')
             const version = normalizeName('${{ matrix.version }}')
-            return `test-results-${version}-${framework}`
+            return `${version}-${framework}`
       - if: success() || failure()
         name: Upload JUnit Test Results
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.normalize-junit.outputs.result }}
+          name: test-results-${{ steps.normalize-junit.outputs.result }}
           path: "**/spec/junit-reports/**/*ruby-agent-junit.xml"
-      - if: success() || failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage
-          path: "coverage/"
