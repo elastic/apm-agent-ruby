@@ -54,44 +54,6 @@ jobs:
           name: package
           path: ./pkg/**/*
 
-  coverage:
-    name: Combine & check coverage.
-    needs: [ matrix, matrix-main-frameworks ]
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          # Use latest Python, so it understands all syntax.
-          python-version: 3.11
-
-      - run: python -Im pip install --upgrade coverage[toml]
-
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: coverage-reports-*
-          merge-multiple: true
-
-      - name: Combine coverage
-        run: |
-          python -Im coverage combine
-          python -Im coverage html --skip-covered --skip-empty
-
-          # Report and write to summary.
-          python -Im coverage report | sed 's/^/    /' >> $GITHUB_STEP_SUMMARY
-
-      - name: Upload HTML report
-        uses: actions/upload-artifact@v4
-        with:
-          name: html-coverage-report
-          path: htmlcov
-
-      - uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # 5.1.0
-        with:
-          name: coverage-reports-*
-
   all:
     if: always()
     runs-on: ubuntu-latest
