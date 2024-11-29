@@ -50,6 +50,8 @@ RSpec.configure do |config|
 
     def stop; end
 
+    def handle_forking!; end
+
     def validate_span!(span)
       type, subtype = [span.type, span.subtype]
 
