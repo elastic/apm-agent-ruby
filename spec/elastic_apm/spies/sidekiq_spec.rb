@@ -127,6 +127,36 @@ module ElasticAPM
         expect(error.dig('exception', 'type')).to eq 'ZeroDivisionError'
       end
 
+      it 'creates a transaction with trace from job' do
+        with_agent do
+          transaction = ElasticAPM.start_transaction 'Test'
+          ElasticAPM.end_transaction
+
+          fake_trace_context = ElasticAPM::TraceContext.parse(
+            metadata: {
+              'traceparent' => transaction.trace_context.traceparent.to_header,
+              'tracestate' => transaction.trace_context.tracestate.to_header
+            }
+          )
+
+          allow_any_instance_of(ElasticAPM::Spies::SidekiqSpy::Middleware).to(
+            receive(:get_trace_context_from).and_return(fake_trace_context)
+          )
+
+          Sidekiq::Testing.inline! do
+            HardWorker.perform_async
+          end
+        end
+
+        wait_for transactions: 2
+
+        fake_transaction, worker_transaction = @mock_intake.transactions
+
+        expect(worker_transaction).to_not be_nil
+        expect(worker_transaction['trace_id']).to eq(fake_transaction['trace_id'])
+        expect(worker_transaction['parent_id']).to eq(fake_transaction['id'])
+      end
+
       context 'ActiveJob', if: defined?(ActiveJob) do
         before :all do
           class ::ActiveJobbyJob < ActiveJob::Base
@@ -156,6 +186,33 @@ module ElasticAPM
           expect(transaction).to_not be_nil
           expect(transaction['name']).to eq 'ActiveJobbyJob'
         end
+      end
+    end
+
+    describe Spies::SidekiqSpy::ClientMiddleware do
+      before :all do
+        Sidekiq.configure_client do |config|
+          config.client_middleware do |chain|
+            chain.add Spies::SidekiqSpy::ClientMiddleware
+          end
+        end
+      end
+
+      it 'adds trace context to job' do
+        current_transaction =
+          with_agent do
+            ElasticAPM.with_transaction do |transaction|
+              HardWorker.perform_async
+              transaction
+            end
+          end
+
+        current_job = Sidekiq::Queues['default'].first
+
+        trace_context = current_transaction.trace_context
+
+        expect(current_job['elastic_trace_context']['traceparent']).to eq(trace_context.traceparent.to_header)
+        expect(current_job['elastic_trace_context']['tracestate']).to eq(trace_context.tracestate.to_header)
       end
     end
   end
