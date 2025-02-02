@@ -20,6 +20,11 @@
 require 'spec_helper'
 require 'resque'
 
+begin
+  require 'active_job'
+rescue LoadError
+end
+
 module ElasticAPM
   RSpec.describe 'Spy: Resque', :intercept do
     class TestJob
@@ -73,6 +78,33 @@ module ElasticAPM
 
         error, = @intercepted.errors
         expect(error.exception.type).to eq 'ZeroDivisionError'
+      end
+    end
+
+    context 'ActiveJob', if: defined?(ActiveJob) do
+      before :all do
+        class ::ActiveJobbyJob < ActiveJob::Base
+          self.queue_adapter = :resque
+          self.logger = nil # stay quiet
+
+          def perform
+            'ok'
+          end
+        end
+      end
+
+      after :all do
+        Object.send(:remove_const, :ActiveJobbyJob)
+      end
+
+      it 'knows the name of ActiveJob jobs', if: defined?(ActiveJob) do
+        with_agent do
+          ActiveJobbyJob.perform_later
+        end
+
+        transaction, = @intercepted.transactions
+        expect(transaction).to_not be_nil
+        expect(transaction.name).to eq 'ActiveJobbyJob'
       end
     end
   end
