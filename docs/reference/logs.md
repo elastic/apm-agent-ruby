@@ -9,11 +9,11 @@ mapped_pages:
 Elastic Ruby APM Agent provides the following log features:
 
 * [Log correlation](#log-correlation-ids): Automatically inject correlation IDs that allow navigation between logs, traces and services.
-* [Log reformatting (experimental)](#log-reformatting): Automatically reformat plaintext logs in [ECS logging](ecs-logging://docs/reference/intro.md) format.
+* [Log reformatting (experimental)](#log-reformatting): Automatically reformat plaintext logs in [ECS logging](ecs-logging://reference/intro.md) format.
 
 Those features are part of [Application log ingestion strategies](docs-content://solutions/observability/logs/stream-application-logs.md).
 
-The [`ecs-logging-ruby`](ecs-logging-ruby://docs/reference/index.md) library can also be used to format logs in the [ECS logging](ecs-logging://docs/reference/intro.md) format without an APM agent. When deployed with the Ruby APM agent, the agent will provide [log correlation](#log-correlation-ids) IDs.
+The [`ecs-logging-ruby`](ecs-logging-ruby://reference/index.md) library can also be used to format logs in the [ECS logging](ecs-logging://reference/intro.md) format without an APM agent. When deployed with the Ruby APM agent, the agent will provide [log correlation](#log-correlation-ids) IDs.
 
 
 ## Log correlation [log-correlation-ids]

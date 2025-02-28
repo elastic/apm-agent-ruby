@@ -410,7 +410,7 @@ To enable the JavaScript RUM agent, initialize the RUM agent with the Ruby agent
 </script>
 ```
 
-See the [JavaScript RUM agent documentation](apm-agent-rum-js://docs/reference/index.md) for more information.
+See the [JavaScript RUM agent documentation](apm-agent-rum-js://reference/index.md) for more information.
 
 
 ## Span [api-span]
