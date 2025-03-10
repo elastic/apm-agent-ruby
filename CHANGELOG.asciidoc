@@ -34,21 +34,28 @@ endif::[]
 [[release-notes-4.x]]
 === Ruby Agent version 4.x
 
-[[release-notes-4.7.3]
+[[release-notes-4.7.4]]
+==== 4.7.4
+
+[float]
+===== Fixed
+- Support stack traces from ruby 3.4 {pull}1510[#1510]
+
+[[release-notes-4.7.3]]
 ==== 4.7.3
 
 [float]
 ===== Fixed
 - Address a bug where if `capture_headers` is false, `ContextBuilder` will raise `"undefined method 'has_key?' for nil:NilClass"` {pull}1449[#1449]
 
-[[release-notes-4.7.2]
+[[release-notes-4.7.2]]
 ==== 4.7.2
 
 [float]
 ===== Fixed
 - Address machineType not being returned in GCP metadata {pull}1435[#1435]
 
-[[release-notes-4.7.1]
+[[release-notes-4.7.1]]
 ==== 4.7.1
 
 [float]

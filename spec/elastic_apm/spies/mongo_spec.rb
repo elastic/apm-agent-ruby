@@ -52,6 +52,7 @@ module ElasticAPM
         expect(db.instance).to eq 'elastic-apm-test'
         expect(db.type).to eq 'mongodb'
         expect(db.statement).to eq('{"listCollections"=>1}')
+                            .or eq("{\"listCollections\" => 1}")
         expect(db.user).to be nil
 
         destination = span.context.destination
@@ -102,6 +103,7 @@ module ElasticAPM
         expect(db.instance).to eq 'elastic-apm-test'
         expect(db.type).to eq 'mongodb'
         expect(db.statement).to eq('{"find"=>"testing", "filter"=>{"a"=>"bc"}}')
+                            .or eq("{\"find\" => \"testing\", \"filter\" => {\"a\" => \"bc\"}}")
         expect(db.user).to be nil
       end
     end
