@@ -46,8 +46,8 @@ Update your local repository with the most recent code from the main repo, and r
 Run the test suite to make sure that nothing is broken. See https://github.com/elastic/apm-agent-ruby/blob/main/CONTRIBUTING.md#testing for details.
 -->
 - [ ] I have made corresponding changes to the documentation
-- [ ] I have updated [CHANGELOG.asciidoc](CHANGELOG.asciidoc)
-- [ ] I have updated [supported-technologies.asciidoc](docs/supported-technologies.asciidoc)
+- [ ] I have updated [docs/release-notes/index.md](../docs/release-notes/index.md)
+- [ ] I have updated [docs/reference/supported-technologies.md](../docs/reference/supported-technologies.md)
 - [ ] Added an API method or config option? Document in which version this will be introduced
 
 ## Related issues
