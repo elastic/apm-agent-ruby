@@ -123,12 +123,12 @@ if RUBY_PLATFORM == 'java'
   else
     gem 'activerecord-jdbcsqlite3-adapter', "~> #{rails.tr('.', '')}.0"
   end
+elsif RUBY_VERSION < '3.0'
+  gem 'sqlite3', '~> 1.4.4'
 elsif frameworks_versions['rails'] =~ /^(4|5)/
   gem 'sqlite3', '~> 1.3.6'
-elsif RUBY_VERSION < '2.7'
-  gem 'sqlite3', '~> 1.4.4'
 else
-  gem 'sqlite3'
+  gem 'sqlite3', '~> 2.0'
 end
 
 # sneakers main only supports >=2.5.0
