@@ -409,8 +409,9 @@ Return the altered payload.
 
 If `nil` is returned all subsequent filters will be skipped and the post request cancelled.
 
-Example:
+Examples:
 
+Altering payload
 [source,ruby]
 ----
 ElasticAPM.add_filter(:filter_pings) do |payload|
@@ -419,6 +420,17 @@ ElasticAPM.add_filter(:filter_pings) do |payload|
   end
   payload
 end
+----
+
+Filtering payload
+[source,ruby]
+----
+ElasticAPM.add_filter(
+  :remove_redis_spans,
+  Proc.new do |payload|
+    payload.dig(:span, :type) == 'db.redis' ? nil : payload
+  end
+)
 ----
 
 [float]
