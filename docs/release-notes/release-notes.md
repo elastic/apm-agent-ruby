@@ -5,9 +5,9 @@ mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/ruby/current/release-notes-4.x.html
 ---
 
-# Elastic APM Ruby Agent release notes [elastic-apm-ruby-agent-release-notes]
+# {{apm-ruby-agent}} release notes [elastic-apm-ruby-agent-release-notes]
 
-Review the changes, fixes, and more in each version of Elastic APM Ruby Agent. 
+Review the changes, fixes, and more in each version of {{apm-ruby-agent}}. 
 
 To check for security updates, go to [Security announcements for the Elastic stack](https://discuss.elastic.co/c/announcements/security-announcements/31).
 
