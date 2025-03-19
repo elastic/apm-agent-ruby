@@ -1,31 +1,26 @@
-ifdef::env-github[]
-NOTE: For the best reading experience,
-please view this documentation at
-https://www.elastic.co/guide/en/apm/agent/ruby/current/introduction.html[elastic.co]
-endif::[]
+---
+mapped_pages:
+  - https://www.elastic.co/guide/en/apm/agent/ruby/current/getting-started-rack.html
+---
 
-[[getting-started-rack]]
-=== Getting started with Rack
+# Getting started with Rack [getting-started-rack]
 
 Add the gem to your `Gemfile`:
 
-[source,ruby]
-----
+```ruby
 gem 'elastic-apm'
-----
+```
 
 Create a file `config/elastic_apm.yml`:
 
-[source,yaml]
-----
+```yaml
 server_url: http://localhost:8200
 secret_token: ''
-----
+```
 
 Include the middleware, start (and stop) Elastic APM when booting your app:
 
-[source,ruby]
-----
+```ruby
 # config.ru
 
 app = lambda do |env|
@@ -43,21 +38,19 @@ run app
 # Gracefully stop the agent when process exits.
 # Makes sure any pending transactions are sent.
 at_exit { ElasticAPM.stop }
-----
+```
 
-[float]
-[[getting-started-sinatra]]
-==== Sinatra example
 
-[source,ruby]
-----
+## Sinatra example [getting-started-sinatra]
+
+```ruby
 # Example config.ru
 
 require 'sinatra/base'
 
 class MySinatraApp < Sinatra::Base
   use ElasticAPM::Middleware
-  
+
   # ...
 end
 
@@ -70,14 +63,12 @@ ElasticAPM.start(app: MySinatraApp, ...)
 run MySinatraApp
 
 at_exit { ElasticAPM.stop }
-----
+```
 
-[float]
-[[getting-started-grape]]
-==== Grape example
 
-[source,ruby]
-----
+## Grape example [getting-started-grape]
+
+```ruby
 # Example config.ru
 
 require 'grape'
@@ -94,5 +85,5 @@ end
 ElasticAPM::Grape.start(Twitter::API, config)
 
 run Twitter::API
+```
 
-----

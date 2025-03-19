@@ -1,0 +1,22 @@
+project: 'APM Ruby agent reference'
+toc:
+  - file: index.md
+  - file: set-up-apm-ruby-agent.md
+    children:
+      - file: getting-started-rails.md
+      - file: getting-started-rack.md
+  - file: supported-technologies.md
+  - file: configuration.md
+  - file: advanced-topics.md
+    children:
+      - file: context.md
+      - file: custom-instrumentation.md
+  - file: api-reference.md
+  - file: metrics.md
+  - file: logs.md
+  - file: opentracing-api.md
+  - file: graphql.md
+  # TO DO: Not available on master
+  # - file: log-correlation.md
+  - file: performance-tuning.md
+  - file: upgrading.md
