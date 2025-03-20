@@ -23,7 +23,7 @@ Options are applied in the following order (last one wins):
 2. Arguments to `ElasticAPM.start` / `Config.new`
 3. Config file, e.g., `config/elastic_apm.yml`
 4. Environment variables
-5. [Central configuration](docs-content://solutions/observability/apps/apm-agent-central-configuration.md) (supported options are marked with [![dynamic config](../images/dynamic-config.svg "") ](#dynamic-configuration))
+5. [Central configuration](docs-content://solutions/observability/apps/apm-agent-central-configuration.md) (supported options are marked with [![dynamic config](images/dynamic-config.svg "") ](#dynamic-configuration))
 
 
 ## Dynamic configuration [dynamic-configuration]
