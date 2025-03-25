@@ -300,7 +300,7 @@ Arguments:
 Returns the set `value`.
 
 ::::{warning}
-Be aware that labels are indexed in Elasticsearch. Using too many unique keys will result in **https://www.elastic.co/blog/found-crash-elasticsearch#mapping-explosion[Mapping explosion]**.
+Be aware that labels are indexed in Elasticsearch. Using too many unique keys will result in **[Mapping explosion](https://www.elastic.co/blog/found-crash-elasticsearch#mapping-explosion)**.
 ::::
 
 
