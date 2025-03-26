@@ -64,6 +64,7 @@ gem 'sidekiq', require: nil
 gem 'simplecov', require: false
 gem 'simplecov-cobertura', require: false
 gem 'sucker_punch', '~> 2.0', require: nil
+gem 'syck', require: nil if !defined?(JRUBY_VERSION)
 gem 'yard', require: nil
 gem 'yarjuf'
 
@@ -125,10 +126,8 @@ if RUBY_PLATFORM == 'java'
   end
 elsif frameworks_versions['rails'] =~ /^(4|5)/
   gem 'sqlite3', '~> 1.3.6'
-elsif RUBY_VERSION < '2.7'
-  gem 'sqlite3', '~> 1.4.4'
 else
-  gem 'sqlite3'
+  gem 'sqlite3', '~> 1.4.4'
 end
 
 # sneakers main only supports >=2.5.0
