@@ -87,7 +87,15 @@ module ElasticAPM
     end
     # rubocop:enable Metrics/ParameterLists
 
-    attr_accessor :name, :type, :result, :outcome
+    attr_accessor(
+      :name,
+      :type,
+      :result,
+      :outcome,
+      :sampled,
+      :sample_rate,
+      :started_spans
+    )
 
     attr_reader(
       :breakdown_metrics,
@@ -98,12 +106,11 @@ module ElasticAPM
       :framework_name,
       :notifications,
       :self_time,
-      :sample_rate,
       :span_frames_min_duration,
-      :started_spans,
       :timestamp,
       :trace_context,
-      :transaction_max_spans
+      :transaction_max_spans,
+      :config
     )
 
     alias :collect_metrics? :collect_metrics
