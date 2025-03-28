@@ -123,7 +123,7 @@ module ElasticAPM
         sampled = trace_context.recorded?
         sample_rate = trace_context.tracestate.sample_rate
       else
-        sampled = random_sample?(config)
+        sampled = random_sample?(config.transaction_sample_rate)
         sample_rate = sampled ? config.transaction_sample_rate : 0
       end
 
@@ -195,6 +195,22 @@ module ElasticAPM
           current_transaction
         end
       return unless transaction
+
+      unless trace_context
+        span_sample_rate = transaction_sample_rate_for_name(name, transaction.config)
+        # if the span sample rate is different from the transaction sample rate,
+        # we need to check if the span should be sampled
+        # and update the transaction's sample rate accordingly
+        if transaction.started_spans == 0 && span_sample_rate && span_sample_rate != transaction.sample_rate
+        # if span_sample_rate && span_sample_rate != transaction.sample_rate
+          span_sampled = random_sample?(span_sample_rate)
+          if transaction.sampled? != span_sampled
+            transaction.sampled = span_sampled
+            transaction.sample_rate = span_sample_rate
+          end
+        end
+      end
+
       return unless transaction.sampled?
       return unless transaction.inc_started_spans!
 
@@ -278,10 +294,17 @@ module ElasticAPM
         '>'
     end
 
+    def transaction_sample_rate_for_name(name, config)
+      return if !name || config.transaction_sample_rate_by_name.empty?
+      return unless config.transaction_sample_rate_by_name.key?(name)
+
+      config.transaction_sample_rate_by_name[name]
+    end
+
     private
 
-    def random_sample?(config)
-      rand <= config.transaction_sample_rate
+    def random_sample?(sample_rate)
+      rand <= sample_rate
     end
 
     def update_transaction_metrics(transaction)
