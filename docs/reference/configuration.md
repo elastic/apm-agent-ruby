@@ -23,12 +23,12 @@ Options are applied in the following order (last one wins):
 2. Arguments to `ElasticAPM.start` / `Config.new`
 3. Config file, e.g., `config/elastic_apm.yml`
 4. Environment variables
-5. [Central configuration](docs-content://solutions/observability/apps/apm-agent-central-configuration.md) (supported options are marked with [![dynamic config](/reference/images/dynamic-config.svg "") ](#dynamic-configuration))
+5. [Central configuration](docs-content://solutions/observability/apps/apm-agent-central-configuration.md) (supported options are marked with [![dynamic config](images/dynamic-config.svg "") ](#dynamic-configuration))
 
 
 ## Dynamic configuration [dynamic-configuration]
 
-Configuration options marked with the ![dynamic config](/reference/images/dynamic-config.svg "") badge can be changed at runtime when set from a supported source.
+Configuration options marked with the ![dynamic config](images/dynamic-config.svg "") badge can be changed at runtime when set from a supported source.
 
 The Agent supports [Central configuration](docs-content://solutions/observability/apps/apm-agent-central-configuration.md), which allows you to fine-tune certain configurations via the APM app. This feature is enabled in the Agent by default, with [`central_config`](#config-central-config).
 
@@ -65,7 +65,7 @@ ElasticAPM::Sinatra.start(
 )
 ```
 
-See [Getting started with Rack](/reference/getting-started-rack.md).
+See [Getting started with Rack](getting-started-rack.md).
 
 
 ## Grape and Rack [_grape_and_rack]
@@ -80,7 +80,7 @@ ElasticAPM::Grape.start(
 )
 ```
 
-See [Getting started with Rack](/reference/getting-started-rack.md).
+See [Getting started with Rack](getting-started-rack.md).
 
 
 ## Options [_options]
@@ -154,7 +154,7 @@ If you hit the limit, consider increasing the agent’s [worker pool size](#conf
 
 ### `api_request_size` [config-api-request-size]
 
-[![dynamic config](/reference/images/dynamic-config.svg "") ](#dynamic-configuration)
+[![dynamic config](images/dynamic-config.svg "") ](#dynamic-configuration)
 
 |     |     |     |
 | --- | --- | --- |
@@ -168,7 +168,7 @@ This must be provided in **[size format](#config-format-size)**.
 
 ### `api_request_time` [config-api-request-time]
 
-[![dynamic config](/reference/images/dynamic-config.svg "") ](#dynamic-configuration)
+[![dynamic config](images/dynamic-config.svg "") ](#dynamic-configuration)
 
 |     |     |     |
 | --- | --- | --- |
@@ -197,7 +197,7 @@ This feature requires APM Server and Kibana >= 7.3.
 
 ### `capture_body` [config-capture-body]
 
-[![dynamic config](/reference/images/dynamic-config.svg "") ](#dynamic-configuration)
+[![dynamic config](images/dynamic-config.svg "") ](#dynamic-configuration)
 
 |     |     |     |     |
 | --- | --- | --- | --- |
@@ -218,7 +218,7 @@ Request bodies often contain sensitive values like passwords and credit card num
 
 ### `capture_headers` [config-capture-headers]
 
-[![dynamic config](/reference/images/dynamic-config.svg "") ](#dynamic-configuration)
+[![dynamic config](images/dynamic-config.svg "") ](#dynamic-configuration)
 
 |     |     |     |
 | --- | --- | --- |
@@ -404,7 +404,7 @@ The host name to use when sending error and transaction data to the APM server.
 
 Use this option to ignore certain URL patterns such as healthchecks or admin sections.
 
-*Ignoring* in this context means *don’t wrap in a [Transaction](/reference/api-reference.md#api-transaction)*. Errors will still be reported.
+*Ignoring* in this context means *don’t wrap in a [Transaction](api-reference.md#api-transaction)*. Errors will still be reported.
 
 Use a comma separated string when setting this option via `ENV`. Eg. `ELASTIC_APM_IGNORE_URL_PATTERNS="a,b" # => [/a/, /b/]`
 
@@ -444,7 +444,7 @@ Note that if you’re using Rails, the agent will ignore this option and use the
 
 ### `log_level` [config-log-level]
 
-[![dynamic config](/reference/images/dynamic-config.svg "") ](#dynamic-configuration)
+[![dynamic config](images/dynamic-config.svg "") ](#dynamic-configuration)
 
 | Environment | `Config` key | Default |
 | --- | --- | --- |
@@ -526,7 +526,7 @@ See [Http.rb’s docs](https://github.com/httprb/http/wiki/Proxy-Support).
 
 ### `recording` [config-recording]
 
-[![dynamic config](/reference/images/dynamic-config.svg "") ](#dynamic-configuration)
+[![dynamic config](images/dynamic-config.svg "") ](#dynamic-configuration)
 
 | Environment | `Config` key | Default |
 | --- | --- | --- |
@@ -619,7 +619,7 @@ Especially for spans, collecting source code can have a large impact on storage 
 
 ### `span_frames_min_duration` [config-span-frames-min-duration-ms]
 
-[![dynamic config](/reference/images/dynamic-config.svg "") ](#dynamic-configuration)
+[![dynamic config](images/dynamic-config.svg "") ](#dynamic-configuration)
 
 |     |     |     |
 | --- | --- | --- |
@@ -655,7 +655,7 @@ The maximum number of stack trace lines per span/error.
 
 ### `transaction_max_spans` [config-transaction-max-spans]
 
-[![dynamic config](/reference/images/dynamic-config.svg "") ](#dynamic-configuration)
+[![dynamic config](images/dynamic-config.svg "") ](#dynamic-configuration)
 
 |     |     |     |
 | --- | --- | --- |
@@ -667,7 +667,7 @@ Limits the amount of spans that are recorded per transaction. This is helpful in
 
 ### `transaction_sample_rate` [config-transaction-sample-rate]
 
-[![dynamic config](/reference/images/dynamic-config.svg "") ](#dynamic-configuration)
+[![dynamic config](images/dynamic-config.svg "") ](#dynamic-configuration)
 
 |     |     |     |
 | --- | --- | --- |
