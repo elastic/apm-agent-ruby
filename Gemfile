@@ -46,9 +46,8 @@ if RUBY_VERSION < '2.7'
 else
   gem 'graphql', require: nil
 end
-if !defined?(JRUBY_VERSION)
-  gem 'google-protobuf', '< 3.12' if RUBY_VERSION < '2.5'
-  gem 'google-protobuf', '< 3.23' if RUBY_VERSION < '2.7' && RUBY_VERSION > '2.5'
+if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '3.0'
+  gem 'google-protobuf'
 end
 gem 'grpc' if !defined?(JRUBY_VERSION) && RUBY_VERSION < '3.0'
 gem 'json'

@@ -19,7 +19,7 @@
 
 require 'spec_helper'
 
-# if !defined?(JRUBY_VERSION) && RUBY_VERSION < '3.0'
+# if !defined?(JRUBY_VERSION) && RUBY_VERSION >= '3.0'
 #   require 'grpc'
 #
 #   module ElasticAPM
