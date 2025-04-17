@@ -24,8 +24,6 @@ exclude:
   # Only test on ruby 2.4
   - VERSION: ruby:3.1
     FRAMEWORK: rails-4.2
-  - VERSION: ruby:3.0
-    FRAMEWORK: rails-4.2
   - VERSION: ruby:2.7
     FRAMEWORK: rails-4.2
   - VERSION: ruby:2.6
@@ -40,8 +38,6 @@ exclude:
     FRAMEWORK: rails-4.2
   # sinatra-1.4 exclusions
   - VERSION: ruby:3.1
-    FRAMEWORK: sinatra-1.4
-  - VERSION: ruby:3.0
     FRAMEWORK: sinatra-1.4
   - VERSION: ruby:2.7
     FRAMEWORK: sinatra-1.4
@@ -62,8 +58,6 @@ exclude:
     FRAMEWORK: rails-7.0
 
   # Only test rails main on ruby 3.1
-  - VERSION: ruby:3.0
-    FRAMEWORK: rails-main
   - VERSION: ruby:2.7
     FRAMEWORK: rails-main
   - VERSION: ruby:2.6
@@ -98,8 +92,6 @@ exclude:
     FRAMEWORK: rails-7.0
 
   # Only test sinatra main on ruby 2.7 and ruby 3.1
-  - VERSION: ruby:3.0
-    FRAMEWORK: sinatra-main
   - VERSION: ruby:2.6
     FRAMEWORK: sinatra-main
   - VERSION: ruby:2.5
@@ -115,7 +107,7 @@ exclude:
   - VERSION: elasticobservability/jruby:9.2-8-jdk
     FRAMEWORK: sinatra-main
 
-  # Only test grape master on ruby 2.7 and ruby 3.0
+  # Only test grape master on ruby 2.7 and ruby 3.1
   - VERSION: ruby:2.6
     FRAMEWORK: grape-master
   - VERSION: ruby:2.5
@@ -131,26 +123,18 @@ exclude:
   - VERSION: elasticobservability/jruby:9.2-8-jdk
     FRAMEWORK: grape-master
 
-  # grape 1.5 doesn't support ruby 3.0
+  # grape 1.5 doesn't support ruby 3.1
   - VERSION: ruby:3.1
     FRAMEWORK: grape-1.6
   - VERSION: ruby:3.1
     FRAMEWORK: grape-1.6,sinatra-2.2,rails-7.0
   - VERSION: ruby:3.1
     FRAMEWORK: grape-1.6,sinatra-2.2,rails-6.1
-  - VERSION: ruby:3.0
-    FRAMEWORK: grape-1.6
-  - VERSION: ruby:3.0
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-6.1
 
-  # only test ruby >= 3.0 with rails 6.1 and rails 7.0
+  # only test ruby >= 3.1 with rails 6.1 and rails 7.0
   - VERSION: ruby:3.1
     FRAMEWORK: rails-5.2
   - VERSION: ruby:3.1
-    FRAMEWORK: rails-5.1
-  - VERSION: ruby:3.0
-    FRAMEWORK: rails-5.2
-  - VERSION: ruby:3.0
     FRAMEWORK: rails-5.1
 
   # Unsupported
