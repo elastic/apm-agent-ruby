@@ -125,7 +125,7 @@ if RUBY_PLATFORM == 'java'
   end
 elsif frameworks_versions['rails'] =~ /^(4|5)/
   gem 'sqlite3', '~> 1.3.6'
-elsif frameworks_versions['rails'] =~ /^7/
+elsif frameworks_versions['rails'] =~ /^(6|7)/
   gem 'sqlite3', '~> 1.4'
 elsif RUBY_VERSION < '2.7'
   gem 'sqlite3', '~> 1.4.4'
