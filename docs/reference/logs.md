@@ -1,6 +1,5 @@
 ---
 mapped_pages:
-  - https://www.elastic.co/guide/en/apm/agent/ruby/master/logs.html
   - https://www.elastic.co/guide/en/apm/agent/ruby/current/log-correlation.html
 ---
 
