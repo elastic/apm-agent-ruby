@@ -129,6 +129,8 @@ elsif frameworks_versions['rails'] =~ /^(6|7)/
   gem 'sqlite3', '~> 1.4'
 elsif RUBY_VERSION < '2.7'
   gem 'sqlite3', '~> 1.4.4'
+elsif RUBY_VERSION < '3.0'
+  gem 'sqlite3', '~> 1.3.6'
 else
   gem 'sqlite3'
 end
