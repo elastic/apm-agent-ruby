@@ -20,6 +20,8 @@ exclude:
 
   # rails-4.2 exclusions
   # Only test on ruby 2.4
+  - VERSION: ruby:3.4
+    FRAMEWORK: rails-4.2
   - VERSION: ruby:3.1
     FRAMEWORK: rails-4.2
   - VERSION: ruby:2.7
