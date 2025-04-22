@@ -105,6 +105,10 @@ if enabled
           render_ok
         end
 
+        def test_body
+          render_ok
+        end
+
         def raise_error
           raise FancyError, "Help! I'm trapped in a specfile!"
         end
@@ -151,6 +155,7 @@ if enabled
         root to: 'application#index'
         get '/tags_and_context', to: 'application#context'
         post '/', to: 'application#create'
+        post '/test_body', to: 'application#test_body'
         get '/error', to: 'application#raise_error'
         get '/report_message', to: 'application#report_message'
         get '/send_notification', to: 'application#send_notification'
@@ -207,7 +212,7 @@ if enabled
     end
 
     describe 'transactions' do
-      context 'when a simple request is made' do
+      context 'when a simple get request is made' do
         it 'spans action and posts it' do
           get '/'
 
@@ -215,6 +220,20 @@ if enabled
 
           name = @mock_intake.transactions.fetch(0)['name']
           expect(name).to eq 'ApplicationController#index'
+        end
+      end
+
+      context 'when a simple post request is made with a body' do
+        it 'spans action and posts it' do
+          post '/test_body', '{"data":{"a":"1","b":"five"}}',
+               'CONTENT_TYPE' => 'application/json'
+
+          wait_for transactions: 1, spans: 2
+
+          name = @mock_intake.transactions.fetch(0)['name']
+          expect(name).to eq 'ApplicationController#test_body'
+          body = @mock_intake.transactions.fetch(0).dig('context', 'request', 'body')
+          expect(body).to eq '{"data":{"a":"1","b":"five"}}'
         end
       end
 

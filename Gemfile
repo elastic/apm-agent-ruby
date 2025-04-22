@@ -103,6 +103,11 @@ frameworks_versions.each do |framework, version|
   end
 end
 
+# Handle Rack::Auth::Digest being removed in rack 3.1, grape requires it
+if frameworks_versions.key?('grape')
+  gem 'rack', '~> 3.0.0'
+end
+
 if frameworks_versions.key?('rails')
   unless /^(main|6)/.match?(frameworks_versions['rails'])
     gem 'delayed_job', require: nil
@@ -125,8 +130,12 @@ if RUBY_PLATFORM == 'java'
   end
 elsif frameworks_versions['rails'] =~ /^(4|5)/
   gem 'sqlite3', '~> 1.3.6'
+elsif frameworks_versions['rails'] =~ /^(6|7)/
+  gem 'sqlite3', '~> 1.4'
 elsif RUBY_VERSION < '2.7'
   gem 'sqlite3', '~> 1.4.4'
+elsif RUBY_VERSION < '3.0'
+  gem 'sqlite3', '~> 1.3.6'
 else
   gem 'sqlite3'
 end

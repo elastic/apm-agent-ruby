@@ -2,19 +2,15 @@ exclude:
   # Ruby 2.4
   # Only test on rails-4.2, sinatra-1.4
   - VERSION: ruby:2.4
-    FRAMEWORK: rails-7.0
+    FRAMEWORK: rails-7.2
   - VERSION: ruby:2.4
     FRAMEWORK: rails-6.1
-  - VERSION: ruby:2.4
-    FRAMEWORK: rails-6.0
   - VERSION: ruby:2.4
     FRAMEWORK: rails-5.2
   - VERSION: ruby:2.4
     FRAMEWORK: sinatra-2.2
   - VERSION: ruby:2.4
     FRAMEWORK: grape-1.6
-  - VERSION: ruby:2.4
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-6.0
   - VERSION: ruby:2.4
     FRAMEWORK: rails-main
   - VERSION: ruby:2.4
@@ -25,8 +21,6 @@ exclude:
   # rails-4.2 exclusions
   # Only test on ruby 2.4
   - VERSION: ruby:3.1
-    FRAMEWORK: rails-4.2
-  - VERSION: ruby:3.0
     FRAMEWORK: rails-4.2
   - VERSION: ruby:2.7
     FRAMEWORK: rails-4.2
@@ -43,8 +37,6 @@ exclude:
   # sinatra-1.4 exclusions
   - VERSION: ruby:3.1
     FRAMEWORK: sinatra-1.4
-  - VERSION: ruby:3.0
-    FRAMEWORK: sinatra-1.4
   - VERSION: ruby:2.7
     FRAMEWORK: sinatra-1.4
   - VERSION: jruby:9.2
@@ -56,22 +48,18 @@ exclude:
   - VERSION: elasticobservability/jruby:9.2-8-jdk
     FRAMEWORK: sinatra-1.4
 
-  # rails-6.0 and rails-6.1 exclusions
+  # rails-6.1 and rails 7.0 exclusions
   # Don't test on ruby 2.4
   - VERSION: ruby:2.4
     FRAMEWORK: rails-6.1
   - VERSION: ruby:2.4
-    FRAMEWORK: rails-6.0
+    FRAMEWORK: rails-7.2
 
   # Only test rails main on ruby 3.1
-  - VERSION: ruby:3.0
-    FRAMEWORK: rails-main
   - VERSION: ruby:2.7
     FRAMEWORK: rails-main
   - VERSION: ruby:2.6
     FRAMEWORK: rails-main
-  - VERSION: ruby:2.5
-    FRAMEWORK: rails-main
   - VERSION: ruby:2.4
     FRAMEWORK: rails-main
   - VERSION: jruby:9.2
@@ -83,28 +71,24 @@ exclude:
   - VERSION: elasticobservability/jruby:9.2-8-jdk
     FRAMEWORK: rails-main
 
-  # Only test rails 7.0 on ruby >= 2.7
+  # Only test rails 7.2 on ruby >= 3.1
+  - VERSION: ruby:2.7
+    FRAMEWORK: rails-7.2
   - VERSION: ruby:2.6
-    FRAMEWORK: rails-7.0
-  - VERSION: ruby:2.5
-    FRAMEWORK: rails-7.0
+    FRAMEWORK: rails-7.2
   - VERSION: ruby:2.4
-    FRAMEWORK: rails-7.0
+    FRAMEWORK: rails-7.2
   - VERSION: jruby:9.2
-    FRAMEWORK: rails-7.0
+    FRAMEWORK: rails-7.2
   - VERSION: elasticobservability/jruby:9.2-13-jdk
-    FRAMEWORK: rails-7.0
+    FRAMEWORK: rails-7.2
   - VERSION: elasticobservability/jruby:9.2-11-jdk
-    FRAMEWORK: rails-7.0
+    FRAMEWORK: rails-7.2
   - VERSION: elasticobservability/jruby:9.2-8-jdk
-    FRAMEWORK: rails-7.0
+    FRAMEWORK: rails-7.2
 
   # Only test sinatra main on ruby 2.7 and ruby 3.1
-  - VERSION: ruby:3.0
-    FRAMEWORK: sinatra-main
   - VERSION: ruby:2.6
-    FRAMEWORK: sinatra-main
-  - VERSION: ruby:2.5
     FRAMEWORK: sinatra-main
   - VERSION: ruby:2.4
     FRAMEWORK: sinatra-main
@@ -117,10 +101,8 @@ exclude:
   - VERSION: elasticobservability/jruby:9.2-8-jdk
     FRAMEWORK: sinatra-main
 
-  # Only test grape master on ruby 2.7 and ruby 3.0
+  # Only test grape master on ruby 2.7 and ruby 3.1
   - VERSION: ruby:2.6
-    FRAMEWORK: grape-master
-  - VERSION: ruby:2.5
     FRAMEWORK: grape-master
   - VERSION: ruby:2.4
     FRAMEWORK: grape-master
@@ -133,61 +115,12 @@ exclude:
   - VERSION: elasticobservability/jruby:9.2-8-jdk
     FRAMEWORK: grape-master
 
-  # grape 1.5 doesn't support ruby 3.0
+  # grape 1.5 doesn't support ruby 3.1
   - VERSION: ruby:3.1
     FRAMEWORK: grape-1.6
-  - VERSION: ruby:3.1
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-7.0
-  - VERSION: ruby:3.1
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-6.1
-  - VERSION: ruby:3.0
-    FRAMEWORK: grape-1.6
-  - VERSION: ruby:3.0
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-6.1
 
-  # only test ruby >= 3.0 with rails 6.0 and rails 6.1
+  # only test ruby >= 3.1 with rails 6.1 and rails 7.0
   - VERSION: ruby:3.1
     FRAMEWORK: rails-5.2
   - VERSION: ruby:3.1
     FRAMEWORK: rails-5.1
-  - VERSION: ruby:3.0
-    FRAMEWORK: rails-5.2
-  - VERSION: ruby:3.0
-    FRAMEWORK: rails-5.1
-
-  # Unsupported
-  # Ruby 2.6
-  - VERSION: ruby:2.6
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-6.1
-  - VERSION: ruby:2.6
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-7.0
-  # Ruby 2.5
-  - VERSION: ruby:2.5
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-6.1
-  - VERSION: ruby:2.5
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-7.0
-  # Ruby 2.4
-  - VERSION: ruby:2.4
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-6.1
-  - VERSION: ruby:2.4
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-7.0
-  # JRuby 9.2
-  - VERSION: jruby:9.2
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-6.1
-  - VERSION: jruby:9.2
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-7.0
-  # JRuby 9.2-13-jdk
-  - VERSION: elasticobservability/jruby:9.2-13-jdk
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-6.1
-  - VERSION: elasticobservability/jruby:9.2-13-jdk
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-7.0
-  # JRuby 9.2-11-jdk
-  - VERSION: elasticobservability/jruby:9.2-11-jdk
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-6.1
-  - VERSION: elasticobservability/jruby:9.2-11-jdk
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-7.0
-  # JRuby 9.2-8-jdk
-  - VERSION: elasticobservability/jruby:9.2-8-jdk
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-6.1
-  - VERSION: elasticobservability/jruby:9.2-8-jdk
-    FRAMEWORK: grape-1.6,sinatra-2.2,rails-7.0

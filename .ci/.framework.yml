@@ -1,7 +1,6 @@
 FRAMEWORK:
-  - rails-7.0
+  - rails-7.2
   - rails-6.1
-  - rails-6.0
   - rails-5.2
   - rails-4.2
 
@@ -9,5 +8,3 @@ FRAMEWORK:
   - sinatra-1.4
 
   - grape-1.6
-
-  - grape-1.6,sinatra-2.2,rails-6.1
