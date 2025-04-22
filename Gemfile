@@ -103,6 +103,11 @@ frameworks_versions.each do |framework, version|
   end
 end
 
+# Handle Rack::Auth::Digest being removed in rack 3.1, grape requires it
+if frameworks_versions.key?('grape')
+  gem 'rack', '~> 3.0.0'
+end
+
 if frameworks_versions.key?('rails')
   unless /^(main|6)/.match?(frameworks_versions['rails'])
     gem 'delayed_job', require: nil
