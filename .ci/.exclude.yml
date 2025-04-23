@@ -122,6 +122,10 @@ exclude:
     FRAMEWORK: grape-1.6
 
   # only test ruby >= 3.1 with rails 6.1 and rails 7.0
+  - VERSION: ruby:3.4
+    FRAMEWORK: rails-5.2
+  - VERSION: ruby:3.4
+    FRAMEWORK: rails-5.1
   - VERSION: ruby:3.1
     FRAMEWORK: rails-5.2
   - VERSION: ruby:3.1
