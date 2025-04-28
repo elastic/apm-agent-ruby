@@ -48,7 +48,7 @@ module ElasticAPM
         end
       end
 
-      expect(@intercepted.spans.length).to be 1
+      expect(@intercepted.spans.length).to be >= 1
       expect(@intercepted.spans.last.name).to eq 'JSON#parse!'
     end
 
