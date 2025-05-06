@@ -13,7 +13,6 @@ jobs:
   comment:
     runs-on: ubuntu-latest
     permissions:
-      issues: write
       pull-requests: write
     steps:
       - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
@@ -26,7 +25,7 @@ jobs:
               <p>
 
               Just comment with:
-              - `run` `docs-build` : Re-trigger the docs validation. (use unformatted text in the comment!)
+              - \`run\` \`docs-build\` : Re-trigger the docs validation. (use unformatted text in the comment!)
               </p>
               </details>
             `.replace(/  +/g, '')
