@@ -22,6 +22,11 @@ All notable changes to this project will be documented here. This project adhere
 
 % ### Fixes [elastic-apm-ruby-agent-versionext-fixes]
 
+## 4.8.0 [elastic-apm-ruby-agent-480-release-notes]
+
+### Features and enhancements [elastic-apm-ruby-agent-480-features-enhancements]
+* Support ruby 3.4 [#1510](https://github.com/elastic/apm-agent-ruby/pull/1510)
+
 ## 4.7.3 [elastic-apm-ruby-agent-473-release-notes]
 
 ### Fixes [elastic-apm-ruby-agent-473-fixes]
