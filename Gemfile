@@ -91,6 +91,10 @@ frameworks_versions.each do |framework, version|
     gem 'net-smtp', require: false
   end
 
+  if framework =='rails' && RUBY_VERSION >= '3.4' && ['4.2', '5.2', '6.1'].include?(version)
+    gem 'mutex_m'
+  end
+
   case version
   when 'master' # grape
     gem framework, github: GITHUB_REPOS.fetch(framework)
