@@ -677,6 +677,18 @@ Limits the amount of spans that are recorded per transaction. This is helpful in
 By default, the agent will sample every transaction (e.g. request to your service). To reduce overhead and storage requirements, you can set the sample rate to a value between `0.0` and `1.0`. We still record overall time and the result for unsampled transactions, but no context information, tags, or spans. The sample rate will be rounded to 4 digits of precision.
 
 
+### `transaction_sample_rate_by_name` [config-transaction-sample-rate-by-name]
+
+|     |     |     |     |
+| --- | --- | --- | --- |
+| Environment | `Config` key | Default | Example |
+| `ELASTIC_APM_TRANSACTION_SAMPLE_RATE_BY_NAME` | `transaction_sample_rate_by_name` | `{}` | `{"UsersController#index" => 1.0, "HealthController#ping" => 0.0}` |
+
+Configure specific sampling rates for transactions with particular names. This option takes a hash where the keys are transaction names and the values are sampling rates between `0.0` and `1.0`.
+
+This is useful when you want to ensure critical transactions are always sampled while reducing sampling for high-volume, less important transactions. When a transaction name matches an entry in this hash, the specified sampling rate takes precedence over the global `transaction_sample_rate`.
+
+
 ### `verify_server_cert` [config-verify-server-cert]
 
 |     |     |     |
@@ -731,4 +743,3 @@ Elastic APM patches `Kernel#require` to auto-detect and instrument supported thi
 To get around this patch, set the environment variable `ELASTIC_APM_SKIP_REQUIRE_PATCH` to `"1"`.
 
 The agent might need some additional tweaking to make sure the third-party libraries are picked up and instrumented. Make sure you require the agent *after* you require your other dependencies.
-

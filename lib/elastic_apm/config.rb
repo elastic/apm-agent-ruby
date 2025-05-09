@@ -22,6 +22,7 @@ require 'elastic_apm/config/duration'
 require 'elastic_apm/config/log_level_map'
 require 'elastic_apm/config/options'
 require 'elastic_apm/config/round_float'
+require 'elastic_apm/config/round_float_hash_value'
 require 'elastic_apm/config/regexp_list'
 require 'elastic_apm/config/wildcard_pattern_list'
 require 'elastic_apm/deprecations'
@@ -98,6 +99,7 @@ module ElasticAPM
     option :transaction_ignore_urls,           type: :list,   default: [],      converter: WildcardPatternList.new
     option :transaction_max_spans,             type: :int,    default: 500
     option :transaction_sample_rate,           type: :float,  default: 1.0,     converter: RoundFloat.new
+    option :transaction_sample_rate_by_name,   type: :hash,   default: {},      converter: RoundFloatHashValue.new
     option :use_elastic_traceparent_header,    type: :bool,   default: true
     option :verify_server_cert,                type: :bool,   default: true
 
