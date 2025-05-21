@@ -469,5 +469,104 @@ module ElasticAPM
         end
       end
     end
+
+    describe '#transaction_sample_rate_for_name' do
+      let(:default_rate) { 0.5 }
+      let(:special_rate) { 1.0 }
+
+      context 'with nil name' do
+        it 'returns nil' do
+          config = Config.new(transaction_sample_rate: default_rate)
+          expect(subject.transaction_sample_rate_for_name(nil, config)).to be_nil
+        end
+      end
+
+      context 'with empty transaction_sample_rate_by_name' do
+        it 'returns nil' do
+          config = Config.new(transaction_sample_rate_by_name: {})
+          expect(subject.transaction_sample_rate_for_name('Something', config)).to be_nil
+        end
+      end
+
+      context 'with matching name in transaction_sample_rate_by_name' do
+        it 'returns matching sample rate' do
+          config = Config.new(
+            transaction_sample_rate: default_rate,
+            transaction_sample_rate_by_name: { 'Something' => special_rate }
+          )
+          expect(subject.transaction_sample_rate_for_name('Something', config)).to eq(special_rate)
+        end
+      end
+
+      context 'with non-matching name in transaction_sample_rate_by_name' do
+        it 'returns default sample rate' do
+          config = Config.new(
+            transaction_sample_rate_by_name: { 'SomethingElse' => special_rate }
+          )
+          expect(subject.transaction_sample_rate_for_name('Something', config)).to be_nil
+        end
+      end
+    end
+
+    describe 'span-based sampling' do
+      context 'when starting a span with a name that has a different sampling rate' do
+        it 'can change the sampling decision of the transaction' do
+          config = Config.new(
+            transaction_sample_rate: 0.0,
+            transaction_sample_rate_by_name: { 'ImportantOperation' => 1.0 }
+          )
+
+          # Force predictable random sampling
+          allow(subject).to receive(:rand).and_return(0.5)
+
+          transaction = subject.start_transaction('Test', config: config)
+          expect(transaction).not_to be_sampled
+
+          # Verify sampling is updated when first span is created
+          allow(subject).to receive(:random_sample?).and_return(true)
+          span = subject.start_span('ImportantOperation')
+
+          # The span should exist (since the transaction is now sampled)
+          expect(span).not_to be_nil
+          expect(transaction).to be_sampled
+        end
+
+        it 'only considers the first span for changing the sampling decision' do
+          config = Config.new(
+            transaction_sample_rate: 0.0,
+            transaction_sample_rate_by_name: {
+              'FirstSpan' => 1.0,
+              'SecondSpan' => 0.0,
+              'ThirdSpan' => 0.5
+            }
+          )
+
+          # Force predictable random sampling
+          allow(subject).to receive(:rand).and_return(0.5)
+
+          transaction = subject.start_transaction('Test', config: config)
+          expect(transaction).not_to be_sampled
+
+          # First span changes sampling because it's the first span
+          first_span = subject.start_span('FirstSpan')
+          expect(first_span).not_to be_nil
+          expect(transaction).to be_sampled
+          expect(transaction.sample_rate).to eq(1.0)
+
+          # Initial sampling rate stored
+          original_sample_rate = transaction.sample_rate
+
+          # Second span should not change sampling even though it has a different rate
+          second_span = subject.start_span('SecondSpan')
+          expect(second_span).not_to be_nil
+          expect(transaction.sample_rate).to eq(original_sample_rate)
+
+          # Third span should not change sampling either
+          third_span = subject.start_span('ThirdSpan')
+          expect(third_span).not_to be_nil
+          expect(transaction.sample_rate).to eq(original_sample_rate)
+        end
+      end
+    end
   end
 end
