@@ -189,7 +189,7 @@ module ElasticAPM
 
           before do
             config.api_request_size =
-              "#{JSON.fast_generate(metadata).bytesize - 1}b"
+              "#{JSON.generate(metadata).bytesize - 1}b"
           end
 
           it 'closes requests when reached' do
