@@ -1,6 +1,16 @@
 ---
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/ruby/current/getting-started-rack.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_ruby: ga
+products:
+  - id: cloud-serverless
+  - id: observability
+  - id: apm
 ---
 
 # Getting started with Rack [getting-started-rack]

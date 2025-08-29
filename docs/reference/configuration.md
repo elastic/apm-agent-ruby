@@ -1,6 +1,16 @@
 ---
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/ruby/current/configuration.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_ruby: ga
+products:
+  - id: cloud-serverless
+  - id: observability
+  - id: apm
 ---
 
 # Configuration [configuration]
@@ -379,7 +389,7 @@ The version number of the used framework. For Ruby on Rails and Sinatra, this de
 | --- | --- | --- | --- |
 | `ELASTIC_APM_GLOBAL_LABELS` | `global_labels` | `nil` | `dept=engineering,rack=number8` |
 
-Labels added to all events, with the format key=value[,key=value[,…​]].
+Labels added to all events, with the format key=value[,key=value[,… ]].
 
 ::::{note}
 This option requires APM Server 7.2 or greater, and will have no effect when using older server versions.
