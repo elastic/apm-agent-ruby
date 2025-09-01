@@ -1,6 +1,8 @@
 # Base image
-ARG RUBY_IMAGE
+ARG RUBY_IMAGE=2.4
 FROM ${RUBY_IMAGE}
+
+ARG RUBY_IMAGE
 
 # Env arguments
 ENV \
@@ -23,6 +25,12 @@ COPY build/ /usr/local/bin/
 
 # Reset to root user
 USER root
+
+# Fix debian archive for old ruby versions
+RUN if [ ${RUBY_IMAGE} = ruby:2.4 ] || [ ${RUBY_IMAGE} = elasticobservability/jruby:9.2-13-jdk ]; then \
+    sed -i 's|http://deb\.debian\.org/debian|https://archive\.debian\.org/debian|g' /etc/apt/sources.list && \
+    sed -i 's|http://security\.debian\.org/debian-security|https://archive\.debian\.org/debian-security|g' /etc/apt/sources.list; \
+    fi
 
 # Install dependencies and upgrade ruby system
 RUN \
