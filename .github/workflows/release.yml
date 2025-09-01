@@ -43,7 +43,7 @@ jobs:
         if:  ${{ ! startsWith(github.ref, 'refs/tags') }}
 
       - name: generate build provenance
-        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a  # v3.0.0
+        uses: actions/attest-build-provenance@v3
         with:
           subject-path: "${{ github.workspace }}/pkg/*.gem" 
       
