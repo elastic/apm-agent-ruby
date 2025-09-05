@@ -6,10 +6,6 @@ applies_to:
     observability:
   product:
     apm_agent_ruby: ga
-products:
-  - id: cloud-serverless
-  - id: observability
-  - id: apm
 ---
 
 # Elastic APM Ruby Agent known issues [elastic-apm-ruby-agent-known-issues]
