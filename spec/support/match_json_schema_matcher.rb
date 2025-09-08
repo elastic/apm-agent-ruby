@@ -21,7 +21,7 @@ require 'spec_helper'
 require 'json-schema'
 require 'open-uri'
 
-base = 'https://raw.githubusercontent.com/elastic/apm-server/master/docs/spec/v2'
+base = 'https://raw.githubusercontent.com/elastic/apm-data/main/input/elasticapm/docs/spec/v2'
 
 SCHEMA_URLS = {
   metadatas: "#{base}/metadata.json",
