@@ -2,6 +2,12 @@
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/ruby/current/introduction.html
   - https://www.elastic.co/guide/en/apm/agent/ruby/current/index.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_ruby: ga
 ---
 
 # APM Ruby agent [introduction]

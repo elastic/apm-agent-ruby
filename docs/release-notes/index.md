@@ -3,6 +3,12 @@ navigation_title: "Elastic APM Ruby Agent"
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/ruby/current/release-notes.html
   - https://www.elastic.co/guide/en/apm/agent/ruby/current/release-notes-4.x.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_ruby: ga
 ---
 
 # Elastic APM Ruby Agent release notes [elastic-apm-ruby-agent-release-notes]

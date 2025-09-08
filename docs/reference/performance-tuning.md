@@ -1,6 +1,12 @@
 ---
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/ruby/current/tuning-and-overhead.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_ruby: ga
 ---
 
 # Performance tuning [tuning-and-overhead]
