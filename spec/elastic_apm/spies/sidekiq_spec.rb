@@ -105,6 +105,60 @@ module ElasticAPM
         expect(transaction['outcome']).to eq 'success'
       end
 
+      it 'creates child transaction when trace_id is present in job' do
+        with_agent do
+          parent_trace_id = 'abc123def456'
+          
+          # Simulate a job with trace_id from parent
+          job_with_trace = {
+            'class' => 'ElasticAPM::HardWorker',
+            'trace_id' => parent_trace_id,
+            'args' => []
+          }
+          
+          middleware = Spies::SidekiqSpy::Middleware.new
+          worker = HardWorker.new
+          
+          middleware.call(worker, job_with_trace, 'default') do
+            worker.perform
+          end
+        end
+
+        wait_for transactions: 1
+
+        transaction, = @mock_intake.transactions
+        expect(transaction).to_not be_nil
+        expect(transaction['name']).to eq 'ElasticAPM::HardWorker'
+        expect(transaction['type']).to eq 'Sidekiq'
+        expect(transaction['trace_id']).to eq('abc123def456')
+      end
+
+      it 'creates independent transaction when no trace_id is present' do
+        with_agent do
+          # Simulate a job without trace_id
+          job_without_trace = {
+            'class' => 'ElasticAPM::HardWorker',
+            'args' => []
+          }
+          
+          middleware = Spies::SidekiqSpy::Middleware.new
+          worker = HardWorker.new
+          
+          middleware.call(worker, job_without_trace, 'default') do
+            worker.perform
+          end
+        end
+
+        wait_for transactions: 1
+
+        transaction, = @mock_intake.transactions
+        expect(transaction).to_not be_nil
+        expect(transaction['name']).to eq 'ElasticAPM::HardWorker'
+        expect(transaction['type']).to eq 'Sidekiq'
+        # Should have its own trace_id since no parent was provided
+        expect(transaction['trace_id']).to_not be_nil
+      end
+
       it 'reports errors' do
         with_agent do
           Sidekiq::Testing.inline! do
