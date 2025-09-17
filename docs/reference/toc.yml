@@ -20,3 +20,5 @@ toc:
   # - file: log-correlation.md
   - file: performance-tuning.md
   - file: upgrading.md
+  - title: Troubleshooting
+    crosslink: docs-content://troubleshoot/observability/apm-agent-ruby/apm-ruby-agent.md
