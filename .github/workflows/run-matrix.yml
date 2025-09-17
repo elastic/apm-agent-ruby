@@ -24,7 +24,7 @@ jobs:
     outputs:
       matrix: ${{ steps.generate.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - id: generate
         uses: elastic/oblt-actions/version-framework@v1
         with:
@@ -40,7 +40,7 @@ jobs:
       max-parallel: 20
       matrix: ${{ fromJSON(needs.create-test-matrix.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Run BDD tests
         run: ./spec/scripts/features.sh ${{ matrix.version }}
       - name: Run test
@@ -50,7 +50,7 @@ jobs:
 
       - if: success() || failure()
         id: normalize-junit
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           result-encoding: string
           script: |
