@@ -28,21 +28,21 @@ We test against all supported minor versions of Rails, Sinatra, and Grape.
 
 ### Ruby on Rails [supported-technologies-rails]
 
-We currently support all versions of Rails since 4.2. This follows Rails' own [Security policy](https://rubyonrails.org/security/).
+We currently support Rails >= 4.2 <= 8.1.1. This follows Rails' own [Security policy](https://rubyonrails.org/security/).
 
 See [Getting started with Rails](/reference/getting-started-rails.md).
 
 
 ### Sinatra [supported-technologies-sinatra]
 
-We currently support all versions of Sinatra since 1.0.
+We currently support Sinatra >= 1.0 <= 4.2.1.
 
 See [Getting started with Rack](/reference/getting-started-rack.md).
 
 
 ### Grape [supported-technologies-grape]
 
-We currently support all versions of Grape since 1.2.
+We currently support Grape >= 1.2 <= 3.0.1.
 
 See [Grape example](/reference/getting-started-rack.md#getting-started-grape).
 
@@ -51,12 +51,12 @@ See [Grape example](/reference/getting-started-rack.md#getting-started-grape).
 
 We automatically instrument database actions using:
 
-* ActiveRecord (v4.2+)
-* DynamoDB (v1.0+)
-* Elasticsearch (v0.9+)
-* Mongo (v2.1+)
-* Redis (v3.1+)
-* Sequel (v4.35+)
+* ActiveRecord (>= 4.2 <= 8.1.1)
+* DynamoDB (>= 1.0 <= 1.158.0)
+* Elasticsearch (>= 0.9 <= 9.2.0)
+* Mongo (>= 2.1 <= 2.22.0)
+* Redis (>= 3.1 <= 5.4.1)
+* Sequel (>= 4.35 <= 5.100.0)
 
 
 ## External HTTP requests [supported-technologies-http]
@@ -64,8 +64,8 @@ We automatically instrument database actions using:
 We automatically instrument and add support for distributed tracing to external requests using these libraries:
 
 * `net/http`
-* Http.rb (v0.6+)
-* Faraday (v0.2.1+)
+* Http.rb (>= 0.6 <= 0.16.1)
+* Faraday (>= 0.2.1 <= 2.14.0)
 
 **Note:** These libraries usually assume `localhost` if no `Host` is specified, so the agent does as well.
 
@@ -74,12 +74,12 @@ We automatically instrument and add support for distributed tracing to external 
 
 We automatically instrument background processing using:
 
-* DelayedJob
-* Sidekiq
-* Shoryuken
-* Sneakers (v2.12.0+) (Experimental, see [#676](https://github.com/elastic/apm-agent-ruby/pull/676))
-* Resque (v2.0.0+)
-* SuckerPunch (v2.0.0+)
+* DelayedJob (<= 4.1.11)
+* Sidekiq (<= 8.1.0)
+* Shoryuken (<= 6.2.1)
+* Sneakers (2.12.0) (Experimental, see [#676](https://github.com/elastic/apm-agent-ruby/pull/676))
+* Resque (>= 2.0.0 <= 2.7.0)
+* SuckerPunch (>= 2.0.0 <= 3.3.0)
 
 
 ## Resque [supported-technologies-resque]
