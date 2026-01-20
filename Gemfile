@@ -21,6 +21,8 @@ source 'https://rubygems.org'
 
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
+ruby '>= 2.7', '< 4.0'
+
 # Tools
 gem 'cucumber', require: false
 gem 'rack-test'
@@ -41,6 +43,7 @@ gem 'ecs-logging', require: 'ecs_logging/logger'
 gem 'elasticsearch', require: nil
 gem 'fakeredis', require: nil
 gem 'faraday', require: nil
+gem 'http', '< 6', require: nil
 if RUBY_VERSION < '2.7'
   gem 'graphql', '< 2.1', require: nil
 else

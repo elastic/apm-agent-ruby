@@ -16,7 +16,7 @@ The Elastic APM Ruby Agent has built-in support for many frameworks and librarie
 
 ## Ruby [supported-technologies-ruby]
 
-We follow Ruby’s own maintenance policy and officially support all currently maintained versions per [Ruby Maintenance Branches](https://www.ruby-lang.org/en/downloads/branches/).
+We follow Ruby’s own maintenance policy and officially support all currently maintained versions per [Ruby Maintenance Branches](https://www.ruby-lang.org/en/downloads/branches/) < 4.0.
 
 
 ## Web Frameworks and Libraries [supported-technologies-web]
@@ -28,21 +28,21 @@ We test against all supported minor versions of Rails, Sinatra, and Grape.
 
 ### Ruby on Rails [supported-technologies-rails]
 
-We currently support Rails >= 4.2 <= 8.1.1. This follows Rails' own [Security policy](https://rubyonrails.org/security/).
+We currently support Rails >= 4.2 <= 7.2. This follows Rails' own [Security policy](https://rubyonrails.org/security/).
 
 See [Getting started with Rails](/reference/getting-started-rails.md).
 
 
 ### Sinatra [supported-technologies-sinatra]
 
-We currently support Sinatra >= 1.0 <= 4.2.1.
+We currently support Sinatra >= 1.0 <= 2.2.
 
 See [Getting started with Rack](/reference/getting-started-rack.md).
 
 
 ### Grape [supported-technologies-grape]
 
-We currently support Grape >= 1.2 <= 3.0.1.
+We currently support Grape >= 1.2 <= 1.6.
 
 See [Grape example](/reference/getting-started-rack.md#getting-started-grape).
 
@@ -51,7 +51,7 @@ See [Grape example](/reference/getting-started-rack.md#getting-started-grape).
 
 We automatically instrument database actions using:
 
-* ActiveRecord (>= 4.2 <= 8.1.1)
+* ActiveRecord (>= 4.2 <= 7.2)
 * DynamoDB (>= 1.0 <= 1.158.0)
 * Elasticsearch (>= 0.9 <= 9.2.0)
 * Mongo (>= 2.1 <= 2.22.0)
@@ -64,7 +64,7 @@ We automatically instrument database actions using:
 We automatically instrument and add support for distributed tracing to external requests using these libraries:
 
 * `net/http`
-* Http.rb (>= 0.6 <= 0.16.1)
+* Http.rb (>= 3.0 <= 6.0)
 * Faraday (>= 0.2.1 <= 2.14.0)
 
 **Note:** These libraries usually assume `localhost` if no `Host` is specified, so the agent does as well.
@@ -74,7 +74,7 @@ We automatically instrument and add support for distributed tracing to external 
 
 We automatically instrument background processing using:
 
-* DelayedJob (<= 4.1.11)
+* DelayedJob (<= 4.2.)
 * Sidekiq (<= 8.1.0)
 * Shoryuken (<= 6.2.1)
 * Sneakers (2.12.0) (Experimental, see [#676](https://github.com/elastic/apm-agent-ruby/pull/676))
