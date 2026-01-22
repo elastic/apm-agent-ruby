@@ -29,14 +29,14 @@ Gem::Specification.new do |spec|
   spec.homepage = 'https://github.com/elastic/apm-agent-ruby'
   spec.metadata = { 'source_code_uri' => 'https://github.com/elastic/apm-agent-ruby' }
   spec.license  = 'Apache-2.0'
-  spec.required_ruby_version = ">= 2.3.0"
+  spec.required_ruby_version = ">= 2.3.0", "< 4.0"
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
   end
 
   spec.add_dependency('concurrent-ruby', '~> 1.0')
-  spec.add_dependency('http', '>= 3.0')
+  spec.add_dependency('http', '>= 3.0', '< 6')
   spec.add_runtime_dependency('ruby2_keywords')
 
   spec.require_paths = ['lib']
