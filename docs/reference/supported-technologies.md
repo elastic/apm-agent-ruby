@@ -74,7 +74,7 @@ We automatically instrument and add support for distributed tracing to external 
 
 We automatically instrument background processing using:
 
-* DelayedJob (<= 4.2.)
+* DelayedJob (<= 4.2.0)
 * Sidekiq (<= 8.1.0)
 * Shoryuken (<= 6.2.1)
 * Sneakers (2.12.0) (Experimental, see [#676](https://github.com/elastic/apm-agent-ruby/pull/676))
