@@ -64,7 +64,7 @@ We automatically instrument database actions using:
 We automatically instrument and add support for distributed tracing to external requests using these libraries:
 
 * `net/http`
-* Http.rb (>= 3.0 <= 6.0)
+* Http.rb (>= 3.0 < 6.0)
 * Faraday (>= 0.2.1 <= 2.14.0)
 
 **Note:** These libraries usually assume `localhost` if no `Host` is specified, so the agent does as well.
