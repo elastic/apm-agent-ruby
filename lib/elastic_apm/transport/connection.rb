@@ -37,7 +37,7 @@ module ElasticAPM
 
       def initialize(config)
         @config = config
-        @metadata = JSON.fast_generate(
+        @metadata = JSON.generate(
           Serializers::MetadataSerializer.new(config).build(
             Metadata.new(config)
           )
