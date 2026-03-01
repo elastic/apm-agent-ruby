@@ -30,7 +30,7 @@ module ElasticAPM
     JRUBY_ORG_REGEX = %r{org/jruby}.freeze
 
     GEMS_PATH =
-      if defined?(Bundler) && Bundler.default_bundle_dir
+      if defined?(Bundler) && Bundler.default_gemfile
         Bundler.bundle_path.to_s
       else
         Gem.dir
