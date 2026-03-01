@@ -38,6 +38,11 @@ module ElasticAPM
         self.spans = []
       end
 
+      def clear!
+        Thread.current[TRANSACTION_KEY] = nil
+        Thread.current[SPAN_KEY] = nil
+      end
+
       def transaction
         Thread.current[TRANSACTION_KEY]
       end
@@ -84,6 +89,7 @@ module ElasticAPM
     end
 
     def handle_forking!
+      @current.clear!
       stop
       start
     end
