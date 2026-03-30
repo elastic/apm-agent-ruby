@@ -87,7 +87,7 @@ module ElasticAPM
         # if a filter returns nil, it means skip the event
         return nil if @filters.apply!(serialized) == Filters::SKIP
 
-        JSON.fast_generate(serialized)
+        JSON.generate(serialized)
       rescue Exception
         error format('Failed converting event to JSON: %s', resource.inspect)
         error serialized.inspect
