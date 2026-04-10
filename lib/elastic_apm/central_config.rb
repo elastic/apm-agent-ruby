@@ -75,7 +75,7 @@ module ElasticAPM
       resp = perform_request
 
       # rubocop:disable Lint/DuplicateBranch
-      case resp.status
+      case resp.status.code
       when 200..299
         resp
       when 300..399
