@@ -26,14 +26,23 @@ end.parse!
 USER_ID_GROUP = %w[u g].map { |f| `id -#{f}`.chomp }.join(':')
 
 RUBY_IMAGE = options.fetch(:image, 'ruby:latest')
-FRAMEWORKS = options.fetch(:frameworks, 'rails,sinatra,grape')
+default_frameworks = if RUBY_IMAGE.include?('jruby')
+                       'rails-6.1,sinatra-2.2,grape-1.6'
+                     else
+                       'rails,sinatra,grape'
+                     end
+FRAMEWORKS = options.fetch(:frameworks, default_frameworks)
 
 IMAGE_PATH_SAFE = RUBY_IMAGE.tr(':', '_')
 IMAGE_NAME = "apm-agent-ruby:#{IMAGE_PATH_SAFE}"
 VENDOR_PATH = "/vendor/#{IMAGE_PATH_SAFE}"
+DOCKER_PLATFORM = RUBY_IMAGE.include?('jruby') ? 'linux/amd64' : nil
 
 def run(cmd)
-  "IMAGE_NAME=#{IMAGE_NAME} #{cmd}".tap do |str|
+  env = ["IMAGE_NAME=#{IMAGE_NAME}"]
+  env << "DOCKER_DEFAULT_PLATFORM=#{DOCKER_PLATFORM}" if DOCKER_PLATFORM
+
+  "#{env.join(' ')} #{cmd}".tap do |str|
     puts str
     system str
   end

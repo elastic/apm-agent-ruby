@@ -107,9 +107,15 @@ frameworks_versions.each do |framework, version|
   end
 end
 
-# Handle Rack::Auth::Digest being removed in rack 3.1, grape requires it
+# Handle Rack::Auth::Digest being removed in rack 3.1, grape requires it.
+# Sinatra 2.x depends on rack 2.x, so use a compatible rack line when both are present.
 if frameworks_versions.key?('grape')
-  gem 'rack', '~> 3.0.0'
+  sinatra_version = frameworks_versions['sinatra']
+  if sinatra_version&.start_with?('2.')
+    gem 'rack', '~> 2.2.0'
+  else
+    gem 'rack', '~> 3.0.0'
+  end
 end
 
 if frameworks_versions.key?('rails')
