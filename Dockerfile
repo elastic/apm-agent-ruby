@@ -9,10 +9,18 @@ ARG BUNDLER_VERSION
 # For tzdata
 # ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update -qq \
-      && apt-get install -qq -y --no-install-recommends \
-        build-essential libpq-dev git netbase \
-      && rm -rf /var/lib/apt/lists/*
+RUN set -eux; \
+      apt-get update -qq || ( \
+        find /etc/apt -name '*.list' -type f -print0 | xargs -0 sed -i \
+          -e 's|deb.debian.org/debian|archive.debian.org/debian|g' \
+          -e 's|security.debian.org/debian-security|archive.debian.org/debian-security|g'; \
+        find /etc/apt -name '*.list' -type f -print0 | xargs -0 sed -i '/buster-updates/d'; \
+        printf 'Acquire::Check-Valid-Until "false";\n' > /etc/apt/apt.conf.d/99no-check-valid; \
+        apt-get -o Acquire::Check-Valid-Until=false update -qq \
+      ); \
+      apt-get install -qq -y --no-install-recommends \
+        build-essential libpq-dev git netbase; \
+      rm -rf /var/lib/apt/lists/*
 
 # Configure bundler and PATH
 ENV LANG=C.UTF-8
@@ -36,12 +44,18 @@ RUN set -eux; \
       else \
         gem update --system; \
       fi; \
-      gem install bundler:$BUNDLER_VERSION
+      if ruby -e 'require "rubygems"; exit(Gem::Version.new(RUBY_VERSION) < Gem::Version.new("2.5") ? 0 : 1)'; then \
+        gem install bundler:1.17.3; \
+      else \
+        gem install bundler:$BUNDLER_VERSION; \
+      fi
 
 # Use unpatched, system version for more speed over less security.
-# JRuby 9.2 reports Ruby 2.5, so pin nokogiri to the last supported release.
+# Pin Nokogiri by Ruby compatibility to support old CI targets (e.g. Ruby 2.4).
 RUN set -eux; \
-      if ruby -e 'require "rubygems"; exit(Gem::Version.new(RUBY_VERSION) < Gem::Version.new("3.2") ? 0 : 1)'; then \
+      if ruby -e 'require "rubygems"; exit(Gem::Version.new(RUBY_VERSION) < Gem::Version.new("2.5") ? 0 : 1)'; then \
+        gem install nokogiri -v 1.10.10 -- --use-system-libraries; \
+      elif ruby -e 'require "rubygems"; exit(Gem::Version.new(RUBY_VERSION) < Gem::Version.new("3.2") ? 0 : 1)'; then \
         gem install nokogiri -v 1.12.5 -- --use-system-libraries; \
       else \
         gem install nokogiri -- --use-system-libraries; \

@@ -36,7 +36,10 @@ FRAMEWORKS = options.fetch(:frameworks, default_frameworks)
 IMAGE_PATH_SAFE = RUBY_IMAGE.tr(':', '_')
 IMAGE_NAME = "apm-agent-ruby:#{IMAGE_PATH_SAFE}"
 VENDOR_PATH = "/vendor/#{IMAGE_PATH_SAFE}"
-DOCKER_PLATFORM = RUBY_IMAGE.include?('jruby') ? 'linux/amd64' : nil
+legacy_ruby_image = RUBY_IMAGE.match?(/^ruby:(2\.[0-9]+|1\.[0-9]+)/)
+DOCKER_PLATFORM = if RUBY_IMAGE.include?('jruby') || legacy_ruby_image
+                    'linux/amd64'
+                  end
 
 def run(cmd)
   env = ["IMAGE_NAME=#{IMAGE_NAME}"]
