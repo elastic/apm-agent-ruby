@@ -222,19 +222,8 @@ class MockIntake
         loop do
           sleep 0.01
 
-          missing = expected.reduce(0) do |total, (kind, count)|
-            total + (count - @mock_intake.count(kind))
-          end
-
-          next if missing > 0
-
-          unless missing == 0
-            puts format(
-              'Expected %s. Got %s',
-              expected,
-              missing
-            )
-            print_received
+          next unless expected.all? do |kind, count|
+            @mock_intake.count(kind) >= count
           end
 
           if block_given?
