@@ -59,7 +59,6 @@ gem 'rake', '>= 13.0', require: nil
 gem 'racecar', require: nil if !defined?(JRUBY_VERSION)
 gem 'resque', require: nil
 gem 'sequel', require: nil
-gem 'shoryuken', require: nil
 gem 'sidekiq', require: nil
 gem 'simplecov', require: false
 gem 'simplecov-cobertura', require: false
@@ -127,6 +126,14 @@ if frameworks_versions.key?('rails')
       gem 'delayed_job', require: nil
     end
   end
+end
+
+# Shoryuken 7.x references ActiveJob::QueueAdapters::AbstractAdapter, which
+# is missing in the Ruby 3.4 + Rails 6.1 matrix target.
+if frameworks_versions['rails'] == '6.1' && RUBY_VERSION >= '3.4'
+  gem 'shoryuken', '< 7.0', require: nil
+else
+  gem 'shoryuken', require: nil
 end
 
 if RUBY_PLATFORM == 'java'
