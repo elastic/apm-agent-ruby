@@ -121,7 +121,7 @@ end
 if frameworks_versions.key?('rails')
   rails_version = frameworks_versions['rails']
   unless /^(main|6)/.match?(rails_version)
-    if rails_version.start_with?('4.')
+    if rails_version.start_with?('4.') || rails_version.start_with?('5.')
       gem 'delayed_job', '~> 4.1.13', require: nil
     else
       gem 'delayed_job', require: nil
