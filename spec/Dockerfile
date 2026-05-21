@@ -34,7 +34,7 @@ RUN set -eux; \
     printf 'Acquire::Check-Valid-Until "false";\n' > /etc/apt/apt.conf.d/99no-check-valid; \
     apt-get -o Acquire::Check-Valid-Until=false update -qq \
   ); \
-  apt-get install -qq -y --no-install-recommends build-essential libpq-dev git tzdata; \
+  apt-get install -qq -y --no-install-recommends build-essential curl gnupg dirmngr libpq-dev git tzdata; \
   rm -rf /var/lib/apt/lists/*
 
 # Install gosu
