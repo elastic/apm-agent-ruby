@@ -295,7 +295,7 @@ if enabled
         it 'validates the schema', type: :json_schema do
           get '/'
 
-          wait_for transactions: 1
+          wait_for metadatas: 1, transactions: 1, spans: 2
 
           metadata = @mock_intake.metadatas.fetch(0)
           expect(metadata).to match_json_schema(:metadatas),

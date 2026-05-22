@@ -1,6 +1,11 @@
 ---
 navigation_title: "Known issues"
-
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_ruby: ga
 ---
 
 # Elastic APM Ruby Agent known issues [elastic-apm-ruby-agent-known-issues]
