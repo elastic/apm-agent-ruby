@@ -1,5 +1,4 @@
 ---
-version: '3.4'
 
 services:
   mongodb:
@@ -14,10 +13,18 @@ services:
       context: .
       args:
         BUNDLER_VERSION: '2.2.21'
+        RUBY_IMAGE: ${RUBY_IMAGE:-ruby:3.3}
+        USER_ID_GROUP: ${USER_ID_GROUP:-1000:1000}
+        FRAMEWORKS: ${FRAMEWORKS:-rails,sinatra,grape}
+        VENDOR_PATH: ${VENDOR_PATH:-/vendor/ruby_3.3}
     image: '$IMAGE_NAME'
     environment:
       HOME: '/tmp'
       MONGODB_URL: 'mongodb:27017'
+      USER_ID: ${USER_ID:-1000}
+      LOCAL_USER_ID: ${LOCAL_USER_ID:-1000}
+      LOCAL_GROUP_ID: ${LOCAL_GROUP_ID:-1000}
+      RUBY_VERSION: ${RUBY_VERSION:-3.3}
     entrypoint:
       'spec/entrypoint.sh'
     tty: true
@@ -28,17 +35,17 @@ services:
       - /tmp:exec,mode=1777
     depends_on:
       - mongodb
-    user: ${USER_ID}
+    user: ${USER_ID:-1000}
     security_opt:
       - no-new-privileges
 
   ruby_rspec:
-    image: apm-agent-ruby:${RUBY_VERSION}
+    image: apm-agent-ruby:${RUBY_VERSION:-3.3}
     environment:
       APP_PATH: /opt/app
       FRAMEWORK: rails
-      LOCAL_USER_ID: ${LOCAL_USER_ID}
-      LOCAL_GROUP_ID: ${LOCAL_GROUP_ID}
+      LOCAL_USER_ID: ${LOCAL_USER_ID:-1000}
+      LOCAL_GROUP_ID: ${LOCAL_GROUP_ID:-1000}
       MONGODB_URL: 'mongodb:27017'
     security_opt:
       - no-new-privileges
