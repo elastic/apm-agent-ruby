@@ -29,6 +29,7 @@ end
 
 class MockIntake
   def initialize
+    @mutex = Mutex.new
     clear!
 
     @span_types = JSON.parse(File.read('./spec/fixtures/span_types.json'))
@@ -91,13 +92,15 @@ class MockIntake
   end
 
   def clear!
-    @requests = []
+    @mutex.synchronize do
+      @requests = []
 
-    @errors = []
-    @metadatas = []
-    @metricsets = []
-    @spans = []
-    @transactions = []
+      @errors = []
+      @metadatas = []
+      @metricsets = []
+      @spans = []
+      @transactions = []
+    end
   end
 
   def reset!
@@ -110,17 +113,34 @@ class MockIntake
 
   def call(env)
     request = Rack::Request.new(env)
-    @requests << request
-
     metadata, *rest = parse_request_body(request)
 
-    metadatas << metadata.values.first
+    @mutex.synchronize do
+      @requests << request
+      metadatas << metadata.values.first
 
-    rest.each do |obj|
-      catalog obj
+      rest.each do |obj|
+        catalog obj
+      end
     end
 
     [202, {}, ['ok']]
+  end
+
+  def count(kind)
+    @mutex.synchronize { public_send(kind).length }
+  end
+
+  def snapshot
+    @mutex.synchronize do
+      {
+        transactions: @transactions.map { |o| o['name'] },
+        spans: @spans.map { |o| o['name'] },
+        errors: @errors.map { |o| o['culprit'] },
+        metricsets: @metricsets.dup,
+        metadatas: @metadatas.count
+      }
+    end
   end
 
   def parse_request_body(request)
@@ -202,19 +222,8 @@ class MockIntake
         loop do
           sleep 0.01
 
-          missing = expected.reduce(0) do |total, (kind, count)|
-            total + (count - @mock_intake.send(kind).length)
-          end
-
-          next if missing > 0
-
-          unless missing == 0
-            puts format(
-              'Expected %s. Got %s',
-              expected,
-              missing
-            )
-            print_received
+          next unless expected.all? do |kind, count|
+            @mock_intake.count(kind) >= count
           end
 
           if block_given?
@@ -233,13 +242,7 @@ class MockIntake
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
     def print_received
-      pp(
-        transactions: @mock_intake.transactions.map { |o| o['name'] },
-        spans: @mock_intake.spans.map { |o| o['name'] },
-        errors: @mock_intake.errors.map { |o| o['culprit'] },
-        metricsets: @mock_intake.metricsets,
-        metadatas: @mock_intake.metadatas.count
-      )
+      pp(@mock_intake.snapshot)
     end
   end
 end
