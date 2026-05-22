@@ -9,9 +9,9 @@ if [[ $specific_feature = '' ]]; then
   echo 'Running all features'
 
   echo "========================================"
-  cucumber
+  bundle exec cucumber
 else
   echo "Running only $specific_feature"
 
-  cucumber $specific_feature
+  bundle exec cucumber $specific_feature
 fi

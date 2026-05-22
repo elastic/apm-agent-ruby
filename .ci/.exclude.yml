@@ -103,7 +103,11 @@ exclude:
   - VERSION: elasticobservability/jruby:9.2-8-jdk
     FRAMEWORK: sinatra-main
 
-  # Only test grape master on ruby 2.7 and ruby 3.1
+  # Only test grape master on ruby >= 3.2
+  - VERSION: ruby:3.1
+    FRAMEWORK: grape-master
+  - VERSION: ruby:2.7
+    FRAMEWORK: grape-master
   - VERSION: ruby:2.6
     FRAMEWORK: grape-master
   - VERSION: ruby:2.4
