@@ -192,15 +192,25 @@ module ElasticAPM
         subject.stop
       end
 
-      it 'calls handle_forking! on all associated objects' do
-        allow(Process).to receive(:pid).and_return(1)
+      it 'handles forking on all associated objects', :intercept do
+        with_agent do
+          ElasticAPM.with_transaction do
+            expect(ElasticAPM.current_transaction).not_to be_nil
 
-        expect(subject.central_config).to receive(:handle_forking!)
-        expect(subject.transport).to receive(:handle_forking!)
-        expect(subject.instrumenter).to receive(:handle_forking!)
-        expect(subject.metrics).to receive(:handle_forking!)
+            expect(ElasticAPM.agent.central_config).to receive(:handle_forking!)
+            expect(ElasticAPM.agent.transport).to receive(:handle_forking!)
 
-        subject.report_message('Everything went boom')
+            # The thread local variables cached by the instrumenter need to be clear, so call original
+            expect(ElasticAPM.agent.instrumenter).to receive(:handle_forking!).and_call_original
+            expect(ElasticAPM.agent.metrics).to receive(:handle_forking!)
+            expect(ElasticAPM::Spies::MongoSpy::Subscriber).to receive(:handle_forking!)
+
+            # Simulate a new fork
+            allow(Process).to receive(:pid).and_return(1)
+            ElasticAPM.report_message('Everything went boom')
+            expect(ElasticAPM.current_transaction).to be_nil
+          end
+        end
       end
     end
   end

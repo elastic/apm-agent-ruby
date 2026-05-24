@@ -37,6 +37,10 @@ module ElasticAPM
 
         EVENT_KEY = :__elastic_instrumenter_mongo_events_key
 
+        def self.handle_forking!
+          Thread.current[EVENT_KEY] = []
+        end
+
         def events
           Thread.current[EVENT_KEY] ||= []
         end

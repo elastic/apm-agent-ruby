@@ -288,6 +288,8 @@ module ElasticAPM
       instrumenter.handle_forking!
       metrics.handle_forking!
 
+      Spies::MongoSpy::Subscriber.handle_forking!
+
       @pid = Process.pid
     end
   end
