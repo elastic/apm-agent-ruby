@@ -30,7 +30,13 @@ module ElasticAPM
       class Middleware
         def call(_worker, job, queue)
           name = SidekiqSpy.name_for(job)
-          transaction = ElasticAPM.start_transaction(name, 'Sidekiq')
+          transaction = if job['trace_id']
+            ElasticAPM.start_transaction(name, 'Sidekiq', trace_context: ElasticAPM::TraceContext.new(
+              traceparent: ElasticAPM::TraceContext::Traceparent.new(trace_id: job['trace_id'])
+            ))
+          else
+            ElasticAPM.start_transaction(name, 'Sidekiq')
+          end
           ElasticAPM.set_label(:queue, queue)
 
           yield
@@ -44,6 +50,14 @@ module ElasticAPM
           raise
         ensure
           ElasticAPM.end_transaction
+        end
+      end
+
+      class ParentTraceMiddleware
+        def call(job_class_or_string, job, queue, redis_pool)
+          job.merge!(
+            'trace_id' => ElasticAPM.current_transaction&.trace_id
+          )
         end
       end
 
@@ -62,6 +76,12 @@ module ElasticAPM
         Sidekiq.configure_server do |config|
           config.server_middleware do |chain|
             chain.add Middleware
+          end
+        end
+
+        Sidekiq.configure_client do |config|
+          config.client_middleware do |chain|
+             chain.add ParentTraceMiddleware
           end
         end
       end
