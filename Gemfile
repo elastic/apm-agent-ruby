@@ -59,7 +59,6 @@ gem 'rake', '>= 13.0', require: nil
 gem 'racecar', require: nil if !defined?(JRUBY_VERSION)
 gem 'resque', require: nil
 gem 'sequel', require: nil
-gem 'shoryuken', require: nil
 gem 'sidekiq', require: nil
 gem 'simplecov', require: false
 gem 'simplecov-cobertura', require: false
@@ -107,15 +106,34 @@ frameworks_versions.each do |framework, version|
   end
 end
 
-# Handle Rack::Auth::Digest being removed in rack 3.1, grape requires it
+# Handle Rack::Auth::Digest being removed in rack 3.1, grape requires it.
+# Sinatra 2.x depends on rack 2.x, so use a compatible rack line when both are present.
 if frameworks_versions.key?('grape')
-  gem 'rack', '~> 3.0.0'
+  sinatra_version = frameworks_versions['sinatra']
+  if sinatra_version&.start_with?('2.')
+    gem 'rack', '~> 2.2.0'
+  else
+    gem 'rack', '~> 3.0.0'
+  end
 end
 
 if frameworks_versions.key?('rails')
-  unless /^(main|6)/.match?(frameworks_versions['rails'])
-    gem 'delayed_job', require: nil
+  rails_version = frameworks_versions['rails']
+  unless /^(main|6)/.match?(rails_version)
+    if rails_version.start_with?('4.') || rails_version.start_with?('5.')
+      gem 'delayed_job', '~> 4.1.13', require: nil
+    else
+      gem 'delayed_job', require: nil
+    end
   end
+end
+
+# Shoryuken 7.x references ActiveJob::QueueAdapters::AbstractAdapter, which
+# is missing in the Ruby 3.4 + Rails 6.1 matrix target.
+if frameworks_versions['rails'] == '6.1' && RUBY_VERSION >= '3.4'
+  gem 'shoryuken', '< 7.0', require: nil
+else
+  gem 'shoryuken', require: nil
 end
 
 if RUBY_PLATFORM == 'java'
