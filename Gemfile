@@ -136,6 +136,17 @@ else
   gem 'shoryuken', require: nil
 end
 
+# Solid Queue requires Rails 7.1+ (Active Record + Active Job).
+if frameworks_versions.key?('rails')
+  rails_version = frameworks_versions['rails']
+  solid_queue_compatible =
+    rails_version == 'main' ||
+    rails_version.to_s.empty? ||
+    (rails_version =~ /\A\d+(\.\d+)?\z/ &&
+      Gem::Version.new(rails_version) >= Gem::Version.new('7.1'))
+  gem 'solid_queue', require: nil if solid_queue_compatible
+end
+
 if RUBY_PLATFORM == 'java'
   # See issue #6547 in the JRuby repo. It is fixed in JRuby 9.3
   gem 'i18n', '< 1.8.8' if JRUBY_VERSION < '9.3'

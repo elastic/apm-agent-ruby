@@ -80,6 +80,7 @@ We automatically instrument background processing using:
 * Sneakers (2.12.0) (Experimental, see [#676](https://github.com/elastic/apm-agent-ruby/pull/676))
 * Resque (>= 2.0.0 <= 2.7.0)
 * SuckerPunch (>= 2.0.0 <= 3.3.0)
+* Solid Queue (>= 1.0.0)
 
 
 ## Resque [supported-technologies-resque]

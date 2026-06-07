@@ -171,6 +171,7 @@ module ElasticAPM
         sinatra
         sneakers
         sns
+        solid_queue
         sqs
         sucker_punch
         tilt

@@ -28,6 +28,11 @@ All notable changes to this project will be documented here. This project adhere
 
 % ### Fixes [elastic-apm-ruby-agent-versionext-fixes]
 
+## X.X.X [elastic-apm-ruby-agent-XXX-release-notes]
+
+### Features and enhancements [elastic-apm-ruby-agent-XXX-features-enhancements]
+* Support Solid Queue [#1623](https://github.com/elastic/apm-agent-ruby/pull/1623)
+
 ## 4.8.0 [elastic-apm-ruby-agent-480-release-notes]
 
 ### Features and enhancements [elastic-apm-ruby-agent-480-features-enhancements]

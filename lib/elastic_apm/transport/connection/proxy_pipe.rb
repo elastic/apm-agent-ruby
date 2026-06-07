@@ -52,7 +52,15 @@ module ElasticAPM
           end
 
           def self.finalize(io)
-            proc { io.close }
+            proc do
+              io.close
+            rescue ThreadError
+              # io.close is forbidden inside a signal trap context (Ruby raises
+              # ThreadError). SolidQueue and other job backends install persistent
+              # Signal.trap handlers; GC triggered while a trap is active will
+              # fire this finalizer in that context. The OS closes the fd on
+              # process exit, so silently skipping here is safe.
+            end
           end
 
           attr_reader :io
