@@ -73,7 +73,9 @@ exclude:
   - VERSION: elasticobservability/jruby:9.2-8-jdk
     FRAMEWORK: rails-main
 
-  # Only test rails 7.2 on ruby >= 3.1
+  # Only test rails 7.2 on ruby >= 3.4
+  - VERSION: ruby:3.1
+    FRAMEWORK: rails-7.2
   - VERSION: ruby:2.7
     FRAMEWORK: rails-7.2
   - VERSION: ruby:2.6
