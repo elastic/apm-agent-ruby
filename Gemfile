@@ -90,6 +90,10 @@ frameworks_versions.each do |framework, version|
     gem 'net-smtp', require: false
   end
 
+  if framework =='rails' && RUBY_VERSION < '3.2' && !defined?(JRUBY_VERSION)
+    gem 'i18n', '1.14.8'
+  end
+
   if framework =='rails' && RUBY_VERSION >= '3.4' && ['4.2', '5.2', '6.1'].include?(version)
     gem 'mutex_m'
   end
