@@ -30,7 +30,7 @@ jobs:
       uses: elastic/oblt-actions/github/project-add@v1
       with:
         github-token: ${{ steps.get_token.outputs.token }}
-        project-id: 454
+        project-id: 1674
         item-url: ${{ github.event.issue.html_url }}
 
     - name: Set issue status to Planned
@@ -38,7 +38,7 @@ jobs:
       uses: elastic/oblt-actions/github/project-field-set@v1
       with:
         github-token: ${{ steps.get_token.outputs.token }}
-        project-id: 454
+        project-id: 1674
         item-id: ${{ steps.add-issue-to-project.outputs.item-id }}
         field-name: Status
         field-value: Planned
@@ -49,7 +49,7 @@ jobs:
       uses: elastic/oblt-actions/github/project-add@v1
       with:
         github-token: ${{ steps.get_token.outputs.token }}
-        project-id: 454
+        project-id: 1674
         item-url: ${{ github.event.pull_request.html_url }}
 
     - name: Set pull request status to In Progress
@@ -57,7 +57,7 @@ jobs:
       uses: elastic/oblt-actions/github/project-field-set@v1
       with:
         github-token: ${{ steps.get_token.outputs.token }}
-        project-id: 454
+        project-id: 1674
         item-id: ${{ steps.add-pr-to-project.outputs.item-id }}
         field-name: Status
         field-value: In Progress
