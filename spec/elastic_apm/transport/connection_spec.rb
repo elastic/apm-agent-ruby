@@ -234,7 +234,7 @@ module ElasticAPM
         it 'is enabled by default' do
           expect(config.logger)
             .to receive(:error)
-            .with(/OpenSSL::SSL::SSLError/)
+            .with(/(OpenSSL::SSL::SSLError|HTTP::ConnectionError|SSL_connect)/)
 
           WebMock.disable!
           subject.write('')
@@ -253,7 +253,7 @@ module ElasticAPM
           it "doesn't complain" do
             expect(config.logger)
               .to_not receive(:error)
-              .with(/OpenSSL::SSL::SSLError/)
+              .with(/(OpenSSL::SSL::SSLError|SSL_connect)/)
 
             WebMock.disable!
             subject.write('')

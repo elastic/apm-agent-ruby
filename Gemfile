@@ -90,7 +90,7 @@ frameworks_versions.each do |framework, version|
     gem 'net-smtp', require: false
   end
 
-  if framework =='rails' && RUBY_VERSION < '3.2' && !defined?(JRUBY_VERSION)
+  if framework =='rails' && RUBY_VERSION < '3.2' && !defined?(JRUBY_VERSION) && version >= '5.2'
     gem 'i18n', '1.14.8'
   end
 
