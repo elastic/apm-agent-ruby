@@ -49,7 +49,7 @@ module ElasticAPM
             context: context
           ) do |span|
             trace_context = span&.trace_context || transaction.trace_context
-            trace_context.apply_headers { |key, value| req[key] = value }
+            trace_context.apply_headers { |key, value| req.headers[key] = value }
 
             result = super(req, options)
 
