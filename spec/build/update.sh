@@ -21,6 +21,9 @@ elif [[ "${RUBY_VERSION}" =~ ^2\.(4|5).+ ]]; then
   update_rubygems --no-document
   if ruby -e 'exit defined?(JRUBY_VERSION) ? 0 : 1'; then
     gem i "bundler:~>2.2.21" --no-document
+    # Remove bundler versions >= 2.3 that may be pre-installed in the container's
+    # system gems and would otherwise override the compatible 2.2.x version above.
+    gem uninstall bundler --version ">=2.3.0" --executables --force --ignore-dependencies 2>/dev/null || true
   else
     gem i "bundler:~>2.3.26" --no-document
   fi
