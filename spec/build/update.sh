@@ -19,7 +19,11 @@ elif [[ "${RUBY_VERSION}" =~ ^2\.(6|7).+ ]]; then
 elif [[ "${RUBY_VERSION}" =~ ^2\.(4|5).+ ]]; then
   gem i "rubygems-update:~>2.7" --no-document
   update_rubygems --no-document
-  gem i "bundler:~>2.3.26" --no-document
+  if ruby -e 'exit defined?(JRUBY_VERSION) ? 0 : 1'; then
+    gem i "bundler:~>2.2.21" --no-document
+  else
+    gem i "bundler:~>2.3.26" --no-document
+  fi
 else
   gem update --system --no-document
   gem i bundler --no-document
