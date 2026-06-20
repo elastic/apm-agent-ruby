@@ -27,7 +27,7 @@ module ElasticAPM
       let(:config) { Config.new(http_compression: false) }
 
       let(:metadata) do
-        JSON.fast_generate(metadata: { service_name: 'Test' })
+        JSON.generate(metadata: { service_name: 'Test' })
       end
 
       let(:url) { 'http://localhost:8200/intake/v2/events' }
