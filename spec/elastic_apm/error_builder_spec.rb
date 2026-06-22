@@ -35,6 +35,7 @@ module ElasticAPM
         expect(error.exception.message).to eq 'divided by 0'
         expect(error.exception.type).to eq 'ZeroDivisionError'
         expect(error.exception.handled).to be true
+        expect(error.context.user).to be_empty
       end
 
       it 'sets properties from current transaction', :intercept do
@@ -67,6 +68,22 @@ module ElasticAPM
         expect(error.context.labels).to match(my_tag: '123', more: 'totes')
         expect(error.context.custom)
           .to match(all_the_other_things: 'blah blah')
+        expect(error.context.user)
+          .to have_attributes(id: '321', email: nil, username: nil)
+      end
+
+      it 'keeps an explicit error user over the transaction user', :intercept do
+        with_agent do
+          ElasticAPM.with_transaction('t') do
+            ElasticAPM.set_user(Struct.new(:id).new('txn-user'))
+
+            context = Context.new(user: Context::User.new(id: 'error-user'))
+            ElasticAPM.report(actual_exception, context: context)
+          end
+        end
+
+        error = @intercepted.errors.last
+        expect(error.context.user).to have_attributes(id: 'error-user')
       end
     end
 
