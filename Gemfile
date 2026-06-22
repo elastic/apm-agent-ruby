@@ -141,6 +141,7 @@ else
 end
 
 if RUBY_PLATFORM == 'java'
+  gem 'minitest', '< 5.11'
   # See issue #6547 in the JRuby repo. It is fixed in JRuby 9.3
   gem 'i18n', '< 1.8.8' if JRUBY_VERSION < '9.3'
 
