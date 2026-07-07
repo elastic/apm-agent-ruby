@@ -16,7 +16,7 @@ The Elastic APM Ruby Agent has built-in support for many frameworks and librarie
 
 ## Ruby [supported-technologies-ruby]
 
-We follow Ruby’s own maintenance policy and officially support all currently maintained versions per [Ruby Maintenance Branches](https://www.ruby-lang.org/en/downloads/branches/) < 4.0.
+We follow Ruby’s own maintenance policy and officially support all currently maintained versions per [Ruby Maintenance Branches](https://www.ruby-lang.org/en/downloads/branches/) < 5.0.
 
 
 ## Web Frameworks and Libraries [supported-technologies-web]
@@ -28,7 +28,7 @@ We test against all supported minor versions of Rails, Sinatra, and Grape.
 
 ### Ruby on Rails [supported-technologies-rails]
 
-We currently support Rails >= 4.2 <= 7.2. This follows Rails' own [Security policy](https://rubyonrails.org/security/).
+We currently support Rails >= 4.2 <= 8.1. This follows Rails' own [Security policy](https://rubyonrails.org/security/).
 
 See [Getting started with Rails](/reference/getting-started-rails.md).
 
@@ -131,4 +131,3 @@ To instrument a server, add the `ElasticAPM::GRPC::ServerInterceptor`.
 ```ruby
 GRPC::RpcServer.new(interceptors: [ElasticAPM::GRPC::ServerInterceptor.new])
 ```
-
