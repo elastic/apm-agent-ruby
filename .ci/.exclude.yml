@@ -140,12 +140,12 @@ exclude:
   - VERSION: ruby:3.1
     FRAMEWORK: rails-5.1
 
-  # Ony test Rails 8.1 with Ruby 4.0
-  - VERSION: ruby:3.4
-    FRAMEWORK: rails-8.1
+  # Only test Rails 8.1 with Ruby >= 3.4
   - VERSION: ruby:3.1
     FRAMEWORK: rails-8.1
   - VERSION: ruby:2.7
+    FRAMEWORK: rails-8.1
+  - VERSION: ruby:2.6
     FRAMEWORK: rails-8.1
   - VERSION: ruby:2.4
     FRAMEWORK: rails-8.1
