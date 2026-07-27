@@ -20,6 +20,8 @@ exclude:
 
   # rails-4.2 exclusions
   # Only test on ruby 2.4
+  - VERSION: ruby:4.0
+    FRAMEWORK: rails-4.2
   - VERSION: ruby:3.4
     FRAMEWORK: rails-4.2
   - VERSION: ruby:3.1
@@ -36,6 +38,7 @@ exclude:
     FRAMEWORK: rails-4.2
   - VERSION: elasticobservability/jruby:9.2-8-jdk
     FRAMEWORK: rails-4.2
+
   # sinatra-1.4 exclusions
   - VERSION: ruby:3.1
     FRAMEWORK: sinatra-1.4
@@ -136,3 +139,31 @@ exclude:
     FRAMEWORK: rails-5.2
   - VERSION: ruby:3.1
     FRAMEWORK: rails-5.1
+
+  # Only test Ruby 4 with Rails >= 7.0
+  - VERSION: ruby:4.0
+    FRAMEWORK: rails-6.1
+  - VERSION: ruby:4.0
+    FRAMEWORK: rails-5.2
+  - VERSION: ruby:4.0
+    FRAMEWORK: rails-5.1
+  - VERSION: ruby:4.0
+    FRAMEWORK: rails-4.2
+
+  # Only test Rails 8.1 with Ruby >= 3.4
+  - VERSION: ruby:3.1
+    FRAMEWORK: rails-8.1
+  - VERSION: ruby:2.7
+    FRAMEWORK: rails-8.1
+  - VERSION: ruby:2.6
+    FRAMEWORK: rails-8.1
+  - VERSION: ruby:2.4
+    FRAMEWORK: rails-8.1
+  - VERSION: jruby:9.2
+    FRAMEWORK: rails-8.1
+  - VERSION: elasticobservability/jruby:9.2-13-jdk
+    FRAMEWORK: rails-8.1
+  - VERSION: elasticobservability/jruby:9.2-11-jdk
+    FRAMEWORK: rails-8.1
+  - VERSION: elasticobservability/jruby:9.2-8-jdk
+    FRAMEWORK: rails-8.1
