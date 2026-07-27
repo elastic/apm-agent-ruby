@@ -30,6 +30,22 @@ if defined?(Rails)
           ElasticAPM.stop
         end
       end
+
+      it "doesn't start the agent when disabled by config" do
+        ElasticAPM::Rails.start(enabled: false)
+
+        expect(ElasticAPM.agent).to be nil
+        expect(ElasticAPM).to_not be_running
+      end
+
+      it "doesn't start the agent when disabled by the environment" do
+        with_env('ELASTIC_APM_ENABLED' => 'false') do
+          ElasticAPM::Rails.start({})
+
+          expect(ElasticAPM.agent).to be nil
+          expect(ElasticAPM).to_not be_running
+        end
+      end
     end
 
     describe 'Rails console' do
