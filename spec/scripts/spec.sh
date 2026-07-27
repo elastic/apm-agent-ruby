@@ -47,14 +47,14 @@ CLEAN_IMAGE_NAME=$(echo $IMAGE_NAME | sed s/:/-/ )
 docker build --pull --force-rm --build-arg "RUBY_IMAGE=${IMAGE_NAME}" -t "apm-agent-ruby:${VERSION}" .
 
 # Start mongodb
-docker-compose up -d mongodb
+docker compose up -d mongodb
 
 # Run tests
 IMAGE_NAME="${IMAGE_NAME}" \
 LOCAL_GROUP_ID="$(id -g)" \
 LOCAL_USER_ID="$(id -u)" \
 RUBY_VERSION="${VERSION}" \
-  docker-compose -f ../docker-compose.yml run \
+  docker compose -f ../docker-compose.yml run \
   -e FRAMEWORK="${FRAMEWORK}" \
   -e TEST_MATRIX="${FRAMEWORK}-${CLEAN_IMAGE_NAME}" \
   -e INCLUDE_SCHEMA_SPECS=1 \

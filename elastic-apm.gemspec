@@ -32,14 +32,14 @@ Gem::Specification.new do |spec|
     'changelog_uri' => 'https://www.elastic.co/guide/en/apm/agent/ruby/current/release-notes.html'
   }
   spec.license  = 'Apache-2.0'
-  spec.required_ruby_version = ">= 2.3.0"
+  spec.required_ruby_version = ">= 2.3.0", "< 5.0"
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
   end
 
   spec.add_dependency('concurrent-ruby', '~> 1.0')
-  spec.add_dependency('http', '>= 3.0')
+  spec.add_dependency('http', '>= 3.0', '< 7.0')
   spec.add_runtime_dependency('ruby2_keywords')
 
   spec.require_paths = ['lib']

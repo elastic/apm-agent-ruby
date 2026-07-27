@@ -24,6 +24,7 @@ module ElasticAPM
     class SidekiqSpy
       ACTIVE_JOB_WRAPPER =
         'ActiveJob::QueueAdapters::SidekiqAdapter::JobWrapper'
+      ACTIVE_JOB_WRAPPER_V8 = 'Sidekiq::ActiveJob::Wrapper'
 
       # @api private
       class Middleware
@@ -50,7 +51,7 @@ module ElasticAPM
         klass = job['class']
 
         case klass
-        when ACTIVE_JOB_WRAPPER
+        when ACTIVE_JOB_WRAPPER, ACTIVE_JOB_WRAPPER_V8
           job['wrapped']
         else
           klass

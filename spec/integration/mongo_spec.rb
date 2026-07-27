@@ -56,8 +56,10 @@ module ElasticAPM
       db = span.context.db
       expect(db.instance).to eq 'elastic-apm-test'
       expect(db.type).to eq 'mongodb'
-      expect(db.statement).to include '{"listCollections"=>1, "cursor"=>{}, ' \
-        '"nameOnly"=>true'
+      expect(db.statement).to include('{"listCollections"=>1, "cursor"=>{}, ' \
+        '"nameOnly"=>true')
+                          .or include('{"listCollections" => 1, "cursor" => {}, ' \
+        '"nameOnly" => true')
       expect(db.user).to be nil
     end
 
@@ -93,6 +95,7 @@ module ElasticAPM
       expect(db.instance).to eq 'elastic-apm-test'
       expect(db.type).to eq 'mongodb'
       expect(db.statement).to match('"delete"=>"testing"')
+                          .or match('"delete" => "testing"')
       expect(db.user).to be nil
     end
 
@@ -124,7 +127,8 @@ module ElasticAPM
       db = span.context.db
       expect(db.instance).to eq 'elastic-apm-test'
       expect(db.type).to eq 'mongodb'
-      expect(db.statement).to include '{"a"=>BSON::Decimal128(\'1\')}'
+      expect(db.statement).to include('{"a"=>BSON::Decimal128(\'1\')}')
+                          .or include('{"a" => BSON::Decimal128(\'1\')}')
       expect(db.user).to be nil
     end
 
@@ -157,7 +161,8 @@ module ElasticAPM
       db = find_span.context.db
       expect(db.instance).to eq 'elastic-apm-test'
       expect(db.type).to eq 'mongodb'
-      expect(db.statement).to include '{"find"=>"testing"'
+      expect(db.statement).to include('{"find"=>"testing"')
+                          .or include('{"find" => "testing"')
       expect(db.user).to be nil
 
       expect(get_more_span.name).to eq 'elastic-apm-test.testing.getMore'
@@ -169,7 +174,8 @@ module ElasticAPM
       db = get_more_span.context.db
       expect(db.instance).to eq 'elastic-apm-test'
       expect(db.type).to eq 'mongodb'
-      expect(db.statement).to include '{"getMore"=>#<BSON::Int64'
+      expect(db.statement).to include('{"getMore"=>#<BSON::Int64')
+                          .or include('{"getMore" => #<BSON::Int64')
       expect(db.user).to be nil
     end
 
