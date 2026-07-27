@@ -232,14 +232,8 @@ module ElasticAPM
         end
 
         it 'is enabled by default' do
-          expect(config.logger)
-            .to receive(:error)
-            .with(/OpenSSL::SSL::SSLError/)
-
-          WebMock.disable!
-          subject.write('')
-          subject.flush
-          WebMock.enable!
+          expect(config.ssl_context.verify_mode)
+            .to eq(OpenSSL::SSL::VERIFY_PEER)
         end
 
         context 'when disabled' do
@@ -250,15 +244,9 @@ module ElasticAPM
             )
           end
 
-          it "doesn't complain" do
-            expect(config.logger)
-              .to_not receive(:error)
-              .with(/OpenSSL::SSL::SSLError/)
-
-            WebMock.disable!
-            subject.write('')
-            subject.flush
-            WebMock.enable!
+          it 'disables certificate verification' do
+            expect(config.ssl_context.verify_mode)
+              .to eq(OpenSSL::SSL::VERIFY_NONE)
           end
         end
       end

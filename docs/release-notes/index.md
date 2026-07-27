@@ -3,6 +3,12 @@ navigation_title: "Elastic APM Ruby Agent"
 mapped_pages:
   - https://www.elastic.co/guide/en/apm/agent/ruby/current/release-notes.html
   - https://www.elastic.co/guide/en/apm/agent/ruby/current/release-notes-4.x.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_ruby: ga
 ---
 
 # Elastic APM Ruby Agent release notes [elastic-apm-ruby-agent-release-notes]
@@ -21,6 +27,16 @@ All notable changes to this project will be documented here. This project adhere
 % ### Features and enhancements [elastic-apm-ruby-agent-versionext-features-enhancements]
 
 % ### Fixes [elastic-apm-ruby-agent-versionext-fixes]
+
+## 4.9.0 [elastic-apm-ruby-agent-490-release-notes]
+
+### Features and enhancements [elastic-apm-ruby-agent-490-features-enhancements]
+* Add ability to configure sampling rate based on transaction span name [#1531](https://github.com/elastic/apm-agent-ruby/pull/1531)
+* Set version 7.0 as http gem upper bound in gemspec [#1624](https://github.com/elastic/apm-agent-ruby/pull/1624)
+
+### Fixes [elastic-apm-ruby-agent-490-fixes]
+* Use status code explicitly in central config for changes in http 6.0 [#1615](https://github.com/elastic/apm-agent-ruby/pull/1615)
+* Use headers method directly for compatibility with all versions of http [#1629](https://github.com/elastic/apm-agent-ruby/pull/1629)
 
 ## 4.8.0 [elastic-apm-ruby-agent-480-release-notes]
 

@@ -18,5 +18,18 @@
 # frozen_string_literal: true
 
 module ElasticAPM
-  VERSION = '4.9.0'
+  class Config
+    # @api private
+    class RoundFloatHashValue
+      def initialize
+        @float_converter = RoundFloat.new
+      end
+
+      def call(hash)
+        return {} unless hash
+
+        hash.transform_values { |value| @float_converter.call(value) }
+      end
+    end
+  end
 end
