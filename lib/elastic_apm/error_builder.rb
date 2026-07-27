@@ -86,6 +86,7 @@ module ElasticAPM
 
       Util.reverse_merge!(error.context.labels, transaction.context.labels)
       Util.reverse_merge!(error.context.custom, transaction.context.custom)
+      error.context.user = transaction.context.user if error.context.user.empty?
     end
   end
 end
