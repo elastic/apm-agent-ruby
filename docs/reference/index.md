@@ -28,3 +28,6 @@ These events, called Transactions and Spans, are sent to the APM Server. The APM
 
 APM Agents work in conjunction with the [APM Server](docs-content://solutions/observability/apps/application-performance-monitoring-apm.md), [Elasticsearch](docs-content://get-started/index.md), and [Kibana](docs-content://get-started/the-stack.md). The [APM Guide](docs-content://solutions/observability/apps/application-performance-monitoring-apm.md) provides details on how these components work together, and provides a matrix outlining [Agent and Server compatibility](docs-content://solutions/observability/apps/apm-agent-compatibility.md).
 
+## Troubleshooting
+
+If you're experiencing issues with the APM Ruby agent, refer to [Troubleshoot APM Ruby Agent](docs-content://troubleshoot/observability/apm-agent-ruby/apm-ruby-agent.md).
