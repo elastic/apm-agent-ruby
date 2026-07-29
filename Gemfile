@@ -168,7 +168,13 @@ end
 
 # sneakers main only supports >=2.5.0
 if Gem::Version.create(RUBY_VERSION) >= Gem::Version.create('2.5.0') && !defined?(JRUBY_VERSION)
-  gem 'sneakers', github: 'jondot/sneakers', ref: 'd761dfe1493', require: nil
+  # The sneakers gem was renamed to kicks, which SneakersSpy also instruments.
+  # Set SNEAKERS_GEM=kicks to run the suite against it instead.
+  if ENV['SNEAKERS_GEM'] == 'kicks'
+    gem 'kicks', '>= 2.12.0', require: nil
+  else
+    gem 'sneakers', github: 'jondot/sneakers', ref: 'd761dfe1493', require: nil
+  end
 end
 
 if Gem::Version.create(RUBY_VERSION) <= Gem::Version.create('2.5.0')
