@@ -14,11 +14,12 @@ jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
+      artifact-metadata: write
       attestations: write
       contents: write
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.6
@@ -43,7 +44,7 @@ jobs:
         if:  ${{ ! startsWith(github.ref, 'refs/tags') }}
 
       - name: generate build provenance
-        uses: actions/attest-build-provenance@173725a1209d09b31f9d30a3890cf2757ebbff0d  # v1.1.2
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6  # v4.2.0
         with:
           subject-path: "${{ github.workspace }}/pkg/*.gem" 
       
@@ -54,12 +55,12 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.6
       - name: Setup Git
-        uses: elastic/apm-pipeline-library/.github/actions/setup-git@current
+        uses: elastic/oblt-actions/git/setup@v1
       - name: Install build system
         run: .ci/scripts/install-build-system.sh
       - name: rake release:update_branch (only for tags)
@@ -74,10 +75,10 @@ jobs:
       - update-branch
     steps:
       - id: check
-        uses: elastic/apm-pipeline-library/.github/actions/check-dependent-jobs@current
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
         with:
-          needs: ${{ toJSON(needs) }}
-      - run: ${{ steps.check.outputs.isSuccess }}
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
       - if: ${{ always() && startsWith(github.ref, 'refs/tags') }}
         uses: elastic/oblt-actions/slack/notify-result@v1
         with:

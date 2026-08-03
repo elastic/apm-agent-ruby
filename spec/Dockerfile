@@ -1,5 +1,5 @@
 # Base image
-ARG RUBY_IMAGE
+ARG RUBY_IMAGE=ruby:3.3
 FROM ${RUBY_IMAGE}
 
 # Env arguments
@@ -25,9 +25,17 @@ COPY build/ /usr/local/bin/
 USER root
 
 # Install dependencies and upgrade ruby system
-RUN \
-  apt-get update > /dev/null \
-  && apt-get install -qq -y build-essential libpq-dev git tzdata
+RUN set -eux; \
+  apt-get update -qq || ( \
+    find /etc/apt -name '*.list' -type f -print0 | xargs -0 sed -i \
+      -e 's|deb.debian.org/debian|archive.debian.org/debian|g' \
+      -e 's|security.debian.org/debian-security|archive.debian.org/debian-security|g'; \
+    find /etc/apt -name '*.list' -type f -print0 | xargs -0 sed -i '/buster-updates/d'; \
+    printf 'Acquire::Check-Valid-Until "false";\n' > /etc/apt/apt.conf.d/99no-check-valid; \
+    apt-get -o Acquire::Check-Valid-Until=false update -qq \
+  ); \
+  apt-get install -qq -y --no-install-recommends build-essential curl gnupg dirmngr libpq-dev git tzdata; \
+  rm -rf /var/lib/apt/lists/*
 
 # Install gosu
 RUN \

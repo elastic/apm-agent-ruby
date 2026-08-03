@@ -18,9 +18,18 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-unless Gem::Specification.find_all_by_name('sneakers', '>=2.12.0').empty? || defined?(JRUBY_VERSION)
+require 'elastic_apm/spies/sneakers'
+
+# The sneakers gem was renamed to kicks. Both ship `lib/sneakers.rb` and define
+# the `Sneakers` constant, but register under different gem names, so either one
+# satisfies the spy.
+queue_gem_bundled =
+  !defined?(JRUBY_VERSION) &&
+  !(Gem::Specification.find_all_by_name('sneakers', '>=2.12.0') +
+    Gem::Specification.find_all_by_name('kicks', '>=2.12.0')).empty?
+
+if queue_gem_bundled
   require 'sneakers'
-  require 'elastic_apm/spies/sneakers'
 
   module ElasticAPM
     RSpec.describe 'Spy: Sneakers', :intercept do
@@ -70,6 +79,10 @@ unless Gem::Specification.find_all_by_name('sneakers', '>=2.12.0').empty? || def
         Sneakers.logger = Logger.new(nil) # silence
       end
 
+      it 'supports the version of the gem in the bundle' do
+        expect(Spies::SneakersSpy.supported_version?).to be_truthy
+      end
+
       it 'instruments job transaction' do
         with_agent do
           worker = TestWorker.new
@@ -105,6 +118,17 @@ unless Gem::Specification.find_all_by_name('sneakers', '>=2.12.0').empty? || def
 
         error, = @intercepted.errors
         expect(error.exception.type).to eq 'ZeroDivisionError'
+      end
+    end
+  end
+elsif Gem.loaded_specs['sneakers'].nil? && Gem.loaded_specs['kicks'].nil?
+  # Neither gem is in the bundle (eg. JRuby, or Ruby below 2.5), so the spy has
+  # no gem spec to read a version from. It has to report the version as
+  # unsupported rather than raise.
+  module ElasticAPM
+    RSpec.describe 'Spy: Sneakers' do
+      it 'is unsupported when neither sneakers nor kicks is bundled' do
+        expect(Spies::SneakersSpy.supported_version?).to be_falsey
       end
     end
   end
