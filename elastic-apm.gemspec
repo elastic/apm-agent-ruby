@@ -35,7 +35,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 2.3.0", "< 5.0"
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|
-    f.match(%r{^(test|spec|features)/})
+    f.match(%r{^(test|spec|features|bench|\.ci|\.github)/})
   end
 
   spec.add_dependency('concurrent-ruby', '~> 1.0')
