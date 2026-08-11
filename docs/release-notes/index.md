@@ -21,10 +21,12 @@ All notable changes to this project will be documented here. This project adhere
 
 % Release notes includes only features, enhancements, and fixes. Add breaking changes, deprecations, and known issues to the applicable release notes sections. 
 
-## version.next [elastic-apm-ruby-agent-versionext-release-notes]
+% ## version.next [elastic-apm-ruby-agent-versionext-release-notes]
+% **Release date:** Month day, year
 
-### Fixes [elastic-apm-ruby-agent-versionext-fixes]
-* Compatibility with `.trace_with` introduced in graphql-ruby 2.3+ [#1446](https://github.com/elastic/apm-agent-ruby/pull/1446)
+% ### Features and enhancements [elastic-apm-ruby-agent-versionext-features-enhancements]
+
+% ### Fixes [elastic-apm-ruby-agent-versionext-fixes]
 
 ## 4.9.0 [elastic-apm-ruby-agent-490-release-notes]
 
@@ -177,4 +179,3 @@ All notable changes to this project will be documented here. This project adhere
 * AWS S3 spy accepts symbol bucket names [#998](https://github.com/elastic/apm-agent-ruby/pull/998)
 * AWS S3 spy passing on blocks [#998](https://github.com/elastic/apm-agent-ruby/pull/998)
 * SQL scanner now recognizes CQL style comments [#1004](https://github.com/elastic/apm-agent-ruby/pull/1004)
-
