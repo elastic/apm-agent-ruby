@@ -51,12 +51,14 @@ module ElasticAPM
       request.body = should_capture_body?(for_type) ? get_body(req) : SKIPPED
 
       headers, env = get_headers_and_env(rack_env)
-      request.headers = headers if config.capture_headers?
       request.env = env if config.capture_env?
-
       request.cookies = req.cookies.dup
-      unless request.cookies.empty?
-        request.headers['Cookie'] = SKIPPED if request.headers.has_key?('Cookie')
+
+      if config.capture_headers?
+        request.headers = headers
+        unless request.cookies.empty?
+          request.headers['Cookie'] = SKIPPED if request.headers.has_key?('Cookie')
+        end
       end
 
       context
@@ -77,8 +79,11 @@ module ElasticAPM
       when 'application/x-www-form-urlencoded', 'multipart/form-data'
         req.POST.dup
       else
-        body = req.body.read
-        req.body.rewind
+        io = req.body
+        return '' unless io
+
+        body = io.read
+        io.rewind
         body.byteslice(0, MAX_BODY_LENGTH).force_encoding('utf-8').scrub
       end
     end

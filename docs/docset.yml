@@ -1,0 +1,11 @@
+project: 'APM Ruby agent docs'
+products:
+  - id: apm-agent
+cross_links:
+  - apm-agent-rum-js
+  - docs-content
+  - ecs-logging
+  - ecs-logging-ruby
+toc:
+  - toc: reference
+  - toc: release-notes

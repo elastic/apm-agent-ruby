@@ -24,13 +24,13 @@ jobs:
     outputs:
       matrix: ${{ steps.generate.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - id: generate
-        uses: elastic/apm-pipeline-library/.github/actions/version-framework@current
+        uses: elastic/oblt-actions/version-framework@v1
         with:
-          versionsFile: ${{ inputs.versionsFile }}
-          frameworksFile: ${{ inputs.frameworksFile }}
-          excludedFile: ${{ inputs.excludedFile }}
+          versions-file: ${{ inputs.versionsFile }}
+          frameworks-file: ${{ inputs.frameworksFile }}
+          excluded-file: ${{ inputs.excludedFile }}
   test:
     needs:
       - create-test-matrix
@@ -40,20 +40,29 @@ jobs:
       max-parallel: 20
       matrix: ${{ fromJSON(needs.create-test-matrix.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: Run BDD tests
         run: ./spec/scripts/features.sh ${{ matrix.version }}
       - name: Run test
         run: ./spec/scripts/spec.sh ${{ matrix.version }} ${{ matrix.framework }}
         env:
           JUNIT_PREFIX: ${{ matrix.version }}-${{ matrix.framework }}
+
       - if: success() || failure()
-        uses: actions/upload-artifact@v3
+        id: normalize-junit
+        uses: actions/github-script@v9
         with:
-          name: test-results
+          result-encoding: string
+          script: |
+            function normalizeName(name) {
+              return name.replace(/["/:<>|*?\\]/g, '-')
+            }
+            const framework = normalizeName('${{ matrix.framework }}')
+            const version = normalizeName('${{ matrix.version }}')
+            return `${version}-${framework}`
+      - if: success() || failure()
+        name: Upload JUnit Test Results
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results-${{ steps.normalize-junit.outputs.result }}
           path: "**/spec/junit-reports/**/*ruby-agent-junit.xml"
-      - if: success() || failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage
-          path: "coverage/"

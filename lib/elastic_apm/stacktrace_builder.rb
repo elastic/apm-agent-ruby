@@ -24,13 +24,13 @@ module ElasticAPM
   # @api private
   class StacktraceBuilder
     JAVA_FORMAT = /^(.+)\.([^.]+)\(([^:]+):(\d+)\)$/.freeze
-    RUBY_FORMAT = /^(.+?):(\d+)(?::in `(.+?)')?$/.freeze
+    RUBY_FORMAT = /^(.+?):(\d+)(?::in ['`](.+#)?(.+?)')?$/.freeze
 
     RUBY_VERS_REGEX = %r{ruby(/gems)?[-/](\d+\.)+\d}.freeze
     JRUBY_ORG_REGEX = %r{org/jruby}.freeze
 
     GEMS_PATH =
-      if defined?(Bundler) && Bundler.default_bundle_dir
+      if defined?(Bundler) && Bundler.default_gemfile
         Bundler.bundle_path.to_s
       else
         Gem.dir
@@ -77,9 +77,9 @@ module ElasticAPM
       ruby_match = line.match(RUBY_FORMAT)
 
       if ruby_match
-        _, file, number, method = ruby_match.to_a
+        _, file, number, module_name, method = ruby_match.to_a
         file.sub!(/\.class$/, '.rb')
-        module_name = nil
+        module_name&.sub!('#', '')
       else
         java_match = line.match(JAVA_FORMAT)
         _, module_name, method, file, number = java_match.to_a

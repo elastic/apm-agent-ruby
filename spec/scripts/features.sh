@@ -48,14 +48,14 @@ CLEAN_IMAGE_NAME=$(echo $IMAGE_NAME | sed s/:/-/ )
 docker build --pull --force-rm --build-arg "RUBY_IMAGE=${IMAGE_NAME}" -t "apm-agent-ruby:${VERSION}" .
 
 # Start mongodb
-docker-compose up -d mongodb
+docker compose up -d mongodb
 
 # Run bdd tests
 IMAGE_NAME="${IMAGE_NAME}" \
 LOCAL_GROUP_ID="$(id -g)" \
 LOCAL_USER_ID="$(id -u)" \
 RUBY_VERSION="${VERSION}" \
-  docker-compose -f ../docker-compose.yml run \
+  docker compose -f ../docker-compose.yml run \
   -e INCLUDE_SCHEMA_SPECS=1 \
   -e JDK_JAVA_OPTIONS="${JDK_JAVA_OPTIONS}" \
   -e JRUBY_OPTS="${JRUBY_OPTS}" \

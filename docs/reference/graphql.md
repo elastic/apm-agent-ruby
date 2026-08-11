@@ -1,0 +1,27 @@
+---
+mapped_pages:
+  - https://www.elastic.co/guide/en/apm/agent/ruby/current/graphql.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_ruby: ga
+---
+
+# GraphQL [graphql]
+
+The agent comes with support for GraphQL based APIs.
+
+This slightly alters how transactions are named when they relate to GraphQL queries, so they are easier to tell apart and debug.
+
+To enable GraphQL support, add the included Tracer to your schema:
+
+```ruby
+class MySchema < GraphQL::Schema
+  # ...
+
+  trace_with ElasticAPM::GraphQL # <-- include this
+end
+```
+

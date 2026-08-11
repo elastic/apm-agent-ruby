@@ -59,7 +59,6 @@ gem 'rake', '>= 13.0', require: nil
 gem 'racecar', require: nil if !defined?(JRUBY_VERSION)
 gem 'resque', require: nil
 gem 'sequel', require: nil
-gem 'shoryuken', require: nil
 gem 'sidekiq', require: nil
 gem 'simplecov', require: false
 gem 'simplecov-cobertura', require: false
@@ -91,6 +90,14 @@ frameworks_versions.each do |framework, version|
     gem 'net-smtp', require: false
   end
 
+  if framework =='rails' && RUBY_VERSION < '3.2' && !defined?(JRUBY_VERSION) && version >= '5.2'
+    gem 'i18n', '1.14.8'
+  end
+
+  if framework =='rails' && RUBY_VERSION >= '3.4' && ['4.2', '5.2', '6.1'].include?(version)
+    gem 'mutex_m'
+  end
+
   case version
   when 'master' # grape
     gem framework, github: GITHUB_REPOS.fetch(framework)
@@ -103,10 +110,45 @@ frameworks_versions.each do |framework, version|
   end
 end
 
-if frameworks_versions.key?('rails')
-  unless /^(main|6)/.match?(frameworks_versions['rails'])
-    gem 'delayed_job', require: nil
+# Handle Rack::Auth::Digest being removed in rack 3.1, grape requires it.
+# Sinatra 2.x depends on rack 2.x, so use a compatible rack line when both are present.
+if frameworks_versions.key?('grape')
+  sinatra_version = frameworks_versions['sinatra']
+  if sinatra_version&.start_with?('2.')
+    gem 'rack', '~> 2.2.0'
+  else
+    gem 'rack', '~> 3.0.0'
   end
+end
+
+if frameworks_versions.key?('rails')
+  rails_version = frameworks_versions['rails']
+  unless /^(main|6)/.match?(rails_version)
+    if rails_version.start_with?('4.') || rails_version.start_with?('5.')
+      gem 'delayed_job', '~> 4.1.13', require: nil
+    else
+      gem 'delayed_job', require: nil
+    end
+  end
+end
+
+# Shoryuken 7.x references ActiveJob::QueueAdapters::AbstractAdapter, which
+# is missing in the Ruby 3.4 + Rails 6.1 matrix target.
+if frameworks_versions['rails'] == '6.1' && RUBY_VERSION >= '3.4'
+  gem 'shoryuken', '< 7.0', require: nil
+else
+  gem 'shoryuken', require: nil
+end
+
+# Solid Queue requires Rails 7.1+ (Active Record + Active Job).
+if frameworks_versions.key?('rails')
+  rails_version = frameworks_versions['rails']
+  solid_queue_compatible =
+    rails_version == 'main' ||
+    rails_version.to_s.empty? ||
+    (rails_version =~ /\A\d+(\.\d+)?\z/ &&
+      Gem::Version.new(rails_version) >= Gem::Version.new('7.1'))
+  gem 'solid_queue', require: nil if solid_queue_compatible
 end
 
 if RUBY_PLATFORM == 'java'
@@ -125,15 +167,25 @@ if RUBY_PLATFORM == 'java'
   end
 elsif frameworks_versions['rails'] =~ /^(4|5)/
   gem 'sqlite3', '~> 1.3.6'
+elsif frameworks_versions['rails'] =~ /^(6|7)/
+  gem 'sqlite3', '~> 1.4'
 elsif RUBY_VERSION < '2.7'
   gem 'sqlite3', '~> 1.4.4'
+elsif RUBY_VERSION < '3.0'
+  gem 'sqlite3', '~> 1.3.6'
 else
   gem 'sqlite3'
 end
 
 # sneakers main only supports >=2.5.0
 if Gem::Version.create(RUBY_VERSION) >= Gem::Version.create('2.5.0') && !defined?(JRUBY_VERSION)
-  gem 'sneakers', github: 'jondot/sneakers', ref: 'd761dfe1493', require: nil
+  # The sneakers gem was renamed to kicks, which SneakersSpy also instruments.
+  # Set SNEAKERS_GEM=kicks to run the suite against it instead.
+  if ENV['SNEAKERS_GEM'] == 'kicks'
+    gem 'kicks', '>= 2.12.0', require: nil
+  else
+    gem 'sneakers', github: 'jondot/sneakers', ref: 'd761dfe1493', require: nil
+  end
 end
 
 if Gem::Version.create(RUBY_VERSION) <= Gem::Version.create('2.5.0')
