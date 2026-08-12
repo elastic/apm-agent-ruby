@@ -48,6 +48,14 @@ module ElasticAPM
       # "authorized" => "graphql.authorized",
     }.freeze
 
+    KEYS_TO_NAME.each_key do |trace_method|
+      module_eval <<-RUBY, __FILE__, __LINE__
+        def #{trace_method}(**data)
+          ::ElasticAPM::GraphQL.trace("#{trace_method}", data) { super }
+        end
+      RUBY
+    end
+
     # rubocop:disable Style/ExplicitBlockArgument
     def self.trace(key, data)
       return yield unless KEYS_TO_NAME.key?(key)

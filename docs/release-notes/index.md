@@ -179,4 +179,3 @@ All notable changes to this project will be documented here. This project adhere
 * AWS S3 spy accepts symbol bucket names [#998](https://github.com/elastic/apm-agent-ruby/pull/998)
 * AWS S3 spy passing on blocks [#998](https://github.com/elastic/apm-agent-ruby/pull/998)
 * SQL scanner now recognizes CQL style comments [#1004](https://github.com/elastic/apm-agent-ruby/pull/1004)
-

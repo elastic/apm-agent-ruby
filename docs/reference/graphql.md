@@ -21,7 +21,7 @@ To enable GraphQL support, add the included Tracer to your schema:
 class MySchema < GraphQL::Schema
   # ...
 
-  tracer ElasticAPM::GraphQL # <-- include this
+  trace_with ElasticAPM::GraphQL # <-- include this
 end
 ```
 
