@@ -5,6 +5,6 @@ scm:
   branch: main
   commitusingapi: true
   # begin update-compose policy values
-  user: obltmachine
-  email: obltmachine@users.noreply.github.com
+  user: 'github-actions[bot]'
+  email: '41898282+github-actions[bot]@users.noreply.github.com'
   # end update-compose policy values
