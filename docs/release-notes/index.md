@@ -21,10 +21,10 @@ All notable changes to this project will be documented here. This project adhere
 
 % Release notes includes only features, enhancements, and fixes. Add breaking changes, deprecations, and known issues to the applicable release notes sections. 
 
-% ## version.next [elastic-apm-ruby-agent-versionext-release-notes]
-% **Release date:** Month day, year
+## version.next [elastic-apm-ruby-agent-versionext-release-notes]
 
-% ### Features and enhancements [elastic-apm-ruby-agent-versionext-features-enhancements]
+### Features and enhancements [elastic-apm-ruby-agent-versionext-features-enhancements]
+* Racecar consumer instrumentation improvements: name transactions `ConsumerClass#kind` and record transaction outcome [#1429](https://github.com/elastic/apm-agent-ruby/pull/1429)
 
 % ### Fixes [elastic-apm-ruby-agent-versionext-fixes]
 
