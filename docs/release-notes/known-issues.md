@@ -1,0 +1,29 @@
+---
+navigation_title: "Known issues"
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_ruby: ga
+---
+
+# Elastic APM Ruby Agent known issues [elastic-apm-ruby-agent-known-issues]
+
+Known issues are significant defects or limitations that may impact your implementation. These issues are actively being worked on and will be addressed in a future release. Review the Elastic APM Ruby Agent known issues to help you make informed decisions, such as upgrading to a new version.
+
+% Use the following template to add entries to this page.
+
+% :::{dropdown} Title of known issue
+% **Details** 
+% On [Month/Day/Year], a known issue was discovered that [description of known issue].
+
+% **Workaround** 
+% Workaround description.
+
+% **Resolved**
+% On [Month/Day/Year], this issue was resolved.
+
+:::
+
+_No known issues_

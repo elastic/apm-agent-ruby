@@ -1,0 +1,47 @@
+---
+mapped_pages:
+  - https://www.elastic.co/guide/en/apm/agent/ruby/current/getting-started-rails.html
+applies_to:
+  stack:
+  serverless:
+    observability:
+  product:
+    apm_agent_ruby: ga
+---
+
+# Getting started with Rails [getting-started-rails]
+
+
+## Setup [_setup]
+
+Add the gem to your `Gemfile`:
+
+```ruby
+gem 'elastic-apm'
+```
+
+Create a file `config/elastic_apm.yml`:
+
+```yaml
+server_url: http://localhost:8200
+secret_token: ''
+```
+
+Or if you prefer environment variables, skip the file and set `ELASTIC_APM_SERVER_URL` and `ELASTIC_APM_SECRET_TOKEN` in your local or server environment.
+
+This automatically sets up error logging and performance tracking but of course there are knobs to turn if you’d like to. See [*Configuration*](/reference/configuration.md).
+
+To load the gem without starting the agent in a particular Rails environment,
+set [`enabled`](/reference/configuration.md#config-enabled) to `false`.
+For example, to start the agent only in production, use ERB in
+`config/elastic_apm.yml`:
+
+```yaml
+enabled: <%= Rails.env.production? %>
+server_url: http://localhost:8200
+secret_token: ''
+```
+
+You can also set `ELASTIC_APM_ENABLED=false` in an environment where the agent
+should not start. The `ElasticAPM` API remains available when the agent is
+disabled, but calls that collect data return `nil`.

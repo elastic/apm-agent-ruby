@@ -4,51 +4,68 @@ on:
   push:
     tags:
       - "v[0-9]+*"
+    branches:
+      - main
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      artifact-metadata: write
+      attestations: write
+      contents: write
+      id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.6
-      - uses: hashicorp/vault-action@v3.0.0
-        with:
-          url: ${{ secrets.VAULT_ADDR }}
-          method: approle
-          roleId: ${{ secrets.VAULT_ROLE_ID }}
-          secretId: ${{ secrets.VAULT_SECRET_ID }}
-          secrets: |
-            secret/apm-team/ci/apm-agent-ruby-rubygems-release apiKey | API_KEY ;
       - name: RubyGems login
         run: |
           RUBY_HOME="${HOME}/.gem"
           RUBY_CREDENTIALS_FILE="${RUBY_HOME}/credentials"
           mkdir -p "${RUBY_HOME}"
           echo '---' > "${RUBY_CREDENTIALS_FILE}"
-          echo ":rubygems_api_key: ${API_KEY}" >> "${RUBY_CREDENTIALS_FILE}"
+          echo ":rubygems_api_key: ${{ secrets.RUBYGEMS_API_KEY }}" >> "${RUBY_CREDENTIALS_FILE}"
           chmod 0600 "${RUBY_CREDENTIALS_FILE}"
+
       - name: Install build system
         run: .ci/scripts/install-build-system.sh
-      - run: rake release
+
+      - name: rake release (only for tags)
+        run: rake release
+        if: startsWith(github.ref, 'refs/tags')
+
+      - name: rake build
+        run: rake build
+        if:  ${{ ! startsWith(github.ref, 'refs/tags') }}
+
+      - name: generate build provenance
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d  # v4.2.1
+        with:
+          subject-path: "${{ github.workspace }}/pkg/*.gem" 
+      
   update-branch:
     needs:
       - release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.6
       - name: Setup Git
-        uses: elastic/apm-pipeline-library/.github/actions/setup-git@current
+        uses: elastic/oblt-actions/git/setup@v1
       - name: Install build system
         run: .ci/scripts/install-build-system.sh
-      - run: rake release:update_branch
+      - name: rake release:update_branch (only for tags)
+        run: rake release:update_branch
+        if: startsWith(github.ref, 'refs/tags')
 
   status:
     if: always()
@@ -58,14 +75,13 @@ jobs:
       - update-branch
     steps:
       - id: check
-        uses: elastic/apm-pipeline-library/.github/actions/check-dependent-jobs@current
+        uses: elastic/oblt-actions/check-dependent-jobs@v1
         with:
-          needs: ${{ toJSON(needs) }}
-      - run: ${{ steps.check.outputs.isSuccess }}
-      - if: always()
-        uses: elastic/apm-pipeline-library/.github/actions/notify-build-status@current
+          jobs: ${{ toJSON(needs) }}
+      - run: ${{ steps.check.outputs.is-success }}
+      - if: ${{ always() && startsWith(github.ref, 'refs/tags') }}
+        uses: elastic/oblt-actions/slack/notify-result@v1
         with:
-          vaultUrl: ${{ secrets.VAULT_ADDR }}
-          vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
-          vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
-          slackChannel: "#apm-agent-ruby"
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#apm-agent-ruby"
+          message: ":traffic_cone: updatecli failed for `${{ github.repository }}@${{ github.ref_name }}`, @robots-ci please look what's going on <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>"
