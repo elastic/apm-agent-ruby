@@ -189,6 +189,45 @@ module ElasticAPM
       end
     end
 
+    describe '#install_middleware' do
+      def sidekiq_config
+        if Sidekiq.respond_to?(:default_configuration)
+          Sidekiq.default_configuration
+        else
+          Sidekiq
+        end
+      end
+
+      around do |example|
+        chains = [sidekiq_config.client_middleware, sidekiq_config.server_middleware]
+        saved = chains.map { |chain| chain.entries.dup }
+        chains.each { |chain| chain.remove(Spies::SidekiqSpy::ClientMiddleware) }
+
+        begin
+          example.run
+        ensure
+          chains.zip(saved).each do |chain, entries|
+            chain.clear
+            entries.each { |entry| chain.entries << entry }
+          end
+        end
+      end
+
+      it 'registers ClientMiddleware on the client chain only' do
+        Spies::SidekiqSpy.new.install_middleware
+
+        expect(sidekiq_config.client_middleware.exists?(Spies::SidekiqSpy::ClientMiddleware)).to be true
+        expect(sidekiq_config.server_middleware.exists?(Spies::SidekiqSpy::ClientMiddleware)).to be false
+      end
+
+      it 'keeps in-process server chain calls working',
+        if: Gem::Version.new(Sidekiq::VERSION) >= Gem::Version.new('7.0') do
+        Spies::SidekiqSpy.new.install_middleware
+
+        expect { HardWorker.perform_inline }.to_not raise_error
+      end
+    end
+
     describe Spies::SidekiqSpy::ClientMiddleware do
       before :all do
         Sidekiq.configure_client do |config|
@@ -196,6 +235,31 @@ module ElasticAPM
             chain.add Spies::SidekiqSpy::ClientMiddleware
           end
         end
+      end
+
+      before { Sidekiq::Worker.clear_all }
+      after { Sidekiq::Worker.clear_all }
+
+      def queued_job(jid)
+        Sidekiq::Queues['default'].find { |job| job['jid'] == jid }
+      end
+
+      it 'does not add trace context without a transaction' do
+        jid = with_agent { HardWorker.perform_async }
+
+        expect(queued_job(jid)).to_not have_key('elastic_trace_context')
+      end
+
+      it 'drops stale trace context without a transaction' do
+        jid = with_agent do
+          Sidekiq::Client.push(
+            'class' => HardWorker,
+            'args' => [],
+            'elastic_trace_context' => { 'traceparent' => 'stale' }
+          )
+        end
+
+        expect(queued_job(jid)).to_not have_key('elastic_trace_context')
       end
 
       it 'adds trace context to job' do
