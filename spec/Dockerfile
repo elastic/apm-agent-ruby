@@ -25,16 +25,20 @@ COPY build/ /usr/local/bin/
 USER root
 
 # Install dependencies and upgrade ruby system
+# EOL Debian releases can still serve package indexes while their pools 404,
+# so fall back to archive.debian.org if either update or install fails.
 RUN set -eux; \
-  apt-get update -qq || ( \
+  packages='build-essential curl gnupg dirmngr libpq-dev git tzdata'; \
+  if ! { apt-get update -qq && apt-get install -qq -y --no-install-recommends $packages; }; then \
     find /etc/apt -name '*.list' -type f -print0 | xargs -0 sed -i \
       -e 's|deb.debian.org/debian|archive.debian.org/debian|g' \
       -e 's|security.debian.org/debian-security|archive.debian.org/debian-security|g'; \
     find /etc/apt -name '*.list' -type f -print0 | xargs -0 sed -i '/buster-updates/d'; \
     printf 'Acquire::Check-Valid-Until "false";\n' > /etc/apt/apt.conf.d/99no-check-valid; \
-    apt-get -o Acquire::Check-Valid-Until=false update -qq \
-  ); \
-  apt-get install -qq -y --no-install-recommends build-essential curl gnupg dirmngr libpq-dev git tzdata; \
+    rm -rf /var/lib/apt/lists/*; \
+    apt-get update -qq; \
+    apt-get install -qq -y --no-install-recommends $packages; \
+  fi; \
   rm -rf /var/lib/apt/lists/*
 
 # Install gosu

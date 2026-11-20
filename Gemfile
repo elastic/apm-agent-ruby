@@ -22,7 +22,8 @@ source 'https://rubygems.org'
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 # Tools
-gem 'cucumber', require: false
+# Cucumber 12 fails on undefined steps; the synced gherkin specs have many.
+gem 'cucumber', '< 12', require: false
 gem 'rack-test'
 gem 'rspec', '~> 3'
 gem 'rspec-its'
@@ -51,7 +52,10 @@ if !defined?(JRUBY_VERSION)
   gem 'google-protobuf', '< 3.23' if RUBY_VERSION < '2.7' && RUBY_VERSION > '2.5'
 end
 gem 'grpc' if !defined?(JRUBY_VERSION) && RUBY_VERSION < '3.0'
-gem 'json'
+# json 3.x removes JSON.generate's quirks_mode option (used by
+# activesupport <= 7.2) and JSON.parse's positional options hash (used by
+# multi_json <= 1.19, pulled in by resque on ruby < 3.2).
+gem 'json', '< 3'
 gem 'json-schema', require: nil
 gem 'mongo', require: nil
 gem 'opentracing', require: nil
@@ -106,18 +110,34 @@ frameworks_versions.each do |framework, version|
   when /.+/
     gem framework, "~> #{version}.0"
   else
-    gem framework
+    if framework == 'sinatra' && frameworks_versions.key?('grape')
+      # grape >= 3.3 requires mustermann >= 4.0 while sinatra requires
+      # mustermann <= 3.x. With sinatra unconstrained, bundler resolves the
+      # conflict by downgrading sinatra all the way to 1.0, which breaks on
+      # modern rack (`require 'rack/showexceptions'`). A floor forces bundler
+      # to backtrack grape/mustermann instead.
+      gem 'sinatra', '>= 2'
+    else
+      gem framework
+    end
   end
 end
 
-# Handle Rack::Auth::Digest being removed in rack 3.1, grape requires it.
+# Rack::Auth::Digest was removed in rack 3.1 and grape < 2.1 still requires
+# it, while grape master requires rack >= 3.1.
 # Sinatra 2.x depends on rack 2.x, so use a compatible rack line when both are present.
 if frameworks_versions.key?('grape')
   sinatra_version = frameworks_versions['sinatra']
+  grape_version = frameworks_versions['grape']
   if sinatra_version&.start_with?('2.')
     gem 'rack', '~> 2.2.0'
-  else
+  elsif grape_version.match?(/\A(0\.|1\.|2\.0)/)
     gem 'rack', '~> 3.0.0'
+  else
+    # Keep rack on the 3.x line so bundler doesn't resolve the
+    # grape/sinatra mustermann conflict by downgrading sinatra to 2.x/3.x
+    # (which depend on rack 2.x).
+    gem 'rack', '>= 3.0'
   end
 end
 
