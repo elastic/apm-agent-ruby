@@ -120,14 +120,21 @@ frameworks_versions.each do |framework, version|
   end
 end
 
-# Handle Rack::Auth::Digest being removed in rack 3.1, grape requires it.
+# Rack::Auth::Digest was removed in rack 3.1 and grape < 2.1 still requires
+# it, while grape master requires rack >= 3.1.
 # Sinatra 2.x depends on rack 2.x, so use a compatible rack line when both are present.
 if frameworks_versions.key?('grape')
   sinatra_version = frameworks_versions['sinatra']
+  grape_version = frameworks_versions['grape']
   if sinatra_version&.start_with?('2.')
     gem 'rack', '~> 2.2.0'
-  else
+  elsif grape_version.match?(/\A(0\.|1\.|2\.0)/)
     gem 'rack', '~> 3.0.0'
+  else
+    # Keep rack on the 3.x line so bundler doesn't resolve the
+    # grape/sinatra mustermann conflict by downgrading sinatra to 2.x/3.x
+    # (which depend on rack 2.x).
+    gem 'rack', '>= 3.0'
   end
 end
 
