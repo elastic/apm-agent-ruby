@@ -52,7 +52,10 @@ if !defined?(JRUBY_VERSION)
   gem 'google-protobuf', '< 3.23' if RUBY_VERSION < '2.7' && RUBY_VERSION > '2.5'
 end
 gem 'grpc' if !defined?(JRUBY_VERSION) && RUBY_VERSION < '3.0'
-gem 'json'
+# json 3.x removes JSON.generate's quirks_mode option (used by
+# activesupport <= 7.2) and JSON.parse's positional options hash (used by
+# multi_json <= 1.19, pulled in by resque on ruby < 3.2).
+gem 'json', '< 3'
 gem 'json-schema', require: nil
 gem 'mongo', require: nil
 gem 'opentracing', require: nil
