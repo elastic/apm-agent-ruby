@@ -22,7 +22,8 @@ source 'https://rubygems.org'
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 # Tools
-gem 'cucumber', require: false
+# Cucumber 12 fails on undefined steps; the synced gherkin specs have many.
+gem 'cucumber', '< 12', require: false
 gem 'rack-test'
 gem 'rspec', '~> 3'
 gem 'rspec-its'
