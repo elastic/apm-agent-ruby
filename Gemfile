@@ -107,7 +107,16 @@ frameworks_versions.each do |framework, version|
   when /.+/
     gem framework, "~> #{version}.0"
   else
-    gem framework
+    if framework == 'sinatra' && frameworks_versions.key?('grape')
+      # grape >= 3.3 requires mustermann >= 4.0 while sinatra requires
+      # mustermann <= 3.x. With sinatra unconstrained, bundler resolves the
+      # conflict by downgrading sinatra all the way to 1.0, which breaks on
+      # modern rack (`require 'rack/showexceptions'`). A floor forces bundler
+      # to backtrack grape/mustermann instead.
+      gem 'sinatra', '>= 2'
+    else
+      gem framework
+    end
   end
 end
 
