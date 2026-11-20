@@ -28,7 +28,25 @@ All notable changes to this project will be documented here. This project adhere
 
 % ### Fixes [elastic-apm-ruby-agent-versionext-fixes]
 
+## 4.10.0 [elastic-apm-ruby-agent-4100-release-notes]
+**Release date:** November 20, 2026
+
+### Features and enhancements [elastic-apm-ruby-agent-4100-features-enhancements]
+* Add support for Solid Queue [#1623](https://github.com/elastic/apm-agent-ruby/pull/1623)
+* Add trace context in Sidekiq to connect request transaction and worker in the one trace [#1456](https://github.com/elastic/apm-agent-ruby/pull/1456)
+* Add compatibility for `.trace_with` in graphql-ruby 2.3+ [#1446](https://github.com/elastic/apm-agent-ruby/pull/1446)
+* Relax required ruby version to support Ruby 4 [#1650](https://github.com/elastic/apm-agent-ruby/pull/1650)
+* Add changelog_uri to gemspec [#1462](https://github.com/elastic/apm-agent-ruby/pull/1462)
+
+### Fixes [elastic-apm-ruby-agent-4100-fixes]
+* Include user context in newly built Error [#1644](https://github.com/elastic/apm-agent-ruby/pull/1644)
+* Fix deprecated `JSON.fast_generate` [#1552](https://github.com/elastic/apm-agent-ruby/pull/1552)
+* Fallback to kicks gem for version check in SneakersSpy [#1655](https://github.com/elastic/apm-agent-ruby/pull/1655)
+* Check for default gemfile instead of bundler directory when looking for bundler path [#1477](https://github.com/elastic/apm-agent-ruby/pull/1477)
+* Exclude .ci, .github, and bench directories from gem package [#1657](https://github.com/elastic/apm-agent-ruby/pull/1657)
+
 ## 4.9.0 [elastic-apm-ruby-agent-490-release-notes]
+**Release date:** June 19, 2026
 
 ### Features and enhancements [elastic-apm-ruby-agent-490-features-enhancements]
 * Add ability to configure sampling rate based on transaction span name [#1531](https://github.com/elastic/apm-agent-ruby/pull/1531)
@@ -39,21 +57,25 @@ All notable changes to this project will be documented here. This project adhere
 * Use headers method directly for compatibility with all versions of http [#1629](https://github.com/elastic/apm-agent-ruby/pull/1629)
 
 ## 4.8.0 [elastic-apm-ruby-agent-480-release-notes]
+**Release date:** May 7, 2025
 
 ### Features and enhancements [elastic-apm-ruby-agent-480-features-enhancements]
 * Support ruby 3.4 [#1510](https://github.com/elastic/apm-agent-ruby/pull/1510)
 
 ## 4.7.3 [elastic-apm-ruby-agent-473-release-notes]
+**Release date:** April 8, 2024
 
 ### Fixes [elastic-apm-ruby-agent-473-fixes]
 * Address a bug where if `capture_headers` is false, `ContextBuilder` will raise `"undefined method 'has_key?' for nil:NilClass"` [#1449](https://github.com/elastic/apm-agent-ruby/pull/1449)
 
 ## 4.7.2 [elastic-apm-ruby-agent-472-release-notes]
+**Release date:** January 23, 2024
 
 ### Fixes [elastic-apm-ruby-agent-472-fixes]
 * Address machineType not being returned in GCP metadata [#1435](https://github.com/elastic/apm-agent-ruby/pull/1435)
 
 ## 4.7.1 [elastic-apm-ruby-agent-471-release-notes]
+**Release date:** January 11, 2024
 
 ### Fixes [elastic-apm-ruby-agent-471-fixes]
 * Skip capturing cookie header when it’s set separately [#1405](https://github.com/elastic/apm-agent-ruby/pull/1405)
@@ -65,6 +87,7 @@ All notable changes to this project will be documented here. This project adhere
 * Guard against various Faraday exception response formats [#1428](https://github.com/elastic/apm-agent-ruby/pull/1428)
 
 ## 4.7.0 [elastic-apm-ruby-agent-470-release-notes]
+**Release date:** August 17, 2023
 
 ### Features and enhancements [elastic-apm-ruby-agent-470-features-enhancements]
 * Add keyword args for span_method helper [#1395](https://github.com/elastic/apm-agent-ruby/pull/1395)
@@ -74,11 +97,13 @@ All notable changes to this project will be documented here. This project adhere
 * Fix error with invalid %-encoding [#1400](https://github.com/elastic/apm-agent-ruby/pull/1400)
 
 ## 4.6.2 [elastic-apm-ruby-agent-462-release-notes]
+**Release date:** March 22, 2023
 
 ### Fixes [elastic-apm-ruby-agent-462-fixes]
 * Fix Faraday::RackBuilder::StackLocked [#1371](https://github.com/elastic/apm-agent-ruby/pull/1371)
 
 ## 4.6.1 [elastic-apm-ruby-agent-461-release-notes]
+**Release date:** March 1, 2023
 
 ### Fixes [elastic-apm-ruby-agent-461-fixes]
 * Fix growing number of open file descriptors when HTTP request to APM is never sent [#1351](https://github.com/elastic/apm-agent-ruby/pull/1351)
@@ -86,6 +111,7 @@ All notable changes to this project will be documented here. This project adhere
 * Handle whitespace when splitting tracestate entries [#1353](https://github.com/elastic/apm-agent-ruby/pull/1353)
 
 ## 4.6.0 [elastic-apm-ruby-agent-460-release-notes]
+**Release date:** January 11, 2023
 
 ### Features and enhancements [elastic-apm-ruby-agent-460-features-enhancements]
 * Added transaction_name to reported error to allow grouping by transaction name [#1267](https://github.com/elastic/apm-agent-ruby/pull/1267)
@@ -103,8 +129,9 @@ All notable changes to this project will be documented here. This project adhere
 * Don’t send unsampled transactions to APM server >= 8.0 [#1341](https://github.com/elastic/apm-agent-ruby/pull/1341)
 
 ## 4.5.1 [elastic-apm-ruby-agent-451-release-notes]
+**Release date:** May 17, 2022
 
-### Features and enhancements [elastic-apm-ruby-agent-461-features-enhancements]
+### Features and enhancements [elastic-apm-ruby-agent-451-features-enhancements]
 * Update elasticsearch spy to use new transport gem name [#1257](https://github.com/elastic/apm-agent-ruby/pull/1257)
 * Standardize placeholder for phone numbers as [PHONENUMBER] per [https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-aws.md](https://github.com/elastic/apm/blob/main/specs/agents/tracing-instrumentation-aws.md) [#1246](https://github.com/elastic/apm-agent-ruby/pull/1246)
 
@@ -113,8 +140,9 @@ All notable changes to this project will be documented here. This project adhere
 * Fixed warnings related to TimeTask timeouts [#1255](https://github.com/elastic/apm-agent-ruby/pull/1255)
 
 ## 4.5.0 [elastic-apm-ruby-agent-450-release-notes]
+**Release date:** December 3, 2021
 
-### Features and enhancements [elastic-apm-ruby-agent-460-features-enhancements]
+### Features and enhancements [elastic-apm-ruby-agent-450-features-enhancements]
 * Stop collecting the field `http.request.socket.encrypted` [#1181](https://github.com/elastic/apm-agent-ruby/pull/1181)
 
 ### Fixes [elastic-apm-ruby-agent-450-fixes]
@@ -124,8 +152,9 @@ All notable changes to this project will be documented here. This project adhere
 * Update user agent info to match spec [#1182](https://github.com/elastic/apm-agent-ruby/pull/1182)
 
 ## 4.4.0 [elastic-apm-ruby-agent-440-release-notes]
+**Release date:** October 25, 2021
 
-### Features and enhancements [elastic-apm-ruby-agent-460-features-enhancements]
+### Features and enhancements [elastic-apm-ruby-agent-440-features-enhancements]
 * Optional span to be ended instead of current span [#1039](https://github.com/elastic/apm-agent-ruby/pull/1039)
 * Config option `log_ecs_formatting` [#1053](https://github.com/elastic/apm-agent-ruby/pull/1053)
 
@@ -133,11 +162,13 @@ All notable changes to this project will be documented here. This project adhere
 * Fixed detecting Linux on Alpine for CPU/MEM metrics [#1057](https://github.com/elastic/apm-agent-ruby/pull/1057)
 
 ## 4.3.0 [elastic-apm-ruby-agent-430-release-notes]
+**Release date:** July 26, 2021
 
 ### Features and enhancements [elastic-apm-ruby-agent-430-features-enhancements]
 * Add JVM memory metrics [#1040](https://github.com/elastic/apm-agent-ruby/pull/1040)
 
 ## 4.2.0 [elastic-apm-ruby-agent-420-release-notes]
+**Release date:** July 7, 2021
 
 ### Features and enhancements [elastic-apm-ruby-agent-420-features-enhancements]
 * Add support for AWS Storage Table/CosmosDB [#999](https://github.com/elastic/apm-agent-ruby/pull/999)
@@ -148,6 +179,7 @@ All notable changes to this project will be documented here. This project adhere
 * Fix growing number of open file descriptors [#1033](https://github.com/elastic/apm-agent-ruby/pull/1033)
 
 ## 4.1.0 [elastic-apm-ruby-agent-410-release-notes]
+**Release date:** May 27, 2021
 
 ### Features and enhancements [elastic-apm-ruby-agent-410-features-enhancements]
 * Azure App Services instance metadata [#1007](https://github.com/elastic/apm-agent-ruby/pull/1007)
@@ -160,6 +192,7 @@ All notable changes to this project will be documented here. This project adhere
 * Fix missing `environment` param when fetching from Central Config [#1014](https://github.com/elastic/apm-agent-ruby/pull/1014)
 
 ## 4.0.0 [elastic-apm-ruby-agent-400-release-notes]
+**Release date:** April 27, 2021
 
 ### Features and enhancements [elastic-apm-ruby-agent-400-features-enhancements]
 * Be aware that this release changes the agent’s general approach to instrumenting third party libraries. It now uses `Module#prepend` over alias method chaining. This doesn’t necessarily impact your application but it could if you are using other gems that use the old approach to patch the same method. Mixing the two approaches can lead to infinite recursion.
