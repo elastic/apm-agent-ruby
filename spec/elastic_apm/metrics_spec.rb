@@ -92,11 +92,23 @@ module ElasticAPM
         after { subject.stop }
 
         it 'calls callback' do
-          subject.collect_and_send # disable on unsupported jruby
-          next unless subject.sets.values.select { |s| s.metrics.any? }.any?
+          calls = []
+          callback = ->(metricset) { calls << metricset }
+          metrics = described_class.new(config, &callback)
 
-          expect(callback).to receive(:call).with(Metricset).at_least(1)
-          subject.collect_and_send
+          begin
+            metrics.start
+            metrics.collect_and_send # disable on unsupported jruby
+
+            next unless metrics.sets.values.any? { |s| s.metrics.any? }
+
+            calls.clear
+            metrics.collect_and_send
+
+            expect(calls).to include(Metricset)
+          ensure
+            metrics.stop
+          end
         end
       end
 
