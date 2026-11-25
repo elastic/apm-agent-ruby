@@ -41,12 +41,16 @@ $ spec/scripts/spec.sh ruby:2.6 rails-5.2
 To release a new version:
 
 1. Update `VERSION` in `lib/elastic_apm/version.rb` according to the changes (major, minor, patch).
-1. Update `CHANGELOG.md` to reflect the new version – change _Unreleased_ section to _Version (release date)_.
-1. For Majors: Add a new row to the EOL table in `docs/upgrading.asciidoc`. The EOL date is the release date plus 18 months.
-1. Make a new commit with the changes above, with a message in the style of `vX.X.X`.
-1. Run `rake release`. This will...
-    1. Tag the current commit as new version.
-    2. Push the tag to GitHub.
-    3. Build the gem and upload to Rubygems (local user needs to be signed in and authorized.)
-1. Run `rake release:update_branch`. This will...
-    1. Update `4.x` branch to be at released commit and push it to GitHub.
+1. Add a section for the new version to `docs/release-notes/index.md`, including the release date and links to notable PRs.
+1. For Majors: Add a new row to the EOL table in `docs/reference/upgrading.md`. The EOL date is the release date plus 18 months.
+1. Open a PR with the changes above, with a title in the style of `vX.X.X`, and merge it once green.
+1. Tag the merged commit and push the tag to GitHub:
+    ```sh
+    git tag vX.X.X
+    git push upstream vX.X.X
+    ```
+1. The tag triggers the `release` workflow, which will...
+    1. Build the gem and publish it to RubyGems using [trusted publishing](https://guides.rubygems.org/trusted-publishing/) (no API key involved).
+    1. Generate build provenance attestation.
+    1. Create a GitHub release with auto-generated notes.
+    1. Update the `4.x` branch to be at the released commit and push it to GitHub.
