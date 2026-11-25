@@ -23,14 +23,9 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.6
-      - name: RubyGems login
-        run: |
-          RUBY_HOME="${HOME}/.gem"
-          RUBY_CREDENTIALS_FILE="${RUBY_HOME}/credentials"
-          mkdir -p "${RUBY_HOME}"
-          echo '---' > "${RUBY_CREDENTIALS_FILE}"
-          echo ":rubygems_api_key: ${{ secrets.RUBYGEMS_API_KEY }}" >> "${RUBY_CREDENTIALS_FILE}"
-          chmod 0600 "${RUBY_CREDENTIALS_FILE}"
+      - name: Configure RubyGems credentials (OIDC trusted publishing, only for tags)
+        if: startsWith(github.ref, 'refs/tags')
+        uses: rubygems/configure-rubygems-credentials@c6ca7f4bac0e29c9bde8eeae0a0a986b27efa05f  # v2.2.0
 
       - name: Install build system
         run: .ci/scripts/install-build-system.sh
@@ -48,6 +43,25 @@ jobs:
         with:
           subject-path: "${{ github.workspace }}/pkg/*.gem" 
       
+  github-release:
+    needs:
+      - release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: Create GitHub release (only for tags)
+        if: startsWith(github.ref, 'refs/tags')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            echo "GitHub release ${GITHUB_REF_NAME} already exists"
+          else
+            gh release create "${GITHUB_REF_NAME}" --verify-tag --generate-notes --latest
+          fi
+
   update-branch:
     needs:
       - release
@@ -72,6 +86,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - release
+      - github-release
       - update-branch
     steps:
       - id: check
