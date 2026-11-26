@@ -58,7 +58,12 @@ module ElasticAPM
       # @api private
       class ClientMiddleware
         def call(_worker_class, job, _queue, _redis_pool)
-          job['elastic_trace_context'] = elastic_trace_context
+          trace_context = elastic_trace_context
+          if trace_context
+            job['elastic_trace_context'] = trace_context
+          else
+            job.delete('elastic_trace_context')
+          end
           yield
         end
 
@@ -95,7 +100,7 @@ module ElasticAPM
         end
 
         Sidekiq.configure_client do |config|
-          config.server_middleware do |chain|
+          config.client_middleware do |chain|
             chain.add ClientMiddleware
           end
         end
